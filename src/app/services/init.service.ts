@@ -509,7 +509,6 @@ export class InitService {
   }
   hasRole(role: string[]): boolean {
     let returnValue = false
-    console.log(environment)
     const rolesForCBP = environment.portalRoles
     role.forEach(v => {
       if ((rolesForCBP).includes(v)) {
