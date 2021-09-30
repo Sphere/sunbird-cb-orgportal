@@ -3,36 +3,37 @@
 
     <div class="banner-main">
       <div class="banner-data">
-        <img src="/assets/icons/govtlogo.jpg" alt="Dept Logo">
+        <!-- <img src="/assets/instances/eagle/app_logos/aastar-logo.svg" alt="Dept Logo"> -->
         <div class="banner-title">{{deptName}}</div>
       </div>
     </div>
 
     <!-- <ng-container [wsResolverWidget]="sliderData1"></ng-container> -->
-    <mat-card-content>
+    <!-- <mat-card-content>
       <div class="flex flex-1 flex-column margin-top-l">
         <span *ngIf="showKarmayogiLink || showCBPLink" class="flex flex-1 mat-subheading-1">Other portals</span>
         <div style="display: inline-flex;">
           <mat-card class="flex flex-1 width-fill ws-mat-accent-border cursor-pointer margin-right-m" (click)=openky()
             *ngIf="showKarmayogiLink">
-            <!-- <mat-icon class="margin-right-m new-color" svgIcon="karmayogi"></mat-icon> -->
-            <img src="/assets/icons/Karmayogi.svg" alt="Karmayogi officer portal" class="margin-right-xs">
+             <mat-icon class="margin-right-m new-color" svgIcon="karmayogi"></mat-icon> -->
+    <!-- <img src="/assets/icons/Karmayogi.svg" alt="Karmayogi officer portal" class="margin-right-xs">
             <span class="mat-body-2 m-auto">Karmayogi officer portal</span>
           </mat-card>
-          <mat-card class="flex flex-1 width-fill ws-mat-accent-border cursor-pointer" (click)=openCBP() *ngIf="showCBPLink">
-            <!-- <mat-icon class="margin-right-m new-color" svgIcon="CBP"></mat-icon> -->
+          <mat-card class="flex flex-1 width-fill ws-mat-accent-border cursor-pointer" (click)=openCBP()
+            *ngIf="showCBPLink">
+             <mat-icon class="margin-right-m new-color" svgIcon="CBP"></mat-icon>
             <img src="/assets/icons/CBP_portal.svg" alt="CBP portal" class="margin-right-xs">
             <span class="mat-body-2 m-auto">CBP portal</span>
           </mat-card>
         </div>
       </div>
-    </mat-card-content>
-    <a [routerLink]="['/app/my-dashboard']" class="flex rel-custom" routerLinkActive="router-link-active">
+    </mat-card-content> -->
+    <!-- <a [routerLink]="['/app/my-dashboard']" class="flex rel-custom" routerLinkActive="router-link-active">
       <span class="mat-subheading-2 ws-mat-default-text">Go to dashboard</span>
       <mat-icon class="ws-mat-default-text">arrow_forward</mat-icon>
-    </a>
+    </a> -->
   </mat-card>
-  <div class="bootstrap-rain margin-top-m" *ngIf="currentDashboard[0]">
+  <!-- <div class="bootstrap-rain margin-top-m" *ngIf="currentDashboard[0]">
     <div class="rain-lib-container relative">
       <lib-rain-dashboards [layoutConfig]="currentDashboard[0].visualizationDetails"
         [chartConfig]="currentDashboard[0].chartDetails" [dashboardConfig]="dashboardList" [showFilters]="false"
@@ -42,5 +43,5 @@
         [widgetTitle]="currentDashboard[0].widgetTitle" [showMessage]="currentDashboard[0].showMessage"
         [messageType]="currentDashboard[0].messageType" [message]="currentDashboard[0].message"></lib-rain-dashboards>
     </div>
-  </div>
+  </div> -->
 </div>
