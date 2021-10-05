@@ -116,7 +116,7 @@ export class CreateUserComponent implements OnInit, OnDestroy {
       lname: new FormControl('', [Validators.required]),
       email: new FormControl('', [Validators.required, Validators.email]),
       department: new FormControl(''),
-      roles: new FormControl('', [Validators.required]),
+      roles: new FormControl(''),
     })
   }
 
@@ -144,7 +144,7 @@ export class CreateUserComponent implements OnInit, OnDestroy {
           request: {
             organisationId: this.department,
             userId: res.userId,
-            roles: form.value.roles,
+            roles: _.toLength(form.value.roles) === 0 ? ['PUBLIC'] : form.value.roles,
           },
         }
 
