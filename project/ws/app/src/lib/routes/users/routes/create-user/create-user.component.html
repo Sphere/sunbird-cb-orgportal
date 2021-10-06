@@ -77,8 +77,8 @@
                       *ngIf="createUserForm?.controls['email']?.touched && createUserForm?.controls['email'].errors?.required">
                       Email is mandatory
                     </mat-error>
-                    <mat-error [hidden]="false" *ngIf="createUserForm?.controls['email'].errors?.invalid"
-                      i18n-aria-label aria-label="Email Error|Name fields not valid ">
+                    <mat-error [hidden]="false" *ngIf="createUserForm?.controls['email'].errors?.eamil" i18n-aria-label
+                      aria-label="Email Error|Name fields not valid ">
                       Email field is not valid
                     </mat-error>
                   </mat-form-field>
