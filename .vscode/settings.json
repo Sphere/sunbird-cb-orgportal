@@ -100,8 +100,8 @@
   "typescript.updateImportsOnFileMove.enabled": "always",
   "eslint.codeActionsOnSave.mode": "all",
   "workbench.colorCustomizations": {
-    "activityBar.background": "#8a2ca2",
-    "activityBar.activeBackground": "#8a2ca2",
+    "activityBar.background":  "#15202b",
+    "activityBar.activeBackground": "#15202b",
     "activityBar.activeBorder": "#af9530",
     "activityBar.foreground": "#e7e7e7",
     "activityBar.inactiveForeground": "#e7e7e799",
