@@ -21,7 +21,7 @@ const API_END_POINTS = {
   USER_BDD: '/apis/protected/v8/portal/mdo/deptAction/userrole',
   ACTIVE_USER: 'apis/proxies/v8/user/v1/unblock',
   DE_ACTIVE_USER: 'apis/proxies/v8/user/v1/block',
-  // GET_BULKUPLOAD_DATA: '/apis/protected/v8/admin/userRegistration/bulkUploadData',
+  GET_BULKUPLOAD_DATA: '/apis/protected/v8/admin/userRegistration/bulkUploadData',
 }
 
 @Injectable({
@@ -81,7 +81,7 @@ export class UsersService {
     return this.http.patch<any>(`${API_END_POINTS.USER_BDD}/`, user)
   }
 
-  // getBulkUploadData(): Observable<any> {
-  //   return this.http.get<any>(`${API_END_POINTS.GET_BULKUPLOAD_DATA}`)
-  // }
+  getBulkUploadData(): Observable<any> {
+    return this.http.get<any>(`${API_END_POINTS.GET_BULKUPLOAD_DATA}`)
+  }
 }
