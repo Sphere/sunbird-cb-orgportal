@@ -85,11 +85,9 @@ export class RootComponent implements OnInit, AfterViewInit {
 
     this.btnBackSvc.initialize()
     // Application start telemetry
-    this.telemetrySvc.start('app', 'view', '')
-    this.appStartRaised = true
     // if (this.authSvc.isAuthenticated) {
-    //   this.telemetrySvc.start('app', 'view', '')
-    //   this.appStartRaised = true
+    // this.telemetrySvc.start('app', 'view', '')
+    // this.appStartRaised = true
 
     // }
     this.router.events.subscribe((event: any) => {
