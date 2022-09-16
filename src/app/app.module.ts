@@ -151,7 +151,7 @@ const getBaseHref = (platformLocation: PlatformLocation): string => {
   providers: [
     {
       provide: 'environment',
-      useValue: environment
+      useValue: environment,
     },
     {
       deps: [InitService, LoggerService],
