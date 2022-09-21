@@ -60,7 +60,7 @@ export class CreateUserComponent implements OnInit, OnDestroy {
         if (_.get(this.activeRoute.snapshot, 'data.profileData.data')) {
           const leftData = this.activeRoute.snapshot.data.pageData.data.menus
           _.set(leftData, 'widgetData.logo', true)
-          _.set(leftData, 'widgetData.logoPath', _.get(this.activeRoute, 'snapshot.data.profileData.data.rootOrg.imgUrl'))
+          _.set(leftData, 'widgetData.logoPath', '/assets/instances/eagle/app_logos/aastar-source.png')
           _.set(leftData, 'widgetData.name', _.get(this.activeRoute, 'snapshot.data.profileData.data.channel')
             || _.get(this.activeRoute, 'snapshot.data.profileData.data.rootOrg.description'))
           _.set(leftData, 'widgetData.userRoles', this.myRoles)

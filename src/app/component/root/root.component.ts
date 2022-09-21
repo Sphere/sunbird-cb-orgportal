@@ -20,9 +20,9 @@ import { BreadcrumbsOrgService } from '@sunbird-cb/collection'
 import {
   // AuthKeycloakService,
   ConfigurationsService,
-  TelemetryService,
+  // TelemetryService,
   ValueService,
-  WsEvents,
+  // WsEvents,
   LoggerService,
 } from '@sunbird-cb/utils'
 import { delay, first } from 'rxjs/operators'
@@ -67,7 +67,7 @@ export class RootComponent implements OnInit, AfterViewInit {
     private dialog: MatDialog,
     public configSvc: ConfigurationsService,
     private valueSvc: ValueService,
-    private telemetrySvc: TelemetryService,
+    // private telemetrySvc: TelemetryService,
     private mobileAppsSvc: MobileAppsService,
     private rootSvc: RootService,
     private btnBackSvc: BreadcrumbsOrgService,
@@ -117,11 +117,11 @@ export class RootComponent implements OnInit, AfterViewInit {
       }
 
       if (event instanceof NavigationEnd) {
-        this.telemetrySvc.impression()
-        if (this.appStartRaised) {
-          this.telemetrySvc.audit(WsEvents.WsAuditTypes.Created, 'Login', {})
-          this.appStartRaised = false
-        }
+        // this.telemetrySvc.impression()
+        // if (this.appStartRaised) {
+        //   this.telemetrySvc.audit(WsEvents.WsAuditTypes.Created, 'Login', {})
+        //   this.appStartRaised = false
+        // }
       }
     })
     this.rootSvc.showNavbarDisplay$.pipe(delay(500)).subscribe(display => {

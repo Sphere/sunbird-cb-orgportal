@@ -1183,10 +1183,10 @@
   resolved "https://registry.yarnpkg.com/@sunbird-cb/design-system/-/design-system-0.0.1.tgz#66795a90e6a3fe3609cd574e694ad296fdc9a1a5"
   integrity sha512-GYfnfpNfzZjnU5Ss+xfSdVbvyek97Yq8cDVsfT4+R0MgsIYnI4gqx7G0Qvx9caZYgb3eoE6wlsyb0K2aWyO+UQ==
 
-"@sunbird-cb/rain-dashboards@^0.2.6":
-  version "0.2.6"
-  resolved "https://registry.yarnpkg.com/@sunbird-cb/rain-dashboards/-/rain-dashboards-0.2.6.tgz#fa7756dddbfd5679770232884bf41a43afb953e2"
-  integrity sha512-kAn28KzMniibhSi+jV6zLzl3+VF1mEBD6Da4AeTP1itP+dNVwiDw1SgvzJV1SgcGmbEnfLoBY/FTSECA25x2AA==
+"@sunbird-cb/rain-dashboards@^0.2.7":
+  version "0.2.7"
+  resolved "https://registry.yarnpkg.com/@sunbird-cb/rain-dashboards/-/rain-dashboards-0.2.7.tgz#ac3d6975873a2ab721c6c404664b6cb98678ba06"
+  integrity sha512-WLxDTkVsJ96LoepWefx2FfCkGURTy5L8jvyhudBBx9x2YojAwYzi9X9bC7g+IPtN6Y5J+z9zmSsZn8EeZV4fqw==
   dependencies:
     tslib "^1.9.0"
 
