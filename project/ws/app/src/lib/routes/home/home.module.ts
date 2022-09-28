@@ -40,6 +40,7 @@ import { NgxPaginationModule } from 'ngx-pagination'
 import { UIAdminTableModule } from '../../head/work-allocation-table/ui-admin-table.module'
 import { WelcomeComponent } from './routes/welcome/welcome.component'
 import { RainDashboardsModule } from '@sunbird-cb/rain-dashboards'
+import { UsersModule } from '../users/users.module'
 @NgModule({
   declarations: [
     HomeComponent,
@@ -95,6 +96,7 @@ import { RainDashboardsModule } from '@sunbird-cb/rain-dashboards'
     NgxPaginationModule,
     UIAdminTableModule,
     RainDashboardsModule,
+    UsersModule
   ],
   entryComponents: [
   ],

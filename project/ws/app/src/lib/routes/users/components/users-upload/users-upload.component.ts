@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, OnDestroy } from '@angular/core'
 import { FormBuilder, Validators } from '@angular/forms'
-import { FileService } from '../../../../../../../../../../sunbird-collection/sunbird-cb-orgportal/project/ws/app/src/lib/routes/users/services/upload.service'
+import { FileService } from '../../services/upload.service'
 import { Observable } from 'rxjs'
 import { MatSnackBar, MatSort } from '@angular/material'
 import { MatPaginator } from '@angular/material/paginator'
@@ -160,7 +160,7 @@ export class UsersUploadComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.fileService.validateFile(this.fileName)) {
       if (this.formGroup && this.formGroup.get('file')) {
         const formData: FormData = new FormData()
-        formData.append('data', this.fileSelected, this.fileName)
+        formData.append('userData', this.fileSelected, this.fileName)
         // tslint:disable-next-line: no-non-null-assertion
         this.fileService.upload(this.fileName, formData)
           .subscribe(
@@ -174,8 +174,9 @@ export class UsersUploadComponent implements OnInit, AfterViewInit, OnDestroy {
               }
               this.formGroup.reset()
               this.getBulkUploadData()
+              this.openSnackbar('File uploaded successfully..!')
             },
-            err => {
+            (err: any) => {
               // tslint:disable-next-line: no-console
               console.log('error', err)
               this.openSnackbar(this.toastError.nativeElement.value)
@@ -183,7 +184,7 @@ export class UsersUploadComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     } else {
       this.showFileError = true
-      this.openSnackbar(this.toastError.nativeElement.value)
+      this.openSnackbar('File uploaded successfully..!')
     }
   }
 
