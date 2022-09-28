@@ -212,7 +212,21 @@ export class UsersViewComponent implements OnInit, OnDestroy {
     })
   }
 
-  onCreateClick() {
+  onCreateClick(event: any) {
+    // tslint:disable-next-line: no-console
+    console.log('clickHandler :: event ', event)
+    switch (event.type) {
+      case 'createUser':
+        this.onCreateUser()
+        break
+      case 'upload':
+        this.onUploadClick()
+        break
+    }
+
+  }
+
+  onCreateUser() {
     this.router.navigate([`/app/users/create-user`])
     this.events.raiseInteractTelemetry(
       {
@@ -221,6 +235,10 @@ export class UsersViewComponent implements OnInit, OnDestroy {
       },
       {}
     )
+  }
+
+  onUploadClick() {
+    this.filter('upload')
   }
 
   onRoleClick(user: any) {
