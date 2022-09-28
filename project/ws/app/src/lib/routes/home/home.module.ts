@@ -96,7 +96,7 @@ import { UsersModule } from '../users/users.module'
     NgxPaginationModule,
     UIAdminTableModule,
     RainDashboardsModule,
-    UsersModule
+    UsersModule,
   ],
   entryComponents: [
   ],

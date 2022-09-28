@@ -9,7 +9,7 @@ import { UsersUploadComponent } from './components/users-upload/users-upload.com
 import {
   MatSidenavModule, MatGridListModule, MatListModule, MatCardModule, MatFormFieldModule, MatInputModule,
   MatIconModule, MatButtonModule, MatRadioModule, MatDialogModule, MatSelectModule, MatProgressSpinnerModule,
-  MatPaginatorModule, MatTableModule, MatSortModule
+  MatPaginatorModule, MatTableModule, MatSortModule,
 } from '@angular/material'
 import { MatExpansionModule } from '@angular/material/expansion'
 import { MatDividerModule } from '@angular/material/divider'
@@ -25,7 +25,7 @@ import { FileService } from './services/upload.service'
     MatSidenavModule, MatListModule, ScrollspyLeftMenuModule, MatCardModule, FormsModule,
     MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule, MatGridListModule,
     MatRadioModule, MatDialogModule, ReactiveFormsModule, MatSelectModule, MatProgressSpinnerModule,
-    MatExpansionModule, MatDividerModule, MatPaginatorModule, MatTableModule, WidgetResolverModule, MatSortModule
+    MatExpansionModule, MatDividerModule, MatPaginatorModule, MatTableModule, WidgetResolverModule, MatSortModule,
   ],
   providers: [RolesService, FileService],
   exports: [UsersUploadComponent],
