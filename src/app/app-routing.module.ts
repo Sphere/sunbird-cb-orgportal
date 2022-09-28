@@ -20,7 +20,9 @@ import { TncComponent } from './routes/tnc/tnc.component'
 import { TncAppResolverService } from './services/tnc-app-resolver.service'
 import { TncPublicResolverService } from './services/tnc-public-resolver.service'
 // import { AppTocResolverService } from '@ws/app/src/lib/routes/app-toc/resolvers/app-toc-resolver.service'
-
+//import { RolesResolver } from '../../project/ws/app/src/lib/routes/users/resolvers/roles-resolve.service'
+//import { ConfigResolveService } from '../../project/ws/app/src/lib/routes/home/resolvers/config-resolve.service'
+import { UserBulkUploadComponent } from '../../project/ws/app/src/lib/routes/users/routes/user-bulk-upload/user-bulk-upload.component'
 // 💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥
 // Please declare routes in alphabetical order
 // 😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵
@@ -187,6 +189,16 @@ const routes: Routes = [
     resolve: {
       tnc: TncAppResolverService,
     },
+  },
+  {
+    path: 'app/users/user-bulk-upload',
+    component: UserBulkUploadComponent,
+    // resolve: {
+    //   // department: DepartmentResolve,
+    //   // profileData: UserResolve,
+    //   //rolesList: RolesResolver,
+    //   configService: ConfigResolveService,
+    // },
   },
   {
     path: 'error-access-forbidden',

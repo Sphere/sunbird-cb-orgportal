@@ -31,8 +31,8 @@ export class EventListViewComponent implements OnInit, AfterViewInit, OnChanges 
   @Output() clicked?: EventEmitter<any>
   @Output() actionsClick?: EventEmitter<any>
   @Output() eOnRowClick = new EventEmitter<any>()
-  @Output() eOnCreateClick = new EventEmitter<any>()
-
+  // @Output() eOnCreateClick = new EventEmitter<any>()
+  @Output() eOnUpload = new EventEmitter<any>()
   bodyHeight = document.body.clientHeight - 125
   displayedColumns: any = []
   dataSource!: any
@@ -56,6 +56,7 @@ export class EventListViewComponent implements OnInit, AfterViewInit, OnChanges 
   }
 
   ngOnInit() {
+    debugger
     if (this.tableData) {
       this.displayedColumns = this.tableData.columns
     }
@@ -82,6 +83,7 @@ export class EventListViewComponent implements OnInit, AfterViewInit, OnChanges 
   }
 
   buttonClick(action: string, row: any) {
+    console.log(action)
     if (this.tableData) {
       const isDisabled = _.get(_.find(this.tableData.actions, ac => ac.name === action), 'disabled') || false
       if (!isDisabled && this.actionsClick) {

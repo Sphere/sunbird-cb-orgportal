@@ -9,6 +9,7 @@ import _ from 'lodash'
 import { environment } from 'src/environments/environment'
 import { ITableData } from '@sunbird-cb/collection/lib/ui-org-table/interface/interfaces'
 import { MatSnackBar } from '@angular/material'
+import * as $ from 'jquery' 
 
 @Component({
   selector: 'ws-app-users-view',
@@ -77,7 +78,12 @@ export class UsersViewComponent implements OnInit, OnDestroy {
     }
   }
   ngOnInit() {
-
+$(document).ready(function(){
+            $(".upload-btn").click(function(){
+              parent.location.hash = "/";
+              window.history.pushState('hellow', 'world', '/app/users/user-bulk-upload');
+            });
+        });
   }
 
   filter(filter: string) {
@@ -175,6 +181,10 @@ export class UsersViewComponent implements OnInit, OnDestroy {
 
   onCreateClick() {
     this.router.navigate([`/app/users/create-user`])
+  }
+
+  onBulkUploadClick() {
+    this.router.navigate([`/app/users/user-bulk-upload`])
   }
 
   onRoleClick(user: any) {

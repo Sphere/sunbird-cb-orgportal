@@ -63,6 +63,7 @@ export class WorkAllocationTableComponent implements OnInit, OnChanges {
   }
 
   ngOnInit() {
+    console.log("jjj")
 
     if (this.tableData) {
       this.displayedColumns = this.tableData.columns

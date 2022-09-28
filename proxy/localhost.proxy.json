@@ -1,6 +1,6 @@
 {
   "/apis/*": {
-    "target": "https://aastrika-sb-cbp.idc.tarento.com",
+    "target": "https://cbp-sphere.aastrika.org",
     "secure": false,
     "logLevel": "debug",
     "changeOrigin": true,
@@ -8,7 +8,7 @@
       "/apis": "/apis"
     },
     "headers": {
-      "Cookie": "connect.sid=s%3AVCxOeHYmPUfVyNawxahE1Cpxr8V36AdD.5lygos%2BME%2FHwtUKV7CtfcoS%2B%2Bh4%2FM09ynMe1BvLrRdg"
+      "Cookie": "connect.sid=s%3A0Kof80n9Les8xn9x7M7KeGRn8Yf3SE3t.5q%2B9EaRnCXeXRd5FjV5spPrnUms1X9e3omRUVhGEYOg"
     }
   },
   "/content-api/*": {
@@ -57,7 +57,7 @@
     }
   },
   "/assets/*": {
-    "target": "http://localhost:8080",
+    "target": "https://aastrika-stage.tarento.com",
     "secure": false,
     "logLevel": "debug",
     "changeOrigin": true,

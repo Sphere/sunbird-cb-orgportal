@@ -32,7 +32,7 @@ export class CreateEventComponent implements OnInit {
   @Output() clicked?: EventEmitter<any>
   @Output() actionsClick?: EventEmitter<any>
   @Output() eOnRowClick = new EventEmitter<any>()
-  @Output() eOnCreateClick = new EventEmitter<any>()
+  //@Output() eOnCreateClick = new EventEmitter<any>()
 
   createEventForm: FormGroup
   namePatern = `^[a-zA-Z\\s\\']{1,32}$`

@@ -1,7 +1,7 @@
 import { FullscreenOverlayContainer, OverlayContainer } from '@angular/cdk/overlay'
 import { APP_BASE_HREF, PlatformLocation } from '@angular/common'
 import { HttpClientJsonpModule, HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http'
-import { APP_INITIALIZER, Injectable, NgModule, ErrorHandler } from '@angular/core'
+import { APP_INITIALIZER, Injectable, NgModule, ErrorHandler, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core'
 import {
   GestureConfig,
   MatButtonModule,
@@ -64,6 +64,7 @@ import { TncPublicResolverService } from './services/tnc-public-resolver.service
 import { FormsModule, ReactiveFormsModule } from '@angular/forms'
 import { ServiceWorkerModule } from '@angular/service-worker'
 import { environment } from '../environments/environment'
+import { UserBulkUploadComponent } from '../../project/ws/app/src/lib/routes/users/routes/user-bulk-upload/user-bulk-upload.component'
 @Injectable()
 export class HammerConfig extends GestureConfig {
   buildHammer(element: HTMLElement) {
@@ -96,6 +97,7 @@ const getBaseHref = (platformLocation: PlatformLocation): string => {
     DialogConfirmComponent,
     LoginRootComponent,
     LoginRootDirective,
+    UserBulkUploadComponent
   ],
   imports: [
     FormsModule,
@@ -182,5 +184,6 @@ const getBaseHref = (platformLocation: PlatformLocation): string => {
     { provide: ErrorHandler, useClass: GlobalErrorHandlingService },
     MatDatepickerModule, MatNativeDateModule,
   ],
+    schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class AppModule { }
