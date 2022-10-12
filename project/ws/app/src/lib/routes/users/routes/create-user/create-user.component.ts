@@ -60,7 +60,7 @@ export class CreateUserComponent implements OnInit, OnDestroy {
         if (_.get(this.activeRoute.snapshot, 'data.profileData.data')) {
           const leftData = this.activeRoute.snapshot.data.pageData.data.menus
           _.set(leftData, 'widgetData.logo', true)
-          _.set(leftData, 'widgetData.logoPath', _.get(this.activeRoute, 'snapshot.data.profileData.data.rootOrg.imgUrl'))
+          _.set(leftData, 'widgetData.logoPath', '/assets/instances/eagle/app_logos/aastar-source.png')
           _.set(leftData, 'widgetData.name', _.get(this.activeRoute, 'snapshot.data.profileData.data.channel')
             || _.get(this.activeRoute, 'snapshot.data.profileData.data.rootOrg.description'))
           _.set(leftData, 'widgetData.userRoles', this.myRoles)
@@ -85,7 +85,6 @@ export class CreateUserComponent implements OnInit, OnDestroy {
         }))
         /* tslint:disable-next-line */
         const rolesListFull = _.uniq(_.map(_.compact(_.flatten(_.map(filteredDept, 'roles'))), rol => ({ roleName: rol, description: rol })))
-
         rolesListFull.forEach((role: any) => {
           if (!this.rolesList.some((item: any) => item.roleName === role.roleName)) {
             this.rolesList.push(role)
@@ -94,6 +93,22 @@ export class CreateUserComponent implements OnInit, OnDestroy {
         if (this.configService.userProfile && this.configService.userProfile.departmentName) {
           this.configService.userProfile.departmentName = this.departmentName
         }
+
+        // this.rolesList = [
+        //   { roleName: 'CONTENT_CREATOR' },
+        //   { roleName: 'CONTENT_REVIEWER' },
+        //   { roleName: 'FRAC_ADMIN' },
+        //   { roleName: 'CONTENT_PUBLISHER' },
+        //   { roleName: 'EDITOR' },
+        //   { roleName: 'FRAC_ADMIN' },
+        //   { roleName: 'MDO_ADMIN' },
+        //   { roleName: 'SPV_ADMIN' },
+        //   { roleName: 'PUBLIC' },
+        //   { roleName: 'FRAC_COMPETENCY_MEMBER' },
+        //   { roleName: 'FRAC_COMPETENCY_REVIEWER' },
+        //   { roleName: 'FRAC_REVIEWER_L2' },
+        //   { roleName: 'ORG_ADMIN' },
+        // ]
       }
     })
     this.createUserForm = new FormGroup({
@@ -101,7 +116,7 @@ export class CreateUserComponent implements OnInit, OnDestroy {
       lname: new FormControl('', [Validators.required]),
       email: new FormControl('', [Validators.required, Validators.email]),
       department: new FormControl(''),
-      roles: new FormControl('', [Validators.required]),
+      roles: new FormControl(''),
     })
   }
 
@@ -129,7 +144,7 @@ export class CreateUserComponent implements OnInit, OnDestroy {
           request: {
             organisationId: this.department,
             userId: res.userId,
-            roles: form.value.roles,
+            roles: _.toLength(form.value.roles) === 0 ? ['PUBLIC'] : form.value.roles,
           },
         }
 

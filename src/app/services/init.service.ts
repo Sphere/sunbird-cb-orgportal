@@ -47,7 +47,7 @@ const endpoint = {
   providedIn: 'root',
 })
 export class InitService {
-  private baseUrl = this.configSvc.baseUrl
+  private baseUrl = 'assets/configurations'
   constructor(
     private logger: LoggerService,
     private configSvc: ConfigurationsService,
@@ -237,7 +237,6 @@ export class InitService {
 
   private async fetchStartUpDetails(): Promise<any> {
     // let userRoles: string[] = []
-
     if (this.configSvc.instanceConfig && !Boolean(this.configSvc.instanceConfig.disablePidCheck)) {
       let completeProdata: any | null = null
       try {

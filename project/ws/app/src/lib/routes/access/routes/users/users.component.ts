@@ -128,6 +128,7 @@ export class UsersComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
   menuActions($event: { action: string, row: any }) {
+
     const user = { userId: _.get($event.row, 'wid') }
     _.set(user, 'deptId', _.get(this.data2, 'id'))
     switch ($event.action) {

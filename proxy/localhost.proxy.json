@@ -1,29 +1,14 @@
 {
   "/apis/*": {
-    "target": "https://igot-dev.in",
+    "target": "https://org-aastrika-stage.tarento.com",
     "secure": false,
     "logLevel": "debug",
     "changeOrigin": true,
     "pathRewrite": {
       "/apis": "/apis"
-    }
-  },
-  "/api/*": {
-    "target": "https://igot-dev.in",
-    "secure": false,
-    "logLevel": "debug",
-    "changeOrigin": true,
-    "pathRewrite": {
-      "/api": "/api"
-    }
-  },
-  "/event/*": {
-    "target": "https://igot-dev.in",
-    "secure": false,
-    "logLevel": "debug",
-    "changeOrigin": true,
-    "pathRewrite": {
-      "/apis": "/apis"
+    },
+    "headers": {
+      "Cookie": "connect.sid=s%3ANZGAjVSYQjOkQuvzSi9mM64VNO9rL6XK.sSHTvAIaOdMQeTgfomBXB8jFOQ6mjtPRkkLsHC79EjI"
     }
   },
   "/content-api/*": {
