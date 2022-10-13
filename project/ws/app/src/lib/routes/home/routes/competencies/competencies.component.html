@@ -1,0 +1,86 @@
+<div class="flex flex-4 flex-column">
+  <mat-card class="flex-custom">
+    <mat-card-header class="flex-custom-m">
+      <div class="flex-1" role="link" tabindex="1">
+        <div class="flex flex-1">
+          <mat-card-title class="flex-4 mobile-margin mat-h2">
+            Competencies
+          </mat-card-title>
+        </div>
+      </div>
+    </mat-card-header>
+
+    <mat-card-content>
+      <ng-container>
+        <!-- <div class="mat-elevation-z8"> -->
+        <mat-table [dataSource]="dataSource">
+
+          <ng-container matColumnDef="Full_Name">
+            <mat-header-cell *matHeaderCellDef>
+              Full Name
+            </mat-header-cell>
+            <mat-cell *matCellDef="let element">{{element.Full_Name}}
+            </mat-cell>
+          </ng-container>
+
+          <ng-container matColumnDef="Designation">
+            <mat-header-cell *matHeaderCellDef>
+              Designation
+            </mat-header-cell>
+            <mat-cell *matCellDef="let element">{{element.Designation}}
+            </mat-cell>
+          </ng-container>
+
+          <ng-container matColumnDef="State">
+            <mat-header-cell *matHeaderCellDef>
+              State
+            </mat-header-cell>
+            <mat-cell *matCellDef="let element">{{element.State}}
+            </mat-cell>
+          </ng-container>
+
+          <ng-container matColumnDef="City">
+            <mat-header-cell *matHeaderCellDef>
+              City
+            </mat-header-cell>
+            <mat-cell *matCellDef="let element">{{element.City}}
+            </mat-cell>
+          </ng-container>
+
+          <ng-container matColumnDef="Block">
+            <mat-header-cell *matHeaderCellDef>
+              Block
+            </mat-header-cell>
+            <mat-cell *matCellDef="let element">{{element.Block}}
+            </mat-cell>
+          </ng-container>
+
+          <ng-container matColumnDef="Sub_Centre">
+            <mat-header-cell *matHeaderCellDef>
+              Sub Centre
+            </mat-header-cell>
+            <mat-cell *matCellDef="let element">{{element.Sub_Centre}}
+            </mat-cell>
+          </ng-container>
+
+          <ng-container matColumnDef="Competency_Status">
+            <mat-header-cell *matHeaderCellDef>
+              Competency Status
+            </mat-header-cell>
+            <mat-cell *matCellDef="let element">{{element.Competency_Status}}
+            </mat-cell>
+          </ng-container>
+
+          <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+          <mat-row *matRowDef="let row; columns: displayedColumns;">
+          </mat-row>
+        </mat-table>
+
+        <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons>
+        </mat-paginator>
+
+        <!-- </div> -->
+      </ng-container>
+    </mat-card-content>
+  </mat-card>
+</div>

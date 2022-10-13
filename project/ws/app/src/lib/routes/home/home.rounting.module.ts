@@ -12,6 +12,7 @@ import { WorkallocationComponent } from './routes/workallocation/workallocation.
 import { WelcomeComponent } from './routes/welcome/welcome.component'
 import { ConfigResolveService } from './resolvers/config-resolve.service'
 import { UsersListResolve } from './resolvers/users-list-resolve.service'
+import { CompetenciesComponent } from './routes/competencies/competencies.component'
 
 const routes: Routes = [
   {
@@ -57,6 +58,10 @@ const routes: Routes = [
       {
         path: 'workallocation',
         component: WorkallocationComponent,
+      },
+      {
+        path: 'competencies',
+        component: CompetenciesComponent,
       },
     ],
   },

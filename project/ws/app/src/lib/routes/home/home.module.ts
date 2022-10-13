@@ -18,6 +18,7 @@ import {
   MatProgressSpinnerModule,
   MatProgressBarModule,
   MatRadioModule,
+  MatTableModule,
 } from '@angular/material'
 import { MatMenuModule } from '@angular/material/menu'
 import { MatPaginatorModule } from '@angular/material/paginator'
@@ -41,6 +42,7 @@ import { UIAdminTableModule } from '../../head/work-allocation-table/ui-admin-ta
 import { WelcomeComponent } from './routes/welcome/welcome.component'
 import { RainDashboardsModule } from '@sunbird-cb/rain-dashboards'
 import { UsersModule } from '../users/users.module'
+import { CompetenciesComponent } from './routes/competencies/competencies.component'
 @NgModule({
   declarations: [
     HomeComponent,
@@ -50,6 +52,7 @@ import { UsersModule } from '../users/users.module'
     ApprovalsComponent,
     WorkallocationComponent,
     WelcomeComponent,
+    CompetenciesComponent,
   ],
   imports: [
     CommonModule,
@@ -97,6 +100,7 @@ import { UsersModule } from '../users/users.module'
     UIAdminTableModule,
     RainDashboardsModule,
     UsersModule,
+    MatTableModule
   ],
   entryComponents: [
   ],
