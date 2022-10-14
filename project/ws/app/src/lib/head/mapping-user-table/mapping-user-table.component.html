@@ -1,0 +1,60 @@
+<div class="example-container margin-top-m">
+  <div class="example-table-container">
+    <div class="flex">
+      <!-- search field -->
+      <div class="flex">
+        <input class="sinput color-60" type="Standard" label="" (input)="applyFilter($event.target.value)"
+          (keydown.enter)="onSearchEnter($event)" placeholder="Search">
+        <mat-icon class="color-60 search-icon">search</mat-icon>
+      </div>
+      <!-- filter -->
+      <div>
+        <mat-icon class="material-icons-outlined">
+          filter_alt
+        </mat-icon>
+      </div>
+      <!-- select all -->
+      <div class="flex">
+        <input type="checkbox">
+        <label>Search</label>
+      </div>
+    </div>
+
+    <!-- </mat-form-field> -->
+    <mat-table #table matSort [ngStyle]="{'height': bodyHeight}" [dataSource]="dataSource"
+      class="example-table table1 responsiveTable" *ngIf="dataSource.filteredData.length > 0">
+
+      <ng-container matColumnDef="{{col.key}}" *ngFor="let col of tableData!.columns">
+        <mat-header-cell *matHeaderCellDef mat-sort-header class=".h-400-r-14-l color-60"> {{col.displayName}}
+        </mat-header-cell>
+        <mat-cell *matCellDef="let element" (click)="onRowClick(element)">
+          <span *ngIf="col.isList" class="h-400-r-14-l color-87 textclass">
+            <div innerHTML="{{element[col.key]}}"></div>
+          </span>
+          <span *ngIf="!col.isList" class="h-400-r-14-l color-87 textclass">
+            {{element[col.key]}} {{col.isList}}
+          </span>
+        </mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="Menu">
+        <mat-header-cell *matHeaderCellDef class="clr-darkish-blue action-header">
+          <!-- {{'Actions'}} -->
+        </mat-header-cell>
+        <mat-cell *matCellDef="let row" class="action-cell">
+          <button type="button" mat-icon-button i18n-aria-label aria-label="action items" [matMenuTriggerFor]="cardMenu"
+            [matMenuTriggerData]="{'data':row}" class="action-btn">
+            <mat-icon>more_horiz</mat-icon>
+          </button>
+        </mat-cell>
+      </ng-container>
+
+      <mat-header-row *matHeaderRowDef="getFinalColumns()"></mat-header-row>
+      <mat-row *matRowDef="let row; columns: getFinalColumns();" (click)="selection.toggle(row);">
+      </mat-row>
+    </mat-table>
+  </div>
+
+  <mat-paginator [length]="length" [pageSize]="pageSize" [pageSizeOptions]="pageSizeOptions">
+  </mat-paginator>
+</div>
