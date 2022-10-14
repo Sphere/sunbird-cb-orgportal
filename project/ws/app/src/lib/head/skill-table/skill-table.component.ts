@@ -3,11 +3,11 @@ import { MatPaginator, MatSort, MatTableDataSource } from '@angular/material'
 import _ from 'lodash'
 
 @Component({
-  selector: 'ws-app-mapping-user-table',
-  templateUrl: './mapping-user-table.component.html',
-  styleUrls: ['./mapping-user-table.component.scss']
+  selector: 'ws-app-skill-table',
+  templateUrl: './skill-table.component.html',
+  styleUrls: ['./skill-table.component.scss']
 })
-export class MappingUserTableComponent implements OnInit {
+export class SkillTableComponent implements OnInit {
 
   @Input() tableData!: any | undefined
   @Input() data?: []
@@ -50,7 +50,6 @@ export class MappingUserTableComponent implements OnInit {
       this.dataSource.data = this.data
       this.dataSource.paginator = this.paginator
     }
-
     console.log(this.displayedColumns, this.dataSource)
   }
 
