@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core'
-import { MatPaginator, MatTableDataSource } from '@angular/material'
+import { MatPaginator } from '@angular/material'
 // tslint:disable-next-line
 import _ from 'lodash'
 @Component({
@@ -10,6 +10,7 @@ import _ from 'lodash'
 export class CompetenciesComponent implements OnInit, OnDestroy {
   tableData: any
   data: any
+  buttonData: any
 
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator | undefined
 
@@ -19,22 +20,10 @@ export class CompetenciesComponent implements OnInit, OnDestroy {
   constructor() { }
 
   ngOnInit() {
-    // this.dataSource.paginator = this.paginator ? this.paginator : null
-    // this.tableData = {
-    //   actions: [],
-    //   columns: [
-    //     { displayName: 'Id', key: 'identifier' },
-    //     { displayName: 'Name', key: 'fileName' },
-    //     { displayName: 'Status', key: 'status' },
-    //     { displayName: 'Created on', key: 'dateCreatedOn' },
-    //     { displayName: 'Updated on', key: 'dateUpdatedOn' },
-    //   ],
-    //   needCheckBox: false,
-    //   needHash: false,
-    //   sortColumn: 'dateCreatedOn',
-    //   sortState: 'desc',
-    //   needUserMenus: false,
-    // }
+    this.buttonData = [
+      { title: "Add Competency", type: 'button' },
+      { title: "Add Proficieny Manually", type: 'button' }
+    ]
     this.tableData = {
       columns: [
         { displayName: 'Full Name', key: 'fullName' },

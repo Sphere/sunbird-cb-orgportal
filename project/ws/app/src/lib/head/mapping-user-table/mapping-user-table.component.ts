@@ -11,6 +11,7 @@ export class MappingUserTableComponent implements OnInit {
 
   @Input() tableData!: any | undefined
   @Input() data?: []
+  @Input() buttonData: any
   @Input() isUpload?: boolean
   @Input() isCreate?: boolean
   @Output() clicked?: EventEmitter<any>
@@ -49,6 +50,7 @@ export class MappingUserTableComponent implements OnInit {
       this.dataSource.data = this.data
       this.dataSource.paginator = this.paginator
     }
+
     console.log(this.displayedColumns, this.dataSource)
   }
 

@@ -1,0 +1,36 @@
+.table-container {
+  display: flex;
+  flex-direction: column;
+  gap: 31px;
+
+}
+
+.search-icon {
+  position: relative;
+  right: 30px;
+}
+
+.sinput {
+  width: 400px;
+  height: 31px;
+  box-shadow: 0px 0px 4px rgb(0 0 0 / 15%);
+  border-radius: 50px;
+  border: none;
+}
+
+.btn {
+
+  padding: 8px 32px;
+  border-radius: 50px;
+  border: 1px solid #1C5D95;
+  color: #1C5D95;
+}
+
+.btn-active {
+  background-color: #1C5D95;
+  color: #ffffff;
+}
+
+.mat-header-cell {
+  background-color: #f5f5f5 !important;
+}

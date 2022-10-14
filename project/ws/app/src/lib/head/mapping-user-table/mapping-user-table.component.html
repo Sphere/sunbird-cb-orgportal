@@ -1,25 +1,39 @@
 <div class="example-container margin-top-m">
-  <div class="example-table-container">
-    <div class="flex">
-      <!-- search field -->
-      <div class="flex">
-        <input class="sinput color-60" type="Standard" label="" (input)="applyFilter($event.target.value)"
-          (keydown.enter)="onSearchEnter($event)" placeholder="Search">
-        <mat-icon class="color-60 search-icon">search</mat-icon>
+  <div class="table-container">
+    <div class="flex flex-between items-center">
+
+
+      <div class="flex items-center gap-5">
+        <!-- search field -->
+        <div class="flex items-center">
+          <input class="sinput" type="Standard" label="" (input)="applyFilter($event.target.value)"
+            (keydown.enter)="onSearchEnter($event)" placeholder="Search by name/email/phone/role/competency">
+          <mat-icon class="search-icon">search</mat-icon>
+        </div>
+        <!-- filter -->
+        <div>
+          <mat-icon class="material-icons-outlined">
+            filter_alt
+          </mat-icon>
+        </div>
+        <!-- select all -->
+        <div class="flex gap-3">
+          <input type="checkbox">
+          <label>Select All</label>
+        </div>
       </div>
-      <!-- filter -->
+      <!-- buttons -->
       <div>
-        <mat-icon class="material-icons-outlined">
-          filter_alt
-        </mat-icon>
-      </div>
-      <!-- select all -->
-      <div class="flex">
-        <input type="checkbox">
-        <label>Search</label>
+        <div class="flex gap-4">
+          <ng-container *ngFor="let btn of buttonData">
+            <ng-container *ngIf="btn.type === 'button'">
+
+              <button class="btn btn-active">{{btn.title}}</button>
+            </ng-container>
+          </ng-container>
+        </div>
       </div>
     </div>
-
     <!-- </mat-form-field> -->
     <mat-table #table matSort [ngStyle]="{'height': bodyHeight}" [dataSource]="dataSource"
       class="example-table table1 responsiveTable" *ngIf="dataSource.filteredData.length > 0">
