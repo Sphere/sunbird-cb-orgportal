@@ -5,3 +5,49 @@
 .mat-header-cell{
   background-color: #F5F5F5;
 }
+
+.rsearch {
+  display: flex;
+  flex: 1 1 auto;
+  position: relative;
+}
+
+.search {
+  display: flex;
+  flex: 1;
+}
+
+.m-b-20 {
+  margin-bottom: 20px;
+}
+
+.sinput {
+  height: 30px;
+  border-radius: 24px;
+  border: 1px solid #d5d0d0;
+  padding: 9px 35px 9px 18px;
+  margin-top: 0;
+  font: 500 16px Lato;
+  width: fit-content;
+}
+
+.search-icon {
+  position: absolute;
+  top: 14px;
+  font-size: 23px;
+  right: 12px;
+}
+
+.flex-container {
+  display: flex;
+}
+
+.header {
+  margin-right: 20px;
+}
+
+.center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

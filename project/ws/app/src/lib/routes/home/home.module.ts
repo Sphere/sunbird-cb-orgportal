@@ -19,6 +19,7 @@ import {
   MatProgressBarModule,
   MatRadioModule,
   MatTableModule,
+  MatCheckboxModule,
 } from '@angular/material'
 import { MatMenuModule } from '@angular/material/menu'
 import { MatPaginatorModule } from '@angular/material/paginator'
@@ -43,6 +44,7 @@ import { WelcomeComponent } from './routes/welcome/welcome.component'
 import { RainDashboardsModule } from '@sunbird-cb/rain-dashboards'
 import { UsersModule } from '../users/users.module'
 import { CompetenciesComponent } from './routes/competencies/competencies.component'
+import { FilterDialogComponent } from './routes/filter-dialog/filter-dialog.component'
 @NgModule({
   declarations: [
     HomeComponent,
@@ -53,6 +55,7 @@ import { CompetenciesComponent } from './routes/competencies/competencies.compon
     WorkallocationComponent,
     WelcomeComponent,
     CompetenciesComponent,
+    FilterDialogComponent,
   ],
   imports: [
     CommonModule,
@@ -100,9 +103,11 @@ import { CompetenciesComponent } from './routes/competencies/competencies.compon
     UIAdminTableModule,
     RainDashboardsModule,
     UsersModule,
-    MatTableModule
+    MatTableModule,
+    MatCheckboxModule,
   ],
   entryComponents: [
+    FilterDialogComponent
   ],
   providers: [
     // CKEditorService,

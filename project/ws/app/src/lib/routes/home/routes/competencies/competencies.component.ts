@@ -1,7 +1,8 @@
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core'
-import { MatPaginator, MatTableDataSource } from '@angular/material'
+import { MatDialog, MatPaginator, MatTableDataSource } from '@angular/material'
 // tslint:disable-next-line
 import _ from 'lodash'
+import { FilterDialogComponent } from '../filter-dialog/filter-dialog.component'
 @Component({
   selector: 'app-competencies',
   templateUrl: './competencies.component.html',
@@ -13,10 +14,26 @@ export class CompetenciesComponent implements OnInit, OnDestroy {
   displayedColumns: string[] = ['Full_Name', 'Designation', 'State', 'City', 'Block', 'Sub_Centre', 'Competency_Status'];
   dataSource = new MatTableDataSource<PeriodicElement>(ELEMENT_DATA);
 
-  constructor() { }
+  constructor(
+    public dialog: MatDialog,
+  ) { }
 
   ngOnInit() {
     this.dataSource.paginator = this.paginator ? this.paginator : null
+  }
+
+  filterTable() {
+    const dialogRef = this.dialog.open(FilterDialogComponent, {
+      maxHeight: '90vh',
+      minHeight: '65%',
+      width: '80%',
+      autoFocus: false, // To remove auto select
+      restoreFocus: false,
+      panelClass: 'competencies'
+    })
+    dialogRef.afterClosed().subscribe((responce: any) => {
+      if (responce) { }
+    })
   }
 
   ngOnDestroy() { }
