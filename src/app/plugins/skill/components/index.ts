@@ -1,0 +1,1 @@
+export * from './skill-table/skill-table.component'

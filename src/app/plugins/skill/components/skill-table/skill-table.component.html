@@ -3,10 +3,10 @@
     <div class="flex flex-between items-center">
 
 
-      <div class="flex items-center gap-5">
+      <div class="flex items-center gap-4">
         <!-- search field -->
         <div class="flex items-center">
-          <input class="sinput" type="Standard" label="" (input)="applyFilter($event.target.value)"
+          <input class="sinput p-1" type="Standard" label="" (input)="applyFilter($event.target.value)"
             (keydown.enter)="onSearchEnter($event)" placeholder="Search by name/email/phone/role/competency">
           <mat-icon class="search-icon">search</mat-icon>
         </div>
@@ -17,7 +17,7 @@
           </mat-icon>
         </div>
         <!-- select all -->
-        <div class="flex gap-3">
+        <div class="flex gap-2">
           <input type="checkbox">
           <label>Select All</label>
         </div>
@@ -25,7 +25,7 @@
       <!-- buttons -->
       <div>
         <div class="flex gap-4">
-          <ng-container *ngFor="let btn of buttonData">
+          <ng-container *ngFor="let btn of buttonTemplate">
             <ng-container *ngIf="btn.type === 'button'">
 
               <button class="btn btn-active">{{btn.title}}</button>

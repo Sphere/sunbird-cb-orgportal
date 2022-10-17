@@ -10,7 +10,7 @@ import _ from 'lodash'
 export class CompetenciesComponent implements OnInit, OnDestroy {
   tableData: any
   data: any
-  buttonData: any
+  buttonTemplate: any
 
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator | undefined
 
@@ -20,8 +20,8 @@ export class CompetenciesComponent implements OnInit, OnDestroy {
   constructor() { }
 
   ngOnInit() {
-    this.buttonData = [
-      { title: "Add Competency", type: 'button' },
+    this.buttonTemplate = [
+      { title: "Add Competency", type: 'button', action: 'addCompetency' },
       { title: "Add Proficieny Manually", type: 'button' }
     ]
     this.tableData = {

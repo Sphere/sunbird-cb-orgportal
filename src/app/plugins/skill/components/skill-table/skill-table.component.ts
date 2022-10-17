@@ -11,7 +11,7 @@ export class SkillTableComponent implements OnInit {
 
   @Input() tableData!: any | undefined
   @Input() data?: []
-  @Input() buttonData: any
+  @Input() buttonTemplate: any
   @Input() isUpload?: boolean
   @Input() isCreate?: boolean
   @Output() clicked?: EventEmitter<any>

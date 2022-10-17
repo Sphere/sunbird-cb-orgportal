@@ -43,8 +43,7 @@ import { WelcomeComponent } from './routes/welcome/welcome.component'
 import { RainDashboardsModule } from '@sunbird-cb/rain-dashboards'
 import { UsersModule } from '../users/users.module'
 import { CompetenciesComponent } from './routes/competencies/competencies.component'
-import { SkillTableComponent } from '../../head/skill-table/skill-table.component'
-
+import { SkillModule } from '../../../../../../../src/app/plugins/skill'
 @NgModule({
   declarations: [
     HomeComponent,
@@ -55,7 +54,6 @@ import { SkillTableComponent } from '../../head/skill-table/skill-table.componen
     WorkallocationComponent,
     WelcomeComponent,
     CompetenciesComponent,
-    SkillTableComponent
   ],
   imports: [
     CommonModule,
@@ -103,7 +101,8 @@ import { SkillTableComponent } from '../../head/skill-table/skill-table.componen
     UIAdminTableModule,
     RainDashboardsModule,
     UsersModule,
-    MatTableModule
+    MatTableModule,
+    SkillModule
   ],
   entryComponents: [
   ],
