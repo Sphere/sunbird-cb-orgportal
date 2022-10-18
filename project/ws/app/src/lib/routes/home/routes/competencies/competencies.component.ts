@@ -62,9 +62,15 @@ export interface PeriodicElement {
 
 const ELEMENT_DATA = [
   {
-    fullName: 'Full_Name1'
+    fullName: 'User1'
     , designation: 'designation1'
     , state: 'State1', city: 'City1', block: 'Block1',
+    competency: 'Competency_Status1'
+  },
+  {
+    fullName: 'User2'
+    , designation: 'designation1'
+    , state: 'State1', city: 'City1', block: 'Block2',
     competency: 'Competency_Status1'
   }
 
