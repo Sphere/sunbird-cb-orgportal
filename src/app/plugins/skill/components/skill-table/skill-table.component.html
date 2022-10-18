@@ -17,12 +17,12 @@
           </mat-icon>
         </div>
         <!-- select all -->
-        <div class="flex gap-2">
+        <!-- <div class="flex gap-2">
           <mat-checkbox (change)="$event ? toggleAllRows() : null" [checked]="selection.hasValue() && isAllSelected()"
             [indeterminate]="selection.hasValue() && !isAllSelected()">
           </mat-checkbox>
           <label>Select All</label>
-        </div>
+        </div> -->
       </div>
       <!-- buttons -->
       <div>
@@ -58,6 +58,7 @@
           <mat-checkbox (change)="$event ? toggleAllRows() : null" [checked]="selection.hasValue() && isAllSelected()"
             [indeterminate]="selection.hasValue() && !isAllSelected()">
           </mat-checkbox>
+          <label class="select-label">Select All</label>
         </mat-header-cell>
         <mat-cell *matCellDef="let row">
           <mat-checkbox (click)="$event.stopPropagation()" (change)="$event ? selection.toggle(row) : null"
