@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core'
 import { MatPaginator, MatSort, MatTableDataSource } from '@angular/material'
 import _ from 'lodash'
+import { SelectionModel } from '@angular/cdk/collections'
 
 @Component({
   selector: 'ws-app-skill-table',
@@ -33,7 +34,7 @@ export class SkillTableComponent implements OnInit {
       this.dataSource.sort = sort
     }
   }
-  // selection = new SelectionModel<any>(true, [])
+  selection = new SelectionModel<any>(true, [])
   constructor() {
     this.dataSource = new MatTableDataSource<any>()
     this.dataSource.paginator = this.paginator
@@ -95,28 +96,30 @@ export class SkillTableComponent implements OnInit {
       if (this.tableData.needUserMenus) {
         columns.push('Menu')
       }
+      console.log(columns)
       return columns
     }
     return ''
   }
 
   /** Whether the number of selected elements matches the total number of rows. */
-  // isAllSelected() {
-  //   const numSelected = this.selection.selected.length
-  //   const numRows = this.dataSource.data.length
-  //   return numSelected === numRows
-  // }
+  isAllSelected() {
+    const numSelected = this.selection.selected.length
+    const numRows = this.dataSource.data.length
+    return numSelected === numRows
+  }
 
   filterList(list: any[], key: string) {
     return list.map(lst => lst[key])
   }
 
   /** Selects all rows if they are not all selected; otherwise clear selection. */
-  // masterToggle() {
-  //   this.isAllSelected() ?
-  //     this.selection.clear() :
-  //     this.dataSource.data.forEach((row: any) => this.selection.select(row))
-  // }
+  toggleAllRows() {
+    this.isAllSelected() ?
+      this.selection.clear() :
+      this.dataSource.data.forEach((row: any) => this.selection.select(row))
+    console.log(this.selection.selected)
+  }
 
   /** The label for the checkbox on the passed row */
   // checkboxLabel(row?: any): string {

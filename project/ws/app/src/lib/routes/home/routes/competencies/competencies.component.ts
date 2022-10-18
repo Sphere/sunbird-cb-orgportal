@@ -34,7 +34,7 @@ export class CompetenciesComponent implements OnInit, OnDestroy {
         { displayName: 'Block', key: 'block' },
 
       ],
-      needCheckBox: false,
+      needCheckBox: true,
       needHash: false,
       sortColumn: 'dateCreatedOn',
       sortState: 'desc',

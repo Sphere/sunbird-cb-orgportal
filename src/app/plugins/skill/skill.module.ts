@@ -11,8 +11,10 @@ import {
   MatExpansionModule,
   MatGridListModule,
   MatDividerModule,
-  MatPaginatorModule
+  MatPaginatorModule,
+  MatCheckboxModule
 } from '@angular/material'
+
 import { MatMenuModule } from '@angular/material/menu'
 import { SkillTableComponent } from './components'
 
@@ -21,6 +23,7 @@ import { SkillTableComponent } from './components'
   declarations: [SkillTableComponent],
   imports: [
     CommonModule,
+    MatCheckboxModule,
     MatGridListModule,
     MatExpansionModule,
     MatFormFieldModule,
