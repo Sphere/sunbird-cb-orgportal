@@ -12,17 +12,22 @@ import {
   MatGridListModule,
   MatDividerModule,
   MatPaginatorModule,
+  MatSelectModule,
   MatCheckboxModule
 } from '@angular/material'
 
 import { MatMenuModule } from '@angular/material/menu'
 import { SkillTableComponent } from './components'
+import { FilterTableComponent } from './components/filter-table/filter-table.component'
+import { FormsModule, ReactiveFormsModule } from '@angular/forms'
 
 
 @NgModule({
-  declarations: [SkillTableComponent],
+  declarations: [SkillTableComponent, FilterTableComponent],
   imports: [
     CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
     MatCheckboxModule,
     MatGridListModule,
     MatExpansionModule,
@@ -35,7 +40,11 @@ import { SkillTableComponent } from './components'
     MatTableModule,
     MatPaginatorModule,
     MatMenuModule,
-    MatDialogModule
+    MatDialogModule,
+    MatSelectModule
+  ],
+  entryComponents: [
+    FilterTableComponent
   ],
   exports: [SkillTableComponent]
 })

@@ -1,7 +1,8 @@
 import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core'
-import { MatPaginator, MatSort, MatTableDataSource } from '@angular/material'
+import { MatDialog, MatPaginator, MatSort, MatTableDataSource } from '@angular/material'
 import _ from 'lodash'
 import { SelectionModel } from '@angular/cdk/collections'
+import { FilterTableComponent } from '../filter-table/filter-table.component'
 
 @Component({
   selector: 'ws-app-skill-table',
@@ -35,7 +36,9 @@ export class SkillTableComponent implements OnInit {
     }
   }
   selection = new SelectionModel<any>(true, [])
-  constructor() {
+  constructor(
+    public dialog: MatDialog,
+  ) {
     this.dataSource = new MatTableDataSource<any>()
     this.dataSource.paginator = this.paginator
     this.actionsClick = new EventEmitter()
@@ -96,7 +99,7 @@ export class SkillTableComponent implements OnInit {
       if (this.tableData.needUserMenus) {
         columns.push('Menu')
       }
-      console.log(columns)
+      // console.log(columns)
       return columns
     }
     return ''
@@ -118,7 +121,7 @@ export class SkillTableComponent implements OnInit {
     this.isAllSelected() ?
       this.selection.clear() :
       this.dataSource.data.forEach((row: any) => this.selection.select(row))
-    console.log(this.selection.selected)
+    // console.log(this.selection.selected)
   }
 
   /** The label for the checkbox on the passed row */
@@ -139,6 +142,21 @@ export class SkillTableComponent implements OnInit {
 
   onSearchEnter(event: any) {
     this.searchByEnterKey.emit(event.target.value)
+  }
+
+
+  filterTable() {
+    const dialogRef = this.dialog.open(FilterTableComponent, {
+      maxHeight: '90vh',
+      minHeight: '65%',
+      width: '80%',
+      autoFocus: false, // To remove auto select
+      restoreFocus: false,
+      panelClass: 'competencies'
+    })
+    dialogRef.afterClosed().subscribe((responce: any) => {
+      console.log(responce)
+    })
   }
 
 }

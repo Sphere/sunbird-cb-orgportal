@@ -12,7 +12,7 @@
         </div>
         <!-- filter -->
         <div>
-          <mat-icon class="material-icons-outlined">
+          <mat-icon class="material-icons-outlined cursor-pointer mt-2" (click)="filterTable()">
             filter_alt
           </mat-icon>
         </div>
@@ -21,7 +21,7 @@
           <mat-checkbox (change)="$event ? toggleAllRows() : null" [checked]="selection.hasValue() && isAllSelected()"
             [indeterminate]="selection.hasValue() && !isAllSelected()">
           </mat-checkbox>
-          <label>Select All</label>
+          <label class="font-bold">Select All</label>
         </div>
       </div>
       <!-- buttons -->
@@ -41,7 +41,8 @@
       class="example-table table1 responsiveTable" *ngIf="dataSource.filteredData.length > 0">
 
       <ng-container matColumnDef="{{col.key}}" *ngFor="let col of tableData!.columns">
-        <mat-header-cell *matHeaderCellDef mat-sort-header class=".h-400-r-14-l color-60"> {{col.displayName}}
+        <mat-header-cell *matHeaderCellDef mat-sort-header class=".h-400-r-14-l color-60">
+          {{col.displayName}}
         </mat-header-cell>
 
         <mat-cell *matCellDef="let element" (click)="onRowClick(element)">

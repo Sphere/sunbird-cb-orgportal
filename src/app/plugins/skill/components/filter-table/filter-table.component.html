@@ -1,0 +1,147 @@
+<div class="example-container margin-top-m p-30">
+
+  <form [formGroup]="filterForm" class="container-balanced filterControls">
+    <!-- #region (header)-->
+    <div class="flex flex-1 custom">
+      <div class="flex-2 p-s-10">
+        <h1>Apply Filters</h1>
+      </div>
+    </div>
+    <!-- #endregion -->
+
+    <!-- #region (Role, State, Sub Center, Designation)-->
+    <div class="flex flex-1 custom">
+      <div class="flex-2 w-full p-s-10">
+        <mat-form-field class="w-full" appearance="outline">
+          <mat-label>Role</mat-label>
+          <mat-select formControlName="role">
+            <ng-container *ngFor="let role of rolesList">
+              <mat-option [value]="role.value">{{role.displayText}}</mat-option>
+            </ng-container>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="flex-2 w-full p-s-10">
+        <mat-form-field class="w-full" appearance="outline">
+          <mat-label>Select State</mat-label>
+          <mat-select formControlName="state">
+            <ng-container *ngFor="let state of statesList">
+              <mat-option [value]="state.value">{{state.displayText}}</mat-option>
+            </ng-container>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="flex-2 w-full p-s-10">
+        <mat-form-field class="w-full" appearance="outline">
+          <mat-label>Select Sub Center</mat-label>
+          <mat-select formControlName="subCenter">
+            <ng-container *ngFor="let subCenter of subCentersList">
+              <mat-option [value]="subCenter.value">{{subCenter.displayText}}</mat-option>
+            </ng-container>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="flex-2 w-full p-s-10">
+        <mat-form-field class="w-full" appearance="outline">
+          <mat-label>Select Designation</mat-label>
+          <mat-select formControlName="designation">
+            <ng-container *ngFor="let designation of designationsList">
+              <mat-option [value]="designation.value">{{designation.displayText}}</mat-option>
+            </ng-container>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </div>
+    <!-- #endregion -->
+
+    <!-- #region (City, Competency, Block)-->
+    <div class="flex flex-1 custom">
+
+      <div class="flex-2 w-full p-s-10">
+        <mat-form-field class="w-full" appearance="outline">
+          <mat-label>Select City</mat-label>
+          <mat-select formControlName="city">
+            <ng-container *ngFor="let city of citysList">
+              <mat-option [value]="city.value">{{city.displayText}}</mat-option>
+            </ng-container>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="flex-2 w-full p-s-10">
+        <mat-form-field class="w-full" appearance="outline">
+          <mat-label>Select Competency</mat-label>
+          <mat-select formControlName="competency">
+            <ng-container *ngFor="let competency of competencysList">
+              <mat-option [value]="competency.value">{{competency.displayText}}</mat-option>
+            </ng-container>
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="flex-2 w-full p-s-10">
+        <mat-form-field class="w-full" appearance="outline">
+          <mat-label>Select Block</mat-label>
+          <mat-select formControlName="block">
+            <ng-container *ngFor="let block of blocksList">
+              <mat-option [value]="block.value">{{block.displayText}}</mat-option>
+            </ng-container>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </div>
+    <!-- #endregion -->
+
+    <!-- #region (email, phone number)-->
+    <div class="flex flex-1 custom">
+      <!-- #region (eamil)-->
+      <div class="flex-2 w-full p-s-10">
+        <mat-form-field class="w-full" appearance="outline">
+          <mat-label>Filter by email</mat-label>
+          <mat-chip-list #emailChipList aria-label="Email selection" formArrayName="emails">
+            <mat-chip *ngFor="let email of emailControls.value" [selectable]="selectable" [removable]="removable"
+              (removed)="remove(email)">
+              {{email}}
+              <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
+            </mat-chip>
+            <input placeholder="Add email" [matChipInputFor]="emailChipList"
+              [matChipInputSeparatorKeyCodes]="separatorKeysCodes" [matChipInputAddOnBlur]="addOnBlur"
+              (matChipInputTokenEnd)="add($event, 'emails' )">
+          </mat-chip-list>
+        </mat-form-field>
+      </div>
+      <!-- #endregion -->
+
+      <div class="flex-2 w-full p-s-10">
+        <mat-form-field class="w-full" appearance="outline">
+          <mat-label>Filter by phone number</mat-label>
+          <mat-chip-list #chipList formArrayName="phoneNumber">
+            <mat-chip *ngFor="let PhoneNumber of phoneNumberControls.value" [selectable]="selectable"
+              [removable]="removable" (removed)="phoneNumberRemove(PhoneNumber)">
+              {{PhoneNumber}}
+              <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
+            </mat-chip>
+            <input placeholder="Add phone number" [matChipInputFor]="chipList"
+              [matChipInputSeparatorKeyCodes]="separatorKeysCodes" [matChipInputAddOnBlur]="addOnBlur"
+              (matChipInputTokenEnd)="add($event, 'phoneNumber' )">
+          </mat-chip-list>
+
+        </mat-form-field>
+      </div>
+    </div>
+
+    <!-- #region (Buttons) Footer-->
+    <div class="flex flex-1 custom">
+      <div class="p-s-10">
+        <button class="applyBtn" type="submit" mat-raised-button (click)="submit()">
+          Apply
+        </button>
+      </div>
+    </div>
+    <!-- #endregion -->
+
+  </form>
+</div>

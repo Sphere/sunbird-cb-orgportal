@@ -1,4 +1,17 @@
-<div>
-  <ws-app-skill-table [tableData]="tableData" [data]="data" [buttonTemplate]="buttonTemplate">
-  </ws-app-skill-table>
+<div class="flex flex-4 flex-column">
+  <p class="header">Competencies</p>
+  <mat-card class="flex-custom ws-mat-accent-border">
+    <!-- <mat-card-header class="flex-custom-m">
+      <div class="flex-1" role="link" tabindex="1">
+        <div class="flex flex-1">
+          <mat-card-title class="flex-4 mobile-margin mat-h2">
+            Competencies
+          </mat-card-title>
+        </div>
+      </div>
+    </mat-card-header> -->
+
+    <ws-app-skill-table [tableData]="tableData" [data]="data" [buttonTemplate]="buttonTemplate">
+    </ws-app-skill-table>
+  </mat-card>
 </div>
