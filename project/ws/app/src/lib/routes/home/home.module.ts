@@ -45,6 +45,7 @@ import { RainDashboardsModule } from '@sunbird-cb/rain-dashboards'
 import { UsersModule } from '../users/users.module'
 import { CompetenciesComponent } from './routes/competencies/competencies.component'
 import { FilterDialogComponent } from './routes/filter-dialog/filter-dialog.component'
+import { AddCompetenciesComponent } from './routes/add-competencies/add-competencies.component'
 @NgModule({
   declarations: [
     HomeComponent,
@@ -56,6 +57,7 @@ import { FilterDialogComponent } from './routes/filter-dialog/filter-dialog.comp
     WelcomeComponent,
     CompetenciesComponent,
     FilterDialogComponent,
+    AddCompetenciesComponent
   ],
   imports: [
     CommonModule,
@@ -107,7 +109,8 @@ import { FilterDialogComponent } from './routes/filter-dialog/filter-dialog.comp
     MatCheckboxModule,
   ],
   entryComponents: [
-    FilterDialogComponent
+    FilterDialogComponent,
+    AddCompetenciesComponent
   ],
   providers: [
     // CKEditorService,

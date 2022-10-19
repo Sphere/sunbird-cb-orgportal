@@ -1,7 +1,7 @@
 @import 'ws-vars';
 @import 'ws-mixins';
 @import './utility.scss';
-
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400&display=swap');
 @include print {
   * {
     display: none !important;
@@ -657,5 +657,5 @@ h3.shepherd-title {
 }
 
 .competencies .mat-dialog-container {
-  border-radius: 40px !important;
+  border-radius: 36px !important;
 }

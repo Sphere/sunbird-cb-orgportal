@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core'
 import { MatDialog, MatPaginator, MatTableDataSource } from '@angular/material'
 // tslint:disable-next-line
 import _ from 'lodash'
+import { AddCompetenciesComponent } from '../add-competencies/add-competencies.component'
 import { FilterDialogComponent } from '../filter-dialog/filter-dialog.component'
 @Component({
   selector: 'app-competencies',
@@ -25,8 +26,24 @@ export class CompetenciesComponent implements OnInit, OnDestroy {
   filterTable() {
     const dialogRef = this.dialog.open(FilterDialogComponent, {
       maxHeight: '90vh',
-      minHeight: '65%',
-      width: '80%',
+      minHeight: '27.438em',
+      width: '75.750em',
+      maxWidth: '90vw',
+      autoFocus: false, // To remove auto select
+      restoreFocus: false,
+      panelClass: 'competencies'
+    })
+    dialogRef.afterClosed().subscribe((responce: any) => {
+      if (responce) { }
+    })
+  }
+
+  addCompetencies() {
+    const dialogRef = this.dialog.open(AddCompetenciesComponent, {
+      maxHeight: '90vh',
+      minHeight: '27.438em',
+      width: '75.750em',
+      maxWidth: '90vw',
       autoFocus: false, // To remove auto select
       restoreFocus: false,
       panelClass: 'competencies'
@@ -40,12 +57,12 @@ export class CompetenciesComponent implements OnInit, OnDestroy {
 }
 
 export interface PeriodicElement {
-  Full_Name: string
-  Designation: string
-  State: string
-  City: string
-  Block: string
-  Sub_Centre: string
+  Full_Name: string,
+  Designation: string,
+  State: string,
+  City: string,
+  Block: string,
+  Sub_Centre: string,
   Competency_Status: string
 }
 

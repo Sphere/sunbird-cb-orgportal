@@ -12,31 +12,35 @@
     </mat-card-header> -->
 
     <mat-card-content>
-      <div class="example-table-container">
-        <div class="container-balanced">
-          <div class="flex flex-1 custom">
-            <div class="flex-2 center">
-              <div class="search rsearch">
-                <input type="Standard" class="sinput color-60 m-b-20 w-full"
-                  placeholder="Search by name/email/phone/role/competency">
-                <mat-icon class="color-60 search-icon">search</mat-icon>
+      <div class="example-container">
+        <div class="container-balanced filterControls">
+          <div class="flex">
+            <div class=" flex-1 custom flex">
+              <div class="flex-2 center">
+                <div class="search rsearch">
+                  <input type="Standard" class="sinput color-60 m-b-20 w-full"
+                    placeholder="Search by name/email/phone/role/competency">
+                  <mat-icon class="color-60 search-icon">search</mat-icon>
+                </div>
+              </div>
+              <div class="flex-2 center">
+                <mat-icon class="material-icons-outlined m-b-20" (click)="filterTable()" style="cursor:pointer">
+                  filter_alt
+                </mat-icon>
+              </div>
+              <div class="flex-2 center">
+                <mat-checkbox class="width-full-wrapped m-b-20 ml-3" i18n>
+                  <span class="font-size-small">Select All</span>
+                </mat-checkbox>
               </div>
             </div>
-            <div class="flex-2 center">
-              <mat-icon class="material-icons-outlined m-b-20" (click)="filterTable()" style="cursor:pointer">
-                filter_alt
-              </mat-icon>
-            </div>
-            <div class="flex-2 center">
-              <mat-checkbox class="width-full-wrapped m-b-20 ml-3" i18n>
-                <span class="font-size-small">Select All</span>
-              </mat-checkbox>
-            </div>
-            <div class="flex-2">
-              <button class="mat-button mat-button-base">Enable Competency</button>
-            </div>
-            <div class="flex-2">
-              <button class="create-btn mat-button mat-button-base ng-star-inserted">Add Proficiency Manually</button>
+            <div class="flex-1 custom flex">
+              <div class="flex-2">
+                <button mat-raised-button>Enable Competency</button>
+              </div>
+              <div class="flex-2">
+                <button mat-raised-button (click)="addCompetencies()">Add Proficiency Manually</button>
+              </div>
             </div>
           </div>
         </div>

@@ -1,0 +1,12 @@
+<div class="example-container">
+  <div class="container-balanced filterControls">
+    <ng-container *ngFor="let competencyData of competencyDataList">
+      <div class="flex">
+        <mat-checkbox class="width-full-wrapped checkBox" i18n></mat-checkbox>
+        <div class="flex-1 custom competencyBox">
+          <span>{{competencyData.title}}</span>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+</div>
