@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges, ViewChil
 import { MatDialog, MatPaginator, MatSort, MatTableDataSource } from '@angular/material'
 import _ from 'lodash'
 import { SelectionModel } from '@angular/cdk/collections'
-import { FilterTableComponent } from '../filter-table/filter-table.component'
+import { FilterDialogComponent } from '../filter-dialog/filter-dialog.component'
 
 @Component({
   selector: 'ws-app-skill-table',
@@ -146,7 +146,7 @@ export class SkillTableComponent implements OnInit {
 
 
   filterTable() {
-    const dialogRef = this.dialog.open(FilterTableComponent, {
+    const dialogRef = this.dialog.open(FilterDialogComponent, {
       maxHeight: '90vh',
       minHeight: '65%',
       width: '80%',

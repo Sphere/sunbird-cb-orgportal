@@ -109,7 +109,7 @@
             </mat-chip>
             <input placeholder="Add email" [matChipInputFor]="emailChipList"
               [matChipInputSeparatorKeyCodes]="separatorKeysCodes" [matChipInputAddOnBlur]="addOnBlur"
-              (matChipInputTokenEnd)="add($event, 'emails' )">
+              (matChipInputTokenEnd)="addValueToForm($event, 'emails' )">
           </mat-chip-list>
         </mat-form-field>
       </div>
@@ -126,7 +126,7 @@
             </mat-chip>
             <input placeholder="Add phone number" [matChipInputFor]="chipList"
               [matChipInputSeparatorKeyCodes]="separatorKeysCodes" [matChipInputAddOnBlur]="addOnBlur"
-              (matChipInputTokenEnd)="add($event, 'phoneNumber' )">
+              (matChipInputTokenEnd)="addValueToForm($event, 'phoneNumber' )">
           </mat-chip-list>
 
         </mat-form-field>

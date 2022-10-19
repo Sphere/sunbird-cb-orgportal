@@ -2,13 +2,14 @@ import { Component, OnInit } from '@angular/core'
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms'
 import { MatChipInputEvent, MatDialogRef } from '@angular/material'
 import { COMMA, ENTER } from '@angular/cdk/keycodes'
+import * as _ from 'lodash'
 
 @Component({
-  selector: 'ws-filter-table',
-  templateUrl: './filter-table.component.html',
-  styleUrls: ['./filter-table.component.scss']
+  selector: 'ws-filter-dialog',
+  templateUrl: './filter-dialog.component.html',
+  styleUrls: ['./filter-dialog.component.scss']
 })
-export class FilterTableComponent implements OnInit {
+export class FilterDialogComponent implements OnInit {
 
   //#region Global variables
 
@@ -70,7 +71,7 @@ export class FilterTableComponent implements OnInit {
   //#region (constructor)
   constructor(
     private fb: FormBuilder,
-    public dialogRef: MatDialogRef<FilterTableComponent>,
+    public dialogRef: MatDialogRef<FilterDialogComponent>,
   ) {
     this.filterForm = this.fb.group({
       role: [''],
@@ -98,30 +99,17 @@ export class FilterTableComponent implements OnInit {
   get phoneNumberControls(): FormArray {
     return this.filterForm.controls.phoneNumber as FormArray
   }
-
-  add(event: MatChipInputEvent, controller: string): void {
-    const input = event.input
-    const value = event.value
-
-
-    // Add values
-    if ((value || "").trim()) {
+  /* adding email for mobile field to form array */
+  addValueToForm(event: MatChipInputEvent, controller: string): void {
+    if (_.trim(_.get(event.input, 'value'))) {
       switch (controller) {
-        case 'emails': this.emailControls.push(this.fb.control(value))
+        case 'emails': this.emailControls.push(this.fb.control(_.trim(_.get(event.input, 'value'))))
           break
 
-        case 'phoneNumber': this.phoneNumberControls.push(this.fb.control(value))
+        case 'phoneNumber': this.phoneNumberControls.push(this.fb.control(_.trim(_.get(event.input, 'value'))))
           break
       }
-
-
     }
-
-    // Reset the input value
-    if (input) {
-      input.value = ""
-    }
-
   }
 
   remove(value: string): void {
