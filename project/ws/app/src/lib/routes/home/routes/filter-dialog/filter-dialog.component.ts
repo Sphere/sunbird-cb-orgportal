@@ -125,22 +125,14 @@ export class FilterDialogComponent implements OnInit {
   }
   //#endregion
 
-  //#region (remaoveEmail) remoave value from list
+  //#region (removeChip) remoave value from list
   removeChip(index: number, controller: string): void {
-    if (index && index > -1) {
+    if (index || index === 0) {
       switch (controller) {
         case 'email':
-          // const emailIndex = this.selectedEmailList.indexOf(email)
-          // if (emailIndex >= 0) {
-          //   this.selectedEmailList.splice(emailIndex, 1)
-          // }
           this.selectedEmailList.splice(index, 1)
           break
         case 'phone number':
-          // const PNindex = this.selectedPhoneNumberList.indexOf(email)
-          // if (PNindex >= 0) {
-          //   this.selectedPhoneNumberList.splice(PNindex, 1)
-          // }
           this.selectedPhoneNumberList.splice(index, 1)
           break
       }
