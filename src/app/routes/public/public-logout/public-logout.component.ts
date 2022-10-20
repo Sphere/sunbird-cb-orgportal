@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core'
-//import { AuthKeycloakService, ConfigurationsService, NsPage } from '@sunbird-cb/utils'
+// import { AuthKeycloakService, ConfigurationsService, NsPage } from '@sunbird-cb/utils'
 import { Subscription } from 'rxjs'
 // import { ActivatedRoute } from '@angular/router'
 
@@ -13,18 +13,16 @@ export class PublicLogoutComponent implements OnInit, OnDestroy {
   contactPage: any
   platform = 'Learner'
   panelOpenState = false
-  //pageNavbar: Partial<NsPage.INavBackground> = this.configSvc.pageNavBar
+  // pageNavbar: Partial<NsPage.INavBackground> = this.configSvc.pageNavBar
   private subscriptionContact: Subscription | null = null
   http: any
   redirectUrl: string | undefined
 
   constructor(
-    //private configSvc: ConfigurationsService,
+    // private configSvc: ConfigurationsService,
     // private activateRoute: ActivatedRoute,
-    //private authSvc: AuthKeycloakService,
+    // private authSvc: AuthKeycloakService,
   ) { }
-
-
 
   ngOnInit() {
     // this.subscriptionContact = this.activateRoute.data.subscribe(data => {
@@ -40,7 +38,7 @@ export class PublicLogoutComponent implements OnInit, OnDestroy {
     // window.location.href = `${this.defaultRedirectUrl}public/home`
     // this.router.navigate(['/page/home'])
     // }
-    //this.authSvc.logout().then(() => { })
+    // this.authSvc.logout().then(() => { })
   }
 
   ngOnDestroy() {
