@@ -25,12 +25,13 @@
         </div>-->
       </div>
       <!-- buttons -->
+      <!--left section -->
       <div>
         <div class="flex gap-4">
-          <ng-container *ngFor="let btn of buttonTemplate">
-            <ng-container *ngIf="btn.type === 'button'">
+          <ng-container *ngFor="let config of topBarConfig?.right">
+            <ng-container *ngIf="config?.type === 'button'">
 
-              <button class="btn btn-active">{{btn.title}}</button>
+              <button class="btn btn-active">{{config.title}}</button>
             </ng-container>
           </ng-container>
         </div>
