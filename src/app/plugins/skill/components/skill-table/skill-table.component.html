@@ -30,10 +30,10 @@
         <div class="flex gap-4">
           <ng-container *ngFor="let config of topBarConfig?.right">
             <ng-container *ngIf="config?.type === 'button'">
-              <button class="btn btn-active">{{config.title}}</button>
+              <button class="btn active">{{config.title}}</button>
             </ng-container>
             <ng-container *ngIf="config?.type === 'anchor'">
-              <a class="margin-top-xs anchor-wrap " mat-raised-button type="button" color="primary">
+              <a class="anchor-wrap active" mat-raised-button type="button" color="primary">
                 {{config.title}}
               </a>
             </ng-container>
