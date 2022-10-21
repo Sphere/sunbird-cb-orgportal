@@ -18,12 +18,15 @@ import {
 
 import { MatMenuModule } from '@angular/material/menu'
 import { SkillTableComponent } from './components'
-import { FilterDialogComponent } from './components'
+import { FilterDialogComponent, ConfirmDialogComponent } from './components'
 import { FormsModule, ReactiveFormsModule } from '@angular/forms'
 
 
 @NgModule({
-  declarations: [SkillTableComponent, FilterDialogComponent],
+  declarations: [
+    SkillTableComponent,
+    FilterDialogComponent,
+    ConfirmDialogComponent],
   imports: [
     CommonModule,
     FormsModule,
@@ -44,7 +47,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms'
     MatSelectModule
   ],
   entryComponents: [
-    FilterDialogComponent
+    FilterDialogComponent,
+    ConfirmDialogComponent
   ],
   exports: [SkillTableComponent]
 })

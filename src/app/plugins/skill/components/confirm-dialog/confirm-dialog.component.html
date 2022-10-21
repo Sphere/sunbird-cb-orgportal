@@ -1,0 +1,17 @@
+<div class="dialog-P">
+  <div>
+    <ng-container *ngIf="data.title">
+      <span class="title">{{data.title}}</span>
+    </ng-container>
+  </div>
+  <div>
+    <ng-container *ngIf="leftButton.Title">
+      <button mat-raised-button class="btn left-btn">
+        {{leftButton.Title}}
+      </button>
+    </ng-container>
+    <ng-container *ngIf="rightButton.Title">
+      <button mat-raised-button class="btn right-btn">{{rightButton.Title}}</button>
+    </ng-container>
+  </div>
+</div>
