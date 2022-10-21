@@ -1,0 +1,41 @@
+<div class="flex h-full p-3">
+  <form [formGroup]="addCompetencyForm" class="flex flex-col">
+    <!-- Select Competency to add field -->
+    <div class="flex flex-col mb-5">
+      <h4 class="lable">Select Competency to add:</h4>
+      <mat-form-field class="w-full" appearance="outline">
+        <mat-label>Select Competency</mat-label>
+        <mat-select formControlName="selectCompetency">
+          <ng-container *ngFor="let item of selectCompetencyList">
+            <mat-option [value]="item.value">{{item.displayName}}</mat-option>
+          </ng-container>
+        </mat-select>
+      </mat-form-field>
+    </div>
+    <ng-container *ngIf="addCompetencyForm?.controls['selectCompetency'].valid">
+
+
+      <!-- Select Proficiency level gained -->
+      <div class="flex flex-col  mb-5">
+        <h4 class="lable"> Select Proficiency level gained </h4>
+        <div class="flex gap-3 mb-3">
+          <ng-container *ngFor="let level of proficiencyLevel">
+            <button (click)="addPProficiency(level.value)" class="cursor-pointer, proficiency-level"
+              [disabled]="level.selected"
+              [ngClass]="{'selected': level.selected, 'current-select' :level.curentSelected}">{{level.value}}</button>
+          </ng-container>
+        </div>
+      </div>
+
+      <!-- add comments -->
+      <div class="flex flex-col">
+        <h4 class="lable"> Add Comments</h4>
+        <mat-form-field appearance="outline">
+          <input matInput formControlName="addComments" placeholder="Type Here">
+        </mat-form-field>
+      </div>
+    </ng-container>
+    <!-- add button -->
+    <button [disabled]="!addCompetencyForm.valid" (click)="submit()" class="btn"> Add </button>
+  </form>
+</div>
