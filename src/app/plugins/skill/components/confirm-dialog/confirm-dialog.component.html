@@ -5,13 +5,15 @@
     </ng-container>
   </div>
   <div>
-    <ng-container *ngIf="leftButton.Title">
-      <button mat-raised-button class="btn left-btn">
-        {{leftButton.Title}}
+    <ng-container *ngIf="data?.footerConfig?.left?.type === 'button'">
+      <button mat-raised-button class="btn left-btn" (click)="performAction(data?.footerConfig?.left)">
+        {{data.footerConfig.left?.title}}
       </button>
     </ng-container>
-    <ng-container *ngIf="rightButton.Title">
-      <button mat-raised-button class="btn right-btn">{{rightButton.Title}}</button>
+    <ng-container *ngIf="data?.footerConfig?.right?.type === 'button'">
+      <button mat-raised-button class="btn right-btn" (click)="performAction(data?.footerConfig?.right)">
+        {{data.footerConfig.right?.title}}
+      </button>
     </ng-container>
   </div>
 </div>

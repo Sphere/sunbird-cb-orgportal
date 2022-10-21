@@ -3,9 +3,17 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material'
 
 interface IPopData {
   title: string
-  buttonTemplate: {
-    leftTitle: string
-    rightTitle: string
+  footerConfig: {
+    left: {
+      type: string,
+      title: string,
+      action: string
+    },
+    right: {
+      type: string,
+      title: string,
+      action: string
+    }
   }
 }
 
@@ -16,32 +24,20 @@ interface IPopData {
 })
 export class ConfirmDialogComponent implements OnInit {
 
-  leftButton: {
-    Title: string
-  } = {
-      Title: ''
-    }
-
-  rightButton: {
-    Title: string
-  } = {
-      Title: ''
-    }
-
   constructor(
     private dialogRef: MatDialogRef<ConfirmDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: IPopData,
   ) {
-    if (data && data.buttonTemplate) {
-      this.leftButton.Title = data.buttonTemplate.leftTitle ? data.buttonTemplate.leftTitle : ''
-      this.rightButton.Title = data.buttonTemplate.rightTitle ? data.buttonTemplate.rightTitle : ''
-    }
   }
 
   ngOnInit() {
   }
 
-  buttonClick() {
-    this.dialogRef.close()
+  performAction(button: {
+    type: string,
+    title: string,
+    action: string
+  }) {
+    this.dialogRef.close(button.action)
   }
 }
