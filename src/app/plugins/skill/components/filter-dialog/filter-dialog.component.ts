@@ -56,6 +56,12 @@ export class FilterDialogComponent implements OnInit {
       value: 'Block1'
     },
   ];
+  ActivitsList: list[] = [
+    {
+      displayText: 'Activity1',
+      value: 'Activity1'
+    },
+  ];
   //#endregion
 
   //#region chps for phone number and email

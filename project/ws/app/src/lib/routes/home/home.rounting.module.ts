@@ -13,6 +13,7 @@ import { WelcomeComponent } from './routes/welcome/welcome.component'
 import { ConfigResolveService } from './resolvers/config-resolve.service'
 import { UsersListResolve } from './resolvers/users-list-resolve.service'
 import { CompetenciesComponent } from './routes/competencies/competencies.component'
+import { SelfAssessmentComponent } from './routes/self-assessment/self-assessment.component'
 
 const routes: Routes = [
   {
@@ -62,6 +63,10 @@ const routes: Routes = [
       {
         path: 'competencies',
         component: CompetenciesComponent,
+      },
+      {
+        path: 'self-assessment',
+        component: SelfAssessmentComponent,
       },
     ],
   },
