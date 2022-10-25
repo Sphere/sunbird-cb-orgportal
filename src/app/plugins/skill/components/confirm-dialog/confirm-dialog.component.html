@@ -1,0 +1,19 @@
+<div class="dialog-P">
+  <div>
+    <ng-container *ngIf="data.title">
+      <span class="title">{{data.title}}</span>
+    </ng-container>
+  </div>
+  <div>
+    <ng-container *ngIf="data?.footerConfig?.left?.type === 'button'">
+      <button mat-raised-button class="btn left-btn" (click)="performAction(data?.footerConfig?.left)">
+        {{data.footerConfig.left?.title}}
+      </button>
+    </ng-container>
+    <ng-container *ngIf="data?.footerConfig?.right?.type === 'button'">
+      <button mat-raised-button class="btn right-btn" (click)="performAction(data?.footerConfig?.right)">
+        {{data.footerConfig.right?.title}}
+      </button>
+    </ng-container>
+  </div>
+</div>

@@ -13,7 +13,7 @@
     <div class="flex flex-1 custom">
       <div class="flex-2 w-full p-s-10">
         <mat-form-field class="w-full" appearance="outline">
-          <mat-label>Role</mat-label>
+          <mat-label>Select Role</mat-label>
           <mat-select formControlName="role">
             <ng-container *ngFor="let role of rolesList">
               <mat-option [value]="role.value">{{role.displayText}}</mat-option>
@@ -92,6 +92,17 @@
           </mat-select>
         </mat-form-field>
       </div>
+
+      <div class="flex-2 w-full p-s-10">
+        <mat-form-field class="w-full" appearance="outline">
+          <mat-label>Activity</mat-label>
+          <mat-select formControlName="block">
+            <ng-container *ngFor="let Activit of ActivitsList">
+              <mat-option [value]="Activit.value">{{Activit.displayText}}</mat-option>
+            </ng-container>
+          </mat-select>
+        </mat-form-field>
+      </div>
     </div>
     <!-- #endregion -->
 
@@ -132,6 +143,7 @@
         </mat-form-field>
       </div>
     </div>
+    <!-- #endregion -->
 
     <!-- #region (Buttons) Footer-->
     <div class="flex flex-1 custom">
@@ -142,6 +154,5 @@
       </div>
     </div>
     <!-- #endregion -->
-
   </form>
 </div>
