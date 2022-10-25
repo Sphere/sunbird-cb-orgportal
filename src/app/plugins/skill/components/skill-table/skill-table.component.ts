@@ -3,6 +3,7 @@ import { MatDialog, MatPaginator, MatSort, MatTableDataSource } from '@angular/m
 import _ from 'lodash'
 import { SelectionModel } from '@angular/cdk/collections'
 import { FilterDialogComponent } from '../filter-dialog/filter-dialog.component'
+import { AddCompetencyDialogComponent } from '../add-competency-dialog/add-competency-dialog.component'
 
 @Component({
   selector: 'ws-app-skill-table',
@@ -153,6 +154,24 @@ export class SkillTableComponent implements OnInit {
       autoFocus: false, // To remove auto select
       restoreFocus: false,
       panelClass: 'competencies'
+    })
+    dialogRef.afterClosed().subscribe((responce: any) => {
+      console.log(responce)
+    })
+  }
+
+  performBtnAction(btn: any) {
+    switch (btn.actioName) {
+      case 'addCompetency': this.addCompetency()
+        break
+    }
+  }
+
+  addCompetency() {
+    const dialogRef = this.dialog.open(AddCompetencyDialogComponent, {
+      autoFocus: false, // To remove auto select
+      restoreFocus: false,
+      panelClass: 'add-Competency'
     })
     dialogRef.afterClosed().subscribe((responce: any) => {
       console.log(responce)

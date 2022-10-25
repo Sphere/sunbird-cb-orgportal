@@ -13,20 +13,24 @@ import {
   MatDividerModule,
   MatPaginatorModule,
   MatSelectModule,
-  MatCheckboxModule
+  MatCheckboxModule,
+  MatInputModule,
+  MatButtonModule,
 } from '@angular/material'
 
 import { MatMenuModule } from '@angular/material/menu'
 import { SkillTableComponent } from './components'
 import { FilterDialogComponent, ConfirmDialogComponent } from './components'
 import { FormsModule, ReactiveFormsModule } from '@angular/forms'
-
+import { AddCompetencyDialogComponent } from './components'
 
 @NgModule({
   declarations: [
     SkillTableComponent,
     FilterDialogComponent,
-    ConfirmDialogComponent],
+    ConfirmDialogComponent,
+    AddCompetencyDialogComponent,
+  ],
   imports: [
     CommonModule,
     FormsModule,
@@ -44,12 +48,15 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms'
     MatPaginatorModule,
     MatMenuModule,
     MatDialogModule,
-    MatSelectModule
+    MatSelectModule,
+    MatInputModule,
+    MatButtonModule,
   ],
   entryComponents: [
     FilterDialogComponent,
-    ConfirmDialogComponent
+    ConfirmDialogComponent,
+    AddCompetencyDialogComponent,
   ],
-  exports: [SkillTableComponent]
+  exports: [SkillTableComponent],
 })
 export class SkillModule { }
