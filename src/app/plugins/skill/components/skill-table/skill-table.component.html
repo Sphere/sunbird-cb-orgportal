@@ -11,11 +11,12 @@
           <mat-icon class="search-icon">search</mat-icon>
         </div>
         <!-- filter -->
-        <div>
-          <mat-icon class="material-icons-outlined cursor-pointer mt-2" (click)="filterTable()">
+        <a class="flex items-center" (click)="filterTable()">
+          <mat-icon class="material-icons-outlined cursor-pointer filter">
             filter_alt
           </mat-icon>
-        </div>
+          <span class="filter filterText items-center cursor-pointer">Filter</span>
+        </a>
         <!-- select all -->
         <!-- <div class="flex gap-2">
           <mat-checkbox (change)="$event ? toggleAllRows() : null" [checked]="selection.hasValue() && isAllSelected()"
