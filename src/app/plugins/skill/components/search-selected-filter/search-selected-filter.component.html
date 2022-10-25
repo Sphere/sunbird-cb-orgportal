@@ -1,10 +1,10 @@
 <div class="flex flex-ai-center mb-5 flex-w-wrap" *ngIf="selectedFilters && selectedFilters.length > 0">
   <ng-container *ngFor="let filter of selectedFilters ">
     <div class="d-flex flex-ai-center pr-2">
-      <label>{{filter.label}} :&nbsp;</label>
-      <a class="filter label mt-8 mr-2 py-0 label-background text-capitalize">
+      <label class="text-capitalize">{{filter.label}} :&nbsp;</label>
+      <a class="filter label mt-8 mr-2 py-0 label-background">
         {{filter.item}}
-        <!-- <mat-icon>cancel</mat-icon> -->
+        <mat-icon class="close-icon">close</mat-icon>
       </a>
     </div>
   </ng-container>

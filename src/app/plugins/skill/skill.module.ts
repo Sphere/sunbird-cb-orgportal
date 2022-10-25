@@ -24,7 +24,7 @@ import { FilterDialogComponent, SearchSelectedFilterComponent, AddCompetencyDial
 import { FormsModule, ReactiveFormsModule } from '@angular/forms'
 
 @NgModule({
-  declarations: [SkillTableComponent, FilterDialogComponent, SearchSelectedFilterComponent],
+  declarations: [SkillTableComponent, FilterDialogComponent, ConfirmDialogComponent, AddCompetencyDialogComponent, SearchSelectedFilterComponent],
   imports: [
     CommonModule,
     FormsModule,
