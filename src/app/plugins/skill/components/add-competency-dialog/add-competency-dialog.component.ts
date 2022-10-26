@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core'
 import { MatDialogRef } from '@angular/material'
 import { FormGroup, FormBuilder, Validators, FormArray, FormControl } from '@angular/forms'
-import lodash from 'lodash'
+import * as _ from 'lodash'
 @Component({
   selector: 'ws-add-competency-dialog',
   templateUrl: './add-competency-dialog.component.html',
