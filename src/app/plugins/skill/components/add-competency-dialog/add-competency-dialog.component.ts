@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core'
 import { MatDialogRef } from '@angular/material'
-import { FormGroup, FormBuilder, Validators, FormArray } from '@angular/forms'
-
+import { FormGroup, FormBuilder, Validators, FormArray, FormControl } from '@angular/forms'
+import _ from 'lodash'
 @Component({
   selector: 'ws-add-competency-dialog',
   templateUrl: './add-competency-dialog.component.html',
@@ -43,7 +43,7 @@ export class AddCompetencyDialogComponent implements OnInit {
     {
       level: 1,
       selected: true,
-      curentSelected: false
+      curentSelected: true
     },
     {
       level: 2,
@@ -75,54 +75,40 @@ export class AddCompetencyDialogComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.initForm()
+    this.initializeFormFields()
 
   }
 
 
-  initForm() {
+  initializeFormFields() {
     this.addCompetencyForm = this.aastrikaFormBuilder.group({
       selectCompetency: ['', Validators.required],
       proficiencyLevel: this.aastrikaFormBuilder.array([]),
-      // addComments: ['']
     })
     console.log(this.proficiencyLevel.length)
     if (this.proficiencyLevel.length > 0) {
       this.addPProficiency()
     }
-
-
   }
-
-
   get proficiencyLevelControl(): FormArray {
-    return this.addCompetencyForm.controls.proficiencyLevel as FormArray
+    return this.addCompetencyForm.get("proficiencyLevel") as FormArray
+  }
+  getLeveleSelected(index: any) {
+    console.log(index)
+    const formArray: any = (<FormArray>this.addCompetencyForm.get('proficiencyLevel')).at(index).get('level')
+    return formArray.value.curentSelected
+  }
+  newProficiencyLevel(item?: any): FormGroup {
+    return this.aastrikaFormBuilder.group({
+      comments: new FormControl(''),
+      level: new FormControl(item),
+    })
   }
 
   addPProficiency() {
-
-    const level = this.addCompetencyForm.controls.proficiencyLevel as FormArray
-
-    // const levelForm = this.aastrikaFormBuilder.group({
-    //   // level: [],
-    //   addComments: []
-    // })
-    this.proficiencyLevel.forEach(() => {
-      // if (element.value === level) {
-      //   element.curentSelected = true
-      //   this.selectedLeves.push(level)
-      //   // this.proficiencyLevelControl.push(level)
-      // }
-      level.push(this.aastrikaFormBuilder.group({
-        addComments: '',
-      }))
+    _.forEach(this.proficiencyLevel, (key) => {
+      this.proficiencyLevelControl.push(this.newProficiencyLevel(key))
     })
-
-
-    // console.log("add", this.proficiencyLevelControl, levelForm, this.addCompetencyForm)
-
-
-
 
 
   }

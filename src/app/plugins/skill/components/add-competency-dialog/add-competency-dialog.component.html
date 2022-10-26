@@ -32,12 +32,12 @@
           </ng-container> -->
 
         <div class="flex gap-3 mb-3 items-center" formArrayName="proficiencyLevel"
-          *ngFor="let level of addCompetencyForm.controls.proficiencyLevel?.value; let i = index">
-          <ng-container [formGroupName]="i">
-            <button class="cursor-pointer proficiency-level" [ngClass]="{'current-select' :curentSelected}"
-              (click)="levelSelect(i+1)">{{i+1}}</button>
+          *ngFor="let level of proficiencyLevelControl?.controls; let i = index">
+          <ng-container formGroupName="{{i}}">
+            <button class="cursor-pointer proficiency-level"
+              [ngClass]="{'current-select' : getLeveleSelected(i)}">{{i+1}}</button>
             <mat-form-field appearance="outline" class="form-group">
-              <input matInput type="text" class="form-control" placeholder="Type Here" formControlName="addComments">
+              <input matInput type="text" class="form-control" placeholder="Type Here" formControlName="comments">
             </mat-form-field>
           </ng-container>
         </div>
