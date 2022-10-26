@@ -8,7 +8,7 @@ describe('MappingUserTableComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [SkillTableComponent]
+      declarations: [SkillTableComponent],
     })
       .compileComponents()
   }))

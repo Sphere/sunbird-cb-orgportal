@@ -55,7 +55,7 @@ import { SelfAssessmentComponent } from './routes/self-assessment/self-assessmen
     WorkallocationComponent,
     WelcomeComponent,
     CompetenciesComponent,
-    SelfAssessmentComponent
+    SelfAssessmentComponent,
   ],
   imports: [
     CommonModule,
@@ -104,7 +104,7 @@ import { SelfAssessmentComponent } from './routes/self-assessment/self-assessmen
     RainDashboardsModule,
     UsersModule,
     MatTableModule,
-    SkillModule
+    SkillModule,
   ],
   entryComponents: [
   ],

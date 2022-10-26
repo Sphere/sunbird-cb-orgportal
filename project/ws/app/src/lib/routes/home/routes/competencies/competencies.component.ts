@@ -20,23 +20,22 @@ export class CompetenciesComponent implements OnInit, OnDestroy {
   constructor() { }
 
   ngOnInit() {
-    this.topBarConfig =
-    {
+    this.topBarConfig = {
       right: [
         {
           type: 'button',
           title: 'Add Competency',
-          actioName: 'addCompetency'
+          actioName: 'addCompetency',
         },
         {
           type: 'button',
-          title: "Add Proficieny Manually",
-          actioName: 'addProficency'
-        }
+          title: 'Add Proficieny Manually',
+          actioName: 'addProficency',
+        },
       ],
       left: [{
 
-      }]
+      }],
     }
     this.tableData = {
       columns: [
@@ -52,7 +51,7 @@ export class CompetenciesComponent implements OnInit, OnDestroy {
       needHash: false,
       sortColumn: 'dateCreatedOn',
       sortState: 'desc',
-      needUserMenus: false
+      needUserMenus: false,
 
     }
 
@@ -60,11 +59,10 @@ export class CompetenciesComponent implements OnInit, OnDestroy {
 
   }
 
-
   ngOnDestroy() { }
 }
 
-export interface PeriodicElement {
+export interface IPeriodicElement {
   Full_Name: string
   Designation: string
   State: string
@@ -79,13 +77,13 @@ const ELEMENT_DATA = [
     fullName: 'User1'
     , designation: 'designation1'
     , state: 'State1', city: 'City1', block: 'Block1',
-    competency: 'Competency_Status1'
+    competency: 'Competency_Status1',
   },
   {
     fullName: 'User2'
     , designation: 'designation1'
     , state: 'State1', city: 'City1', block: 'Block2',
-    competency: 'Competency_Status1'
-  }
+    competency: 'Competency_Status1',
+  },
 
 ]

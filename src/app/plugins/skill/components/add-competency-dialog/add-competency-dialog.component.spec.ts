@@ -1,25 +1,25 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { async, ComponentFixture, TestBed } from '@angular/core/testing'
 
-import { AddCompetencyDialogComponent } from './add-competency-dialog.component';
+import { AddCompetencyDialogComponent } from './add-competency-dialog.component'
 
 describe('AddCompetencyDialogComponent', () => {
-  let component: AddCompetencyDialogComponent;
-  let fixture: ComponentFixture<AddCompetencyDialogComponent>;
+  let component: AddCompetencyDialogComponent
+  let fixture: ComponentFixture<AddCompetencyDialogComponent>
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ AddCompetencyDialogComponent ]
+      declarations: [AddCompetencyDialogComponent],
     })
-    .compileComponents();
-  }));
+    .compileComponents()
+  }))
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(AddCompetencyDialogComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
+    fixture = TestBed.createComponent(AddCompetencyDialogComponent)
+    component = fixture.componentInstance
+    fixture.detectChanges()
+  })
 
   it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-});
+    expect(component).toBeTruthy()
+  })
+})

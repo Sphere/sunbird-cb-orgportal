@@ -19,12 +19,22 @@ import {
 } from '@angular/material'
 
 import { MatMenuModule } from '@angular/material/menu'
-import { SkillTableComponent } from './components'
-import { FilterDialogComponent, SearchSelectedFilterComponent, AddCompetencyDialogComponent, ConfirmDialogComponent } from './components'
+import {
+  FilterDialogComponent,
+  SearchSelectedFilterComponent,
+  AddCompetencyDialogComponent,
+  ConfirmDialogComponent,
+  SkillTableComponent,
+} from './components'
 import { FormsModule, ReactiveFormsModule } from '@angular/forms'
 
 @NgModule({
-  declarations: [SkillTableComponent, FilterDialogComponent, ConfirmDialogComponent, AddCompetencyDialogComponent, SearchSelectedFilterComponent],
+  declarations: [
+    SkillTableComponent,
+    FilterDialogComponent,
+    ConfirmDialogComponent,
+    AddCompetencyDialogComponent,
+    SearchSelectedFilterComponent],
   imports: [
     CommonModule,
     FormsModule,

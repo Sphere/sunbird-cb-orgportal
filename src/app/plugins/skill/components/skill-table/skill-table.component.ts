@@ -1,6 +1,6 @@
-import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core'
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core'
 import { MatDialog, MatPaginator, MatSort, MatTableDataSource } from '@angular/material'
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { SelectionModel } from '@angular/cdk/collections'
 import { FilterDialogComponent } from '../filter-dialog/filter-dialog.component'
 import { AddCompetencyDialogComponent } from '../add-competency-dialog/add-competency-dialog.component'
@@ -8,9 +8,9 @@ import { AddCompetencyDialogComponent } from '../add-competency-dialog/add-compe
 @Component({
   selector: 'ws-app-skill-table',
   templateUrl: './skill-table.component.html',
-  styleUrls: ['./skill-table.component.scss']
+  styleUrls: ['./skill-table.component.scss'],
 })
-export class SkillTableComponent implements OnInit {
+export class SkillTableComponent implements OnInit, OnChanges {
 
   @Input() tableData!: any | undefined
   @Input() data?: []
@@ -47,6 +47,12 @@ export class SkillTableComponent implements OnInit {
     this.clicked = new EventEmitter()
   }
 
+  ngOnChanges(data: SimpleChanges) {
+    this.dataSource.data = _.get(data, 'data.currentValue')
+    this.length = this.dataSource.data.length
+    this.paginator.firstPage()
+  }
+
   ngOnInit() {
     if (this.tableData) {
       this.displayedColumns = this.tableData.columns
@@ -56,14 +62,6 @@ export class SkillTableComponent implements OnInit {
       this.dataSource.paginator = this.paginator
     }
   }
-
-  ngOnChanges(data: SimpleChanges) {
-    this.dataSource.data = _.get(data, 'data.currentValue')
-    this.length = this.dataSource.data.length
-    this.paginator.firstPage()
-  }
-
-  ngAfterViewInit() { }
 
   applyFilter(filterValue: any) {
     if (filterValue) {
@@ -142,7 +140,6 @@ export class SkillTableComponent implements OnInit {
     this.searchByEnterKey.emit(event.target.value)
   }
 
-
   filterTable() {
     const dialogRef = this.dialog.open(FilterDialogComponent, {
       maxHeight: '90vh',
@@ -150,7 +147,7 @@ export class SkillTableComponent implements OnInit {
       width: '80%',
       autoFocus: false, // To remove auto select
       restoreFocus: false,
-      panelClass: 'competencies'
+      panelClass: 'competencies',
     })
     dialogRef.afterClosed().subscribe((response: any) => {
       if (response) {
@@ -167,7 +164,7 @@ export class SkillTableComponent implements OnInit {
       if (!_.isEmpty(value)) {
         filter.push({
           label: key,
-          item: value
+          item: value,
         })
       }
     })
@@ -186,9 +183,10 @@ export class SkillTableComponent implements OnInit {
     const dialogRef = this.dialog.open(AddCompetencyDialogComponent, {
       autoFocus: false, // To remove auto select
       restoreFocus: false,
-      panelClass: 'add-Competency'
+      panelClass: 'add-Competency',
     })
     dialogRef.afterClosed().subscribe((responce: any) => {
+      // tslint:disable-next-line: no-console
       console.log(responce)
     })
   }

@@ -1,25 +1,25 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { async, ComponentFixture, TestBed } from '@angular/core/testing'
 
-import { SearchSelectedFilterComponent } from './search-selected-filter.component';
+import { SearchSelectedFilterComponent } from './search-selected-filter.component'
 
 describe('SearchSelectedFilterComponent', () => {
-  let component: SearchSelectedFilterComponent;
-  let fixture: ComponentFixture<SearchSelectedFilterComponent>;
+  let component: SearchSelectedFilterComponent
+  let fixture: ComponentFixture<SearchSelectedFilterComponent>
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ SearchSelectedFilterComponent ]
+      declarations: [SearchSelectedFilterComponent],
     })
-    .compileComponents();
-  }));
+    .compileComponents()
+  }))
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(SearchSelectedFilterComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
+    fixture = TestBed.createComponent(SearchSelectedFilterComponent)
+    component = fixture.componentInstance
+    fixture.detectChanges()
+  })
 
   it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-});
+    expect(component).toBeTruthy()
+  })
+})
