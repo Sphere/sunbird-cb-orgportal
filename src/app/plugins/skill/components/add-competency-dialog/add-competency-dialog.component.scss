@@ -25,10 +25,19 @@
 }
 
 .current-select {
-  border-color: #1C5D96;
-  color: #1C5D96;
+  background-color: #63ACAE;
+  color: #000000;
 }
 
 .lable {
   margin-bottom: 5px !important;
+}
+
+::ng-deep .mat-form-field-flex {
+  height: 45px !important;
+  align-items: center !important;
+}
+
+::ng-deep .mat-form-field-wrapper {
+  padding-bottom: 0 !important;
 }
