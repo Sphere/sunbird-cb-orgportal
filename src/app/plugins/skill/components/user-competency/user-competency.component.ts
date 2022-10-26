@@ -1,4 +1,6 @@
-import { Component, OnInit, Input } from '@angular/core'
+import { Component, OnInit } from '@angular/core'
+import { MatDialog } from '@angular/material'
+import { AddCompetencyDialogComponent } from '../add-competency-dialog/add-competency-dialog.component'
 
 @Component({
   selector: 'ws-user-competency',
@@ -7,7 +9,7 @@ import { Component, OnInit, Input } from '@angular/core'
 })
 export class UserCompetencyComponent implements OnInit {
 
-  @Input() legends: Legend[] = [
+  legends: Legend[] = [
     {
       name: 'Self Assessment',
       color: '#f3c581bd',
@@ -26,9 +28,26 @@ export class UserCompetencyComponent implements OnInit {
     },
   ];
 
-  constructor() { }
+  competenciesList: any = [];
+
+  constructor(
+    private dialog: MatDialog
+  ) { }
 
   ngOnInit() {
+  }
+
+  openAddComperencyDialog() {
+    const dialogRef = this.dialog.open(AddCompetencyDialogComponent, {
+      height: '100vh',
+      width: '90vw',
+    })
+
+    dialogRef.afterClosed().subscribe((response: any) => {
+      if (response) {
+        console.log(response)
+      }
+    })
   }
 
 }
