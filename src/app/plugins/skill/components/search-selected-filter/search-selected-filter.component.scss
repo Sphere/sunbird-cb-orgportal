@@ -18,7 +18,8 @@
   border: 1px solid #1C5D95;
   padding: 3px 12px;
   border-radius: 16px;
-  font-size: 14px
+  font-size: 14px;
+  color: #1C5D95;
 }
 
 .close-icon {
@@ -27,5 +28,11 @@
   font-size: 12px;
   display: inline-block;
   width: auto;
-  color: #1C5D95
+}
+
+.editFilter {
+  color: #1C5D95;
+  font-family: Roboto;
+  letter-spacing: -0.02em;
+  text-decoration: underline !important
 }
