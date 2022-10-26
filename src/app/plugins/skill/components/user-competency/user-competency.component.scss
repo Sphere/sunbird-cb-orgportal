@@ -1,0 +1,62 @@
+.main-container {
+  padding: 20px;
+}
+
+.arrowRight {
+  display: inline-flex;
+  vertical-align: top;
+  font-size: 22px;
+  font-weight: 100;
+}
+
+.userName {
+  font-size: 25px;
+  font-weight: 500;
+}
+
+.role {
+  font-weight: normal;
+}
+
+.circle {
+  font-size: 20px;
+}
+
+.addBtn {
+  padding: 0px 30px;
+  border-radius: 20px;
+  border: none;
+  height: 35px;
+  background: #0075B7 !important;
+  color: white !important;
+}
+
+.mb-30 {
+  margin-bottom: 30px;
+}
+
+.pb-bb {
+  padding-bottom: 10px;
+  border-bottom: 1.5px solid;
+}
+
+.legend-container{
+  padding: 0.5rem;
+  margin-left: 20px;
+
+  .legend-color {
+    height: 16px;
+    width: 16px;
+    position: absolute;
+    border-radius: 50%;
+  }
+
+  .legend-text{
+    position: relative;
+    left: 1rem;
+    padding-left: 0.5rem;
+    // height: 1.25rem;
+    line-height: 1.25rem;
+    // font-size: 0.9rem;
+  }
+}
