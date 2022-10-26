@@ -48,7 +48,6 @@ export class SkillTableComponent implements OnInit {
   }
 
   ngOnInit() {
-    console.log(this.data)
     if (this.tableData) {
       this.displayedColumns = this.tableData.columns
     }
@@ -56,7 +55,6 @@ export class SkillTableComponent implements OnInit {
       this.dataSource.data = this.data
       this.dataSource.paginator = this.paginator
     }
-    console.log(this.displayedColumns, this.dataSource)
   }
 
   ngOnChanges(data: SimpleChanges) {
@@ -101,7 +99,6 @@ export class SkillTableComponent implements OnInit {
       if (this.tableData.needUserMenus) {
         columns.push('Menu')
       }
-      // console.log(columns)
       return columns
     }
     return ''
@@ -123,7 +120,6 @@ export class SkillTableComponent implements OnInit {
     this.isAllSelected() ?
       this.selection.clear() :
       this.dataSource.data.forEach((row: any) => this.selection.select(row))
-    // console.log(this.selection.selected)
   }
 
   /** The label for the checkbox on the passed row */
@@ -157,7 +153,6 @@ export class SkillTableComponent implements OnInit {
       panelClass: 'competencies'
     })
     dialogRef.afterClosed().subscribe((response: any) => {
-      console.log(response)
       if (response) {
         this.constuctSelectedFilter(response)
       }
@@ -178,7 +173,6 @@ export class SkillTableComponent implements OnInit {
     })
 
     this.selectedFilters = filter
-    console.log(this.selectedFilters)
   }
 
   performBtnAction(btn: any) {

@@ -10,10 +10,7 @@ import _ from 'lodash'
 export class AddCompetencyDialogComponent implements OnInit {
 
   addCompetencyForm!: FormGroup
-  form!: FormGroup
-  levelForm!: FormGroup
   aastrikaFormBuilder: FormBuilder
-  curentSelected: boolean = false
   selectedLeves: any[] = []
 
   selectCompetencyList: any = [
@@ -42,17 +39,17 @@ export class AddCompetencyDialogComponent implements OnInit {
   proficiencyLevel: any = [
     {
       level: 1,
-      selected: true,
-      curentSelected: true
+      selected: false,
+      curentSelected: false
     },
     {
       level: 2,
-      selected: true,
+      selected: false,
       curentSelected: false
     },
     {
       level: 3,
-      selected: true,
+      selected: false,
       curentSelected: false
     },
     {
@@ -65,8 +62,9 @@ export class AddCompetencyDialogComponent implements OnInit {
       selected: false,
       curentSelected: false
     },
-
   ]
+
+
   constructor(
     formBuilder: FormBuilder,
     public dialogRef: MatDialogRef<AddCompetencyDialogComponent>,
@@ -76,7 +74,6 @@ export class AddCompetencyDialogComponent implements OnInit {
 
   ngOnInit() {
     this.initializeFormFields()
-
   }
 
 
@@ -85,7 +82,6 @@ export class AddCompetencyDialogComponent implements OnInit {
       selectCompetency: ['', Validators.required],
       proficiencyLevel: this.aastrikaFormBuilder.array([]),
     })
-    console.log(this.proficiencyLevel.length)
     if (this.proficiencyLevel.length > 0) {
       this.addPProficiency()
     }
@@ -94,7 +90,6 @@ export class AddCompetencyDialogComponent implements OnInit {
     return this.addCompetencyForm.get("proficiencyLevel") as FormArray
   }
   getLeveleSelected(index: any) {
-    console.log(index)
     const formArray: any = (<FormArray>this.addCompetencyForm.get('proficiencyLevel')).at(index).get('level')
     return formArray.value.curentSelected
   }
@@ -113,15 +108,13 @@ export class AddCompetencyDialogComponent implements OnInit {
 
   }
 
-  levelSelect() {
-    this.curentSelected = true
+  selectLevel(level: any) {
+    const formArray: any = (<FormArray>this.addCompetencyForm.get('proficiencyLevel')).at(level).get('level')
+    formArray.patchValue({ curentSelected: true, selected: true, level: level + 1 })
   }
 
   submit() {
-    // this.selectedLeves.forEach((el: any) => {
-    //   this.proficiencyLevelControl.push(el)
-    // })
-    console.log(this.addCompetencyForm.value)
+    this.dialogRef.close(this.addCompetencyForm.value)
   }
 
 }
