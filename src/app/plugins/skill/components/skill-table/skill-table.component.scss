@@ -40,7 +40,7 @@
   letter-spacing: -0.02em;
   text-decoration-line: underline !important;
   // color: #808080;
-  cursor:pointer;
+  cursor: pointer;
 }
 
 .select-label {
@@ -55,10 +55,9 @@
 
 .btn {
   margin-top: 3px;
-  padding: 1.8px 24px 0px;
+  padding: 0.8px 24px 0px;
   border-radius: 50px;
   border: 0px;
-  color: #1C5D95;
   height: 30px;
 }
 
@@ -71,12 +70,12 @@
 .btn.active {
   background-color: #1C5D95;
   color: #ffffff;
-  cursor:pointer;
+  cursor: pointer;
 }
 
 .anchor-wrap.active {
   color: #1C5D96;
-  cursor:pointer;
+  cursor: pointer;
 }
 
 .anchor-wrap.inactive {
