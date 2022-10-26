@@ -97,7 +97,7 @@
         <mat-form-field class="w-full" appearance="outline">
           <mat-label>Activity</mat-label>
           <mat-select formControlName="block">
-            <ng-container *ngFor="let Activit of ActivitsList">
+            <ng-container *ngFor="let Activit of activitsList">
               <mat-option [value]="Activit.value">{{Activit.displayText}}</mat-option>
             </ng-container>
           </mat-select>
