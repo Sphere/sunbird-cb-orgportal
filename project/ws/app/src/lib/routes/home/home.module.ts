@@ -44,6 +44,7 @@ import { RainDashboardsModule } from '@sunbird-cb/rain-dashboards'
 import { UsersModule } from '../users/users.module'
 import { CompetenciesComponent } from './routes/competencies/competencies.component'
 import { SkillModule } from '../../../../../../../src/app/plugins/skill'
+import { SelfAssessmentComponent } from './routes/self-assessment/self-assessment.component'
 @NgModule({
   declarations: [
     HomeComponent,
@@ -54,6 +55,7 @@ import { SkillModule } from '../../../../../../../src/app/plugins/skill'
     WorkallocationComponent,
     WelcomeComponent,
     CompetenciesComponent,
+    SelfAssessmentComponent
   ],
   imports: [
     CommonModule,

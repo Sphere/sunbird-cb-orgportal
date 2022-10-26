@@ -37,6 +37,7 @@ export class SkillTableComponent implements OnInit {
     }
   }
   selection = new SelectionModel<any>(true, [])
+  selectedFilters: any = []
   constructor(
     public dialog: MatDialog,
   ) {
@@ -155,9 +156,29 @@ export class SkillTableComponent implements OnInit {
       restoreFocus: false,
       panelClass: 'competencies'
     })
-    dialogRef.afterClosed().subscribe((responce: any) => {
-      console.log(responce)
+    dialogRef.afterClosed().subscribe((response: any) => {
+      console.log(response)
+      if (response) {
+        this.constuctSelectedFilter(response)
+      }
+
     })
+
+  }
+  constuctSelectedFilter(response: any) {
+    this.selectedFilters = []
+    const filter: any = []
+    _.forIn(response, (value: any, key: any) => {
+      if (!_.isEmpty(value)) {
+        filter.push({
+          label: key,
+          item: value
+        })
+      }
+    })
+
+    this.selectedFilters = filter
+    console.log(this.selectedFilters)
   }
 
   performBtnAction(btn: any) {
