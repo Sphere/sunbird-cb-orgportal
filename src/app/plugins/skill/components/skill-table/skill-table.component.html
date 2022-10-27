@@ -31,10 +31,12 @@
         <div class="flex gap-4">
           <ng-container *ngFor="let config of topBarConfig?.right">
             <ng-container *ngIf="config?.type === 'button'">
-              <button class="btn inactive cursor-pointer" (click)="performBtnAction(config)">{{config.title}}</button>
+              <button [ngClass]="selectedAll === true ? 'active' : 'inactive' " class="btn  cursor-pointer"
+                (click)="performBtnAction(config)">{{config.title}}</button>
             </ng-container>
             <ng-container *ngIf="config?.type === 'anchor'">
-              <a class="anchor-wrap inactive" mat-raised-button type="button" color="primary">
+              <a [ngClass]="selectedAll === true ? 'active' : 'inactive' " class="anchor-wrap cursor-pointer"
+                (click)="selectedAll === true ? performBtnAction(config):'' " color="primary">
                 {{config.title}}
               </a>
             </ng-container>
@@ -48,7 +50,7 @@
       class="example-table table1 responsiveTable" *ngIf="dataSource.filteredData.length > 0">
 
       <ng-container matColumnDef="{{col.key}}" *ngFor="let col of tableData!.columns">
-        <mat-header-cell *matHeaderCellDef mat-sort-header class=".h-400-r-14-l color-60">
+        <mat-header-cell *matHeaderCellDef mat-sort-header class="h-400-r-14-l color-60">
           {{col.displayName}}
         </mat-header-cell>
 
@@ -56,7 +58,8 @@
           <span *ngIf="col.isList" class="h-400-r-14-l color-87 textclass">
             <div innerHTML="{{element[col.key]}}"></div>
           </span>
-          <span *ngIf="!col.isList" class="h-400-r-14-l color-87 textclass">
+          <span [ngClass]="{'text-enable': col.status === 'enable'}" *ngIf="!col.isList"
+            class="h-400-r-14-l  textclass">
             {{element[col.key]}} {{col.isList}}
           </span>
         </mat-cell>
@@ -84,6 +87,17 @@
             [matMenuTriggerData]="{'data':row}" class="action-btn">
             <mat-icon>more_horiz</mat-icon>
           </button>
+        </mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="Reset">
+        <mat-header-cell *matHeaderCellDef class="clr-darkish-blue action-header justify-end">
+          <!-- Reset -->
+        </mat-header-cell>
+        <mat-cell *matCellDef="let row" class="action-cell justify-end">
+          <a (click)="resetAssessment()" class="h-400-r-14-l color-87 textclass reset">
+            Reset
+          </a>
         </mat-cell>
       </ng-container>
 

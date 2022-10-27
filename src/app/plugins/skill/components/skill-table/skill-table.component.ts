@@ -4,6 +4,7 @@ import * as _ from 'lodash'
 import { SelectionModel } from '@angular/cdk/collections'
 import { FilterDialogComponent } from '../filter-dialog/filter-dialog.component'
 import { AddCompetencyDialogComponent } from '../add-competency-dialog/add-competency-dialog.component'
+import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component'
 
 @Component({
   selector: 'ws-app-skill-table',
@@ -29,6 +30,7 @@ export class SkillTableComponent implements OnInit, OnChanges {
   widgetData: any
   length!: number
   pageSize = 5
+  selectedAll = false
   pageSizeOptions = [5, 10, 20]
   @ViewChild(MatPaginator, { static: true }) paginator!: MatPaginator
   @ViewChild(MatSort, { static: false }) set matSort(sort: MatSort) {
@@ -97,6 +99,9 @@ export class SkillTableComponent implements OnInit, OnChanges {
       if (this.tableData.needUserMenus) {
         columns.push('Menu')
       }
+      if (this.tableData.needRest) {
+        columns.push('Reset')
+      }
       return columns
     }
     return ''
@@ -118,6 +123,8 @@ export class SkillTableComponent implements OnInit, OnChanges {
     this.isAllSelected() ?
       this.selection.clear() :
       this.dataSource.data.forEach((row: any) => this.selection.select(row))
+    this.selectedAll = this.isAllSelected()
+
   }
 
   /** The label for the checkbox on the passed row */
@@ -176,6 +183,8 @@ export class SkillTableComponent implements OnInit, OnChanges {
     switch (btn.actioName) {
       case 'addCompetency': this.addCompetency()
         break
+      case 'resetAssessment': this.resetAssessment()
+        break
     }
   }
 
@@ -184,6 +193,31 @@ export class SkillTableComponent implements OnInit, OnChanges {
       autoFocus: false, // To remove auto select
       restoreFocus: false,
       panelClass: 'add-Competency',
+    })
+    dialogRef.afterClosed().subscribe((responce: any) => {
+      // tslint:disable-next-line: no-console
+      console.log(responce)
+    })
+  }
+
+  resetAssessment() {
+    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      autoFocus: false, // To remove auto select
+      restoreFocus: false,
+      panelClass: 'confirm-dialog',
+      data: {
+        title: "Clicking on confrim will enable the self assessment again for selected users.",
+        footerConfig: {
+          left: {
+            type: "button",
+            title: "Confirm",
+          },
+          right: {
+            type: "button",
+            title: "Cancel",
+          }
+        }
+      }
     })
     dialogRef.afterClosed().subscribe((responce: any) => {
       // tslint:disable-next-line: no-console

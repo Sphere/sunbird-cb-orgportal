@@ -41,7 +41,7 @@ export class SelfAssessmentComponent implements OnInit {
         { displayName: 'City', key: 'city' },
         { displayName: 'Block', key: 'block' },
         { displayName: 'Sub Center', key: 'subCenter' },
-        { displayName: 'Self Assessment Status', key: 'selfAssessmentStatus' },
+        { displayName: 'Self Assessment Status', key: 'selfAssessmentStatus', status: 'enable' },
 
       ],
       needCheckBox: true,
@@ -49,6 +49,7 @@ export class SelfAssessmentComponent implements OnInit {
       sortColumn: 'dateCreatedOn',
       sortState: 'desc',
       needUserMenus: false,
+      needRest: true
 
     }
 

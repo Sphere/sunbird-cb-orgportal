@@ -4,14 +4,14 @@
       <span class="title">{{data.title}}</span>
     </ng-container>
   </div>
-  <div>
+  <div class="flex justify-center gap-3">
     <ng-container *ngIf="data?.footerConfig?.left?.type === 'button'">
-      <button mat-raised-button class="btn left-btn" (click)="performAction(data?.footerConfig?.left)">
+      <button class="btn active" (click)="performAction(data?.footerConfig?.left)">
         {{data.footerConfig.left?.title}}
       </button>
     </ng-container>
     <ng-container *ngIf="data?.footerConfig?.right?.type === 'button'">
-      <button mat-raised-button class="btn right-btn" (click)="performAction(data?.footerConfig?.right)">
+      <button class="btn" (click)="performAction(data?.footerConfig?.right)">
         {{data.footerConfig.right?.title}}
       </button>
     </ng-container>

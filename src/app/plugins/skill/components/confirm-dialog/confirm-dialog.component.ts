@@ -7,12 +7,10 @@ interface IPopData {
     left: {
       type: string,
       title: string,
-      action: string
     },
     right: {
       type: string,
       title: string,
-      action: string
     }
   }
 }
