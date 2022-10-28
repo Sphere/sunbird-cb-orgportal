@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core'
 import { MatDialog } from '@angular/material'
+import _ from 'lodash'
 import { AddCompetencyDialogComponent } from '../add-competency-dialog/add-competency-dialog.component'
 
 @Component({
@@ -30,9 +31,71 @@ export class UserCompetencyComponent implements OnInit {
 
   competenciesList: any = [];
 
+  selectCompetencyList: any = [
+    {
+      displayName: 'Procurement and Distribution of HCM',
+      value: 'c1'
+    },
+    {
+      displayName: 'Store management and planning and coordination of THR and Dry ration',
+      value: 'c2'
+    },
+    {
+      displayName: 'Early Childhood Care Education',
+      value: 'c3'
+    },
+    {
+      displayName: 'Growth assessment and monitoring',
+      value: 'c4'
+    },
+    {
+      displayName: 'Conducts Community based events',
+      value: 'c5'
+    },
+  ];
+
+  panelOpenState: boolean[] = [];
+
+  tableData: {
+    key: string,
+    displayName: string
+  }[] = [
+      {
+        key: 'level',
+        displayName: 'Level'
+      },
+      {
+        key: 'source',
+        displayName: 'Source'
+      },
+      {
+        key: 'date',
+        displayName: 'Date'
+      }
+    ]
+
+  dataSource = [
+    {
+      level: 'Understands HCM guidelines',
+      source: 'Self Assessment',
+      date: '28-10-2022'
+    },
+    {
+      level: 'Plans for storage',
+      source: 'Course Completion',
+      date: '28-10-2022'
+    },
+    {
+      level: 'Continues follow-up care',
+      source: 'Admin Added',
+      date: '28-10-2022'
+    },
+  ]
+
   constructor(
     private dialog: MatDialog
-  ) { }
+  ) {
+  }
 
   ngOnInit() {
   }
@@ -46,10 +109,19 @@ export class UserCompetencyComponent implements OnInit {
     dialogRef.afterClosed().subscribe((response: any) => {
       if (response) {
         console.log(response)
+        this.competenciesList.push(response)
       }
     })
   }
 
+  selectedCompetency(value: string): string {
+    return _.get(_.find(this.selectCompetencyList, sc => sc.value === value), 'displayName') || ''
+  }
+
+  getFinalColumns() {
+    const columns: string[] = ['level', 'source', 'date']
+    return columns
+  }
 }
 
 export class Legend {
