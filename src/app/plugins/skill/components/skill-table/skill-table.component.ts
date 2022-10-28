@@ -99,9 +99,6 @@ export class SkillTableComponent implements OnInit, OnChanges {
       if (this.tableData.needUserMenus) {
         columns.push('Menu')
       }
-      if (this.tableData.needRest) {
-        columns.push('Reset')
-      }
       return columns
     }
     return ''

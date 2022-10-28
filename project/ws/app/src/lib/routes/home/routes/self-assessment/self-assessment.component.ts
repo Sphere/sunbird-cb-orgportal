@@ -34,6 +34,7 @@ export class SelfAssessmentComponent implements OnInit {
     }
 
     this.tableData = {
+      actions: [{ name: 'Reset', label: 'Reset', type: 'link' }],
       columns: [
         { displayName: 'Full Name', key: 'fullName' },
         { displayName: 'Designation', key: 'designation' },
@@ -49,7 +50,6 @@ export class SelfAssessmentComponent implements OnInit {
       sortColumn: 'dateCreatedOn',
       sortState: 'desc',
       needUserMenus: false,
-      needRest: true
 
     }
 
