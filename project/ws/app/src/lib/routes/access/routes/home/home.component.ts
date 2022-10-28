@@ -41,7 +41,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         if (fullProfile) {
           const leftData = this.activeRoute.snapshot.data.pageData.data.menus
           _.set(leftData, 'widgetData.logo', true)
-          // _.set(leftData, 'widgetData.logoPath', _.get(this.activeRoute, 'snapshot.data.department.data.logo'))
+          _.set(leftData, 'widgetData.logoPath', '/assets/instances/eagle/app_logos/aastar-source.png')
           _.set(leftData, 'widgetData.name', departmentName)
           _.set(leftData, 'widgetData.userRoles', this.myRoles)
           this.widgetData = leftData

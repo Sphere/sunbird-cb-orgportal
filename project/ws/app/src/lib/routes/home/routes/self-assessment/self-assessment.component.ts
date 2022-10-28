@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core'
 @Component({
   selector: 'ws-app-self-assessment',
   templateUrl: './self-assessment.component.html',
-  styleUrls: ['./self-assessment.component.scss']
+  styleUrls: ['./self-assessment.component.scss'],
 })
 export class SelfAssessmentComponent implements OnInit {
   tableData: any
@@ -23,17 +23,18 @@ export class SelfAssessmentComponent implements OnInit {
         {
           type: 'anchor',
           title: 'Reset Assessment',
-          actioName: 'resetAssessment'
+          actioName: 'resetAssessment',
         },
         {
           type: 'button',
           title: 'Enable Self Assessment',
-          actioName: 'enableSelfAssessment'
-        }
-      ]
+          actioName: 'enableSelfAssessment',
+        },
+      ],
     }
 
     this.tableData = {
+      actions: [{ name: 'Reset', label: 'Reset', type: 'link' }],
       columns: [
         { displayName: 'Full Name', key: 'fullName' },
         { displayName: 'Designation', key: 'designation' },
@@ -41,14 +42,14 @@ export class SelfAssessmentComponent implements OnInit {
         { displayName: 'City', key: 'city' },
         { displayName: 'Block', key: 'block' },
         { displayName: 'Sub Center', key: 'subCenter' },
-        { displayName: 'Self Assessment Status', key: 'selfAssessmentStatus' }
+        { displayName: 'Self Assessment Status', key: 'selfAssessmentStatus', status: 'enable' },
 
       ],
       needCheckBox: true,
       needHash: false,
       sortColumn: 'dateCreatedOn',
       sortState: 'desc',
-      needUserMenus: false
+      needUserMenus: false,
 
     }
 
@@ -63,14 +64,14 @@ const ELEMENT_DATA = [
     , designation: 'designation1'
     , state: 'State1', city: 'City1', block: 'Block1',
     subCenter: 'subCenter1',
-    selfAssessmentStatus: 'selfAssessmentStatus2'
+    selfAssessmentStatus: 'selfAssessmentStatus2',
   },
   {
     fullName: 'User2'
     , designation: 'designation2'
     , state: 'State1', city: 'City2', block: 'Block2',
     subCenter: 'subCenter2',
-    selfAssessmentStatus: 'selfAssessmentStatus2'
-  }
+    selfAssessmentStatus: 'selfAssessmentStatus2',
+  },
 
 ]

@@ -7,68 +7,68 @@ import * as _ from 'lodash'
 @Component({
   selector: 'ws-filter-dialog',
   templateUrl: './filter-dialog.component.html',
-  styleUrls: ['./filter-dialog.component.scss']
+  styleUrls: ['./filter-dialog.component.scss'],
 })
 export class FilterDialogComponent implements OnInit {
 
   //#region Global variables
 
   //#region select lists
-  rolesList: list[] = [
+  rolesList: IList[] = [
     {
       displayText: 'Role1',
-      value: 'Role1'
+      value: 'Role1',
     },
-  ];
-  statesList: list[] = [
+  ]
+  statesList: IList[] = [
     {
       displayText: 'State1',
-      value: 'State1'
+      value: 'State1',
     },
-  ];
-  subCentersList: list[] = [
+  ]
+  subCentersList: IList[] = [
     {
       displayText: 'Sub Center1',
-      value: 'Sub Center1'
+      value: 'Sub Center1',
     },
-  ];
-  designationsList: list[] = [
+  ]
+  designationsList: IList[] = [
     {
       displayText: 'Designation1',
-      value: 'Designation1'
+      value: 'Designation1',
     },
-  ];
-  citysList: list[] = [
+  ]
+  citysList: IList[] = [
     {
       displayText: 'City1',
-      value: 'Designation1'
+      value: 'Designation1',
     },
-  ];
-  competencysList: list[] = [
+  ]
+  competencysList: IList[] = [
     {
       displayText: 'Competency1',
-      value: 'Competency1'
+      value: 'Competency1',
     },
-  ];
-  blocksList: list[] = [
+  ]
+  blocksList: IList[] = [
     {
       displayText: 'Block1',
-      value: 'Block1'
+      value: 'Block1',
     },
-  ];
-  ActivitsList: list[] = [
+  ]
+  activitsList: IList[] = [
     {
       displayText: 'Activity1',
-      value: 'Activity1'
+      value: 'Activity1',
     },
-  ];
+  ]
   //#endregion
 
   //#region chps for phone number and email
-  selectable = true;
-  removable = true;
-  addOnBlur = true;
-  readonly separatorKeysCodes = [ENTER, COMMA] as const;
+  selectable = true
+  removable = true
+  addOnBlur = true
+  readonly separatorKeysCodes = [ENTER, COMMA] as const
   //#endregion
 
   filterForm: FormGroup
@@ -88,7 +88,7 @@ export class FilterDialogComponent implements OnInit {
       competency: [''],
       block: [''],
       emails: this.fb.array([], Validators.email),
-      phoneNumber: this.fb.array([], [Validators.pattern("^[0-9]*$"),
+      phoneNumber: this.fb.array([], [Validators.pattern('^[0-9]*$'),
       Validators.minLength(10), Validators.maxLength(10)]),
     })
   }
@@ -132,7 +132,6 @@ export class FilterDialogComponent implements OnInit {
   }
   //#region eamils and phone number selection
 
-
   //#region applying filter submit
   submit() {
     this.dialogRef.close(this.filterForm.value)
@@ -140,7 +139,7 @@ export class FilterDialogComponent implements OnInit {
   //#endregion
 }
 
-export interface list {
+export interface IList {
   displayText: string,
   value: string
 }

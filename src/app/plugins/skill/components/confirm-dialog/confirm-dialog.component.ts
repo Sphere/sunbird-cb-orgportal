@@ -7,12 +7,10 @@ interface IPopData {
     left: {
       type: string,
       title: string,
-      action: string
     },
     right: {
       type: string,
       title: string,
-      action: string
     }
   }
 }
@@ -20,7 +18,7 @@ interface IPopData {
 @Component({
   selector: 'ws-confirm-dialog',
   templateUrl: './confirm-dialog.component.html',
-  styleUrls: ['./confirm-dialog.component.scss']
+  styleUrls: ['./confirm-dialog.component.scss'],
 })
 export class ConfirmDialogComponent implements OnInit {
 

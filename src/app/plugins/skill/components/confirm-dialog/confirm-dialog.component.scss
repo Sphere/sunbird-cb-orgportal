@@ -17,17 +17,13 @@
   font-size: 16px;
   line-height: 19px;
   cursor: pointer;
+  border: 1px solid #1C5D95;
+  background-color: inherit;
+  color: #1C5D95;
+  font-weight: 400;
 }
 
-.left-btn {
-  margin-right: 5px;
+.btn.active {
   background-color: #1C5D95;
   color: #FFFFFF;
-  border: 0px solid !important;
-}
-
-.right-btn {
-  background-color: #FFFFFF;
-  color: #1C5D95;
-  border: 1px solid #1C5D95;
 }

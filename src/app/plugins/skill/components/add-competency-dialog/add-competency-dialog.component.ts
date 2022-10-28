@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core'
 import { MatDialogRef } from '@angular/material'
 import { FormGroup, FormBuilder, Validators, FormArray, FormControl } from '@angular/forms'
-import _ from 'lodash'
+import * as _ from 'lodash'
 @Component({
   selector: 'ws-add-competency-dialog',
   templateUrl: './add-competency-dialog.component.html',
-  styleUrls: ['./add-competency-dialog.component.scss']
+  styleUrls: ['./add-competency-dialog.component.scss'],
 })
 export class AddCompetencyDialogComponent implements OnInit {
 
@@ -16,54 +16,53 @@ export class AddCompetencyDialogComponent implements OnInit {
   selectCompetencyList: any = [
     {
       displayName: 'Procurement and Distribution of HCM',
-      value: 'c1'
+      value: 'c1',
     },
     {
       displayName: 'Store management and planning and coordination of THR and Dry ration',
-      value: 'c2'
+      value: 'c2',
     },
     {
       displayName: 'Early Childhood Care Education',
-      value: 'c3'
+      value: 'c3',
     },
     {
       displayName: 'Growth assessment and monitoring',
-      value: 'c4'
+      value: 'c4',
     },
     {
       displayName: 'Conducts Community based events',
-      value: 'c5'
+      value: 'c5',
     },
-  ];
+  ]
 
   proficiencyLevel: any = [
     {
       level: 1,
       selected: false,
-      curentSelected: false
+      curentSelected: false,
     },
     {
       level: 2,
       selected: false,
-      curentSelected: false
+      curentSelected: false,
     },
     {
       level: 3,
       selected: false,
-      curentSelected: false
+      curentSelected: false,
     },
     {
       level: 4,
       selected: false,
-      curentSelected: false
+      curentSelected: false,
     },
     {
       level: 5,
       selected: false,
-      curentSelected: false
+      curentSelected: false,
     },
   ]
-
 
   constructor(
     formBuilder: FormBuilder,
@@ -76,7 +75,6 @@ export class AddCompetencyDialogComponent implements OnInit {
     this.initializeFormFields()
   }
 
-
   initializeFormFields() {
     this.addCompetencyForm = this.aastrikaFormBuilder.group({
       selectCompetency: ['', Validators.required],
@@ -87,7 +85,7 @@ export class AddCompetencyDialogComponent implements OnInit {
     }
   }
   get proficiencyLevelControl(): FormArray {
-    return this.addCompetencyForm.get("proficiencyLevel") as FormArray
+    return this.addCompetencyForm.get('proficiencyLevel') as FormArray
   }
   getLeveleSelected(index: any) {
     const formArray: any = (<FormArray>this.addCompetencyForm.get('proficiencyLevel')).at(index).get('level')
@@ -101,10 +99,9 @@ export class AddCompetencyDialogComponent implements OnInit {
   }
 
   addPProficiency() {
-    _.forEach(this.proficiencyLevel, (key) => {
+    _.forEach(this.proficiencyLevel, key => {
       this.proficiencyLevelControl.push(this.newProficiencyLevel(key))
     })
-
 
   }
 
