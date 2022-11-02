@@ -27,6 +27,7 @@ import {
   SkillTableComponent,
 } from './components'
 import { FormsModule, ReactiveFormsModule } from '@angular/forms'
+import { UserCompetencyComponent } from './components/user-competency/user-competency.component'
 
 @NgModule({
   declarations: [
@@ -34,7 +35,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms'
     FilterDialogComponent,
     ConfirmDialogComponent,
     AddCompetencyDialogComponent,
-    SearchSelectedFilterComponent],
+    SearchSelectedFilterComponent,
+    UserCompetencyComponent],
   imports: [
     CommonModule,
     FormsModule,
