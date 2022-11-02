@@ -6,11 +6,11 @@ interface IPopData {
   footerConfig: {
     left: {
       type: string,
-      title: string,
+      title: string
     },
     right: {
       type: string,
-      title: string,
+      title: string
     }
   }
 }

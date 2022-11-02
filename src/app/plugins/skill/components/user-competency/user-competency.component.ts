@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core'
 import { MatDialog } from '@angular/material'
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { AddCompetencyDialogComponent } from '../add-competency-dialog/add-competency-dialog.component'
 
 @Component({
@@ -10,7 +10,7 @@ import { AddCompetencyDialogComponent } from '../add-competency-dialog/add-compe
 })
 export class UserCompetencyComponent implements OnInit {
 
-  legends: Legend[] = [
+  legends: any[] = [
     {
       name: 'Self Assessment',
       color: '#f3c581bd',
@@ -27,34 +27,34 @@ export class UserCompetencyComponent implements OnInit {
       name: 'Required',
       color: '#0075B7',
     },
-  ];
+  ]
 
-  competenciesList: any = [];
+  competenciesList: any = []
 
   selectCompetencyList: any = [
     {
       displayName: 'Procurement and Distribution of HCM',
-      value: 'c1'
+      value: 'c1',
     },
     {
       displayName: 'Store management and planning and coordination of THR and Dry ration',
-      value: 'c2'
+      value: 'c2',
     },
     {
       displayName: 'Early Childhood Care Education',
-      value: 'c3'
+      value: 'c3',
     },
     {
       displayName: 'Growth assessment and monitoring',
-      value: 'c4'
+      value: 'c4',
     },
     {
       displayName: 'Conducts Community based events',
-      value: 'c5'
+      value: 'c5',
     },
-  ];
+  ]
 
-  panelOpenState: boolean[] = [];
+  panelOpenState: boolean[] = []
 
   tableData: {
     key: string,
@@ -62,33 +62,33 @@ export class UserCompetencyComponent implements OnInit {
   }[] = [
       {
         key: 'level',
-        displayName: 'Level'
+        displayName: 'Level',
       },
       {
         key: 'source',
-        displayName: 'Source'
+        displayName: 'Source',
       },
       {
         key: 'date',
-        displayName: 'Date'
-      }
+        displayName: 'Date',
+      },
     ]
 
   dataSource = [
     {
       level: 'Understands HCM guidelines',
       source: 'Self Assessment',
-      date: '28-10-2022'
+      date: '28-10-2022',
     },
     {
       level: 'Plans for storage',
       source: 'Course Completion',
-      date: '28-10-2022'
+      date: '28-10-2022',
     },
     {
       level: 'Continues follow-up care',
       source: 'Admin Added',
-      date: '28-10-2022'
+      date: '28-10-2022',
     },
   ]
 
@@ -108,7 +108,6 @@ export class UserCompetencyComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((response: any) => {
       if (response) {
-        console.log(response)
         this.competenciesList.push(response)
       }
     })
@@ -122,9 +121,4 @@ export class UserCompetencyComponent implements OnInit {
     const columns: string[] = ['level', 'source', 'date']
     return columns
   }
-}
-
-export class Legend {
-  name?: string
-  color?: string
 }

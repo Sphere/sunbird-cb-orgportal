@@ -203,18 +203,18 @@ export class SkillTableComponent implements OnInit, OnChanges {
       restoreFocus: false,
       panelClass: 'confirm-dialog',
       data: {
-        title: "Clicking on confrim will enable the self assessment again for selected users.",
+        title: 'Clicking on confrim will enable the self assessment again for selected users.',
         footerConfig: {
           left: {
-            type: "button",
-            title: "Confirm",
+            type: 'button',
+            title: 'Confirm',
           },
           right: {
-            type: "button",
-            title: "Cancel",
-          }
-        }
-      }
+            type: 'button',
+            title: 'Cancel',
+          },
+        },
+      },
     })
     dialogRef.afterClosed().subscribe((responce: any) => {
       // tslint:disable-next-line: no-console
