@@ -1,23 +1,28 @@
-import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core'
+import { Component, OnInit, OnDestroy, ViewChild, Self } from '@angular/core'
 import { MatPaginator } from '@angular/material'
+import { ActivatedRoute } from '@angular/router'
 // tslint:disable-next-line
 import _ from 'lodash'
+import { map } from 'rxjs/operators'
+import { UsersService } from '../../../users/services/users.service'
+import { UtilityService } from '../../services/utility.service'
 @Component({
   selector: 'app-competencies',
   templateUrl: './competencies.component.html',
   styleUrls: ['./competencies.component.scss'],
+  providers: [UtilityService]
 })
 export class CompetenciesComponent implements OnInit, OnDestroy {
   tableData: any
-  data: any
+  usersData: any
   topBarConfig: any
 
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator | undefined
 
-  // displayedCo/lumns: string[] = ['Full_Name', 'Designation', 'State', 'City', 'Block', 'Sub_Centre', 'Competency_Status'];
-  // dataSource = new MatTableDataSource<PeriodicElement>();
 
-  constructor() { }
+
+  constructor(private route: ActivatedRoute,
+    private usersService: UsersService, @Self() private utilityService: UtilityService) { }
 
   ngOnInit() {
     this.topBarConfig = {
@@ -54,12 +59,21 @@ export class CompetenciesComponent implements OnInit, OnDestroy {
       needUserMenus: false,
 
     }
-
-    this.data = ELEMENT_DATA
-
+    this.getAllUserCompetency()
   }
 
   ngOnDestroy() { }
+
+  getAllUserCompetency() {
+    const rootOrgId = _.get(this.route.snapshot.parent, 'data.configService.unMappedUser.rootOrg.rootOrgId')
+    console.log(rootOrgId)
+    this.usersService.getAllKongUsers(rootOrgId).pipe(map((data: any) => {
+      return this.utilityService.getFormatedRequest(data.result.response)
+    })).subscribe(data => {
+      console.log(data)
+      this.usersData = data
+    })
+  }
 }
 
 export interface IPeriodicElement {
@@ -72,18 +86,3 @@ export interface IPeriodicElement {
   Competency_Status: string
 }
 
-const ELEMENT_DATA = [
-  {
-    fullName: 'User1'
-    , designation: 'designation1'
-    , state: 'State1', city: 'City1', block: 'Block1',
-    competency: 'Competency_Status1',
-  },
-  {
-    fullName: 'User2'
-    , designation: 'designation1'
-    , state: 'State1', city: 'City1', block: 'Block2',
-    competency: 'Competency_Status1',
-  },
-
-]

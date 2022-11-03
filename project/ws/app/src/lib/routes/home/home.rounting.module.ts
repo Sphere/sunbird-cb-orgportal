@@ -63,6 +63,9 @@ const routes: Routes = [
       {
         path: 'competencies',
         component: CompetenciesComponent,
+        resolve: {
+          usersList: UsersListResolve,
+        },
       },
       {
         path: 'self-assessment',

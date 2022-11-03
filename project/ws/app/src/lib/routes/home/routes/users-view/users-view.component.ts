@@ -87,6 +87,7 @@ export class UsersViewComponent implements OnInit, OnDestroy {
     if (this.tabs) {
       this.tabs.unsubscribe()
     }
+
   }
   ngOnInit() {
     this.getAllUsers()
