@@ -1,5 +1,6 @@
+import { Injectable } from '@angular/core'
 import _ from 'lodash'
-
+@Injectable()
 export class UtilityService {
   constructor() {
 
@@ -23,10 +24,12 @@ export class UtilityService {
     return activeUsersData
   }
   getprofessionalDetails(data: any) {
+    console.log(data)
     const professionalDetails: any = {}
     if (data && data.length > 0) {
-      _.reduce(data, (key: any) => {
-        professionalDetails['designation'] = key.designation ? key.designation : 'designation1'
+      // tslint:disable-next-line
+      _.reduce(data, (_key: any, value: any) => {
+        professionalDetails['designation'] = value.designation ? value.designation : ''
       }, professionalDetails)
     }
     return professionalDetails

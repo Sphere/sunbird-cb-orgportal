@@ -70,7 +70,6 @@ export class CompetenciesComponent implements OnInit, OnDestroy {
     this.usersService.getAllKongUsers(rootOrgId).pipe(map((data: any) => {
       return this.utilityService.getFormatedRequest(data.result.response)
     })).subscribe(data => {
-      console.log(data)
       this.usersData = data
     })
   }
