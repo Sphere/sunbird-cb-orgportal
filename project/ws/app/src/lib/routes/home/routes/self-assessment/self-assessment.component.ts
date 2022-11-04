@@ -1,16 +1,29 @@
-import { Component, OnInit } from '@angular/core'
+import { Component, OnInit, Self, ViewChild } from '@angular/core'
+import { MatPaginator } from '@angular/material'
+import { ActivatedRoute } from '@angular/router'
+import * as _ from 'lodash'
+import { map } from 'rxjs/operators'
+import { UsersService } from '../../../users/services/users.service'
+import { UtilityService } from '../../services/utility.service'
 
 @Component({
   selector: 'ws-app-self-assessment',
   templateUrl: './self-assessment.component.html',
   styleUrls: ['./self-assessment.component.scss'],
+  providers: [UtilityService]
 })
 export class SelfAssessmentComponent implements OnInit {
   tableData: any
-  data: any
+  usersData: any
   topBarConfig: any
 
-  constructor() { }
+  @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator | undefined
+
+  constructor(
+    private route: ActivatedRoute,
+    private usersService: UsersService,
+    @Self() private utilityService: UtilityService
+  ) { }
 
   ngOnInit() {
     this.initialization()
@@ -18,7 +31,7 @@ export class SelfAssessmentComponent implements OnInit {
 
   initialization() {
     this.topBarConfig = {
-      left: [],
+      left: [{}],
       right: [
         {
           type: 'anchor',
@@ -53,25 +66,17 @@ export class SelfAssessmentComponent implements OnInit {
 
     }
 
-    this.data = ELEMENT_DATA
+    this.getAllUserCompetency()
+  }
+
+  getAllUserCompetency() {
+    const rootOrgId = _.get(this.route.snapshot.parent, 'data.configService.unMappedUser.rootOrg.rootOrgId')
+    this.usersService.getAllKongUsers(rootOrgId).pipe(map((data: any) => {
+      return this.utilityService.getFormatedRequest(data.result.response)
+    })).subscribe(data => {
+      this.usersData = data
+    })
   }
 
 }
 
-const ELEMENT_DATA = [
-  {
-    fullName: 'User1'
-    , designation: 'designation1'
-    , state: 'State1', city: 'City1', block: 'Block1',
-    subCenter: 'subCenter1',
-    selfAssessmentStatus: 'selfAssessmentStatus2',
-  },
-  {
-    fullName: 'User2'
-    , designation: 'designation2'
-    , state: 'State1', city: 'City2', block: 'Block2',
-    subCenter: 'subCenter2',
-    selfAssessmentStatus: 'selfAssessmentStatus2',
-  },
-
-]
