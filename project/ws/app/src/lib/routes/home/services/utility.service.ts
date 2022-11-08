@@ -9,12 +9,11 @@ export class UtilityService {
     const activeUsersData: any[] = []
     if (data && data.content && data.content.length > 0) {
       _.filter(data.content, { isDeleted: false }).forEach((user: any) => {
-        let professionalDetails = null
-        let addressDetails = null
-        if (user && user.profileDetails && user.profileDetails.profileReq) {
-          const profileReq = user.profileDetails.profileReq
-          professionalDetails = profileReq.professionalDetails ? this.getprofessionalDetails(profileReq.professionalDetails) : null
-          addressDetails = profileReq.personalDetails ? this.getPostalAdress(profileReq.personalDetails) : null
+        let professionalDetails: any
+        let addressDetails: any
+        if (_.get(user, 'profileDetails') && _.get(user, 'profileDetails.profileReq.professionalDetails')) {
+          professionalDetails = this.getprofessionalDetails(user.profileDetails.profileReq.professionalDetails)
+          addressDetails = this.getPostalAdress(user.profileDetails.profileReq.personalDetails)
         }
         activeUsersData.push({
           fullName: user ? `${user.firstName} ${user.lastName}` : null,
