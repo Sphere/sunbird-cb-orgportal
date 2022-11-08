@@ -49,16 +49,6 @@ export class UserAutoCompleteService {
   fetchUserList(data: string): Observable<any[]> {
     return this.fetchAutoComplete(data).pipe(
       map((response: any) => {
-        // const users: any = response.content
-        // return users.map((user: any) => {
-        //   console.log(user)
-        //   return {
-        //     fullName: `${user.firstName || ''} ${user.lastName || ''}`,
-        //     id: user.id,
-        //     mail: user.email,
-        //     department: user.department_name,
-        //   }
-        // })
         return this.getFormatedRequest(response)
       }),
     )
