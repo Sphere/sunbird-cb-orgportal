@@ -14,6 +14,7 @@ import { ConfigResolveService } from './resolvers/config-resolve.service'
 import { UsersListResolve } from './resolvers/users-list-resolve.service'
 import { CompetenciesComponent } from './routes/competencies/competencies.component'
 import { SelfAssessmentComponent } from './routes/self-assessment/self-assessment.component'
+import { UserCompetencyComponent } from '../../../../../../../src/app/plugins/skill/components/user-competency/user-competency.component'
 
 const routes: Routes = [
   {
@@ -63,6 +64,13 @@ const routes: Routes = [
       {
         path: 'competencies',
         component: CompetenciesComponent,
+        resolve: {
+          usersList: UsersListResolve,
+        },
+      },
+      {
+        path: 'competencies/:id',
+        component: UserCompetencyComponent,
         resolve: {
           usersList: UsersListResolve,
         },
