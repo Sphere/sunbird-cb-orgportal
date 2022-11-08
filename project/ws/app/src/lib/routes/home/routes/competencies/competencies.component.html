@@ -2,7 +2,7 @@
   <p class="header">Competencies</p>
   <mat-card class="flex-custom ws-mat-accent-border" *ngIf="usersData">
     <ws-app-skill-table [tableData]="tableData" (searchByEnterKey)="searchByEnterKey($event)" [data]="usersData"
-      [topBarConfig]="topBarConfig">
+      [topBarConfig]="topBarConfig" (eOnRowClick)="onRoleClick($event)">
     </ws-app-skill-table>
   </mat-card>
 </div>

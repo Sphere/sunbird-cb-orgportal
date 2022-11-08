@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, ViewChild, Self } from '@angular/core'
 import { MatPaginator } from '@angular/material'
-import { ActivatedRoute } from '@angular/router'
+import { ActivatedRoute, Router } from '@angular/router'
 // tslint:disable-next-line
 import _ from 'lodash'
 import { map } from 'rxjs/operators'
@@ -22,6 +22,7 @@ export class CompetenciesComponent implements OnInit, OnDestroy {
 
 
   constructor(private route: ActivatedRoute,
+    private router: Router,
     private usersService: UsersService, @Self() private utilityService: UtilityService) { }
 
   ngOnInit() {
@@ -78,7 +79,13 @@ export class CompetenciesComponent implements OnInit, OnDestroy {
       this.getAllUserCompetency()
     }
   }
+
+  onRoleClick(event: any) {
+    this.router.navigate([`app/home/competencies/${event.userId}`])
+  }
 }
+
+
 
 export interface IPeriodicElement {
   Full_Name: string
