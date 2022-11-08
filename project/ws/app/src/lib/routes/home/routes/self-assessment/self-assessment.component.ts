@@ -66,16 +66,22 @@ export class SelfAssessmentComponent implements OnInit {
 
     }
 
-    this.getAllUserCompetency()
+    this.getAllUserSelfAssessment()
   }
 
-  getAllUserCompetency() {
+  getAllUserSelfAssessment() {
     const rootOrgId = _.get(this.route.snapshot.parent, 'data.configService.unMappedUser.rootOrg.rootOrgId')
     this.usersService.getAllKongUsers(rootOrgId).pipe(map((data: any) => {
       return this.utilityService.getFormatedRequest(data.result.response)
     })).subscribe(data => {
       this.usersData = data
     })
+  }
+
+  searchByEnterKey(event: any) {
+    if (_.isEmpty(event)) {
+      this.getAllUserSelfAssessment()
+    }
   }
 
 }

@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core'
 import { Observable } from 'rxjs'
 import { ConfigurationsService } from '@sunbird-cb/utils'
 import { map, } from 'rxjs/operators'
+import * as _ from 'lodash'
 // TODO: move this in some common place
 const PROTECTED_SLAG_V8 = '/apis/proxies/v8'
 const API_END_POINTS = {
@@ -48,17 +49,69 @@ export class UserAutoCompleteService {
   fetchUserList(data: string): Observable<any[]> {
     return this.fetchAutoComplete(data).pipe(
       map((response: any) => {
-        const users: any = response.content
-        return users.map((user: any) => {
-          console.log(user)
-          return {
-            fullName: `${user.firstName || ''} ${user.lastName || ''}`,
-            id: user.id,
-            mail: user.email,
-            department: user.department_name,
-          }
-        })
+        // const users: any = response.content
+        // return users.map((user: any) => {
+        //   console.log(user)
+        //   return {
+        //     fullName: `${user.firstName || ''} ${user.lastName || ''}`,
+        //     id: user.id,
+        //     mail: user.email,
+        //     department: user.department_name,
+        //   }
+        // })
+        return this.getFormatedRequest(response)
       }),
     )
   }
+
+  getFormatedRequest(data: any) {
+    const activeUsersData: any[] = []
+    if (data && data.content && data.content.length > 0) {
+      _.filter(data.content, { isDeleted: false }).forEach((user: any) => {
+        let professionalDetails = null
+        let addressDetails = null
+        if (user && user.profileDetails && user.profileDetails.profileReq) {
+          const profileReq = user.profileDetails.profileReq
+          professionalDetails = profileReq.professionalDetails ? this.getprofessionalDetails(profileReq.professionalDetails) : null
+          addressDetails = profileReq.personalDetails ? this.getPostalAdress(profileReq.personalDetails) : null
+        }
+        activeUsersData.push({
+          fullName: user ? `${user.firstName || ''} ${user.lastName || ''}` : null,
+          email: user.profileDetails && user.profileDetails.personalDetails && user.profileDetails.personalDetails.primaryEmail ? user.profileDetails.personalDetails.primaryEmail : user.email,
+          userId: user.id,
+          active: !user.isDeleted,
+          blocked: user.blocked !== null && user.blocked !== undefined ? user.blocked : null,
+          designation: professionalDetails ? professionalDetails.designation : '',
+          state: addressDetails && addressDetails.state ? addressDetails.state : '',
+          city: addressDetails && addressDetails.city ? addressDetails.city : '',
+        })
+      })
+    }
+    return activeUsersData
+  }
+
+  getprofessionalDetails(data: any) {
+    console.log(data)
+    const professionalDetails: any = {}
+    if (data && data.length > 0) {
+      // tslint:disable-next-line
+      _.reduce(data, (_key: any, value: any) => {
+        professionalDetails['designation'] = value.designation ? value.designation : ''
+      }, professionalDetails)
+    }
+    return professionalDetails
+  }
+
+  getPostalAdress(data: any) {
+    const addressDetails: any = {}
+    if (data && _.get(data, 'postalAddress')) {
+      const postalAddress = _.split(_.get(data, 'postalAddress'), ',')
+      addressDetails['country'] = postalAddress[0]
+      addressDetails['state'] = postalAddress[1]
+      addressDetails['city'] = postalAddress[2]
+    }
+    return addressDetails
+  }
+
+
 }

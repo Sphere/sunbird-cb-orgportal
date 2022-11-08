@@ -9,18 +9,22 @@ export class UtilityService {
     const activeUsersData: any[] = []
     if (data && data.content && data.content.length > 0) {
       _.filter(data.content, { isDeleted: false }).forEach((user: any) => {
-        // tslint:disable-next-line
-        const professionalDetails = this.getprofessionalDetails(user.profileDetails.profileReq.professionalDetails)
-        const addressDetails = this.getPostalAdress(user.profileDetails.profileReq.personalDetails)
+        let professionalDetails = null
+        let addressDetails = null
+        if (user && user.profileDetails && user.profileDetails.profileReq) {
+          const profileReq = user.profileDetails.profileReq
+          professionalDetails = profileReq.professionalDetails ? this.getprofessionalDetails(profileReq.professionalDetails) : null
+          addressDetails = profileReq.personalDetails ? this.getPostalAdress(profileReq.personalDetails) : null
+        }
         activeUsersData.push({
           fullName: user ? `${user.firstName} ${user.lastName}` : null,
           email: user.personalDetails && user.personalDetails.primaryEmail ? user.personalDetails.primaryEmail : user.email,
           userId: user.id,
           active: !user.isDeleted,
           blocked: user.blocked,
-          designation: professionalDetails.designation,
-          state: addressDetails.state,
-          city: addressDetails.city,
+          designation: professionalDetails ? professionalDetails.designation : '',
+          state: addressDetails ? addressDetails.state : '',
+          city: addressDetails ? addressDetails.city : '',
         })
       })
     }
