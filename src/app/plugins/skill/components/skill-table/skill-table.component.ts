@@ -48,7 +48,7 @@ export class SkillTableComponent implements OnInit, OnChanges {
   * value typed
   */
   query: any
-  modelChanged: Subject<string> = new Subject<string>();
+  modelChanged: Subject<string> = new Subject<string>()
   constructor(
     public dialog: MatDialog,
     formBuilder: FormBuilder,
@@ -80,14 +80,14 @@ export class SkillTableComponent implements OnInit, OnChanges {
  * subscribe the value and user autocomplete service
  */
     this.modelChanged.pipe(debounceTime(1000),
-      distinctUntilChanged(),
-      filter(val => typeof val === 'string'),
-      switchMap((value: string) => {
+                           distinctUntilChanged(),
+                           filter(val => typeof val === 'string'),
+                           switchMap((value: string) => {
         if (typeof value === 'string' && value) {
           return this.userAutoCompleteService.fetchUserList(value)
-        } else {
-          this.searchByEnterKey.emit(value)
         }
+        this.searchByEnterKey.emit(value)
+
         return of([])
       })
     ).subscribe((users: any) => {
@@ -161,14 +161,6 @@ export class SkillTableComponent implements OnInit, OnChanges {
 
   }
 
-  /** The label for the checkbox on the passed row */
-  // checkboxLabel(row?: any): string {
-  //   if (!row) {
-  //     return `${this.isAllSelected() ? 'select' : 'deselect'} all`
-  //   }
-  //   return `${this.selection.isSelected(row) ? 'deselect' : 'select'} row ${row.position + 1}`
-  // }
-
   onRowClick(e: any) {
     this.eOnRowClick.emit(e)
   }
@@ -200,17 +192,15 @@ export class SkillTableComponent implements OnInit, OnChanges {
   }
   constuctSelectedFilter(response: any) {
     this.selectedFilters = []
-    const filter: any = []
     _.forIn(response, (value: any, key: any) => {
       if (!_.isEmpty(value)) {
-        filter.push({
+        this.selectedFilters.push({
           label: key,
           item: value,
         })
       }
     })
-
-    this.selectedFilters = filter
+    return this.selectedFilters
   }
 
   performBtnAction(btn: any) {

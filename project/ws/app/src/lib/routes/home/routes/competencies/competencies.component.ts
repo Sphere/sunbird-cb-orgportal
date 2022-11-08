@@ -10,7 +10,7 @@ import { UtilityService } from '../../services/utility.service'
   selector: 'app-competencies',
   templateUrl: './competencies.component.html',
   styleUrls: ['./competencies.component.scss'],
-  providers: [UtilityService]
+  providers: [UtilityService],
 })
 export class CompetenciesComponent implements OnInit, OnDestroy {
   tableData: any
@@ -19,11 +19,9 @@ export class CompetenciesComponent implements OnInit, OnDestroy {
 
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator | undefined
 
-
-
   constructor(private route: ActivatedRoute,
-    private router: Router,
-    private usersService: UsersService, @Self() private utilityService: UtilityService) { }
+              private router: Router,
+              private usersService: UsersService, @Self() private utilityService: UtilityService) { }
 
   ngOnInit() {
     this.topBarConfig = {
@@ -67,7 +65,6 @@ export class CompetenciesComponent implements OnInit, OnDestroy {
 
   getAllUserCompetency() {
     const rootOrgId = _.get(this.route.snapshot.parent, 'data.configService.unMappedUser.rootOrg.rootOrgId')
-    console.log(rootOrgId)
     this.usersService.getAllKongUsers(rootOrgId).pipe(map((data: any) => {
       return this.utilityService.getFormatedRequest(data.result.response)
     })).subscribe(data => {
@@ -85,8 +82,6 @@ export class CompetenciesComponent implements OnInit, OnDestroy {
   }
 }
 
-
-
 export interface IPeriodicElement {
   Full_Name: string
   Designation: string
@@ -96,4 +91,3 @@ export interface IPeriodicElement {
   Sub_Centre: string
   Competency_Status: string
 }
-

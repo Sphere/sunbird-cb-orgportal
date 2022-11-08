@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http'
 import { Injectable } from '@angular/core'
 import { Observable } from 'rxjs'
 import { ConfigurationsService } from '@sunbird-cb/utils'
-import { map, } from 'rxjs/operators'
+import { map } from 'rxjs/operators'
 import * as _ from 'lodash'
 // TODO: move this in some common place
 const PROTECTED_SLAG_V8 = '/apis/proxies/v8'
@@ -11,7 +11,7 @@ const API_END_POINTS = {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class UserAutoCompleteService {
 
@@ -67,6 +67,7 @@ export class UserAutoCompleteService {
         }
         activeUsersData.push({
           fullName: user ? `${user.firstName || ''} ${user.lastName || ''}` : null,
+          // tslint:disable-next-line:max-line-length
           email: user.profileDetails && user.profileDetails.personalDetails && user.profileDetails.personalDetails.primaryEmail ? user.profileDetails.personalDetails.primaryEmail : user.email,
           userId: user.id,
           active: !user.isDeleted,
@@ -81,13 +82,12 @@ export class UserAutoCompleteService {
   }
 
   getprofessionalDetails(data: any) {
-    console.log(data)
     const professionalDetails: any = {}
     if (data && data.length > 0) {
-      // tslint:disable-next-line
+      // tslint:disable-next-line:max-line-length
       _.reduce(data, (_key: any, value: any) => {
         professionalDetails['designation'] = value.designation ? value.designation : ''
-      }, professionalDetails)
+      },       professionalDetails)
     }
     return professionalDetails
   }
@@ -102,6 +102,5 @@ export class UserAutoCompleteService {
     }
     return addressDetails
   }
-
 
 }

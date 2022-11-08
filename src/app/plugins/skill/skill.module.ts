@@ -24,7 +24,7 @@ import {
   SearchSelectedFilterComponent,
   AddCompetencyDialogComponent,
   ConfirmDialogComponent,
-  SkillTableComponent, UserCompetencyComponent
+  SkillTableComponent, UserCompetencyComponent,
 } from './components'
 import { FormsModule, ReactiveFormsModule } from '@angular/forms'
 

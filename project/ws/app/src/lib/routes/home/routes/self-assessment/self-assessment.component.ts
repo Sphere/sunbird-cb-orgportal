@@ -10,7 +10,7 @@ import { UtilityService } from '../../services/utility.service'
   selector: 'ws-app-self-assessment',
   templateUrl: './self-assessment.component.html',
   styleUrls: ['./self-assessment.component.scss'],
-  providers: [UtilityService]
+  providers: [UtilityService],
 })
 export class SelfAssessmentComponent implements OnInit {
   tableData: any
@@ -85,4 +85,3 @@ export class SelfAssessmentComponent implements OnInit {
   }
 
 }
-
