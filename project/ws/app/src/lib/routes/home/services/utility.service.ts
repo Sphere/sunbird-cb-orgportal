@@ -21,9 +21,9 @@ export class UtilityService {
           userId: user.id,
           active: !user.isDeleted,
           blocked: user.blocked,
-          designation: professionalDetails ? professionalDetails.designation : '',
-          state: addressDetails ? addressDetails.state : '',
-          city: addressDetails ? addressDetails.city : '',
+          designation: _.get(professionalDetails, 'designation') ? _.get(professionalDetails, 'designation') : '',
+          state: _.get(addressDetails, 'state') ? _.get(addressDetails, 'state') : '',
+          city: _.get(addressDetails, 'city') ? _.get(addressDetails, 'city') : '',
         })
       })
     }
