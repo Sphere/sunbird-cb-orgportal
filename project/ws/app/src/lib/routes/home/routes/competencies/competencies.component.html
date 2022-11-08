@@ -1,7 +1,8 @@
 <div class="flex flex-4 flex-column">
   <p class="header">Competencies</p>
   <mat-card class="flex-custom ws-mat-accent-border" *ngIf="usersData">
-    <ws-app-skill-table [tableData]="tableData" [data]="usersData" [topBarConfig]="topBarConfig">
+    <ws-app-skill-table [tableData]="tableData" (searchByEnterKey)="searchByEnterKey($event)" [data]="usersData"
+      [topBarConfig]="topBarConfig">
     </ws-app-skill-table>
   </mat-card>
 </div>

@@ -20,7 +20,7 @@ export class UtilityService {
           blocked: user.blocked,
           designation: professionalDetails.designation,
           state: addressDetails.state,
-          city: addressDetails.city
+          city: addressDetails.city,
         })
       })
     }

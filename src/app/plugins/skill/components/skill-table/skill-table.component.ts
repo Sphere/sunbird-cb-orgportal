@@ -5,7 +5,10 @@ import { SelectionModel } from '@angular/cdk/collections'
 import { FilterDialogComponent } from '../filter-dialog/filter-dialog.component'
 import { AddCompetencyDialogComponent } from '../add-competency-dialog/add-competency-dialog.component'
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component'
-
+import { FormBuilder } from '@angular/forms'
+import { debounceTime, distinctUntilChanged, filter, switchMap } from 'rxjs/operators'
+import { of, Subject } from 'rxjs'
+import { UserAutoCompleteService } from '../../services/user-auto-complete.service'
 @Component({
   selector: 'ws-app-skill-table',
   templateUrl: './skill-table.component.html',
@@ -40,13 +43,23 @@ export class SkillTableComponent implements OnInit, OnChanges {
   }
   selection = new SelectionModel<any>(true, [])
   selectedFilters: any = []
+  aastrikaFormBuilder: FormBuilder
+  /**
+  * value typed
+  */
+  query: any
+  modelChanged: Subject<string> = new Subject<string>();
   constructor(
     public dialog: MatDialog,
+    formBuilder: FormBuilder,
+    public userAutoCompleteService: UserAutoCompleteService
+
   ) {
     this.dataSource = new MatTableDataSource<any>()
     this.dataSource.paginator = this.paginator
     this.actionsClick = new EventEmitter()
     this.clicked = new EventEmitter()
+    this.aastrikaFormBuilder = formBuilder
   }
 
   ngOnChanges(data: SimpleChanges) {
@@ -63,8 +76,32 @@ export class SkillTableComponent implements OnInit, OnChanges {
       this.dataSource.data = this.data
       this.dataSource.paginator = this.paginator
     }
+    /**
+ * subscribe the value and user autocomplete service
+ */
+    this.modelChanged.pipe(debounceTime(1000),
+      distinctUntilChanged(),
+      filter(val => typeof val === 'string'),
+      switchMap((value: string) => {
+        if (typeof value === 'string' && value) {
+          return this.userAutoCompleteService.fetchUserList(value)
+        } else {
+          this.searchByEnterKey.emit(value)
+        }
+        return of([])
+      })
+    ).subscribe((users: any) => {
+      this.dataSource.data = users
+      this.dataSource.paginator = this.paginator
+    })
   }
-
+  /**
+ * method to update the behaviour subject
+ */
+  keyup(event: any) {
+    this.query = event
+    this.modelChanged.next(this.query)
+  }
   applyFilter(filterValue: any) {
     if (filterValue) {
       let fValue = filterValue.trim()

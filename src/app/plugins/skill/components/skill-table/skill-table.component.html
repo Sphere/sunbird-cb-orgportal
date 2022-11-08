@@ -6,8 +6,8 @@
       <div class="flex items-center gap-4">
         <!-- search field -->
         <div class="flex items-center">
-          <input class="sinput p-1" type="Standard" label="" (input)="applyFilter($event.target.value)"
-            (keydown.enter)="onSearchEnter($event)" placeholder="Search by name/email/phone/role/competency">
+          <input class="sinput p-1" type="Standard" label="" [(ngModel)]="query" (keyup)="keyup(query)"
+            placeholder="Search by name/email/phone/role/competency">
           <mat-icon class="search-icon">search</mat-icon>
         </div>
         <!-- filter -->

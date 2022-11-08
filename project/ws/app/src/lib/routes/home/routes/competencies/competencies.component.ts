@@ -73,6 +73,11 @@ export class CompetenciesComponent implements OnInit, OnDestroy {
       this.usersData = data
     })
   }
+  searchByEnterKey(event: any) {
+    if (_.isEmpty(event)) {
+      this.getAllUserCompetency()
+    }
+  }
 }
 
 export interface IPeriodicElement {
