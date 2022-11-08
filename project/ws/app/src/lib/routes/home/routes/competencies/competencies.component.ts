@@ -80,7 +80,7 @@ export class CompetenciesComponent implements OnInit, OnDestroy {
     }
   }
 
-  onRoleClick(event: any) {
+  onRowClick(event: any) {
     this.router.navigate([`app/home/competencies/${event.userId}`])
   }
 }

@@ -24,10 +24,9 @@ import {
   SearchSelectedFilterComponent,
   AddCompetencyDialogComponent,
   ConfirmDialogComponent,
-  SkillTableComponent,
+  SkillTableComponent, UserCompetencyComponent
 } from './components'
 import { FormsModule, ReactiveFormsModule } from '@angular/forms'
-import { UserCompetencyComponent } from './components/user-competency/user-competency.component'
 
 @NgModule({
   declarations: [
