@@ -26,18 +26,12 @@ export class UsersService {
   }
 
   getFormatedRequest(data: any) {
-    const userDetails = {
-      userName: '',
-      role: '',
-      designation: ''
-    }
+    const userDetails: any = {}
     let professionalDetails: any
     if (data) {
       userDetails.userName = data.userName
-      userDetails.role = data.roles[0]
-      if (data.profileDetails && data.profileDetails.profileReq) {
-        professionalDetails = this.getprofessionalDetails(data.profileDetails.profileReq.professionalDetails)
-      }
+      userDetails.role = _.get(data, 'roles[0]', '')
+      professionalDetails = this.getprofessionalDetails(_.get(data, 'profileDetails.profileReq.professionalDetails', null))
       userDetails.designation = professionalDetails.designation
     }
     return userDetails
