@@ -16,20 +16,16 @@ export class UserCompetencyComponent implements OnInit {
   legends: any[] = [
     {
       name: 'Self Assessment',
-      color: '#f3c581bd',
+      color: '#FFE7C3',
     },
     {
       name: 'Course',
-      color: '#b9eeff',
+      color: '#D5ECFF',
     },
     {
       name: 'Admin added',
-      color: '#a8f6c1',
-    },
-    {
-      name: 'Required',
-      color: '#0075B7',
-    },
+      color: '#ABE5C3',
+    }
   ]
 
   competenciesList: any = []
@@ -96,7 +92,11 @@ export class UserCompetencyComponent implements OnInit {
   ]
 
   userID: string = '';
-  userDetails: any
+  userDetails: any = {
+    userName: 'User Name',
+    role: 'Role',
+    designation: 'Designation'
+  }
 
   constructor(
     private dialog: MatDialog,
@@ -112,7 +112,7 @@ export class UserCompetencyComponent implements OnInit {
   getUserId() {
     this.userID = this.route.snapshot.paramMap.get('id') as string
     if (this.userID) {
-      this.getUserDetails()
+      // this.getUserDetails()
     }
   }
 
@@ -132,6 +132,7 @@ export class UserCompetencyComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((response: any) => {
       if (response) {
+        console.log(response)
         this.competenciesList.push(response)
       }
     })
@@ -146,9 +147,12 @@ export class UserCompetencyComponent implements OnInit {
     return columns
   }
 
-  addIndidualLevels() {
+  addIndidualLevels(level: number) {
     console.log('clicked')
     const dialogRef = this.dialog.open(ProficiencyLevelDialogComponent, {
+      data: {
+        level: level
+      },
       height: '45vh',
       width: '25vw',
     })
