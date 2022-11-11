@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core'
 import { MatDialog } from '@angular/material'
+import { ActivatedRoute } from '@angular/router'
 import * as _ from 'lodash'
+import { UsersService } from '../../services/users.service'
 import { AddCompetencyDialogComponent } from '../add-competency-dialog/add-competency-dialog.component'
 import { ProficiencyLevelDialogComponent } from './../proficiency-level-dialog/proficiency-level-dialog.component'
 
@@ -93,12 +95,33 @@ export class UserCompetencyComponent implements OnInit {
     },
   ]
 
+  userID: string = '';
+  userDetails: any
+
   constructor(
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private usersSvc: UsersService,
+    private route: ActivatedRoute
   ) {
   }
 
   ngOnInit() {
+    this.getUserId()
+  }
+
+  getUserId() {
+    this.userID = this.route.snapshot.paramMap.get('id') as string
+    if (this.userID) {
+      this.getUserDetails()
+    }
+  }
+
+  getUserDetails() {
+    this.usersSvc.getUserById(this.userID)
+      .subscribe((userDetails: any) => {
+        this.userDetails = userDetails
+        console.log(this.userDetails)
+      })
   }
 
   openAddComperencyDialog() {
