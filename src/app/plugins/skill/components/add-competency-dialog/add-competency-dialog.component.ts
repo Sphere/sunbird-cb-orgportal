@@ -35,34 +35,30 @@ export class AddCompetencyDialogComponent implements OnInit {
       value: 'c5',
     },
   ]
-
-  proficiencyLevel: any = [
+  selectProficiencyList: any = [
     {
-      level: 1,
-      selected: false,
-      curentSelected: false,
+      displayName: 'Level 1',
+      value: 'l1',
     },
     {
-      level: 2,
-      selected: false,
-      curentSelected: false,
+      displayName: 'Level 2',
+      value: 'l2',
     },
     {
-      level: 3,
-      selected: false,
-      curentSelected: false,
+      displayName: 'Level 3',
+      value: 'l3',
     },
     {
-      level: 4,
-      selected: false,
-      curentSelected: false,
+      displayName: 'Level 4',
+      value: 'l4',
     },
     {
-      level: 5,
-      selected: false,
-      curentSelected: false,
+      displayName: 'Level 5',
+      value: 'l5',
     },
   ]
+
+
 
   constructor(
     formBuilder: FormBuilder,
@@ -78,39 +74,43 @@ export class AddCompetencyDialogComponent implements OnInit {
   initializeFormFields() {
     this.addCompetencyForm = this.aastrikaFormBuilder.group({
       selectCompetency: ['', Validators.required],
-      proficiencyLevel: this.aastrikaFormBuilder.array([]),
-    })
-    if (this.proficiencyLevel.length > 0) {
-      this.addPProficiency()
-    }
-  }
-  get proficiencyLevelControl(): FormArray {
-    return this.addCompetencyForm.get('proficiencyLevel') as FormArray
-  }
-  getLeveleSelected(index: any) {
-    const formArray: any = (<FormArray>this.addCompetencyForm.get('proficiencyLevel')).at(index).get('level')
-    return formArray.value.curentSelected
-  }
-  newProficiencyLevel(item?: any): FormGroup {
-    return this.aastrikaFormBuilder.group({
-      comments: new FormControl(''),
-      level: new FormControl(item),
-    })
-  }
+      selectProficiency: ['', Validators.required],
+      selectDate: [''],
+      comments: ['']
 
-  addPProficiency() {
-    _.forEach(this.proficiencyLevel, key => {
-      this.proficiencyLevelControl.push(this.newProficiencyLevel(key))
     })
-
+    // if (this.proficiencyLevel.length > 0) {
+    //   this.addPProficiency()
+    // }
   }
+  // get proficiencyLevelControl(): FormArray {
+  //   return this.addCompetencyForm.get('proficiencyLevel') as FormArray
+  // }
+  // getLeveleSelected(index: any) {
+  //   const formArray: any = (<FormArray>this.addCompetencyForm.get('proficiencyLevel')).at(index).get('level')
+  //   return formArray.value.curentSelected
+  // }
+  // newProficiencyLevel(item?: any): FormGroup {
+  //   return this.aastrikaFormBuilder.group({
+  //     comments: new FormControl(''),
+  //     level: new FormControl(item),
+  //   })
+  // }
 
-  selectLevel(level: any) {
-    const formArray: any = (<FormArray>this.addCompetencyForm.get('proficiencyLevel')).at(level).get('level')
-    formArray.patchValue({ curentSelected: true, selected: true, level: level + 1 })
-  }
+  // addPProficiency() {
+  //   _.forEach(this.proficiencyLevel, key => {
+  //     this.proficiencyLevelControl.push(this.newProficiencyLevel(key))
+  //   })
+
+  // }
+
+  // selectLevel(level: any) {
+  //   const formArray: any = (<FormArray>this.addCompetencyForm.get('proficiencyLevel')).at(level).get('level')
+  //   formArray.patchValue({ curentSelected: true, selected: true, level: level + 1 })
+  // }
 
   submit() {
+    console.log(this.addCompetencyForm.value)
     this.dialogRef.close(this.addCompetencyForm.value)
   }
 

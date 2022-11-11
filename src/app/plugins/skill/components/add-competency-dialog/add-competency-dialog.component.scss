@@ -33,6 +33,18 @@
   margin-bottom: 5px !important;
 }
 
+.date-picker {
+  position: absolute;
+  right: 0px;
+  top: 0px;
+}
+
+::ng-deep .mat-form-field-infix {
+  padding: 13px 0 !important;
+  font-size: 16px;
+  line-height: 14px !important;
+}
+
 ::ng-deep .mat-form-field-flex {
   height: 45px !important;
   align-items: center !important;
