@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core'
 import { MatDialog } from '@angular/material'
 import * as _ from 'lodash'
 import { AddCompetencyDialogComponent } from '../add-competency-dialog/add-competency-dialog.component'
+import { ProficiencyLevelDialogComponent } from './../proficiency-level-dialog/proficiency-level-dialog.component'
 
 @Component({
   selector: 'ws-user-competency',
@@ -120,5 +121,17 @@ export class UserCompetencyComponent implements OnInit {
   getFinalColumns() {
     const columns: string[] = ['level', 'source', 'date']
     return columns
+  }
+
+  addIndidualLevels() {
+    console.log('clicked')
+    const dialogRef = this.dialog.open(ProficiencyLevelDialogComponent, {
+      height: '45vh',
+      width: '25vw',
+    })
+
+    dialogRef.afterClosed().subscribe((response: any) => {
+      console.log(response)
+    })
   }
 }

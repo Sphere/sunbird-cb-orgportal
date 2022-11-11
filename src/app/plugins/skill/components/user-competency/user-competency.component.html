@@ -59,22 +59,21 @@
     <ng-container *ngFor="let competencies of competenciesList; let i = index">
       <mat-expansion-panel class="w-full panel" hideToggle (opened)="panelOpenState[i] = true"
         (closed)="panelOpenState[i] = false">
-        <mat-expansion-panel-header class="flex flex-between items-center panel-header w-full"
-          (click)="$event.preventDefault()">
+        <mat-expansion-panel-header class="flex flex-between items-center panel-header w-full">
           <mat-panel-title class="flex items-center w-full box boxPaddingText leftMostBox">
             <span>{{selectedCompetency(competencies.selectCompetency)}}</span>
           </mat-panel-title>
           <mat-panel-description class="flex items-center panel-header-description">
             <ng-container *ngFor="let proficiency of competencies.proficiencyLevel">
               <ng-container *ngIf="proficiency.level.selected; else addLevel">
-                <div class="boxPaddingText box level requiredLevel">
+                <div (click)=" addIndidualLevels()" class="boxPaddingText box level requiredLevel">
                   <span>{{proficiency.level.level}}</span>
                 </div>
               </ng-container>
               <ng-template #addLevel>
-                <div class="boxPaddingIcon box requiredLevel">
-                  <mat-icon (click)="isOpen = !isOpen" class="addIcon">add_circle</mat-icon>
-                </div>
+                <button class="boxPaddingIcon box requiredLevel">
+                  <mat-icon (click)="addIndidualLevels()" class="addIcon">add_circle</mat-icon>
+                </button>
               </ng-template>
             </ng-container>
             <div class="boxPaddingIcon box righMostBox">

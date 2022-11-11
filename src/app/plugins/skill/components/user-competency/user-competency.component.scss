@@ -36,7 +36,7 @@
   border-bottom: 1.5px solid;
 }
 
-.legend-container{
+.legend-container {
   padding: 0.5rem;
   margin-left: 20px;
 
@@ -47,7 +47,7 @@
     border-radius: 50%;
   }
 
-  .legend-text{
+  .legend-text {
     position: relative;
     left: 1rem;
     padding-left: 0.5rem;
@@ -97,6 +97,7 @@
 .addIcon {
   color: #0075B7;
   background-color: white;
+  pointer-events: all;
 }
 
 .level {
@@ -104,9 +105,9 @@
 }
 
 .requiredLevel {
-    box-shadow: #0075B7 0px -7px 0px 0px inset;
-    border-bottom-right-radius: 0px;
-    border-bottom-left-radius: 0px;
+  box-shadow: #0075B7 0px -7px 0px 0px inset;
+  border-bottom-right-radius: 0px;
+  border-bottom-left-radius: 0px;
 }
 
 .arrowReverse {
