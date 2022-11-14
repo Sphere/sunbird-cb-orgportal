@@ -32,9 +32,6 @@ export class CompetenciesComponent implements OnInit, OnDestroy {
           actioName: 'addCompetency',
         }
       ],
-      left: [{
-
-      }],
     }
     this.tableData = {
       columns: [
