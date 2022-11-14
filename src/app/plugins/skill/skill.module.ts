@@ -16,6 +16,7 @@ import {
   MatCheckboxModule,
   MatInputModule,
   MatButtonModule,
+  MatDatepickerModule
 } from '@angular/material'
 
 import { MatMenuModule } from '@angular/material/menu'
@@ -58,6 +59,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms'
     MatSelectModule,
     MatInputModule,
     MatButtonModule,
+    MatDatepickerModule
   ],
   entryComponents: [
     FilterDialogComponent,

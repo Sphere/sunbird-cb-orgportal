@@ -99,6 +99,7 @@ export class UserCompetencyComponent implements OnInit {
   }
 
   color = '#FFE7C3'
+  numberOfProficiencies = 5
 
   constructor(
     private dialog: MatDialog,
@@ -134,8 +135,23 @@ export class UserCompetencyComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((response: any) => {
       if (response) {
-        console.log(response)
-        this.competenciesList.push(response)
+        let competency: any = {}
+        competency.selectCompetency = response.selectCompetency,
+          competency.selectDate = response.selectDate,
+          competency.proficiencyLevels = []
+        for (let i = 0; i < this.numberOfProficiencies; i++) {
+          const proficiency = {
+            proficiencyLevel: 'l' + (i + 1),
+            displayLevel: i + 1,
+            selected: false,
+            comments: response.comments,
+          }
+          if (response.selectProficiency === proficiency.proficiencyLevel) {
+            proficiency.selected = true
+          }
+          competency.proficiencyLevels.push(proficiency)
+        }
+        this.competenciesList.push(competency)
       }
     })
   }
@@ -163,11 +179,11 @@ export class UserCompetencyComponent implements OnInit {
     dialogRef.afterClosed().subscribe((response: any) => {
       if (response && response.addLevel) {
         this.competenciesList
-          .find((competency: any) => competency.proficiencyLevel
+          .find((competency: any) => competency.proficiencyLevels
             .find((element: any) => {
-              if (element.level.level === level) {
+              if (element.displayLevel === level) {
                 element.comments = response.formData.comments
-                element.level.selected = true
+                element.selected = true
               }
             })
           )
