@@ -98,6 +98,8 @@ export class UserCompetencyComponent implements OnInit {
     designation: 'Designation'
   }
 
+  color = '#FFE7C3'
+
   constructor(
     private dialog: MatDialog,
     private usersSvc: UsersService,
@@ -148,17 +150,28 @@ export class UserCompetencyComponent implements OnInit {
   }
 
   addIndidualLevels(level: number) {
-    console.log('clicked')
     const dialogRef = this.dialog.open(ProficiencyLevelDialogComponent, {
       data: {
         level: level
       },
-      height: '45vh',
-      width: '25vw',
+      height: '255px',
+      width: '500px',
+      maxWidth: '90vw',
+      panelClass: 'competencies',
     })
 
     dialogRef.afterClosed().subscribe((response: any) => {
-      console.log(response)
+      if (response && response.addLevel) {
+        this.competenciesList
+          .find((competency: any) => competency.proficiencyLevel
+            .find((element: any) => {
+              if (element.level.level === level) {
+                element.comments = response.formData.comments
+                element.level.selected = true
+              }
+            })
+          )
+      }
     })
   }
 }

@@ -40,7 +40,7 @@
           <mat-panel-description class="flex items-center panel-header-description">
             <ng-container *ngFor="let proficiency of competencies.proficiencyLevel">
               <ng-container *ngIf="proficiency?.level.selected; else addLevel">
-                <div class="boxPaddingText box level">
+                <div class="boxPaddingText box level" [ngStyle]="{'background-color': color}">
                   <span>{{proficiency?.level?.level}}</span>
                 </div>
               </ng-container>
