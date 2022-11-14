@@ -35,8 +35,8 @@ export class SelfAssessmentComponent implements OnInit {
       right: [
         {
           type: 'anchor',
-          title: 'Reset Assessment',
-          actioName: 'resetAssessment',
+          title: 'Disable Assessment',
+          actioName: 'disableAssessment',
         },
         {
           type: 'button',
@@ -47,7 +47,7 @@ export class SelfAssessmentComponent implements OnInit {
     }
 
     this.tableData = {
-      actions: [{ name: 'Reset', label: 'Reset', type: 'link' }],
+      //actions: [{ name: 'Reset', label: 'Reset', type: 'link' }],
       columns: [
         { displayName: 'Full Name', key: 'fullName' },
         { displayName: 'Designation', key: 'designation' },
