@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core'
+import { Component, Inject, OnInit } from '@angular/core'
 import { FormBuilder, FormGroup } from '@angular/forms'
-import { MatDialogRef } from '@angular/material'
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material'
+import * as _ from 'lodash'
 
 @Component({
   selector: 'ws-proficiency-level-dialog',
@@ -14,6 +15,7 @@ export class ProficiencyLevelDialogComponent implements OnInit {
   constructor(
     formBuilder: FormBuilder,
     public dialogRef: MatDialogRef<ProficiencyLevelDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: any
   ) {
     this.aastrikaFormBuilder = formBuilder
   }
@@ -25,9 +27,16 @@ export class ProficiencyLevelDialogComponent implements OnInit {
   initializeFormFields() {
     this.proficiencyLevelForm = this.aastrikaFormBuilder.group({
       comments: [''],
-      level: [''],
     })
 
+  }
+
+  submit() {
+    const resData = {
+      formData: this.proficiencyLevelForm.value,
+      addLevel: true
+    }
+    this.dialogRef.close(resData)
   }
 
 }
