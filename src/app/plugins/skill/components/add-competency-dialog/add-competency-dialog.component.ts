@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core'
 import { MatDialogRef } from '@angular/material'
 import { FormGroup, FormBuilder, Validators, FormArray, FormControl } from '@angular/forms'
 import * as _ from 'lodash'
+import { CompetencyService } from '../../services/competency.service'
 @Component({
   selector: 'ws-add-competency-dialog',
   templateUrl: './add-competency-dialog.component.html',
@@ -13,28 +14,7 @@ export class AddCompetencyDialogComponent implements OnInit {
   aastrikaFormBuilder: FormBuilder
   selectedLeves: any[] = []
 
-  selectCompetencyList: any = [
-    {
-      displayName: 'Procurement and Distribution of HCM',
-      value: 'c1',
-    },
-    {
-      displayName: 'Store management and planning and coordination of THR and Dry ration',
-      value: 'c2',
-    },
-    {
-      displayName: 'Early Childhood Care Education',
-      value: 'c3',
-    },
-    {
-      displayName: 'Growth assessment and monitoring',
-      value: 'c4',
-    },
-    {
-      displayName: 'Conducts Community based events',
-      value: 'c5',
-    },
-  ]
+  selectCompetencyList: any = []
 
   proficiencyLevel: any = [
     {
@@ -67,12 +47,14 @@ export class AddCompetencyDialogComponent implements OnInit {
   constructor(
     formBuilder: FormBuilder,
     public dialogRef: MatDialogRef<AddCompetencyDialogComponent>,
+    private competencySvc: CompetencyService
   ) {
     this.aastrikaFormBuilder = formBuilder
   }
 
   ngOnInit() {
     this.initializeFormFields()
+    this.getCompetencyList()
   }
 
   initializeFormFields() {
@@ -84,6 +66,20 @@ export class AddCompetencyDialogComponent implements OnInit {
       this.addPProficiency()
     }
   }
+
+  getCompetencyList() {
+    const serchBody = {
+      search: {
+        type: "Competency"
+      }
+    }
+    this.competencySvc.getAllEntity(serchBody)
+      .subscribe((data: any) => {
+        this.selectCompetencyList = data
+        console.log('entities', data)
+      })
+  }
+
   get proficiencyLevelControl(): FormArray {
     return this.addCompetencyForm.get('proficiencyLevel') as FormArray
   }
