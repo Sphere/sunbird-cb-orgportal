@@ -1,65 +1,112 @@
 .main-container {
-  padding: 20px;
+  padding: 5px 74px 64px 10px;
 }
 
 .arrowRight {
-  display: inline-flex;
-  vertical-align: top;
   font-size: 22px;
   font-weight: 100;
+  margin: 8.8px 0px 0px 5px;
 }
 
-.userName {
-  font-size: 25px;
-  font-weight: 500;
+.headerText {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 20px;
+  line-height: 38px;
+  letter-spacing: -0.02em;
+  color: #666666;
+  margin-bottom: 18px;
+}
+
+.user-details  {
+  margin-bottom: 22px;
+}
+
+.user-name {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 38px;
+  letter-spacing: -0.02em;
+  color: #000000;
 }
 
 .role {
-  font-weight: normal;
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 16px;
+  letter-spacing: -0.02em;
+  color: #000000;
 }
 
-.addBtn {
-  padding: 0px 30px;
-  border-radius: 20px;
-  border: none;
-  height: 35px;
-  background: #0075B7 !important;
-  color: white !important;
-}
-
-.mb-30 {
-  margin-bottom: 30px;
+.legend-header {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 20px;
+  line-height: 38px;
+  letter-spacing: -0.02em;
+  color: #000000;
+  margin-right: 30px;
 }
 
 .pb-bb {
-  padding-bottom: 10px;
-  border-bottom: 1.5px solid;
+  padding-bottom: 7px;
+  border-bottom: 1px solid #000000;
 }
 
-.legend-container{
-  padding: 0.5rem;
-  margin-left: 20px;
+.legend-container {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 38px;
+  letter-spacing: -0.02em;
+  color: #000000;
+  margin-left: 11px;
+  position: relative;
 
   .legend-color {
-    height: 16px;
-    width: 16px;
+    height: 13px;
+    width: 13px;
     position: absolute;
+    top: 12px;
     border-radius: 50%;
   }
 
-  .legend-text{
+  .legend-text {
+    font-family: 'Roboto';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 38px;
+    letter-spacing: -0.02em;
+    color: #000000;
     position: relative;
-    left: 1rem;
-    padding-left: 0.5rem;
-    // height: 1.25rem;
-    line-height: 1.25rem;
-    // font-size: 0.9rem;
+    padding-left: 18px;
   }
+}
+
+.addBtn {
+  background-color: #1C5D95 !important;
+  padding: 0px 24px;
+  border-radius: 20px;
+  height: 35px;
+  color: white !important;
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 16px;
 }
 
 .panel {
   box-shadow: 0px 0px 0px 0px !important;
-  margin-top: 20px;
+  margin-top: 19px;
   padding: 1px 3px 1px 0px;
   pointer-events: none;
 }
@@ -68,13 +115,18 @@
   padding: 0px;
 }
 
+.panel-header:hover {
+  background: none !important;
+}
+
 .panel-header-description {
   margin: 0px !important;
 }
 
 .box {
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  border-radius: 4px;
+  box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.15);
+  margin: 1px;
+  border: 0px !important;
 }
 
 .leftMostBox {
@@ -83,34 +135,36 @@
 
 .righMostBox {
   margin-left: 10px;
+}
+
+.pointer-events {
   pointer-events: all;
 }
 
 .boxPaddingText {
-  padding: 12px 24px 10px;
+  padding: 12px 25px 10px;
 }
 
 .boxPaddingIcon {
   padding: 12px 17px 4px;
 }
 
-.addIcon {
-  color: #0075B7;
-  background-color: white;
-}
-
 .level {
   width: 10px;
 }
 
-.requiredLevel {
-    box-shadow: #0075B7 0px -7px 0px 0px inset;
-    border-bottom-right-radius: 0px;
-    border-bottom-left-radius: 0px;
-}
+// .requiredLevel {
+//   box-shadow: #0075B7 0px -7px 0px 0px inset;
+//   border-bottom-right-radius: 0px;
+//   border-bottom-left-radius: 0px;
+// }
 
 .arrowReverse {
   transform: rotateX(180deg);
+}
+
+::ng-deep .mat-expansion-panel-body {
+  padding: 0px !important;
 }
 
 .level-flex {

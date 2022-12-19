@@ -1,7 +1,10 @@
 import { Component, OnInit } from '@angular/core'
 import { MatDialog } from '@angular/material'
+import { ActivatedRoute } from '@angular/router'
 import * as _ from 'lodash'
+import { UsersService } from '../../services/users.service'
 import { AddCompetencyDialogComponent } from '../add-competency-dialog/add-competency-dialog.component'
+import { ProficiencyLevelDialogComponent } from './../proficiency-level-dialog/proficiency-level-dialog.component'
 
 @Component({
   selector: 'ws-user-competency',
@@ -13,20 +16,16 @@ export class UserCompetencyComponent implements OnInit {
   legends: any[] = [
     {
       name: 'Self Assessment',
-      color: '#f3c581bd',
+      color: '#FFE7C3',
     },
     {
       name: 'Course',
-      color: '#b9eeff',
+      color: '#D5ECFF',
     },
     {
       name: 'Admin added',
-      color: '#a8f6c1',
-    },
-    {
-      name: 'Required',
-      color: '#0075B7',
-    },
+      color: '#ABE5C3',
+    }
   ]
 
   competenciesList: any = []
@@ -92,12 +91,40 @@ export class UserCompetencyComponent implements OnInit {
     },
   ]
 
+  userID: string = '';
+  userDetails: any = {
+    userName: 'User Name',
+    role: 'Role',
+    designation: 'Designation'
+  }
+
+  color = '#FFE7C3'
+  numberOfProficiencies = 5
+
   constructor(
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private usersSvc: UsersService,
+    private route: ActivatedRoute
   ) {
   }
 
   ngOnInit() {
+    this.getUserId()
+  }
+
+  getUserId() {
+    this.userID = this.route.snapshot.paramMap.get('id') as string
+    if (this.userID) {
+      // this.getUserDetails()
+    }
+  }
+
+  getUserDetails() {
+    this.usersSvc.getUserById(this.userID)
+      .subscribe((userDetails: any) => {
+        this.userDetails = userDetails
+        console.log(this.userDetails)
+      })
   }
 
   openAddComperencyDialog() {
@@ -108,7 +135,23 @@ export class UserCompetencyComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((response: any) => {
       if (response) {
-        this.competenciesList.push(response)
+        let competency: any = {}
+        competency.selectCompetency = response.selectCompetency,
+          competency.selectDate = response.selectDate,
+          competency.proficiencyLevels = []
+        for (let i = 0; i < this.numberOfProficiencies; i++) {
+          const proficiency = {
+            proficiencyLevel: 'l' + (i + 1),
+            displayLevel: i + 1,
+            selected: false,
+            comments: response.comments,
+          }
+          if (response.selectProficiency === proficiency.proficiencyLevel) {
+            proficiency.selected = true
+          }
+          competency.proficiencyLevels.push(proficiency)
+        }
+        this.competenciesList.push(competency)
       }
     })
   }
@@ -120,5 +163,31 @@ export class UserCompetencyComponent implements OnInit {
   getFinalColumns() {
     const columns: string[] = ['level', 'source', 'date']
     return columns
+  }
+
+  addIndidualLevels(level: number) {
+    const dialogRef = this.dialog.open(ProficiencyLevelDialogComponent, {
+      data: {
+        level: level
+      },
+      height: '255px',
+      width: '500px',
+      maxWidth: '90vw',
+      panelClass: 'competencies',
+    })
+
+    dialogRef.afterClosed().subscribe((response: any) => {
+      if (response && response.addLevel) {
+        this.competenciesList
+          .find((competency: any) => competency.proficiencyLevels
+            .find((element: any) => {
+              if (element.displayLevel === level) {
+                element.comments = response.formData.comments
+                element.selected = true
+              }
+            })
+          )
+      }
+    })
   }
 }

@@ -1,24 +1,23 @@
 <div class="example-container table-container main-container">
-  <p class="header flex custom mb-30">Competencies
-    <mat-icon class="arrowRight">keyboard_arrow_right</mat-icon>
-    User1
+  <p class="headerText flex custom ">Competencies
+    <mat-icon class="arrowRight">keyboard_arrow_right</mat-icon>User1
   </p>
 
-  <div class="mb-30">
-    <span class="flex custom userName">User Name</span>
-    <span class="flex custom role">Role | Designation</span>
+  <div class="user-details ">
+    <span class="flex custom user-name">{{userDetails?.userName}}</span>
+    <span class="flex custom role">{{userDetails?.role}} | {{userDetails?.designation}}</span>
   </div>
 
   <div class="flex flex-between items-center pb-bb">
-    <div class="flex items-center gap-4">
-      <div class="flex items-center">
-        <span>Competency</span>
+    <div class="flex items-center">
+      <div class="flex items-center legend-header">
+        <span>Competencies</span>
       </div>
       <div class="flex items-center">
         <ng-container *ngFor="let legend of legends">
           <div class="legend-container">
-            <div class="legend-color" [style.backgroundColor]="legend.color"> </div>
-            <div class="legend-text">{{legend.name}}</div>
+            <span class="legend-color" [style.backgroundColor]="legend.color"> </span>
+            <span class="legend-text">{{legend.name}}</span>
           </div>
         </ng-container>
       </div>
@@ -30,31 +29,6 @@
     </div>
   </div>
 
-  <!-- <div class="flex flex-between items-center">
-    <ng-container *ngFor="let competencies of competenciesList">
-      <div class="flex items-center w-full box boxPaddingText leftMostBox">
-        <span>{{competencies.selectCompetency}}</span>
-      </div>
-      <div class="flex items-center">
-        <ng-container *ngFor="let proficiency of competencies.proficiencyLevel">
-          <ng-container *ngIf="proficiency.level.selected; else addLevel">
-            <div class=" boxPaddingText box">
-              <span>{{proficiency.level.level}}</span>
-            </div>
-          </ng-container>
-          <ng-template #addLevel>
-            <div class="boxPaddingIcon box ">
-              <mat-icon class="addIcon">add_circle</mat-icon>
-            </div>
-          </ng-template>
-        </ng-container>
-        <div class="boxPaddingIcon box righMostBox">
-          <mat-icon>keyboard_arrow_right</mat-icon>
-        </div>
-      </div>
-    </ng-container>
-  </div> -->
-
   <mat-accordion>
     <ng-container *ngFor="let competencies of competenciesList; let i = index">
       <mat-expansion-panel class="w-full panel" hideToggle (opened)="panelOpenState[i] = true"
@@ -65,24 +39,25 @@
             <span>{{selectedCompetency(competencies.selectCompetency)}}</span>
           </mat-panel-title>
           <mat-panel-description class="flex items-center panel-header-description">
-            <ng-container *ngFor="let proficiency of competencies.proficiencyLevel">
-              <ng-container *ngIf="proficiency.level.selected; else addLevel">
-                <div class="boxPaddingText box level requiredLevel">
-                  <span>{{proficiency.level.level}}</span>
+            <ng-container *ngFor="let proficiency of competencies.proficiencyLevels">
+              <ng-container *ngIf="proficiency.selected; else addLevel">
+                <div class="boxPaddingText box level" [ngStyle]="{'background-color': color}">
+                  <span>{{proficiency?.displayLevel}}</span>
                 </div>
               </ng-container>
               <ng-template #addLevel>
-                <div class="boxPaddingIcon box requiredLevel">
-                  <mat-icon (click)="isOpen = !isOpen" class="addIcon">add_circle</mat-icon>
+                <div (click)="addIndidualLevels(proficiency?.displayLevel)"
+                  class="boxPaddingText box level pointer-events">
+                  <span>{{proficiency?.displayLevel}}</span>
                 </div>
               </ng-template>
             </ng-container>
-            <div class="boxPaddingIcon box righMostBox">
+            <div class="boxPaddingIcon box righMostBox pointer-events">
               <mat-icon [ngClass]="{'arrowReverse': panelOpenState[i] }">keyboard_arrow_down</mat-icon>
             </div>
           </mat-panel-description>
         </mat-expansion-panel-header>
-        <ng-container *ngIf="competencies.proficiencyLevel && competencies.proficiencyLevel.length > 0">
+        <ng-container *ngIf="competencies.proficiencyLevels && competencies.proficiencyLevels.length > 0">
           <mat-table #table [dataSource]="dataSource" class="example-table table1 responsiveTable">
             <ng-container matColumnDef="{{col.key}}" *ngFor="let col of tableData">
               <mat-header-cell *matHeaderCellDef mat-sort-header class="h-400-r-14-l color-60"

@@ -31,8 +31,8 @@
         <div class="flex gap-4">
           <ng-container *ngFor="let config of topBarConfig?.right">
             <ng-container *ngIf="config?.type === 'button'">
-              <button [ngClass]="selectedAll === true ? 'active' : 'inactive' " class="btn  cursor-pointer"
-                (click)="performBtnAction(config)">{{config.title}}</button>
+              <button [ngClass]="selectedAll || selectedRowLength === true ? 'active' : 'inactive' "
+                class="btn  cursor-pointer" (click)="performBtnAction(config)">{{config.title}}</button>
             </ng-container>
             <ng-container *ngIf="config?.type === 'anchor'">
               <a [ngClass]="selectedAll === true ? 'active' : 'inactive' " class="anchor-wrap cursor-pointer"
@@ -72,8 +72,8 @@
           <label class="select-label">Select All</label>
         </mat-header-cell>
         <mat-cell *matCellDef="let row">
-          <mat-checkbox (click)="$event.stopPropagation()" (change)="$event ? selection.toggle(row) : null"
-            [checked]="selection.isSelected(row)">
+          <mat-checkbox (click)="$event.stopPropagation();" (change)="$event ? selectRow($event, row) : null"
+            (change)="$event ? selection.toggle(row) : null" [checked]="selection.isSelected(row)">
           </mat-checkbox>
         </mat-cell>
       </ng-container>
