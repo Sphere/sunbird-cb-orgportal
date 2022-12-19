@@ -131,6 +131,9 @@ export class UserCompetencyComponent implements OnInit {
     const dialogRef = this.dialog.open(AddCompetencyDialogComponent, {
       height: '100vh',
       width: '90vw',
+      data: {
+        userId: this.userID
+      }
     })
 
     dialogRef.afterClosed().subscribe((response: any) => {

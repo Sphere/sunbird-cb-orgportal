@@ -5,6 +5,7 @@ import * as _ from 'lodash'
 
 const API_END_POINTS = {
   getAllEntity: `/apis/protected/v8/entityCompetency/getAllEntity`,
+  updatePassbook: `/apis/proxies/v8/user/v1/passbook`
 }
 
 @Injectable({
@@ -42,5 +43,9 @@ export class CompetencyService {
     }
     return actualData
 
+  }
+
+  updatePassbook(passbookBody: any) {
+    return this.http.post<any>(`${API_END_POINTS.updatePassbook}`, passbookBody)
   }
 }
