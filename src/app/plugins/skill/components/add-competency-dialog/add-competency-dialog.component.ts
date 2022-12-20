@@ -3,6 +3,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material'
 import { FormGroup, FormBuilder, Validators } from '@angular/forms'
 import * as _ from 'lodash'
 import { CompetencyService } from '../../services/competency.service'
+import { map } from 'rxjs/operators'
 @Component({
   selector: 'ws-add-competency-dialog',
   templateUrl: './add-competency-dialog.component.html',
@@ -19,23 +20,23 @@ export class AddCompetencyDialogComponent implements OnInit {
   selectProficiencyList: any = [
     {
       displayName: 'Level 1',
-      value: '1',
+      value: 'l1',
     },
     {
       displayName: 'Level 2',
-      value: '2',
+      value: 'l2',
     },
     {
       displayName: 'Level 3',
-      value: '3',
+      value: 'l3',
     },
     {
       displayName: 'Level 4',
-      value: '4',
+      value: 'l4',
     },
     {
       displayName: 'Level 5',
-      value: '5',
+      value: 'l5',
     },
   ]
 
@@ -53,7 +54,7 @@ export class AddCompetencyDialogComponent implements OnInit {
 
   ngOnInit() {
     this.initializeFormFields()
-    this.getCompetencyList()
+    this.getAllEntity()
   }
 
   initializeFormFields() {
@@ -66,16 +67,18 @@ export class AddCompetencyDialogComponent implements OnInit {
     })
   }
 
-  getCompetencyList() {
+  getAllEntity() {
     const serchBody = {
       search: {
         type: "Competency"
       }
     }
     this.competencySvc.getAllEntity(serchBody)
+      .pipe(map((data: any) => {
+        return this.competencySvc.getFormatedData(data)
+      }))
       .subscribe((data: any) => {
         this.selectCompetencyList = data
-        console.log('entities', data)
       })
   }
 
@@ -83,33 +86,36 @@ export class AddCompetencyDialogComponent implements OnInit {
     if (this.addCompetencyForm.valid) {
       this.getFormatedData()
     }
+
+    // this.dialogRef.close(this.addCompetencyForm.value)
   }
 
   getFormatedData() {
-    const competencyFormVAlue = _.get(this.addCompetencyForm, 'value')
+    const competencyFormValue = _.get(this.addCompetencyForm, 'value')
     const selectedCompetency = _.find(this.selectCompetencyList, (competency: any) => {
-      return competency.value === _.get(competencyFormVAlue, 'selectCompetency')
+      return competency.value === _.get(competencyFormValue, 'selectCompetency')
     })
-    const formatedData = {
-      competencyDetails: [
-        {
-          acquiredDetails: {
-            additionalParams: {
-              remarks: _.get(competencyFormVAlue, 'comments', '')
+    let formatedData = {
+      request: {
+        competencyDetails: [
+          {
+            acquiredDetails: {
+              additionalParams: {
+                remarks: _.get(competencyFormValue, 'comments', '')
+              },
+              competencyLevelId: _.get(competencyFormValue, 'selectProficiency'),
+              acquiredChannel: "selfAssessment"
             },
-            competencyLevelId: _.get(competencyFormVAlue, 'selectProficiency'),
-            acquiredChannel: "selfAssessment"
-          },
-          additionalParams: {
-            competencyName: _.get(selectedCompetency, 'displayName')
-          },
-          competencyId: _.get(selectedCompetency, 'value')
-        }
-      ],
-      typeName: "competency",
-      userId: this.UserId
+            additionalParams: {
+              competencyName: _.get(selectedCompetency, 'displayName')
+            },
+            competencyId: _.get(selectedCompetency, 'value') + ""
+          }
+        ],
+        typeName: "competency",
+        userId: this.UserId
+      }
     }
-
     this.addSelectedCompetency(formatedData)
   }
 

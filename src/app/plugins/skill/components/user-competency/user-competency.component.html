@@ -41,7 +41,7 @@
           <mat-panel-description class="flex items-center panel-header-description">
             <ng-container *ngFor="let proficiency of competencies.proficiencyLevels">
               <ng-container *ngIf="proficiency.selected; else addLevel">
-                <div class="boxPaddingText box level" [ngStyle]="{'background-color': color}">
+                <div class="boxPaddingText box level" [ngStyle]="{'background-color': proficiency.color}">
                   <span>{{proficiency?.displayLevel}}</span>
                 </div>
               </ng-container>
@@ -58,7 +58,8 @@
           </mat-panel-description>
         </mat-expansion-panel-header>
         <ng-container *ngIf="competencies.proficiencyLevels && competencies.proficiencyLevels.length > 0">
-          <mat-table #table [dataSource]="dataSource" class="example-table table1 responsiveTable">
+          <!-- <mat-table #table [dataSource]="dataSource" class="example-table table1 responsiveTable"> -->
+          <mat-table #table [dataSource]="competencies?.logs" class="example-table table1 responsiveTable">
             <ng-container matColumnDef="{{col.key}}" *ngFor="let col of tableData">
               <mat-header-cell *matHeaderCellDef mat-sort-header class="h-400-r-14-l color-60"
                 [ngClass]="{'level-flex' : col.key === 'level', 'source-flex': col.key === 'source'}">
