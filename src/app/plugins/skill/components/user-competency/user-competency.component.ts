@@ -126,9 +126,7 @@ export class UserCompetencyComponent implements OnInit {
         const res0 = _.get(res, '[0].result.response')
         const res1 = _.get(res, '[1].result.content')
         const response = this.competencySvc.formatedUserCompetency(res0, res1)
-        // this.gainedproficencyData = response
         this.competenciesList = response
-        console.log('gained competency', response)
       })
     }
   }
@@ -136,7 +134,7 @@ export class UserCompetencyComponent implements OnInit {
   getUserId() {
     this.userID = this.route.snapshot.paramMap.get('id') as string
     if (this.userID) {
-      // this.getUserDetails()
+      this.getUserDetails()
     } else {
       this.router.navigate([`app/home/competencies`])
     }
@@ -162,14 +160,14 @@ export class UserCompetencyComponent implements OnInit {
   private getAllUserPassbook() {
     const reqBody = {
       "request": {
-        "typeName": "competency"
+        "typeName": "competency",
+        "userId": [this.userID]
       }
     }
     return this.competencySvc.getUserPassbook(reqBody)
   }
 
   openAddComperencyDialog() {
-    this.userID
     const dialogRef = this.dialog.open(AddCompetencyDialogComponent, {
       height: '100vh',
       width: '90vw',

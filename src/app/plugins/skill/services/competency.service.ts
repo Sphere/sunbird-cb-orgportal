@@ -5,7 +5,8 @@ import * as _ from 'lodash'
 
 const API_END_POINTS = {
   getAllEntity: `/apis/protected/v8/entityCompetency/getAllEntity`,
-  passbook: `/apis/proxies/v8/user/v1/passbook`
+  getPassbook: `/apis/proxies/v8/user/v1/admin/passbook`,
+  updatePassbook: `/apis/proxies/v8/user/v1/passbook`,
 }
 
 @Injectable({
@@ -46,11 +47,11 @@ export class CompetencyService {
   }
 
   updatePassbook(passbookBody: any) {
-    return this.http.patch(`${API_END_POINTS.passbook}`, passbookBody)
+    return this.http.patch(`${API_END_POINTS.updatePassbook}`, passbookBody)
   }
 
   getUserPassbook(passbookBody: any) {
-    return this.http.post<any>(`${API_END_POINTS.passbook}`, passbookBody)
+    return this.http.post<any>(`${API_END_POINTS.getPassbook}`, passbookBody)
   }
 
   formatedUserCompetency(entity: any, passbook: any) {
@@ -76,12 +77,14 @@ export class CompetencyService {
     let response: any = []
     if (acquiredDetails.length > 0) {
       _.forEach(acquiredDetails, (value: any) => {
+        const channel = _.get(value, 'acquiredChannel')
         response.push({
-          'source': _.get(value, 'courseName') ? _.get(value, 'courseName') : '',
+          'source': _.get(value, 'acquiredChannel') ? _.get(value, 'acquiredChannel') : '',
           'date': _.get(value, 'createdDate'),
-          'description': _.get(value, 'additionalParams.description'),
-          'keyboardArrowUp': true,
-          'level': _.get(value, 'competencyLevelId')
+          // 'description': _.get(value, 'additionalParams.description'),
+          // 'keyboardArrowUp': true,
+          'level': 'Level ' + _.get(value, 'competencyLevelId').substring(1),
+          'color': this.getColor(channel)
         })
       })
     }
@@ -119,51 +122,73 @@ export class CompetencyService {
 
     _.forEach(acquiredDetails, (value: any) => {
       const channel = _.get(value, 'acquiredChannel')
-      switch (channel) {
-        case 'course': {
-          _.forEach(response, (level: any) => {
-            if (level.displayLevel == _.get(value, 'competencyLevelId')) {
-              level.color = '#FFFBB0'
-              level.selected = true
-            }
-          })
-
-          break
+      const competencyLevelId = _.get(value, 'competencyLevelId').substring(1)
+      _.forEach(response, (level: any) => {
+        if (level.displayLevel == competencyLevelId) {
+          level.color = this.getColor(channel)
+          level.selected = true
         }
-        case 'selfAssessment': {
-          _.forEach(response, (level: any) => {
-            if (level.displayLevel == _.get(value, 'competencyLevelId')) {
-              level.color = '#7CB5E6'
-              level.selected = true
+      })
+      // switch (channel) {
+      //   case 'course': {
+      //     _.forEach(response, (level: any) => {
+      //       if (level.displayLevel == competencyLevelId) {
+      //         level.color = '#FFFBB0'
+      //         level.selected = true
+      //       }
+      //     })
 
-            }
-          })
+      //     break
+      //   }
+      //   case 'selfAssessment': {
+      //     _.forEach(response, (level: any) => {
+      //       if (level.displayLevel == competencyLevelId) {
+      //         level.color = '#7CB5E6'
+      //         level.selected = true
 
-          break
-        }
-        case 'admin': {
-          _.forEach(response, (level: any) => {
-            if (level.displayLevel == _.get(value, 'competencyLevelId')) {
-              level.color = '#A4DFCA'
-              level.selected = true
-            }
-          })
+      //       }
+      //     })
 
-          break
-        }
-        default: {
-          _.forEach(response, (level: any) => {
-            if (level.displayLevel == _.get(value, 'competencyLevelId')) {
-              level.color = '#FFFBB0'
-              level.selected = false
-            }
-          })
+      //     break
+      //   }
+      //   case 'admin': {
+      //     _.forEach(response, (level: any) => {
+      //       if (level.displayLevel == competencyLevelId) {
+      //         level.color = '#A4DFCA'
+      //         level.selected = true
+      //       }
+      //     })
 
-          break
-        }
-      }
+      //     break
+      //   }
+      //   default: {
+      //     _.forEach(response, (level: any) => {
+      //       if (level.displayLevel == competencyLevelId) {
+      //         level.color = '#FFFBB0'
+      //         level.selected = false
+      //       }
+      //     })
+
+      //     break
+      //   }
+      // }
     })
     return response
+  }
+
+  getColor(channel: string): string {
+    switch (channel) {
+      case 'course': {
+        return '#FFFBB0'
+      }
+      case 'selfAssessment': {
+        return '#7CB5E6'
+      }
+      case 'admin': {
+        return '#A4DFCA'
+      }
+    }
+    return '#FFFBB0'
   }
 
 }

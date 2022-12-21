@@ -5,7 +5,7 @@ import { Observable } from "rxjs"
 import * as _ from "lodash"
 
 const API_END_POINTS = {
-  PROFILE_REGISTRY_V1: '/apis/proxies/v8/user/v1/read/',
+  PROFILE_REGISTRY_V1: '/apis/proxies/v8/user/v1/read',
   PROFILE_REGISTRY_V2: '/apis/proxies/v8/api/user/v2/read'
 }
 
@@ -17,22 +17,25 @@ export class UsersService {
 
   getUserById(userid: string): Observable<any> {
     if (userid) {
-      return this.http.get<any>(API_END_POINTS.PROFILE_REGISTRY_V1 + userid)
-        .pipe(map((data: any) => {
-          return this.getFormatedRequest(data.result.response)
+      return this.http.get<any>(`${API_END_POINTS.PROFILE_REGISTRY_V1}/${userid}`)
+        .pipe(map((resp: any) => {
+          return this.getFormatedRequest(_.get(resp, 'result.response'))
         }))
     }
-    return this.http.get<any>(API_END_POINTS.PROFILE_REGISTRY_V2).pipe(map(resp => resp.profiledetails))
+    return this.http.get<any>(API_END_POINTS.PROFILE_REGISTRY_V2)
+      .pipe(map((resp) => {
+        return _.get(resp, 'result.response')
+      }))
   }
 
   getFormatedRequest(data: any) {
     const userDetails: any = {}
     let professionalDetails: any
     if (data) {
-      userDetails.userName = data.userName
+      userDetails.userName = _.get(data, 'userName', '')
       userDetails.role = _.get(data, 'roles[0]', '')
       professionalDetails = this.getprofessionalDetails(_.get(data, 'profileDetails.profileReq.professionalDetails', null))
-      userDetails.designation = professionalDetails.designation
+      userDetails.designation = _.get(professionalDetails, 'designation')
     }
     return userDetails
   }

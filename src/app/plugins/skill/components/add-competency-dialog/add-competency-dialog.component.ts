@@ -113,7 +113,8 @@ export class AddCompetencyDialogComponent implements OnInit {
           }
         ],
         typeName: "competency",
-        userId: this.UserId
+        userId: this.UserId,
+        effectiveDate: _.get(competencyFormValue, 'selectDate')
       }
     }
     this.addSelectedCompetency(formatedData)
