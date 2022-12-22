@@ -45,7 +45,7 @@ export class SkillTableComponent implements OnInit, OnChanges {
   selectedFilters: any = []
   aastrikaFormBuilder: FormBuilder
   selectedRows: any = []
-  selectedRowLength: boolean = false
+  selectedRowLength = false
   /**
   * value typed
   */
@@ -82,9 +82,9 @@ export class SkillTableComponent implements OnInit, OnChanges {
  * subscribe the value and user autocomplete service
  */
     this.modelChanged.pipe(debounceTime(1000),
-      distinctUntilChanged(),
-      filter(val => typeof val === 'string'),
-      switchMap((value: string) => {
+                           distinctUntilChanged(),
+                           filter(val => typeof val === 'string'),
+                           switchMap((value: string) => {
         if (typeof value === 'string' && value) {
           return this.userAutoCompleteService.fetchUserList(value)
         }
@@ -167,7 +167,7 @@ export class SkillTableComponent implements OnInit, OnChanges {
     this.eOnRowClick.emit(e)
   }
 
-  selectRow($event: any, row: any,) {
+  selectRow($event: any, row: any) {
     if ($event.checked) {
       this.selectedRows.push(row)
     } else {

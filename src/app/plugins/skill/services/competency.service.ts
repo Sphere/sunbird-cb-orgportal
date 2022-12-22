@@ -10,7 +10,7 @@ const API_END_POINTS = {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class CompetencyService {
 
@@ -28,18 +28,18 @@ export class CompetencyService {
   getFormatedData(data: any) {
     const actualData = _.get(data, 'result.response', [])
     if (actualData.length > 0) {
-      let formatedData = _.reduce(actualData, (result: any, value) => {
+      const formatedData = _.reduce(actualData, (result: any, value) => {
         result.push({
-          'value': _.get(value, 'id'),
-          'displayName': _.get(value, 'name'),
-          'type': _.get(value, 'type'),
-          'additionalProperties': _.get(value, 'additionalProperties'),
-          'isActive': _.get(value, 'isActive'),
-          'levelId': _.get(value, 'levelId'),
-          'level': _.get(value, 'level')
+          value: _.get(value, 'id'),
+          displayName: _.get(value, 'name'),
+          type: _.get(value, 'type'),
+          additionalProperties: _.get(value, 'additionalProperties'),
+          isActive: _.get(value, 'isActive'),
+          levelId: _.get(value, 'levelId'),
+          level: _.get(value, 'level'),
         })
         return result
-      }, [])
+      },                            [])
       return formatedData
     }
     return actualData
@@ -55,16 +55,16 @@ export class CompetencyService {
   }
 
   formatedUserCompetency(entity: any, passbook: any) {
-    let response: any = []
+    const response: any = []
     _.forEach(entity, (value: any) => {
       const cid = _.get(value, 'id')
       _.forEach(passbook, (passbookValue: any) => {
         if (passbookValue.competencies.hasOwnProperty(cid)) {
           const competency = passbookValue.competencies[cid]
           response.push({
-            'title': _.get(competency, 'additionalParams.competencyName'),
-            'logs': this.acquiredPassbookLogs(_.get(competency, 'acquiredDetails')),
-            'proficiencyLevels': this.acauiredChannelColourCode(_.get(competency, 'acquiredDetails'))
+            title: _.get(competency, 'additionalParams.competencyName'),
+            logs: this.acquiredPassbookLogs(_.get(competency, 'acquiredDetails')),
+            proficiencyLevels: this.acauiredChannelColourCode(_.get(competency, 'acquiredDetails')),
           })
 
         }
@@ -74,17 +74,17 @@ export class CompetencyService {
   }
 
   acquiredPassbookLogs(acquiredDetails: any) {
-    let response: any = []
+    const response: any = []
     if (acquiredDetails.length > 0) {
       _.forEach(acquiredDetails, (value: any) => {
         const channel = _.get(value, 'acquiredChannel')
         response.push({
-          'source': _.get(value, 'acquiredChannel') ? _.get(value, 'acquiredChannel') : '',
-          'date': _.get(value, 'createdDate'),
+          source: _.get(value, 'acquiredChannel') ? _.get(value, 'acquiredChannel') : '',
+          date: _.get(value, 'createdDate'),
           // 'description': _.get(value, 'additionalParams.description'),
           // 'keyboardArrowUp': true,
-          'level': 'Level ' + _.get(value, 'competencyLevelId').substring(1),
-          'color': this.getColor(channel)
+          level: 'Level '.concat(_.get(value, 'competencyLevelId').substring(1)),
+          color: this.getColor(channel),
         })
       })
     }
@@ -92,39 +92,39 @@ export class CompetencyService {
   }
 
   acauiredChannelColourCode(acquiredDetails: any) {
-    let response = [
+    const response = [
       {
-        'color': '#FFFBB0',
-        'displayLevel': 1,
-        'selected': false,
+        color: '#FFFBB0',
+        displayLevel: '1',
+        selected: false,
       },
       {
-        'color': '#FFFBB0',
-        'displayLevel': 2,
-        'selected': false,
+        color: '#FFFBB0',
+        displayLevel: '2',
+        selected: false,
       },
       {
-        'color': '#FFFBB0',
-        'displayLevel': 3,
-        'selected': false,
+        color: '#FFFBB0',
+        displayLevel: '3',
+        selected: false,
       },
       {
-        'color': '#FFFBB0',
-        'displayLevel': 4,
-        'selected': false,
+        color: '#FFFBB0',
+        displayLevel: '4',
+        selected: false,
       },
       {
-        'color': '#FFFBB0',
-        'displayLevel': 5,
-        'selected': false,
-      }
+        color: '#FFFBB0',
+        displayLevel: '5',
+        selected: false,
+      },
     ]
 
     _.forEach(acquiredDetails, (value: any) => {
       const channel = _.get(value, 'acquiredChannel')
       const competencyLevelId = _.get(value, 'competencyLevelId').substring(1)
       _.forEach(response, (level: any) => {
-        if (level.displayLevel == competencyLevelId) {
+        if (level.displayLevel === competencyLevelId) {
           level.color = this.getColor(channel)
           level.selected = true
         }

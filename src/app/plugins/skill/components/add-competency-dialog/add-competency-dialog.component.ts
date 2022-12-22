@@ -40,7 +40,7 @@ export class AddCompetencyDialogComponent implements OnInit {
     },
   ]
 
-  UserId = ''
+  userId = ''
 
   constructor(
     formBuilder: FormBuilder,
@@ -49,7 +49,7 @@ export class AddCompetencyDialogComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) public data: any,
   ) {
     this.aastrikaFormBuilder = formBuilder
-    this.UserId = _.get(data, 'userId')
+    this.userId = _.get(data, 'userId')
   }
 
   ngOnInit() {
@@ -62,7 +62,7 @@ export class AddCompetencyDialogComponent implements OnInit {
       selectCompetency: ['', Validators.required],
       selectProficiency: ['', Validators.required],
       selectDate: [''],
-      comments: ['']
+      comments: [''],
 
     })
   }
@@ -70,8 +70,8 @@ export class AddCompetencyDialogComponent implements OnInit {
   getAllEntity() {
     const serchBody = {
       search: {
-        type: "Competency"
-      }
+        type: 'Competency',
+      },
     }
     this.competencySvc.getAllEntity(serchBody)
       .pipe(map((data: any) => {
@@ -95,27 +95,27 @@ export class AddCompetencyDialogComponent implements OnInit {
     const selectedCompetency = _.find(this.selectCompetencyList, (competency: any) => {
       return competency.value === _.get(competencyFormValue, 'selectCompetency')
     })
-    let formatedData = {
+    const formatedData = {
       request: {
         competencyDetails: [
           {
             acquiredDetails: {
               additionalParams: {
-                remarks: _.get(competencyFormValue, 'comments', '')
+                remarks: _.get(competencyFormValue, 'comments', ''),
               },
               competencyLevelId: _.get(competencyFormValue, 'selectProficiency'),
-              acquiredChannel: "selfAssessment"
+              acquiredChannel: 'selfAssessment',
             },
             additionalParams: {
-              competencyName: _.get(selectedCompetency, 'displayName')
+              competencyName: _.get(selectedCompetency, 'displayName'),
             },
-            competencyId: _.get(selectedCompetency, 'value') + ""
-          }
+            competencyId: _.toString(_.get(selectedCompetency, 'value')),
+          },
         ],
-        typeName: "competency",
-        userId: this.UserId,
-        effectiveDate: _.get(competencyFormValue, 'selectDate')
-      }
+        typeName: 'competency',
+        userId: this.userId,
+        effectiveDate: _.get(competencyFormValue, 'selectDate'),
+      },
     }
     this.addSelectedCompetency(formatedData)
   }
@@ -129,6 +129,5 @@ export class AddCompetencyDialogComponent implements OnInit {
       })
     }
   }
-
 
 }

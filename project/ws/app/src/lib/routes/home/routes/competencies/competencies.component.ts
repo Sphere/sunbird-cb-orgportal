@@ -20,8 +20,8 @@ export class CompetenciesComponent implements OnInit, OnDestroy {
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator | undefined
 
   constructor(private route: ActivatedRoute,
-    private router: Router,
-    private usersService: UsersService, @Self() private utilityService: UtilityService) { }
+              private router: Router,
+              private usersService: UsersService, @Self() private utilityService: UtilityService) { }
 
   ngOnInit() {
     this.topBarConfig = {
@@ -30,7 +30,7 @@ export class CompetenciesComponent implements OnInit, OnDestroy {
           type: 'button',
           title: 'Add Competency',
           actioName: 'addCompetency',
-        }
+        },
       ],
     }
     this.tableData = {
