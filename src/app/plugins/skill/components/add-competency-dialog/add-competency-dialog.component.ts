@@ -1,7 +1,9 @@
-import { Component, OnInit } from '@angular/core'
-import { MatDialogRef } from '@angular/material'
+import { Component, Inject, OnInit } from '@angular/core'
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material'
 import { FormGroup, FormBuilder, Validators } from '@angular/forms'
 import * as _ from 'lodash'
+import { CompetencyService } from '../../services/competency.service'
+import { map } from 'rxjs/operators'
 @Component({
   selector: 'ws-add-competency-dialog',
   templateUrl: './add-competency-dialog.component.html',
@@ -13,28 +15,8 @@ export class AddCompetencyDialogComponent implements OnInit {
   aastrikaFormBuilder: FormBuilder
   selectedLeves: any[] = []
 
-  selectCompetencyList: any = [
-    {
-      displayName: 'Procurement and Distribution of HCM',
-      value: 'c1',
-    },
-    {
-      displayName: 'Store management and planning and coordination of THR and Dry ration',
-      value: 'c2',
-    },
-    {
-      displayName: 'Early Childhood Care Education',
-      value: 'c3',
-    },
-    {
-      displayName: 'Growth assessment and monitoring',
-      value: 'c4',
-    },
-    {
-      displayName: 'Conducts Community based events',
-      value: 'c5',
-    },
-  ]
+  selectCompetencyList: any = []
+
   selectProficiencyList: any = [
     {
       displayName: 'Level 1',
@@ -58,17 +40,21 @@ export class AddCompetencyDialogComponent implements OnInit {
     },
   ]
 
-
+  UserId = ''
 
   constructor(
     formBuilder: FormBuilder,
+    private competencySvc: CompetencyService,
     public dialogRef: MatDialogRef<AddCompetencyDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: any,
   ) {
     this.aastrikaFormBuilder = formBuilder
+    this.UserId = _.get(data, 'userId')
   }
 
   ngOnInit() {
     this.initializeFormFields()
+    this.getAllEntity()
   }
 
   initializeFormFields() {
@@ -79,39 +65,70 @@ export class AddCompetencyDialogComponent implements OnInit {
       comments: ['']
 
     })
-    // if (this.proficiencyLevel.length > 0) {
-    //   this.addPProficiency()
-    // }
   }
-  // get proficiencyLevelControl(): FormArray {
-  //   return this.addCompetencyForm.get('proficiencyLevel') as FormArray
-  // }
-  // getLeveleSelected(index: any) {
-  //   const formArray: any = (<FormArray>this.addCompetencyForm.get('proficiencyLevel')).at(index).get('level')
-  //   return formArray.value.curentSelected
-  // }
-  // newProficiencyLevel(item?: any): FormGroup {
-  //   return this.aastrikaFormBuilder.group({
-  //     comments: new FormControl(''),
-  //     level: new FormControl(item),
-  //   })
-  // }
 
-  // addPProficiency() {
-  //   _.forEach(this.proficiencyLevel, key => {
-  //     this.proficiencyLevelControl.push(this.newProficiencyLevel(key))
-  //   })
-
-  // }
-
-  // selectLevel(level: any) {
-  //   const formArray: any = (<FormArray>this.addCompetencyForm.get('proficiencyLevel')).at(level).get('level')
-  //   formArray.patchValue({ curentSelected: true, selected: true, level: level + 1 })
-  // }
+  getAllEntity() {
+    const serchBody = {
+      search: {
+        type: "Competency"
+      }
+    }
+    this.competencySvc.getAllEntity(serchBody)
+      .pipe(map((data: any) => {
+        return this.competencySvc.getFormatedData(data)
+      }))
+      .subscribe((data: any) => {
+        this.selectCompetencyList = data
+      })
+  }
 
   submit() {
-    console.log(this.addCompetencyForm.value)
-    this.dialogRef.close(this.addCompetencyForm.value)
+    if (this.addCompetencyForm.valid) {
+      this.getFormatedData()
+    }
+
+    // this.dialogRef.close(this.addCompetencyForm.value)
   }
+
+  getFormatedData() {
+    const competencyFormValue = _.get(this.addCompetencyForm, 'value')
+    const selectedCompetency = _.find(this.selectCompetencyList, (competency: any) => {
+      return competency.value === _.get(competencyFormValue, 'selectCompetency')
+    })
+    let formatedData = {
+      request: {
+        competencyDetails: [
+          {
+            acquiredDetails: {
+              additionalParams: {
+                remarks: _.get(competencyFormValue, 'comments', '')
+              },
+              competencyLevelId: _.get(competencyFormValue, 'selectProficiency'),
+              acquiredChannel: "selfAssessment"
+            },
+            additionalParams: {
+              competencyName: _.get(selectedCompetency, 'displayName')
+            },
+            competencyId: _.get(selectedCompetency, 'value') + ""
+          }
+        ],
+        typeName: "competency",
+        userId: this.UserId,
+        effectiveDate: _.get(competencyFormValue, 'selectDate')
+      }
+    }
+    this.addSelectedCompetency(formatedData)
+  }
+
+  addSelectedCompetency(formatedData: any) {
+    if (formatedData) {
+      this.competencySvc.updatePassbook(formatedData).subscribe((data: any) => {
+        if (data) {
+          this.dialogRef.close({ updated: true })
+        }
+      })
+    }
+  }
+
 
 }

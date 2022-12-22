@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core'
 import { MatDialog } from '@angular/material'
-import { ActivatedRoute } from '@angular/router'
+import { ActivatedRoute, Router } from '@angular/router'
 import * as _ from 'lodash'
+import { forkJoin } from 'rxjs'
+import { CompetencyService } from '../../services/competency.service'
 import { UsersService } from '../../services/users.service'
 import { AddCompetencyDialogComponent } from '../add-competency-dialog/add-competency-dialog.component'
 import { ProficiencyLevelDialogComponent } from './../proficiency-level-dialog/proficiency-level-dialog.component'
@@ -100,22 +102,41 @@ export class UserCompetencyComponent implements OnInit {
 
   color = '#FFE7C3'
   numberOfProficiencies = 5
+  allEntity: any
 
   constructor(
     private dialog: MatDialog,
+    private router: Router,
     private usersSvc: UsersService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private competencySvc: CompetencyService
   ) {
   }
 
   ngOnInit() {
     this.getUserId()
+    this.allEntity = this.getAllEntity()
+    this.getCompitencies()
+  }
+
+  getCompitencies() {
+    if (this.allEntity) {
+      const userPassbook = this.getAllUserPassbook()
+      forkJoin([this.allEntity, userPassbook]).subscribe((res) => {
+        const res0 = _.get(res, '[0].result.response')
+        const res1 = _.get(res, '[1].result.content')
+        const response = this.competencySvc.formatedUserCompetency(res0, res1)
+        this.competenciesList = response
+      })
+    }
   }
 
   getUserId() {
     this.userID = this.route.snapshot.paramMap.get('id') as string
     if (this.userID) {
-      // this.getUserDetails()
+      this.getUserDetails()
+    } else {
+      this.router.navigate([`app/home/competencies`])
     }
   }
 
@@ -127,32 +148,57 @@ export class UserCompetencyComponent implements OnInit {
       })
   }
 
+  private getAllEntity() {
+    const serchBody = {
+      search: {
+        type: "Competency"
+      }
+    }
+    return this.competencySvc.getAllEntity(serchBody)
+  }
+
+  private getAllUserPassbook() {
+    const reqBody = {
+      "request": {
+        "typeName": "competency",
+        "userId": [this.userID]
+      }
+    }
+    return this.competencySvc.getUserPassbook(reqBody)
+  }
+
   openAddComperencyDialog() {
     const dialogRef = this.dialog.open(AddCompetencyDialogComponent, {
       height: '100vh',
       width: '90vw',
+      data: {
+        userId: this.userID
+      }
     })
 
     dialogRef.afterClosed().subscribe((response: any) => {
-      if (response) {
-        let competency: any = {}
-        competency.selectCompetency = response.selectCompetency,
-          competency.selectDate = response.selectDate,
-          competency.proficiencyLevels = []
-        for (let i = 0; i < this.numberOfProficiencies; i++) {
-          const proficiency = {
-            proficiencyLevel: 'l' + (i + 1),
-            displayLevel: i + 1,
-            selected: false,
-            comments: response.comments,
-          }
-          if (response.selectProficiency === proficiency.proficiencyLevel) {
-            proficiency.selected = true
-          }
-          competency.proficiencyLevels.push(proficiency)
-        }
-        this.competenciesList.push(competency)
+      if (_.get(response, 'updated', false)) {
+        this.getCompitencies()
       }
+      // if (response && response.updated) {
+      //   let competency: any = {}
+      //   competency.selectCompetency = response.selectCompetency,
+      //     competency.selectDate = response.selectDate,
+      //     competency.proficiencyLevels = []
+      //   for (let i = 0; i < this.numberOfProficiencies; i++) {
+      //     const proficiency = {
+      //       proficiencyLevel: 'l' + (i + 1),
+      //       displayLevel: i + 1,
+      //       selected: false,
+      //       comments: response.comments,
+      //     }
+      //     if (response.selectProficiency === proficiency.proficiencyLevel) {
+      //       proficiency.selected = true
+      //     }
+      //     competency.proficiencyLevels.push(proficiency)
+      //   }
+      //   this.competenciesList.push(competency)
+      // }
     })
   }
 

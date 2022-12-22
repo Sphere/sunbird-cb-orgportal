@@ -1,6 +1,6 @@
 <div class="example-container table-container main-container">
   <p class="headerText flex custom ">Competencies
-    <mat-icon class="arrowRight">keyboard_arrow_right</mat-icon>User1
+    <mat-icon class="arrowRight">keyboard_arrow_right</mat-icon>{{userDetails?.userName}}
   </p>
 
   <div class="user-details ">
@@ -36,12 +36,12 @@
         <mat-expansion-panel-header class="flex flex-between items-center panel-header w-full"
           (click)="$event.preventDefault()">
           <mat-panel-title class="flex items-center w-full box boxPaddingText leftMostBox">
-            <span>{{selectedCompetency(competencies.selectCompetency)}}</span>
+            <span>{{competencies.title}}</span>
           </mat-panel-title>
           <mat-panel-description class="flex items-center panel-header-description">
             <ng-container *ngFor="let proficiency of competencies.proficiencyLevels">
               <ng-container *ngIf="proficiency.selected; else addLevel">
-                <div class="boxPaddingText box level" [ngStyle]="{'background-color': color}">
+                <div class="boxPaddingText box level" [ngStyle]="{'background-color': proficiency.color}">
                   <span>{{proficiency?.displayLevel}}</span>
                 </div>
               </ng-container>
@@ -58,7 +58,8 @@
           </mat-panel-description>
         </mat-expansion-panel-header>
         <ng-container *ngIf="competencies.proficiencyLevels && competencies.proficiencyLevels.length > 0">
-          <mat-table #table [dataSource]="dataSource" class="example-table table1 responsiveTable">
+          <!-- <mat-table #table [dataSource]="dataSource" class="example-table table1 responsiveTable"> -->
+          <mat-table #table [dataSource]="competencies?.logs" class="example-table table1 responsiveTable">
             <ng-container matColumnDef="{{col.key}}" *ngFor="let col of tableData">
               <mat-header-cell *matHeaderCellDef mat-sort-header class="h-400-r-14-l color-60"
                 [ngClass]="{'level-flex' : col.key === 'level', 'source-flex': col.key === 'source'}">
@@ -66,8 +67,9 @@
               </mat-header-cell>
 
               <mat-cell *matCellDef="let element"
-                [ngClass]="{'level-flex' : col.key === 'level', 'source-flex': col.key === 'source'}">
-                <span>{{element[col.key]}}</span>
+                [ngClass]="{'level-flex' : col.key === 'level', 'source-flex': col.key === 'source'}"
+                [ngStyle]="{'box-shadow': col.key === 'level' ? (element['color'] + ' 10px 0px 0px 0px inset') : none}">
+                <span>{{col.key=== 'date' ? (element[col.key] | date: 'dd/MM/yyyy') : element[col.key]}}</span>
               </mat-cell>
             </ng-container>
 
