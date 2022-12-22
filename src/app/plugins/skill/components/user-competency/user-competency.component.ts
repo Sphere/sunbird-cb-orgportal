@@ -27,7 +27,7 @@ export class UserCompetencyComponent implements OnInit {
     {
       name: 'Admin added',
       color: '#ABE5C3',
-    }
+    },
   ]
 
   competenciesList: any = []
@@ -93,11 +93,11 @@ export class UserCompetencyComponent implements OnInit {
     },
   ]
 
-  userID: string = '';
+  userID = ''
   userDetails: any = {
     userName: 'User Name',
     role: 'Role',
-    designation: 'Designation'
+    designation: 'Designation',
   }
 
   color = '#FFE7C3'
@@ -122,7 +122,7 @@ export class UserCompetencyComponent implements OnInit {
   getCompitencies() {
     if (this.allEntity) {
       const userPassbook = this.getAllUserPassbook()
-      forkJoin([this.allEntity, userPassbook]).subscribe((res) => {
+      forkJoin([this.allEntity, userPassbook]).subscribe(res => {
         const res0 = _.get(res, '[0].result.response')
         const res1 = _.get(res, '[1].result.content')
         const response = this.competencySvc.formatedUserCompetency(res0, res1)
@@ -144,25 +144,24 @@ export class UserCompetencyComponent implements OnInit {
     this.usersSvc.getUserById(this.userID)
       .subscribe((userDetails: any) => {
         this.userDetails = userDetails
-        console.log(this.userDetails)
       })
   }
 
   private getAllEntity() {
     const serchBody = {
       search: {
-        type: "Competency"
-      }
+        type: 'Competency',
+      },
     }
     return this.competencySvc.getAllEntity(serchBody)
   }
 
   private getAllUserPassbook() {
     const reqBody = {
-      "request": {
-        "typeName": "competency",
-        "userId": [this.userID]
-      }
+      request: {
+        typeName: 'competency',
+        userId: [this.userID],
+      },
     }
     return this.competencySvc.getUserPassbook(reqBody)
   }
@@ -172,8 +171,8 @@ export class UserCompetencyComponent implements OnInit {
       height: '100vh',
       width: '90vw',
       data: {
-        userId: this.userID
-      }
+        userId: this.userID,
+      },
     })
 
     dialogRef.afterClosed().subscribe((response: any) => {
@@ -214,7 +213,7 @@ export class UserCompetencyComponent implements OnInit {
   addIndidualLevels(level: number) {
     const dialogRef = this.dialog.open(ProficiencyLevelDialogComponent, {
       data: {
-        level: level
+        level,
       },
       height: '255px',
       width: '500px',

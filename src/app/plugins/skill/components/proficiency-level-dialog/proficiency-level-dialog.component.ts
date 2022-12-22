@@ -6,7 +6,7 @@ import * as _ from 'lodash'
 @Component({
   selector: 'ws-proficiency-level-dialog',
   templateUrl: './proficiency-level-dialog.component.html',
-  styleUrls: ['./proficiency-level-dialog.component.scss']
+  styleUrls: ['./proficiency-level-dialog.component.scss'],
 })
 export class ProficiencyLevelDialogComponent implements OnInit {
 
@@ -34,7 +34,7 @@ export class ProficiencyLevelDialogComponent implements OnInit {
   submit() {
     const resData = {
       formData: this.proficiencyLevelForm.value,
-      addLevel: true
+      addLevel: true,
     }
     this.dialogRef.close(resData)
   }

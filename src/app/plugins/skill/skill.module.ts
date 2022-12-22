@@ -16,7 +16,7 @@ import {
   MatCheckboxModule,
   MatInputModule,
   MatButtonModule,
-  MatDatepickerModule
+  MatDatepickerModule,
 } from '@angular/material'
 
 import { MatMenuModule } from '@angular/material/menu'
@@ -59,13 +59,13 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms'
     MatSelectModule,
     MatInputModule,
     MatButtonModule,
-    MatDatepickerModule
+    MatDatepickerModule,
   ],
   entryComponents: [
     FilterDialogComponent,
     ConfirmDialogComponent,
     AddCompetencyDialogComponent,
-    ProficiencyLevelDialogComponent
+    ProficiencyLevelDialogComponent,
   ],
   exports: [SkillTableComponent, SearchSelectedFilterComponent],
 })
