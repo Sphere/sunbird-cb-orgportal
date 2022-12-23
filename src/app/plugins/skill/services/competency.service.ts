@@ -39,7 +39,7 @@ export class CompetencyService {
           level: _.get(value, 'level'),
         })
         return result
-      },                            [])
+      }, [])
       return formatedData
     }
     return actualData
@@ -81,10 +81,9 @@ export class CompetencyService {
         response.push({
           source: _.get(value, 'acquiredChannel') ? _.get(value, 'acquiredChannel') : '',
           date: _.get(value, 'createdDate'),
-          // 'description': _.get(value, 'additionalParams.description'),
-          // 'keyboardArrowUp': true,
           level: 'Level '.concat(_.get(value, 'competencyLevelId').substring(1)),
           color: this.getColor(channel),
+          remarks: _.get(value, 'remarks')
         })
       })
     }
@@ -129,49 +128,6 @@ export class CompetencyService {
           level.selected = true
         }
       })
-      // switch (channel) {
-      //   case 'course': {
-      //     _.forEach(response, (level: any) => {
-      //       if (level.displayLevel == competencyLevelId) {
-      //         level.color = '#FFFBB0'
-      //         level.selected = true
-      //       }
-      //     })
-
-      //     break
-      //   }
-      //   case 'selfAssessment': {
-      //     _.forEach(response, (level: any) => {
-      //       if (level.displayLevel == competencyLevelId) {
-      //         level.color = '#7CB5E6'
-      //         level.selected = true
-
-      //       }
-      //     })
-
-      //     break
-      //   }
-      //   case 'admin': {
-      //     _.forEach(response, (level: any) => {
-      //       if (level.displayLevel == competencyLevelId) {
-      //         level.color = '#A4DFCA'
-      //         level.selected = true
-      //       }
-      //     })
-
-      //     break
-      //   }
-      //   default: {
-      //     _.forEach(response, (level: any) => {
-      //       if (level.displayLevel == competencyLevelId) {
-      //         level.color = '#FFFBB0'
-      //         level.selected = false
-      //       }
-      //     })
-
-      //     break
-      //   }
-      // }
     })
     return response
   }

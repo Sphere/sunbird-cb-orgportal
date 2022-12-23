@@ -58,16 +58,15 @@
           </mat-panel-description>
         </mat-expansion-panel-header>
         <ng-container *ngIf="competencies.proficiencyLevels && competencies.proficiencyLevels.length > 0">
-          <!-- <mat-table #table [dataSource]="dataSource" class="example-table table1 responsiveTable"> -->
           <mat-table #table [dataSource]="competencies?.logs" class="example-table table1 responsiveTable">
             <ng-container matColumnDef="{{col.key}}" *ngFor="let col of tableData">
               <mat-header-cell *matHeaderCellDef mat-sort-header class="h-400-r-14-l color-60"
-                [ngClass]="{'level-flex' : col.key === 'level', 'source-flex': col.key === 'source'}">
+                [ngClass]="{'level-flex' : col.key === 'level', 'source-flex': col.key === 'source', 'comments-flex': col.key === 'remarks'}">
                 {{col.displayName}}
               </mat-header-cell>
 
               <mat-cell *matCellDef="let element"
-                [ngClass]="{'level-flex' : col.key === 'level', 'source-flex': col.key === 'source'}"
+                [ngClass]="{'level-flex' : col.key === 'level', 'source-flex': col.key === 'source', 'comments-flex': col.key === 'remarks'}"
                 [ngStyle]="{'box-shadow': col.key === 'level' ? (element['color'] + ' 10px 0px 0px 0px inset') : none}">
                 <span>{{col.key=== 'date' ? (element[col.key] | date: 'dd/MM/yyyy') : element[col.key]}}</span>
               </mat-cell>
