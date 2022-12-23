@@ -296,6 +296,7 @@ export class InitService {
           }
 
         } else {
+
           this.authSvc.logout()
         }
         const details = {

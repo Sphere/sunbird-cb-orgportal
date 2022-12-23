@@ -1,6 +1,7 @@
 @import 'ws-vars';
 @import 'ws-mixins';
 @import './utility.scss';
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400&display=swap');
 
 @include print {
   * {
@@ -654,4 +655,31 @@ h3.shepherd-title {
   border-radius: 5px;
   max-width: 500px;
   padding: 16px;
+}
+
+.competencies .mat-dialog-container {
+  border-radius: 36px !important;
+}
+
+.add-Competency {
+  width: 70vw;
+  height: 80vh;
+  max-width: 100vw !important;
+  // max-height: 100vh;
+
+  //overrides default height of dialog
+  @include breakpoint-xs {
+    width: 100vw;
+    height: 100vh;
+  }
+}
+
+.confirm-dialog {
+  width: 35vw;
+
+}
+
+.confirm-dialog .mat-dialog-container {
+  padding: 16px !important;
+  border-radius: 40px !important;
 }

@@ -1,0 +1,41 @@
+
+
+.header-text {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 20px;
+  line-height: 23px;
+  letter-spacing: -0.02em;
+  color: #000000;
+}
+
+.proficiency-level {
+  border: 1px solid #BFBFBF;
+  width: 60px;
+  height: 38px;
+  background-color: #ffffff;
+}
+
+.lable {
+  margin-bottom: 5px !important;
+}
+
+::ng-deep .mat-form-field-flex {
+  height: 45px !important;
+  align-items: center !important;
+}
+
+::ng-deep .mat-form-field-wrapper {
+  padding-bottom: 0 !important;
+}
+
+.btn {
+  width: 93px;
+  height: 35px;
+  border-radius: 50px;
+  border: none;
+  color: #ffffff !important;
+  background-color: #1C5D96;
+  margin-top: auto;
+}

@@ -1,0 +1,84 @@
+<div class="example-container table-container main-container">
+  <p class="headerText flex custom ">Competencies
+    <mat-icon class="arrowRight">keyboard_arrow_right</mat-icon>{{userDetails?.userName}}
+  </p>
+
+  <div class="user-details ">
+    <span class="flex custom user-name">{{userDetails?.userName}}</span>
+    <span class="flex custom role">{{userDetails?.role}} | {{userDetails?.designation}}</span>
+  </div>
+
+  <div class="flex flex-between items-center pb-bb">
+    <div class="flex items-center">
+      <div class="flex items-center legend-header">
+        <span>Competencies</span>
+      </div>
+      <div class="flex items-center">
+        <ng-container *ngFor="let legend of legends">
+          <div class="legend-container">
+            <span class="legend-color" [style.backgroundColor]="legend.color"> </span>
+            <span class="legend-text">{{legend.name}}</span>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-4">
+      <button class="addBtn" type="submit" mat-raised-button (click)="openAddComperencyDialog()">Add new
+        Competency</button>
+    </div>
+  </div>
+
+  <mat-accordion>
+    <ng-container *ngFor="let competencies of competenciesList; let i = index">
+      <mat-expansion-panel class="w-full panel" hideToggle (opened)="panelOpenState[i] = true"
+        (closed)="panelOpenState[i] = false">
+        <mat-expansion-panel-header class="flex flex-between items-center panel-header w-full"
+          (click)="$event.preventDefault()">
+          <mat-panel-title class="flex items-center w-full box boxPaddingText leftMostBox">
+            <span>{{competencies.title}}</span>
+          </mat-panel-title>
+          <mat-panel-description class="flex items-center panel-header-description">
+            <ng-container *ngFor="let proficiency of competencies.proficiencyLevels">
+              <ng-container *ngIf="proficiency.selected; else addLevel">
+                <div class="boxPaddingText box level" [ngStyle]="{'background-color': proficiency.color}">
+                  <span>{{proficiency?.displayLevel}}</span>
+                </div>
+              </ng-container>
+              <ng-template #addLevel>
+                <div (click)="addIndidualLevels(proficiency?.displayLevel)"
+                  class="boxPaddingText box level pointer-events">
+                  <span>{{proficiency?.displayLevel}}</span>
+                </div>
+              </ng-template>
+            </ng-container>
+            <div class="boxPaddingIcon box righMostBox pointer-events">
+              <mat-icon [ngClass]="{'arrowReverse': panelOpenState[i] }">keyboard_arrow_down</mat-icon>
+            </div>
+          </mat-panel-description>
+        </mat-expansion-panel-header>
+        <ng-container *ngIf="competencies.proficiencyLevels && competencies.proficiencyLevels.length > 0">
+          <mat-table #table [dataSource]="competencies?.logs" class="example-table table1 responsiveTable">
+            <ng-container matColumnDef="{{col.key}}" *ngFor="let col of tableData">
+              <mat-header-cell *matHeaderCellDef mat-sort-header class="h-400-r-14-l color-60"
+                [ngClass]="{'level-flex' : col.key === 'level', 'source-flex': col.key === 'source', 'comments-flex': col.key === 'remarks'}">
+                {{col.displayName}}
+              </mat-header-cell>
+
+              <mat-cell *matCellDef="let element"
+                [ngClass]="{'level-flex' : col.key === 'level', 'source-flex': col.key === 'source', 'comments-flex': col.key === 'remarks'}"
+                [ngStyle]="{'box-shadow': col.key === 'level' ? (element['color'] + ' 10px 0px 0px 0px inset') : none}">
+                <span>{{col.key=== 'date' ? (element[col.key] | date: 'dd/MM/yyyy') : element[col.key]}}</span>
+              </mat-cell>
+            </ng-container>
+
+            <mat-header-row *matHeaderRowDef="getFinalColumns()"></mat-header-row>
+            <mat-row *matRowDef="let row; columns: getFinalColumns();">
+            </mat-row>
+          </mat-table>
+        </ng-container>
+
+      </mat-expansion-panel>
+    </ng-container>
+  </mat-accordion>
+</div>

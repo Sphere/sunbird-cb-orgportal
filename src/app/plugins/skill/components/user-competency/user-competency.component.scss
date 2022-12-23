@@ -1,0 +1,184 @@
+.main-container {
+  padding: 5px 74px 64px 10px;
+}
+
+.arrowRight {
+  font-size: 22px;
+  font-weight: 100;
+  margin: 8.8px 0px 0px 5px;
+}
+
+.headerText {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 20px;
+  line-height: 38px;
+  letter-spacing: -0.02em;
+  color: #666666;
+  margin-bottom: 18px;
+}
+
+.user-details  {
+  margin-bottom: 22px;
+}
+
+.user-name {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 24px;
+  line-height: 38px;
+  letter-spacing: -0.02em;
+  color: #000000;
+}
+
+.role {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 16px;
+  letter-spacing: -0.02em;
+  color: #000000;
+}
+
+.legend-header {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 20px;
+  line-height: 38px;
+  letter-spacing: -0.02em;
+  color: #000000;
+  margin-right: 30px;
+}
+
+.pb-bb {
+  padding-bottom: 7px;
+  border-bottom: 1px solid #000000;
+}
+
+.legend-container {
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 38px;
+  letter-spacing: -0.02em;
+  color: #000000;
+  margin-left: 11px;
+  position: relative;
+
+  .legend-color {
+    height: 13px;
+    width: 13px;
+    position: absolute;
+    top: 12px;
+    border-radius: 50%;
+  }
+
+  .legend-text {
+    font-family: 'Roboto';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 38px;
+    letter-spacing: -0.02em;
+    color: #000000;
+    position: relative;
+    padding-left: 18px;
+  }
+}
+
+.addBtn {
+  background-color: #1C5D95 !important;
+  padding: 0px 24px;
+  border-radius: 20px;
+  height: 35px;
+  color: white !important;
+  font-family: 'Roboto';
+  font-style: normal;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 16px;
+}
+
+.panel {
+  box-shadow: 0px 0px 0px 0px !important;
+  margin-top: 19px;
+  padding: 1px 3px 1px 0px;
+  pointer-events: none;
+}
+
+.panel-header {
+  padding: 0px;
+}
+
+.panel-header:hover {
+  background: none !important;
+}
+
+.panel-header-description {
+  margin: 0px !important;
+}
+
+.box {
+  box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.15);
+  margin: 1px;
+  border: 0px !important;
+}
+
+.leftMostBox {
+  margin-right: 5px;
+}
+
+.righMostBox {
+  margin-left: 10px;
+}
+
+.pointer-events {
+  pointer-events: all;
+}
+
+.boxPaddingText {
+  padding: 12px 25px 10px;
+}
+
+.boxPaddingIcon {
+  padding: 12px 17px 4px;
+}
+
+.level {
+  width: 10px;
+}
+
+// .requiredLevel {
+//   box-shadow: #0075B7 0px -7px 0px 0px inset;
+//   border-bottom-right-radius: 0px;
+//   border-bottom-left-radius: 0px;
+// }
+
+.arrowReverse {
+  transform: rotateX(180deg);
+}
+
+::ng-deep .mat-expansion-panel-body {
+  padding: 0 10px 0 !important;
+}
+
+.level-flex {
+  flex: 1 1 33%;
+}
+
+.source-flex {
+  flex: 1 1 5%;
+}
+
+.comments-flex {
+  flex: 1 1 5%;
+}
+
+.mat-header-cell {
+  background-color: #f5f5f5 !important;
+}
