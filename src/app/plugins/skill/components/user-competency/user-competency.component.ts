@@ -73,25 +73,11 @@ export class UserCompetencyComponent implements OnInit {
         key: 'date',
         displayName: 'Date',
       },
+      {
+        key: 'remarks',
+        displayName: 'Comments'
+      }
     ]
-
-  dataSource = [
-    {
-      level: 'Understands HCM guidelines',
-      source: 'Self Assessment',
-      date: '28-10-2022',
-    },
-    {
-      level: 'Plans for storage',
-      source: 'Course Completion',
-      date: '28-10-2022',
-    },
-    {
-      level: 'Continues follow-up care',
-      source: 'Admin Added',
-      date: '28-10-2022',
-    },
-  ]
 
   userID = ''
   userDetails: any = {
@@ -100,8 +86,6 @@ export class UserCompetencyComponent implements OnInit {
     designation: 'Designation',
   }
 
-  color = '#FFE7C3'
-  numberOfProficiencies = 5
   allEntity: any
 
   constructor(
@@ -179,25 +163,6 @@ export class UserCompetencyComponent implements OnInit {
       if (_.get(response, 'updated', false)) {
         this.getCompitencies()
       }
-      // if (response && response.updated) {
-      //   let competency: any = {}
-      //   competency.selectCompetency = response.selectCompetency,
-      //     competency.selectDate = response.selectDate,
-      //     competency.proficiencyLevels = []
-      //   for (let i = 0; i < this.numberOfProficiencies; i++) {
-      //     const proficiency = {
-      //       proficiencyLevel: 'l' + (i + 1),
-      //       displayLevel: i + 1,
-      //       selected: false,
-      //       comments: response.comments,
-      //     }
-      //     if (response.selectProficiency === proficiency.proficiencyLevel) {
-      //       proficiency.selected = true
-      //     }
-      //     competency.proficiencyLevels.push(proficiency)
-      //   }
-      //   this.competenciesList.push(competency)
-      // }
     })
   }
 
@@ -206,7 +171,7 @@ export class UserCompetencyComponent implements OnInit {
   }
 
   getFinalColumns() {
-    const columns: string[] = ['level', 'source', 'date']
+    const columns: string[] = ['level', 'source', 'date', 'remarks']
     return columns
   }
 

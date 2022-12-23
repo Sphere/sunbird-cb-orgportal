@@ -61,8 +61,8 @@ export class AddCompetencyDialogComponent implements OnInit {
     this.addCompetencyForm = this.aastrikaFormBuilder.group({
       selectCompetency: ['', Validators.required],
       selectProficiency: ['', Validators.required],
-      selectDate: [''],
-      comments: [''],
+      selectDate: ['', Validators.required],
+      comments: ['', Validators.required],
 
     })
   }
@@ -104,7 +104,7 @@ export class AddCompetencyDialogComponent implements OnInit {
                 remarks: _.get(competencyFormValue, 'comments', ''),
               },
               competencyLevelId: _.get(competencyFormValue, 'selectProficiency'),
-              acquiredChannel: 'selfAssessment',
+              acquiredChannel: 'admin',
             },
             additionalParams: {
               competencyName: _.get(selectedCompetency, 'displayName'),
