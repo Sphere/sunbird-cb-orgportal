@@ -66,7 +66,7 @@ export class UserAutoCompleteService {
           addressDetails = profileReq.personalDetails ? this.getPostalAdress(profileReq.personalDetails) : null
         }
         activeUsersData.push({
-          // fullName: user ? `${user.firstName || ''} ${user.lastName || ''}` : null,
+           // tslint:disable-next-line:max-line-length
           fullName: user ? _.get(user, 'profileDetails.personalDetails.firstname').concat(' ', _.get(user, 'profileDetails.personalDetails.surname')) : null,
           // tslint:disable-next-line:max-line-length
           email: user.profileDetails && user.profileDetails.personalDetails && user.profileDetails.personalDetails.primaryEmail ? user.profileDetails.personalDetails.primaryEmail : user.email,
