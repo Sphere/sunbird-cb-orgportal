@@ -1,0 +1,29 @@
+.dialog-P {
+  padding: 45px 35px 38px 34px;
+  text-align: center;
+}
+
+.title {
+  font-size: 20px;
+  line-height: 38.4px;
+  letter-spacing: -0.02em;
+  color: #000000;
+}
+
+.btn {
+  margin-top: 23px;
+  padding: 8px 32px;
+  border-radius: 50px;
+  font-size: 16px;
+  line-height: 19px;
+  cursor: pointer;
+  border: 1px solid #1C5D95;
+  background-color: inherit;
+  color: #1C5D95;
+  font-weight: 400;
+}
+
+.btn.active {
+  background-color: #1C5D95;
+  color: #FFFFFF;
+}

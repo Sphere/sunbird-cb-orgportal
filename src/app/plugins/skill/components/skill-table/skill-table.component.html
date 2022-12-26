@@ -1,0 +1,116 @@
+<div class="example-container margin-top-m">
+  <div class="table-container">
+    <div class="flex flex-between items-center">
+
+
+      <div class="flex items-center gap-4">
+        <!-- search field -->
+        <div class="flex items-center">
+          <input class="sinput p-1" type="Standard" label="" [(ngModel)]="query" (keyup)="keyup(query)"
+            placeholder="Search by name/email/phone/role/competency">
+          <mat-icon class="search-icon">search</mat-icon>
+        </div>
+        <!-- filter -->
+        <a class="flex items-center" (click)="filterTable()">
+          <mat-icon class="material-icons-outlined cursor-pointer filter">
+            filter_alt
+          </mat-icon>
+          <span class="filter filterText items-center cursor-pointer">Filter</span>
+        </a>
+        <!-- select all -->
+        <!-- <div class="flex gap-2">
+          <mat-checkbox (change)="$event ? toggleAllRows() : null" [checked]="selection.hasValue() && isAllSelected()"
+            [indeterminate]="selection.hasValue() && !isAllSelected()">
+          </mat-checkbox>
+          <label class="font-bold">Select All</label>
+        </div>-->
+      </div>
+      <!-- buttons -->
+      <!--left section -->
+      <div>
+        <div class="flex gap-4">
+          <ng-container *ngFor="let config of topBarConfig?.right">
+            <ng-container *ngIf="config?.type === 'button'">
+              <button [ngClass]="selectedAll || selectedRowLength === true ? 'active' : 'inactive' "
+                class="btn  cursor-pointer" (click)="performBtnAction(config)">{{config.title}}</button>
+            </ng-container>
+            <ng-container *ngIf="config?.type === 'anchor'">
+              <a [ngClass]="selectedAll === true ? 'active' : 'inactive' " class="anchor-wrap cursor-pointer"
+                (click)="selectedAll === true ? performBtnAction(config):'' " color="primary">
+                {{config.title}}
+              </a>
+            </ng-container>
+          </ng-container>
+        </div>
+      </div>
+    </div>
+    <ws-search-selected-filter [selectedFilters]="selectedFilters"></ws-search-selected-filter>
+    <!-- </mat-form-field> -->
+    <mat-table #table matSort [ngStyle]="{'height': bodyHeight}" [dataSource]="dataSource"
+      class="example-table table1 responsiveTable" *ngIf="dataSource.filteredData.length > 0">
+
+      <ng-container matColumnDef="{{col.key}}" *ngFor="let col of tableData!.columns">
+        <mat-header-cell *matHeaderCellDef mat-sort-header class="h-400-r-14-l color-60">
+          {{col.displayName}}
+        </mat-header-cell>
+
+        <mat-cell *matCellDef="let element" (click)="onRowClick(element)">
+          <span *ngIf="col.isList" class="h-400-r-14-l color-87 textclass">
+            <div innerHTML="{{element[col.key]}}"></div>
+          </span>
+          <span [ngClass]="{'text-enable': col.status === 'enable'}" *ngIf="!col.isList"
+            class="h-400-r-14-l  textclass">
+            {{element[col.key]}} {{col.isList}}
+          </span>
+        </mat-cell>
+      </ng-container>
+      <ng-container matColumnDef="select">
+        <mat-header-cell *matHeaderCellDef class="h-400-r-14-l color-60">
+          <mat-checkbox (change)="$event ? toggleAllRows() : null" [checked]="selection.hasValue() && isAllSelected()"
+            [indeterminate]="selection.hasValue() && !isAllSelected()">
+          </mat-checkbox>
+          <label class="select-label">Select All</label>
+        </mat-header-cell>
+        <mat-cell *matCellDef="let row">
+          <mat-checkbox (click)="$event.stopPropagation();" (change)="$event ? selectRow($event, row) : null"
+            (change)="$event ? selection.toggle(row) : null" [checked]="selection.isSelected(row)">
+          </mat-checkbox>
+        </mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="Menu">
+        <mat-header-cell *matHeaderCellDef class="clr-darkish-blue action-header">
+          <!-- {{'Actions'}} -->
+        </mat-header-cell>
+        <mat-cell *matCellDef="let row" class="action-cell">
+          <button type="button" mat-icon-button i18n-aria-label aria-label="action items" [matMenuTriggerFor]="cardMenu"
+            [matMenuTriggerData]="{'data':row}" class="action-btn">
+            <mat-icon>more_horiz</mat-icon>
+          </button>
+        </mat-cell>
+      </ng-container>
+
+      <ng-container matColumnDef="Actions">
+        <mat-header-cell *matHeaderCellDef class="clr-darkish-blue action-header justify-end">
+          <!-- Reset -->
+        </mat-header-cell>
+        <ng-container *ngFor="let col of tableData!.actions">
+
+          <mat-cell *matCellDef="let row" class="action-cell justify-end">
+            <a *ngIf="col.type === 'link'" (click)="resetAssessment()" class="h-400-r-14-l color-87 textclass reset">
+              {{col.name}}
+            </a>
+          </mat-cell>
+        </ng-container>
+
+      </ng-container>
+
+      <mat-header-row *matHeaderRowDef="getFinalColumns()"></mat-header-row>
+      <mat-row *matRowDef="let row; columns: getFinalColumns();" (click)="selection.toggle(row);">
+      </mat-row>
+    </mat-table>
+  </div>
+
+  <mat-paginator [length]="length" [pageSize]="pageSize" [pageSizeOptions]="pageSizeOptions">
+  </mat-paginator>
+</div>

@@ -135,6 +135,6 @@ export class ViewEventComponent implements OnInit, AfterViewInit {
     }
   }
   changeToDefaultImg($event: any) {
-    $event.target.src = '/assets/instances/eagle/app_logos/default.png'
+    $event.target.src = '/assets/instances/eagle/app_logos/aastar-logo.svg'
   }
 }

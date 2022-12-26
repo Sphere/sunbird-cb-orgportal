@@ -50,5 +50,3 @@ testem.log
 Thumbs.db
 
 /src/assets
-package-lock.json
-yarn.lock

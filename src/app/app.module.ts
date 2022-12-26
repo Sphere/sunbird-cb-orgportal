@@ -54,6 +54,7 @@ import { LoginRootDirective } from './component/login-root/login-root.directive'
 import { TncRendererComponent } from './component/tnc-renderer/tnc-renderer.component'
 import { MobileAppModule } from './routes/public/mobile-app/mobile-app.module'
 import { PublicAboutModule } from './routes/public/public-about/public-about.module'
+import { PublicLogoutModule } from './routes/public/public-logout/public-logout.module'
 import { PublicContactModule } from './routes/public/public-contact/public-contact.module'
 import { PublicFaqModule } from './routes/public/public-faq/public-faq.module'
 import { TncComponent } from './routes/tnc/tnc.component'
@@ -133,6 +134,7 @@ const getBaseHref = (platformLocation: PlatformLocation): string => {
     SearchModule,
     BtnFeatureModule,
     PublicAboutModule,
+    PublicLogoutModule,
     PublicContactModule,
     PublicFaqModule,
     MobileAppModule,
@@ -149,6 +151,10 @@ const getBaseHref = (platformLocation: PlatformLocation): string => {
     LoginComponent,
   ],
   providers: [
+    {
+      provide: 'environment',
+      useValue: environment,
+    },
     {
       deps: [InitService, LoggerService],
       multi: true,

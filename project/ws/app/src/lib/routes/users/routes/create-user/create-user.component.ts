@@ -94,21 +94,21 @@ export class CreateUserComponent implements OnInit, OnDestroy {
           this.configService.userProfile.departmentName = this.departmentName
         }
 
-        this.rolesList = [
-          { roleName: 'CONTENT_CREATOR' },
-          { roleName: 'CONTENT_REVIEWER' },
-          { roleName: 'FRAC_ADMIN' },
-          { roleName: 'CONTENT_PUBLISHER' },
-          { roleName: 'EDITOR' },
-          { roleName: 'FRAC_ADMIN' },
-          { roleName: 'MDO_ADMIN' },
-          { roleName: 'SPV_ADMIN' },
-          { roleName: 'PUBLIC' },
-          { roleName: 'FRAC_COMPETENCY_MEMBER' },
-          { roleName: 'FRAC_COMPETENCY_REVIEWER' },
-          { roleName: 'FRAC_REVIEWER_L2' },
-          { roleName: 'ORG_ADMIN' },
-        ]
+        // this.rolesList = [
+        //   { roleName: 'CONTENT_CREATOR' },
+        //   { roleName: 'CONTENT_REVIEWER' },
+        //   { roleName: 'FRAC_ADMIN' },
+        //   { roleName: 'CONTENT_PUBLISHER' },
+        //   { roleName: 'EDITOR' },
+        //   { roleName: 'FRAC_ADMIN' },
+        //   { roleName: 'MDO_ADMIN' },
+        //   { roleName: 'SPV_ADMIN' },
+        //   { roleName: 'PUBLIC' },
+        //   { roleName: 'FRAC_COMPETENCY_MEMBER' },
+        //   { roleName: 'FRAC_COMPETENCY_REVIEWER' },
+        //   { roleName: 'FRAC_REVIEWER_L2' },
+        //   { roleName: 'ORG_ADMIN' },
+        // ]
       }
     })
     this.createUserForm = new FormGroup({
