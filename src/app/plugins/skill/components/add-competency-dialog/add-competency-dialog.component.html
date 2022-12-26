@@ -1,6 +1,9 @@
-<div class="flex flex-col h-full p-5 w-2/5">
-  <h1>Competency Details:</h1>
-  <form [formGroup]="addCompetencyForm" class="flex flex-col">
+<div class="flex flex-col h-full p-5">
+  <div class="flex flex-between">
+    <h1>Competency Details:</h1>
+    <mat-icon class="closeIcon" mat-dialog-close>close</mat-icon>
+  </div>
+  <form [formGroup]="addCompetencyForm" class="flex flex-col w-2/5">
     <!-- Select Competency to add field -->
     <div class="flex flex-col mb-5">
       <!-- <h4 class="lable">Select Competency to add:</h4> -->
