@@ -81,7 +81,7 @@ export class CompetencyService {
         response.push({
           source: _.get(value, 'acquiredChannel') ? _.get(value, 'acquiredChannel') : '',
           date: _.get(value, 'createdDate'),
-          level: 'Level '.concat(_.get(value, 'competencyLevelId').substring(1)),
+          level: 'Level '.concat(_.replace(_.get(value, 'competencyLevelId'), 'l', '')),
           color: this.getColor(channel),
           remarks: _.get(value, 'remarks')
         })
