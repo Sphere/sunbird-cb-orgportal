@@ -82,9 +82,9 @@ export class SkillTableComponent implements OnInit, OnChanges {
  * subscribe the value and user autocomplete service
  */
     this.modelChanged.pipe(debounceTime(1000),
-                           distinctUntilChanged(),
-                           filter(val => typeof val === 'string'),
-                           switchMap((value: string) => {
+      distinctUntilChanged(),
+      filter(val => typeof val === 'string'),
+      switchMap((value: string) => {
         if (typeof value === 'string' && value) {
           return this.userAutoCompleteService.fetchUserList(value)
         }
@@ -215,11 +215,13 @@ export class SkillTableComponent implements OnInit, OnChanges {
   }
 
   performBtnAction(btn: any) {
-    switch (btn.actioName) {
-      case 'addCompetency': this.addCompetency()
-        break
-      case 'resetAssessment': this.resetAssessment()
-        break
+    if (this.selectedAll || this.selectedRowLength) {
+      switch (btn.actioName) {
+        case 'addCompetency': this.addCompetency()
+          break
+        case 'resetAssessment': this.resetAssessment()
+          break
+      }
     }
   }
 
