@@ -20,23 +20,23 @@ export class AddCompetencyDialogComponent implements OnInit {
   selectProficiencyList: any = [
     {
       displayName: 'Level 1',
-      value: 'l1',
+      value: '1',
     },
     {
       displayName: 'Level 2',
-      value: 'l2',
+      value: '2',
     },
     {
       displayName: 'Level 3',
-      value: 'l3',
+      value: '3',
     },
     {
       displayName: 'Level 4',
-      value: 'l4',
+      value: '4',
     },
     {
       displayName: 'Level 5',
-      value: 'l5',
+      value: '5',
     },
   ]
 
