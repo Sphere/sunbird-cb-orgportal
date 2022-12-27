@@ -1,13 +1,12 @@
 import { HttpClient } from '@angular/common/http'
 import { Injectable } from '@angular/core'
 import { Observable } from 'rxjs'
-import { ConfigurationsService } from '@sunbird-cb/utils'
 import { map } from 'rxjs/operators'
 import * as _ from 'lodash'
 // TODO: move this in some common place
-const PROTECTED_SLAG_V8 = '/apis/proxies/v8'
+const PROTECTED_SLAG_V8 = '/apis/protected/v8'
 const API_END_POINTS = {
-  AUTOCOMPLETE: (query: string) => `${PROTECTED_SLAG_V8}/user/v1/autocomplete/${query}`,
+  getUserDetails: `${PROTECTED_SLAG_V8}/autoCompletev2/getUserDetails`
 }
 
 @Injectable({
@@ -15,25 +14,18 @@ const API_END_POINTS = {
 })
 export class UserAutoCompleteService {
 
-  constructor(private http: HttpClient, private configSvc: ConfigurationsService) { }
+  constructor(private http: HttpClient) { }
 
   fetchAutoComplete(
     query: string,
   ): Observable<any[]> {
-    let url = API_END_POINTS.AUTOCOMPLETE(query)
+    let url = API_END_POINTS.getUserDetails
 
-    const stringifiedQueryParams = this.getStringifiedQueryParams({
-      dealerCode: this.configSvc.userProfile && this.configSvc.userProfile.dealerCode ? this.configSvc.userProfile.dealerCode : undefined,
-      sourceFields: this.configSvc.instanceConfig && this.configSvc.instanceConfig.sourceFieldsUserAutocomplete
-        ? this.configSvc.instanceConfig.sourceFieldsUserAutocomplete
-        : undefined,
-    })
+    const body = {
+      "details": query
+    }
 
-    url += stringifiedQueryParams ? `?${stringifiedQueryParams}` : ''
-
-    return this.http.get<any[]>(
-      url,
-    ).pipe(map((data: any) => {
+    return this.http.get<any[]>(url, { params: body }).pipe(map((data: any) => {
       return data.result.response
     }))
   }
@@ -66,10 +58,9 @@ export class UserAutoCompleteService {
           addressDetails = profileReq.personalDetails ? this.getPostalAdress(profileReq.personalDetails) : null
         }
         activeUsersData.push({
-           // tslint:disable-next-line:max-line-length
-          fullName: user ? _.get(user, 'profileDetails.personalDetails.firstname').concat(' ', _.get(user, 'profileDetails.personalDetails.surname')) : null,
+          fullName: user ? _.get(user, 'profileDetails.profileReq.personalDetails.firstname', '').concat(' ', _.get(user, 'profileDetails.profileReq.personalDetails.lastname', '')) : null,
           // tslint:disable-next-line:max-line-length
-          email: user.profileDetails && user.profileDetails.personalDetails && user.profileDetails.personalDetails.primaryEmail ? user.profileDetails.personalDetails.primaryEmail : user.email,
+          email: _.get(user, 'profileDetails.profileReq.personalDetails.primaryEmail', user.email),
           userId: user.id,
           active: !user.isDeleted,
           blocked: user.blocked !== null && user.blocked !== undefined ? user.blocked : null,

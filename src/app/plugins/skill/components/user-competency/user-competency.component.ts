@@ -81,9 +81,9 @@ export class UserCompetencyComponent implements OnInit {
 
   userID = ''
   userDetails: any = {
-    userName: 'User Name',
-    role: 'Role',
-    designation: 'Designation',
+    userName: '',
+    role: '',
+    designation: '',
   }
 
   allEntity: any
@@ -175,7 +175,12 @@ export class UserCompetencyComponent implements OnInit {
     return columns
   }
 
-  addIndidualLevels(level: number) {
+  openProficiencyLevelDialog(level: number, competencies: any) {
+    console.log(competencies)
+    // const levelDetails = {
+    //   userId: this.userID
+    //   competencyName:
+    // }
     const dialogRef = this.dialog.open(ProficiencyLevelDialogComponent, {
       data: {
         level,
@@ -187,17 +192,20 @@ export class UserCompetencyComponent implements OnInit {
     })
 
     dialogRef.afterClosed().subscribe((response: any) => {
-      if (response && response.addLevel) {
-        this.competenciesList
-          .find((competency: any) => competency.proficiencyLevels
-            .find((element: any) => {
-              if (element.displayLevel === level) {
-                element.comments = response.formData.comments
-                element.selected = true
-              }
-            })
-          )
+      if (response) {
+        this.getCompitencies()
       }
+      // if (response && response.addLevel) {
+      //   this.competenciesList
+      //     .find((competency: any) => competency.proficiencyLevels
+      //       .find((element: any) => {
+      //         if (element.displayLevel === level) {
+      //           element.comments = response.formData.comments
+      //           element.selected = true
+      //         }
+      //       })
+      //     )
+      // }
     })
   }
 }
