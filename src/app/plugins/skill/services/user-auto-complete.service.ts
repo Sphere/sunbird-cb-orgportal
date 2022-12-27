@@ -6,7 +6,7 @@ import * as _ from 'lodash'
 // TODO: move this in some common place
 const PROTECTED_SLAG_V8 = '/apis/protected/v8'
 const API_END_POINTS = {
-  getUserDetails: `${PROTECTED_SLAG_V8}/autoCompletev2/getUserDetails`
+  getUserDetails: `${PROTECTED_SLAG_V8}/autoCompletev2/getUserDetails`,
 }
 
 @Injectable({
@@ -19,10 +19,10 @@ export class UserAutoCompleteService {
   fetchAutoComplete(
     query: string,
   ): Observable<any[]> {
-    let url = API_END_POINTS.getUserDetails
+    const url = API_END_POINTS.getUserDetails
 
     const body = {
-      "details": query
+      details: query,
     }
 
     return this.http.get<any[]>(url, { params: body }).pipe(map((data: any) => {
@@ -58,7 +58,8 @@ export class UserAutoCompleteService {
           addressDetails = profileReq.personalDetails ? this.getPostalAdress(profileReq.personalDetails) : null
         }
         activeUsersData.push({
-          fullName: user ? _.get(user, 'profileDetails.profileReq.personalDetails.firstname', '').concat(' ', _.get(user, 'profileDetails.profileReq.personalDetails.lastname', '')) : null,
+          fullName: user ? _.get(user, 'profileDetails.profileReq.personalDetails.firstname', '')
+            .concat(' ', _.get(user, 'profileDetails.profileReq.personalDetails.lastname', '')) : null,
           // tslint:disable-next-line:max-line-length
           email: _.get(user, 'profileDetails.profileReq.personalDetails.primaryEmail', user.email),
           userId: user.id,
@@ -79,7 +80,7 @@ export class UserAutoCompleteService {
       // tslint:disable-next-line:max-line-length
       _.reduce(data, (_key: any, value: any) => {
         professionalDetails['designation'] = value.designation ? value.designation : ''
-      }, professionalDetails)
+      },       professionalDetails)
     }
     return professionalDetails
   }
