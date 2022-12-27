@@ -121,7 +121,7 @@ export class CompetencyService {
 
     _.forEach(acquiredDetails, (value: any) => {
       const channel = _.get(value, 'acquiredChannel')
-      const competencyLevelId = _.get(value, 'competencyLevelId').substring(1)
+      const competencyLevelId = _.replace(_.get(value, 'competencyLevelId'), 'l', '')
       _.forEach(response, (level: any) => {
         if (level.displayLevel === competencyLevelId) {
           level.color = this.getColor(channel)
