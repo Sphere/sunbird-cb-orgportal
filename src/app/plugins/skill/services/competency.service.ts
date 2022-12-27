@@ -39,7 +39,7 @@ export class CompetencyService {
           level: _.get(value, 'level'),
         })
         return result
-      }, [])
+      },                            [])
       return formatedData
     }
     return actualData
@@ -83,7 +83,7 @@ export class CompetencyService {
           date: _.get(value, 'createdDate'),
           level: 'Level '.concat(_.replace(_.get(value, 'competencyLevelId'), 'l', '')),
           color: this.getColor(channel),
-          remarks: _.get(value, 'remarks')
+          remarks: _.get(value, 'remarks'),
         })
       })
     }

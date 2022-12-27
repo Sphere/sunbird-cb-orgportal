@@ -75,8 +75,8 @@ export class UserCompetencyComponent implements OnInit {
       },
       {
         key: 'remarks',
-        displayName: 'Comments'
-      }
+        displayName: 'Comments',
+      },
     ]
 
   userID = ''
@@ -175,8 +175,7 @@ export class UserCompetencyComponent implements OnInit {
     return columns
   }
 
-  openProficiencyLevelDialog(level: number, competencies: any) {
-    console.log(competencies)
+  openProficiencyLevelDialog(level: number) {
     // const levelDetails = {
     //   userId: this.userID
     //   competencyName:

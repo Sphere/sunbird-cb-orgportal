@@ -82,9 +82,9 @@ export class SkillTableComponent implements OnInit, OnChanges {
  * subscribe the value and user autocomplete service
  */
     this.modelChanged.pipe(debounceTime(1000),
-      distinctUntilChanged(),
-      filter(val => typeof val === 'string'),
-      switchMap((value: string) => {
+                           distinctUntilChanged(),
+                           filter(val => typeof val === 'string'),
+                           switchMap((value: string) => {
         if (typeof value === 'string' && value) {
           return this.userAutoCompleteService.fetchUserList(value)
         }
