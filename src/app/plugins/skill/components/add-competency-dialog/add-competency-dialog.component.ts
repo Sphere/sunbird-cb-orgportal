@@ -4,6 +4,7 @@ import { FormGroup, FormBuilder, Validators } from '@angular/forms'
 import * as _ from 'lodash'
 import { CompetencyService } from '../../services/competency.service'
 import { map } from 'rxjs/operators'
+import moment from 'moment'
 @Component({
   selector: 'ws-add-competency-dialog',
   templateUrl: './add-competency-dialog.component.html',
@@ -97,25 +98,23 @@ export class AddCompetencyDialogComponent implements OnInit {
     })
     const formatedData = {
       request: {
+        userId: this.userId,
+        typeName: "competency",
         competencyDetails: [
           {
-            acquiredDetails: {
-              additionalParams: {
-                remarks: _.get(competencyFormValue, 'comments', ''),
-              },
-              competencyLevelId: _.get(competencyFormValue, 'selectProficiency'),
-              acquiredChannel: 'admin',
-            },
-            additionalParams: {
-              competencyName: _.get(selectedCompetency, 'displayName'),
-            },
             competencyId: _.toString(_.get(selectedCompetency, 'value')),
-          },
-        ],
-        typeName: 'competency',
-        userId: this.userId,
-        effectiveDate: _.get(competencyFormValue, 'selectDate'),
-      },
+            additionalParams: {
+              remarks: _.get(competencyFormValue, 'comments', ''),
+            },
+            acquiredDetails: {
+              competencyName: _.get(selectedCompetency, 'displayName'),
+              acquiredChannel: "admin",
+              competencyLevelId: _.get(competencyFormValue, 'selectProficiency'),
+              effectiveDate: moment(_.get(competencyFormValue, 'selectDate')).format("YYYY-MM-DD h:mm:ss"),
+            }
+          }
+        ]
+      }
     }
     this.addSelectedCompetency(formatedData)
   }

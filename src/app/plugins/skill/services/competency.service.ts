@@ -39,7 +39,7 @@ export class CompetencyService {
           level: _.get(value, 'level'),
         })
         return result
-      },                            [])
+      }, [])
       return formatedData
     }
     return actualData
@@ -64,6 +64,7 @@ export class CompetencyService {
           response.push({
             title: _.get(competency, 'additionalParams.competencyName'),
             logs: this.acquiredPassbookLogs(_.get(competency, 'acquiredDetails')),
+            // competencyId: _.get(competency, 'competencyId'),
             proficiencyLevels: this.acauiredChannelColourCode(_.get(competency, 'acquiredDetails')),
           })
 
@@ -121,7 +122,7 @@ export class CompetencyService {
 
     _.forEach(acquiredDetails, (value: any) => {
       const channel = _.get(value, 'acquiredChannel')
-      const competencyLevelId = _.replace(_.get(value, 'competencyLevelId'), 'l', '')
+      const competencyLevelId = _.replace(_.get(value, 'competencyLevelId'), 'l', '').trim()
       _.forEach(response, (level: any) => {
         if (level.displayLevel === competencyLevelId) {
           level.color = this.getColor(channel)
