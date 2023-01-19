@@ -18,6 +18,9 @@ export class ProficiencyLevelDialogComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {
     this.aastrikaFormBuilder = formBuilder
+    if (!data) {
+      this.dialogRef.close()
+    }
   }
 
   ngOnInit() {
@@ -34,7 +37,6 @@ export class ProficiencyLevelDialogComponent implements OnInit {
   submit() {
     const resData = {
       formData: this.proficiencyLevelForm.value,
-      addLevel: true,
     }
     this.dialogRef.close(resData)
   }

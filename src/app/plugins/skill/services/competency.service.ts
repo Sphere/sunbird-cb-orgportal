@@ -64,7 +64,7 @@ export class CompetencyService {
           response.push({
             title: _.get(competency, 'additionalParams.competencyName'),
             logs: this.acquiredPassbookLogs(_.get(competency, 'acquiredDetails')),
-            // competencyId: _.get(competency, 'competencyId'),
+            competencyId: _.get(competency, 'competencyId'),
             proficiencyLevels: this.acauiredChannelColourCode(_.get(competency, 'acquiredDetails')),
           })
 
