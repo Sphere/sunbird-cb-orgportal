@@ -62,7 +62,7 @@ export class CompetencyService {
         if (passbookValue.competencies.hasOwnProperty(cid)) {
           const competency = passbookValue.competencies[cid]
           response.push({
-            title: _.get(competency, 'additionalParams.competencyName'),
+            title: _.get(competency, 'acquiredDetails[0].competencyName'),
             logs: this.acquiredPassbookLogs(_.get(competency, 'acquiredDetails')),
             competencyId: _.get(competency, 'competencyId'),
             proficiencyLevels: this.acauiredChannelColourCode(_.get(competency, 'acquiredDetails')),
@@ -84,7 +84,7 @@ export class CompetencyService {
           date: _.get(value, 'createdDate'),
           level: 'Level '.concat(_.replace(_.get(value, 'competencyLevelId'), 'l', '')),
           color: this.getColor(channel),
-          remarks: _.get(value, 'remarks'),
+          remarks: _.get(value, 'additionalParams.remarks'),
         })
       })
     }

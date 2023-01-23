@@ -207,14 +207,15 @@ export class UserCompetencyComponent implements OnInit {
         competencyDetails: [
           {
             competencyId: _.toString(_.get(levelDetails, 'competencyId')),
-            additionalParams: {
-              remarks: _.get(levelDetails, 'reports', ''),
-            },
+            additionalParams: {},
             acquiredDetails: {
-              competencyName: _.get(levelDetails, 'competencyName'),
               acquiredChannel: "admin",
               competencyLevelId: _.get(levelDetails, 'competencyLevelId'),
               effectiveDate: moment().format("YYYY-MM-DD h:mm:ss"),
+              additionalParams: {
+                competencyName: _.get(levelDetails, 'competencyName'),
+                remarks: _.get(levelDetails, 'reports', ''),
+              }
             }
           }
         ]

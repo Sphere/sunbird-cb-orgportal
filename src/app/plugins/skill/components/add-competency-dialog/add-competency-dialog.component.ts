@@ -103,14 +103,15 @@ export class AddCompetencyDialogComponent implements OnInit {
         competencyDetails: [
           {
             competencyId: _.toString(_.get(selectedCompetency, 'value')),
-            additionalParams: {
-              remarks: _.get(competencyFormValue, 'comments', ''),
-            },
+            additionalParams: {},
             acquiredDetails: {
-              competencyName: _.get(selectedCompetency, 'displayName'),
               acquiredChannel: "admin",
               competencyLevelId: _.get(competencyFormValue, 'selectProficiency'),
               effectiveDate: moment(_.get(competencyFormValue, 'selectDate')).format("YYYY-MM-DD h:mm:ss"),
+              additionalParams: {
+                competencyName: _.get(selectedCompetency, 'displayName'),
+                remarks: _.get(competencyFormValue, 'comments', ''),
+              }
             }
           }
         ]
