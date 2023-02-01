@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core'
 import { MatDialog } from '@angular/material'
 import { ActivatedRoute, Router } from '@angular/router'
 import * as _ from 'lodash'
+import moment from 'moment'
 import { forkJoin } from 'rxjs'
 import { CompetencyService } from '../../services/competency.service'
 import { UsersService } from '../../services/users.service'
@@ -175,15 +176,15 @@ export class UserCompetencyComponent implements OnInit {
     return columns
   }
 
-  openProficiencyLevelDialog(level: number) {
-    // const levelDetails = {
-    //   userId: this.userID
-    //   competencyName:
-    // }
+  openProficiencyLevelDialog(level: number, competencies: any) {
+    const levelDetails = {
+      competencyName: competencies.title,
+      competencyId: competencies.competencyId,
+      competencyLevelId: level,
+      reports: ''
+    }
     const dialogRef = this.dialog.open(ProficiencyLevelDialogComponent, {
-      data: {
-        level,
-      },
+      data: level,
       height: '255px',
       width: '500px',
       maxWidth: '90vw',
@@ -191,20 +192,40 @@ export class UserCompetencyComponent implements OnInit {
     })
 
     dialogRef.afterClosed().subscribe((response: any) => {
-      if (response) {
-        this.getCompitencies()
+      if (_.get(response, 'formData.comments')) {
+        levelDetails['reports'] = _.get(response, 'formData.comments')
+        this.addCompetency(levelDetails)
       }
-      // if (response && response.addLevel) {
-      //   this.competenciesList
-      //     .find((competency: any) => competency.proficiencyLevels
-      //       .find((element: any) => {
-      //         if (element.displayLevel === level) {
-      //           element.comments = response.formData.comments
-      //           element.selected = true
-      //         }
-      //       })
-      //     )
-      // }
     })
   }
+
+  addCompetency(levelDetails: any) {
+    const formatedData = {
+      request: {
+        userId: this.userID,
+        typeName: "competency",
+        competencyDetails: [
+          {
+            competencyId: _.toString(_.get(levelDetails, 'competencyId')),
+            additionalParams: {},
+            acquiredDetails: {
+              acquiredChannel: "admin",
+              competencyLevelId: _.get(levelDetails, 'competencyLevelId'),
+              effectiveDate: moment().format("YYYY-MM-DD h:mm:ss"),
+              additionalParams: {
+                competencyName: _.get(levelDetails, 'competencyName'),
+                remarks: _.get(levelDetails, 'reports', ''),
+              }
+            }
+          }
+        ]
+      }
+    }
+    this.competencySvc.updatePassbook(formatedData).subscribe((data: any) => {
+      if (data) {
+        this.getCompitencies()
+      }
+    })
+  }
+
 }
