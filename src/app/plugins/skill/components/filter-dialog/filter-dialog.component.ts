@@ -1,23 +1,44 @@
-import { Component, OnInit } from '@angular/core'
+import { Component, OnInit, Inject } from '@angular/core'
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms'
-import { MatChipInputEvent, MatDialogRef } from '@angular/material'
+import { MatChipInputEvent, MAT_DIALOG_DATA, MatDialogRef } from '@angular/material'
 import { COMMA, ENTER } from '@angular/cdk/keycodes'
 import * as _ from 'lodash'
-
+import { HttpClient } from '@angular/common/http'
 @Component({
   selector: 'ws-filter-dialog',
   templateUrl: './filter-dialog.component.html',
   styleUrls: ['./filter-dialog.component.scss'],
 })
 export class FilterDialogComponent implements OnInit {
-
-  //#region Global variables
-
+  districtUrl = '../../../mdo-assets/files/district.json'
+  stateUrl = '../../../mdo-assets/files/state.json'
+  disticts: any
+  states: any
   //#region select lists
   rolesList: IList[] = [
     {
-      displayText: 'Role1',
-      value: 'Role1',
+      displayText: 'Content Creator',
+      value: 'CONTENT_CREATOR',
+    },
+    {
+      displayText: 'Content Reviewer',
+      value: 'CONTENT_REVIEWER',
+    },
+    {
+      displayText: 'Content Publisher',
+      value: 'CONTENT_PUBLISHER',
+    },
+    {
+      displayText: 'MDO Admin',
+      value: 'MDO_ADMIN',
+    },
+    {
+      displayText: 'Public',
+      value: 'PUBLIC',
+    },
+    {
+      displayText: 'SPV Admin',
+      value: 'SPV_ADMIN',
     },
   ]
   statesList: IList[] = [
@@ -63,7 +84,7 @@ export class FilterDialogComponent implements OnInit {
     },
   ]
   //#endregion
-
+  isUser: any = false
   //#region chps for phone number and email
   selectable = true
   removable = true
@@ -78,6 +99,8 @@ export class FilterDialogComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     public dialogRef: MatDialogRef<FilterDialogComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: any,
+    private http: HttpClient
   ) {
     this.filterForm = this.fb.group({
       role: [''],
@@ -91,11 +114,19 @@ export class FilterDialogComponent implements OnInit {
       phoneNumber: this.fb.array([], [Validators.pattern('^[0-9]*$'),
       Validators.minLength(10), Validators.maxLength(10)]),
     })
+    console.log("data", data)
+
+    if (data && data.isUser) {
+      this.isUser = data.isUser
+    }
   }
   //#endregion
 
   //#region (ngOnInit)
   ngOnInit() {
+    this.http.get(this.stateUrl).subscribe((data: any) => {
+      this.states = data.states
+    })
   }
   //#endregion
 
@@ -117,7 +148,16 @@ export class FilterDialogComponent implements OnInit {
       }
     }
   }
-
+  stateSelect(option: any) {
+    this.http.get(this.districtUrl).subscribe((statesdata: any) => {
+      statesdata.states.map((item: any) => {
+        if (item.state === option) {
+          this.disticts = item.districts
+          console.log("item state", this.disticts)
+        }
+      })
+    })
+  }
   remove(value: string): void {
     const index = this.emailControls.value.indexOf(value)
     if (index >= 0) {

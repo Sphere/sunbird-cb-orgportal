@@ -13,6 +13,7 @@ import { EventService } from '@sunbird-cb/utils'
 import { NsContent } from '@sunbird-cb/collection'
 import { TelemetryEvents } from '../../../../head/_services/telemetry.event.model'
 import { LoaderService } from '../../../../../../../../../src/app/services/loader.service'
+import { FilterDialogComponent } from '../../../../../../../../../src/app/plugins/skill/components/filter-dialog/filter-dialog.component'
 
 @Component({
   selector: 'ws-app-users-view',
@@ -44,13 +45,21 @@ export class UsersViewComponent implements OnInit, OnDestroy {
   activeUsersData!: any[]
   inactiveUsersData!: any[]
   content: NsContent.IContent = {} as NsContent.IContent
+  selectedFilters: any = []
+  filterValues: any = []
 
   tabledata: ITableData = {
     actions: [],
     columns: [
       { displayName: 'Full Name', key: 'fullname' },
-      { displayName: 'Email', key: 'email' },
+      { displayName: 'User Name', key: 'userName' },
       { displayName: 'Roles', key: 'roles', isList: true },
+      // { displayName: 'Full Name', key: 'fullName' },
+      // { displayName: 'Competency', key: 'competency' },
+      { displayName: 'Designation', key: 'designation' },
+      { displayName: 'State', key: 'state' },
+      { displayName: 'City', key: 'city' },
+      { displayName: 'Block', key: 'block' },
     ],
     needCheckBox: false,
     needHash: false,
@@ -91,6 +100,7 @@ export class UsersViewComponent implements OnInit, OnDestroy {
   }
   ngOnInit() {
     this.getAllUsers()
+    console.log("selectedFilters", this.selectedFilters)
   }
 
   filter(filter: string) {
@@ -129,6 +139,7 @@ export class UsersViewComponent implements OnInit, OnDestroy {
 
   }
   filterData() {
+    console.log("filterData")
     this.activeUsersData = this.activeUsers
     this.inactiveUsersData = this.inActiveUsers
   }
@@ -136,8 +147,24 @@ export class UsersViewComponent implements OnInit, OnDestroy {
     this.loaderService.changeLoad.next(true)
     const activeUsersData: any[] = []
     if (this.usersData && this.usersData.content && this.usersData.content.length > 0) {
+      this.filterValues["isDeleted"] = false
+
+      // const filteredUsers = _.filter(this.usersData.content, _.matches(this.filterValues))
+
+      // filteredUsers.forEach((user: any) => {
+      //   // Rest of your existing logic for processing filtered users
+      //   // ...
+      // });
+      console.log("this.filterValues", this.usersData.content)
       _.filter(this.usersData.content, { isDeleted: false }).forEach((user: any) => {
         // tslint:disable-next-line
+        console.log("yser", user)
+        let professionalDetails: any
+        let addressDetails: any
+        if (_.get(user, 'profileDetails') && _.get(user, 'profileDetails.profileReq.professionalDetails')) {
+          professionalDetails = this.getprofessionalDetails(user.profileDetails.profileReq.professionalDetails)
+          addressDetails = this.getPostalAdress(user.profileDetails.profileReq.personalDetails)
+        }
         const org = { roles: _.get(_.first(_.filter(user.organisations, { organisationId: _.get(this.configSvc, 'unMappedUser.rootOrg.id') })), 'roles') }
         activeUsersData.push({
           fullname: user ? `${user.firstName} ${user.lastName}` : null,
@@ -147,10 +174,85 @@ export class UsersViewComponent implements OnInit, OnDestroy {
           active: !user.isDeleted,
           blocked: user.blocked,
           roles: _.join(_.map((org.roles || []), i => `<li>${i}</li>`), ''),
+          designation: _.get(professionalDetails, 'designation') ? _.get(professionalDetails, 'designation') : '',
+          state: _.get(addressDetails, 'state') ? _.get(addressDetails, 'state') : '',
+          city: _.get(addressDetails, 'city') ? _.get(addressDetails, 'city') : '',
+          userName: user.userName
         })
       })
     }
     return activeUsersData
+  }
+  getprofessionalDetails(data: any) {
+    const professionalDetails: any = {}
+    if (data && data.length > 0) {
+      // tslint:disable-next-line
+      _.reduce(data, (_key: any, value: any) => {
+        professionalDetails['designation'] = value.designation ? value.designation : ''
+      }, professionalDetails)
+    }
+    return professionalDetails
+  }
+  getPostalAdress(data: any) {
+    const addressDetails: any = {}
+    if (data && _.get(data, 'postalAddress')) {
+      const postalAddress = _.split(_.get(data, 'postalAddress'), ',')
+      addressDetails['country'] = postalAddress[0]
+      addressDetails['state'] = postalAddress[1]
+      addressDetails['city'] = postalAddress[2]
+
+    }
+    return addressDetails
+  }
+  filterTable() {
+    const dialogRef = this.dialog.open(FilterDialogComponent, {
+      maxHeight: '90vh',
+      minHeight: '65%',
+      width: '80%',
+      autoFocus: false, // To remove auto select
+      restoreFocus: false,
+      panelClass: 'competencies',
+      data: { isUser: true }
+    })
+    dialogRef.afterClosed().subscribe((response: any) => {
+      if (response) {
+        this.constuctSelectedFilter(response)
+        console.log("this.selectedFilter", this.filterValues)
+        // this.changeUserTable()
+        const data = this.dataForTable
+        this.filterData
+        this.activeUsersData = this.activeUsers
+        this.inactiveUsersData = this.inActiveUsers
+        console.log("data", this.activeUsersData, this.inactiveUsersData, data)
+
+      }
+
+    })
+
+  }
+  changeUserTable() {
+
+  }
+  constuctSelectedFilter(response: any) {
+    this.selectedFilters = []
+    // const nonEmptyData: { [key: string]: any } = {}
+    this.filterValues = []
+    const nonEmptyData: { [key: string]: any } = {}
+
+    _.forIn(response, (value: any, key: any) => {
+      if (!_.isEmpty(value)) {
+        this.selectedFilters.push({
+          label: key,
+          item: value,
+        })
+
+      }
+      if (value !== '' && (!Array.isArray(value) || value.length > 0)) {
+        nonEmptyData[key] = value
+      }
+    })
+    this.filterValues = nonEmptyData
+    return this.selectedFilters
   }
   get inActiveUsers() {
     this.loaderService.changeLoad.next(true)

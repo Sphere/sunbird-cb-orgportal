@@ -17,7 +17,7 @@ export class AddCompetencyDialogComponent implements OnInit {
   selectedLeves: any[] = []
 
   selectCompetencyList: any = []
-
+  searchComp: any = []
   selectProficiencyList: any = [
     {
       displayName: 'Level 1',
@@ -76,11 +76,28 @@ export class AddCompetencyDialogComponent implements OnInit {
     }
     this.competencySvc.getAllEntity(serchBody)
       .pipe(map((data: any) => {
+        console.log("this.selectCompet", data)
         return this.competencySvc.getFormatedData(data)
       }))
       .subscribe((data: any) => {
+        console.log("this.selectCompet", data)
         this.selectCompetencyList = data
+        this.searchComp = this.selectCompetencyList
       })
+  }
+  onKey(value: string) {
+    this.selectCompetencyList = this.search(value)
+  }
+
+  search(value: string) {
+    let filter = value.toLowerCase()
+    console.log("filter: ", filter)
+    if (!filter) {
+      return this.searchComp
+    }
+    return this.selectCompetencyList = this.searchComp.filter((option: any) =>
+      option.displayName.toLowerCase().includes(filter)
+    )
   }
 
   submit() {

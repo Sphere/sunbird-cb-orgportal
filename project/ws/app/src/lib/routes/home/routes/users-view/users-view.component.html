@@ -30,6 +30,14 @@
             mat-button (click)="filter('upload'); tabTelemetry('upload', 2)" role="button">File uploads</a>
         </div>
       </div>
+      <a class="flex items-center" (click)="filterTable()">
+        <mat-icon class="material-icons-outlined cursor-pointer filter">
+          filter_alt
+        </mat-icon>
+        <span class="filter filterText items-center cursor-pointer">Filter</span>
+      </a>
+      <ws-search-selected-filter [selectedFilters]="selectedFilters"></ws-search-selected-filter>
+
       <ng-container *ngIf="usersData && currentFilter !== 'upload'">
         <ws-widget-org-user-table [tableData]="tabledata" [data]="dataForTable" isUpload=true isCreate=true
           (eOnButtonClick)="onCreateClick($event)" (eOnRowClick)="onRoleClick($event)"

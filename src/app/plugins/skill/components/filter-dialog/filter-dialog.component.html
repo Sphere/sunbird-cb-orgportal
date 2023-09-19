@@ -25,15 +25,15 @@
       <div class="flex-2 w-full p-s-10">
         <mat-form-field class="w-full" appearance="outline">
           <mat-label>Select State</mat-label>
-          <mat-select formControlName="state">
-            <ng-container *ngFor="let state of statesList">
-              <mat-option [value]="state.value">{{state.displayText}}</mat-option>
+          <mat-select (selectionChange)="stateSelect($event.value)" formControlName="state">
+            <ng-container *ngFor="let state of states">
+              <mat-option [value]="state.name">{{state.name}}</mat-option>
             </ng-container>
           </mat-select>
         </mat-form-field>
       </div>
 
-      <div class="flex-2 w-full p-s-10">
+      <div class="flex-2 w-full p-s-10" *ngIf="!isUser">
         <mat-form-field class="w-full" appearance="outline">
           <mat-label>Select Sub Center</mat-label>
           <mat-select formControlName="subCenter">
@@ -64,14 +64,14 @@
         <mat-form-field class="w-full" appearance="outline">
           <mat-label>Select City</mat-label>
           <mat-select formControlName="city">
-            <ng-container *ngFor="let city of citysList">
-              <mat-option [value]="city.value">{{city.displayText}}</mat-option>
+            <ng-container *ngFor="let city of disticts">
+              <mat-option [value]="city">{{city}}</mat-option>
             </ng-container>
           </mat-select>
         </mat-form-field>
       </div>
 
-      <div class="flex-2 w-full p-s-10">
+      <div class="flex-2 w-full p-s-10" *ngIf="!isUser">
         <mat-form-field class="w-full" appearance="outline">
           <mat-label>Select Competency</mat-label>
           <mat-select formControlName="competency">
@@ -82,7 +82,7 @@
         </mat-form-field>
       </div>
 
-      <div class="flex-2 w-full p-s-10">
+      <div class="flex-2 w-full p-s-10" *ngIf="!isUser">
         <mat-form-field class="w-full" appearance="outline">
           <mat-label>Select Block</mat-label>
           <mat-select formControlName="block">
@@ -93,7 +93,7 @@
         </mat-form-field>
       </div>
 
-      <div class="flex-2 w-full p-s-10">
+      <div class="flex-2 w-full p-s-10" *ngIf="!isUser">
         <mat-form-field class="w-full" appearance="outline">
           <mat-label>Activity</mat-label>
           <mat-select formControlName="block">
