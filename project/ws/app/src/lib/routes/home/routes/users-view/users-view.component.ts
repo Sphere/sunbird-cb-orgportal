@@ -168,7 +168,17 @@ export class UsersViewComponent implements OnInit, OnDestroy {
           professionalDetails = this.getprofessionalDetails(user.profileDetails.profileReq.professionalDetails)
           addressDetails = this.getPostalAdress(user.profileDetails.profileReq.personalDetails)
         }
-        const org = { roles: _.get(_.first(_.filter(user.organisations, { organisationId: _.get(this.configSvc, 'unMappedUser.rootOrg.id') })), 'roles') }
+
+        const org = {
+          roles: _.get(
+            _.first(
+              _.filter(user.organisations, {
+                organisationId: _.get(this.configSvc, 'unMappedUser.rootOrg.id'),
+              })
+            ),
+            'roles'
+          ),
+        }
         activeUsersData.push({
           fullname: user ? `${user.firstName} ${user.lastName}` : null,
           email: user.personalDetails && user.personalDetails.primaryEmail ? user.personalDetails.primaryEmail : user.email,
@@ -224,7 +234,7 @@ export class UsersViewComponent implements OnInit, OnDestroy {
         console.log('this.selectedFilter', this.filterValues)
         // this.changeUserTable()
         const data = this.dataForTable
-        this.filterData
+        // this.filterData
         this.activeUsersData = this.activeUsers
         this.inactiveUsersData = this.inActiveUsers
         // tslint:disable-next-line: no-console
