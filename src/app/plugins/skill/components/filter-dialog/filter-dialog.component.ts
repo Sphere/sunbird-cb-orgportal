@@ -114,7 +114,8 @@ export class FilterDialogComponent implements OnInit {
       phoneNumber: this.fb.array([], [Validators.pattern('^[0-9]*$'),
       Validators.minLength(10), Validators.maxLength(10)]),
     })
-    console.log("data", data)
+    // tslint:disable-next-line: no-console
+    console.log('data', data)
 
     if (data && data.isUser) {
       this.isUser = data.isUser
@@ -153,7 +154,8 @@ export class FilterDialogComponent implements OnInit {
       statesdata.states.map((item: any) => {
         if (item.state === option) {
           this.disticts = item.districts
-          console.log("item state", this.disticts)
+          // tslint:disable-next-line: no-console
+          console.log('item state', this.disticts)
         }
       })
     })

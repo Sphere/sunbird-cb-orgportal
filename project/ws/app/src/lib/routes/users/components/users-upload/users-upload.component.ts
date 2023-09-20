@@ -76,7 +76,8 @@ export class UsersUploadComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.pageDataSubscription = this.route.data.subscribe(data => {
       if (data && data.pageData) {
-        console.log("this.pageDataSubscription", data.pageData)
+        // tslint:disable-next-line: no-console
+        console.log('this.pageDataSubscription', data.pageData)
         this.downloadSampleFilePath = data.pageData.data.downloadSampleFilePath
         this.downloadAsFileName = data.pageData.data.downloadAsFileName
       }

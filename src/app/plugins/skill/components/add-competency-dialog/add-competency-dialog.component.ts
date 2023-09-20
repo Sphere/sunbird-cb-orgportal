@@ -76,11 +76,13 @@ export class AddCompetencyDialogComponent implements OnInit {
     }
     this.competencySvc.getAllEntity(serchBody)
       .pipe(map((data: any) => {
-        console.log("this.selectCompet", data)
+        // tslint:disable-next-line: no-console
+        console.log('this.selectCompet', data)
         return this.competencySvc.getFormatedData(data)
       }))
       .subscribe((data: any) => {
-        console.log("this.selectCompet", data)
+        // tslint:disable-next-line: no-console
+        console.log('this.selectCompet', data)
         this.selectCompetencyList = data
         this.searchComp = this.selectCompetencyList
       })
@@ -90,8 +92,9 @@ export class AddCompetencyDialogComponent implements OnInit {
   }
 
   search(value: string) {
-    let filter = value.toLowerCase()
-    console.log("filter: ", filter)
+    const filter = value.toLowerCase()
+    // tslint:disable-next-line: no-console
+    console.log('filter: ', filter)
     if (!filter) {
       return this.searchComp
     }
@@ -116,23 +119,23 @@ export class AddCompetencyDialogComponent implements OnInit {
     const formatedData = {
       request: {
         userId: this.userId,
-        typeName: "competency",
+        typeName: 'competency',
         competencyDetails: [
           {
             competencyId: _.toString(_.get(selectedCompetency, 'value')),
             additionalParams: {},
             acquiredDetails: {
-              acquiredChannel: "admin",
+              acquiredChannel: 'admin',
               competencyLevelId: _.get(competencyFormValue, 'selectProficiency'),
-              effectiveDate: moment(_.get(competencyFormValue, 'selectDate')).format("YYYY-MM-DD h:mm:ss"),
+              effectiveDate: moment(_.get(competencyFormValue, 'selectDate')).format('YYYY-MM-DD h:mm:ss'),
               additionalParams: {
                 competencyName: _.get(selectedCompetency, 'displayName'),
                 remarks: _.get(competencyFormValue, 'comments', ''),
-              }
-            }
-          }
-        ]
-      }
+              },
+            },
+          },
+        ],
+      },
     }
     this.addSelectedCompetency(formatedData)
   }

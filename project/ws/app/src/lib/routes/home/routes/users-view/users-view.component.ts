@@ -100,7 +100,8 @@ export class UsersViewComponent implements OnInit, OnDestroy {
   }
   ngOnInit() {
     this.getAllUsers()
-    console.log("selectedFilters", this.selectedFilters)
+    // tslint:disable-next-line: no-console
+    console.log('selectedFilters', this.selectedFilters)
   }
 
   filter(filter: string) {
@@ -139,7 +140,8 @@ export class UsersViewComponent implements OnInit, OnDestroy {
 
   }
   filterData() {
-    console.log("filterData")
+    // tslint:disable-next-line: no-console
+    console.log('filterData')
     this.activeUsersData = this.activeUsers
     this.inactiveUsersData = this.inActiveUsers
   }
@@ -147,7 +149,7 @@ export class UsersViewComponent implements OnInit, OnDestroy {
     this.loaderService.changeLoad.next(true)
     const activeUsersData: any[] = []
     if (this.usersData && this.usersData.content && this.usersData.content.length > 0) {
-      this.filterValues["isDeleted"] = false
+      this.filterValues['isDeleted'] = false
 
       // const filteredUsers = _.filter(this.usersData.content, _.matches(this.filterValues))
 
@@ -155,10 +157,11 @@ export class UsersViewComponent implements OnInit, OnDestroy {
       //   // Rest of your existing logic for processing filtered users
       //   // ...
       // });
-      console.log("this.filterValues", this.usersData.content)
+      // tslint:disable-next-line: no-console
+      console.log('this.filterValues', this.usersData.content)
       _.filter(this.usersData.content, { isDeleted: false }).forEach((user: any) => {
-        // tslint:disable-next-line
-        console.log("yser", user)
+        // tslint:disable-next-line: no-console
+        console.log('yser', user)
         let professionalDetails: any
         let addressDetails: any
         if (_.get(user, 'profileDetails') && _.get(user, 'profileDetails.profileReq.professionalDetails')) {
@@ -177,7 +180,7 @@ export class UsersViewComponent implements OnInit, OnDestroy {
           designation: _.get(professionalDetails, 'designation') ? _.get(professionalDetails, 'designation') : '',
           state: _.get(addressDetails, 'state') ? _.get(addressDetails, 'state') : '',
           city: _.get(addressDetails, 'city') ? _.get(addressDetails, 'city') : '',
-          userName: user.userName
+          userName: user.userName,
         })
       })
     }
@@ -189,7 +192,7 @@ export class UsersViewComponent implements OnInit, OnDestroy {
       // tslint:disable-next-line
       _.reduce(data, (_key: any, value: any) => {
         professionalDetails['designation'] = value.designation ? value.designation : ''
-      }, professionalDetails)
+      },       professionalDetails)
     }
     return professionalDetails
   }
@@ -212,18 +215,20 @@ export class UsersViewComponent implements OnInit, OnDestroy {
       autoFocus: false, // To remove auto select
       restoreFocus: false,
       panelClass: 'competencies',
-      data: { isUser: true }
+      data: { isUser: true },
     })
     dialogRef.afterClosed().subscribe((response: any) => {
       if (response) {
         this.constuctSelectedFilter(response)
-        console.log("this.selectedFilter", this.filterValues)
+        // tslint:disable-next-line: no-console
+        console.log('this.selectedFilter', this.filterValues)
         // this.changeUserTable()
         const data = this.dataForTable
         this.filterData
         this.activeUsersData = this.activeUsers
         this.inactiveUsersData = this.inActiveUsers
-        console.log("data", this.activeUsersData, this.inactiveUsersData, data)
+        // tslint:disable-next-line: no-console
+        console.log('data', this.activeUsersData, this.inactiveUsersData, data)
 
       }
 

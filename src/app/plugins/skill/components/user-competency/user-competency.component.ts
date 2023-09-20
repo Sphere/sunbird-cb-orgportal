@@ -181,7 +181,7 @@ export class UserCompetencyComponent implements OnInit {
       competencyName: competencies.title,
       competencyId: competencies.competencyId,
       competencyLevelId: level,
-      reports: ''
+      reports: '',
     }
     const dialogRef = this.dialog.open(ProficiencyLevelDialogComponent, {
       data: level,
@@ -203,23 +203,23 @@ export class UserCompetencyComponent implements OnInit {
     const formatedData = {
       request: {
         userId: this.userID,
-        typeName: "competency",
+        typeName: 'competency',
         competencyDetails: [
           {
             competencyId: _.toString(_.get(levelDetails, 'competencyId')),
             additionalParams: {},
             acquiredDetails: {
-              acquiredChannel: "admin",
+              acquiredChannel: 'admin',
               competencyLevelId: _.get(levelDetails, 'competencyLevelId'),
-              effectiveDate: moment().format("YYYY-MM-DD h:mm:ss"),
+              effectiveDate: moment().format('YYYY-MM-DD h:mm:ss'),
               additionalParams: {
                 competencyName: _.get(levelDetails, 'competencyName'),
                 remarks: _.get(levelDetails, 'reports', ''),
-              }
-            }
-          }
-        ]
-      }
+              },
+            },
+          },
+        ],
+      },
     }
     this.competencySvc.updatePassbook(formatedData).subscribe((data: any) => {
       if (data) {

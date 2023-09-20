@@ -39,7 +39,7 @@ export class CompetencyService {
           level: _.get(value, 'level'),
         })
         return result
-      }, [])
+      },                            [])
       return formatedData
     }
     return actualData
