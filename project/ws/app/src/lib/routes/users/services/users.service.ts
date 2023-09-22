@@ -131,4 +131,16 @@ export class UsersService {
 
     return this.http.post<any>(`${API_END_POINTS.SEARCH_USER_TABLE}`, reqBody)
   }
+  searchUserByFilter(value: any, rootOrgId: string) {
+    const reqBody = {
+      request: {
+        filters: {
+          rootOrgId,
+          ...value,
+        },
+      },
+    }
+
+    return this.http.post<any>(`${API_END_POINTS.SEARCH_USER_TABLE}`, reqBody)
+  }
 }

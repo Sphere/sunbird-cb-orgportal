@@ -110,13 +110,9 @@ export class FilterDialogComponent implements OnInit {
       city: [''],
       competency: [''],
       block: [''],
-      emails: this.fb.array([], Validators.email),
-      phoneNumber: this.fb.array([], [Validators.pattern('^[0-9]*$'),
-      Validators.minLength(10), Validators.maxLength(10)]),
+      emails: [''],
+      phoneNumber: [''],
     })
-    // tslint:disable-next-line: no-console
-    console.log('data', data)
-
     if (data && data.isUser) {
       this.isUser = data.isUser
     }
@@ -131,20 +127,20 @@ export class FilterDialogComponent implements OnInit {
   }
   //#endregion
 
-  get emailControls(): FormArray {
-    return this.filterForm.controls.emails as FormArray
+  get emailControls(): any {
+    return this.filterForm.controls.emails
   }
-  get phoneNumberControls(): FormArray {
-    return this.filterForm.controls.phoneNumber as FormArray
+  get phoneNumberControls(): any {
+    return this.filterForm.controls.phoneNumber
   }
   /* adding email for mobile field to form array */
   addValueToForm(event: MatChipInputEvent, controller: string): void {
     if (_.trim(_.get(event.input, 'value'))) {
       switch (controller) {
-        case 'emails': this.emailControls.push(this.fb.control(_.trim(_.get(event.input, 'value'))))
+        case 'emails': this.emailControls.value(_.trim(_.get(event.input, 'value')))
           break
 
-        case 'phoneNumber': this.phoneNumberControls.push(this.fb.control(_.trim(_.get(event.input, 'value'))))
+        case 'phoneNumber': this.phoneNumberControls.value(_.trim(_.get(event.input, 'value')))
           break
       }
     }
@@ -154,8 +150,6 @@ export class FilterDialogComponent implements OnInit {
       statesdata.states.map((item: any) => {
         if (item.state === option) {
           this.disticts = item.districts
-          // tslint:disable-next-line: no-console
-          console.log('item state', this.disticts)
         }
       })
     })

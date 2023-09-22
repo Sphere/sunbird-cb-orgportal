@@ -36,7 +36,8 @@
         </mat-icon>
         <span class="filter filterText items-center cursor-pointer">Filter</span>
       </a>
-      <ws-search-selected-filter [selectedFilters]="selectedFilters"></ws-search-selected-filter>
+      <ws-search-selected-filter (filterChange)="filterChange($event)"
+        [selectedFilters]="selectedFilters"></ws-search-selected-filter>
 
       <ng-container *ngIf="usersData && currentFilter !== 'upload'">
         <ws-widget-org-user-table [tableData]="tabledata" [data]="dataForTable" isUpload=true isCreate=true

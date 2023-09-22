@@ -14,5 +14,11 @@ export class SearchSelectedFilterComponent implements OnInit {
 
   ngOnInit() {
   }
+  changeFilter(filter: any) {
+    if (filter) {
+      this.selectedFilters = this.selectedFilters.filter((item: any) => item.label !== filter)
+    }
+    this.filterChange.emit(this.selectedFilters)
+  }
 
 }

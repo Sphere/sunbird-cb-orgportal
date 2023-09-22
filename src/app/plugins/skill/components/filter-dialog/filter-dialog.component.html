@@ -22,7 +22,7 @@
         </mat-form-field>
       </div>
 
-      <div class="flex-2 w-full p-s-10">
+      <div class="flex-2 w-full p-s-10" *ngIf="!isUser">
         <mat-form-field class="w-full" appearance="outline">
           <mat-label>Select State</mat-label>
           <mat-select (selectionChange)="stateSelect($event.value)" formControlName="state">
@@ -44,7 +44,7 @@
         </mat-form-field>
       </div>
 
-      <div class="flex-2 w-full p-s-10">
+      <div class="flex-2 w-full p-s-10" *ngIf="!isUser">
         <mat-form-field class="w-full" appearance="outline">
           <mat-label>Select Designation</mat-label>
           <mat-select formControlName="designation">
@@ -58,7 +58,7 @@
     <!-- #endregion -->
 
     <!-- #region (City, Competency, Block)-->
-    <div class="flex flex-1 custom">
+    <div class="flex flex-1 custom" *ngIf="!isUser">
 
       <div class="flex-2 w-full p-s-10">
         <mat-form-field class="w-full" appearance="outline">
@@ -110,36 +110,19 @@
     <div class="flex flex-1 custom">
       <!-- #region (eamil)-->
       <div class="flex-2 w-full p-s-10">
-        <mat-form-field class="w-full" appearance="outline">
-          <mat-label>Filter by email</mat-label>
-          <mat-chip-list #emailChipList aria-label="Email selection" formArrayName="emails">
-            <mat-chip *ngFor="let email of emailControls.value" [selectable]="selectable" [removable]="removable"
-              (removed)="remove(email)">
-              {{email}}
-              <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
-            </mat-chip>
-            <input placeholder="Add email" [matChipInputFor]="emailChipList"
-              [matChipInputSeparatorKeyCodes]="separatorKeysCodes" [matChipInputAddOnBlur]="addOnBlur"
-              (matChipInputTokenEnd)="addValueToForm($event, 'emails' )">
-          </mat-chip-list>
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Email</mat-label>
+          <input matInput formControlName="emails" #subTitle maxlength="500" i18n-placeholder
+            placeholder="Enter email here" />
         </mat-form-field>
       </div>
       <!-- #endregion -->
 
       <div class="flex-2 w-full p-s-10">
-        <mat-form-field class="w-full" appearance="outline">
-          <mat-label>Filter by phone number</mat-label>
-          <mat-chip-list #chipList formArrayName="phoneNumber">
-            <mat-chip *ngFor="let PhoneNumber of phoneNumberControls.value" [selectable]="selectable"
-              [removable]="removable" (removed)="phoneNumberRemove(PhoneNumber)">
-              {{PhoneNumber}}
-              <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
-            </mat-chip>
-            <input placeholder="Add phone number" [matChipInputFor]="chipList"
-              [matChipInputSeparatorKeyCodes]="separatorKeysCodes" [matChipInputAddOnBlur]="addOnBlur"
-              (matChipInputTokenEnd)="addValueToForm($event, 'phoneNumber' )">
-          </mat-chip-list>
-
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>Phone Number</mat-label>
+          <input matInput formControlName="phoneNumber" #subTitle maxlength="500" i18n-placeholder
+            placeholder="Enter Phone number here" />
         </mat-form-field>
       </div>
     </div>

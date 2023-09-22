@@ -124,7 +124,12 @@ export class UsersViewComponent implements OnInit, OnDestroy {
       data,
     )
   }
-
+  filterChange(value: any) {
+    if (value) {
+      const filterRes = this.constructRemovedFilter(value)
+      this.getUserFilteredData(filterRes)
+    }
+  }
   get dataForTable() {
 
     switch (this.currentFilter) {
@@ -140,8 +145,6 @@ export class UsersViewComponent implements OnInit, OnDestroy {
 
   }
   filterData() {
-    // tslint:disable-next-line: no-console
-    console.log('filterData')
     this.activeUsersData = this.activeUsers
     this.inactiveUsersData = this.inActiveUsers
   }
@@ -149,19 +152,7 @@ export class UsersViewComponent implements OnInit, OnDestroy {
     this.loaderService.changeLoad.next(true)
     const activeUsersData: any[] = []
     if (this.usersData && this.usersData.content && this.usersData.content.length > 0) {
-      this.filterValues['isDeleted'] = false
-
-      // const filteredUsers = _.filter(this.usersData.content, _.matches(this.filterValues))
-
-      // filteredUsers.forEach((user: any) => {
-      //   // Rest of your existing logic for processing filtered users
-      //   // ...
-      // });
-      // tslint:disable-next-line: no-console
-      console.log('this.filterValues', this.usersData.content)
       _.filter(this.usersData.content, { isDeleted: false }).forEach((user: any) => {
-        // tslint:disable-next-line: no-console
-        console.log('yser', user)
         let professionalDetails: any
         let addressDetails: any
         if (_.get(user, 'profileDetails') && _.get(user, 'profileDetails.profileReq.professionalDetails')) {
@@ -230,23 +221,35 @@ export class UsersViewComponent implements OnInit, OnDestroy {
     dialogRef.afterClosed().subscribe((response: any) => {
       if (response) {
         this.constuctSelectedFilter(response)
-        // tslint:disable-next-line: no-console
-        console.log('this.selectedFilter', this.filterValues)
-        // this.changeUserTable()
-        const data = this.dataForTable
-        // this.filterData
-        this.activeUsersData = this.activeUsers
-        this.inactiveUsersData = this.inActiveUsers
-        // tslint:disable-next-line: no-console
-        console.log('data', this.activeUsersData, this.inactiveUsersData, data)
-
+        this.getUserFilteredData(this.filterValues)
       }
 
     })
 
   }
-  changeUserTable() {
+  getUserFilteredData(filterData: any) {
+    const req = {
+      'organisations.roles': filterData.role,
+      phone: filterData.phoneNumber,
+      email: filterData.emails,
+    }
+    const rootOrgId = _.get(this.route.snapshot.parent, 'data.configService.unMappedUser.rootOrg.rootOrgId')
 
+    this.usersService.searchUserByFilter(req, rootOrgId).subscribe(data => {
+      this.usersData = data.result.response
+      this.filterData()
+    })
+
+  }
+  constructRemovedFilter(response: any) {
+    const transformedObject: any = {}
+
+    if (!_.isEmpty(response)) {
+      response.forEach((item: any) => {
+        transformedObject[item.label] = item.item
+      })
+    }
+    return transformedObject
   }
   constuctSelectedFilter(response: any) {
     this.selectedFilters = []
@@ -331,8 +334,6 @@ export class UsersViewComponent implements OnInit, OnDestroy {
   }
 
   onCreateClick(event: any) {
-    // tslint:disable-next-line: no-console
-    console.log('clickHandler :: event ', event)
     switch (event.type) {
       case 'createUser':
         this.onCreateUser()

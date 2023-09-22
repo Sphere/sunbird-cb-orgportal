@@ -4,11 +4,11 @@
       <label class="text-capitalize">{{filter.label}} :&nbsp;</label>
       <a class="filter label mt-8 mr-2 py-0 label-background">
         {{filter.item}}
-        <mat-icon class="close-icon">close</mat-icon>
+        <mat-icon (click)="changeFilter(filter.label)" class="close-icon">close</mat-icon>
       </a>
     </div>
   </ng-container>
-  <div class="d-flex flex-ai-center">
+  <!-- <div class="d-flex flex-ai-center">
     <a class="editFilter">Edit Filters</a>
-  </div>
+  </div> -->
 </div>
