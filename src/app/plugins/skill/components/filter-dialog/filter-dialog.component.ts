@@ -1,5 +1,5 @@
 import { Component, OnInit, Inject } from '@angular/core'
-import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms'
+import { FormBuilder, FormGroup } from '@angular/forms'
 import { MatChipInputEvent, MAT_DIALOG_DATA, MatDialogRef } from '@angular/material'
 import { COMMA, ENTER } from '@angular/cdk/keycodes'
 import * as _ from 'lodash'
