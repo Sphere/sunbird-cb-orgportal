@@ -17,9 +17,10 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms'
 import { WidgetResolverModule } from '@sunbird-cb/resolver'
 import { RolesService } from './services/roles.service'
 import { FileService } from './services/upload.service'
+import { RoleConfirmDialogComponent } from '../../../../../../../src/app/plugins/skill/components/role-confirm-dialog/role-confirm-dialog.component'
 
 @NgModule({
-  declarations: [CreateUserComponent, ViewUserComponent, UsersUploadComponent],
+  declarations: [CreateUserComponent, ViewUserComponent, UsersUploadComponent, RoleConfirmDialogComponent],
   imports: [
     CommonModule, RouterModule, UsersRoutingModule, BreadcrumbsOrgModule,
     MatSidenavModule, MatListModule, ScrollspyLeftMenuModule, MatCardModule, FormsModule,
@@ -29,5 +30,6 @@ import { FileService } from './services/upload.service'
   ],
   providers: [RolesService, FileService],
   exports: [UsersUploadComponent],
+  entryComponents: [RoleConfirmDialogComponent],
 })
 export class UsersModule { }

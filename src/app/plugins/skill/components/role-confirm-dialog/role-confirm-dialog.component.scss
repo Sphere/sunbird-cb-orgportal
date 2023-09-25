@@ -1,0 +1,45 @@
+.dialog-P {
+  padding: 25px;
+  text-align: center;
+}
+.title{
+  font-size: 20px;
+}
+.role-list{
+  font-size: 18px;
+}
+
+.btn {
+  margin-top: 23px;
+  padding: 8px 32px;
+  border-radius: 50px;
+  font-size: 16px;
+  line-height: 19px;
+  cursor: pointer;
+  border: 1px solid #1C5D95;
+  background-color: inherit;
+  color: #1C5D95;
+  font-weight: 400;
+}
+
+.btn.active {
+  background-color: #1C5D95;
+  color: #FFFFFF;
+}
+
+::ng-deep .mat-form-field-flex>.mat-form-field-infix {
+  padding: 0.75em 0px !important;
+  border-top: 0.5em solid transparent;
+}
+
+
+table {
+  border: 1px solid #990000;
+  border-collapse: collapse;
+  width: 100%;
+}
+th, td {
+    border: solid 0.5px lightgrey;
+    text-align: center;
+}
+

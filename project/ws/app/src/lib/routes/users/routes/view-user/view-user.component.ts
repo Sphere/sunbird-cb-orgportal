@@ -9,6 +9,8 @@ import _ from 'lodash'
 import { EventService } from '@sunbird-cb/utils'
 import { Subscription } from 'rxjs'
 import { TelemetryEvents } from '../../../../head/_services/telemetry.event.model'
+import { RoleConfirmDialogComponent } from '../../../../../../../../../src/app/plugins/skill/components/role-confirm-dialog/role-confirm-dialog.component'
+import { MatDialog } from '@angular/material/dialog'
 
 @Component({
   selector: 'ws-app-view-user',
@@ -58,6 +60,7 @@ export class ViewUserComponent implements OnInit, AfterViewInit {
   constructor(private activeRoute: ActivatedRoute, private router: Router, private events: EventService,
     // tslint:disable-next-line:align
     private usersSvc: UsersService,
+              public dialog: MatDialog,
     // tslint:disable-next-line:align
     private snackBar: MatSnackBar) {
     this.router.events.subscribe((event: Event) => {
@@ -268,7 +271,9 @@ export class ViewUserComponent implements OnInit, AfterViewInit {
   resetRoles() {
     this.updateUserRoleForm.controls['roles'].setValue(this.orguserRoles)
   }
+  filterTable() {
 
+  }
   onSubmit(form: any) {
     if (form.value.roles !== this.orguserRoles) {
       const dreq = {
@@ -281,13 +286,29 @@ export class ViewUserComponent implements OnInit, AfterViewInit {
 
       this.usersSvc.addUserToDepartment(dreq).subscribe(dres => {
         if (dres) {
-          this.updateUserRoleForm.reset({ roles: '' })
-          this.openSnackbar('User role updated Successfully')
-          if (this.qpParam === 'MDOinfo') {
-            this.router.navigate(['/app/home/mdoinfo/leadership'])
-          } else {
-            this.router.navigate(['/app/home/users'])
-          }
+          // this.openSnackbar('User role updated Successfully')
+          const dialogRef = this.dialog.open(RoleConfirmDialogComponent, {
+            maxHeight: '90vh',
+            minHeight: '60%',
+            width: '40%',
+            autoFocus: false, // To remove auto select
+            restoreFocus: false,
+            panelClass: 'competencies',
+            data: { user: this.fullname, role: form.value.roles },
+          })
+          dialogRef.afterClosed().subscribe((response: any) => {
+            if (response) {
+              // this.updateUserRole(form)
+              this.updateUserRoleForm.reset({ roles: '' })
+              if (this.qpParam === 'MDOinfo') {
+                this.router.navigate(['/app/home/mdoinfo/leadership'])
+              } else {
+                this.router.navigate(['/app/home/users'])
+              }
+            }
+
+          })
+
         }
       })
     } else {

@@ -3,7 +3,7 @@ import { Routes, RouterModule } from '@angular/router'
 import { ViewUserComponent } from './routes/view-user/view-user.component'
 import { CreateUserComponent } from './routes/create-user/create-user.component'
 import { UserResolve } from '../users/resolvers/user-resolve'
-import { WorkflowHistoryResolve } from '../users/resolvers/workflow-history-resolve'
+// import { WorkflowHistoryResolve } from '../users/resolvers/workflow-history-resolve'
 import { RolesResolver } from './resolvers/roles-resolve.service'
 import { ConfigResolveService } from '../home/resolvers/config-resolve.service'
 
@@ -13,7 +13,7 @@ const routes: Routes = [
     component: ViewUserComponent,
     resolve: {
       profileData: UserResolve,
-      workflowHistoryData: WorkflowHistoryResolve,
+      // workflowHistoryData: WorkflowHistoryResolve,
       // department: DepartmentResolve,
       rolesList: RolesResolver,
       configService: ConfigResolveService,
@@ -37,7 +37,7 @@ const routes: Routes = [
   providers: [
     UserResolve,
     // DepartmentResolve,
-    WorkflowHistoryResolve,
+    // WorkflowHistoryResolve,
     RolesResolver,
     ConfigResolveService,
   ],
