@@ -9,7 +9,7 @@ import { UsersUploadComponent } from './components/users-upload/users-upload.com
 import {
   MatSidenavModule, MatGridListModule, MatListModule, MatCardModule, MatFormFieldModule, MatInputModule,
   MatIconModule, MatButtonModule, MatRadioModule, MatDialogModule, MatSelectModule, MatProgressSpinnerModule,
-  MatPaginatorModule, MatTableModule, MatSortModule,
+  MatPaginatorModule, MatTableModule, MatSortModule, MatDatepickerModule,
 } from '@angular/material'
 import { MatExpansionModule } from '@angular/material/expansion'
 import { MatDividerModule } from '@angular/material/divider'
@@ -18,18 +18,19 @@ import { WidgetResolverModule } from '@sunbird-cb/resolver'
 import { RolesService } from './services/roles.service'
 import { FileService } from './services/upload.service'
 import { RoleConfirmDialogComponent } from '../../../../../../../src/app/plugins/skill/components/role-confirm-dialog/role-confirm-dialog.component'
+import { DropdownDobComponent } from '../../../../../../../src/app/component/dropdown-dob/dropdown-dob.component'
 
 @NgModule({
-  declarations: [CreateUserComponent, ViewUserComponent, UsersUploadComponent, RoleConfirmDialogComponent],
+  declarations: [CreateUserComponent, ViewUserComponent, UsersUploadComponent, RoleConfirmDialogComponent, DropdownDobComponent],
   imports: [
     CommonModule, RouterModule, UsersRoutingModule, BreadcrumbsOrgModule,
     MatSidenavModule, MatListModule, ScrollspyLeftMenuModule, MatCardModule, FormsModule,
     MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule, MatGridListModule,
     MatRadioModule, MatDialogModule, ReactiveFormsModule, MatSelectModule, MatProgressSpinnerModule,
-    MatExpansionModule, MatDividerModule, MatPaginatorModule, MatTableModule, WidgetResolverModule, MatSortModule,
+    MatExpansionModule, MatDividerModule, MatPaginatorModule, MatTableModule, WidgetResolverModule, MatSortModule, MatDatepickerModule,
   ],
   providers: [RolesService, FileService],
   exports: [UsersUploadComponent],
-  entryComponents: [RoleConfirmDialogComponent],
+  entryComponents: [RoleConfirmDialogComponent, DropdownDobComponent],
 })
 export class UsersModule { }

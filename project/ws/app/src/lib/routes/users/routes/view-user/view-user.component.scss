@@ -8,7 +8,11 @@
   margin-left: auto!important;
   margin-right: auto!important;
 }
-
+.date-picker {
+  position: absolute;
+  right: 0px;
+  top: 0px;
+}
 .buton {
   display: flex;
   border: 1px solid;

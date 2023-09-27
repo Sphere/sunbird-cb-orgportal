@@ -24,7 +24,7 @@ const API_END_POINTS = {
   NEW_USER_BLOCK_API: '/apis/proxies/v8/user/v1/block',
   NEW_USER_UN_BLOCK_API: '/apis/proxies/v8/user/v1/unblock',
   SEARCH_USER_TABLE: '/apis/proxies/v8/user/v1/search',
-
+  updateProfileDetails: '/apis/protected/v8/user/profileDetails/updateUser',
   // GET_BULKUPLOAD_DATA: '/apis/protected/v8/admin/userRegistration/bulkUploadData',
 }
 
@@ -39,6 +39,9 @@ export class UsersService {
 
   getMyDepartment(): Observable<any> {
     return this.http.get<any>(`${API_END_POINTS.GET_MY_DEPARTMENT}`)
+  }
+  updateProfileDetails(data: any) {
+    return this.http.patch<any>(`${API_END_POINTS.updateProfileDetails}`, data)
   }
 
   createUser(req: any): Observable<any> {

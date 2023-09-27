@@ -21,442 +21,429 @@
           <div class="flex-3">
             <div class="flex flex-1 flex-column">
               <!-- Basic Info card -->
-              <mat-card id="personalInfo"
-                class="flex flex-1 flex-column margin-left-m margin-bottom-m margin-right-m ws-mat-accent-border">
-                <div class="flex-custom">
-                  <mat-card-content class="margin-top-m margin-bottom-m margin-left-m margin-right-m">
-                    <span class="mat-subheading-1 flex-4 mobile-margin appr-section-heading" role="link" tabindex="0">
-                      Personal details
-                    </span>
+              <form class="" [formGroup]="updateUserDetailsForm">
+                <mat-card id="personalInfo"
+                  class="flex flex-1 flex-column margin-left-m margin-bottom-m margin-right-m ws-mat-accent-border">
+                  <div class="flex-custom">
+                    <mat-card-content class="margin-top-m margin-bottom-m margin-left-m margin-right-m">
+                      <span class="mat-subheading-1 flex-4 mobile-margin appr-section-heading" role="link" tabindex="0">
+                        Personal details
+                      </span>
 
-                    <div class="margin-top-xl new-mobile" *ngIf="basicInfo">
-                      <div class="flex flex-wrap mobile-break">
-                        <div class="w-full profile-cols-full bg-grey">
-                          <ng-container>
-                            <mat-grid-list cols="1" rowHeight="100px">
-                              <mat-grid-tile [colspan]="1" [rowspan]="2" class="input-wrapper">
-                                <img [src]="basicInfo.photo" alt="User Avatar" (error)="changeToDefaultImg($event)">
-                              </mat-grid-tile>
-                              <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                <label class="appr-text-label">First name</label>
-                                <input type="text" [disabled]="true" [value]="basicInfo.firstname"
-                                  class="appr-text-field">
-                              </mat-grid-tile>
+                      <div class="margin-top-xl new-mobile" *ngIf="basicInfo">
+                        <div class="flex flex-wrap mobile-break">
+                          <div class="w-full profile-cols-full bg-grey">
+                            <ng-container>
+                              <mat-grid-list cols="1" rowHeight="100px">
+                                <mat-grid-tile [colspan]="1" [rowspan]="2" class="input-wrapper">
+                                  <img [src]="basicInfo.photo" alt="User Avatar" (error)="changeToDefaultImg($event)">
+                                </mat-grid-tile>
+                                <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
+                                  <label class="appr-text-label">First name</label>
+                                  <input formControlName="firstname" type="text" class="appr-text-field">
+                                </mat-grid-tile>
 
-                              <!-- <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
+                                <!-- <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
                               <label class="appr-text-label">Middle Name</label>
-                              <input type="text" [disabled]="true" [value]="basicInfo.middlename" class="appr-text-field">
+                              <input type="text"   [value]="basicInfo.middlename" class="appr-text-field">
                             </mat-grid-tile> -->
 
-                              <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                <label class="appr-text-label">Last name</label>
-                                <input type="text" [disabled]="true" [value]="basicInfo.surname"
-                                  class="appr-text-field">
-                              </mat-grid-tile>
+                                <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
+                                  <label class="appr-text-label">Last name</label>
+                                  <input type="text" formControlName="surname" class="appr-text-field">
+                                </mat-grid-tile>
 
-                              <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                <label class="appr-text-label">Date of birth (dd-mm-yy)</label>
-                                <input type="text" [disabled]="true" [value]="basicInfo.dob ? basicInfo.dob : ''"
-                                  class="appr-text-field">
-                              </mat-grid-tile>
+                                <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
+                                  <ng-container *ngIf="loadDob; else withoutDob">
+                                    <ws-dropdown-dob (dobValue)="dobData($event)"
+                                      [dob]="updateUserDetailsForm.get('dob').value ">
+                                    </ws-dropdown-dob>
+                                  </ng-container>
+                                  <ng-template #withoutDob>
+                                    <ws-dropdown-dob (dobValue)="dobData($event)">
+                                    </ws-dropdown-dob>
+                                  </ng-template>
+                                </mat-grid-tile>
 
-                              <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                <label class="appr-text-label">Nationality</label>
-                                <input type="text" [disabled]="true"
-                                  [value]="basicInfo.nationality ? basicInfo.nationality : ''" class="appr-text-field">
-                              </mat-grid-tile>
+                                <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
+                                  <label class="appr-text-label">Nationality</label>
+                                  <input formControlName="nationality" type="text" class="appr-text-field">
+                                </mat-grid-tile>
 
-                              <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                <label class="appr-text-label">Gender</label>
-                                <mat-radio-group [value]="basicInfo.gender" [disabled]="true"
-                                  aria-label="Select an option">
-                                  <mat-radio-button value="Male" class="radio-btn">Male</mat-radio-button>
-                                  <mat-radio-button value="Female" class="radio-btn">Female</mat-radio-button>
-                                  <mat-radio-button value="Others" class="radio-btn">Others</mat-radio-button>
-                                </mat-radio-group>
-                              </mat-grid-tile>
+                                <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
+                                  <label class="appr-text-label">Gender</label>
+                                  <mat-form-field appearance="outline" class="field-fullwidth">
+                                    <mat-select formControlName="gender" i18n-placeholder placeholder="Gender">
+                                      <mat-option value="Male" i18n>Male</mat-option>
+                                      <mat-option value="Female" i18n>Female</mat-option>
+                                      <mat-option value="Others" i18n>Others</mat-option>
+                                    </mat-select>
+                                  </mat-form-field>
 
-                              <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                <label class="appr-text-label">Marital status</label>
-                                <mat-radio-group [value]="basicInfo.maritalStatus" [disabled]="true"
-                                  aria-label="Select an option">
-                                  <mat-radio-button value="Single" class="radio-btn">Single</mat-radio-button>
-                                  <mat-radio-button value="Married" class="radio-btn">Married</mat-radio-button>
-                                </mat-radio-group>
-                              </mat-grid-tile>
+                                </mat-grid-tile>
 
-                              <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                <label class="appr-text-label">Category</label>
-                                <mat-radio-group [value]="basicInfo.category" [disabled]="true"
-                                  aria-label="Select an option">
-                                  <mat-radio-button value="General" class="radio-btn">General</mat-radio-button>
-                                  <mat-radio-button value="OBC" class="radio-btn">OBC</mat-radio-button>
-                                  <mat-radio-button value="SC" class="radio-btn">SC</mat-radio-button>
-                                  <mat-radio-button value="ST" class="radio-btn">ST</mat-radio-button>
-                                </mat-radio-group>
-                              </mat-grid-tile>
+                                <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
+                                  <label class="appr-text-label">Marital status</label>
+                                  <!-- <mat-radio-group formControlName="maritalStatus" aria-label="Select an option">
+                                    <mat-radio-button value="Single" class="radio-btn">Single</mat-radio-button>
+                                    <mat-radio-button value="Married" class="radio-btn">Married</mat-radio-button>
+                                  </mat-radio-group> -->
+                                  <mat-form-field appearance="outline" class="field-fullwidth">
+                                    <mat-select formControlName="maritalStatus" i18n-placeholder
+                                      placeholder="Marital Status">
+                                      <mat-option value="Single" i18n>Single</mat-option>
+                                      <mat-option value="Married" i18n>Married</mat-option>
+                                    </mat-select>
+                                  </mat-form-field>
+                                </mat-grid-tile>
 
-                              <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                <label class="appr-text-label">Domicile medium (Mother tongue)</label>
-                                <input type="text" [disabled]="true"
-                                  [value]="basicInfo.domicileMedium ? basicInfo.domicileMedium : ''"
-                                  class="appr-text-field">
-                              </mat-grid-tile>
+                                <!-- <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
+                                  <label class="appr-text-label">Category</label>
+                                  <mat-radio-group [value]="basicInfo.category" aria-label="Select an option">
+                                    <mat-radio-button value="General" class="radio-btn">General</mat-radio-button>
+                                    <mat-radio-button value="OBC" class="radio-btn">OBC</mat-radio-button>
+                                    <mat-radio-button value="SC" class="radio-btn">SC</mat-radio-button>
+                                    <mat-radio-button value="ST" class="radio-btn">ST</mat-radio-button>
+                                  </mat-radio-group>
+                                </mat-grid-tile> -->
 
-                              <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                <label class="appr-text-label">Other languages known</label>
-                                <input type="text" [disabled]="true"
-                                  [value]="basicInfo.knownLanguages ? basicInfo.knownLanguages : ''"
-                                  class="appr-text-field">
-                              </mat-grid-tile>
+                                <!-- <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
+                                  <label class="appr-text-label">Domicile medium (Mother tongue)</label>
+                                  <input type="text" formControlName="domicileMedium" class="appr-text-field">
+                                </mat-grid-tile>
 
-                              <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                <label class="appr-text-label">Mobile number</label>
-                                <input type="text" [disabled]="true" [value]="basicInfo.mobile ? basicInfo.mobile : ''"
-                                  class="appr-text-field">
-                              </mat-grid-tile>
+                                <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
+                                  <label class="appr-text-label">Other languages known</label>
+                                  <input formControlName="knownLanguages" type="text" class="appr-text-field">
+                                </mat-grid-tile> -->
 
-                              <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                <label class="appr-text-label">Telephone number</label>
-                                <input type="text" [disabled]="true"
-                                  [value]="basicInfo.telephone ? basicInfo.telephone : ''" class="appr-text-field">
-                              </mat-grid-tile>
+                                <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
+                                  <label class="appr-text-label">Mobile number</label>
+                                  <input type="text" formControlName="mobile" class="appr-text-field">
+                                </mat-grid-tile>
 
-                              <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                <label class="appr-text-label">Primary email</label>
-                                <input type="text" [disabled]="true"
-                                  [value]="basicInfo.primaryEmail ? basicInfo.primaryEmail : ''"
-                                  class="appr-text-field">
-                              </mat-grid-tile>
+                                <!-- <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
+                                  <label class="appr-text-label">Telephone number</label>
+                                  <input formControlName="telephone" type="text" class="appr-text-field">
+                                </mat-grid-tile> -->
 
-                              <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                <label class="appr-text-label">Secondary email</label>
-                                <input type="text" [disabled]="true"
-                                  [value]="basicInfo.personalEmail ? basicInfo.personalEmail : ''"
-                                  class="appr-text-field">
-                              </mat-grid-tile>
+                                <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
+                                  <label class="appr-text-label">Primary email</label>
+                                  <input formControlName="primaryEmail" type="text" class="appr-text-field" readonly>
+                                </mat-grid-tile>
 
-                              <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                <label class="appr-text-label">Postal address</label>
-                                <textarea [disabled]="true" rows="3"
-                                  [value]="basicInfo.postalAddress ? basicInfo.postalAddress : ''"
-                                  class="appr-text-field"></textarea>
-                              </mat-grid-tile>
+                                <!-- <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
+                                  <label class="appr-text-label">Secondary email</label>
+                                  <input type="text" formControlName="secondaryEmail" class="appr-text-field">
+                                </mat-grid-tile> -->
 
-                              <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                <label class="appr-text-label">Pin code</label>
-                                <input type="text" [disabled]="true"
-                                  [value]="basicInfo.pincode ? basicInfo.pincode : ''" class="appr-text-field">
-                              </mat-grid-tile>
+                                <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
+                                  <label class="appr-text-label">Postal address</label>
+                                  <textarea rows="3" formControlName="postalAddress" class="appr-text-field"></textarea>
+                                </mat-grid-tile>
 
-                            </mat-grid-list>
-                          </ng-container>
+                                <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
+                                  <label class="appr-text-label">Pin code</label>
+                                  <input type="text" formControlName="pincode" class="appr-text-field">
+                                </mat-grid-tile>
+
+                              </mat-grid-list>
+                            </ng-container>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </mat-card-content>
-                </div>
-              </mat-card>
+                    </mat-card-content>
+                  </div>
+                </mat-card>
 
-              <!-- Academic card -->
-              <mat-card id="academics"
-                class="flex flex-1 flex-column margin-top-m margin-bottom-m margin-left-m margin-right-m ws-mat-accent-border">
-                <div class="flex-custom">
-                  <mat-card-content class="margin-top-m margin-bottom-m margin-left-m margin-right-m">
-                    <span class="mat-subheading-1 flex-4 mobile-margin appr-section-heading" role="link" tabindex="0">
-                      Academics
-                    </span>
-                    <div class="margin-top-xl new-mobile" *ngIf="academicDetails">
-                      <div class="flex flex-wrap mobile-break">
-                        <div class="w-full profile-cols-full bg-grey" *ngFor="let academic of academicDetails">
+                <!-- Academic card -->
+                <mat-card id="academics"
+                  class="flex flex-1 flex-column margin-top-m margin-bottom-m margin-left-m margin-right-m ws-mat-accent-border">
+                  <div class="flex-custom">
+                    <mat-card-content class="margin-top-m margin-bottom-m margin-left-m margin-right-m">
+                      <span class="mat-subheading-1 flex-4 mobile-margin appr-section-heading" role="link" tabindex="0">
+                        Academics
+                      </span>
+                      <div class="margin-top-xl new-mobile">
+                        <div class="flex flex-wrap mobile-break">
+                          <div class="w-full profile-cols-full bg-grey">
 
-                          <ng-container *ngIf="academic.type == 'X_STANDARD'">
-                            <mat-grid-list cols="1" rowHeight="50px">
-                              <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                <label class="header-text">10th standard</label>
-                              </mat-grid-tile>
-                            </mat-grid-list>
-                            <mat-grid-list cols="1" rowHeight="100px">
-                              <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                <label class="appr-text-label">School name</label>
-                                <input type="text" class="appr-text-field" [disabled]="true"
-                                  [value]="academic.nameOfInstitute">
-                              </mat-grid-tile>
-                              <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                <label class="appr-text-label">Year of passing</label>
-                                <input type="text" class="appr-text-field" [disabled]="true"
-                                  [value]="academic.yearOfPassing">
-                              </mat-grid-tile>
-                            </mat-grid-list>
-                          </ng-container>
+                            <ng-container>
+                              <mat-grid-list cols="1" rowHeight="50px">
+                                <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
+                                  <label class="header-text">10th standard</label>
+                                </mat-grid-tile>
+                              </mat-grid-list>
+                              <mat-grid-list cols="1" rowHeight="100px">
+                                <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
+                                  <label class="appr-text-label">School name</label>
+                                  <!-- <input [(ngModel)]="schoolName" type="text" class="appr-text-field"> -->
+                                  <input formControlName="schoolName10" *ngIf="!hide">
+                                  <input [(ngModel)]="schoolName" type="text" class="appr-text-field"
+                                    [ngModelOptions]="{standalone: true}">
+                                </mat-grid-tile>
+                                <!-- <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
+                                  <label class="appr-text-label">Year of passing</label>
+                                  <input [(ngModel)]="schoolPassing" type="text" class="appr-text-field">
+                                </mat-grid-tile> -->
+                              </mat-grid-list>
+                            </ng-container>
 
-                          <ng-container *ngIf="academic.type == 'XII_STANDARD'">
-                            <mat-grid-list cols="1" rowHeight="50px">
-                              <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                <label class="header-text">12th standard</label>
-                              </mat-grid-tile>
-                            </mat-grid-list>
-                            <mat-grid-list cols="1" rowHeight="100px">
-                              <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                <label class="appr-text-label">School name</label>
-                                <input type="text" class="appr-text-field" [disabled]="true"
-                                  [value]="academic.nameOfInstitute">
-                              </mat-grid-tile>
-                              <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                <label class="appr-text-label">Year of passing</label>
-                                <input type="text" class="appr-text-field" [disabled]="true"
-                                  [value]="academic.yearOfPassing">
-                              </mat-grid-tile>
-                            </mat-grid-list>
-                          </ng-container>
+                            <!-- <ng-container>
+                              <mat-grid-list cols="1" rowHeight="50px">
+                                <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
+                                  <label class="header-text">12th standard</label>
+                                </mat-grid-tile>
+                              </mat-grid-list>
+                              <mat-grid-list cols="1" rowHeight="100px">
+                                <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
+                                  <label class="appr-text-label">School name</label>
+                                  <input type="text" class="appr-text-field" [(ngModel)]="schoolName">
+                                </mat-grid-tile>
+                                <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
+                                  <label class="appr-text-label">Year of passing</label>
+                                  <input type="text" class="appr-text-field" [(ngModel)]="schoolPassing">
+                                </mat-grid-tile>
+                              </mat-grid-list>
+                            </ng-container>
 
-                          <ng-container *ngIf="academic.type == 'GRADUATE'">
-                            <mat-grid-list cols="1" rowHeight="50px">
-                              <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                <label class="header-text">Graduation details</label>
-                              </mat-grid-tile>
-                            </mat-grid-list>
-                            <mat-grid-list cols="1" rowHeight="100px">
-                              <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                <label class="appr-text-label">Degree</label>
-                                <input type="text" class="appr-text-field" [disabled]="true"
-                                  [value]="academic.nameOfQualification">
-                              </mat-grid-tile>
-                              <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                <label class="appr-text-label">Institute name</label>
-                                <input type="text" class="appr-text-field" [disabled]="true"
-                                  [value]="academic.nameOfInstitute">
-                              </mat-grid-tile>
-                              <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                <label class="appr-text-label">Year of passing</label>
-                                <input type="text" class="appr-text-field" [disabled]="true"
-                                  [value]="academic.yearOfPassing">
-                              </mat-grid-tile>
-                            </mat-grid-list>
-                          </ng-container>
+                            <ng-container>
+                              <mat-grid-list cols="1" rowHeight="50px">
+                                <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
+                                  <label class="header-text">Graduation details</label>
+                                </mat-grid-tile>
+                              </mat-grid-list>
+                              <mat-grid-list cols="1" rowHeight="100px">
+                                <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
+                                  <label class="appr-text-label">Degree</label>
+                                  <input type="text" class="appr-text-field" [(ngModel)]="degreeName">
+                                </mat-grid-tile>
+                                <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
+                                  <label class="appr-text-label">Institute name</label>
+                                  <input type="text" class="appr-text-field" [(ngModel)]="degreeInstitueName">
+                                </mat-grid-tile>
+                                <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
+                                  <label class="appr-text-label">Year of passing</label>
+                                  <input type="text" class="appr-text-field" [(ngModel)]="degreePassing">
+                                </mat-grid-tile>
+                              </mat-grid-list>
+                            </ng-container>
 
-                          <ng-container *ngIf="academic.type == 'POST_GRADUATE'">
-                            <mat-grid-list cols="1" rowHeight="50px">
-                              <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                <label class="header-text">Post graduation details</label>
-                              </mat-grid-tile>
-                            </mat-grid-list>
-                            <mat-grid-list cols="1" rowHeight="100px">
-                              <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                <label class="appr-text-label">Degree</label>
-                                <input type="text" class="appr-text-field" [disabled]="true"
-                                  [value]="academic.nameOfQualification">
-                              </mat-grid-tile>
-                              <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                <label class="appr-text-label">Institute name</label>
-                                <input type="text" class="appr-text-field" [disabled]="true"
-                                  [value]="academic.nameOfInstitute">
-                              </mat-grid-tile>
-                              <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                <label class="appr-text-label">Year of passing</label>
-                                <input type="text" class="appr-text-field" [disabled]="true"
-                                  [value]="academic.yearOfPassing">
-                              </mat-grid-tile>
-                            </mat-grid-list>
-                          </ng-container>
+                            <ng-container>
+                              <mat-grid-list cols="1" rowHeight="50px">
+                                <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
+                                  <label class="header-text">Post graduation details</label>
+                                </mat-grid-tile>
+                              </mat-grid-list>
+                              <mat-grid-list cols="1" rowHeight="100px">
+                                <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
+                                  <label class="appr-text-label">Degree</label>
+                                  <input type="text" class="appr-text-field" [(ngModel)]="postDegreeName">
+                                </mat-grid-tile>
+                                <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
+                                  <label class="appr-text-label">Institute name</label>
+                                  <input type="text" class="appr-text-field" [(ngModel)]="postInstituteName">
+                                </mat-grid-tile>
+                                <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
+                                  <label class="appr-text-label">Year of passing</label>
+                                  <input type="text" class="appr-text-field" [(ngModel)]="postPassing">
+                                </mat-grid-tile>
+                              </mat-grid-list>
+                            </ng-container> -->
 
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </mat-card-content>
-                </div>
-              </mat-card>
+                    </mat-card-content>
+                  </div>
+                </mat-card>
 
-              <!-- Professional details card -->
-              <mat-card id="profdetails"
-                class="flex flex-1 flex-column margin-top-m margin-bottom-m margin-left-m margin-right-m ws-mat-accent-border">
-                <div class="flex-custom">
-                  <mat-card-content class="margin-top-m margin-bottom-m margin-left-m margin-right-m">
-                    <span class="mat-subheading-1 flex-4 mobile-margin appr-section-heading" role="link" tabindex="0">
-                      Professional details
-                    </span>
-                    <div class="margin-top-xl new-mobile" *ngIf="professionalDetails">
-                      <div class="flex flex-wrap mobile-break">
-                        <div class="w-full profile-cols-full bg-grey">
-                          <ng-container>
-                            <mat-grid-list cols="1" rowHeight="100px">
-                              <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                <label class="appr-text-label">Type of organisation</label>
-                                <mat-radio-group [value]="professionalDetails.organisationType" [disabled]="true"
-                                  aria-label="Select an option">
-                                  <mat-radio-button value="Government" class="radio-btn">Government organisation
-                                  </mat-radio-button>
-                                  <mat-radio-button value="Non-Government" class="radio-btn">Non-government
-                                    organisation
-                                  </mat-radio-button>
-                                </mat-radio-group>
-                              </mat-grid-tile>
+                <!-- Professional details card -->
+                <mat-card id="profdetails"
+                  class="flex flex-1 flex-column margin-top-m margin-bottom-m margin-left-m margin-right-m ws-mat-accent-border">
+                  <div class="flex-custom">
+                    <mat-card-content class="margin-top-m margin-bottom-m margin-left-m margin-right-m">
+                      <span class="mat-subheading-1 flex-4 mobile-margin appr-section-heading" role="link" tabindex="0">
+                        Professional details
+                      </span>
+                      <div class="margin-top-xl new-mobile" *ngIf="professionalDetails">
+                        <div class="flex flex-wrap mobile-break">
+                          <div class="w-full profile-cols-full bg-grey">
+                            <ng-container>
+                              <mat-grid-list cols="1" rowHeight="100px">
+                                <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
+                                  <label class="appr-text-label">Type of organisation</label>
 
-                              <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                <label class="appr-text-label">MDO</label>
-                                <input type="text" [disabled]="true" class="appr-text-field"
-                                  [value]="professionalDetails.name || professionalDetails.nameOther || ''">
-                              </mat-grid-tile>
-                              <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                <label class="appr-text-label">Industry</label>
-                                <input type="text" [disabled]="true"
-                                  [value]="professionalDetails.industry || professionalDetails.industryOther || ''"
-                                  class="appr-text-field">
-                              </mat-grid-tile>
-                              <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                <label class="appr-text-label">Designation</label>
-                                <input type="text" [disabled]="true"
-                                  [value]="professionalDetails.designation || professionalDetails.designationOther || ''"
-                                  class="appr-text-field">
-                              </mat-grid-tile>
-                              <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
+
+                                  <mat-form-field appearance="outline" class="field-fullwidth">
+                                    <mat-select formControlName="orgType" i18n-placeholder placeholder="Marital Status">
+                                      <mat-option value="Government" i18n>Government organisation</mat-option>
+                                      <mat-option value="Non-Government" i18n>Non-government
+                                        organisation</mat-option>
+                                    </mat-select>
+                                  </mat-form-field>
+                                </mat-grid-tile>
+
+                                <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
+                                  <label class="appr-text-label">MDO</label>
+                                  <input formControlName="orgName" type="text" class="appr-text-field">
+                                </mat-grid-tile>
+                                <!-- <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
+                                  <label class="appr-text-label">Industry</label>
+                                  <input type="text"
+                                    [value]="professionalDetails.industry || professionalDetails.industryOther || ''"
+                                    class="appr-text-field">
+                                </mat-grid-tile> -->
+                                <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
+                                  <label class="appr-text-label">Designation</label>
+                                  <input type="text" formControlName="designation" class="appr-text-field">
+                                </mat-grid-tile>
+                                <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
+                                  <label class="appr-text-label">Location</label>
+                                  <input type="text" formControlName="location" class="appr-text-field">
+                                </mat-grid-tile>
+                                <!-- <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
+                                  <label class="appr-text-label">Description</label>
+                                  <textarea rows="3"
+                                    [value]="professionalDetails.description ? professionalDetails.description : ''"
+                                    class="appr-text-field"></textarea>
+                                </mat-grid-tile> -->
+                              </mat-grid-list>
+
+                              <!-- <mat-grid-list cols="1" rowHeight="50px" class="margin-top-xl">
+                                <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
+                                  <label class="middle-heading">Other details for government employess (If
+                                    applicable)</label>
+                                </mat-grid-tile>
+                              </mat-grid-list>
+
+                              <mat-grid-list cols="2" rowHeight="100px">
+                                <mat-grid-tile [colspan]="2" [rowspan]="1" class="input-wrapper">
+                                  <label class="appr-text-label">Pay band (grade pay)</label>
+                                  <input type="text"
+                                    [value]="employmentDetails && employmentDetails.payType ? employmentDetails.payType : ''"
+                                    class="appr-text-field">
+                                </mat-grid-tile>
+                                <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
+                                  <label class="appr-text-label">Service</label>
+                                  <input type="text"
+                                    [value]="employmentDetails && employmentDetails.service ? employmentDetails.service : ''"
+                                    class="appr-text-field">
+                                </mat-grid-tile>
+                                <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
+                                  <label class="appr-text-label">Cadre</label>
+                                  <input type="text"
+                                    [value]="employmentDetails && employmentDetails.cadre ? employmentDetails.cadre : ''"
+                                    class="appr-text-field">
+                                </mat-grid-tile>
+                                <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
+                                  <label class="appr-text-label">Allotment year of service</label>
+                                  <input type="text"
+                                    [value]="employmentDetails && employmentDetails.allotmentYearOfService ? employmentDetails.allotmentYearOfService : ''"
+                                    class="appr-text-field">
+                                </mat-grid-tile>
+                                <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
+                                  <label class="appr-text-label">Date of joining</label>
+                                  <input type="text"
+                                    [value]="employmentDetails && employmentDetails.dojOfService ? employmentDetails.dojOfService : ''"
+                                    class="appr-text-field">
+                                </mat-grid-tile>
+                                <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
+                                  <label class="appr-text-label">Civil list number</label>
+                                  <input type="text"
+                                    [value]="employmentDetails && employmentDetails.civilListNo ? employmentDetails.civilListNo : ''"
+                                    class="appr-text-field">
+                                </mat-grid-tile>
+                                <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
+                                  <label class="appr-text-label">Emplyee code</label>
+                                  <input type="text"
+                                    [value]="employmentDetails && employmentDetails.employeeCode ? employmentDetails.employeeCode : ''"
+                                    class="appr-text-field">
+                                </mat-grid-tile>
+                                <mat-grid-tile [colspan]="2" [rowspan]="1" class="input-wrapper">
                                 <label class="appr-text-label">Location</label>
-                                <input type="text" [disabled]="true"
-                                  [value]="professionalDetails.location ? professionalDetails.location : ''"
+                                <input type="text"   [value]="professionalDetails.location"
                                   class="appr-text-field">
                               </mat-grid-tile>
-                              <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                <label class="appr-text-label">Description</label>
-                                <textarea [disabled]="true" rows="3"
-                                  [value]="professionalDetails.description ? professionalDetails.description : ''"
-                                  class="appr-text-field"></textarea>
-                              </mat-grid-tile>
-                            </mat-grid-list>
-
-                            <mat-grid-list cols="1" rowHeight="50px" class="margin-top-xl">
-                              <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                <label class="middle-heading">Other details for government employess (If
-                                  applicable)</label>
-                              </mat-grid-tile>
-                            </mat-grid-list>
-
-                            <mat-grid-list cols="2" rowHeight="100px">
-                              <mat-grid-tile [colspan]="2" [rowspan]="1" class="input-wrapper">
-                                <label class="appr-text-label">Pay band (grade pay)</label>
-                                <input type="text" [disabled]="true"
-                                  [value]="employmentDetails && employmentDetails.payType ? employmentDetails.payType : ''"
-                                  class="appr-text-field">
-                              </mat-grid-tile>
-                              <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                <label class="appr-text-label">Service</label>
-                                <input type="text" [disabled]="true"
-                                  [value]="employmentDetails && employmentDetails.service ? employmentDetails.service : ''"
-                                  class="appr-text-field">
-                              </mat-grid-tile>
-                              <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                <label class="appr-text-label">Cadre</label>
-                                <input type="text" [disabled]="true"
-                                  [value]="employmentDetails && employmentDetails.cadre ? employmentDetails.cadre : ''"
-                                  class="appr-text-field">
-                              </mat-grid-tile>
-                              <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                <label class="appr-text-label">Allotment year of service</label>
-                                <input type="text" [disabled]="true"
-                                  [value]="employmentDetails && employmentDetails.allotmentYearOfService ? employmentDetails.allotmentYearOfService : ''"
-                                  class="appr-text-field">
-                              </mat-grid-tile>
-                              <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                <label class="appr-text-label">Date of joining</label>
-                                <input type="text" [disabled]="true"
-                                  [value]="employmentDetails && employmentDetails.dojOfService ? employmentDetails.dojOfService : ''"
-                                  class="appr-text-field">
-                              </mat-grid-tile>
-                              <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                <label class="appr-text-label">Civil list number</label>
-                                <input type="text" [disabled]="true"
-                                  [value]="employmentDetails && employmentDetails.civilListNo ? employmentDetails.civilListNo : ''"
-                                  class="appr-text-field">
-                              </mat-grid-tile>
-                              <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                <label class="appr-text-label">Emplyee code</label>
-                                <input type="text" [disabled]="true"
-                                  [value]="employmentDetails && employmentDetails.employeeCode ? employmentDetails.employeeCode : ''"
-                                  class="appr-text-field">
-                              </mat-grid-tile>
-                              <!-- <mat-grid-tile [colspan]="2" [rowspan]="1" class="input-wrapper">
-                                <label class="appr-text-label">Location</label>
-                                <input type="text" [disabled]="true" [value]="professionalDetails.location"
-                                  class="appr-text-field">
-                              </mat-grid-tile> -->
-                              <mat-grid-tile [colspan]="2" [rowspan]="1" class="input-wrapper">
-                                <label class="appr-text-label">Official postal address</label>
-                                <textarea [disabled]="true" rows="3"
-                                  [value]="employmentDetails && employmentDetails.officialPostalAddress ? employmentDetails.officialPostalAddress : ''"
-                                  class="appr-text-field"></textarea>
-                              </mat-grid-tile>
-                              <mat-grid-tile [colspan]="2" [rowspan]="1" class="input-wrapper">
-                                <label class="appr-text-label">Pin code</label>
-                                <input type="text" [disabled]="true"
-                                  [value]="employmentDetails && employmentDetails.pinCode ? employmentDetails.pinCode : ''"
-                                  class="appr-text-field">
-                              </mat-grid-tile>
-                            </mat-grid-list>
-                          </ng-container>
+                                <mat-grid-tile [colspan]="2" [rowspan]="1" class="input-wrapper">
+                                  <label class="appr-text-label">Official postal address</label>
+                                  <textarea rows="3"
+                                    [value]="employmentDetails && employmentDetails.officialPostalAddress ? employmentDetails.officialPostalAddress : ''"
+                                    class="appr-text-field"></textarea>
+                                </mat-grid-tile>
+                                <mat-grid-tile [colspan]="2" [rowspan]="1" class="input-wrapper">
+                                  <label class="appr-text-label">Pin code</label>
+                                  <input type="text"
+                                    [value]="employmentDetails && employmentDetails.pinCode ? employmentDetails.pinCode : ''"
+                                    class="appr-text-field">
+                                </mat-grid-tile>
+                              </mat-grid-list> -->
+                            </ng-container>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </mat-card-content>
-                </div>
-              </mat-card>
+                    </mat-card-content>
+                  </div>
+                </mat-card>
 
-              <!-- Skills card -->
-              <mat-card id="skills"
-                class="flex flex-1 flex-column margin-top-m margin-bottom-m margin-left-m margin-right-m ws-mat-accent-border">
-                <div class="flex-custom">
-                  <mat-card-content class="margin-top-m margin-bottom-m margin-left-m margin-right-m">
-                    <span class="mat-subheading-1 flex-4 mobile-margin appr-section-heading" role="link" tabindex="0">
-                      Certification and skills
+                <!-- Skills card -->
+                <mat-card id="skills"
+                  class="flex flex-1 flex-column margin-top-m margin-bottom-m margin-left-m margin-right-m ws-mat-accent-border">
+                  <div class="flex-custom">
+                    <mat-card-content class="margin-top-m margin-bottom-m margin-left-m margin-right-m">
+                      <span class="mat-subheading-1 flex-4 mobile-margin appr-section-heading" role="link" tabindex="0">
+                        Certification and skills
+                      </span>
+                      <div class="margin-top-xl new-mobile" *ngIf="skillDetails">
+                        <div class="flex flex-wrap mobile-break">
+                          <div class="w-full profile-cols-full bg-grey">
+                            <ng-container>
+                              <mat-grid-list cols="1" rowHeight="50px">
+                                <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
+                                  <label class="appr-text-label">Certification</label>
+                                </mat-grid-tile>
+                              </mat-grid-list>
+                              <mat-grid-list cols="1" rowHeight="150px">
+                                <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
+                                  <label class="appr-text-label">Additional skill acquired/course completed</label>
+                                  <textarea rows="4" formControlName="skillAquiredDesc"
+                                    class="appr-text-field"></textarea>
+                                </mat-grid-tile>
+                                <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
+                                  <label class="appr-text-label">Provide certification details</label>
+                                  <textarea formControlName="certificationDesc" rows="4"
+                                    class="appr-text-field"></textarea>
+                                </mat-grid-tile>
+                              </mat-grid-list>
+                              <mat-grid-list cols="1" rowHeight="50px">
+                                <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
+                                  <label class="appr-text-label">Skills</label>
+                                </mat-grid-tile>
+                              </mat-grid-list>
+                              <mat-grid-list cols="1" rowHeight="150px">
+                                <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
+                                  <label class="appr-text-label">Professional interests</label>
+                                  <textarea rows="4" formControlName="professional" class="appr-text-field"></textarea>
+                                </mat-grid-tile>
+                                <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
+                                  <label class="appr-text-label">Hobbies</label>
+                                  <textarea rows="4" formControlName="hobbies" class="appr-text-field"></textarea>
+                                </mat-grid-tile>
+                              </mat-grid-list>
+                            </ng-container>
+                          </div>
+                        </div>
+                      </div>
+                    </mat-card-content>
+                  </div>
+                  <button mat-raised-button type="submit" (click)="updateUser(updateUserDetailsForm)"
+                    class="margin-top-m text-white btn-success btn-responsive">
+                    <span class="text-white" i18n>
+                      Update
                     </span>
-                    <div class="margin-top-xl new-mobile" *ngIf="skillDetails">
-                      <div class="flex flex-wrap mobile-break">
-                        <div class="w-full profile-cols-full bg-grey">
-                          <ng-container>
-                            <mat-grid-list cols="1" rowHeight="50px">
-                              <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                <label class="appr-text-label">Certification</label>
-                              </mat-grid-tile>
-                            </mat-grid-list>
-                            <mat-grid-list cols="1" rowHeight="150px">
-                              <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                <label class="appr-text-label">Additional skill acquired/course completed</label>
-                                <textarea [disabled]="true" rows="4"
-                                  [value]="skillDetails.additionalSkills ? skillDetails.additionalSkills : ''"
-                                  class="appr-text-field"></textarea>
-                              </mat-grid-tile>
-                              <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                <label class="appr-text-label">Provide certification details</label>
-                                <textarea [disabled]="true" rows="4"
-                                  [value]="skillDetails.certificateDetails ? skillDetails.certificateDetails : ''"
-                                  class="appr-text-field"></textarea>
-                              </mat-grid-tile>
-                            </mat-grid-list>
-                            <mat-grid-list cols="1" rowHeight="50px">
-                              <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                <label class="appr-text-label">Skills</label>
-                              </mat-grid-tile>
-                            </mat-grid-list>
-                            <mat-grid-list cols="1" rowHeight="150px">
-                              <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                <label class="appr-text-label">Professional interests</label>
-                                <textarea [disabled]="true" rows="4"
-                                  [value]="skillDetails.additionalSkills ? skillDetails.additionalSkills : ''"
-                                  class="appr-text-field"></textarea>
-                              </mat-grid-tile>
-                              <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                <label class="appr-text-label">Hobbies</label>
-                                <textarea [disabled]="true" rows="4"
-                                  [value]="skillDetails.certificateDetails ? skillDetails.certificateDetails : ''"
-                                  class="appr-text-field"></textarea>
-                              </mat-grid-tile>
-                            </mat-grid-list>
-                          </ng-container>
-                        </div>
-                      </div>
-                    </div>
-                  </mat-card-content>
-                </div>
-              </mat-card>
-
+                  </button>
+                </mat-card>
+              </form>
               <!-- Roles Update card -->
               <mat-card id="roles"
                 class="flex flex-1 flex-column margin-top-m margin-bottom-m margin-left-m margin-right-m ws-mat-accent-border">
