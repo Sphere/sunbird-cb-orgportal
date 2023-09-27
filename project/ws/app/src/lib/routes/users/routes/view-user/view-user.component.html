@@ -54,6 +54,7 @@
                                 </mat-grid-tile>
 
                                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
+                                  <label class="appr-text-label">Date of Birth</label>
                                   <ng-container *ngIf="loadDob; else withoutDob">
                                     <ws-dropdown-dob (dobValue)="dobData($event)"
                                       [dob]="updateUserDetailsForm.get('dob').value ">
