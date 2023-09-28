@@ -116,13 +116,15 @@ export class ViewUserComponent implements OnInit, AfterViewInit {
           this.interests = profileData.profileReq.interests
           this.userStatus = profileDataAll.isDeleted ? 'Inactive' : 'Active'
         }
-        const userData = profileData.profileReq
-        this.userData = profileData.profileReq
+        const userData = profileData ? profileData.profileReq : ''
+        this.userData = profileData ? profileData.profileReq : ''
         const academics = this.populateAcademics(userData)
         // this.setDegreeValuesArray(academics)
         // this.setPostDegreeValuesArray(academics)
         const organisations = this.populateOrganisationDetails(userData)
-        this.constructFormFromRegistry(userData, academics, organisations)
+        if (userData) {
+          this.constructFormFromRegistry(userData, academics, organisations)
+        }
         const fullProfile = _.get(this.activeRoute.snapshot, 'data.configService')
         this.department = fullProfile.unMappedUser.rootOrgId
         this.departmentName = fullProfile ? fullProfile.unMappedUser.channel : ''
@@ -144,10 +146,13 @@ export class ViewUserComponent implements OnInit, AfterViewInit {
         })
 
         const usrRoles = profileDataAll.roles
-        usrRoles.forEach((role: any) => {
-          this.orguserRoles.push(role)
-          this.modifyUserRoles(role)
-        })
+        if (usrRoles && usrRoles.length > 0) {
+          usrRoles.forEach((role: any) => {
+            this.orguserRoles.push(role)
+            this.modifyUserRoles(role)
+          })
+        }
+
         // if (this.department.active_users && this.department.active_users.length > 0) {
         //   this.department.active_users.forEach((user: any) => {
         //     if (this.userID === user.userId) {
@@ -423,12 +428,12 @@ export class ViewUserComponent implements OnInit, AfterViewInit {
       yop10: academics.X_STANDARD.yop10,
       schoolName12: academics.XII_STANDARD.schoolName12,
       yop12: academics.XII_STANDARD.yop12,
-      degreeName: academics.degree[0].degree,
-      degreeInstitute: academics.degree[0].instituteName,
-      yopDegree: academics.degree[0].yop,
-      postDegreeName: academics.postDegree[0].degree,
-      postDegreeInstitute: academics.postDegree[0].instituteName,
-      yopPostDegree: academics.postDegree[0].yop,
+      degreeName: academics.degree[0] ? academics.degree[0].degree : '',
+      degreeInstitute: academics.degree[0] ? academics.degree[0].instituteName : '',
+      yopDegree: academics.degree[0] ? academics.degree[0].yop : '',
+      postDegreeName: academics.postDegree[0] ? academics.postDegree[0].degree : '',
+      postDegreeInstitute: academics.postDegree[0] ? academics.postDegree[0].instituteName : '',
+      yopPostDegree: academics.postDegree[0] ? academics.postDegree[0].yop : '',
       isGovtOrg: organisation.isGovtOrg,
       orgName: organisation.orgName,
       orgType: organisation.orgType,
@@ -454,8 +459,8 @@ export class ViewUserComponent implements OnInit, AfterViewInit {
       otherDetailsOfficePinCode: this.checkvalue(_.get(data, 'employmentDetails.pinCode') || ''),
       skillAquiredDesc: _.get(data, 'skills.additionalSkills') || '',
       certificationDesc: _.get(data, 'skills.certificateDetails') || '',
-      professional: data.interests.professional || '',
-      hobbies: data.interests.hobbies || '',
+      professional: data.interests ? data.interests.professional : '',
+      hobbies: data.interests ? data.interests.hobbies : '',
 
     },
       {
