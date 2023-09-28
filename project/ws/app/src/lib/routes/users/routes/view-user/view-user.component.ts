@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, HostListener, OnInit, ViewChild, ChangeDetectorRef } from '@angular/core'
+import { AfterViewInit, Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core'
 import { ActivatedRoute, Router, Event, NavigationEnd } from '@angular/router'
 // import moment from 'moment'
 import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms'
@@ -23,7 +23,7 @@ export class ViewUserComponent implements OnInit, AfterViewInit {
   constructor(private activeRoute: ActivatedRoute, private router: Router, private events: EventService,
     // tslint:disable-next-line:align
     private fb: FormBuilder,
-    private cd: ChangeDetectorRef,
+    // private cd: ChangeDetectorRef,
 
     private usersSvc: UsersService,
     public dialog: MatDialog,
