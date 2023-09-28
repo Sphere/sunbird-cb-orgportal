@@ -23,10 +23,10 @@ export class ViewUserComponent implements OnInit, AfterViewInit {
   constructor(private activeRoute: ActivatedRoute, private router: Router, private events: EventService,
     // tslint:disable-next-line:align
     private fb: FormBuilder,
-              private cd: ChangeDetectorRef,
+    private cd: ChangeDetectorRef,
 
-              private usersSvc: UsersService,
-              public dialog: MatDialog,
+    private usersSvc: UsersService,
+    public dialog: MatDialog,
     // tslint:disable-next-line:align
     private snackBar: MatSnackBar) {
 
@@ -60,6 +60,12 @@ export class ViewUserComponent implements OnInit, AfterViewInit {
       yop10: new FormControl('', [Validators.pattern(this.yearPattern)]),
       schoolName12: new FormControl('', []),
       yop12: new FormControl('', [Validators.pattern(this.yearPattern)]),
+      degreeName: new FormControl('', []),
+      degreeInstitute: new FormControl('', []),
+      yopDegree: new FormControl('', [Validators.pattern(this.yearPattern)]),
+      postDegreeName: new FormControl('', []),
+      postDegreeInstitute: new FormControl('', []),
+      yopPostDegree: new FormControl('', [Validators.pattern(this.yearPattern)]),
       degrees: this.fb.array([this.createDegree()]),
       postDegrees: this.fb.array([this.createDegree()]),
       certificationDesc: new FormControl('', []),
@@ -90,6 +96,7 @@ export class ViewUserComponent implements OnInit, AfterViewInit {
       otherDetailsOfficePinCode: new FormControl('', []),
       professionOtherSpecify: new FormControl(),
       professional: new FormControl(),
+      courseDegree: new FormControl(true),
     })
     this.router.events.subscribe((event: Event) => {
       if (event instanceof NavigationEnd) {
@@ -386,7 +393,6 @@ export class ViewUserComponent implements OnInit, AfterViewInit {
     }
 
     organisation.profession === 'Others' ? this.professionOtherField = true : this.professionOtherField = false
-
     this.updateUserDetailsForm.patchValue({
       firstname: data.personalDetails.firstname,
       middlename: data.personalDetails.middlename,
@@ -417,6 +423,12 @@ export class ViewUserComponent implements OnInit, AfterViewInit {
       yop10: academics.X_STANDARD.yop10,
       schoolName12: academics.XII_STANDARD.schoolName12,
       yop12: academics.XII_STANDARD.yop12,
+      degreeName: academics.degree[0].degree,
+      degreeInstitute: academics.degree[0].instituteName,
+      yopDegree: academics.degree[0].yop,
+      postDegreeName: academics.postDegree[0].degree,
+      postDegreeInstitute: academics.postDegree[0].instituteName,
+      yopPostDegree: academics.postDegree[0].yop,
       isGovtOrg: organisation.isGovtOrg,
       orgName: organisation.orgName,
       orgType: organisation.orgType,
@@ -446,12 +458,12 @@ export class ViewUserComponent implements OnInit, AfterViewInit {
       hobbies: data.interests.hobbies || '',
 
     },
-                                          {
+      {
         emitEvent: true,
       })
     this.loadDob = true
     // /* tslint:enable */
-    this.cd.detectChanges()
+    // this.cd.detectChanges()
     // this.cd.markForCheck()
     // this.setDropDownOther(organisation)
     // this.setProfilePhotoValue(data)
@@ -574,15 +586,6 @@ export class ViewUserComponent implements OnInit, AfterViewInit {
     return `${day}-${month}-${year}`
   }
   updateUser(form: any) {
-    // if (form.doj) {
-    //   form.doj = this.changeformat(new Date(`${form.doj}`))
-    // }
-    // if (form.value.dob.includes('undefined')) {
-    //   const data = form.value.dob.replace(/\/undefined/g, '')
-    //   console.log(data)
-    //   form.value.dob = data
-    // }
-
     if (this.configSvc.userProfile) {
       this.userID = this.configSvc.userProfile.userId || ''
     }
@@ -601,8 +604,20 @@ export class ViewUserComponent implements OnInit, AfterViewInit {
     this.usersSvc.updateProfileDetails(reqUpdate).subscribe(data => {
       if (data) {
         // this.router.navigate('./app/users')
-        this.router.navigate([`app/users/${this.userID}/details`])
+        // this.router.navigate(['/app/users', this.userID, 'details'])
         this.openSnackbar('User profile details updated successfully!')
+        if (this.qpParam === 'MDOinfo') {
+          this.router.navigate(['/app/home/mdoinfo/leadership'])
+        } else {
+          this.router.navigate(['/app/home/users'])
+        }
+        // this.userData = profileData.profileReq
+        // const academics = this.populateAcademics(userData)
+        // this.setDegreeValuesArray(academics)
+        // this.setPostDegreeValuesArray(academics)
+        // const organisations = this.populateOrganisationDetails(userData)
+        // this.constructFormFromRegistry(userData, academics, organisations)
+        // this.router.navigate([`app/users/${this.userID}/details`])
       }
     })
   }

@@ -35,9 +35,9 @@
                           <div class="w-full profile-cols-full bg-grey">
                             <ng-container>
                               <mat-grid-list cols="1" rowHeight="100px">
-                                <mat-grid-tile [colspan]="1" [rowspan]="2" class="input-wrapper">
+                                <!-- <mat-grid-tile [colspan]="1" [rowspan]="2" class="input-wrapper">
                                   <img [src]="basicInfo.photo" alt="User Avatar" (error)="changeToDefaultImg($event)">
-                                </mat-grid-tile>
+                                </mat-grid-tile> -->
                                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
                                   <label class="appr-text-label">First name</label>
                                   <input formControlName="firstname" type="text" class="appr-text-field">
@@ -178,19 +178,16 @@
                               <mat-grid-list cols="1" rowHeight="100px">
                                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
                                   <label class="appr-text-label">School name</label>
-                                  <!-- <input [(ngModel)]="schoolName" type="text" class="appr-text-field"> -->
-                                  <input formControlName="schoolName10" *ngIf="!hide">
-                                  <input [(ngModel)]="schoolName" type="text" class="appr-text-field"
-                                    [ngModelOptions]="{standalone: true}">
+                                  <input formControlName="schoolName10" type="text" class="appr-text-field">
                                 </mat-grid-tile>
-                                <!-- <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
+                                <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
                                   <label class="appr-text-label">Year of passing</label>
-                                  <input [(ngModel)]="schoolPassing" type="text" class="appr-text-field">
-                                </mat-grid-tile> -->
+                                  <input formControlName="yop10" type="text" class="appr-text-field">
+                                </mat-grid-tile>
                               </mat-grid-list>
                             </ng-container>
 
-                            <!-- <ng-container>
+                            <ng-container>
                               <mat-grid-list cols="1" rowHeight="50px">
                                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
                                   <label class="header-text">12th standard</label>
@@ -199,11 +196,11 @@
                               <mat-grid-list cols="1" rowHeight="100px">
                                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
                                   <label class="appr-text-label">School name</label>
-                                  <input type="text" class="appr-text-field" [(ngModel)]="schoolName">
+                                  <input type="text" formControlName="schoolName12" class="appr-text-field">
                                 </mat-grid-tile>
                                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
                                   <label class="appr-text-label">Year of passing</label>
-                                  <input type="text" class="appr-text-field" [(ngModel)]="schoolPassing">
+                                  <input type="text" class="appr-text-field" formControlName="yop12">
                                 </mat-grid-tile>
                               </mat-grid-list>
                             </ng-container>
@@ -217,15 +214,16 @@
                               <mat-grid-list cols="1" rowHeight="100px">
                                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
                                   <label class="appr-text-label">Degree</label>
-                                  <input type="text" class="appr-text-field" [(ngModel)]="degreeName">
+                                  <input type="text" class="appr-text-field" formControlName="degreeName">
                                 </mat-grid-tile>
+
                                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
                                   <label class="appr-text-label">Institute name</label>
-                                  <input type="text" class="appr-text-field" [(ngModel)]="degreeInstitueName">
+                                  <input type="text" class="appr-text-field" formControlName="degreeInstitute">
                                 </mat-grid-tile>
                                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
                                   <label class="appr-text-label">Year of passing</label>
-                                  <input type="text" class="appr-text-field" [(ngModel)]="degreePassing">
+                                  <input type="text" class="appr-text-field" formControlName="yopDegree">
                                 </mat-grid-tile>
                               </mat-grid-list>
                             </ng-container>
@@ -239,18 +237,18 @@
                               <mat-grid-list cols="1" rowHeight="100px">
                                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
                                   <label class="appr-text-label">Degree</label>
-                                  <input type="text" class="appr-text-field" [(ngModel)]="postDegreeName">
+                                  <input type="text" class="appr-text-field" formControlName="postDegreeName">
                                 </mat-grid-tile>
                                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
                                   <label class="appr-text-label">Institute name</label>
-                                  <input type="text" class="appr-text-field" [(ngModel)]="postInstituteName">
+                                  <input type="text" class="appr-text-field" formControlName="postDegreeInstitute">
                                 </mat-grid-tile>
                                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
                                   <label class="appr-text-label">Year of passing</label>
-                                  <input type="text" class="appr-text-field" [(ngModel)]="postPassing">
+                                  <input type="text" class="appr-text-field" formControlName="yopPostDegree">
                                 </mat-grid-tile>
                               </mat-grid-list>
-                            </ng-container> -->
+                            </ng-container>
 
                           </div>
                         </div>
