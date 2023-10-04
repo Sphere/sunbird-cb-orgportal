@@ -52,6 +52,7 @@ export class UsersUploadComponent implements OnInit, AfterViewInit, OnDestroy {
   downloadSampleFilePath = ''
   downloadAsFileName = ''
   rootOrgId!: any
+  private baseUrl = 'assets/common'
 
   objDataSource = new MatTableDataSource<any>()
   @ViewChild(MatPaginator, { static: false }) paginator: MatPaginator | null = null
@@ -194,7 +195,7 @@ export class UsersUploadComponent implements OnInit, AfterViewInit, OnDestroy {
     this.getBulkUploadData()
   }
   public downloadFile(): void {
-    this.fileService.download(this.downloadSampleFilePath, this.downloadAsFileName)
+    this.fileService.download(`${this.baseUrl}/user-bulk-upload.xlsx`, 'user-bulk-upload-sample.xlsx')
   }
 
   private openSnackbar(primaryMsg: string, duration: number = 5000) {

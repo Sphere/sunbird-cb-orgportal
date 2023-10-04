@@ -25,8 +25,8 @@ export class ViewUserComponent implements OnInit, AfterViewInit {
     private fb: FormBuilder,
     // private cd: ChangeDetectorRef,
 
-    private usersSvc: UsersService,
-    public dialog: MatDialog,
+              private usersSvc: UsersService,
+              public dialog: MatDialog,
     // tslint:disable-next-line:align
     private snackBar: MatSnackBar) {
 
@@ -463,7 +463,7 @@ export class ViewUserComponent implements OnInit, AfterViewInit {
       hobbies: data.interests ? data.interests.hobbies : '',
 
     },
-      {
+                                          {
         emitEvent: true,
       })
     this.loadDob = true
