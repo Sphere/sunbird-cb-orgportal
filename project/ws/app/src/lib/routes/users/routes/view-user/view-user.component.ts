@@ -25,8 +25,8 @@ export class ViewUserComponent implements OnInit, AfterViewInit {
     private fb: FormBuilder,
     // private cd: ChangeDetectorRef,
 
-    private usersSvc: UsersService,
-    public dialog: MatDialog,
+              private usersSvc: UsersService,
+              public dialog: MatDialog,
     // tslint:disable-next-line:align
     private snackBar: MatSnackBar) {
 
@@ -103,8 +103,9 @@ export class ViewUserComponent implements OnInit, AfterViewInit {
         this.configSvc = this.activeRoute.snapshot.data.configService || {}
         const profileDataAll = this.activeRoute.snapshot.data.profileData.data || {}
         const profileData = profileDataAll.profileDetails
+
         if (profileData) {
-          this.userID = profileData.profileReq.id || profileData.profileReq.userId || profileDataAll.id
+          this.userID = profileDataAll.id
           this.basicInfo = profileData.profileReq.personalDetails
           if (this.basicInfo) {
             this.fullname = `${this.basicInfo.firstname} ${this.basicInfo.surname}`
@@ -463,7 +464,7 @@ export class ViewUserComponent implements OnInit, AfterViewInit {
       hobbies: data.interests ? data.interests.hobbies : '',
 
     },
-      {
+                                          {
         emitEvent: true,
       })
     this.loadDob = true
@@ -596,7 +597,7 @@ export class ViewUserComponent implements OnInit, AfterViewInit {
     // }
     const userAgent = ''
     const userCookie = ''
-    const profileRequest = constructReq(form.value, this.userData, userAgent, userCookie)
+    const profileRequest = constructReq(this.userID, form.value, this.userData, userAgent, userCookie)
 
     // const userdata = Object.assign(profileRequest, obj)
     const reqUpdate = {
