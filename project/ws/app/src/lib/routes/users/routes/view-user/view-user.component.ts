@@ -25,8 +25,8 @@ export class ViewUserComponent implements OnInit, AfterViewInit {
     private fb: FormBuilder,
     // private cd: ChangeDetectorRef,
 
-              private usersSvc: UsersService,
-              public dialog: MatDialog,
+    private usersSvc: UsersService,
+    public dialog: MatDialog,
     // tslint:disable-next-line:align
     private snackBar: MatSnackBar) {
 
@@ -463,7 +463,7 @@ export class ViewUserComponent implements OnInit, AfterViewInit {
       hobbies: data.interests ? data.interests.hobbies : '',
 
     },
-                                          {
+      {
         emitEvent: true,
       })
     this.loadDob = true
@@ -591,9 +591,9 @@ export class ViewUserComponent implements OnInit, AfterViewInit {
     return `${day}-${month}-${year}`
   }
   updateUser(form: any) {
-    if (this.configSvc.userProfile) {
-      this.userID = this.configSvc.userProfile.userId || ''
-    }
+    // if (this.configSvc.userProfile) {
+    //   this.userID = this.configSvc.userProfile.userId || ''
+    // }
     const userAgent = ''
     const userCookie = ''
     const profileRequest = constructReq(form.value, this.userData, userAgent, userCookie)
