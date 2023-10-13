@@ -29,15 +29,20 @@ export class UsersUploadComponent implements OnInit, AfterViewInit, OnDestroy {
   bulkUploadData: any
   uplaodSuccessMsg!: string
   dataSource: MatTableDataSource<any>
-  displayedColumns: string[] = ['identifier', 'fileName', 'status', 'dateCreatedOn', 'dateUpdatedOn']
+  displayedColumns: string[] = ['identifier', 'fileName', 'status', 'failedRecordsCount', 'successfulRecordsCount',
+    'totalRecords', 'dateCreatedOn', 'dateUpdatedOn']
   tabledata: any = {
     actions: [],
     columns: [
       { displayName: 'Id', key: 'identifier' },
       { displayName: 'Name', key: 'fileName' },
       { displayName: 'Status', key: 'status' },
+      { displayName: 'Failed records', key: 'failedRecordsCount' },
+      { displayName: 'Success records', key: 'successfulRecordsCount' },
+      { displayName: 'Total records', key: 'totalRecords' },
       { displayName: 'Created on', key: 'dateCreatedOn' },
       { displayName: 'Updated on', key: 'dateUpdatedOn' },
+      // { displayName: 'Download Report', key: 'filePath' },
     ],
     needCheckBox: false,
     needHash: false,
@@ -100,7 +105,7 @@ export class UsersUploadComponent implements OnInit, AfterViewInit, OnDestroy {
 
   getBulkUploadData() {
     this.fetching = true
-    this.fileService.getBulkUploadDataV1(this.rootOrgId).then((res: any) => {
+    this.fileService.getBulkUploadDataV1().then((res: any) => {
       this.fetching = false
       if (res.result && res.result.content) {
         this.bulkUploadData = res.result.content
@@ -163,7 +168,7 @@ export class UsersUploadComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.fileService.validateFile(this.fileName)) {
       if (this.formGroup && this.formGroup.get('file')) {
         const formData: FormData = new FormData()
-        formData.append('userData', this.fileSelected, this.fileName)
+        formData.append('data', this.fileSelected, this.fileName)
         // tslint:disable-next-line: no-non-null-assertion
         this.fileService.upload(this.fileName, formData)
           .subscribe(
@@ -187,13 +192,14 @@ export class UsersUploadComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     } else {
       this.showFileError = true
-      this.openSnackbar('File uploaded successfully..!')
+      this.openSnackbar('File upload failed, Only .xlsx or .csv files are accepted ..!')
     }
   }
 
   public refreshTable() {
     this.getBulkUploadData()
   }
+
   public downloadFile(): void {
     this.fileService.download(`${this.baseUrl}/user-bulk-upload.xlsx`, 'user-bulk-upload-sample.xlsx')
   }
@@ -205,7 +211,11 @@ export class UsersUploadComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   public downloadReport(row: any) {
-    this.fileService.downloadReport(row.identifier, row.name)
+    this.fileService.download(row.identifier, row.name)
+  }
+
+  public downloadReportStatus(row: any) {
+    this.fileService.downloadFile(row.filePath)
   }
 
   ngOnDestroy() {

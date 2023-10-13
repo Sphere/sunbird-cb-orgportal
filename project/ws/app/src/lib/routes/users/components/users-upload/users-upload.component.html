@@ -75,7 +75,27 @@
               </th>
               <td mat-cell *matCellDef="let row"> {{row.status}} </td>
             </ng-container>
-
+            <!-- status Column -->
+            <ng-container matColumnDef="failedRecordsCount">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header class="ws-mat-black60-text mat-header-cell"> Failed
+                records
+              </th>
+              <td mat-cell *matCellDef="let row"> {{row.failedRecordsCount}} </td>
+            </ng-container>
+            <!-- status Column -->
+            <ng-container matColumnDef="successfulRecordsCount">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header class="ws-mat-black60-text mat-header-cell"> Success
+                records
+              </th>
+              <td mat-cell *matCellDef="let row"> {{row.successfulRecordsCount}} </td>
+            </ng-container>
+            <!-- status Column -->
+            <ng-container matColumnDef="totalRecords">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header class="ws-mat-black60-text mat-header-cell"> Total
+                records
+              </th>
+              <td mat-cell *matCellDef="let row"> {{row.totalRecords}} </td>
+            </ng-container>
             <!-- status Column -->
             <ng-container matColumnDef="dateCreatedOn">
               <th mat-header-cell *matHeaderCellDef mat-sort-header class="ws-mat-black60-text mat-header-cell"> Created
@@ -93,15 +113,14 @@
             </ng-container>
 
             <!-- report Column -->
-            <ng-container matColumnDef="report">
-              <th mat-header-cell *matHeaderCellDef mat-sort-header> report </th>
+            <!-- <ng-container matColumnDef="filePath">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header> Download file </th>
               <td mat-cell *matCellDef="let row">
-                <button mat-raised-button color="primary" i18n *ngIf="row.status === 'completed'"
-                  (click)="downloadReport(row)">
-                  <ng-container i18n>Download</ng-container>
+                <button class="download-report-btn" i18n (click)="downloadReportStatus(row)">
+                  <img src="/mdo-assets/icons/material-symbols_download.svg" alt="Download File">
                 </button>
               </td>
-            </ng-container>
+            </ng-container> -->
 
             <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
             <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>

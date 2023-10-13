@@ -6,10 +6,10 @@ import * as fileSaver from 'file-saver'
 
 const API_ENDPOINTS = {
   // bulkUpload: `/apis/protected/v8/admin/userRegistration/bulkUpload`,
-  bulkUpload: `/apis/protected/v8/admin/bulk-upload/create-users`,
+  bulkUpload: `/apis/protected/v8/admin/bulkUpload`,
   downloadReport: `/apis/protected/v8/admin/userRegistration/bulkUploadReport`,
   // getBulkUploadData: '/apis/protected/v8/admin/userRegistration/bulkUploadData',
-  getBulkUploadData: '/apis/proxies/v8/user/v1/bulkupload',
+  getBulkUploadData: '/apis/proxies/v8/userData/v1/bulkUpload',
 }
 
 @Injectable()
@@ -27,7 +27,7 @@ export class FileService {
 
   public upload(_fileName: string, fileContent: FormData): Observable<any> {
     this.displayLoader$.next(true)
-    return this.http.post<any>(API_ENDPOINTS.bulkUpload, fileContent)
+    return this.http.post<any>(API_ENDPOINTS.getBulkUploadData, fileContent)
       .pipe(finalize(() => this.displayLoader$.next(false)))
   }
 
@@ -40,6 +40,33 @@ export class FileService {
       // window.open(window.URL.createObjectURL(res))
       fileSaver.saveAs(res, downloadAsFileName)
     })
+  }
+  public downloadFile(url: string): void {
+    this.http.get(url, { responseType: 'arraybuffer' })
+      .subscribe((response: ArrayBuffer) => {
+        return this.saveFile(response)
+      },         error => {
+        return error
+      })
+  }
+  private saveFile(data: ArrayBuffer): void {
+    const blob = new Blob([data], { type: 'application/octet-stream' })
+
+    // You can change the file name as needed
+    const fileName = 'downloaded_file.xlsx'
+
+    const link = document.createElement('a')
+    link.href = window.URL.createObjectURL(blob)
+    link.download = fileName
+
+    // Append the anchor element to the body
+    document.body.appendChild(link)
+
+    // Trigger the download
+    link.click()
+
+    // Clean up and remove the anchor element
+    document.body.removeChild(link)
   }
 
   public downloadReport(id: any, name: string) {
@@ -83,7 +110,7 @@ export class FileService {
     return await this.http.get(`${API_ENDPOINTS.getBulkUploadData}`).toPromise()
   }
 
-  async getBulkUploadDataV1(rootOrgId: any) {
-    return await this.http.get(`${API_ENDPOINTS.getBulkUploadData}/${rootOrgId}`).toPromise()
+  async getBulkUploadDataV1() {
+    return await this.http.get(`${API_ENDPOINTS.getBulkUploadData}`).toPromise()
   }
 }

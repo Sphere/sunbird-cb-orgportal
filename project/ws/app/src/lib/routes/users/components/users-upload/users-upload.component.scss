@@ -8,7 +8,9 @@ table {
   }
 
   td, th {
-    width: 25%;
+    // width: 25%;
+    text-align: center;
+    vertical-align: middle;
   }
 
   .table-container{
@@ -44,4 +46,17 @@ table {
 
 .upload-btn:disabled {
     opacity: 0.7;
+}
+.download-report-btn{
+  background: none;
+    border: none;
+    border-radius: 4px;
+    color: #000000 !important;
+    cursor: pointer;
+}
+.mat-sort-header-container {
+    display: flex;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
 }
