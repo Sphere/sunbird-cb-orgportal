@@ -201,7 +201,7 @@ export class UsersUploadComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   public downloadFile(): void {
-    this.fileService.download(`${this.baseUrl}/user-bulk-upload.xlsx`, 'user-bulk-upload-sample.xlsx')
+    this.fileService.download(`${this.baseUrl}/user-bulk-upload-v2.xlsx`, 'user-bulk-upload-sample.xlsx')
   }
 
   private openSnackbar(primaryMsg: string, duration: number = 5000) {
