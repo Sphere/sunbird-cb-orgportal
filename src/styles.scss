@@ -1744,7 +1744,8 @@ video {
 }
 
 .appearance-none {
-  appearance: none;
+  -webkit-appearance: none;
+          appearance: none;
 }
 
 .bg-fixed {
@@ -20363,7 +20364,8 @@ video {
   }
 
   .sm\:appearance-none {
-    appearance: none;
+    -webkit-appearance: none;
+            appearance: none;
   }
 
   .sm\:bg-fixed {
@@ -38952,7 +38954,8 @@ video {
   }
 
   .md\:appearance-none {
-    appearance: none;
+    -webkit-appearance: none;
+            appearance: none;
   }
 
   .md\:bg-fixed {
@@ -57541,7 +57544,8 @@ video {
   }
 
   .lg\:appearance-none {
-    appearance: none;
+    -webkit-appearance: none;
+            appearance: none;
   }
 
   .lg\:bg-fixed {
@@ -76130,7 +76134,8 @@ video {
   }
 
   .xl\:appearance-none {
-    appearance: none;
+    -webkit-appearance: none;
+            appearance: none;
   }
 
   .xl\:bg-fixed {
