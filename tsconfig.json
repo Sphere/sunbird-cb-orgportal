@@ -9,7 +9,7 @@
     "allowSyntheticDefaultImports": true,
     "importHelpers": true,
     "lib": ["es2018", "dom"],
-    "module": "ESNext",
+    "module": "esnext",
     "moduleResolution": "node",
     "noFallthroughCasesInSwitch": true,
     "noImplicitAny": true,
