@@ -1,7 +1,8 @@
 import { Component, OnInit, ViewChild, ElementRef, Inject } from '@angular/core'
-import { MatTabGroup, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material'
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog'
 import { FormGroup, Validators, FormBuilder, FormControl } from '@angular/forms'
 import { AllocationService } from '../../services/allocation.service'
+import { MatTabGroup } from '@angular/material/tabs'
 
 @Component({
   selector: 'ws-app-allocation-actions',

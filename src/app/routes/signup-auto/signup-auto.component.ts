@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core'
-import { MatSnackBar } from '@angular/material'
+import { MatSnackBar } from '@angular/material/snack-bar'
 import { SignupAutoService } from './signup-auto.service'
 import { ActivatedRoute } from '@angular/router'
 

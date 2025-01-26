@@ -2,12 +2,12 @@ import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { MobileAppHomeComponent } from './components/mobile-app-home.component'
 import {
-  MatCardModule,
-  MatTabsModule,
-  MatToolbarModule,
-  MatIconModule,
-  MatButtonModule,
-} from '@angular/material'
+  MatCardModule
+} from '@angular/material/card'
+import { MatTabsModule } from '@angular/material/tabs'
+import { MatToolbarModule } from '@angular/material/toolbar'
+import { MatIconModule } from '@angular/material/icon'
+import { MatButtonModule } from '@angular/material/button'
 import { BreadcrumbsOrgModule } from '@sunbird-cb/collection'
 
 @NgModule({
@@ -23,4 +23,4 @@ import { BreadcrumbsOrgModule } from '@sunbird-cb/collection'
   ],
   exports: [MobileAppHomeComponent],
 })
-export class MobileAppModule {}
+export class MobileAppModule { }

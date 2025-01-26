@@ -1,6 +1,6 @@
 import { Component, OnInit, Inject, ViewChild } from '@angular/core'
 import { Router } from '@angular/router'
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material'
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog'
 import { FormGroup } from '@angular/forms'
 import { UploadFileService } from '../../services/uploadfile.service'
 import { ConfigurationsService } from '@sunbird-cb/utils'

@@ -3,7 +3,7 @@ import { ActivatedRoute, Router, Event, NavigationEnd } from '@angular/router'
 // import moment from 'moment'
 import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms'
 import { UsersService } from '../../services/users.service'
-import { MatSnackBar } from '@angular/material'
+import { MatSnackBar } from '@angular/material/snack-bar'
 // tslint:disable-next-line
 import _ from 'lodash'
 import { EventService } from '@sunbird-cb/utils'
@@ -25,8 +25,8 @@ export class ViewUserComponent implements OnInit, AfterViewInit {
     private fb: FormBuilder,
     // private cd: ChangeDetectorRef,
 
-              private usersSvc: UsersService,
-              public dialog: MatDialog,
+    private usersSvc: UsersService,
+    public dialog: MatDialog,
     // tslint:disable-next-line:align
     private snackBar: MatSnackBar) {
 
@@ -464,7 +464,7 @@ export class ViewUserComponent implements OnInit, AfterViewInit {
       hobbies: data.interests ? data.interests.hobbies : '',
 
     },
-                                          {
+      {
         emitEvent: true,
       })
     this.loadDob = true

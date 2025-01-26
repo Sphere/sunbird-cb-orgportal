@@ -1,12 +1,10 @@
 import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
-import {
-  MatToolbarModule,
-  MatDividerModule,
-  MatButtonModule,
-  MatRippleModule,
-  MatIconModule,
-} from '@angular/material'
+import { MatToolbarModule } from '@angular/material/toolbar'
+import { MatDividerModule } from '@angular/material/divider'
+import { MatButtonModule } from '@angular/material/button'
+import { MatRippleModule } from '@angular/material/core'
+import { MatIconModule } from '@angular/material/icon'
 
 import { BreadcrumbsOrgModule } from '@sunbird-cb/collection'
 
@@ -30,4 +28,4 @@ import { NotificationEventComponent } from './components/notification-event/noti
   ],
   providers: [NotificationApiService, NotificationService],
 })
-export class NotificationV2Module {}
+export class NotificationV2Module { }

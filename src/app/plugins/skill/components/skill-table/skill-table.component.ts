@@ -1,5 +1,8 @@
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core'
-import { MatDialog, MatPaginator, MatSort, MatTableDataSource } from '@angular/material'
+import { MatDialog } from '@angular/material/dialog'
+import { MatPaginator } from '@angular/material/paginator'
+import { MatSort } from '@angular/material/sort'
+import { MatTableDataSource } from '@angular/material/table'
 import * as _ from 'lodash'
 import { SelectionModel } from '@angular/cdk/collections'
 import { FilterDialogComponent } from '../filter-dialog/filter-dialog.component'
@@ -82,9 +85,9 @@ export class SkillTableComponent implements OnInit, OnChanges {
  * subscribe the value and user autocomplete service
  */
     this.modelChanged.pipe(debounceTime(1000),
-                           distinctUntilChanged(),
-                           filter(val => typeof val === 'string'),
-                           switchMap((value: string) => {
+      distinctUntilChanged(),
+      filter(val => typeof val === 'string'),
+      switchMap((value: string) => {
         if (typeof value === 'string' && value) {
           return this.userAutoCompleteService.fetchUserList(value)
         }

@@ -1,7 +1,8 @@
 import { Component, Inject, Input, OnInit } from '@angular/core'
 import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms'
-import { MatCheckboxChange, MatRadioChange } from '@angular/material'
+import { MatCheckboxChange } from '@angular/material/checkbox'
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog'
+import { MatRadioChange } from '@angular/material/radio'
 /* tslint:disable */
 import _ from 'lodash'
 /* tslint:enable */

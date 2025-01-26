@@ -2,30 +2,26 @@ import { FullscreenOverlayContainer, OverlayContainer } from '@angular/cdk/overl
 import { APP_BASE_HREF, PlatformLocation } from '@angular/common'
 import { HttpClientJsonpModule, HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http'
 import { APP_INITIALIZER, Injectable, NgModule, ErrorHandler } from '@angular/core'
-import {
-  GestureConfig,
-  MatButtonModule,
-  MatCardModule,
-  MatDialogModule,
-  MatDividerModule,
-  MatExpansionModule,
-  MatIconModule,
-  MatMenuModule,
-  MatProgressBarModule,
-  MatRippleModule,
-  MatSliderModule,
-  MatToolbarModule,
-  MatTooltipModule,
-  MAT_PROGRESS_SPINNER_DEFAULT_OPTIONS,
-  MAT_SNACK_BAR_DEFAULT_OPTIONS,
-  MatInputModule,
-  MatFormFieldModule,
-  MatSelectModule,
-  MatDatepickerModule,
-  MatCheckboxModule,
-  MatNativeDateModule,
-  MatSortModule,
-} from '@angular/material'
+import { MatButtonModule } from '@angular/material/button'
+import { MatCardModule } from '@angular/material/card'
+import { MAT_SNACK_BAR_DEFAULT_OPTIONS } from '@angular/material/snack-bar'
+import { MAT_PROGRESS_SPINNER_DEFAULT_OPTIONS } from '@angular/material/progress-spinner'
+import { MatDividerModule } from '@angular/material/divider'
+import { MatExpansionModule } from '@angular/material/expansion'
+import { MatIconModule } from '@angular/material/icon'
+import { MatMenuModule } from '@angular/material/menu'
+import { MatProgressBarModule } from '@angular/material/progress-bar'
+import { MatRippleModule } from '@angular/material/core'
+import { MatSliderModule } from '@angular/material/slider'
+import { MatToolbarModule } from '@angular/material/toolbar'
+import { MatTooltipModule } from '@angular/material/tooltip'
+import { MatInputModule } from '@angular/material/input'
+import { MatFormFieldModule } from '@angular/material/form-field'
+import { MatSelectModule } from '@angular/material/select'
+import { MatDatepickerModule } from '@angular/material/datepicker'
+import { MatCheckboxModule } from '@angular/material/checkbox'
+import { MatNativeDateModule, GestureConfig } from '@angular/material/core'
+import { MatSortModule } from '@angular/material/sort'
 import { BrowserModule, HAMMER_GESTURE_CONFIG } from '@angular/platform-browser'
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations'
 import {
@@ -65,6 +61,7 @@ import { TncPublicResolverService } from './services/tnc-public-resolver.service
 import { FormsModule, ReactiveFormsModule } from '@angular/forms'
 import { ServiceWorkerModule } from '@angular/service-worker'
 import { environment } from '../environments/environment'
+import { MatDialogModule } from '@angular/material/dialog'
 @Injectable()
 export class HammerConfig extends GestureConfig {
   buildHammer(element: HTMLElement) {

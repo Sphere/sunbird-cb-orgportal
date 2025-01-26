@@ -1,5 +1,5 @@
 import { Component, OnInit, SimpleChanges } from '@angular/core'
-import { MatPaginator } from '@angular/material'
+import { MatPaginator } from '@angular/material/paginator'
 import { ExportAsService, ExportAsConfig } from 'ngx-export-as'
 /* tslint:disable */
 import _ from 'lodash'

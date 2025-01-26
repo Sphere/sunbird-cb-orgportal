@@ -7,19 +7,20 @@ import { MatDividerModule } from '@angular/material/divider'
 import { WidgetResolverModule } from '@sunbird-cb/resolver'
 import {
   MatIconModule,
-  MatListModule,
-  MatFormFieldModule,
-  MatDialogModule,
-  MatSelectModule,
-  MatInputModule,
-  MatButtonModule,
-  MatSidenavModule,
-  MatChipsModule,
-  MatProgressSpinnerModule,
-  MatProgressBarModule,
-  MatRadioModule,
-  MatTableModule,
-} from '@angular/material'
+
+} from '@angular/material/icon'
+import { MatListModule } from '@angular/material/list'
+import { MatFormFieldModule } from '@angular/material/form-field'
+import { MatDialogModule } from '@angular/material/dialog'
+import { MatSelectModule } from '@angular/material/select'
+import { MatInputModule } from '@angular/material/input'
+import { MatButtonModule } from '@angular/material/button'
+import { MatSidenavModule } from '@angular/material/sidenav'
+import { MatChipsModule } from '@angular/material/chips'
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner'
+import { MatProgressBarModule } from '@angular/material/progress-bar'
+import { MatRadioModule } from '@angular/material/radio'
+import { MatTableModule } from '@angular/material/table'
 import { MatMenuModule } from '@angular/material/menu'
 import { MatPaginatorModule } from '@angular/material/paginator'
 import { MatCardModule } from '@angular/material/card'
@@ -40,7 +41,7 @@ import { WorkallocationModule } from '../workallocation/workallocation.module'
 import { NgxPaginationModule } from 'ngx-pagination'
 import { UIAdminTableModule } from '../../head/work-allocation-table/ui-admin-table.module'
 import { WelcomeComponent } from './routes/welcome/welcome.component'
-import { RainDashboardsModule } from '@sunbird-cb/rain-dashboards'
+// import { RainDashboardsModule } from '@sunbird-cb/rain-dashboards'
 import { UsersModule } from '../users/users.module'
 import { CompetenciesComponent } from './routes/competencies/competencies.component'
 import { SkillModule } from '../../../../../../../src/app/plugins/skill'
@@ -101,7 +102,7 @@ import { SelfAssessmentComponent } from './routes/self-assessment/self-assessmen
     WorkallocationModule,
     NgxPaginationModule,
     UIAdminTableModule,
-    RainDashboardsModule,
+    // RainDashboardsModule,
     UsersModule,
     MatTableModule,
     SkillModule,

@@ -1,6 +1,7 @@
 import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core'
 import { NeedApprovalsService } from '../../services/need-approvals.service'
-import { MatDialog, MatSnackBar } from '@angular/material'
+import { MatDialog } from '@angular/material/dialog'
+import { MatSnackBar } from '@angular/material/snack-bar'
 import { ActivatedRoute, Router, Event, NavigationEnd } from '@angular/router'
 import { NSProfileDataV2 } from '../../models/profile-v2.model'
 // tslint:disable

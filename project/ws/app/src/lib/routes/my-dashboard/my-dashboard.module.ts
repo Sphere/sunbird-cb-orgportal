@@ -1,10 +1,13 @@
 import { CommonModule } from '@angular/common'
 import { NgModule } from '@angular/core'
-import { MatButtonModule, MatCardModule, MatIconModule, MatToolbarModule } from '@angular/material'
+import { MatButtonModule } from '@angular/material/button'
+import { MatCardModule } from '@angular/material/card'
+import { MatIconModule } from '@angular/material/icon'
+import { MatToolbarModule } from '@angular/material/toolbar'
 import { BreadcrumbsOrgModule } from '@sunbird-cb/collection'
 import { MyDashboardHomeComponent } from './components/my-dashboard-home/my-dashboard-home.component'
 import { MyDashboardRoutingModule } from './my-dashboard-routing.module'
-import { RainDashboardsModule } from '@sunbird-cb/rain-dashboards'
+// import { RainDashboardsModule } from '@sunbird-cb/rain-dashboards'
 
 @NgModule({
   declarations: [MyDashboardHomeComponent],
@@ -16,7 +19,7 @@ import { RainDashboardsModule } from '@sunbird-cb/rain-dashboards'
     MatIconModule,
     MatToolbarModule,
     BreadcrumbsOrgModule,
-    RainDashboardsModule,
+    // RainDashboardsModule,
   ], exports: [MyDashboardHomeComponent],
 })
 export class MyDashboardModule { }

@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router'
 import { ApprovalsService } from '../../services/approvals.service'
 import moment from 'moment'
 import { ITableData } from '@sunbird-cb/collection/lib/ui-org-table/interface/interfaces'
-import { MatSnackBar } from '@angular/material'
+import { MatSnackBar } from '@angular/material/snack-bar'
 /* tslint:disable */
 import _ from 'lodash'
 /* tslint:enable */

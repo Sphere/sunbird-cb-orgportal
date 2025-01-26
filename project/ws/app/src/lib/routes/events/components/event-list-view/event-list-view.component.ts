@@ -4,7 +4,7 @@ import {
 } from '@angular/core'
 import { SelectionModel } from '@angular/cdk/collections'
 import { MatTableDataSource } from '@angular/material/table'
-import { MatPaginator } from '@angular/material'
+import { MatPaginator } from '@angular/material/paginator'
 import { MatSort } from '@angular/material/sort'
 import * as _ from 'lodash'
 import { ITableData, IColums, IAction } from '../../interfaces/interfaces'
@@ -48,7 +48,7 @@ export class EventListViewComponent implements OnInit, AfterViewInit, OnChanges 
   constructor(
     private router: Router,
     private matDialog: MatDialog,
-    ) {
+  ) {
     this.dataSource = new MatTableDataSource<any>()
     this.actionsClick = new EventEmitter()
     this.clicked = new EventEmitter()

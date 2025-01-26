@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, ViewChild, Self } from '@angular/core'
-import { MatPaginator } from '@angular/material'
+import { MatPaginator } from '@angular/material/paginator'
 import { ActivatedRoute, Router } from '@angular/router'
 // tslint:disable-next-line
 import _ from 'lodash'
@@ -20,8 +20,8 @@ export class CompetenciesComponent implements OnInit, OnDestroy {
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator | undefined
 
   constructor(private route: ActivatedRoute,
-              private router: Router,
-              private usersService: UsersService, @Self() private utilityService: UtilityService) { }
+    private router: Router,
+    private usersService: UsersService, @Self() private utilityService: UtilityService) { }
 
   ngOnInit() {
     this.topBarConfig = {

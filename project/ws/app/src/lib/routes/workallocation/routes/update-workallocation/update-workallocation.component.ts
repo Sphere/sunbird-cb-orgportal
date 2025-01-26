@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild, ElementRef } from '@angular/core'
 import { FormGroup, Validators, FormBuilder, FormArray, FormControl } from '@angular/forms'
 import { ExportAsService, ExportAsConfig } from 'ngx-export-as'
 import { ActivatedRoute, Router } from '@angular/router'
-import { MatSnackBar } from '@angular/material'
+import { MatSnackBar } from '@angular/material/snack-bar'
 import { AllocationService } from '../../services/allocation.service'
 import { ConfigurationsService } from '@sunbird-cb/utils'
 

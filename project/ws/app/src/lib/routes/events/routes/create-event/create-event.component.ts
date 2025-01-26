@@ -1,7 +1,8 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ChangeDetectorRef } from '@angular/core'
 import { FormControl, FormGroup, Validators } from '@angular/forms'
 import { EventsService } from '../../services/events.service'
-import { MatSnackBar, MatPaginator } from '@angular/material'
+import { MatSnackBar } from '@angular/material/snack-bar'
+import { MatPaginator } from '@angular/material/paginator'
 import { MatSort } from '@angular/material/sort'
 import { ITableData } from '../../interfaces/interfaces'
 import { MatDialog } from '@angular/material/dialog'
@@ -88,12 +89,12 @@ export class CreateEventComponent implements OnInit {
   departmentID: any
 
   constructor(private snackBar: MatSnackBar,
-              private eventsSvc: EventsService,
-              private matDialog: MatDialog,
-              private router: Router,
-              private configSvc: ConfigurationsService,
-              private changeDetectorRefs: ChangeDetectorRef,
-              private activeRoute: ActivatedRoute,
+    private eventsSvc: EventsService,
+    private matDialog: MatDialog,
+    private router: Router,
+    private configSvc: ConfigurationsService,
+    private changeDetectorRefs: ChangeDetectorRef,
+    private activeRoute: ActivatedRoute,
   ) {
     if (this.configSvc.userProfile) {
       this.userId = this.configSvc.userProfile.userId
@@ -169,7 +170,7 @@ export class CreateEventComponent implements OnInit {
 
     if (this.timeArr) {
       const hr = new Date().getHours()
-      const min =  new Date().getMinutes()
+      const min = new Date().getMinutes()
       const currentTime = `${hr}:${min}`
       const newtimearray: any = []
       this.timeArr.forEach((time: any) => {
@@ -374,9 +375,9 @@ export class CreateEventComponent implements OnInit {
         }
         const selectedStartDate = this.createEventForm.controls['eventDate'].value
         // tslint:disable-next-line:prefer-template
-        const date =  ('0' + (new Date(selectedStartDate).getDate() + 1)).slice(-2)
+        const date = ('0' + (new Date(selectedStartDate).getDate() + 1)).slice(-2)
         // tslint:disable-next-line:prefer-template
-        const month =  ('0' + (new Date(selectedStartDate).getMonth() + 1)).slice(-2)
+        const month = ('0' + (new Date(selectedStartDate).getMonth() + 1)).slice(-2)
         const year = new Date(selectedStartDate).getFullYear()
         newendDate = `${year}-${month}-${date}`
       }
@@ -428,14 +429,14 @@ export class CreateEventComponent implements OnInit {
       this.openSnackbar('Duration cannot be zero')
     } else {
       this.eventsSvc.createEvent(form).subscribe(
-      res => {
-        const identifier = res.result.identifier
-        // this.fileSubmit(identifier)
-        this.publishEvent(identifier)
-      },
-      (err: any) => {
-        this.openSnackbar(err.error.split(':')[1])
-      }
+        res => {
+          const identifier = res.result.identifier
+          // this.fileSubmit(identifier)
+          this.publishEvent(identifier)
+        },
+        (err: any) => {
+          this.openSnackbar(err.error.split(':')[1])
+        }
       )
     }
   }

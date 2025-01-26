@@ -1,23 +1,21 @@
 import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
-import {
-  MatIconModule,
-  MatListModule,
-  MatFormFieldModule,
-  MatDialogModule,
-  MatChipsModule,
-  MatTableModule,
-  MatCardModule,
-  MatExpansionModule,
-  MatGridListModule,
-  MatDividerModule,
-  MatPaginatorModule,
-  MatSelectModule,
-  MatCheckboxModule,
-  MatInputModule,
-  MatButtonModule,
-  MatDatepickerModule,
-} from '@angular/material'
+import { MatIconModule } from '@angular/material/icon'
+import { MatListModule } from '@angular/material/list'
+import { MatFormFieldModule } from '@angular/material/form-field'
+import { MatDialogModule } from '@angular/material/dialog'
+import { MatChipsModule } from '@angular/material/chips'
+import { MatTableModule } from '@angular/material/table'
+import { MatCardModule } from '@angular/material/card'
+import { MatExpansionModule } from '@angular/material/expansion'
+import { MatGridListModule } from '@angular/material/grid-list'
+import { MatDividerModule } from '@angular/material/divider'
+import { MatPaginatorModule } from '@angular/material/paginator'
+import { MatSelectModule } from '@angular/material/select'
+import { MatCheckboxModule } from '@angular/material/checkbox'
+import { MatInputModule } from '@angular/material/input'
+import { MatButtonModule } from '@angular/material/button'
+import { MatDatepickerModule } from '@angular/material/datepicker'
 
 import { MatMenuModule } from '@angular/material/menu'
 import {

@@ -8,7 +8,7 @@ import _ from 'lodash'
 /* tslint:enable */
 import { environment } from 'src/environments/environment'
 import { ITableData } from '@sunbird-cb/collection/lib/ui-org-table/interface/interfaces'
-import { MatSnackBar } from '@angular/material'
+import { MatSnackBar } from '@angular/material/snack-bar'
 import { EventService } from '@sunbird-cb/utils'
 import { NsContent } from '@sunbird-cb/collection'
 import { TelemetryEvents } from '../../../../head/_services/telemetry.event.model'
@@ -193,7 +193,7 @@ export class UsersViewComponent implements OnInit, OnDestroy {
       // tslint:disable-next-line
       _.reduce(data, (_key: any, value: any) => {
         professionalDetails['designation'] = value.designation ? value.designation : ''
-      },       professionalDetails)
+      }, professionalDetails)
     }
     return professionalDetails
   }

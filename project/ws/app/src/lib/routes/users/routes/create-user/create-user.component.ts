@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, HostListener, ViewChild, ElementRef } fro
 import { FormControl, FormGroup, Validators } from '@angular/forms'
 import { ActivatedRoute, Router, Event, NavigationEnd } from '@angular/router'
 import { UsersService } from '../../services/users.service'
-import { MatSnackBar } from '@angular/material'
+import { MatSnackBar } from '@angular/material/snack-bar'
 import { ILeftMenu } from '@sunbird-cb/collection'
 import { NsWidgetResolver } from '@sunbird-cb/resolver'
 import { ValueService } from '@sunbird-cb/utils'

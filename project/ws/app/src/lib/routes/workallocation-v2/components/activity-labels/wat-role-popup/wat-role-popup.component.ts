@@ -1,6 +1,6 @@
 import { Component, Inject, OnInit } from '@angular/core'
 import { FormArray, FormBuilder, FormControl, FormGroup } from '@angular/forms'
-import { MatCheckboxChange } from '@angular/material'
+import { MatCheckboxChange } from '@angular/material/checkbox'
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog'
 import * as _ from 'lodash'
 

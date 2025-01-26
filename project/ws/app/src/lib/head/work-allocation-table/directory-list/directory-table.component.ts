@@ -4,7 +4,7 @@ import {
 } from '@angular/core'
 import { SelectionModel } from '@angular/cdk/collections'
 import { MatTableDataSource } from '@angular/material/table'
-import { MatPaginator } from '@angular/material'
+import { MatPaginator } from '@angular/material/paginator'
 import { MatSort } from '@angular/material/sort'
 import * as _ from 'lodash'
 
@@ -56,7 +56,7 @@ export class UIDirectoryTableComponent implements OnInit, AfterViewInit, OnChang
   }
 
   ngOnChanges(data: SimpleChanges) {
-    this.tableData =  null
+    this.tableData = null
     this.tableData = _.get(data, 'tableData.currentValue')
     this.dataSource.data = _.get(data, 'data.currentValue')
     this.length = this.dataSource.data.length

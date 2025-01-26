@@ -16,11 +16,26 @@ import { MatExpansionModule } from '@angular/material/expansion'
 import { MatDividerModule } from '@angular/material/divider'
 import { WidgetResolverModule } from '@sunbird-cb/resolver'
 import {
-  MatSidenavModule, MatGridListModule, MatListModule, MatCardModule, MatFormFieldModule, MatInputModule,
-  MatIconModule, MatButtonModule, MatRadioModule, MatDialogModule, MatSelectModule, MatDatepickerModule,
-  MatTableModule, MatCheckboxModule, MatNativeDateModule, MatSortModule, MatAutocompleteModule,
-  MatMenuModule, MatPaginatorModule,
-} from '@angular/material'
+  MatSidenavModule
+} from '@angular/material/sidenav'
+import { MatGridListModule } from '@angular/material/grid-list'
+import { MatListModule } from '@angular/material/list'
+import { MatCardModule } from '@angular/material/card'
+import { MatFormFieldModule } from '@angular/material/form-field'
+import { MatInputModule } from '@angular/material/input'
+import { MatIconModule } from '@angular/material/icon'
+import { MatButtonModule } from '@angular/material/button'
+import { MatRadioModule } from '@angular/material/radio'
+import { MatDialogModule } from '@angular/material/dialog'
+import { MatSelectModule } from '@angular/material/select'
+import { MatDatepickerModule } from '@angular/material/datepicker'
+import { MatTableModule } from '@angular/material/table'
+import { MatCheckboxModule } from '@angular/material/checkbox'
+import { MatNativeDateModule } from '@angular/material/core'
+import { MatSortModule } from '@angular/material/sort'
+import { MatAutocompleteModule } from '@angular/material/autocomplete'
+import { MatMenuModule } from '@angular/material/menu'
+import { MatPaginatorModule } from '@angular/material/paginator'
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog'
 import { FormsModule, ReactiveFormsModule } from '@angular/forms'
 
@@ -36,44 +51,44 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms'
     SuccessComponent,
   ],
   imports:
-  [
-    CommonModule,
-    RouterModule,
-    EventsRoutingModule,
-    BreadcrumbsOrgModule,
-    MatSidenavModule,
-    MatListModule,
-    ScrollspyLeftMenuModule,
-    MatCardModule,
-    FormsModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    MatIconModule,
-    MatGridListModule,
-    MatRadioModule,
-    MatDialogModule,
-    MatSelectModule,
-    MatDatepickerModule,
-    ReactiveFormsModule,
-    MatTableModule,
-    MatCheckboxModule,
-    MatNativeDateModule,
-    MatSortModule,
-    MatAutocompleteModule,
-    MatMenuModule,
-    MatPaginatorModule,
-    PipeFilterModule,
-    PipeHtmlTagRemovalModule,
-    PipeRelativeTimeModule,
-    PipeOrderByModule,
-    BreadcrumbsOrgModule,
-    WidgetResolverModule,
-    ScrollspyLeftMenuModule,
-    MatRadioModule,
-    MatExpansionModule,
-    MatDividerModule,
-  ],
+    [
+      CommonModule,
+      RouterModule,
+      EventsRoutingModule,
+      BreadcrumbsOrgModule,
+      MatSidenavModule,
+      MatListModule,
+      ScrollspyLeftMenuModule,
+      MatCardModule,
+      FormsModule,
+      MatFormFieldModule,
+      MatInputModule,
+      MatButtonModule,
+      MatIconModule,
+      MatGridListModule,
+      MatRadioModule,
+      MatDialogModule,
+      MatSelectModule,
+      MatDatepickerModule,
+      ReactiveFormsModule,
+      MatTableModule,
+      MatCheckboxModule,
+      MatNativeDateModule,
+      MatSortModule,
+      MatAutocompleteModule,
+      MatMenuModule,
+      MatPaginatorModule,
+      PipeFilterModule,
+      PipeHtmlTagRemovalModule,
+      PipeRelativeTimeModule,
+      PipeOrderByModule,
+      BreadcrumbsOrgModule,
+      WidgetResolverModule,
+      ScrollspyLeftMenuModule,
+      MatRadioModule,
+      MatExpansionModule,
+      MatDividerModule,
+    ],
   entryComponents: [
     ParticipantsComponent,
     EventThumbnailComponent,

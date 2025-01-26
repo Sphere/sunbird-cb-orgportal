@@ -8,7 +8,7 @@ import { NsWidgetResolver } from '@sunbird-cb/resolver'
 import { ROOT_WIDGET_CONFIG, NsError } from '@sunbird-cb/collection'
 import { TncAppResolverService } from '../../services/tnc-app-resolver.service'
 import { TncPublicResolverService } from '../../services/tnc-public-resolver.service'
-import { MatDialog } from '@angular/material'
+import { MatDialog } from '@angular/material/dialog'
 
 @Component({
   selector: 'ws-tnc',
@@ -38,7 +38,7 @@ export class TncComponent implements OnInit, OnDestroy {
     private tncProtectedSvc: TncAppResolverService,
     private tncPublicSvc: TncPublicResolverService,
     private matDialog: MatDialog,
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.routeSubscription = this.activatedRoute.data.subscribe((response: Data) => {

@@ -1,9 +1,10 @@
 import { Component, OnInit, Inject } from '@angular/core'
 import { FormBuilder, FormGroup } from '@angular/forms'
-import { MatChipInputEvent, MAT_DIALOG_DATA, MatDialogRef } from '@angular/material'
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog'
 import { COMMA, ENTER } from '@angular/cdk/keycodes'
 import * as _ from 'lodash'
 import { HttpClient } from '@angular/common/http'
+import { MatChipInputEvent } from '@angular/material/chips'
 @Component({
   selector: 'ws-filter-dialog',
   templateUrl: './filter-dialog.component.html',

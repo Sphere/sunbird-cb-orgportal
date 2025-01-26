@@ -3,10 +3,11 @@ import { FormGroup, Validators, FormBuilder, FormArray, FormControl } from '@ang
 import { AllocationService } from '../../services/allocation.service'
 import { Router } from '@angular/router'
 import { ExportAsService, ExportAsConfig } from 'ngx-export-as'
-import { MatSnackBar, MatDialog } from '@angular/material'
+import { MatDialog } from '@angular/material/dialog'
 import { DialogConfirmComponent } from 'src/app/component/dialog-confirm/dialog-confirm.component'
 import { AllocationActionsComponent } from '../../components/allocation-actions/allocation-actions.component'
 import { ConfigurationsService } from '@sunbird-cb/utils'
+import { MatSnackBar } from '@angular/material/snack-bar'
 
 @Component({
   selector: 'ws-app-create-workallocation',

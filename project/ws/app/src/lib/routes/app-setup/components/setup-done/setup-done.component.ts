@@ -4,7 +4,7 @@ import {
   ConfigurationsService,
   NsPage,
 } from '@sunbird-cb/utils'
-import { MatDialog } from '@angular/material'
+import { MatDialog } from '@angular/material/dialog'
 import { AppTourDialogComponent } from '@sunbird-cb/collection'
 import { Router, ActivatedRoute } from '@angular/router'
 import { Globals } from '../../globals'

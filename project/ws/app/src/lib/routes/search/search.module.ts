@@ -3,23 +3,26 @@ import { NgModule } from '@angular/core'
 import { FormsModule, ReactiveFormsModule } from '@angular/forms'
 import {
   MatAutocompleteModule,
-  MatButtonModule,
-  MatCardModule,
-  MatCheckboxModule,
-  MatChipsModule,
-  MatExpansionModule,
-  MatFormFieldModule,
-  MatIconModule, MatInputModule,
-  MatMenuModule, MatOptionModule,
-  MatProgressSpinnerModule,
-  MatRippleModule,
-  MatSidenavModule,
-  MatSlideToggleModule,
-  MatTabsModule,
-  MatToolbarModule,
-  MatTooltipModule,
-  MatDividerModule,
-} from '@angular/material'
+
+} from '@angular/material/autocomplete'
+import { MatButtonModule } from '@angular/material/button'
+import { MatCardModule } from '@angular/material/card'
+import { MatCheckboxModule } from '@angular/material/checkbox'
+import { MatChipsModule } from '@angular/material/chips'
+import { MatExpansionModule } from '@angular/material/expansion'
+import { MatFormFieldModule } from '@angular/material/form-field'
+import { MatIconModule } from '@angular/material/icon'
+import { MatInputModule } from '@angular/material/input'
+import { MatMenuModule } from '@angular/material/menu'
+import { MatOptionModule } from '@angular/material/core'
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner'
+import { MatRippleModule } from '@angular/material/core'
+import { MatSidenavModule } from '@angular/material/sidenav'
+import { MatSlideToggleModule } from '@angular/material/slide-toggle'
+import { MatTabsModule } from '@angular/material/tabs'
+import { MatToolbarModule } from '@angular/material/toolbar'
+import { MatTooltipModule } from '@angular/material/tooltip'
+import { MatDividerModule } from '@angular/material/divider'
 import {
   BtnChannelAnalyticsModule,
   // BtnContentDownloadModule,

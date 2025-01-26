@@ -6,9 +6,17 @@ import { RouterModule } from '@angular/router'
 import { ApprovalsRoutingModule } from './approvals.routing.module'
 import { BreadcrumbsOrgModule, ScrollspyLeftMenuModule } from '@sunbird-cb/collection'
 import {
-  MatSidenavModule, MatGridListModule, MatListModule, MatCardModule, MatFormFieldModule, MatInputModule,
-  MatIconModule, MatButtonModule, MatRadioModule, MatDialogModule,
-} from '@angular/material'
+  MatIconModule
+} from '@angular/material/icon'
+import { MatGridListModule } from '@angular/material/grid-list'
+import { MatSidenavModule } from '@angular/material/sidenav'
+import { MatListModule } from '@angular/material/list'
+import { MatCardModule } from '@angular/material/card'
+import { MatFormFieldModule } from '@angular/material/form-field'
+import { MatInputModule } from '@angular/material/input'
+import { MatButtonModule } from '@angular/material/button'
+import { MatRadioModule } from '@angular/material/radio'
+import { MatDialogModule } from '@angular/material/dialog'
 import { NeedsApprovalComponent } from './routes/needs-approval/needs-approval.component'
 import { BasicInfoComponent } from './routes/basic-info/basic-info.component'
 import { PositionComponent } from './routes/position/position.component'

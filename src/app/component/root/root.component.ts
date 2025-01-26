@@ -32,8 +32,8 @@ import { SwUpdate } from '@angular/service-worker'
 import { environment } from '../../../environments/environment'
 import { interval, concat, timer } from 'rxjs'
 import { DialogConfirmComponent } from '../dialog-confirm/dialog-confirm.component'
-import { MatDialog } from '@angular/material'
-// import { MatDialog } from '@angular/material'
+import { MatDialog } from '@angular/material/dialog'
+// import { MatDialog } from '@angular/material/dialog'
 // import { DialogConfirmComponent } from '../dialog-confirm/dialog-confirm.component'
 
 @Component({

@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common'
 
 import { SignupAutoRoutingModule } from './signup-auto-routing.module'
 import { SignupAutoComponent } from './signup-auto.component'
-import { MatProgressSpinnerModule } from '@angular/material'
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner'
 import { SignupAutoService } from './signup-auto.service'
 
 @NgModule({

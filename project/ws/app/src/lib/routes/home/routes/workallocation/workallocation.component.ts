@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit, SimpleChanges } from '@angular/core'
 import { ITableData } from '@sunbird-cb/collection/lib/ui-org-table/interface/interfaces'
-import { MatDialog, MatPaginator } from '@angular/material'
+import { MatDialog } from '@angular/material/dialog'
+import { MatPaginator } from '@angular/material/paginator'
 import { Router, ActivatedRoute } from '@angular/router'
 import { ExportAsService, ExportAsConfig } from 'ngx-export-as'
 /* tslint:disable */
