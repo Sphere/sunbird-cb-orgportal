@@ -2,6 +2,9 @@
   "name": "@ws/app",
   "version": "0.0.1",
   "main": "./src/public-api.ts",
+  "dependencies": {
+    "tslib": "^2.0.0"
+  },
   "peerDependencies": {
     "@angular/animations": "~8.2.1",
     "@angular/cdk": "~8.1.2",

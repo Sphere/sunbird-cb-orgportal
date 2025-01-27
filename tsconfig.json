@@ -9,7 +9,7 @@
     "allowSyntheticDefaultImports": true,
     "importHelpers": true,
     "lib": ["es2018", "dom"],
-    "module": "esnext",
+    "module": "es2020",
     "moduleResolution": "node",
     "noFallthroughCasesInSwitch": true,
     "noImplicitAny": true,
