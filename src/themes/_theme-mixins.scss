@@ -1,3 +1,4 @@
+@use '~@angular/material' as mat;
 @mixin color-background-opacity($color, $opacity: 0.3) {
   background: rgba($color, $opacity);
 }
@@ -10,21 +11,21 @@
   $foreground: map-get($theme, foreground);
   $is-dark: map-get($theme, is-dark);
 
-  $colorPrimaryDark: mat-color($primary, darker);
-  $colorPrimaryLight: mat-color($primary, lighter);
-  $colorPrimary: mat-color($primary, default);
+  $colorPrimaryDark: mat.get-color-from-palette($primary, darker);
+  $colorPrimaryLight: mat.get-color-from-palette($primary, lighter);
+  $colorPrimary: mat.get-color-from-palette($primary, default);
 
-  $colorAccentDark: mat-color($accent, darker);
-  $colorAccentLight: mat-color($accent, lighter);
-  $colorAccent: mat-color($accent, default);
+  $colorAccentDark: mat.get-color-from-palette($accent, darker);
+  $colorAccentLight: mat.get-color-from-palette($accent, lighter);
+  $colorAccent: mat.get-color-from-palette($accent, default);
 
-  $colorWarnDark: mat-color($warn, darker);
-  $colorWarnLight: mat-color($warn, lighter);
-  $colorWarn: mat-color($warn, default);
+  $colorWarnDark: mat.get-color-from-palette($warn, darker);
+  $colorWarnLight: mat.get-color-from-palette($warn, lighter);
+  $colorWarn: mat.get-color-from-palette($warn, default);
 
-  $colorBackground: mat-color($background, background);
-  $colorText: mat-color($foreground, text);
-  $iconColor: mat-color($foreground, icon);
+  $colorBackground: mat.get-color-from-palette($background, background);
+  $colorText: mat.get-color-from-palette($foreground, text);
+  $iconColor: mat.get-color-from-palette($foreground, icon);
   $colorGreen: #5fa800;
   $colorRed: #ff0000;
   $colorDarkRed: rgb(209, 57, 36);
@@ -37,7 +38,7 @@
   $colorBlack040: rgba(0, 0, 0, 0.040);
   $colorLighterGrey: #bbbcbc;
 
-  outline-color: mat-color($accent, lighter);
+  outline-color: mat.get-color-from-palette($accent, lighter);
 
   .icon-svg {
     fill: $iconColor;
@@ -208,11 +209,11 @@
     }
 
     .ws-mat-primary-tags {
-      background: rgba(mat-color($primary, default), 0.1);
+      background: rgba(mat.get-color-from-palette($primary, default), 0.1);
     }
 
     .ws-mat-primary-tags-list {
-      background: rgba(mat-color($primary, default), 0.1);
+      background: rgba(mat.get-color-from-palette($primary, default), 0.1);
     }
 
     .mat-drawer-side {
@@ -461,27 +462,27 @@
     }
 
     .ws-mat-primary-background-op10 {
-      background: rgba(mat-color($primary, default), 0.1);
+      background: rgba(mat.get-color-from-palette($primary, default), 0.1);
     }
 
     .ws-mat-primary-background-op30 {
-      background: rgba(mat-color($primary, default), 0.3);
+      background: rgba(mat.get-color-from-palette($primary, default), 0.3);
     }
 
     .ws-mat-primary-background-op50 {
-      background: rgba(mat-color($primary, default), 0.5);
+      background: rgba(mat.get-color-from-palette($primary, default), 0.5);
     }
 
     .ws-mat-primary-background-op20 {
-      background: rgba(mat-color($primary, default), 0.2);
+      background: rgba(mat.get-color-from-palette($primary, default), 0.2);
     }
 
     .ws-mat-primary-background-op30-hover:hover {
-      background: rgba(mat-color($primary, default), 0.3);
+      background: rgba(mat.get-color-from-palette($primary, default), 0.3);
     }
 
     .ws-mat-primary-background-op100 {
-      background: rgba(mat-color($primary, default), 1);
+      background: rgba(mat.get-color-from-palette($primary, default), 1);
     }
 
     .ws-mat-accent-background {
@@ -584,8 +585,8 @@
     .ws-mat-text-block-fade-gradient {
       position: relative;
       background: linear-gradient(to bottom,
-          rgba(mat-color($background, card), 0),
-          mat-color($background, card) 100%);
+          rgba(mat.get-color-from-palette($background, card), 0),
+          mat.get-color-from-palette($background, card) 100%);
 
       &::after,
       &::before {
@@ -616,8 +617,8 @@
       width: 90%;
       margin-top: 24%;
       background: linear-gradient(to bottom,
-          rgba(mat-color($background, card), 0),
-          mat-color($background, card) 100%);
+          rgba(mat.get-color-from-palette($background, card), 0),
+          mat.get-color-from-palette($background, card) 100%);
     }
 
     .mat-button-toggle-checked {

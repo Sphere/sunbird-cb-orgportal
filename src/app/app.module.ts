@@ -20,7 +20,8 @@ import { MatFormFieldModule } from '@angular/material/form-field'
 import { MatSelectModule } from '@angular/material/select'
 import { MatDatepickerModule } from '@angular/material/datepicker'
 import { MatCheckboxModule } from '@angular/material/checkbox'
-import { MatNativeDateModule, GestureConfig } from '@angular/material/core'
+import { MatNativeDateModule } from '@angular/material/core'
+import { HammerModule } from '@angular/platform-browser'
 import { MatSortModule } from '@angular/material/sort'
 import { BrowserModule, HAMMER_GESTURE_CONFIG } from '@angular/platform-browser'
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations'
@@ -62,11 +63,19 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms'
 import { ServiceWorkerModule } from '@angular/service-worker'
 import { environment } from '../environments/environment'
 import { MatDialogModule } from '@angular/material/dialog'
+import { HammerGestureConfig } from '@angular/platform-browser'
 @Injectable()
-export class HammerConfig extends GestureConfig {
-  buildHammer(element: HTMLElement) {
-    return new GestureConfig({ touchAction: 'pan-y' }).buildHammer(element)
-  }
+// export class HammerConfig extends GestureConfig {
+//   buildHammer(element: HTMLElement) {
+//     return new GestureConfig({ touchAction: 'pan-y' }).buildHammer(element)
+//   }
+// }
+
+export class HammerConfig extends HammerGestureConfig {
+  override overrides = {
+    pan: { direction: 6 }, // Allow both horizontal and vertical
+    swipe: { direction: 6 }, // Allow both horizontal and vertical
+  };
 }
 const appInitializer = (initSvc: InitService, logger: LoggerService) => async () => {
   try {
@@ -137,6 +146,7 @@ const getBaseHref = (platformLocation: PlatformLocation): string => {
     MobileAppModule,
     PipeSafeSanitizerModule,
     TourModule,
+    HammerModule,
     ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production }),
   ],
   exports: [

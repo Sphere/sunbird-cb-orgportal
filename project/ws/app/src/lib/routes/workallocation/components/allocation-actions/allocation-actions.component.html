@@ -7,7 +7,7 @@
         style="height: calc(100% - 64px); min-height: calc(100% - 64px); min-width: 100%; width: 100%; margin: 0px;">
         <mat-tab>
           <ng-template mat-tab-label>
-            <span i18n>1. Role</span>
+            <span>1. Role</span>
           </ng-template>
           <ng-template matTabContent>
             <!-- <div>
@@ -51,7 +51,7 @@
         </mat-tab>
         <mat-tab>
           <ng-template mat-tab-label>
-            <span i18n>2.Activities</span>
+            <span>2.Activities</span>
           </ng-template>
           <ng-template matTabContent style="height: 650px;">
             <div class="margin-top-xl new-mobile">
@@ -108,7 +108,7 @@
         </mat-tab>
         <mat-tab>
           <ng-template mat-tab-label>
-            <span i18n>3. Competencies</span>
+            <span>3. Competencies</span>
             <ng-container></ng-container>
           </ng-template>
           <ng-template matTabContent style="padding-bottom: 20px;">
@@ -331,7 +331,7 @@
 </mat-dialog-content>
 <mat-dialog-actions align="end" layout="row">
   <button mat-raised-button class="btn-success btn-responsive" id="savebtn" [mat-dialog-close]="true">
-    <span i18n>Cancel</span>
+    <span>Cancel</span>
   </button>
   <button *ngIf="selectedTabIndex !== 2" mat-raised-button class="text-white btn-success btn-responsive"
     id="addtolist-btn" (click)="tabChange(tabGroup)">

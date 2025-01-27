@@ -49,12 +49,12 @@
                         <button n-submit mat-button class="ws-mat-accent-background text-white margin-left-xs"
                             type="button" id="savebtn"
                             (click)="editDataStruct && editDataStruct.id ? updateWat() : saveWAT()">
-                            <span i18n>{{editDataStruct && editDataStruct.id? 'Update draft' : 'Save as draft'}}</span>
+                            <span>{{editDataStruct && editDataStruct.id? 'Update draft' : 'Save as draft'}}</span>
                         </button>
                         <!-- <button mat-stroked-button type="button"
                             class="btn margin-right-xs mat-accent-border flex-auto-display" id="publishbtn"
                             [disabled]="!canPublish">
-                            <span i18n>Publish</span>
+                            <span>Publish</span>
                         </button> -->
                     </div>
                 </div>

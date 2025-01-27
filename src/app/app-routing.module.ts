@@ -37,7 +37,7 @@ const routes: Routes = [
     path: 'practice/behavioral',
     pathMatch: 'full',
     redirectTo: 'page/embed-behavioural-skills',
-    canActivate: [GeneralGuard],
+    // canActivate: [GeneralGuard],
   },
   {
     path: 'app/home',

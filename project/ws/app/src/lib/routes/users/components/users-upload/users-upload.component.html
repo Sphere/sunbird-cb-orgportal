@@ -3,7 +3,7 @@
     <div class="flex-1 inline-flex items-end justify-end">
       <!-- <span class="mat-body-1 mr-5 pl-1">Download the sample file</span> -->
       <button class="download-btn mat-accent-border mat-button mat-button-base" i18n (click)="downloadFile()">
-        <ng-container i18n>Download sample file</ng-container>
+        <ng-container>Download sample file</ng-container>
       </button>
     </div>
   </div>
@@ -24,7 +24,7 @@
             <button mat-button class="upload-btn mat-button mat-button-base" type="submit" i18n
               [disabled]="formGroup.invalid || (displayLoader | async)" (click)="onSubmit(form)"
               (dblclick)="$event.preventDefault();">
-              <ng-container i18n>Upload</ng-container>
+              <ng-container>Upload</ng-container>
             </button>
           </div>
 
@@ -46,7 +46,7 @@
         <div class="pt-2 ">
           <!-- <div class=" m-5 flex items-end justify-end">
           <button mat-raised-button color="primary" class="self-end" i18n (click)="refreshTable()">
-            <ng-container i18n>Refresh</ng-container>
+            <ng-container>Refresh</ng-container>
           </button>
         </div> -->
           <mat-table mat-table [dataSource]="dataSource" matSort [matSortActive]="tabledata?.sortColumn"
