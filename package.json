@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "node --max_old_space_size=8000 ./node_modules/@angular/cli/bin/ng serve --proxy-config proxy/localhost.proxy.json -o",
+    "start": "NODE_OPTIONS=--openssl-legacy-provider node --max_old_space_size=8000 ./node_modules/@angular/cli/bin/ng serve --proxy-config proxy/localhost.proxy.json -o",
     "dev": "npm run start:mdo-dev",
     "prebuild": "npm run lint:fix",
     "build-dev": "node --max_old_space_size=8000 ./node_modules/@angular/cli/bin/ng build --prod --configuration=dev --outputPath=dist/www/en --baseHref=/ --i18nLocale=en",
@@ -41,7 +41,7 @@
     "@angular/pwa": "^0.803.14",
     "@angular/router": "~9.1.0",
     "@angular/service-worker": "~9.1.0",
-    "@sunbird-cb/collection": "^1.0.17",
+    "@sunbird-cb/collection": "^1.0.46-ang-9-12",
     "@sunbird-cb/design-system": "0.0.1",
     "@sunbird-cb/resolver": "^1.0.0-ang-9-12",
     "@sunbird-cb/utils": "^1.0.18-ang-9-12",
