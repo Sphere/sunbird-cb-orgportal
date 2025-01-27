@@ -80,7 +80,14 @@
               "node_modules/jquery/dist/jquery.min.js",
               "src/mdo-assets/telemetry.min.js",
               "node_modules/shepherd.js/dist/js/shepherd.min.js"
-            ]
+            ],
+            "aot": false,
+            "vendorChunk": true,
+            "extractLicenses": false,
+            "buildOptimizer": false,
+            "sourceMap": true,
+            "optimization": false,
+            "namedChunks": true
           },
           "configurations": {
             "production": {
@@ -213,7 +220,8 @@
               "serviceWorker": false,
               "ngswConfigPath": "ngsw-config.json"
             }
-          }
+          },
+          "defaultConfiguration": ""
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
