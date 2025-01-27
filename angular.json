@@ -38,48 +38,39 @@
               "node_modules/shepherd.js/dist/css/shepherd.css",
               {
                 "input": "src/themes/theme-deep-purple.scss",
-                "bundleName": "theme-deep-purple",
-                "lazy": true
+                "bundleName": "theme-deep-purple"
               },
               {
                 "input": "src/themes/theme-grey.scss",
-                "bundleName": "theme-grey",
-                "lazy": true
+                "bundleName": "theme-grey"
               },
               {
                 "input": "src/themes/theme-indigo.scss",
-                "bundleName": "theme-indigo",
-                "lazy": true
+                "bundleName": "theme-indigo"
               },
               {
                 "input": "src/themes/theme-lite-blue.scss",
-                "bundleName": "theme-lite-blue",
-                "lazy": true
+                "bundleName": "theme-lite-blue"
               },
               {
                 "input": "src/themes/theme-orange.scss",
-                "bundleName": "theme-orange",
-                "lazy": true
+                "bundleName": "theme-orange"
               },
               {
                 "input": "src/themes/theme-teal.scss",
-                "bundleName": "theme-teal",
-                "lazy": true
+                "bundleName": "theme-teal"
               },
               {
                 "input": "src/themes/theme-blue.scss",
-                "bundleName": "theme-blue",
-                "lazy": true
+                "bundleName": "theme-blue"
               },
               {
                 "input": "src/themes/theme-deep-blue.scss",
-                "bundleName": "theme-deep-blue",
-                "lazy": true
+                "bundleName": "theme-deep-blue"
               },
               {
                 "input": "src/themes/theme-igot.scss",
-                "bundleName": "theme-igot",
-                "lazy": true
+                "bundleName": "theme-igot"
               },
               "node_modules/pdfjs-dist/web/pdf_viewer.css",
               "src/mdo-assets/fonts/lato/stylesheet.css",
