@@ -1,0 +1,25 @@
+<div class="tab-content">
+  <div class="event-details">
+    <p><strong>Date:</strong> {{ selectedEvent?.date }}</p>
+    <p><strong>Location:</strong> {{ selectedEvent?.location }}</p>
+    <p><strong>Created by:</strong> {{ selectedEvent?.createdBy }}</p>
+  </div>
+  <p class="description"><strong>Description :</strong> {{ selectedEvent?.description }}</p>
+
+
+  <div class="grid">
+    <div class="card">
+      <h1 class="count">0</h1>
+      <p class="count-label">No. of Participants</p>
+      <button (click)="addParticipant()" class="add-btn"><mat-icon
+          fontIcon="add_circle_outline">add_circle_outline</mat-icon>Add
+        Participants</button>
+    </div>
+    <div class="card">
+      <button (click)="generateCert()" class="certificate-text"> <mat-icon
+          fontIcon="add_circle_outline">add_circle_outline</mat-icon>
+        Choose a
+        Certificate</button>
+    </div>
+  </div>
+</div>

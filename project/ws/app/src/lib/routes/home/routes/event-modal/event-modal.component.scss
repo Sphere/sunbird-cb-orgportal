@@ -1,0 +1,79 @@
+// .dialog-content {
+//   padding: 10px 0;
+// }
+
+.subtext {
+  color: #808080;
+
+  margin-bottom: 15px;
+  font-family: Roboto;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+  letter-spacing: -2%;
+}
+
+.form-label {
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 5px;
+  display: block;
+}
+
+mat-form-field {
+  width: 100%;
+
+}
+
+
+/* ✅ Box shadow when field is valid */
+mat-form-field:not(.mat-form-field-invalid) .mat-mdc-text-field-wrapper {
+  box-shadow: 0px 0px 4px 0px #00000026;
+  /* Normal shadow */
+  border-radius: 5px;
+}
+
+/* ✅ Box shadow when field is in error (red border) */
+mat-form-field.mat-form-field-invalid .mat-mdc-text-field-wrapper {
+  box-shadow: 0px 0px 4px 0px rgba(255, 0, 0, 0.5);
+  /* Red shadow */
+  border: 1px solid red;
+  /* Ensures a red border */
+  border-radius: 5px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.half-width {
+  width: 48%;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+mat-dialog-actions {
+  margin-top: 20px;
+}
+
+.title {
+  font-family: Roboto;
+  font-weight: 500;
+  font-size: 32px;
+  line-height: 38.4px;
+  letter-spacing: -2%;
+  margin-bottom: 2px;
+}
+
+// input {
+//   box-shadow: 0px 0px 4px 0px #00000026;
+// }
+
+// input:focus,
+// textarea:focus {
+//   outline: none !important;
+// }

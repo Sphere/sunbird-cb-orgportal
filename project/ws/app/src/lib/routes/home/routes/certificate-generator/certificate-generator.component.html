@@ -1,0 +1,30 @@
+<div class="certificate-container">
+  <!-- Header -->
+  <div class="certificate-header">
+    <h2>Choose a certificate</h2>
+    <button class="close-btn" (click)="navigateBack()"><mat-icon>close</mat-icon></button>
+  </div>
+
+  <div class="certificate-header">
+    <p>Choose from the list of certificate templates</p>
+    <button class="download-btn" (click)="generateAndDownload()">Generate & Download</button>
+  </div>
+
+  <!-- Wrapper for Sidebar & Preview -->
+  <div class="certificate-wrapper">
+    <!-- Sidebar (Scrollable) -->
+    <div class="certificate-sidebar">
+      <div class="scrollable-thumbnails">
+        <div *ngFor="let cert of certificates; let i = index" [class.selected]="i === selectedCertIndex"
+          (click)="selectCertificate(i)">
+          <img [src]="cert.thumbnail" alt="Certificate Template">
+        </div>
+      </div>
+    </div>
+
+    <!-- Certificate Preview -->
+    <div class="certificate-preview">
+      <img [src]="certificates[selectedCertIndex]?.svgPath" alt="Selected Certificate">
+    </div>
+  </div>
+</div>

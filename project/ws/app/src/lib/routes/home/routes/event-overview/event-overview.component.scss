@@ -1,0 +1,84 @@
+.tab-content {
+  padding: 20px;
+}
+
+.event-details {
+  display: flex;
+  gap: 20px;
+  color: #666666;
+}
+
+.description {
+  margin-top: 10px;
+  line-height: 1.5;
+  color: #666666;
+
+}
+
+.grid {
+  display: flex;
+  gap: 40px;
+  margin-top: 20px;
+}
+
+.card {
+  border: 1px solid #ECECEC;
+  padding: 20px 0 0 0;
+  border-radius: 10px;
+  text-align: center;
+  width: 50%;
+  height: 180px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  .count {
+    color: #000000;
+    font-family: Roboto;
+    font-weight: 400;
+    font-size: 64px;
+
+
+  }
+
+  .count-label {
+    color: #000000;
+    font-family: Roboto;
+    font-weight: 400;
+    font-size: 24px;
+
+  }
+
+}
+
+.add-btn {
+  margin-top: 10px;
+  color: #1C5D95;
+  padding: 5px 10px;
+  font-family: Roboto;
+  font-weight: 400;
+  font-size: 14px;
+  border: none;
+  background: inherit;
+  cursor: pointer;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+
+}
+
+.certificate-text {
+  font-family: Roboto;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 16.41px;
+  letter-spacing: -2%;
+  color: #B7B7B7;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  cursor: pointer;
+  border: none;
+  background: inherit;
+}

@@ -1,0 +1,55 @@
+.container {
+  max-width: 1400px;
+  // margin: auto;
+  padding: 20px;
+}
+
+.events-list {
+  margin-top: 20px;
+  // padding: 10px;
+}
+
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 0px;
+  border-bottom: 1px solid #ccc;
+}
+
+h3 {
+  margin: 0;
+}
+
+.create-btn {
+  background-color: #1C5D95;
+  color: #ffffff !important;
+  border-radius: 100px;
+  padding: 0 25px;
+  height: 30px;
+  border: none;
+}
+
+
+.page-title {
+  color: #666666;
+  font-family: Roboto;
+  font-size: 20px;
+  font-weight: 400;
+}
+
+
+.events-list ul {
+  list-style: none;
+  /* Removes the bullets */
+  padding: 0;
+  margin: 0;
+}
+
+.events-list li {
+
+  padding: 10px 0px;
+  border-bottom: 1px solid #ccc;
+  margin-bottom: 15px;
+}

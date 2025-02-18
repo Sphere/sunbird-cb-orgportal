@@ -1,0 +1,17 @@
+<div class="container">
+  <h1 class="page-title">Events</h1>
+  <h2>Manage Events</h2>
+
+  <div class="header">
+    <h3>Events</h3>
+    <button class="create-btn" (click)="openEventModal()">Create New Event</button>
+  </div>
+
+  <div class="events-list">
+    <ul>
+      <li *ngFor="let event of events" (click)="navigateToEvent(event)">
+        {{ event.name }}
+      </li>
+    </ul>
+  </div>
+</div>

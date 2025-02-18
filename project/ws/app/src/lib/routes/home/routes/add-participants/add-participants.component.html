@@ -1,0 +1,23 @@
+<h2 mat-dialog-title>Add Participant</h2>
+<mat-dialog-content>
+  <p class="lable">Select users</p>
+  <!-- <mat-form-field appearance="outline" class="full-width"> -->
+  <input type="text" placeholder="Search by name, phone number, email">
+  <!-- </mat-form-field> -->
+
+  <p>Upload CSV file to add multiple participants</p>
+  <div class="file-upload-container">
+    <label class="custom-file-upload">
+      <input type="file" accept=".csv, .xlsx">
+      Upload File
+    </label>
+    <span id="file-name">Only .csv, .xlsx file</span>
+  </div>
+
+  <!-- <input type="file" accept=".csv, .xlsx"> -->
+
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button (click)="saveParticipants()">Save & Add</button>
+</mat-dialog-actions>

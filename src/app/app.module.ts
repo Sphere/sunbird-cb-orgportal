@@ -64,6 +64,7 @@ import { ServiceWorkerModule } from '@angular/service-worker'
 import { environment } from '../environments/environment'
 import { MatDialogModule } from '@angular/material/dialog'
 import { HammerGestureConfig } from '@angular/platform-browser'
+import { MatTabsModule } from '@angular/material/tabs'
 @Injectable()
 // export class HammerConfig extends GestureConfig {
 //   buildHammer(element: HTMLElement) {
@@ -147,6 +148,7 @@ const getBaseHref = (platformLocation: PlatformLocation): string => {
     PipeSafeSanitizerModule,
     TourModule,
     HammerModule,
+    MatTabsModule,
     ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production }),
   ],
   exports: [
