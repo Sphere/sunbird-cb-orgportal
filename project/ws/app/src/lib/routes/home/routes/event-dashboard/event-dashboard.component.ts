@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core'
 import { MatDialog } from '@angular/material/dialog'
 import { EventModalComponent } from '../event-modal/event-modal.component'
 import { Router } from '@angular/router'
+import { EventService } from '../../services/event.service'
 
 @Component({
   selector: 'ws-app-event-dashboard',
@@ -10,23 +11,46 @@ import { Router } from '@angular/router'
 })
 export class EventDashboardComponent implements OnInit {
 
+  events = [];
+
   constructor(
     public dialog: MatDialog,
-    private router: Router
+    private router: Router,
+    private eventService: EventService
   ) { }
 
   ngOnInit(): void {
+    this.fetchEvents()
   }
 
-  events = [
-    { name: 'Event.1', id: 1 },
-    { name: 'Event.2', id: 2 },
-  ];
 
-  // createNewEvent() {
-  //   const newEvent = { name: `Event.${this.events.length + 1}` }
-  //   this.events.push(newEvent)
-  // }
+  fetchEvents() {
+    this.eventService.getAllEvents().subscribe(
+      (response) => {
+        console.log('Events:', response)
+        // this.events = response
+        this.events = response.map((event: any) => ({
+          id: event.event_id, // Use actual event_id
+          name: event.event_name,
+          description: event.event_description,
+          location: event.event_location,
+          date: event.event_date,
+          organizer: event.organizer_name
+
+
+          // id: event.eventId, // Use actual event_id
+          // name: event.eventName,
+          // description: event.eventDescription,
+          // location: event.eventPlace,
+          // date: event.eventDate,
+          // organizer: event.createdBy
+        }))
+      },
+      (error) => {
+        console.error('Error fetching events:', error)
+      }
+    )
+  }
 
   openEventModal(): void {
     const dialogRef = this.dialog.open(EventModalComponent, {
@@ -36,24 +60,15 @@ export class EventDashboardComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         console.log(result)
-
-        // Generate ID based on the highest existing ID
-        const newId = this.events.length > 0
-          ? Math.max(...this.events.map(event => event.id)) + 1
-          : 1
-
-        this.events.push({ id: newId, name: result.eventName })
+        this.fetchEvents()// Refresh the list of events
       }
     })
   }
 
 
   navigateToEvent(event: any): void {
-    this.router.navigate(
-      ['/app/home//event-dashboard', event.id],
-      { state: { name: event.name } }
-
-    )
+    this.router.navigate(['/app/home/event-dashboard', event.id])
   }
+
 
 }

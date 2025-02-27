@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core'
 import { ActivatedRoute, Router, NavigationEnd } from '@angular/router'
 import { filter } from 'rxjs/operators'
+import { EventService } from '../../services/event.service'
 
 @Component({
   selector: 'ws-app-event-details',
@@ -9,44 +10,63 @@ import { filter } from 'rxjs/operators'
 })
 export class EventDetailsComponent implements OnInit {
 
-  eventName: any
+  event: any // Stores the fetched event details
   activeTab = 'overview';
   isCertificateRoute = false;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
+    private eventService: EventService
 
   ) { }
 
   ngOnInit(): void {
-    // Get event name from navigation state
-    this.eventName = history.state.name
-    console.log('Event Name:', this.eventName)
 
+    this.route.paramMap.subscribe(params => {
+      console.log('Route Params:', params)
+      const eventId = params.get('id')
+      if (eventId) {
+        console.log("Fetching event data for ID:", eventId)
+        this.eventService.getEventById(eventId).subscribe(data => {
+          console.log('Event Data:', data)
+          this.event = data
+          this.eventService.updateEvent(this.event) // ✅ Store event globally
+        })
+      }
+    })
+
+
+    // ✅ Detect if the current route is 'certificate'
+    this.route.url.subscribe(urlSegments => {
+      console.log('URL Segments:', urlSegments)
+      this.isCertificateRoute = urlSegments.some(segment => segment.path === 'certificate')
+    })
+
+    // ✅ Update on navigation change
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe(() => {
       this.isCertificateRoute = this.route.firstChild?.snapshot.url[0]?.path === 'certificate'
+      const currentRoute = this.route.snapshot.firstChild?.routeConfig?.path
+      this.activeTab = currentRoute || 'overview' // Default to overview
     })
-
-    // this.route.children.forEach(childRoute => {
-    //   childRoute.url.subscribe(urlSegments => {
-    //     this.isCertificateRoute = urlSegments.some(segment => segment.path === 'certificate')
-    //   })
-    // })
   }
 
 
 
 
   setTab(tab: string) {
-    this.activeTab = tab,
-      this.router.navigate([tab], { relativeTo: this.route })
+    this.activeTab = tab
+    this.router.navigate([tab], { relativeTo: this.route })
   }
 
   editEvent() {
-    console.log('Edit Event Clicked')
+    console.log('Edit Event Clicked', this.event.event_name)
+  }
+
+  onNavigateToParticipants(): void {
+    this.setTab('participants')
   }
 
 

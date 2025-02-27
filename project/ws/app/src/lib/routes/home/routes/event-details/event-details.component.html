@@ -34,14 +34,15 @@
     <span>Events</span> > <span>Dashboard</span>
   </nav>
 
-  <div class="event-header" *ngIf="!isCertificateRoute">
-    <h1>{{ eventName }}</h1>
+  <div class="event-header" *ngIf="event && !isCertificateRoute">
+    <h1>{{ event.event_name }}</h1>
     <button class="edit-btn" (click)="editEvent()">
       Edit event <mat-icon>edit</mat-icon>
     </button>
   </div>
 
   <!-- Show Tabs only if NOT on 'certificate' route -->
+  <div>{{activeTab}}</div>
   <div class="tabs" *ngIf="!isCertificateRoute">
     <a [class.active]="activeTab === 'overview'" (click)="setTab('overview')">Overview</a>
     <a [class.active]="activeTab === 'participants'" (click)="setTab('participants')">Participants</a>

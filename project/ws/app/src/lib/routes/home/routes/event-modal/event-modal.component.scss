@@ -77,3 +77,21 @@ mat-dialog-actions {
 // textarea:focus {
 //   outline: none !important;
 // }
+
+.creat-btn {
+  background-color: #1C5D95 !important;
+  color: #ffffff !important;
+  font-family: Roboto;
+  font-weight: 400;
+  font-size: 14px;
+  border-radius: 50px;
+}
+
+.date-fiels {
+  display: flex;
+  padding: 5px;
+}
+
+::ng-deep .mat-form-field-appearance-outline .mat-form-field-infix {
+  padding: 0 !important;
+}

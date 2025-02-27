@@ -16,15 +16,32 @@
 
       <!-- Date & Location -->
       <div class="row">
-        <div class="half-width">
+        <!-- <div class="half-width">
           <label class="form-label">Select the Date</label>
-          <mat-form-field appearance="outline" class="full-width">
-            <input matInput [matDatepicker]="picker" formControlName="eventDate" placeholder="Date">
-            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-            <mat-datepicker #picker></mat-datepicker>
+          <mat-form-field appearance="outline" class="full-width ">
+            <div class="date-fiels">
+              <input matInput [matDatepicker]="picker" formControlName="eventDate" placeholder="Date">
+              <mat-icon class="material-symbols-outlined">
+                calendar_month
+              </mat-icon>
+            </div>
             <mat-error *ngIf="eventForm.get('eventDate')?.invalid && eventForm.get('eventDate')?.touched">
               Date is required
             </mat-error>
+          </mat-form-field>
+        </div> -->
+
+        <div class="half-width">
+          <label class="form-label">Select the Date</label>
+          <mat-form-field appearance="outline" class="full-width">
+            <div class="date-fiels">
+              <input matInput [matDatepicker]="picker" formControlName="eventDate" placeholder="Date">
+              <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+              <mat-datepicker #picker></mat-datepicker>
+              <mat-error *ngIf="eventForm.get('eventDate')?.invalid && eventForm.get('eventDate')?.touched">
+                Date is required
+              </mat-error>
+            </div>
           </mat-form-field>
         </div>
 
@@ -70,7 +87,7 @@
   <!-- Dialog Actions -->
   <mat-dialog-actions align="end">
     <button mat-button (click)="onCancel()">Cancel</button>
-    <button mat-raised-button color="primary" (click)="onSave()" [disabled]="eventForm.invalid">
+    <button mat-raised-button class="creat-btn" (click)="onSave()" [disabled]="eventForm.invalid">
       Create Event
     </button>
   </mat-dialog-actions>
