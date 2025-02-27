@@ -1,53 +1,43 @@
-// Modal container styles
+/* Modal container styles */
 ::ng-deep .mat-dialog-container {
   border-radius: 12px;
   padding: 24px;
   background: #fff;
 }
 
-// Title styling
+/* Title styling */
 h2 {
   font-size: 20px;
   font-weight: 600;
   margin-bottom: 16px;
 }
 
-// Form field styling
-mat-form-field {
-  width: 100%;
+/* File upload header (aligned properly) */
+.file-upload-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 16px;
 }
 
-// File upload styling
-input[type="file"] {
-  margin-top: 8px;
-  display: block;
+/* Download button styling */
+.download-btn {
+  min-width: 160px;
+  border-radius: 100px;
+  background-color: #1C5D95;
+  color: white;
+  border: none;
+  padding: 8px 15px;
   font-size: 14px;
-  border: 1px solid #1C5D95
+  cursor: pointer;
 }
 
-// Actions styling
-mat-dialog-actions {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 16px;
 
-  button {
-    min-width: 120px;
-    border-radius: 100px;
-    background-color: #1C5D95;
-    color: white;
-    border: none;
-    padding: 8px;
-  }
-
-}
-
+/* File upload styling */
 .file-upload-container {
   display: flex;
   align-items: center;
-  gap: 10px;
-  /* Space between button and text */
+  gap: 12px;
 }
 
 input[type="file"] {
@@ -58,39 +48,37 @@ input[type="file"] {
   display: inline-block;
   background-color: white;
   color: #1C5D95;
-  padding: 5px 20px;
+  padding: 6px 20px;
   border-radius: 20px;
   cursor: pointer;
   font-size: 16px;
   text-align: center;
-  transition: background 0.3s ease;
   border: 1px solid #1C5D95;
 }
 
 .custom-file-upload:hover {
   background-color: #0056b3;
+  color: white;
 }
 
+/* File format message */
 #file-name {
   font-size: 14px;
   color: gray;
 }
 
-.lable {
-  margin-bottom: 10px;
+/* Actions styling */
+mat-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
 }
 
-input {
-  width: 90%;
-  height: 70px;
-  padding: 8px;
+mat-dialog-actions button {
+  min-width: 120px;
+  border-radius: 100px;
+  background-color: #1C5D95;
+  color: white;
   border: none;
-  border-radius: 4px;
-  box-shadow: 0px 0px 4px 0px #00000026;
-  margin-bottom: 10px;
-}
-
-input:focus,
-textarea:focus {
-  outline: none !important;
+  padding: 8px;
 }

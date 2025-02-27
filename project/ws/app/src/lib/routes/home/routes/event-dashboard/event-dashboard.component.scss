@@ -16,6 +16,7 @@
   align-items: center;
   padding: 20px 0px;
   border-bottom: 1px solid #ccc;
+  margin-bottom: 20px;
 }
 
 h3 {
@@ -29,14 +30,19 @@ h3 {
   padding: 0 25px;
   height: 30px;
   border: none;
+  cursor: pointer;
 }
 
+// .create-btn:hover {
+//   background-color: #0056b3;
+// }
 
 .page-title {
   color: #666666;
   font-family: Roboto;
-  font-size: 20px;
+  font-size: 24px;
   font-weight: 400;
+  margin-bottom: 10px;
 }
 
 
@@ -52,4 +58,73 @@ h3 {
   padding: 10px 0px;
   border-bottom: 1px solid #ccc;
   margin-bottom: 15px;
+}
+
+.participants-header {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.search-input {
+  width: 35%;
+  padding: 8px;
+  border: none;
+  border-radius: 4px;
+  box-shadow: 0px 0px 4px 0px #00000026;
+}
+
+input:focus,
+textarea:focus {
+  outline: none !important;
+}
+
+.filter-btn {
+  background-color: transparent;
+  border: none;
+  color: #1C5D95;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.filter-btn mat-icon {
+  margin-right: 5px;
+}
+
+.events-table {
+  width: 100%;
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.events-table th,
+.events-table td {
+  // border: 1px solid #ddd;
+  // padding: 8px;
+
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+  text-align: left;
+  font-family: Roboto;
+  font-weight: 400;
+  font-size: 14px;
+}
+
+.events-table th {
+  // background-color: #f2f2f2;
+  // text-align: left;
+
+  background-color: #F5F5F5;
+  color: #8A8787;
+}
+
+.events-table tr:hover {
+  background-color: #f1f1f1;
+  cursor: pointer;
 }

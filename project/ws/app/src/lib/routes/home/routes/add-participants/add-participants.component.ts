@@ -95,4 +95,15 @@ export class AddParticipantsComponent implements OnInit {
       console.error('No participants to add')
     }
   }
+
+  downloadSampleExcel() {
+    const sampleData = `First Name,Last Name,Phone,Location\nJohn,Doe,1234567890,California\nJane,Smith,9876543210,New York`
+    const blob = new Blob([sampleData], { type: 'text/csv' })
+    const url = window.URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'Sample_Participants.xlsx' // Set to .csv for better compatibility
+    a.click()
+    window.URL.revokeObjectURL(url)
+  }
 }

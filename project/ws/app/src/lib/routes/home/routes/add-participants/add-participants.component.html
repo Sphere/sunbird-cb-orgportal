@@ -1,9 +1,13 @@
 <h2 mat-dialog-title>Add Participant</h2>
-<mat-dialog-content>
-  <p class="lable">Select users</p>
-  <input type="text" placeholder="Search by name, phone number, email">
 
-  <p>Upload CSV file to add multiple participants</p>
+<mat-dialog-content>
+  <div class="file-upload-header">
+    <p>Upload CSV file to add multiple participants</p>
+    <button class="download-btn" (click)="downloadSampleExcel()">
+      Download Sample Excel
+    </button>
+  </div>
+
   <div class="file-upload-container">
     <label class="custom-file-upload">
       <input type="file" accept=".csv, .xlsx" (change)="onFileChange($event)">
