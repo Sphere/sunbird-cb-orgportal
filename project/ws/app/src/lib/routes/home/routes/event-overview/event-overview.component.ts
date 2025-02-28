@@ -10,8 +10,8 @@ import { EventService } from '../../services/event.service'
   styleUrls: ['./event-overview.component.scss']
 })
 export class EventOverviewComponent implements OnInit {
-  // @Input() selectedEvent: any // ✅ Receiving data from parent
   selectedEvent: any
+  participantCount: number = 0
 
   constructor(
     private dialog: MatDialog,
@@ -23,24 +23,34 @@ export class EventOverviewComponent implements OnInit {
   ngOnInit(): void {
     this.eventService.currentEvent.subscribe(event => {
       this.selectedEvent = event
+      this.fetchParticipantsCount()
     })
     console.log('Received Event in Overview:', this.selectedEvent)
-    // this.route.parent?.data.subscribe(data => {
-    //   console.log('Parent Resolver Data:', data)
-    //   this.selectedEvent = data['event'] // Getting event details from parent
-    // })
   }
 
+  fetchParticipantsCount(): void {
+    if (this.selectedEvent && this.selectedEvent.eventId) {
+      this.eventService.getParticipants(this.selectedEvent.eventId).subscribe(
+        response => {
+          this.participantCount = response.length
+        },
+        error => {
+          console.error('Error fetching participants:', error)
+        }
+      )
+    }
+  }
 
   addParticipant(): void {
     const dialogRef = this.dialog.open(AddParticipantsComponent, {
       width: '650px',
       disableClose: false,
-      data: { eventId: this.selectedEvent.event_id }
+      data: { eventId: this.selectedEvent.eventId }
     })
 
     dialogRef.afterClosed().subscribe(result => {
       if (result === 'saved') {
+        this.fetchParticipantsCount() // Update the count after adding participants
         this.setTab('participants')
       }
       if (result === 'error') {

@@ -35,8 +35,8 @@
   </nav>
 
   <div class="event-header" *ngIf="event && !isCertificateRoute">
-    <h1>{{ event.event_name }}</h1>
-    <button class="edit-btn" (click)="editEvent()">
+    <h1>{{ event.eventName }}</h1>
+    <button class="edit-btn" (click)="editEvent(event)">
       Edit event <mat-icon>edit</mat-icon>
     </button>
   </div>

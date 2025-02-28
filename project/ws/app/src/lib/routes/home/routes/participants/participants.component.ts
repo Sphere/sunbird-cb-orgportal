@@ -28,13 +28,9 @@ export class ParticipantsComponent implements OnInit {
       response => {
         console.log('Participants:', response)
         this.participants = response.map((participant: any) => ({
-          userId: participant.user_id,
-          name: participant.user_name,
-          designation: participant.designation || 'N/A',
-          state: participant.state,
-          city: participant.city,
-          block: participant.block,
-          role: participant.role
+          firstName: participant.firstName,
+          lastName: participant.lastName,
+          place: participant.place
         }))
       },
       error => {
@@ -45,12 +41,9 @@ export class ParticipantsComponent implements OnInit {
 
   filteredParticipants() {
     return this.participants.filter(participant =>
-      participant.name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-      participant.designation.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-      participant.state.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-      participant.city.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-      participant.block.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-      participant.role.toLowerCase().includes(this.searchQuery.toLowerCase())
+      participant.firstName.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+      participant.lastName.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+      participant.place.toLowerCase().includes(this.searchQuery.toLowerCase())
     )
   }
 }

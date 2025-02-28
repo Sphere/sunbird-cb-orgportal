@@ -1,25 +1,25 @@
 <div class="tab-content">
   <div class="event-details">
-    <p><strong>Date:</strong> {{selectedEvent?.event_date | date:'dd/MM/yyyy'}}</p>
-    <p><strong>Location:</strong> {{ selectedEvent?.event_location }}</p>
+    <p><strong>Date:</strong> {{ selectedEvent?.eventDate | date:'dd/MM/yyyy' }}</p>
+    <p><strong>Location:</strong> {{ selectedEvent?.eventPlace }}</p>
     <p><strong>Created by:</strong> {{ selectedEvent?.createdBy }}</p>
   </div>
-  <p class="description"><strong>Description :</strong> {{ selectedEvent?.event_description }}</p>
-
+  <p class="description"><strong>Description :</strong> {{ selectedEvent?.eventDescription }}</p>
 
   <div class="grid">
     <div class="card">
-      <h1 class="count">0</h1>
+      <h1 class="count">{{ participantCount }}</h1>
       <p class="count-label">No. of Participants</p>
-      <button (click)="addParticipant()" class="add-btn"><mat-icon
-          fontIcon="add_circle_outline">add_circle_outline</mat-icon>Add
-        Participants</button>
+      <button *ngIf="participantCount.length <= 0" (click)="addParticipant()" class="add-btn">
+        <mat-icon fontIcon="add_circle_outline">add_circle_outline</mat-icon>
+        Add Participants
+      </button>
     </div>
     <div class="card">
-      <button (click)="generateCert()" class="certificate-text"> <mat-icon
-          fontIcon="add_circle_outline">add_circle_outline</mat-icon>
-        Choose a
-        Certificate</button>
+      <button (click)="generateCert()" class="certificate-text">
+        <mat-icon fontIcon="add_circle_outline">add_circle_outline</mat-icon>
+        Choose a Certificate
+      </button>
     </div>
   </div>
 </div>

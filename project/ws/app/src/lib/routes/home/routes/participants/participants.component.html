@@ -1,8 +1,7 @@
 <div class="tab-content ">
   <!-- Search and Filter -->
   <div class="participants-header">
-    <input type="text" placeholder="Search by name, phone number, email" [(ngModel)]="searchQuery"
-      class="search-input" />
+    <input type="text" placeholder="Search by name, place" [(ngModel)]="searchQuery" class="search-input" />
     <button class="filter-btn">
       <mat-icon class="material-icons-outlined">filter_alt</mat-icon> Filter
     </button>
@@ -13,24 +12,16 @@
     <table>
       <thead>
         <tr>
-          <th>Name</th>
-          <th>Designation</th>
-          <th>State</th>
-          <th>City</th>
-          <th>Block</th>
-          <th>Sub Centre</th>
-          <th>Competencies</th>
+          <th>First Name</th>
+          <th>Last Name</th>
+          <th>Place</th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let participant of filteredParticipants()">
-          <td>{{ participant.name }}</td>
-          <td>{{ participant.designation }}</td>
-          <td>{{ participant.state }}</td>
-          <td>{{ participant.city }}</td>
-          <td>{{ participant.block }}</td>
-          <td>{{ participant.subCentre }}</td>
-          <td>{{ participant.competencies }}</td>
+          <td>{{ participant.firstName }}</td>
+          <td>{{ participant.lastName }}</td>
+          <td>{{ participant.place }}</td>
         </tr>
       </tbody>
     </table>

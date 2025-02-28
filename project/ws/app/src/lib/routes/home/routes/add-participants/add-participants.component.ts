@@ -5,8 +5,10 @@ import * as Papa from 'papaparse'
 import * as XLSX from 'xlsx'
 
 interface Participant {
-  name: string
-  email: string
+  firstName: string
+  lastName?: string
+  phone: string
+  location: string
   [key: string]: any
 }
 
@@ -16,21 +18,20 @@ interface Participant {
   styleUrls: ['./add-participants.component.scss']
 })
 export class AddParticipantsComponent implements OnInit {
-  eventId!: string // Replace with actual event ID
-  participants: any[] = []
+  eventId!: string
+  participants: Participant[] = []
+  validationErrors: string[] = [] // Stores validation messages
+  isValidData: boolean = false // Controls "Save & Add" button
 
   constructor(
     private dialogRef: MatDialogRef<AddParticipantsComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
     private eventService: EventService
-
   ) {
     this.eventId = data.eventId
   }
 
-  ngOnInit(): void {
-
-  }
+  ngOnInit(): void { }
 
   onFileChange(event: any): void {
     const file = event.target.files[0]
@@ -41,7 +42,7 @@ export class AddParticipantsComponent implements OnInit {
       } else if (fileExtension === 'xlsx') {
         this.parseExcel(file)
       } else {
-        console.error('Unsupported file format')
+        this.validationErrors = ['Unsupported file format']
       }
     }
   }
@@ -50,14 +51,12 @@ export class AddParticipantsComponent implements OnInit {
     Papa.parse<Participant>(file, {
       header: true,
       complete: (result: Papa.ParseResult<Participant>) => {
-        this.participants = result.data.filter(participant => {
-          // Check if the participant object has valid data
-          return participant.user_id && participant.user_name && participant.state && participant.city && participant.block && participant.role
-        })
-        console.log('Parsed CSV:', this.participants)
+        this.participants = result.data
+        this.validateParticipants()
       },
       error: (error: any) => {
         console.error('Error parsing CSV:', error)
+        this.validationErrors = ['Error parsing CSV file']
       }
     })
   }
@@ -69,40 +68,52 @@ export class AddParticipantsComponent implements OnInit {
       const workbook = XLSX.read(data, { type: 'array' })
       const firstSheetName = workbook.SheetNames[0]
       const worksheet = workbook.Sheets[firstSheetName]
-      const parsedData = XLSX.utils.sheet_to_json<Participant>(worksheet)
-      this.participants = parsedData.filter(participant => {
-        // Check if the participant object has valid data
-        return participant.user_id && participant.user_name && participant.state && participant.city && participant.block && participant.role
-      })
-      console.log('Parsed Excel:', this.participants)
+      this.participants = XLSX.utils.sheet_to_json<Participant>(worksheet)
+      this.validateParticipants()
     }
     reader.readAsArrayBuffer(file)
   }
 
+  validateParticipants(): void {
+    this.validationErrors = []
+
+    this.participants.forEach((participant, index) => {
+      console.log(participant.firstName)
+      console.log(participant)
+      if (!participant.firstName) {
+        this.validationErrors.push(`Row ${index + 1}: First Name is required.`)
+      }
+      console.log(participant.phone)
+      if (!participant.phone || !/^\d{10}$/.test(participant.phone)) {
+        this.validationErrors.push(`Row ${index + 1}: Invalid Phone Number (must be 10 digits).`)
+      }
+    })
+
+    this.isValidData = this.validationErrors.length === 0
+  }
+
   saveParticipants(): void {
-    if (this.participants.length > 0) {
-      this.eventService.addParticipants(this.eventId, this.participants).subscribe(
-        response => {
-          console.log('Participants added successfully:', response)
-          this.dialogRef.close('saved')
-        },
-        error => {
-          this.dialogRef.close('error')
-          console.error('Error adding participants:', error)
-        }
-      )
-    } else {
-      console.error('No participants to add')
-    }
+    if (!this.isValidData) return
+
+    this.eventService.addParticipants(this.eventId, this.participants).subscribe(
+      response => {
+        console.log('Participants added successfully:', response)
+        this.dialogRef.close('saved')
+      },
+      error => {
+        console.error('Error adding participants:', error)
+        this.dialogRef.close('error')
+      }
+    )
   }
 
   downloadSampleExcel() {
-    const sampleData = `First Name,Last Name,Phone,Location\nJohn,Doe,1234567890,California\nJane,Smith,9876543210,New York`
+    const sampleData = `firstName,lastName,phone,location\nJohn,Doe,1234567890,California\nJane,Smith,9876543210,New York`
     const blob = new Blob([sampleData], { type: 'text/csv' })
     const url = window.URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = 'Sample_Participants.xlsx' // Set to .csv for better compatibility
+    a.download = 'Sample_Participants.xlsx'
     a.click()
     window.URL.revokeObjectURL(url)
   }

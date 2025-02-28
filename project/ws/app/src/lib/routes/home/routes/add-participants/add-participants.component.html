@@ -15,8 +15,18 @@
     </label>
     <span id="file-name">Only .csv, .xlsx file</span>
   </div>
+
+  <!-- Display validation errors if any -->
+  <div class="error-messages" *ngIf="validationErrors.length > 0">
+    <p *ngFor="let error of validationErrors" class="error-text">{{ error }}</p>
+  </div>
+
+  <!-- Show success message when valid -->
+  <div class="success-message" *ngIf="isValidData && participants.length > 0">
+    <p class="success-text">All data is valid. Ready to submit!</p>
+  </div>
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
-  <button (click)="saveParticipants()">Save & Add</button>
+  <button [disabled]="!isValidData" (click)="saveParticipants()">Save & Add</button>
 </mat-dialog-actions>

@@ -29,13 +29,20 @@ export class EventDashboardComponent implements OnInit {
       (response) => {
         console.log('Events:', response)
         this.events = response.map((event: any) => ({
-          id: event.event_id, // Use actual event_id
-          name: event.event_name,
-          description: event.event_description,
-          location: event.event_location,
-          date: event.event_date,
-          organizer: event.organizer_name,
-          registrationType: event.event_status
+          // id: event.event_id, // Use actual event_id
+          // name: event.event_name,
+          // description: event.event_description,
+          // location: event.event_location,
+          // date: event.event_date,
+          // organizer: event.organizer_name,
+          // registrationType: event.event_status
+          id: event.eventId, // Use actual event_id
+          name: event.eventName,
+          description: event.eventDescription,
+          location: event.eventPlace,
+          date: event.eventDate,
+          organizer: event.createdBy,
+          registrationType: event.eventType,
         }))
         this.filteredEvents = this.events
 

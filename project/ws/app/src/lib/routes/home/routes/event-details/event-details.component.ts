@@ -61,8 +61,10 @@ export class EventDetailsComponent implements OnInit {
     this.router.navigate([tab], { relativeTo: this.route })
   }
 
-  editEvent() {
-    console.log('Edit Event Clicked', this.event.event_name)
+  editEvent(eventData: any) {
+
+    console.log('Edit Event Clicked', eventData)
+
   }
 
   onNavigateToParticipants(): void {

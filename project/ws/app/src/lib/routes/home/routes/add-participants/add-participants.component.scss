@@ -82,3 +82,23 @@ mat-dialog-actions button {
   border: none;
   padding: 8px;
 }
+
+.error-messages {
+  margin-top: 10px;
+  color: red;
+  font-size: 14px;
+}
+
+.error-text {
+  margin: 2px 0;
+}
+
+.success-message {
+  margin-top: 10px;
+  color: green;
+  font-size: 14px;
+}
+
+.success-text {
+  font-weight: bold;
+}
