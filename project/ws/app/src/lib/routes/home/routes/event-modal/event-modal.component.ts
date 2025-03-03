@@ -3,6 +3,16 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms'
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog'
 import { EventService } from '../../services/event.service'
 
+interface EventData {
+  eventName: any
+  eventDescription: any
+  eventDate: any
+  eventPlace: any
+  eventType: any
+  createdBy: string
+  eventId?: string // Optional property
+}
+
 @Component({
   selector: 'ws-app-event-modal',
   templateUrl: './event-modal.component.html',
@@ -10,6 +20,8 @@ import { EventService } from '../../services/event.service'
 })
 export class EventModalComponent implements OnInit {
   eventForm: FormGroup
+  isEditMode: boolean = false
+
 
   constructor(
     public dialogRef: MatDialogRef<EventModalComponent>,
@@ -24,6 +36,17 @@ export class EventModalComponent implements OnInit {
       eventDescription: ['', [Validators.required]],
       certificateType: ['', Validators.required]
     })
+
+    if (data && data.event) {
+      this.isEditMode = true
+      this.eventForm.patchValue({
+        eventName: data.event.eventName,
+        eventDate: data.event.eventDate,
+        eventLocation: data.event.eventPlace,
+        eventDescription: data.event.eventDescription,
+        certificateType: data.event.eventType
+      })
+    }
   }
 
   ngOnInit(): void {
@@ -35,7 +58,7 @@ export class EventModalComponent implements OnInit {
 
   onSave(): void {
     if (this.eventForm.valid) {
-      const eventData = {
+      const eventData: EventData = {
         // event_name: this.eventForm.value.eventName,
         // event_description: this.eventForm.value.eventDescription,
         // event_date: this.eventForm.value.eventDate,
@@ -57,15 +80,32 @@ export class EventModalComponent implements OnInit {
 
       }
 
-      this.eventService.createEvent(eventData).subscribe(
-        response => {
-          console.log('Event created successfully:', response)
-          this.dialogRef.close(response)
-        },
-        error => {
-          console.error('Error creating event:', error)
-        }
-      )
+      if (this.isEditMode) {
+        eventData.eventId = this.data.event.eventId
+        // eventData['updatedBy'] = "New Sumit Bajaj" // Replace with actual user
+        this.eventService.editEvent(eventData).subscribe(
+          response => {
+            console.log('Edit Event updated successfully:', response)
+            this.dialogRef.close(response)
+          },
+          error => {
+            console.error('Error updating event:', error)
+          }
+        )
+      } else {
+        this.eventService.createEvent(eventData).subscribe(
+          response => {
+            console.log('Event created successfully:', response)
+            this.dialogRef.close(response)
+          },
+          error => {
+            console.error('Error creating event:', error)
+          }
+        )
+      }
+
+
+
     }
   }
 }

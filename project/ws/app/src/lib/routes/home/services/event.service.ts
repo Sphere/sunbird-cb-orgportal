@@ -9,6 +9,7 @@ const API_END_POINTS = {
   GET_ALL_EVENTS: `${PROTECTED_SLAG_V8}/sunbirdrRcCertificate/events`,
   GET_EVENT_BY_ID: (eventId: string) => `${PROTECTED_SLAG_V8}/sunbirdrRcCertificate/events/${eventId}`,
   CREATE_EVENT: `${PROTECTED_SLAG_V8}/sunbirdrRcCertificate/events`,
+  EDIT_EVENT: `${PROTECTED_SLAG_V8}/sunbirdrRcCertificate/events/edit`,
   ADD_PARTICIPANTS: `${PROTECTED_SLAG_V8}/sunbirdrRcCertificate/events/users`,
   GET_PARTICIPANTS: (eventId: string) => `${PROTECTED_SLAG_V8}/sunbirdrRcCertificate/events/${eventId}/users`
 }
@@ -41,6 +42,12 @@ export class EventService {
     )
   }
 
+  editEvent(eventData: any): Observable<any> {
+    return this.http.post<any>(API_END_POINTS.EDIT_EVENT, eventData).pipe(
+      map(response => response) // Modify mapping if needed
+    )
+  }
+
   addParticipants(eventId: string, users: any[]): Observable<any> {
     const payload = { eventId, users }
     return this.http.post<any>(API_END_POINTS.ADD_PARTICIPANTS, payload).pipe(
@@ -54,11 +61,7 @@ export class EventService {
     )
   }
 
-
   updateEvent(event: any) {
     this.eventSource.next(event)
   }
-
-
-
 }

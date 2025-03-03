@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core'
 import { ActivatedRoute, Router, NavigationEnd } from '@angular/router'
+import { MatDialog } from '@angular/material/dialog'
 import { filter } from 'rxjs/operators'
 import { EventService } from '../../services/event.service'
+import { EventModalComponent } from '../event-modal/event-modal.component'
 
 @Component({
   selector: 'ws-app-event-details',
@@ -17,6 +19,7 @@ export class EventDetailsComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
+    private dialog: MatDialog,
     private eventService: EventService
 
   ) { }
@@ -47,31 +50,34 @@ export class EventDetailsComponent implements OnInit {
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
     ).subscribe(() => {
+
       this.isCertificateRoute = this.route.firstChild?.snapshot.url[0]?.path === 'certificate'
       const currentRoute = this.route.snapshot.firstChild?.routeConfig?.path
       this.activeTab = currentRoute || 'overview' // Default to overview
     })
   }
 
-
-
-
-  setTab(tab: string) {
+  setTab(tab: string): void {
     this.activeTab = tab
     this.router.navigate([tab], { relativeTo: this.route })
   }
 
-  editEvent(eventData: any) {
+  editEvent(eventData: any): void {
+    const dialogRef = this.dialog.open(EventModalComponent, {
+      width: '650px',
+      disableClose: true,
+      data: { event: eventData }
+    })
 
-    console.log('Edit Event Clicked', eventData)
-
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        console.log('Event updated:', result)
+        this.event = result // Update the event details
+      }
+    })
   }
 
   onNavigateToParticipants(): void {
     this.setTab('participants')
   }
-
-
-
-
 }

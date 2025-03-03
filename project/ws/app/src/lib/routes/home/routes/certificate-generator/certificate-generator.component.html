@@ -7,25 +7,36 @@
 
   <div class="certificate-header">
     <p>Choose from the list of certificate templates</p>
-    <button class="download-btn" (click)="generateAndDownloadSVG('Vishali Sakar','19-Feb-2025')">Generate &
-      Download</button>
+    <button class="download-btn" (click)="generateAndDownloadSVG('Vishali Sakar', '19-Feb-2025')"
+      [disabled]="isLoading || !certificates.length">
+      Generate & Download
+    </button>
   </div>
 
-  <!-- Wrapper for Sidebar & Preview -->
-  <div class="certificate-wrapper">
-    <!-- Sidebar (Scrollable) -->
+  <!-- Show loading message -->
+  <div *ngIf="isLoading" class="loading-message">
+    Loading certificates...
+  </div>
+
+  <!-- Show error message if failed to load -->
+  <div *ngIf="errorMessage" class="error-message">
+    {{ errorMessage }}
+  </div>
+
+  <!-- Certificate List -->
+  <div class="certificate-wrapper" *ngIf="!isLoading && certificates.length">
     <div class="certificate-sidebar">
       <div class="scrollable-thumbnails">
         <div *ngFor="let cert of certificates; let i = index" [class.selected]="i === selectedCertIndex"
           (click)="selectCertificate(i)">
-          <img [src]="cert.thumbnail" alt="Certificate Template">
+          <img [src]="cert.templateLogo" [alt]="cert.templateName">
         </div>
       </div>
     </div>
 
     <!-- Certificate Preview -->
     <div class="certificate-preview">
-      <img [src]="certificates[selectedCertIndex]?.svgPath" alt="Selected Certificate">
+      <img [src]="certificates[selectedCertIndex]?.templateLogo" alt="Selected Certificate">
     </div>
   </div>
 </div>
