@@ -10,16 +10,33 @@
     <div class="card">
       <h1 class="count">{{ participantCount }}</h1>
       <p class="count-label">No. of Participants</p>
-      <button *ngIf="participantCount.length <= 0" (click)="addParticipant()" class="add-btn">
+      <button *ngIf="participantCount <= 0" (click)="addParticipant()" class="add-btn">
         <mat-icon fontIcon="add_circle_outline">add_circle_outline</mat-icon>
         Add Participants
       </button>
     </div>
-    <div class="card">
-      <button (click)="generateCert()" class="certificate-text">
+    <!-- <div class="card">
+      <button (click)="generateCert()"
+        [ngClass]="participantCount.length <= 0 ? 'certificate-text-disabled' : 'certificate-text-enabled' ">
         <mat-icon fontIcon="add_circle_outline">add_circle_outline</mat-icon>
         Choose a Certificate
       </button>
+    </div> -->
+
+    <div class="d-none">{{selectedEvent?.selectedTemplate | json}}</div>
+    <div class="card">
+      <button *ngIf="!selectedEvent?.selectedTemplate" (click)="generateCert()" [disabled]="participantCount <= 0"
+        [ngClass]="participantCount <= 0 ? 'certificate-text-disabled' : 'certificate-text-enabled' ">
+        <mat-icon fontIcon="add_circle_outline">add_circle_outline</mat-icon>
+        Choose a Certificate
+      </button>
+
+      <div *ngIf="selectedEvent?.selectedTemplate" (click)="downloadCertificates()">
+        <img [src]="selectedEvent.selectedTemplate.templateLogo" alt="Selected Certificate">
+        <button class="certificate-text-enabled" (click)="downloadCertificates()">
+          <mat-icon>download</mat-icon> Download Certificates
+        </button>
+      </div>
     </div>
   </div>
 </div>

@@ -64,7 +64,7 @@ export class EventDetailsComponent implements OnInit {
 
   editEvent(eventData: any): void {
     const dialogRef = this.dialog.open(EventModalComponent, {
-      width: '650px',
+      width: '1000px',
       disableClose: true,
       data: { event: eventData }
     })

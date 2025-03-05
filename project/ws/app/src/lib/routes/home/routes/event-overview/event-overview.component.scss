@@ -68,7 +68,7 @@
 
 }
 
-.certificate-text {
+.certificate-text-disabled {
   font-family: Roboto;
   font-weight: 400;
   font-size: 14px;
@@ -78,7 +78,29 @@
   display: flex;
   gap: 10px;
   align-items: center;
-  cursor: pointer;
   border: none;
   background: inherit;
+  cursor: none;
+  opacity: 0.5;
+}
+
+
+.certificate-text-enabled {
+  font-family: Roboto;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 16.41px;
+  letter-spacing: -2%;
+  color: #1C5D95;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  border: none;
+  background: inherit;
+  cursor: pointer;
+  opacity: 1;
+}
+
+.d-none {
+  display: none;
 }

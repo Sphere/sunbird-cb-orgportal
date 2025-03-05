@@ -7,8 +7,7 @@
 
   <div class="certificate-header">
     <p>Choose from the list of certificate templates</p>
-    <button class="download-btn" (click)="generateAndDownloadSVG('Vishali Sakar', '19-Feb-2025')"
-      [disabled]="isLoading || !certificates.length">
+    <button class="download-btn" (click)="generateCertificate()" [disabled]="isLoading || !certificates.length">
       Generate & Download
     </button>
   </div>

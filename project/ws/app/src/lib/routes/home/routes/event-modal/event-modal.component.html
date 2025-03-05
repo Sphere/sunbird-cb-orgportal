@@ -1,12 +1,17 @@
 <div class="p-5">
-  <h2 class="title">Create an event</h2>
+  <div class="modal-header">
+    <h2 class="title">{{ isEditMode ? 'Edit Event' : 'Create an event' }}</h2>
+    <button mat-icon-button (click)="onCancel()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
   <p class="subtext">You can update your event name and details anytime</p>
 
   <mat-dialog-content class="dialog-content">
     <form [formGroup]="eventForm">
 
       <!-- Event Name -->
-      <label class="form-label">Enter the Event name</label>
+      <label class="form-label">Enter the Event name *</label>
       <mat-form-field appearance="outline" class="full-width">
         <input matInput formControlName="eventName" placeholder="Event Name">
         <mat-error *ngIf="eventForm.get('eventName')?.invalid && eventForm.get('eventName')?.touched">
@@ -16,37 +21,23 @@
 
       <!-- Date & Location -->
       <div class="row">
-        <!-- <div class="half-width">
-          <label class="form-label">Select the Date</label>
-          <mat-form-field appearance="outline" class="full-width ">
-            <div class="date-fiels">
-              <input matInput [matDatepicker]="picker" formControlName="eventDate" placeholder="Date">
-              <mat-icon class="material-symbols-outlined">
-                calendar_month
-              </mat-icon>
-            </div>
+        <div class="half-width">
+          <label class="form-label">Select the Date *</label>
+          <mat-form-field appearance="outline" class="full-width">
+            <!-- <div class="date-fiels"> -->
+            <input matInput [matDatepicker]="picker" formControlName="eventDate" placeholder="Date">
+            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+            <!-- </div> -->
+
             <mat-error *ngIf="eventForm.get('eventDate')?.invalid && eventForm.get('eventDate')?.touched">
               Date is required
             </mat-error>
           </mat-form-field>
-        </div> -->
 
-        <div class="half-width">
-          <label class="form-label">Select the Date</label>
-          <mat-form-field appearance="outline" class="full-width">
-            <div class="date-fiels">
-              <input matInput [matDatepicker]="picker" formControlName="eventDate" placeholder="Date">
-              <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-              <mat-datepicker #picker></mat-datepicker>
-              <mat-error *ngIf="eventForm.get('eventDate')?.invalid && eventForm.get('eventDate')?.touched">
-                Date is required
-              </mat-error>
-            </div>
-          </mat-form-field>
         </div>
-
         <div class="half-width">
-          <label class="form-label">Location</label>
+          <label class="form-label">Location *</label>
           <mat-form-field appearance="outline" class="full-width">
             <input matInput formControlName="eventLocation" placeholder="Enter location">
             <mat-error *ngIf="eventForm.get('eventLocation')?.invalid && eventForm.get('eventLocation')?.touched">
@@ -57,7 +48,7 @@
       </div>
 
       <!-- Description -->
-      <label class="form-label">Enter your Description</label>
+      <label class="form-label">Enter your Description *</label>
       <mat-form-field appearance="outline" class="full-width">
         <textarea matInput rows="3" formControlName="eventDescription" placeholder="Description"></textarea>
         <mat-hint align="end">0/200 (In a few words, describe your event)</mat-hint>
@@ -67,13 +58,13 @@
       </mat-form-field>
 
       <!-- Certificate Type Dropdown -->
-      <label class="form-label">Participant registration type for Certificate</label>
+      <label class="form-label">Participant registration type for Certificate *</label>
       <div class="row">
         <mat-form-field appearance="outline" class="half-width">
           <mat-select formControlName="certificateType"
             placeholder="Choose the type of certificate this event will use">
-            <mat-option value="noQR">Registration based</mat-option>
-            <mat-option value="withQR">No Registration</mat-option>
+            <mat-option value="registred with sphere">Registration based</mat-option>
+            <mat-option value="registred without sphere">No Registration</mat-option>
           </mat-select>
           <mat-error *ngIf="eventForm.get('certificateType')?.invalid && eventForm.get('certificateType')?.touched">
             Please select a certificate type
@@ -84,11 +75,10 @@
     </form>
   </mat-dialog-content>
 
-  <!-- Dialog Actions -->
   <mat-dialog-actions align="end">
-    <button mat-button (click)="onCancel()">Cancel</button>
+    <!-- <button mat-button (click)="onCancel()">Cancel</button> -->
     <button mat-raised-button class="creat-btn" (click)="onSave()" [disabled]="eventForm.invalid">
-      Create Event
+      {{ isEditMode ? 'Edit Event' : 'Create Event' }}
     </button>
   </mat-dialog-actions>
 </div>

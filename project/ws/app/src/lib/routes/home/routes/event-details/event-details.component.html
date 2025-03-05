@@ -42,7 +42,7 @@
   </div>
 
   <!-- Show Tabs only if NOT on 'certificate' route -->
-  <div>{{activeTab}}</div>
+  <!-- <div>{{activeTab}}</div> -->
   <div class="tabs" *ngIf="!isCertificateRoute">
     <a [class.active]="activeTab === 'overview'" (click)="setTab('overview')">Overview</a>
     <a [class.active]="activeTab === 'participants'" (click)="setTab('participants')">Participants</a>

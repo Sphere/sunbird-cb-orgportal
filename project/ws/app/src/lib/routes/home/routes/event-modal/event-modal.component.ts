@@ -21,6 +21,7 @@ interface EventData {
 export class EventModalComponent implements OnInit {
   eventForm: FormGroup
   isEditMode: boolean = false
+  userData: any
 
 
   constructor(
@@ -50,6 +51,9 @@ export class EventModalComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.eventService.currentUserData.subscribe(data => {
+      this.userData = data
+    })
   }
 
   onCancel(): void {
@@ -76,7 +80,7 @@ export class EventModalComponent implements OnInit {
         eventPlace: this.eventForm.value.eventLocation,
 
         eventType: this.eventForm.value.certificateType,
-        createdBy: "test"
+        createdBy: this.userData.userName,
 
       }
 

@@ -5,11 +5,19 @@
   background: #fff;
 }
 
-/* Title styling */
-h2 {
-  font-size: 20px;
-  font-weight: 600;
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 16px;
+
+
+  /* Title styling */
+  h2 {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 0;
+  }
 }
 
 /* File upload header (aligned properly) */
@@ -56,10 +64,10 @@ input[type="file"] {
   border: 1px solid #1C5D95;
 }
 
-.custom-file-upload:hover {
-  background-color: #0056b3;
-  color: white;
-}
+// .custom-file-upload:hover {
+//   background-color: #0056b3;
+//   color: white;
+// }
 
 /* File format message */
 #file-name {

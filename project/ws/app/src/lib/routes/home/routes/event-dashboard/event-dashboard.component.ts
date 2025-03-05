@@ -3,6 +3,8 @@ import { MatDialog } from '@angular/material/dialog'
 import { Router } from '@angular/router'
 import { EventService } from '../../services/event.service'
 import { EventModalComponent } from '../event-modal/event-modal.component'
+// import { ProfileV2Service } from '../../services/home.servive'
+import { WorkallocationService } from '../../services/workallocation.service'
 
 @Component({
   selector: 'ws-app-event-dashboard',
@@ -17,11 +19,32 @@ export class EventDashboardComponent implements OnInit {
   constructor(
     private eventService: EventService,
     private dialog: MatDialog,
-    private router: Router
+    private router: Router,
+    private userService: WorkallocationService
+
   ) { }
 
   ngOnInit(): void {
+    this.eventService.updateEvent(null)
+    this.fetchUserDetails()
     this.fetchEvents()
+
+  }
+
+  fetchUserDetails(): void {
+    this.userService.getAllUsers().subscribe(
+      (response) => {
+        const user = response.result.response
+        this.eventService.setUserData(
+          {
+            userId: user.userId,
+            userName: user.userName
+          })
+        console.log('User Details:', response.result.response.userName)
+      },
+      (error) => {
+        console.error('Error fetching user details:', error)
+      })
   }
 
   fetchEvents(): void {
@@ -60,11 +83,16 @@ export class EventDashboardComponent implements OnInit {
         console.error('Error fetching events:', error)
       }
     )
+
+    this.eventService.currentEvent.subscribe(event => {
+      console.log('Event:', event)
+    })
   }
 
   openEventModal(): void {
     const dialogRef = this.dialog.open(EventModalComponent, {
-      width: '1000px'
+      width: '1000px',
+      disableClose: true,
     })
 
     dialogRef.afterClosed().subscribe(result => {
@@ -77,6 +105,7 @@ export class EventDashboardComponent implements OnInit {
 
 
   navigateToEvent(event: any): void {
+    this.eventService.updateEvent(event)
     this.router.navigate(['/app/home/event-dashboard', event.id])
   }
 

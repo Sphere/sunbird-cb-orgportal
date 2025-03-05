@@ -95,6 +95,11 @@ export class AddParticipantsComponent implements OnInit {
   saveParticipants(): void {
     if (!this.isValidData) return
 
+    this.participants = this.participants.map(participant => ({
+      ...participant,
+      phone: String(participant.phone)
+    }))
+
     this.eventService.addParticipants(this.eventId, this.participants).subscribe(
       response => {
         console.log('Participants added successfully:', response)
