@@ -71,7 +71,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker'
     ParticipantsComponent,
     CertificateGeneratorComponent,
     EventModalComponent,
-    AddParticipantsComponent
+    AddParticipantsComponent,
   ],
   imports: [
     CommonModule,
@@ -121,12 +121,12 @@ import { MatDatepickerModule } from '@angular/material/datepicker'
     UsersModule,
     MatTableModule,
     SkillModule,
-    MatDatepickerModule
+    MatDatepickerModule,
 
   ],
   entryComponents: [
     EventModalComponent,
-    AddParticipantsComponent
+    AddParticipantsComponent,
   ],
   providers: [
     // CKEditorService,

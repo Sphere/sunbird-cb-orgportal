@@ -6,16 +6,14 @@ import { take } from 'rxjs/operators'
 import { EventService } from '../../services/event.service'
 import { EventData } from '../../interface/events'
 
-
-
 @Component({
   selector: 'ws-app-event-modal',
   templateUrl: './event-modal.component.html',
-  styleUrls: ['./event-modal.component.scss']
+  styleUrls: ['./event-modal.component.scss'],
 })
 export class EventModalComponent implements OnInit, OnDestroy {
   eventForm!: FormGroup
-  isEditMode: boolean = false
+  isEditMode = false
   userData: any
   private userSubscription!: Subscription
 
@@ -45,7 +43,7 @@ export class EventModalComponent implements OnInit, OnDestroy {
       eventDate: ['', Validators.required],
       eventLocation: ['', Validators.required],
       eventDescription: ['', [Validators.required]],
-      certificateType: ['', Validators.required]
+      certificateType: ['', Validators.required],
     })
 
     if (this.data && this.data.event) {
@@ -55,7 +53,7 @@ export class EventModalComponent implements OnInit, OnDestroy {
         eventDate: this.data.event.eventDate,
         eventLocation: this.data.event.eventPlace,
         eventDescription: this.data.event.eventDescription,
-        certificateType: this.data.event.eventType
+        certificateType: this.data.event.eventType,
       })
     }
   }

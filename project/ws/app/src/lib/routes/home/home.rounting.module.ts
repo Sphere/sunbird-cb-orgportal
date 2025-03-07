@@ -95,7 +95,7 @@ const routes: Routes = [
           {
             path: '',
             pathMatch: 'full',  // Redirect empty path to 'overview'
-            redirectTo: 'overview'
+            redirectTo: 'overview',
           },
           {
             path: 'overview',

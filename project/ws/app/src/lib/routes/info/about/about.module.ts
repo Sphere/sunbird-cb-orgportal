@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { AboutHomeComponent } from './components/about-home.component'
 import {
-  MatToolbarModule
+  MatToolbarModule,
 } from '@angular/material/toolbar'
 import { MatDividerModule } from '@angular/material/divider'
 import { MatExpansionModule } from '@angular/material/expansion'

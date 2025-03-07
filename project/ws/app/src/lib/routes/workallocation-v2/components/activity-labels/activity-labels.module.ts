@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { ActivityLabelsComponent } from './activity-labels.component'
 import {
-  MatAutocompleteModule
+  MatAutocompleteModule,
 } from '@angular/material/autocomplete'
 import { MatCardModule } from '@angular/material/card'
 import { MatCheckboxModule } from '@angular/material/checkbox'

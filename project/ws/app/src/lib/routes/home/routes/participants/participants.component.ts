@@ -7,10 +7,10 @@ import * as  _ from 'lodash'
 @Component({
   selector: 'ws-app-participants',
   templateUrl: './participants.component.html',
-  styleUrls: ['./participants.component.scss']
+  styleUrls: ['./participants.component.scss'],
 })
 export class ParticipantsComponent implements OnInit, OnDestroy {
-  searchQuery: string = ''
+  searchQuery = ''
   participants: any[] = []
   private routeSubscription!: Subscription // Stores the route subscription
 
@@ -39,7 +39,7 @@ export class ParticipantsComponent implements OnInit, OnDestroy {
         this.participants = response.map((participant: any) => ({
           firstName: participant.firstName,
           lastName: participant.lastName,
-          place: participant.place
+          place: participant.place,
         }))
       },
       error => {

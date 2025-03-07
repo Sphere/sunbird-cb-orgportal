@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { PublicLogoutComponent } from './public-logout.component'
 import {
-  MatToolbarModule
+  MatToolbarModule,
 } from '@angular/material/toolbar'
 import { MatCardModule } from '@angular/material/card'
 import { MatDividerModule } from '@angular/material/divider'

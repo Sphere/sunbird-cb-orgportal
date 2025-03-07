@@ -193,7 +193,7 @@ export class UsersViewComponent implements OnInit, OnDestroy {
       // tslint:disable-next-line
       _.reduce(data, (_key: any, value: any) => {
         professionalDetails['designation'] = value.designation ? value.designation : ''
-      }, professionalDetails)
+      },       professionalDetails)
     }
     return professionalDetails
   }

@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { FeaturesComponent } from './features.component'
 import {
-  MatToolbarModule
+  MatToolbarModule,
 } from '@angular/material/toolbar'
 import { MatIconModule } from '@angular/material/icon'
 import { MatFormFieldModule } from '@angular/material/form-field'

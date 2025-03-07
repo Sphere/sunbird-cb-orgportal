@@ -16,15 +16,15 @@ interface Participant {
 @Component({
   selector: 'ws-app-add-participants',
   templateUrl: './add-participants.component.html',
-  styleUrls: ['./add-participants.component.scss']
+  styleUrls: ['./add-participants.component.scss'],
 })
 export class AddParticipantsComponent implements OnInit {
 
   eventId!: string
   participants: Participant[] = []
   validationErrors: string[] = [] // Stores validation messages
-  isValidData: boolean = false // Controls "Save & Add" button
-  private subscription: Subscription | null = null;
+  isValidData = false // Controls "Save & Add" button
+  private subscription: Subscription | null = null
 
   constructor(
     private dialogRef: MatDialogRef<AddParticipantsComponent>,
@@ -69,7 +69,7 @@ export class AddParticipantsComponent implements OnInit {
       error: (error: any) => {
         console.error('Error parsing CSV:', error)
         this.validationErrors = ['Error parsing CSV file']
-      }
+      },
     })
   }
 
@@ -105,11 +105,11 @@ export class AddParticipantsComponent implements OnInit {
   }
 
   saveParticipants(): void {
-    if (!this.isValidData) return
+    if (!this.isValidData) { return }
 
     this.participants = this.participants.map(participant => ({
       ...participant,
-      phone: String(participant.phone)
+      phone: String(participant.phone),
     }))
 
     this.subscription = this.eventService.addParticipants(this.eventId, this.participants).subscribe(

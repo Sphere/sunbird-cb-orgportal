@@ -11,7 +11,7 @@ interface CertificateTemplate {
 @Component({
   selector: 'ws-app-certificate-generator',
   templateUrl: './certificate-generator.component.html',
-  styleUrls: ['./certificate-generator.component.scss']
+  styleUrls: ['./certificate-generator.component.scss'],
 })
 export class CertificateGeneratorComponent implements OnInit {
 
@@ -20,12 +20,12 @@ export class CertificateGeneratorComponent implements OnInit {
   isLoading = true
   isGenerating = false
   errorMessage = ''
-  eventId: string = '' // Store event ID dynamically
-  eventType: string = ''
+  eventId = '' // Store event ID dynamically
+  eventType = ''
   // eventDetails: any
 
   private readonly jsonUrl = 'https://aastar-assets.s3.ap-south-1.amazonaws.com/rc-mdo-templates/MDO-RC-TEMPLATES.json'
-  nonRegistered: boolean = false;
+  nonRegistered = false
 
   constructor(
     private router: Router,
@@ -34,7 +34,6 @@ export class CertificateGeneratorComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-
 
     this.eventService.currentEvent.subscribe(event => {
       this.eventType = event.eventType
@@ -48,7 +47,7 @@ export class CertificateGeneratorComponent implements OnInit {
     this.isLoading = true
     try {
       const response = await fetch(this.jsonUrl)
-      if (!response.ok) throw new Error('Failed to load certificates')
+      if (!response.ok) { throw new Error('Failed to load certificates') }
 
       const data = await response.json()
       if (!Array.isArray(data.templates)) {
@@ -72,19 +71,17 @@ export class CertificateGeneratorComponent implements OnInit {
     }
   }
 
-
   selectCertificate(index: number): void {
     this.selectedCertIndex = index
   }
 
   generateCertificate(): void {
 
-
-    if (this.isGenerating) return
+    if (this.isGenerating) { return }
 
     const selectedTemplate = this.certificates[this.selectedCertIndex]
     if (!selectedTemplate || !this.eventId) {
-      console.error("Missing required data: eventId or templateId")
+      console.error('Missing required data: eventId or templateId')
       return
     }
 
@@ -92,7 +89,7 @@ export class CertificateGeneratorComponent implements OnInit {
       this.eventService.currentEvent.subscribe(event => {
         const updatedEvent = { ...event, selectedTemplate }
         this.eventService.updateEvent(updatedEvent)
-        let evendata = { "eventId": this.eventId, "templateId": selectedTemplate.templateId }
+        const evendata = { eventId: this.eventId, templateId: selectedTemplate.templateId }
         this.eventService.editEvent(evendata).subscribe(
           response => {
             console.log('Edit Event updated successfully:', response)
@@ -104,17 +101,17 @@ export class CertificateGeneratorComponent implements OnInit {
       })
       this.navigateBack()
       return
-    } else {
+    }
       this.isGenerating = true // Show loader
 
       this.eventService.generateCertificate(this.eventId, selectedTemplate.templateId).subscribe({
-        next: (response) => {
-          console.log("Certificate generated successfully:", response)
+        next: response => {
+          console.log('Certificate generated successfully:', response)
           this.eventService.currentEvent.subscribe(event => {
             const updatedEvent = { ...event, selectedTemplate }
             this.eventService.updateEvent(updatedEvent)
           })
-          let evendata = { "eventId": this.eventId, "templateId": selectedTemplate.templateId }
+          const evendata = { eventId: this.eventId, templateId: selectedTemplate.templateId }
           this.eventService.editEvent(evendata).subscribe(
             response => {
               console.log('Edit Event updated successfully:', response)
@@ -127,16 +124,14 @@ export class CertificateGeneratorComponent implements OnInit {
           this.navigateBack() // ✅ Navigate back to overview
           // alert("Certificate generated successfully!") // Replace with better UI feedback
         },
-        error: (error) => {
-          console.error("Error generating certificate:", error)
+        error: error => {
+          console.error('Error generating certificate:', error)
           // alert("Failed to generate certificate. Please try again.")
         },
         complete: () => {
           this.isGenerating = false // Hide loader
-        }
+        },
       })
-    }
-
 
   }
 

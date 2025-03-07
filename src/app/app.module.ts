@@ -76,7 +76,7 @@ export class HammerConfig extends HammerGestureConfig {
   override overrides = {
     pan: { direction: 6 }, // Allow both horizontal and vertical
     swipe: { direction: 6 }, // Allow both horizontal and vertical
-  };
+  }
 }
 const appInitializer = (initSvc: InitService, logger: LoggerService) => async () => {
   try {

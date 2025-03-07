@@ -5,8 +5,8 @@ import { ActivatedRoute, Router } from '@angular/router'
 import { EventService } from '../../services/event.service'
 import { HttpClient } from '@angular/common/http'
 import { saveAs } from 'file-saver'
-import JSZip from 'jszip'
-import jsPDF from 'jspdf'
+import jszip from 'jszip'
+import jspdf from 'jspdf'
 // import { SVG } from '@svgdotjs/svg.js'
 import { svg2pdf } from 'svg2pdf.js'
 // import { HttpClient } from '@angular/common/http'
@@ -14,11 +14,11 @@ import { svg2pdf } from 'svg2pdf.js'
 @Component({
   selector: 'ws-app-event-overview',
   templateUrl: './event-overview.component.html',
-  styleUrls: ['./event-overview.component.scss']
+  styleUrls: ['./event-overview.component.scss'],
 })
 export class EventOverviewComponent implements OnInit {
   selectedEvent: any
-  participantCount: number = 0
+  participantCount = 0
   certificateTemplates: any[] = []
 
   constructor(
@@ -110,16 +110,14 @@ export class EventOverviewComponent implements OnInit {
     }
   }
 
-
   fetchSelectedCertificate(): void {
     if (!this.selectedEvent?.eventId) {
       console.error('Event ID is missing')
       return
     }
 
-
     this.eventService.getEventById(this.selectedEvent.eventId).subscribe({
-      next: (eventData) => {
+      next: eventData => {
         console.log('Event Data:', eventData)
 
         if (eventData?.templateId) {
@@ -129,18 +127,17 @@ export class EventOverviewComponent implements OnInit {
           console.warn('No templateId found in event API response')
         }
       },
-      error: (error) => {
+      error: error => {
         console.error('Error fetching event details:', error)
-      }
+      },
     })
   }
-
 
   addParticipant(): void {
     const dialogRef = this.dialog.open(AddParticipantsComponent, {
       width: '650px',
       disableClose: true,
-      data: { eventId: this.selectedEvent.eventId }
+      data: { eventId: this.selectedEvent.eventId },
     })
 
     dialogRef.afterClosed().subscribe(result => {
@@ -170,7 +167,7 @@ export class EventOverviewComponent implements OnInit {
     console.log(this.selectedEvent)
     if (this.selectedEvent?.selectedTemplate?.registered === true) {
       this.eventService.downloadCertificates(this.selectedEvent.eventId).subscribe({
-        next: (blob) => {
+        next: blob => {
           const url = window.URL.createObjectURL(blob)
           const a = document.createElement('a')
           a.href = url
@@ -181,19 +178,15 @@ export class EventOverviewComponent implements OnInit {
           document.body.removeChild(a)
           console.log('Certificates downloaded successfully')
         },
-        error: (error) => {
+        error: error => {
           console.error('Error downloading certificates:', error)
-        }
+        },
       })
     } else {
       this.generateCertificatesForNonRegisteredUsers()
     }
 
-
-
-
   }
-
 
   // Generate certificates for non-registered users
   generateCertificatesForNonRegisteredUsers(): void {
@@ -207,7 +200,7 @@ export class EventOverviewComponent implements OnInit {
     const formattedDate = this.formatEventDate(this.selectedEvent.eventDate)
 
     this.eventService.getParticipants(this.selectedEvent.eventId).subscribe({
-      next: (participants) => {
+      next: participants => {
         console.log('Participants received:', participants)
         if (!participants || participants.length === 0) {
           console.warn('No participants found for certificate generation')
@@ -216,9 +209,9 @@ export class EventOverviewComponent implements OnInit {
 
         this.downloadAllCertificatesAsZip(participants, formattedDate)
       },
-      error: (error) => {
+      error: error => {
         console.error('Error fetching participants:', error)
-      }
+      },
     })
   }
 
@@ -286,7 +279,7 @@ export class EventOverviewComponent implements OnInit {
 
   // Converts ISO date to "DD/MM/YYYY" format
   formatEventDate(eventDate: string): string {
-    if (!eventDate) return ''
+    if (!eventDate) { return '' }
 
     const dateObj = new Date(eventDate)
     const day = String(dateObj.getDate()).padStart(2, '0') // Ensure two digits
@@ -295,7 +288,5 @@ export class EventOverviewComponent implements OnInit {
 
     return `${day}-${month}-${year}` // Returns "DD-MM-YYYY"
   }
-
-
 
 }

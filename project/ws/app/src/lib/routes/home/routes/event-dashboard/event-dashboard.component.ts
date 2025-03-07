@@ -9,12 +9,12 @@ import { WorkallocationService } from '../../services/workallocation.service'
 @Component({
   selector: 'ws-app-event-dashboard',
   templateUrl: './event-dashboard.component.html',
-  styleUrls: ['./event-dashboard.component.scss']
+  styleUrls: ['./event-dashboard.component.scss'],
 })
 export class EventDashboardComponent implements OnInit {
   events: any[] = []
   filteredEvents: any[] = []
-  searchQuery: string = ''
+  searchQuery = ''
 
   constructor(
     private eventService: EventService,
@@ -32,24 +32,21 @@ export class EventDashboardComponent implements OnInit {
   }
 
   fetchUserDetails(): void {
-    this.userService.getAllUsers().subscribe(
-      (response) => {
+    this.userService.getAllUsers().subscribe(response => {
         const user = response.result.response
         this.eventService.setUserData(
           {
             userId: user.userId,
-            userName: user.userName
+            userName: user.userName,
           })
         console.log('User Details:', response.result.response.userName)
-      },
-      (error) => {
+      },                                     error => {
         console.error('Error fetching user details:', error)
       })
   }
 
   fetchEvents(): void {
-    this.eventService.getAllEvents().subscribe(
-      (response) => {
+    this.eventService.getAllEvents().subscribe(response => {
         console.log('Events:', response)
         this.events = response.map((event: any) => ({
           id: event.eventId,
@@ -63,13 +60,11 @@ export class EventDashboardComponent implements OnInit {
         // Sort events in descending order (latest first)
         this.events.sort((a, b) => b.date.getTime() - a.date.getTime())
         this.filteredEvents = [...this.events]
-      },
-      (error) => {
+      },                                       error => {
         console.error('Error fetching events:', error)
       }
     )
   }
-
 
   openEventModal(): void {
     const dialogRef = this.dialog.open(EventModalComponent, {
@@ -85,7 +80,6 @@ export class EventDashboardComponent implements OnInit {
     })
   }
 
-
   navigateToEvent(event: any): void {
     this.eventService.updateEvent(event)
     this.router.navigate(['/app/home/event-dashboard', event.id])
@@ -98,6 +92,5 @@ export class EventDashboardComponent implements OnInit {
       event.registrationType.toLowerCase().includes(this.searchQuery.toLowerCase())
     )
   }
-
 
 }

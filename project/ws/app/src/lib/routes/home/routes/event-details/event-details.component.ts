@@ -8,13 +8,13 @@ import { EventModalComponent } from '../event-modal/event-modal.component'
 @Component({
   selector: 'ws-app-event-details',
   templateUrl: './event-details.component.html',
-  styleUrls: ['./event-details.component.scss']
+  styleUrls: ['./event-details.component.scss'],
 })
 export class EventDetailsComponent implements OnInit {
 
   event: any // Stores the fetched event details
-  activeTab = 'overview';
-  isCertificateRoute = false;
+  activeTab = 'overview'
+  isCertificateRoute = false
 
   constructor(
     private route: ActivatedRoute,
@@ -30,7 +30,7 @@ export class EventDetailsComponent implements OnInit {
       console.log('Route Params:', params)
       const eventId = params.get('id')
       if (eventId) {
-        console.log("Fetching event data for ID:", eventId)
+        console.log('Fetching event data for ID:', eventId)
         this.eventService.getEventById(eventId).subscribe(data => {
           console.log('Event Data:', data)
           this.event = data
@@ -38,7 +38,6 @@ export class EventDetailsComponent implements OnInit {
         })
       }
     })
-
 
     // ✅ Detect if the current route is 'certificate'
     this.route.url.subscribe(urlSegments => {
@@ -66,7 +65,7 @@ export class EventDetailsComponent implements OnInit {
     const dialogRef = this.dialog.open(EventModalComponent, {
       width: '1000px',
       disableClose: true,
-      data: { event: eventData }
+      data: { event: eventData },
     })
 
     dialogRef.afterClosed().subscribe(result => {

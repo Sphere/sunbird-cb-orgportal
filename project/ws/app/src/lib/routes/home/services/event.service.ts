@@ -13,11 +13,11 @@ const API_END_POINTS = {
   ADD_PARTICIPANTS: `${PROTECTED_SLAG_V8}/sunbirdrRcCertificate/events/users`,
   GET_PARTICIPANTS: (eventId: string) => `${PROTECTED_SLAG_V8}/sunbirdrRcCertificate/events/${eventId}/users`,
   GENERATE_CERTIFICATE: `${PROTECTED_SLAG_V8}/sunbirdrRcCertificate/events/generateCertificates`,
-  DOWNLOAD_CERTIFICATES: (eventId: string) => `${PROTECTED_SLAG_V8}/sunbirdrRcCertificate/downloadCertificates/${eventId}`
+  DOWNLOAD_CERTIFICATES: (eventId: string) => `${PROTECTED_SLAG_V8}/sunbirdrRcCertificate/downloadCertificates/${eventId}`,
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class EventService {
 
@@ -66,8 +66,6 @@ export class EventService {
     )
   }
 
-
-
   generateCertificate(eventId: string, templateId: string): Observable<any> {
     const payload = { eventId, templateId }
     return this.http.post<any>(API_END_POINTS.GENERATE_CERTIFICATE, payload).pipe(map(response => response))
@@ -76,7 +74,6 @@ export class EventService {
   downloadCertificates(eventId: string): Observable<Blob> {
     return this.http.get(API_END_POINTS.DOWNLOAD_CERTIFICATES(eventId), { responseType: 'blob' })
   }
-
 
   updateEvent(event: any) {
     this.eventSource.next(event)

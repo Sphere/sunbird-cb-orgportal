@@ -6,7 +6,7 @@ import { RouterModule } from '@angular/router'
 import { WorkallocationRoutingModule } from './workallocation-routing.module'
 import { BreadcrumbsOrgModule, ScrollspyLeftMenuModule, UIORGTableModule } from '@sunbird-cb/collection'
 import {
-  MatSidenavModule
+  MatSidenavModule,
 } from '@angular/material/sidenav'
 import { MatGridListModule } from '@angular/material/grid-list'
 import { MatListModule } from '@angular/material/list'
