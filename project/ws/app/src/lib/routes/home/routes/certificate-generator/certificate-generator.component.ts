@@ -97,21 +97,7 @@ export class CertificateGeneratorComponent implements OnInit {
       this.eventService.currentEvent.subscribe(event => {
         const updatedEvent = { ...event, selectedTemplate }
         this.eventService.updateEvent(updatedEvent)
-      })
-      this.navigateBack()
-      return
-    }
-
-    this.isGenerating = true // Show loader
-
-    this.eventService.generateCertificate(this.eventId, selectedTemplate.templateId).subscribe({
-      next: (response) => {
-        console.log("Certificate generated successfully:", response)
-        this.eventService.currentEvent.subscribe(event => {
-          const updatedEvent = { ...event, selectedTemplate }
-          this.eventService.updateEvent(updatedEvent)
-        })
-        let evendata = { templateId: selectedTemplate.templateId }
+        let evendata = { "eventId": this.eventId, "templateId": selectedTemplate.templateId }
         this.eventService.editEvent(evendata).subscribe(
           response => {
             console.log('Edit Event updated successfully:', response)
@@ -120,18 +106,43 @@ export class CertificateGeneratorComponent implements OnInit {
             console.error('Error updating event:', error)
           }
         )
-        this.isGenerating = false
-        this.navigateBack() // ✅ Navigate back to overview
-        // alert("Certificate generated successfully!") // Replace with better UI feedback
-      },
-      error: (error) => {
-        console.error("Error generating certificate:", error)
-        // alert("Failed to generate certificate. Please try again.")
-      },
-      complete: () => {
-        this.isGenerating = false // Hide loader
-      }
-    })
+      })
+      this.navigateBack()
+      return
+    } else {
+      this.isGenerating = true // Show loader
+
+      this.eventService.generateCertificate(this.eventId, selectedTemplate.templateId).subscribe({
+        next: (response) => {
+          console.log("Certificate generated successfully:", response)
+          this.eventService.currentEvent.subscribe(event => {
+            const updatedEvent = { ...event, selectedTemplate }
+            this.eventService.updateEvent(updatedEvent)
+          })
+          let evendata = { "eventId": this.eventId, "templateId": selectedTemplate.templateId }
+          this.eventService.editEvent(evendata).subscribe(
+            response => {
+              console.log('Edit Event updated successfully:', response)
+            },
+            error => {
+              console.error('Error updating event:', error)
+            }
+          )
+          this.isGenerating = false
+          this.navigateBack() // ✅ Navigate back to overview
+          // alert("Certificate generated successfully!") // Replace with better UI feedback
+        },
+        error: (error) => {
+          console.error("Error generating certificate:", error)
+          // alert("Failed to generate certificate. Please try again.")
+        },
+        complete: () => {
+          this.isGenerating = false // Hide loader
+        }
+      })
+    }
+
+
   }
 
   navigateBack(): void {

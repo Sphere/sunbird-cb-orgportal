@@ -30,10 +30,10 @@ export class EventOverviewComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    // ✅ Fetch certificate templates from the JSON file
+    // Fetch certificate templates from the JSON file
     this.loadCertificateTemplates()
 
-    // ✅ Get event details
+    //  Get event details
     this.eventService.currentEvent.subscribe(event => {
       this.selectedEvent = event
 
@@ -41,6 +41,13 @@ export class EventOverviewComponent implements OnInit {
         this.participantCount = this.selectedEvent.participantCount
       } else {
         this.fetchParticipantsCount()
+      }
+
+      if (this.selectedEvent?.templateId) {
+        this.checkSelectedTemplate()
+      } else {
+        //  Fetch already selected certificate from Event API
+        this.fetchSelectedCertificate()
       }
     })
 
@@ -74,10 +81,10 @@ export class EventOverviewComponent implements OnInit {
           this.participantCount = response.length
           this.selectedEvent.participantCount = this.participantCount
 
-          if (response[0].certificateGenerationStatus === 'success') {
-            this.selectedEvent.templateId = response[0].templateId
-            this.checkSelectedTemplate()
-          }
+          // if (response[0].certificateGenerationStatus === 'success') {
+          //   this.selectedEvent.templateId = response[0].templateId
+          //   this.checkSelectedTemplate()
+          // }
 
           this.eventService.updateEvent(this.selectedEvent)
         },
@@ -102,6 +109,32 @@ export class EventOverviewComponent implements OnInit {
       }
     }
   }
+
+
+  fetchSelectedCertificate(): void {
+    if (!this.selectedEvent?.eventId) {
+      console.error('Event ID is missing')
+      return
+    }
+
+
+    this.eventService.getEventById(this.selectedEvent.eventId).subscribe({
+      next: (eventData) => {
+        console.log('Event Data:', eventData)
+
+        if (eventData?.templateId) {
+          this.selectedEvent.templateId = eventData.templateId
+          this.checkSelectedTemplate() // ✅ Fetch the full template details from S3 JSON
+        } else {
+          console.warn('No templateId found in event API response')
+        }
+      },
+      error: (error) => {
+        console.error('Error fetching event details:', error)
+      }
+    })
+  }
+
 
   addParticipant(): void {
     const dialogRef = this.dialog.open(AddParticipantsComponent, {
@@ -159,129 +192,6 @@ export class EventOverviewComponent implements OnInit {
 
 
 
-  }
-
-
-  generateCertificatesForNonRegisteredUsersold(): void {
-    console.log('Generating certificates for non-registered users')
-    if (!this.selectedEvent?.eventId) {
-      console.error('Event ID is missing')
-      return
-    }
-
-    const formattedDate = this.formatEventDate(this.selectedEvent.eventDate)
-
-    this.eventService.getParticipants(this.selectedEvent.eventId).subscribe({
-      next: (participants) => {
-        console.log('Participants received:', participants) // Debugging
-        if (!participants || participants.length === 0) {
-          console.warn('No participants found for certificate generation')
-          return
-        }
-
-        this.downloadAllCertificatesAsZip(participants, formattedDate)
-      },
-      error: (error) => {
-        console.error('Error fetching participants:', error)
-      }
-    })
-  }
-
-  /**
-   * ✅ Fetches SVG template, inserts participant details, converts to PDF, and zips all files.
-   */
-  downloadAllCertificatesAsZipold(participants: any[], date: string): void {
-    if (!this.selectedEvent?.selectedTemplate?.templateLogo) {
-      console.error('No certificate template selected')
-      return
-    }
-
-    const zip = new JSZip()
-    this.http.get('/mdo-assets/images/RMC-Online.svg', { responseType: 'text' }).subscribe(
-      (svgTemplate) => {
-        const promises = participants.map(participant =>
-          this.generateCertificatePDF(svgTemplate, participant.firstName, date).then(pdfBlob => {
-            console.log(`Generated PDF Blob for :`, pdfBlob)
-            const fileName = `${participant.name}-${date}.pdf`
-            zip.file(fileName, pdfBlob)
-          })
-        )
-
-
-        Promise.all(promises).then(() => {
-          console.log("All PDFs added to ZIP. Generating ZIP file...")
-          zip.generateAsync({ type: 'blob' }).then(content => {
-            console.log('ZIP generated:', content) // Debugging
-            saveAs(content, 'Certificates.zip')
-            console.log('ZIP file downloaded successfully')
-          }).catch(error => console.error('Error generating ZIP:', error))
-        })
-      },
-      (error) => {
-        console.error('Error fetching SVG template:', error)
-      }
-    )
-  }
-
-
-
-  async generateCertificatePDF(svgTemplate: string, userName: string, date: string): Promise<Blob> {
-    const modifiedSvg = svgTemplate.replace('{{name}}', userName).replace('{{date}}', date)
-    console.log(`Generating PDF for: ${userName}`) // Debugging
-
-    const { jsPDF } = await import('jspdf')
-    const pdf = new jsPDF({ orientation: 'landscape' })
-    const img = new Image()
-    img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(modifiedSvg)
-
-    return new Promise(resolve => {
-      const canvas = document.createElement("canvas")
-      const ctx = canvas.getContext("2d")
-      const img = new Image()
-      img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(modifiedSvg)
-
-      img.onload = () => {
-        console.log(`Image loaded for ${userName}`)
-
-        // Set canvas size (adjust as needed)
-        canvas.width = 1080
-        canvas.height = 720
-
-        // Draw SVG as an image on canvas
-        ctx?.drawImage(img, 0, 0, canvas.width, canvas.height)
-
-        // Convert canvas to base64 PNG
-        const imgData = canvas.toDataURL("image/png")
-
-        // Add image to PDF
-        pdf.addImage(imgData, 'PNG', 10, 10, 270, 190)
-
-        // Generate and resolve the Blob
-        const pdfBlob = pdf.output('blob')
-        console.log(`Final PDF Blob for ${userName}:`, pdfBlob)
-        resolve(pdfBlob)
-      }
-
-      img.onerror = (err) => {
-        console.error(`Error loading image for ${userName}:`, err)
-        // reject(err)
-      }
-
-      // img.onerror = (err) => {
-      //   console.error(`Error loading image for ${userName}:`, err)
-      //   console.error(`Error loading SVG for ${userName}`)
-      // }
-    })
-  }
-
-
-  /**
-   * ✅ Converts ISO date to "DD/MM/YYYY" format
-   */
-  formatEventDateold(eventDate: string): string {
-    if (!eventDate) return ''
-    const dateObj = new Date(eventDate)
-    return dateObj.toLocaleDateString('en-GB') // Converts to "DD/MM/YYYY"
   }
 
 

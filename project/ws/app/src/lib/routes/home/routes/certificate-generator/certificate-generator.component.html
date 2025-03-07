@@ -7,8 +7,9 @@
 
   <div class="certificate-header">
     <p>Choose from the list of certificate templates</p>
-    <button class="download-btn" (click)="generateCertificate()" [disabled]="isLoading || !certificates.length">
-      Generate & Download
+    <button class="download-btn" (click)="generateCertificate()"
+      [disabled]="isLoading || !certificates.length || isGenerating">
+      {{ isGenerating ? 'Generating...' : 'Generate & Download' }}
     </button>
   </div>
 

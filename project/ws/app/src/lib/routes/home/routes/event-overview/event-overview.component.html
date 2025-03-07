@@ -33,7 +33,7 @@
 
       <div *ngIf="selectedEvent?.selectedTemplate" (click)="downloadCertificates()">
         <img [src]="selectedEvent.selectedTemplate.templateLogo" alt="Selected Certificate">
-        <button class="certificate-text-enabled" (click)="downloadCertificates()">
+        <button class="certificate-text-enabled">
           <mat-icon>download</mat-icon> Download Certificates
         </button>
       </div>
