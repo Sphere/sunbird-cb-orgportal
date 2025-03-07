@@ -3,6 +3,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog'
 import { EventService } from '../../services/event.service'
 import * as Papa from 'papaparse'
 import * as XLSX from 'xlsx'
+import { Subscription } from 'rxjs'
 
 interface Participant {
   firstName: string
@@ -18,10 +19,12 @@ interface Participant {
   styleUrls: ['./add-participants.component.scss']
 })
 export class AddParticipantsComponent implements OnInit {
+
   eventId!: string
   participants: Participant[] = []
   validationErrors: string[] = [] // Stores validation messages
   isValidData: boolean = false // Controls "Save & Add" button
+  private subscription: Subscription | null = null;
 
   constructor(
     private dialogRef: MatDialogRef<AddParticipantsComponent>,
@@ -32,6 +35,11 @@ export class AddParticipantsComponent implements OnInit {
   }
 
   ngOnInit(): void { }
+
+  ngOnDestroy(): void {
+    // Unsubscribe when component is destroyed
+    this.subscription?.unsubscribe()
+  }
 
   onCancel() {
     this.dialogRef.close()
@@ -104,7 +112,7 @@ export class AddParticipantsComponent implements OnInit {
       phone: String(participant.phone)
     }))
 
-    this.eventService.addParticipants(this.eventId, this.participants).subscribe(
+    this.subscription = this.eventService.addParticipants(this.eventId, this.participants).subscribe(
       response => {
         console.log('Participants added successfully:', response)
         this.dialogRef.close('saved')

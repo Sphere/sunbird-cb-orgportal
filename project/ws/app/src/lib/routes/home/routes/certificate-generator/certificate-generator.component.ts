@@ -24,7 +24,7 @@ export class CertificateGeneratorComponent implements OnInit {
   eventType: string = ''
   // eventDetails: any
 
-  private jsonUrl = 'https://aastar-assets.s3.ap-south-1.amazonaws.com/rc-mdo-templates/MDO-RC-TEMPLATES.json'
+  private readonly jsonUrl = 'https://aastar-assets.s3.ap-south-1.amazonaws.com/rc-mdo-templates/MDO-RC-TEMPLATES.json'
   nonRegistered: boolean = false;
 
   constructor(
@@ -41,42 +41,37 @@ export class CertificateGeneratorComponent implements OnInit {
       this.eventId = event.eventId
     })
     console.log('Received Event in Overview:', this.eventId)
-    this.fetchCertificates(this.eventType)
-    // ✅ Fetch event ID from route
-    // this.route.paramMap.subscribe(params => {
-    //   console.log('Route Params:', params)
-    //   this.eventId = params.get('id') || ''
-    // })
+    this.fetchCertificates()
   }
 
-  fetchCertificates(eventType: string): void {
-    fetch(this.jsonUrl)
-      .then(response => {
-        if (!response.ok) throw new Error('Failed to load certificates')
-        return response.json()
-      })
-      .then(data => {
-        if (data.templates && Array.isArray(data.templates)) {
-          console.log('Fetched certificates:', data)
-          if (eventType === 'registred with sphere') {
-            this.certificates = data.templates.filter((template: { registered: boolean }) => template.registered === true)
-          } else if (eventType === 'registred without sphere') {
-            this.nonRegistered = true
-            this.certificates = data.templates.filter((template: { registered: boolean }) => template.registered === false)
-          } else {
-            this.certificates = data.templates
-          }
-          this.isLoading = false
-        } else {
-          throw new Error('Invalid JSON structure')
-        }
-      })
-      .catch(error => {
-        console.error('Error fetching templates:', error)
-        this.errorMessage = 'Failed to load certificate templates.'
-        this.isLoading = false
-      })
+  async fetchCertificates(): Promise<void> {
+    this.isLoading = true
+    try {
+      const response = await fetch(this.jsonUrl)
+      if (!response.ok) throw new Error('Failed to load certificates')
+
+      const data = await response.json()
+      if (!Array.isArray(data.templates)) {
+        throw new Error('Invalid JSON structure')
+      }
+
+      // Filter certificates based on event type
+      if (this.eventType === 'registred with sphere') {
+        this.certificates = data.templates.filter((template: { registered: boolean }) => template.registered)
+      } else if (this.eventType === 'registred without sphere') {
+        this.nonRegistered = true
+        this.certificates = data.templates.filter((template: { registered: boolean }) => !template.registered)
+      } else {
+        this.certificates = data.templates
+      }
+    } catch (error) {
+      console.error('Error fetching templates:', error)
+      this.errorMessage = 'Failed to load certificate templates.'
+    } finally {
+      this.isLoading = false
+    }
   }
+
 
   selectCertificate(index: number): void {
     this.selectedCertIndex = index

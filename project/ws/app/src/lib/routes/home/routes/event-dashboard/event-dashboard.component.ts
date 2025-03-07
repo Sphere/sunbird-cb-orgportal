@@ -52,42 +52,24 @@ export class EventDashboardComponent implements OnInit {
       (response) => {
         console.log('Events:', response)
         this.events = response.map((event: any) => ({
-          // id: event.event_id, // Use actual event_id
-          // name: event.event_name,
-          // description: event.event_description,
-          // location: event.event_location,
-          // date: event.event_date,
-          // organizer: event.organizer_name,
-          // registrationType: event.event_status
-          id: event.eventId, // Use actual event_id
+          id: event.eventId,
           name: event.eventName,
           description: event.eventDescription,
           location: event.eventPlace,
-          date: event.eventDate,
+          date: new Date(event.eventDate), // event.eventDate,
           organizer: event.createdBy,
           registrationType: event.eventType,
         }))
-        this.filteredEvents = this.events
-
-
-
-        // id: event.eventId, // Use actual event_id
-        // name: event.eventName,
-        // description: event.eventDescription,
-        // location: event.eventPlace,
-        // date: event.eventDate,
-        // organizer: event.createdBy
-        // registrationType: event.eventType,
+        // Sort events in descending order (latest first)
+        this.events.sort((a, b) => b.date.getTime() - a.date.getTime())
+        this.filteredEvents = [...this.events]
       },
       (error) => {
         console.error('Error fetching events:', error)
       }
     )
-
-    this.eventService.currentEvent.subscribe(event => {
-      console.log('Event:', event)
-    })
   }
+
 
   openEventModal(): void {
     const dialogRef = this.dialog.open(EventModalComponent, {

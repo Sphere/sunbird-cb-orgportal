@@ -1,35 +1,45 @@
-import { Component, Inject, OnInit } from '@angular/core'
+import { Component, Inject, OnDestroy, OnInit } from '@angular/core'
 import { FormBuilder, FormGroup, Validators } from '@angular/forms'
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog'
+import { Subscription } from 'rxjs'
+import { take } from 'rxjs/operators'
 import { EventService } from '../../services/event.service'
+import { EventData } from '../../interface/events'
 
-interface EventData {
-  eventName: any
-  eventDescription: any
-  eventDate: any
-  eventPlace: any
-  eventType: any
-  createdBy: string
-  eventId?: string // Optional property
-}
+
 
 @Component({
   selector: 'ws-app-event-modal',
   templateUrl: './event-modal.component.html',
   styleUrls: ['./event-modal.component.scss']
 })
-export class EventModalComponent implements OnInit {
-  eventForm: FormGroup
+export class EventModalComponent implements OnInit, OnDestroy {
+  eventForm!: FormGroup
   isEditMode: boolean = false
   userData: any
-
+  private userSubscription!: Subscription
 
   constructor(
     public dialogRef: MatDialogRef<EventModalComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
     private fb: FormBuilder,
     private eventService: EventService
-  ) {
+  ) { }
+
+  ngOnInit(): void {
+    this.initializeForm()
+    this.userSubscription = this.eventService.currentUserData.pipe(take(1)).subscribe(data => {
+      this.userData = data
+    })
+  }
+
+  ngOnDestroy(): void {
+    if (this.userSubscription) {
+      this.userSubscription.unsubscribe() // ✅ Unsubscribe to prevent memory leaks
+    }
+  }
+
+  initializeForm(): void {
     this.eventForm = this.fb.group({
       eventName: ['', Validators.required],
       eventDate: ['', Validators.required],
@@ -38,22 +48,16 @@ export class EventModalComponent implements OnInit {
       certificateType: ['', Validators.required]
     })
 
-    if (data && data.event) {
+    if (this.data && this.data.event) {
       this.isEditMode = true
       this.eventForm.patchValue({
-        eventName: data.event.eventName,
-        eventDate: data.event.eventDate,
-        eventLocation: data.event.eventPlace,
-        eventDescription: data.event.eventDescription,
-        certificateType: data.event.eventType
+        eventName: this.data.event.eventName,
+        eventDate: this.data.event.eventDate,
+        eventLocation: this.data.event.eventPlace,
+        eventDescription: this.data.event.eventDescription,
+        certificateType: this.data.event.eventType
       })
     }
-  }
-
-  ngOnInit(): void {
-    this.eventService.currentUserData.subscribe(data => {
-      this.userData = data
-    })
   }
 
   onCancel(): void {
@@ -63,30 +67,16 @@ export class EventModalComponent implements OnInit {
   onSave(): void {
     if (this.eventForm.valid) {
       const eventData: EventData = {
-        // event_name: this.eventForm.value.eventName,
-        // event_description: this.eventForm.value.eventDescription,
-        // event_date: this.eventForm.value.eventDate,
-        // event_location: this.eventForm.value.eventLocation,
-        // organizer_name: 'Active Birth', // You can change this as needed
-        // organizer_contact: '+1-800-555-1234', // You can change this as needed
-        // event_type: 'Conference', // You can change this as needed
-        // event_status: this.eventForm.value.certificateType, // You can change this as needed
-        // is_virtual: false // You can change this as needed
-
-
         eventName: this.eventForm.value.eventName,
         eventDescription: this.eventForm.value.eventDescription,
         eventDate: this.eventForm.value.eventDate,
         eventPlace: this.eventForm.value.eventLocation,
-
         eventType: this.eventForm.value.certificateType,
         createdBy: this.userData.userName,
-
       }
 
       if (this.isEditMode) {
         eventData.eventId = this.data.event.eventId
-        // eventData['updatedBy'] = "New Sumit Bajaj" // Replace with actual user
         this.eventService.editEvent(eventData).subscribe(
           response => {
             console.log('Edit Event updated successfully:', response)
@@ -107,9 +97,6 @@ export class EventModalComponent implements OnInit {
           }
         )
       }
-
-
-
     }
   }
 }

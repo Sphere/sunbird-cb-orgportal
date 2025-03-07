@@ -1,15 +1,18 @@
-import { Component, OnInit } from '@angular/core'
+import { Component, OnDestroy, OnInit } from '@angular/core'
 import { ActivatedRoute } from '@angular/router'
+import { Subscription } from 'rxjs'
 import { EventService } from '../../services/event.service'
+import * as  _ from 'lodash'
 
 @Component({
   selector: 'ws-app-participants',
   templateUrl: './participants.component.html',
   styleUrls: ['./participants.component.scss']
 })
-export class ParticipantsComponent implements OnInit {
+export class ParticipantsComponent implements OnInit, OnDestroy {
   searchQuery: string = ''
   participants: any[] = []
+  private routeSubscription!: Subscription // Stores the route subscription
 
   constructor(
     private route: ActivatedRoute,
@@ -17,10 +20,16 @@ export class ParticipantsComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.route.parent?.params.subscribe(params => {
+    this.routeSubscription = this.route.parent?.params.subscribe(params => {
       const eventId = params['id']
       this.fetchParticipants(eventId)
-    })
+    }) as Subscription // Store the subscription
+  }
+
+  ngOnDestroy(): void {
+    if (this.routeSubscription) {
+      this.routeSubscription.unsubscribe() // ✅ Unsubscribe to prevent memory leaks
+    }
   }
 
   fetchParticipants(eventId: string): void {
@@ -40,10 +49,11 @@ export class ParticipantsComponent implements OnInit {
   }
 
   filteredParticipants() {
-    return this.participants.filter(participant =>
-      participant.firstName.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-      participant.lastName.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-      participant.place.toLowerCase().includes(this.searchQuery.toLowerCase())
+    return _.filter(this.participants, participant =>
+      _.some(
+        ['firstName', 'lastName', 'place'],
+        key => _.toLower(participant[key]).includes(_.toLower(this.searchQuery))
+      )
     )
   }
 }
