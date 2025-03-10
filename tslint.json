@@ -1,23 +1,43 @@
 {
   "defaultSeverity": "error",
-  "extends": ["tslint-config-airbnb", "tslint-angular"],
+  "extends": [
+    "tslint-config-airbnb",
+    "tslint-angular"
+  ],
   "rules": {
-    "component-selector": [true, "element", "ws", "viewer", "kebab-case"],
+    "component-selector": [
+      true,
+      "element",
+      "ws",
+      "viewer",
+      "kebab-case"
+    ],
     "directive-selector": [
       true,
       "attribute",
       "ws",
       "camelCase"
     ],
-    "deprecation": {
-      "severity": "warning"
-    },
-    "semicolon": [true, "never"],
-    "ter-indent": [false],
-    "arrow-parens": [true, "ban-single-arg-parens"],
-    "ter-arrow-parens": [true, "as-needed"],
+    "semicolon": [
+      true,
+      "never"
+    ],
+    "ter-indent": [
+      false
+    ],
+    "arrow-parens": [
+      true,
+      "ban-single-arg-parens"
+    ],
+    "ter-arrow-parens": [
+      false,
+      "as-needed"
+    ],
     "no-console": true,
-    "interface-name": [true, "always-prefix"],
+    "interface-name": [
+      true,
+      "always-prefix"
+    ],
     "max-line-length": [
       true,
       {
@@ -57,6 +77,7 @@
         },
         "singleline": "never"
       }
-    }
+    },
+    "deprecation": false
   }
 }

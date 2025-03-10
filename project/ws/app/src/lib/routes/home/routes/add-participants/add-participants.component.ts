@@ -1,27 +1,20 @@
-import { Component, Inject, OnInit } from '@angular/core'
+import { Component, Inject, OnDestroy, OnInit } from '@angular/core'
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog'
 import { EventService } from '../../services/event.service'
 import * as Papa from 'papaparse'
 import * as XLSX from 'xlsx'
 import { Subscription } from 'rxjs'
-
-interface Participant {
-  firstName: string
-  lastName?: string
-  phone: string
-  location: string
-  [key: string]: any
-}
+import { IParticipant } from '../../interface/events'
 
 @Component({
   selector: 'ws-app-add-participants',
   templateUrl: './add-participants.component.html',
   styleUrls: ['./add-participants.component.scss'],
 })
-export class AddParticipantsComponent implements OnInit {
+export class AddParticipantsComponent implements OnInit, OnDestroy {
 
   eventId!: string
-  participants: Participant[] = []
+  participants: IParticipant[] = []
   validationErrors: string[] = [] // Stores validation messages
   isValidData = false // Controls "Save & Add" button
   private subscription: Subscription | null = null
@@ -60,9 +53,9 @@ export class AddParticipantsComponent implements OnInit {
   }
 
   parseCSV(file: File): void {
-    Papa.parse<Participant>(file, {
+    Papa.parse<IParticipant>(file, {
       header: true,
-      complete: (result: Papa.ParseResult<Participant>) => {
+      complete: (result: Papa.ParseResult<IParticipant>) => {
         this.participants = result.data
         this.validateParticipants()
       },
@@ -80,7 +73,7 @@ export class AddParticipantsComponent implements OnInit {
       const workbook = XLSX.read(data, { type: 'array' })
       const firstSheetName = workbook.SheetNames[0]
       const worksheet = workbook.Sheets[firstSheetName]
-      this.participants = XLSX.utils.sheet_to_json<Participant>(worksheet)
+      this.participants = XLSX.utils.sheet_to_json<IParticipant>(worksheet)
       this.validateParticipants()
     }
     reader.readAsArrayBuffer(file)

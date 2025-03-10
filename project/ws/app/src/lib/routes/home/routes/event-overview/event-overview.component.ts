@@ -5,12 +5,9 @@ import { ActivatedRoute, Router } from '@angular/router'
 import { EventService } from '../../services/event.service'
 import { HttpClient } from '@angular/common/http'
 import { saveAs } from 'file-saver'
-import jszip from 'jszip'
-import jspdf from 'jspdf'
-// import { SVG } from '@svgdotjs/svg.js'
 import { svg2pdf } from 'svg2pdf.js'
-// import { HttpClient } from '@angular/common/http'
-
+import JSZip from 'jszip'
+import jsPDF from 'jspdf'
 @Component({
   selector: 'ws-app-event-overview',
   templateUrl: './event-overview.component.html',

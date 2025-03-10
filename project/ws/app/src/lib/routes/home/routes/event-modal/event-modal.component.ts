@@ -4,7 +4,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog'
 import { Subscription } from 'rxjs'
 import { take } from 'rxjs/operators'
 import { EventService } from '../../services/event.service'
-import { EventData } from '../../interface/events'
+import { IEventData } from '../../interface/events'
 
 @Component({
   selector: 'ws-app-event-modal',
@@ -64,7 +64,7 @@ export class EventModalComponent implements OnInit, OnDestroy {
 
   onSave(): void {
     if (this.eventForm.valid) {
-      const eventData: EventData = {
+      const eventData: IEventData = {
         eventName: this.eventForm.value.eventName,
         eventDescription: this.eventForm.value.eventDescription,
         eventDate: this.eventForm.value.eventDate,

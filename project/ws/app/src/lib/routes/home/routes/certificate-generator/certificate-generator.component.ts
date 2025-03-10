@@ -1,12 +1,7 @@
 import { Component, OnInit } from '@angular/core'
 import { ActivatedRoute, Router } from '@angular/router'
 import { EventService } from '../../services/event.service'
-
-interface CertificateTemplate {
-  templateId: string
-  templateLogo: string
-  templateName: string
-}
+import { ICertificateTemplate } from '../../interface/events'
 
 @Component({
   selector: 'ws-app-certificate-generator',
@@ -15,7 +10,7 @@ interface CertificateTemplate {
 })
 export class CertificateGeneratorComponent implements OnInit {
 
-  certificates: CertificateTemplate[] = []
+  certificates: ICertificateTemplate[] = []
   selectedCertIndex = 0
   isLoading = true
   isGenerating = false
@@ -102,36 +97,36 @@ export class CertificateGeneratorComponent implements OnInit {
       this.navigateBack()
       return
     }
-      this.isGenerating = true // Show loader
+    this.isGenerating = true // Show loader
 
-      this.eventService.generateCertificate(this.eventId, selectedTemplate.templateId).subscribe({
-        next: response => {
-          console.log('Certificate generated successfully:', response)
-          this.eventService.currentEvent.subscribe(event => {
-            const updatedEvent = { ...event, selectedTemplate }
-            this.eventService.updateEvent(updatedEvent)
-          })
-          const evendata = { eventId: this.eventId, templateId: selectedTemplate.templateId }
-          this.eventService.editEvent(evendata).subscribe(
-            response => {
-              console.log('Edit Event updated successfully:', response)
-            },
-            error => {
-              console.error('Error updating event:', error)
-            }
-          )
-          this.isGenerating = false
-          this.navigateBack() // ✅ Navigate back to overview
-          // alert("Certificate generated successfully!") // Replace with better UI feedback
-        },
-        error: error => {
-          console.error('Error generating certificate:', error)
-          // alert("Failed to generate certificate. Please try again.")
-        },
-        complete: () => {
-          this.isGenerating = false // Hide loader
-        },
-      })
+    this.eventService.generateCertificate(this.eventId, selectedTemplate.templateId).subscribe({
+      next: response => {
+        console.log('Certificate generated successfully:', response)
+        this.eventService.currentEvent.subscribe(event => {
+          const updatedEvent = { ...event, selectedTemplate }
+          this.eventService.updateEvent(updatedEvent)
+        })
+        const evendata = { eventId: this.eventId, templateId: selectedTemplate.templateId }
+        this.eventService.editEvent(evendata).subscribe(
+          res => {
+            console.log('Edit Event updated successfully:', res)
+          },
+          error => {
+            console.error('Error updating event:', error)
+          }
+        )
+        this.isGenerating = false
+        this.navigateBack() // ✅ Navigate back to overview
+        // alert("Certificate generated successfully!") // Replace with better UI feedback
+      },
+      error: error => {
+        console.error('Error generating certificate:', error)
+        // alert("Failed to generate certificate. Please try again.")
+      },
+      complete: () => {
+        this.isGenerating = false // Hide loader
+      },
+    })
 
   }
 
