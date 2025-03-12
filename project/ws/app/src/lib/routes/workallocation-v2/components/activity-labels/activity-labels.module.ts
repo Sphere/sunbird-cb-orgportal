@@ -19,6 +19,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms'
 import { AutocompleteModule } from '../autocomplete/autocomplete.module'
 import { ComponentSharedModule } from '../component-shared.module'
 import { WatRolePopupComponent } from './wat-role-popup/wat-role-popup.component'
+import { MatDividerModule } from '@angular/material/divider'
+import { DialogConfirmComponent } from '../../../../../../../../../src/app/component/dialog-confirm/dialog-confirm.component'
 @NgModule({
   declarations: [
     ActivityLabelsComponent,
@@ -43,8 +45,9 @@ import { WatRolePopupComponent } from './wat-role-popup/wat-role-popup.component
     MatDialogModule,
     MatCheckboxModule,
     FormsModule,
+    MatDividerModule
   ],
-  entryComponents: [WatRolePopupComponent],
+  entryComponents: [WatRolePopupComponent, DialogConfirmComponent],
   exports: [ActivityLabelsComponent],
   // providers: [{ provide: MAT_DIALOG_DEFAULT_OPTIONS, useValue: { hasBackdrop: false } },
   // { provide: MatDialogRef, useValue: {} },]
