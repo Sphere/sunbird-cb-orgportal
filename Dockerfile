@@ -14,7 +14,7 @@ RUN yarn && \
     yarn add @sunbird-cb/collection@^1.0.46-ang-9-12 \
              @sunbird-cb/design-system@0.0.1 \
              @sunbird-cb/resolver@^1.0.0-ang-9-12 \
-             @sunbird-cb/utils@^1.0.19-ang-13-16
+             @sunbird-cb/utils@^1.0.19-ang-9-12
 
 # Install missing dependency
 RUN yarn add ajv-formats --save-dev
