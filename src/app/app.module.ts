@@ -40,15 +40,15 @@ import { GlobalErrorHandlingService } from './services/global-error-handling.ser
 // import { AppTocResolverService } from '@ws/app/src/lib/routes/app-toc/resolvers/app-toc-resolver.service'
 
 import { RootComponent } from './component/root/root.component'
-// import { LoginComponent } from './component/login/login.component'
-// import { AppFooterComponent } from './component/app-footer/app-footer.component'
+import { LoginComponent } from './component/login/login.component'
+import { AppFooterComponent } from './component/app-footer/app-footer.component'
 import { AppNavBarComponent } from './component/app-nav-bar/app-nav-bar.component'
-// import { AppPublicNavBarComponent } from './component/app-public-nav-bar/app-public-nav-bar.component'
+import { AppPublicNavBarComponent } from './component/app-public-nav-bar/app-public-nav-bar.component'
 import { DialogConfirmComponent } from './component/dialog-confirm/dialog-confirm.component'
-// import { InvalidUserComponent } from './component/invalid-user/invalid-user.component'
-// import { LoginRootComponent } from './component/login-root/login-root.component'
+import { InvalidUserComponent } from './component/invalid-user/invalid-user.component'
+import { LoginRootComponent } from './component/login-root/login-root.component'
 import { LoginRootDirective } from './component/login-root/login-root.directive'
-// import { TncRendererComponent } from './component/tnc-renderer/tnc-renderer.component'
+import { TncRendererComponent } from './component/tnc-renderer/tnc-renderer.component'
 import { MobileAppModule } from './routes/public/mobile-app/mobile-app.module'
 import { PublicAboutModule } from './routes/public/public-about/public-about.module'
 import { PublicLogoutModule } from './routes/public/public-logout/public-logout.module'
@@ -96,14 +96,14 @@ const getBaseHref = (platformLocation: PlatformLocation): string => {
     RootComponent,
     TncComponent,
     LoginRootDirective,
-    // LoginComponent,
+    LoginComponent,
     AppNavBarComponent,
-    // AppPublicNavBarComponent,
-    // TncRendererComponent,
-    // AppFooterComponent,
-    // InvalidUserComponent,
+    AppPublicNavBarComponent,
+    TncRendererComponent,
+    AppFooterComponent,
+    InvalidUserComponent,
     DialogConfirmComponent,
-    // LoginRootComponent,
+    LoginRootComponent,
 
   ],
   imports: [

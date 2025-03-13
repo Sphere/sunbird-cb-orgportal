@@ -221,7 +221,9 @@ export class EventOverviewComponent implements OnInit {
 
     try {
       const zip = new JSZip()
-      const svgTemplate = await this.http.get('/mdo-assets/images/RMC-Online.svg', { responseType: 'text' }).toPromise()
+      // this.http.get(this.selectedEvent.selectedTemplate.templateLogo, { responseType: 'text' }) - for prod
+      // this.http.get('/mdo-assets/images/RMC-Online.svg', { responseType: 'text' }) - local use age
+      const svgTemplate = await this.http.get(this.selectedEvent.selectedTemplate.templateLogo, { responseType: 'text' }).toPromise()
 
       for (const participant of participants) {
         console.log(`Generating certificate for: ${participant.firstName}`)
