@@ -22,32 +22,31 @@ import { MatDividerModule } from '@angular/material/divider'
 import { DialogConfirmComponent } from '../../../../../../../../../src/app/component/dialog-confirm/dialog-confirm.component'
 
 @NgModule({
-  declarations: [
-    CompetencyLabelsComponent, WatCompPopupComponent,
-  ],
-  imports: [
-    CommonModule,
-    AutocompleteModule,
-    MatCardModule,
-    MatIconModule,
-    CdkStepperModule,
-    CdkTableModule,
-    CdkTreeModule,
-    DragDropModule,
-    MatAutocompleteModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatFormFieldModule,
-    MatSnackBarModule,
-    ReactiveFormsModule,
-    MatDialogModule,
-    MatCheckboxModule,
-    FormsModule,
-    MatSelectModule,
-    MatRadioModule,
-    MatDividerModule
-  ],
-  entryComponents: [WatCompPopupComponent, DialogConfirmComponent],
-  exports: [CompetencyLabelsComponent],
+    declarations: [
+        CompetencyLabelsComponent, WatCompPopupComponent,
+    ],
+    imports: [
+        CommonModule,
+        AutocompleteModule,
+        MatCardModule,
+        MatIconModule,
+        CdkStepperModule,
+        CdkTableModule,
+        CdkTreeModule,
+        DragDropModule,
+        MatAutocompleteModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatFormFieldModule,
+        MatSnackBarModule,
+        ReactiveFormsModule,
+        MatDialogModule,
+        MatCheckboxModule,
+        FormsModule,
+        MatSelectModule,
+        MatRadioModule,
+        MatDividerModule
+    ],
+    exports: [CompetencyLabelsComponent]
 })
 export class CompetencyLabelsModule { }

@@ -35,16 +35,15 @@ import { MatSidenavModule } from '@angular/material/sidenav'
 import { MatTableModule } from '@angular/material/table'
 
 @NgModule({
-  declarations: [CreateUserComponent, ViewUserComponent, UsersUploadComponent, RoleConfirmDialogComponent, DropdownDobComponent],
-  imports: [
-    CommonModule, RouterModule, UsersRoutingModule, BreadcrumbsOrgModule,
-    MatSidenavModule, MatListModule, ScrollspyLeftMenuModule, MatCardModule, FormsModule,
-    MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule, MatGridListModule,
-    MatRadioModule, MatDialogModule, ReactiveFormsModule, MatSelectModule, MatProgressSpinnerModule,
-    MatExpansionModule, MatDividerModule, MatPaginatorModule, MatTableModule, WidgetResolverModule, MatSortModule, MatDatepickerModule,
-  ],
-  providers: [RolesService, FileService],
-  exports: [UsersUploadComponent],
-  entryComponents: [RoleConfirmDialogComponent, DropdownDobComponent],
+    declarations: [CreateUserComponent, ViewUserComponent, UsersUploadComponent, RoleConfirmDialogComponent, DropdownDobComponent],
+    imports: [
+        CommonModule, RouterModule, UsersRoutingModule, BreadcrumbsOrgModule,
+        MatSidenavModule, MatListModule, ScrollspyLeftMenuModule, MatCardModule, FormsModule,
+        MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule, MatGridListModule,
+        MatRadioModule, MatDialogModule, ReactiveFormsModule, MatSelectModule, MatProgressSpinnerModule,
+        MatExpansionModule, MatDividerModule, MatPaginatorModule, MatTableModule, WidgetResolverModule, MatSortModule, MatDatepickerModule,
+    ],
+    providers: [RolesService, FileService],
+    exports: [UsersUploadComponent]
 })
 export class UsersModule { }

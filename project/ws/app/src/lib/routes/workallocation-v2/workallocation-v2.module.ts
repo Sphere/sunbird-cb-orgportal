@@ -50,34 +50,28 @@ import { DisableButtonOnSubmitDirective } from './directive/DisableButtonOnSubmi
 import { DialogConfirmComponent } from '../../../../../../../src/app/component/dialog-confirm/dialog-confirm.component'
 
 @NgModule({
-  declarations: [
-    CreateWorkallocationComponent,
-    WorkallocationV2HomeComponent,
-    OfficerComponent,
-    AssistantMessageCardComponent,
-    AssistantContentCardComponent,
-    DraftAllocationsComponent,
-    PublishedAllocationsComponent,
-    DebounceClickDirective,
-    DisableButtonOnSubmitDirective,
-  ],
-  imports: [
-    CommonModule, ReactiveFormsModule, WorkallocationV2RoutingModule, BreadcrumbsOrgModule,
-    ActivityLabelsModule, CompDetailModule, CompetencyLabelsModule, RouterModule, MatSidenavModule, MatListModule,
-    ScrollspyLeftMenuModule, MatCardModule, FormsModule,
-    MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule, MatGridListModule,
-    MatRadioModule, MatDialogModule, MatSelectModule, MatProgressSpinnerModule,
-    MatExpansionModule, MatDividerModule, MatPaginatorModule, MatTableModule, WidgetResolverModule,
-    UIORGTableModule, ExportAsModule, MatMenuModule, MatTabsModule, MatProgressSpinnerModule, MatAutocompleteModule,
-    AutocompleteModule, ComponentSharedModule, NgxPaginationModule, Ng2SearchPipeModule,
-    NgCircleProgressModule.forRoot({}),
-  ],
-  entryComponents: [
-    // AllocationActionsComponent,
-    // WatRolePopup,
-    DialogConfirmComponent
-  ],
-  providers: [WINDOW_PROVIDERS, WatStoreService, UserWorkService],
-  // exports: [DownloadAllocationComponent],
+    declarations: [
+        CreateWorkallocationComponent,
+        WorkallocationV2HomeComponent,
+        OfficerComponent,
+        AssistantMessageCardComponent,
+        AssistantContentCardComponent,
+        DraftAllocationsComponent,
+        PublishedAllocationsComponent,
+        DebounceClickDirective,
+        DisableButtonOnSubmitDirective,
+    ],
+    imports: [
+        CommonModule, ReactiveFormsModule, WorkallocationV2RoutingModule, BreadcrumbsOrgModule,
+        ActivityLabelsModule, CompDetailModule, CompetencyLabelsModule, RouterModule, MatSidenavModule, MatListModule,
+        ScrollspyLeftMenuModule, MatCardModule, FormsModule,
+        MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule, MatGridListModule,
+        MatRadioModule, MatDialogModule, MatSelectModule, MatProgressSpinnerModule,
+        MatExpansionModule, MatDividerModule, MatPaginatorModule, MatTableModule, WidgetResolverModule,
+        UIORGTableModule, ExportAsModule, MatMenuModule, MatTabsModule, MatProgressSpinnerModule, MatAutocompleteModule,
+        AutocompleteModule, ComponentSharedModule, NgxPaginationModule, Ng2SearchPipeModule,
+        NgCircleProgressModule.forRoot({}),
+    ],
+    providers: [WINDOW_PROVIDERS, WatStoreService, UserWorkService]
 })
 export class WorkallocationV2Module { }

@@ -18,33 +18,30 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms'
 import { AutocompleteModule } from '../autocomplete/autocomplete.module'
 import { ComponentSharedModule } from '../component-shared.module'
 @NgModule({
-  declarations: [
-    CompDetailsComponent,
-  ],
-  imports: [
-    CommonModule,
-    AutocompleteModule,
-    MatCardModule,
-    MatIconModule,
-    CdkStepperModule,
-    CdkTableModule,
-    CdkTreeModule,
-    DragDropModule,
-    MatAutocompleteModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatFormFieldModule,
-    MatSnackBarModule,
-    ReactiveFormsModule,
-    ComponentSharedModule,
-    MatDialogModule,
-    MatCheckboxModule,
-    FormsModule,
-    MatSelectModule,
-  ],
-  entryComponents: [],
-  exports: [CompDetailsComponent],
-  // providers: [{ provide: MAT_DIALOG_DEFAULT_OPTIONS, useValue: { hasBackdrop: false } },
-  // { provide: MatDialogRef, useValue: {} },]
+    declarations: [
+        CompDetailsComponent,
+    ],
+    imports: [
+        CommonModule,
+        AutocompleteModule,
+        MatCardModule,
+        MatIconModule,
+        CdkStepperModule,
+        CdkTableModule,
+        CdkTreeModule,
+        DragDropModule,
+        MatAutocompleteModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatFormFieldModule,
+        MatSnackBarModule,
+        ReactiveFormsModule,
+        ComponentSharedModule,
+        MatDialogModule,
+        MatCheckboxModule,
+        FormsModule,
+        MatSelectModule,
+    ],
+    exports: [CompDetailsComponent]
 })
 export class CompDetailModule { }

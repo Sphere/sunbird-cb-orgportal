@@ -22,34 +22,31 @@ import { WatRolePopupComponent } from './wat-role-popup/wat-role-popup.component
 import { MatDividerModule } from '@angular/material/divider'
 import { DialogConfirmComponent } from '../../../../../../../../../src/app/component/dialog-confirm/dialog-confirm.component'
 @NgModule({
-  declarations: [
-    ActivityLabelsComponent,
-    WatRolePopupComponent,
-  ],
-  imports: [
-    CommonModule,
-    AutocompleteModule,
-    MatCardModule,
-    MatIconModule,
-    CdkStepperModule,
-    CdkTableModule,
-    CdkTreeModule,
-    DragDropModule,
-    MatAutocompleteModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatFormFieldModule,
-    MatSnackBarModule,
-    ReactiveFormsModule,
-    ComponentSharedModule,
-    MatDialogModule,
-    MatCheckboxModule,
-    FormsModule,
-    MatDividerModule
-  ],
-  entryComponents: [WatRolePopupComponent, DialogConfirmComponent],
-  exports: [ActivityLabelsComponent],
-  // providers: [{ provide: MAT_DIALOG_DEFAULT_OPTIONS, useValue: { hasBackdrop: false } },
-  // { provide: MatDialogRef, useValue: {} },]
+    declarations: [
+        ActivityLabelsComponent,
+        WatRolePopupComponent,
+    ],
+    imports: [
+        CommonModule,
+        AutocompleteModule,
+        MatCardModule,
+        MatIconModule,
+        CdkStepperModule,
+        CdkTableModule,
+        CdkTreeModule,
+        DragDropModule,
+        MatAutocompleteModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatFormFieldModule,
+        MatSnackBarModule,
+        ReactiveFormsModule,
+        ComponentSharedModule,
+        MatDialogModule,
+        MatCheckboxModule,
+        FormsModule,
+        MatDividerModule
+    ],
+    exports: [ActivityLabelsComponent]
 })
 export class ActivityLabelsModule { }

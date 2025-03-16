@@ -31,27 +31,26 @@ import { PdfViewerModule } from 'ng2-pdf-viewer'
 import { PlayerDialogComponent } from './player-dialog/player-dialog.component'
 
 @NgModule({
-  declarations: [
-    UserAutocompleteCardComponent,
-    InitialAvatarComponent,
-    PublishPopupComponent,
-    PlayerDialogComponent,
-  ],
-  imports: [
-    CommonModule, PdfViewerModule,
-    MatCardModule, FormsModule, ReactiveFormsModule, MatSidenavModule, MatListModule,
-    MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule, MatGridListModule,
-    MatRadioModule, MatDialogModule, MatSelectModule, MatProgressSpinnerModule,
-    MatExpansionModule, MatDividerModule, MatPaginatorModule, MatTableModule,
-    ExportAsModule, MatMenuModule, MatTabsModule, MatProgressSpinnerModule, MatAutocompleteModule,
-    AutocompleteModule,
-  ],
-  exports: [
-    UserAutocompleteCardComponent,
-    InitialAvatarComponent,
-    PublishPopupComponent,
-    PlayerDialogComponent,
-  ],
-  entryComponents: [PublishPopupComponent, PlayerDialogComponent],
+    declarations: [
+        UserAutocompleteCardComponent,
+        InitialAvatarComponent,
+        PublishPopupComponent,
+        PlayerDialogComponent,
+    ],
+    imports: [
+        CommonModule, PdfViewerModule,
+        MatCardModule, FormsModule, ReactiveFormsModule, MatSidenavModule, MatListModule,
+        MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule, MatGridListModule,
+        MatRadioModule, MatDialogModule, MatSelectModule, MatProgressSpinnerModule,
+        MatExpansionModule, MatDividerModule, MatPaginatorModule, MatTableModule,
+        ExportAsModule, MatMenuModule, MatTabsModule, MatProgressSpinnerModule, MatAutocompleteModule,
+        AutocompleteModule,
+    ],
+    exports: [
+        UserAutocompleteCardComponent,
+        InitialAvatarComponent,
+        PublishPopupComponent,
+        PlayerDialogComponent,
+    ]
 })
 export class ComponentSharedModule { }

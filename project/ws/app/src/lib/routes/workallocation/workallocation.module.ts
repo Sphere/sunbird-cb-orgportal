@@ -34,18 +34,15 @@ import { MatToolbarModule } from '@angular/material/toolbar'
 import { DialogConfirmComponent } from '../../../../../../../src/app/component/dialog-confirm/dialog-confirm.component'
 
 @NgModule({
-  declarations: [CreateWorkallocationComponent, DownloadAllocationComponent, UpdateWorkallocationComponent, AllocationActionsComponent],
-  imports: [
-    CommonModule, RouterModule, WorkallocationRoutingModule, BreadcrumbsOrgModule,
-    MatSidenavModule, MatListModule, ScrollspyLeftMenuModule, MatCardModule, FormsModule,
-    MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule, MatGridListModule,
-    MatRadioModule, MatDialogModule, ReactiveFormsModule, MatSelectModule, MatProgressSpinnerModule,
-    MatExpansionModule, MatDividerModule, MatPaginatorModule, MatTableModule, WidgetResolverModule,
-    UIORGTableModule, ExportAsModule, MatMenuModule, MatTabsModule, MatToolbarModule
-  ],
-  entryComponents: [
-    AllocationActionsComponent, DialogConfirmComponent
-  ],
-  exports: [DownloadAllocationComponent],
+    declarations: [CreateWorkallocationComponent, DownloadAllocationComponent, UpdateWorkallocationComponent, AllocationActionsComponent],
+    imports: [
+        CommonModule, RouterModule, WorkallocationRoutingModule, BreadcrumbsOrgModule,
+        MatSidenavModule, MatListModule, ScrollspyLeftMenuModule, MatCardModule, FormsModule,
+        MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule, MatGridListModule,
+        MatRadioModule, MatDialogModule, ReactiveFormsModule, MatSelectModule, MatProgressSpinnerModule,
+        MatExpansionModule, MatDividerModule, MatPaginatorModule, MatTableModule, WidgetResolverModule,
+        UIORGTableModule, ExportAsModule, MatMenuModule, MatTabsModule, MatToolbarModule
+    ],
+    exports: [DownloadAllocationComponent]
 })
 export class WorkallocationModule { }
