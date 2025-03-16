@@ -3,11 +3,11 @@ import { UntypedFormGroup, Validators, UntypedFormBuilder, UntypedFormArray, Unt
 import { AllocationService } from '../../services/allocation.service'
 import { Router } from '@angular/router'
 import { ExportAsService, ExportAsConfig } from 'ngx-export-as'
-import { MatDialog } from '@angular/material/dialog'
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
 import { DialogConfirmComponent } from 'src/app/component/dialog-confirm/dialog-confirm.component'
 import { AllocationActionsComponent } from '../../components/allocation-actions/allocation-actions.component'
 import { ConfigurationsService } from '@sunbird-cb/utils'
-import { MatSnackBar } from '@angular/material/snack-bar'
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
 
 @Component({
   selector: 'ws-app-create-workallocation',

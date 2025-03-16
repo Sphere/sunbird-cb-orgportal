@@ -1,8 +1,8 @@
 import { Component, Inject, Input, OnInit } from '@angular/core'
 import { UntypedFormArray, UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms'
-import { MatCheckboxChange } from '@angular/material/checkbox'
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog'
-import { MatRadioChange } from '@angular/material/radio'
+import { MatLegacyCheckboxChange as MatCheckboxChange } from '@angular/material/legacy-checkbox'
+import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog'
+import { MatLegacyRadioChange as MatRadioChange } from '@angular/material/legacy-radio'
 /* tslint:disable */
 import _ from 'lodash'
 /* tslint:enable */

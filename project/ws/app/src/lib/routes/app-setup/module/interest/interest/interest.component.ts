@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router'
 import { WidgetContentService, NsContent, BtnPlaylistService, NsPlaylist } from '@sunbird-cb/collection'
 import { TFetchStatus, NsPage, ConfigurationsService } from '@sunbird-cb/utils'
 import { UntypedFormControl } from '@angular/forms'
-import { MatSnackBar } from '@angular/material/snack-bar'
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
 import { Subscription } from 'rxjs'
 // import { InterestService } from '../../../../profile/routes/interest/services/interest.service'
 

@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, ViewChild, Self } from '@angular/core'
-import { MatPaginator } from '@angular/material/paginator'
+import { MatLegacyPaginator as MatPaginator } from '@angular/material/legacy-paginator'
 import { ActivatedRoute, Router } from '@angular/router'
 // tslint:disable-next-line
 import _ from 'lodash'

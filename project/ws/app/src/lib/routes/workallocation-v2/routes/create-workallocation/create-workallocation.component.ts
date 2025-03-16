@@ -1,8 +1,8 @@
 // import { untilDestroyed } from 'ngx-take-until-destroy'
 import { DOCUMENT } from '@angular/common'
 import { AfterViewInit, Component, ElementRef, HostListener, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core'
-import { MatDialog } from '@angular/material/dialog'
-import { MatSnackBar } from '@angular/material/snack-bar'
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
 import { ActivatedRoute, Router } from '@angular/router'
 // tslint:disable
 import _ from 'lodash'

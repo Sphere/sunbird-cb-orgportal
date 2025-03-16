@@ -3,9 +3,9 @@ import {
   Component, OnInit, Output, EventEmitter, ViewChild, OnChanges, SimpleChanges, Inject, Renderer2,
 } from '@angular/core'
 import { SelectionModel } from '@angular/cdk/collections'
-import { MatTableDataSource } from '@angular/material/table'
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog'
-import { MatPaginator } from '@angular/material/paginator'
+import { MatLegacyTableDataSource as MatTableDataSource } from '@angular/material/legacy-table'
+import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog'
+import { MatLegacyPaginator as MatPaginator } from '@angular/material/legacy-paginator'
 import { MatSort } from '@angular/material/sort'
 import * as _ from 'lodash'
 import { Router } from '@angular/router'

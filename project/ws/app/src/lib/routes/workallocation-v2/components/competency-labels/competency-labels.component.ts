@@ -7,8 +7,8 @@ import { AllocationService } from '../../../workallocation/services/allocation.s
 import { debounceTime, first, map, switchMap, takeUntil } from 'rxjs/operators'
 import { BehaviorSubject, Observable, Subject } from 'rxjs'
 import { WatStoreService } from '../../services/wat.store.service'
-import { MatDialog } from '@angular/material/dialog'
-import { MatSnackBar } from '@angular/material/snack-bar'
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
 import { NSWatCompetency } from '../../models/competency-wat.model'
 import { NSWatActivity } from '../../models/activity-wot.model'
 // tslint:disable

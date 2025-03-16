@@ -3,13 +3,13 @@ import {
   AfterViewInit, OnChanges, SimpleChanges,
 } from '@angular/core'
 import { SelectionModel } from '@angular/cdk/collections'
-import { MatTableDataSource } from '@angular/material/table'
-import { MatPaginator } from '@angular/material/paginator'
+import { MatLegacyTableDataSource as MatTableDataSource } from '@angular/material/legacy-table'
+import { MatLegacyPaginator as MatPaginator } from '@angular/material/legacy-paginator'
 import { MatSort } from '@angular/material/sort'
 import * as _ from 'lodash'
 import { ITableData, IColums, IAction } from '../../interfaces/interfaces'
 import { Router } from '@angular/router'
-import { MatDialog } from '@angular/material/dialog'
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
 import { EventThumbnailComponent } from '../event-thumbnail/event-thumbnail.component'
 
 @Component({

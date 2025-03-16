@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core'
 import { ActivatedRoute, Router, NavigationEnd } from '@angular/router'
-import { MatDialog } from '@angular/material/dialog'
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
 import { filter } from 'rxjs/operators'
 import { EventService } from '../../services/event.service'
 import { EventModalComponent } from '../event-modal/event-modal.component'

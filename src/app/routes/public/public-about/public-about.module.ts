@@ -7,8 +7,8 @@ import {
 import { MatDividerModule } from '@angular/material/divider'
 import { MatExpansionModule } from '@angular/material/expansion'
 import { MatIconModule } from '@angular/material/icon'
-import { MatCardModule } from '@angular/material/card'
-import { MatButtonModule } from '@angular/material/button'
+import { MatLegacyCardModule as MatCardModule } from '@angular/material/legacy-card'
+import { MatLegacyButtonModule as MatButtonModule } from '@angular/material/legacy-button'
 import { BreadcrumbsOrgModule } from '@sunbird-cb/collection'
 import { HorizontalScrollerModule, PipeSafeSanitizerModule } from '@sunbird-cb/utils'
 

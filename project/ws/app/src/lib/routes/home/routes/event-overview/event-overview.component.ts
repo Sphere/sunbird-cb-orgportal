@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core'
-import { MatDialog } from '@angular/material/dialog'
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
 import { AddParticipantsComponent } from '../add-participants/add-participants.component'
 import { ActivatedRoute, Router } from '@angular/router'
 import { EventService } from '../../services/event.service'
