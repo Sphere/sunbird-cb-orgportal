@@ -8,7 +8,7 @@ import { SelectionModel } from '@angular/cdk/collections'
 import { FilterDialogComponent } from '../filter-dialog/filter-dialog.component'
 import { AddCompetencyDialogComponent } from '../add-competency-dialog/add-competency-dialog.component'
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component'
-import { FormBuilder } from '@angular/forms'
+import { UntypedFormBuilder } from '@angular/forms'
 import { debounceTime, distinctUntilChanged, filter, switchMap } from 'rxjs/operators'
 import { of, Subject } from 'rxjs'
 import { UserAutoCompleteService } from '../../services/user-auto-complete.service'
@@ -46,7 +46,7 @@ export class SkillTableComponent implements OnInit, OnChanges {
   }
   selection = new SelectionModel<any>(true, [])
   selectedFilters: any = []
-  aastrikaFormBuilder: FormBuilder
+  aastrikaFormBuilder: UntypedFormBuilder
   selectedRows: any = []
   selectedRowLength = false
   /**
@@ -56,7 +56,7 @@ export class SkillTableComponent implements OnInit, OnChanges {
   modelChanged: Subject<string> = new Subject<string>()
   constructor(
     public dialog: MatDialog,
-    formBuilder: FormBuilder,
+    formBuilder: UntypedFormBuilder,
     public userAutoCompleteService: UserAutoCompleteService
 
   ) {

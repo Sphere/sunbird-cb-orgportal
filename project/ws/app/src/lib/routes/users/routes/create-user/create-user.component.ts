@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, HostListener, ViewChild, ElementRef } from '@angular/core'
-import { FormControl, FormGroup, Validators } from '@angular/forms'
+import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms'
 import { ActivatedRoute, Router, Event, NavigationEnd } from '@angular/router'
 import { UsersService } from '../../services/users.service'
 import { MatSnackBar } from '@angular/material/snack-bar'
@@ -25,7 +25,7 @@ export class CreateUserComponent implements OnInit, OnDestroy {
   private defaultSideNavBarOpenedSubscription: any
   public screenSizeIsLtMedium = false
   isLtMedium$ = this.valueSvc.isLtMedium$
-  createUserForm: FormGroup
+  createUserForm: UntypedFormGroup
   namePatern = `^[a-zA-Z\\s\\']{1,32}$`
   department: any = {}
   departmentName = ''
@@ -111,12 +111,12 @@ export class CreateUserComponent implements OnInit, OnDestroy {
         // ]
       }
     })
-    this.createUserForm = new FormGroup({
-      fname: new FormControl('', [Validators.required]),
-      lname: new FormControl('', [Validators.required]),
-      email: new FormControl('', [Validators.required, Validators.email]),
-      department: new FormControl(''),
-      roles: new FormControl(''),
+    this.createUserForm = new UntypedFormGroup({
+      fname: new UntypedFormControl('', [Validators.required]),
+      lname: new UntypedFormControl('', [Validators.required]),
+      email: new UntypedFormControl('', [Validators.required, Validators.email]),
+      department: new UntypedFormControl(''),
+      roles: new UntypedFormControl(''),
     })
   }
 

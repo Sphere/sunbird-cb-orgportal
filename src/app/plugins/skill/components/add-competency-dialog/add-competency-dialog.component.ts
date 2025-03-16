@@ -1,6 +1,6 @@
 import { Component, Inject, OnInit } from '@angular/core'
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog'
-import { FormGroup, FormBuilder, Validators } from '@angular/forms'
+import { UntypedFormGroup, UntypedFormBuilder, Validators } from '@angular/forms'
 import * as _ from 'lodash'
 import { CompetencyService } from '../../services/competency.service'
 import { map } from 'rxjs/operators'
@@ -12,8 +12,8 @@ import moment from 'moment'
 })
 export class AddCompetencyDialogComponent implements OnInit {
 
-  addCompetencyForm!: FormGroup
-  aastrikaFormBuilder: FormBuilder
+  addCompetencyForm!: UntypedFormGroup
+  aastrikaFormBuilder: UntypedFormBuilder
   selectedLeves: any[] = []
 
   selectCompetencyList: any = []
@@ -44,7 +44,7 @@ export class AddCompetencyDialogComponent implements OnInit {
   userId = ''
 
   constructor(
-    formBuilder: FormBuilder,
+    formBuilder: UntypedFormBuilder,
     private competencySvc: CompetencyService,
     public dialogRef: MatDialogRef<AddCompetencyDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,

@@ -1,6 +1,6 @@
 import { AfterViewInit, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core'
 import { CdkDrag, CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop'
-import { FormArray, FormBuilder, FormControl, FormGroup } from '@angular/forms'
+import { UntypedFormArray, UntypedFormBuilder, UntypedFormControl, UntypedFormGroup } from '@angular/forms'
 // import { debounceTime } from 'rxjs/operators'
 import { inspect } from 'util'
 import { AllocationService } from '../../../workallocation/services/allocation.service'
@@ -33,7 +33,7 @@ export class CompetencyLabelsComponent implements OnInit, OnDestroy, AfterViewIn
   activeGroupIdx = 0
   selectedCompIdx = 0
   untitedRole = 'Untitled role'
-  activityForm!: FormGroup
+  activityForm!: UntypedFormGroup
   userslist!: any[]
   canshowName = 1
   canshow = -1
@@ -42,7 +42,7 @@ export class CompetencyLabelsComponent implements OnInit, OnDestroy, AfterViewIn
 
   constructor(
     private changeDetector: ChangeDetectorRef,
-    private formBuilder: FormBuilder,
+    private formBuilder: UntypedFormBuilder,
     private allocateSrvc: AllocationService,
     private watStore: WatStoreService,
     private snackBar: MatSnackBar,
@@ -52,20 +52,20 @@ export class CompetencyLabelsComponent implements OnInit, OnDestroy, AfterViewIn
   ) {
   }
 
-  get labelsList(): FormArray {
-    return this.activityForm.get('labelsArray') as FormArray
+  get labelsList(): UntypedFormArray {
+    return this.activityForm.get('labelsArray') as UntypedFormArray
   }
 
-  get groupList(): FormArray {
-    return this.activityForm.get('groupsArray') as FormArray
+  get groupList(): UntypedFormArray {
+    return this.activityForm.get('groupsArray') as UntypedFormArray
   }
-  groupListByIndex(index: number): FormArray {
-    return ((this.activityForm.get('groupsArray') as FormArray).at(index) as any).get('compDescription')
+  groupListByIndex(index: number): UntypedFormArray {
+    return ((this.activityForm.get('groupsArray') as UntypedFormArray).at(index) as any).get('compDescription')
   }
 
-  get groupcompetencyList(): FormArray {
-    const lst = this.groupList.at(this.activeGroupIdx) as FormGroup
-    const frmctrl = (lst ? lst.get('competincies') : new FormArray([])) as FormArray
+  get groupcompetencyList(): UntypedFormArray {
+    const lst = this.groupList.at(this.activeGroupIdx) as UntypedFormGroup
+    const frmctrl = (lst ? lst.get('competincies') : new UntypedFormArray([])) as UntypedFormArray
     return frmctrl
   }
   get getActivityForm() {
@@ -73,7 +73,7 @@ export class CompetencyLabelsComponent implements OnInit, OnDestroy, AfterViewIn
   }
 
   ngOnInit(): void {
-    this.activityForm = new FormGroup({})
+    this.activityForm = new UntypedFormGroup({})
     this.createForm()
     this.initListen()
     this.activitySubscription = this.watStore.getactivitiesGroup.subscribe(groups => {
@@ -146,7 +146,7 @@ export class CompetencyLabelsComponent implements OnInit, OnDestroy, AfterViewIn
   drop(event: CdkDragDrop<NSWatCompetency.ICompActivity[]>) {
     if (event.previousContainer === event.container) {
       // tslint:disable
-      moveItemInArray((this.activityForm.get('labelsArray') as FormArray)!.controls, event.previousIndex, event.currentIndex)
+      moveItemInArray((this.activityForm.get('labelsArray') as UntypedFormArray)!.controls, event.previousIndex, event.currentIndex)
       moveItemInArray(this.activityForm.get('labelsArray')!.value, event.previousIndex, event.currentIndex)
       moveItemInArray(this.labelsList.controls, event.previousIndex, event.currentIndex)
       moveItemInArray(this.labelsList.value, event.previousIndex, event.currentIndex)
@@ -175,9 +175,9 @@ export class CompetencyLabelsComponent implements OnInit, OnDestroy, AfterViewIn
 
       if (targetContainerIndex === 0) {
         // means dropped to unmapped
-        let aaa = (oldArray as FormArray).at(event.previousIndex) as FormGroup
+        let aaa = (oldArray as UntypedFormArray).at(event.previousIndex) as UntypedFormGroup
 
-        (oldArray as FormArray).at(event.previousIndex).patchValue({
+        (oldArray as UntypedFormArray).at(event.previousIndex).patchValue({
           ...(aaa.value),
           roleId: '',
           roleName: this.untitedRole,
@@ -251,7 +251,7 @@ export class CompetencyLabelsComponent implements OnInit, OnDestroy, AfterViewIn
       roleDescription: grp && grp.roleDescription || 'Role description',
     })
     if (_needDefaultComp) {
-      const comps = fg.get('competincies') as FormArray
+      const comps = fg.get('competincies') as UntypedFormArray
       const fga = this.formBuilder.group({
         localId: this.watStore.getID,
         compId: '',
@@ -273,7 +273,7 @@ export class CompetencyLabelsComponent implements OnInit, OnDestroy, AfterViewIn
   }
   addNewGroupActivityCustom(idx: number, competincies: NSWatCompetency.ICompActivity[]) {
     if (idx >= 0) {
-      const oldValue = this.groupcompetencyList as FormArray
+      const oldValue = this.groupcompetencyList as UntypedFormArray
       // const newForlAryList = this.formBuilder.array([])
       competincies.forEach((ac: NSWatCompetency.ICompActivity) => {
         const fga = this.formBuilder.group({
@@ -297,7 +297,7 @@ export class CompetencyLabelsComponent implements OnInit, OnDestroy, AfterViewIn
   }
   addNewGroupActivity(idx: number) {
     if (idx >= 0) {
-      const oldValue = this.groupcompetencyList as FormArray
+      const oldValue = this.groupcompetencyList as UntypedFormArray
       const fga = this.formBuilder.group({
         localId: this.watStore.getID,
         compId: '',
@@ -344,10 +344,10 @@ export class CompetencyLabelsComponent implements OnInit, OnDestroy, AfterViewIn
           if (!(this.groupList.at(index) && this.groupList.at(index).value)) {
             this.addNewGroup(false, grp)
           }
-          const oldLocalValue = this.groupList.at(index).get('localId') as FormControl
-          const oldRIdValue = this.groupList.at(index).get('roleId') as FormControl
-          const oldRNameValue = this.groupList.at(index).get('roleName') as FormControl
-          const oldRDescValue = this.groupList.at(index).get('roleDescription') as FormControl
+          const oldLocalValue = this.groupList.at(index).get('localId') as UntypedFormControl
+          const oldRIdValue = this.groupList.at(index).get('roleId') as UntypedFormControl
+          const oldRNameValue = this.groupList.at(index).get('roleName') as UntypedFormControl
+          const oldRDescValue = this.groupList.at(index).get('roleDescription') as UntypedFormControl
           oldRIdValue.patchValue(this.groups[index].groupId)
           oldRNameValue.patchValue(this.groups[index].groupName)
           oldRDescValue.patchValue(this.groups[index].groupDescription)
@@ -382,36 +382,36 @@ export class CompetencyLabelsComponent implements OnInit, OnDestroy, AfterViewIn
   // **not in USE */
   createActivityControl(activityObj: NSWatCompetency.ICompActivity) {
     const newControl = this.formBuilder.group({
-      localId: new FormControl(this.watStore.getID),
-      compId: new FormControl(activityObj.compId),
-      compName: new FormControl(activityObj.compName),
-      compDescription: new FormControl(activityObj.compDescription),
-      compLevel: new FormControl(activityObj.compLevel),
-      compType: new FormControl(activityObj.compType),
-      compArea: new FormControl(activityObj.compArea),
-      compSource: new FormControl(activityObj.compSource),
+      localId: new UntypedFormControl(this.watStore.getID),
+      compId: new UntypedFormControl(activityObj.compId),
+      compName: new UntypedFormControl(activityObj.compName),
+      compDescription: new UntypedFormControl(activityObj.compDescription),
+      compLevel: new UntypedFormControl(activityObj.compLevel),
+      compType: new UntypedFormControl(activityObj.compType),
+      compArea: new UntypedFormControl(activityObj.compArea),
+      compSource: new UntypedFormControl(activityObj.compSource),
     })
-    const optionsArr = this.activityForm.controls['labelsArray'] as FormArray
+    const optionsArr = this.activityForm.controls['labelsArray'] as UntypedFormArray
     optionsArr.push(newControl)
   }
   createGroupControl(activityObj: NSWatCompetency.ICompActivityGroup) {
     const newControl = this.formBuilder.group({
       localId: this.watStore.getID,
-      roleId: new FormControl(activityObj.roleId),
-      roleName: new FormControl(activityObj.roleName),
-      roleDescription: new FormControl(activityObj.roleDescription),
+      roleId: new UntypedFormControl(activityObj.roleId),
+      roleName: new UntypedFormControl(activityObj.roleName),
+      roleDescription: new UntypedFormControl(activityObj.roleDescription),
       competincies: this.createActivtyControl(activityObj.competincies),
     })
-    const optionsArr = this.activityForm.controls['groupsArray'] as FormArray
+    const optionsArr = this.activityForm.controls['groupsArray'] as UntypedFormArray
     optionsArr.push(newControl)
   }
   createActivtyControl(activityObj: NSWatCompetency.ICompActivity[]) {
     return activityObj.map((v: NSWatCompetency.ICompActivity) => {
       return this.formBuilder.array([{
         localId: this.watStore.getID,
-        activityId: new FormControl(v.compId),
-        activityName: new FormControl(v.compName),
-        compDescription: new FormControl(v.compDescription),
+        activityId: new UntypedFormControl(v.compId),
+        activityName: new UntypedFormControl(v.compName),
+        compDescription: new UntypedFormControl(v.compDescription),
         // assignedTo: new FormControl(v.assignedTo),
       }])
     })
@@ -455,7 +455,7 @@ export class CompetencyLabelsComponent implements OnInit, OnDestroy, AfterViewIn
     this.selectedCompIdx = index
   }
   public competencySelected(event: any, gIdx: number) {
-    const lst = this.groupList.at(gIdx).get('competincies') as FormArray
+    const lst = this.groupList.at(gIdx).get('competincies') as UntypedFormArray
     // tslint:disable
     const localOd = lst.at(this.selectedCompIdx).get('localId')!.value
     // tslint:enable
@@ -511,39 +511,39 @@ export class CompetencyLabelsComponent implements OnInit, OnDestroy, AfterViewIn
     dialogRef.afterClosed().subscribe((val: any) => {
       if (val.ok) {
         const newVal = val.data
-        const frmctrl0 = lst.at(this.selectedCompIdx).get('compId') as FormControl
+        const frmctrl0 = lst.at(this.selectedCompIdx).get('compId') as UntypedFormControl
         // frmctrl0.patchValue(_.get(event, 'option.value.id') || '')
         frmctrl0.patchValue(_.get(newVal, 'compId') || '')
 
-        const frmctrl = lst.at(this.selectedCompIdx).get('compDescription') as FormControl
+        const frmctrl = lst.at(this.selectedCompIdx).get('compDescription') as UntypedFormControl
         frmctrl.patchValue(_.get(newVal, 'compDescription') || '')
 
         // frmctrl0.patchValue(_.get(newVal, 'localId') || '')
-        const frmctrlw = lst.at(this.selectedCompIdx).get('localId') as FormControl
+        const frmctrlw = lst.at(this.selectedCompIdx).get('localId') as UntypedFormControl
         frmctrlw.patchValue(_.get(newVal, 'localId') || localOd || this.watStore.getID)
 
-        const frmctrl1 = lst.at(this.selectedCompIdx).get('compName') as FormControl
+        const frmctrl1 = lst.at(this.selectedCompIdx).get('compName') as UntypedFormControl
         frmctrl1.patchValue(_.get(newVal, 'compName') || '')
 
-        const source = lst.at(this.selectedCompIdx).get('compSource') as FormControl
+        const source = lst.at(this.selectedCompIdx).get('compSource') as UntypedFormControl
         source.patchValue(_.get(newVal, 'compSource') || '')
 
-        const frmctrl2 = lst.at(this.selectedCompIdx).get('compLevel') as FormControl
+        const frmctrl2 = lst.at(this.selectedCompIdx).get('compLevel') as UntypedFormControl
         frmctrl2.patchValue(_.get(newVal, 'compLevel'))
 
-        const frmctrl3 = lst.at(this.selectedCompIdx).get('compType') as FormControl
+        const frmctrl3 = lst.at(this.selectedCompIdx).get('compType') as UntypedFormControl
         frmctrl3.patchValue(_.get(newVal, 'compType') || '')
 
-        const frmctrl4 = lst.at(this.selectedCompIdx).get('compArea') as FormControl
+        const frmctrl4 = lst.at(this.selectedCompIdx).get('compArea') as UntypedFormControl
         frmctrl4.patchValue(_.get(newVal, 'compArea') || '')
 
-        const levelList = lst.at(this.selectedCompIdx).get('levelList') as FormArray
+        const levelList = lst.at(this.selectedCompIdx).get('levelList') as UntypedFormArray
         levelList.patchValue(_.get(newVal, 'levelList') || [])
 
         this.watStore.setgetcompetencyGroup(this.groupList.value, false, true)
         this.updateCompData()
       } else {
-        const frmctrl1 = lst.at(this.selectedCompIdx).get('compName') as FormControl
+        const frmctrl1 = lst.at(this.selectedCompIdx).get('compName') as UntypedFormControl
         frmctrl1.patchValue(_.get(val, 'data.name') || '')
         // const frmctrl = lst.at(this.selectedCompIdx).get('compDescription') as FormControl
         // frmctrl.patchValue(_.get(event, 'option.value.description') || '')
@@ -583,8 +583,8 @@ export class CompetencyLabelsComponent implements OnInit, OnDestroy, AfterViewIn
     this.canshowName = -1
   }
   deleteRowCompetency(roleIdx: number, compIdx: number) {
-    const roleGrp = this.groupList.at(roleIdx) as FormGroup
-    const competinciesLst = roleGrp.get('competincies') as FormArray
+    const roleGrp = this.groupList.at(roleIdx) as UntypedFormGroup
+    const competinciesLst = roleGrp.get('competincies') as UntypedFormArray
     competinciesLst.removeAt(compIdx)
     this.watStore.setgetcompetencyGroup(this.groupList.value, false, true)
   }

@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core'
 import { ActivatedRoute, Router, Event, NavigationEnd } from '@angular/router'
 // import moment from 'moment'
-import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms'
+import { UntypedFormGroup, UntypedFormControl, Validators, UntypedFormBuilder } from '@angular/forms'
 import { UsersService } from '../../services/users.service'
 import { MatSnackBar } from '@angular/material/snack-bar'
 // tslint:disable-next-line
@@ -22,7 +22,7 @@ import { NsUserProfileDetails } from '../models/NsUserProfile'
 export class ViewUserComponent implements OnInit, AfterViewInit {
   constructor(private activeRoute: ActivatedRoute, private router: Router, private events: EventService,
     // tslint:disable-next-line:align
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     // private cd: ChangeDetectorRef,
 
               private usersSvc: UsersService,
@@ -30,73 +30,73 @@ export class ViewUserComponent implements OnInit, AfterViewInit {
     // tslint:disable-next-line:align
     private snackBar: MatSnackBar) {
 
-    this.updateUserDetailsForm = new FormGroup({
-      firstname: new FormControl('', [Validators.required]),
-      middlename: new FormControl('', []),
-      surname: new FormControl('', [Validators.required]),
-      about: new FormControl(''),
-      photo: new FormControl('', []),
-      countryCode: new FormControl(''),
-      mobile: new FormControl('', [Validators.pattern(this.phoneNumberPattern)]),
-      telephone: new FormControl('', []),
-      primaryEmail: new FormControl('', [Validators.email]),
-      primaryEmailType: new FormControl(this.assignPrimaryEmailTypeCheckBox(this.ePrimaryEmailType.OFFICIAL), []),
-      secondaryEmail: new FormControl('', []),
-      nationality: new FormControl('', []),
-      dob: new FormControl('', [Validators.required]),
-      gender: new FormControl('', []),
-      maritalStatus: new FormControl('', []),
-      domicileMedium: new FormControl('', []),
-      regNurseRegMidwifeNumber: new FormControl('', []),
-      nationalUniqueId: new FormControl('', []),
-      doctorRegNumber: new FormControl('', []),
-      instituteName: new FormControl('', []),
-      nursingCouncil: new FormControl('', []),
-      knownLanguages: new FormControl([], []),
-      postalAddress: new FormControl('', []),
-      category: new FormControl('', []),
-      pincode: new FormControl('', [Validators.pattern(this.pincodePattern)]),
-      schoolName10: new FormControl('', []),
-      yop10: new FormControl('', [Validators.pattern(this.yearPattern)]),
-      schoolName12: new FormControl('', []),
-      yop12: new FormControl('', [Validators.pattern(this.yearPattern)]),
-      degreeName: new FormControl('', []),
-      degreeInstitute: new FormControl('', []),
-      yopDegree: new FormControl('', [Validators.pattern(this.yearPattern)]),
-      postDegreeName: new FormControl('', []),
-      postDegreeInstitute: new FormControl('', []),
-      yopPostDegree: new FormControl('', [Validators.pattern(this.yearPattern)]),
+    this.updateUserDetailsForm = new UntypedFormGroup({
+      firstname: new UntypedFormControl('', [Validators.required]),
+      middlename: new UntypedFormControl('', []),
+      surname: new UntypedFormControl('', [Validators.required]),
+      about: new UntypedFormControl(''),
+      photo: new UntypedFormControl('', []),
+      countryCode: new UntypedFormControl(''),
+      mobile: new UntypedFormControl('', [Validators.pattern(this.phoneNumberPattern)]),
+      telephone: new UntypedFormControl('', []),
+      primaryEmail: new UntypedFormControl('', [Validators.email]),
+      primaryEmailType: new UntypedFormControl(this.assignPrimaryEmailTypeCheckBox(this.ePrimaryEmailType.OFFICIAL), []),
+      secondaryEmail: new UntypedFormControl('', []),
+      nationality: new UntypedFormControl('', []),
+      dob: new UntypedFormControl('', [Validators.required]),
+      gender: new UntypedFormControl('', []),
+      maritalStatus: new UntypedFormControl('', []),
+      domicileMedium: new UntypedFormControl('', []),
+      regNurseRegMidwifeNumber: new UntypedFormControl('', []),
+      nationalUniqueId: new UntypedFormControl('', []),
+      doctorRegNumber: new UntypedFormControl('', []),
+      instituteName: new UntypedFormControl('', []),
+      nursingCouncil: new UntypedFormControl('', []),
+      knownLanguages: new UntypedFormControl([], []),
+      postalAddress: new UntypedFormControl('', []),
+      category: new UntypedFormControl('', []),
+      pincode: new UntypedFormControl('', [Validators.pattern(this.pincodePattern)]),
+      schoolName10: new UntypedFormControl('', []),
+      yop10: new UntypedFormControl('', [Validators.pattern(this.yearPattern)]),
+      schoolName12: new UntypedFormControl('', []),
+      yop12: new UntypedFormControl('', [Validators.pattern(this.yearPattern)]),
+      degreeName: new UntypedFormControl('', []),
+      degreeInstitute: new UntypedFormControl('', []),
+      yopDegree: new UntypedFormControl('', [Validators.pattern(this.yearPattern)]),
+      postDegreeName: new UntypedFormControl('', []),
+      postDegreeInstitute: new UntypedFormControl('', []),
+      yopPostDegree: new UntypedFormControl('', [Validators.pattern(this.yearPattern)]),
       degrees: this.fb.array([this.createDegree()]),
       postDegrees: this.fb.array([this.createDegree()]),
-      certificationDesc: new FormControl('', []),
-      interests: new FormControl('', []),
-      hobbies: new FormControl('', []),
-      skillAquiredDesc: new FormControl('', []),
-      isGovtOrg: new FormControl(false, []),
-      orgName: new FormControl('', []),
-      orgType: new FormControl(),
-      orgOtherSpecify: new FormControl(),
-      orgNameOther: new FormControl('', []),
-      industry: new FormControl('', []),
-      industryOther: new FormControl('', []),
-      designation: new FormControl('', []),
-      profession: new FormControl('', []),
-      location: new FormControl('', []),
-      locationOther: new FormControl('', []),
-      doj: new FormControl('', []),
-      orgDesc: new FormControl('', []),
-      payType: new FormControl('', []),
-      service: new FormControl('', []),
-      cadre: new FormControl('', []),
-      allotmentYear: new FormControl('', [Validators.pattern(this.yearPattern)]),
-      otherDetailsDoj: new FormControl('', []),
-      civilListNo: new FormControl('', []),
-      employeeCode: new FormControl('', []),
-      otherDetailsOfficeAddress: new FormControl('', []),
-      otherDetailsOfficePinCode: new FormControl('', []),
-      professionOtherSpecify: new FormControl(),
-      professional: new FormControl(),
-      courseDegree: new FormControl(true),
+      certificationDesc: new UntypedFormControl('', []),
+      interests: new UntypedFormControl('', []),
+      hobbies: new UntypedFormControl('', []),
+      skillAquiredDesc: new UntypedFormControl('', []),
+      isGovtOrg: new UntypedFormControl(false, []),
+      orgName: new UntypedFormControl('', []),
+      orgType: new UntypedFormControl(),
+      orgOtherSpecify: new UntypedFormControl(),
+      orgNameOther: new UntypedFormControl('', []),
+      industry: new UntypedFormControl('', []),
+      industryOther: new UntypedFormControl('', []),
+      designation: new UntypedFormControl('', []),
+      profession: new UntypedFormControl('', []),
+      location: new UntypedFormControl('', []),
+      locationOther: new UntypedFormControl('', []),
+      doj: new UntypedFormControl('', []),
+      orgDesc: new UntypedFormControl('', []),
+      payType: new UntypedFormControl('', []),
+      service: new UntypedFormControl('', []),
+      cadre: new UntypedFormControl('', []),
+      allotmentYear: new UntypedFormControl('', [Validators.pattern(this.yearPattern)]),
+      otherDetailsDoj: new UntypedFormControl('', []),
+      civilListNo: new UntypedFormControl('', []),
+      employeeCode: new UntypedFormControl('', []),
+      otherDetailsOfficeAddress: new UntypedFormControl('', []),
+      otherDetailsOfficePinCode: new UntypedFormControl('', []),
+      professionOtherSpecify: new UntypedFormControl(),
+      professional: new UntypedFormControl(),
+      courseDegree: new UntypedFormControl(true),
     })
     this.router.events.subscribe((event: Event) => {
       if (event instanceof NavigationEnd) {
@@ -240,8 +240,8 @@ export class ViewUserComponent implements OnInit, AfterViewInit {
       }
     })
 
-    this.updateUserRoleForm = new FormGroup({
-      roles: new FormControl('', [Validators.required]),
+    this.updateUserRoleForm = new UntypedFormGroup({
+      roles: new UntypedFormControl('', [Validators.required]),
     })
   }
   tabsData!: any[]
@@ -258,8 +258,8 @@ export class ViewUserComponent implements OnInit, AfterViewInit {
   profileData: any[] = []
   profileDataKeys: any[] = []
   wfHistory: any[] = []
-  updateUserRoleForm: FormGroup
-  updateUserDetailsForm!: FormGroup
+  updateUserRoleForm: UntypedFormGroup
+  updateUserDetailsForm!: UntypedFormGroup
   ePrimaryEmailType = NsUserProfileDetails.EPrimaryEmailType
   eUserGender = NsUserProfileDetails.EUserGender
   eMaritalStatus = NsUserProfileDetails.EMaritalStatus
@@ -493,11 +493,11 @@ export class ViewUserComponent implements OnInit, AfterViewInit {
       return value
     }
   }
-  createDegree(): FormGroup {
+  createDegree(): UntypedFormGroup {
     return this.fb.group({
-      degree: new FormControl('', []),
-      instituteName: new FormControl('', []),
-      yop: new FormControl('', [Validators.pattern(this.yearPattern)]),
+      degree: new UntypedFormControl('', []),
+      instituteName: new UntypedFormControl('', []),
+      yop: new UntypedFormControl('', [Validators.pattern(this.yearPattern)]),
     })
   }
   private assignPrimaryEmailTypeCheckBox(primaryEmailType: any) {

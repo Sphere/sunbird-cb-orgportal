@@ -1,5 +1,5 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core'
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms'
+import { UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms'
 import { Observable, Subject } from 'rxjs'
 import { debounceTime, map, switchMap, takeUntil } from 'rxjs/operators'
 import { AllocationService } from '../../services/allocation.service'
@@ -18,21 +18,21 @@ export class OfficerComponent implements OnInit, OnDestroy {
   private unsubscribe1 = new Subject<void>()
   @Input() editData!: any
   userslist!: any[]
-  userCtrl = new FormControl()
+  userCtrl = new UntypedFormControl()
   filteredUserslist!: Observable<any[]>
   filteredPositionlist!: Observable<any[]>
 
-  officerForm!: FormGroup
+  officerForm!: UntypedFormGroup
 
   constructor(
     private allocateSrvc: AllocationService,
-    private formBuilder: FormBuilder,
+    private formBuilder: UntypedFormBuilder,
     private watStore: WatStoreService,
   ) {
   }
 
   ngOnInit() {
-    this.officerForm = new FormGroup({})
+    this.officerForm = new UntypedFormGroup({})
     this.createForm()
     this.officerForm.valueChanges
       .pipe(
@@ -138,10 +138,10 @@ export class OfficerComponent implements OnInit, OnDestroy {
 
   officerClicked(event: any) {
     if (event) {
-      const frmctr = this.officerForm.get('user') as FormControl
+      const frmctr = this.officerForm.get('user') as UntypedFormControl
       frmctr.patchValue(_.get(event, 'option.value') || '')
 
-      const frmctr1 = this.officerForm.get('officerName') as FormControl
+      const frmctr1 = this.officerForm.get('officerName') as UntypedFormControl
       // const fullName = _.get(event, 'option.value.userDetails.first_name') + ' ' + _.get(event, 'option.value.userDetails.last_name')
       // tslint:disable-next-line: prefer-template
       const fullName = _.get(event, 'option.value.firstName') + ' ' + _.get(event, 'option.value.lastName')
@@ -152,9 +152,9 @@ export class OfficerComponent implements OnInit, OnDestroy {
 
   postionClicked(event: any) {
     if (event) {
-      const frmctr = this.officerForm.get('position') as FormControl
+      const frmctr = this.officerForm.get('position') as UntypedFormControl
       frmctr.patchValue(_.get(event, 'option.value.name') || '')
-      const frmctr1 = this.officerForm.get('positionDescription') as FormControl
+      const frmctr1 = this.officerForm.get('positionDescription') as UntypedFormControl
       frmctr1.patchValue(_.get(event, 'option.value.description') || '')
       // tslint:disable-next-line: no-non-null-assertion
       this.officerForm.get('positionObj')!.setValue(_.get(event, 'option.value'))

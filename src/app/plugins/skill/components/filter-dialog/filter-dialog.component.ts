@@ -1,5 +1,5 @@
 import { Component, OnInit, Inject } from '@angular/core'
-import { FormBuilder, FormGroup } from '@angular/forms'
+import { UntypedFormBuilder, UntypedFormGroup } from '@angular/forms'
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog'
 import { COMMA, ENTER } from '@angular/cdk/keycodes'
 import * as _ from 'lodash'
@@ -93,12 +93,12 @@ export class FilterDialogComponent implements OnInit {
   readonly separatorKeysCodes = [ENTER, COMMA] as const
   //#endregion
 
-  filterForm: FormGroup
+  filterForm: UntypedFormGroup
   //#endregion
 
   //#region (constructor)
   constructor(
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     public dialogRef: MatDialogRef<FilterDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
     private http: HttpClient

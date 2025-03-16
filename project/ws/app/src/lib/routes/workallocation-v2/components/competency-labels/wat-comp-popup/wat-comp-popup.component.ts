@@ -1,5 +1,5 @@
 import { Component, Inject, Input, OnInit } from '@angular/core'
-import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms'
+import { UntypedFormArray, UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms'
 import { MatCheckboxChange } from '@angular/material/checkbox'
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog'
 import { MatRadioChange } from '@angular/material/radio'
@@ -42,7 +42,7 @@ export interface IChield {
 export class WatCompPopupComponent implements OnInit {
   isChecked = true
   isCheckedAllA = true
-  watForm!: FormGroup
+  watForm!: UntypedFormGroup
   isNew = false
   selectedLevel = ''
   compTypList!: string[]
@@ -50,23 +50,23 @@ export class WatCompPopupComponent implements OnInit {
   constructor(
     public dialogRef: MatDialogRef<WatCompPopupComponent>,
     @Inject(MAT_DIALOG_DATA) public data: IWatCompPopupData,
-    private formBuilder: FormBuilder) {
-    this.watForm = new FormGroup({})
+    private formBuilder: UntypedFormBuilder) {
+    this.watForm = new UntypedFormGroup({})
 
     this.watForm = this.formBuilder.group({
-      compName: new FormControl(data.name, [Validators.required]),
-      compDescription: new FormControl(data.description, [Validators.required]),
-      compId: new FormControl(data.id, []),
-      compType: new FormControl(data.type, []),
-      compArea: new FormControl(data.area, []),
-      compSource: new FormControl(data.source, []),
+      compName: new UntypedFormControl(data.name, [Validators.required]),
+      compDescription: new UntypedFormControl(data.description, [Validators.required]),
+      compId: new UntypedFormControl(data.id, []),
+      compType: new UntypedFormControl(data.type, []),
+      compArea: new UntypedFormControl(data.area, []),
+      compSource: new UntypedFormControl(data.source, []),
       acDetail: this.formBuilder.array([]),
-      IsRoleSelected: new FormControl(true, []),
+      IsRoleSelected: new UntypedFormControl(true, []),
     })
     this.selectedLevel = data.level || ''
   }
   get getList() {
-    return this.watForm.get('acDetail') as FormArray
+    return this.watForm.get('acDetail') as UntypedFormArray
   }
   setWatValues(val: any) {
     this.watForm.patchValue(val)

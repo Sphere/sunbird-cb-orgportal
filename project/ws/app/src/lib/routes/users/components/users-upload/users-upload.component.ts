@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, OnDestroy } from '@angular/core'
-import { FormBuilder, Validators } from '@angular/forms'
+import { UntypedFormBuilder, Validators } from '@angular/forms'
 import { FileService } from '../../services/upload.service'
 import { Observable } from 'rxjs'
 import { MatSnackBar } from '@angular/material/snack-bar'
@@ -72,7 +72,7 @@ export class UsersUploadComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   constructor(
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     private fileService: FileService,
     private snackBar: MatSnackBar,
     private route: ActivatedRoute,

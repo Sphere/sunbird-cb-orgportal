@@ -1,7 +1,7 @@
 import { AfterViewInit, ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core'
 import { CdkDrag, CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop'
 import { NSWatActivity } from '../../models/activity-wot.model'
-import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup } from '@angular/forms'
+import { AbstractControl, UntypedFormArray, UntypedFormBuilder, UntypedFormControl, UntypedFormGroup } from '@angular/forms'
 // import { debounceTime } from 'rxjs/operators'
 import { inspect } from 'util'
 import { AllocationService } from '../../../workallocation/services/allocation.service'
@@ -55,7 +55,7 @@ export class ActivityLabelsComponent implements OnInit, OnDestroy, AfterViewInit
   selectedActivityIdx = 0
   activeGroupIdx = 0
   untitedRole = 'Untitled role'
-  activityForm!: FormGroup
+  activityForm!: UntypedFormGroup
   userslist!: any[]
   filteredActivityDesc!: Observable<any[]>
   filteredRoles!: Observable<any[]>
@@ -63,7 +63,7 @@ export class ActivityLabelsComponent implements OnInit, OnDestroy, AfterViewInit
   canshow = -1
   constructor(
     private changeDetector: ChangeDetectorRef,
-    private formBuilder: FormBuilder,
+    private formBuilder: UntypedFormBuilder,
     private allocateSrvc: AllocationService,
     private watStore: WatStoreService,
     private snackBar: MatSnackBar,
@@ -73,24 +73,24 @@ export class ActivityLabelsComponent implements OnInit, OnDestroy, AfterViewInit
     this.evenPredicate = this.evenPredicate.bind(this)
   }
 
-  get labelsList(): FormArray {
-    return this.activityForm.get('labelsArray') as FormArray
+  get labelsList(): UntypedFormArray {
+    return this.activityForm.get('labelsArray') as UntypedFormArray
   }
 
-  get groupList(): FormArray {
+  get groupList(): UntypedFormArray {
     // console.log(this.activityForm.get('groupsArray'))
-    return this.activityForm.get('groupsArray') as FormArray
+    return this.activityForm.get('groupsArray') as UntypedFormArray
   }
-  get grpArray(): FormArray | null {
+  get grpArray(): UntypedFormArray | null {
     // console.log(this.activityForm.get('groupsArray'))
-    return this.activityForm ? this.activityForm.get('groupsArray') as FormArray : null
+    return this.activityForm ? this.activityForm.get('groupsArray') as UntypedFormArray : null
   }
   get getControls(): AbstractControl[] {
     return this.grpArray ? this.grpArray.controls : []
   }
-  get groupActivityList(): FormArray {
-    const lst = this.groupList.at(this.activeGroupIdx) as FormGroup
-    const frmctrl = (lst ? lst.get('activities') : new FormArray([])) as FormArray
+  get groupActivityList(): UntypedFormArray {
+    const lst = this.groupList.at(this.activeGroupIdx) as UntypedFormGroup
+    const frmctrl = (lst ? lst.get('activities') : new UntypedFormArray([])) as UntypedFormArray
     return frmctrl
   }
   get getActivityForm() {
@@ -98,7 +98,7 @@ export class ActivityLabelsComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   ngOnInit(): void {
-    this.activityForm = new FormGroup({})
+    this.activityForm = new UntypedFormGroup({})
     this.createForm()
     this.initListen()
   }
@@ -120,7 +120,7 @@ export class ActivityLabelsComponent implements OnInit, OnDestroy, AfterViewInit
   drop(event: CdkDragDrop<NSWatActivity.IActivity[]>) {
     if (event.previousContainer === event.container) {
       // tslint:disable
-      moveItemInArray((this.activityForm.get('labelsArray') as FormArray)!.controls, event.previousIndex, event.currentIndex)
+      moveItemInArray((this.activityForm.get('labelsArray') as UntypedFormArray)!.controls, event.previousIndex, event.currentIndex)
       moveItemInArray(this.activityForm.get('labelsArray')!.value, event.previousIndex, event.currentIndex)
       moveItemInArray(this.labelsList.controls, event.previousIndex, event.currentIndex)
       moveItemInArray(this.labelsList.value, event.previousIndex, event.currentIndex)
@@ -225,7 +225,7 @@ export class ActivityLabelsComponent implements OnInit, OnDestroy, AfterViewInit
       groupDescription: grp && grp.groupDescription || '',
     })
     if (_needDefaultActivity) {
-      const activits = fg.get('activities') as FormArray
+      const activits = fg.get('activities') as UntypedFormArray
       const fga = this.formBuilder.group({
         localId: this.watStore.getID,
         activityId: '',
@@ -248,7 +248,7 @@ export class ActivityLabelsComponent implements OnInit, OnDestroy, AfterViewInit
   }
   addNewGroupActivityCustom(idx: number, activities: NSWatActivity.IActivity[]) {
     if (idx >= 0) {
-      const oldValue = this.groupActivityList as FormArray
+      const oldValue = this.groupActivityList as UntypedFormArray
       // const newForlAryList = this.formBuilder.array([])
       activities.forEach((ac: NSWatActivity.IActivity) => {
         const fga = this.formBuilder.group({
@@ -272,7 +272,7 @@ export class ActivityLabelsComponent implements OnInit, OnDestroy, AfterViewInit
   }
   addNewGroupActivity(idx: number) {
     if (idx >= 0) {
-      const oldValue = this.groupActivityList as FormArray
+      const oldValue = this.groupActivityList as UntypedFormArray
       const fga = this.formBuilder.group({
         localId: this.watStore.getID,
         activityId: '',
@@ -342,43 +342,43 @@ export class ActivityLabelsComponent implements OnInit, OnDestroy, AfterViewInit
   createActivityControl(activityObj: NSWatActivity.IActivity) {
     const newControl = this.formBuilder.group({
       localId: activityObj.localId || this.watStore.getID,
-      activityId: new FormControl(activityObj.activityId),
-      activityName: new FormControl(activityObj.activityName),
-      activityDescription: new FormControl(activityObj.activityDescription),
-      assignedTo: new FormControl(activityObj.assignedTo),
-      assignedToId: new FormControl(activityObj.assignedToId),
-      assignedToEmail: new FormControl(activityObj.assignedToEmail),
-      submissionFrom: new FormControl(activityObj.submissionFrom),
-      submissionFromId: new FormControl(activityObj.submissionFromId),
-      submissionFromEmail: new FormControl(activityObj.submissionFromEmail),
+      activityId: new UntypedFormControl(activityObj.activityId),
+      activityName: new UntypedFormControl(activityObj.activityName),
+      activityDescription: new UntypedFormControl(activityObj.activityDescription),
+      assignedTo: new UntypedFormControl(activityObj.assignedTo),
+      assignedToId: new UntypedFormControl(activityObj.assignedToId),
+      assignedToEmail: new UntypedFormControl(activityObj.assignedToEmail),
+      submissionFrom: new UntypedFormControl(activityObj.submissionFrom),
+      submissionFromId: new UntypedFormControl(activityObj.submissionFromId),
+      submissionFromEmail: new UntypedFormControl(activityObj.submissionFromEmail),
     })
-    const optionsArr = this.activityForm.controls['labelsArray'] as FormArray
+    const optionsArr = this.activityForm.controls['labelsArray'] as UntypedFormArray
     optionsArr.push(newControl)
   }
   createGroupControl(activityObj: NSWatActivity.IActivityGroup) {
     const newControl = this.formBuilder.group({
       localId: activityObj.localId || this.watStore.getID,
-      groupId: new FormControl(activityObj.groupId),
-      groupName: new FormControl(activityObj.groupName),
-      groupDescription: new FormControl(activityObj.groupDescription),
+      groupId: new UntypedFormControl(activityObj.groupId),
+      groupName: new UntypedFormControl(activityObj.groupName),
+      groupDescription: new UntypedFormControl(activityObj.groupDescription),
       activities: this.createActivtyControl(activityObj.activities),
     })
-    const optionsArr = this.activityForm.controls['groupsArray'] as FormArray
+    const optionsArr = this.activityForm.controls['groupsArray'] as UntypedFormArray
     optionsArr.push(newControl)
   }
   createActivtyControl(activityObj: NSWatActivity.IActivity[]) {
     return activityObj.map((v: NSWatActivity.IActivity) => {
       return this.formBuilder.array([{
         localId: v.localId || this.watStore.getID,
-        activityId: new FormControl(v.activityId),
-        activityName: new FormControl(v.activityName),
-        activityDescription: new FormControl(v.activityDescription),
-        assignedTo: new FormControl(v.assignedTo),
-        assignedToId: new FormControl(v.assignedToId),
-        assignedToEmail: new FormControl(v.assignedToEmail),
-        submissionFrom: new FormControl(v.submissionFrom),
-        submissionFromId: new FormControl(v.submissionFromId),
-        submissionFromEmail: new FormControl(v.submissionFromEmail),
+        activityId: new UntypedFormControl(v.activityId),
+        activityName: new UntypedFormControl(v.activityName),
+        activityDescription: new UntypedFormControl(v.activityDescription),
+        assignedTo: new UntypedFormControl(v.assignedTo),
+        assignedToId: new UntypedFormControl(v.assignedToId),
+        assignedToEmail: new UntypedFormControl(v.assignedToEmail),
+        submissionFrom: new UntypedFormControl(v.submissionFrom),
+        submissionFromId: new UntypedFormControl(v.submissionFromId),
+        submissionFromEmail: new UntypedFormControl(v.submissionFromEmail),
       }])
     })
   }
@@ -442,7 +442,7 @@ export class ActivityLabelsComponent implements OnInit, OnDestroy, AfterViewInit
 
   public roleSelected(event: any, gIdx: number) {
     this.activeGroupIdx = gIdx
-    const lst = this.groupList.at(this.activeGroupIdx) as FormGroup
+    const lst = this.groupList.at(this.activeGroupIdx) as UntypedFormGroup
 
     const dialogRef = this.dialog.open(WatRolePopupComponent, {
       restoreFocus: false,
@@ -454,13 +454,13 @@ export class ActivityLabelsComponent implements OnInit, OnDestroy, AfterViewInit
     // opens the dialog won't be in the DOM any more when the dialog closes.
     dialogRef.afterClosed().subscribe((val: any) => {
       if (val.ok) {
-        const frmctrl = lst.get('groupDescription') as FormControl
+        const frmctrl = lst.get('groupDescription') as UntypedFormControl
         frmctrl.patchValue(event.option.value.description)
 
-        const frmctrl1 = lst.get('groupName') as FormControl
+        const frmctrl1 = lst.get('groupName') as UntypedFormControl
         frmctrl1.patchValue(event.option.value.name)
 
-        const frmctrl2 = lst.get('groupId') as FormControl
+        const frmctrl2 = lst.get('groupId') as UntypedFormControl
         frmctrl2.patchValue(event.option.value.id)
 
         // wait 200ms
@@ -492,13 +492,13 @@ export class ActivityLabelsComponent implements OnInit, OnDestroy, AfterViewInit
         // to get focus back
         // this.menuTrigger.focus()
       } else {
-        const frmctrl = lst.get('groupDescription') as FormControl
+        const frmctrl = lst.get('groupDescription') as UntypedFormControl
         frmctrl.patchValue(event.option.value.description || '')
 
-        const frmctrl1 = lst.get('groupName') as FormControl
+        const frmctrl1 = lst.get('groupName') as UntypedFormControl
         frmctrl1.patchValue(event.option.value.name || '')
 
-        const frmctrl2 = lst.get('groupId') as FormControl
+        const frmctrl2 = lst.get('groupId') as UntypedFormControl
         frmctrl2.patchValue(event.option.value.id || '')
 
         this.watStore.setgetactivitiesGroup(this.groupList.value, false, false)
@@ -508,7 +508,7 @@ export class ActivityLabelsComponent implements OnInit, OnDestroy, AfterViewInit
 
   }
   deleteUnselectedActivities(unselectVals: any, gIdx: number) {
-    const lst = this.groupList.at(gIdx) as FormGroup
+    const lst = this.groupList.at(gIdx) as UntypedFormGroup
     if (unselectVals && unselectVals.length > 0) {
       /**Delete unselected Values */
       for (let i = unselectVals.length - 1; i >= 0; i -= 1) {
@@ -525,11 +525,11 @@ export class ActivityLabelsComponent implements OnInit, OnDestroy, AfterViewInit
 
   activitySelected(event: any, gIdx: number) {
     this.activeGroupIdx = gIdx
-    const lst = this.groupList.at(this.activeGroupIdx).get('activities') as FormArray
-    const frmctrl = lst.at(this.selectedActivityIdx).get('activityDescription') as FormControl
+    const lst = this.groupList.at(this.activeGroupIdx).get('activities') as UntypedFormArray
+    const frmctrl = lst.at(this.selectedActivityIdx).get('activityDescription') as UntypedFormControl
     frmctrl.patchValue(event.option.value.description)
 
-    const frmctrl1 = lst.at(this.selectedActivityIdx).get('activityId') as FormControl
+    const frmctrl1 = lst.at(this.selectedActivityIdx).get('activityId') as UntypedFormControl
     frmctrl1.patchValue(event.option.value.id)
 
     this.watStore.setgetactivitiesGroup(this.groupList.value, false, true)
@@ -565,14 +565,14 @@ export class ActivityLabelsComponent implements OnInit, OnDestroy, AfterViewInit
           assignedToId = _.get(event, 'option.value.userId'),
             assignedToEmail = _.get(event, 'option.value.profileDetails.personalDetails.primaryEmail')
         }
-        const lst = this.groupList.at(this.activeGroupIdx).get('activities') as FormArray
-        const frmctrl = lst.at(this.selectedActivityIdx).get('assignedTo') as FormControl
+        const lst = this.groupList.at(this.activeGroupIdx).get('activities') as UntypedFormArray
+        const frmctrl = lst.at(this.selectedActivityIdx).get('assignedTo') as UntypedFormControl
         frmctrl.patchValue(assignedTo || '')
 
-        const frmctrl1 = lst.at(this.selectedActivityIdx).get('assignedToId') as FormControl
+        const frmctrl1 = lst.at(this.selectedActivityIdx).get('assignedToId') as UntypedFormControl
         frmctrl1.patchValue(assignedToId || '')
 
-        const frmctrl2 = lst.at(this.selectedActivityIdx).get('assignedToEmail') as FormControl
+        const frmctrl2 = lst.at(this.selectedActivityIdx).get('assignedToEmail') as UntypedFormControl
         frmctrl2.patchValue(assignedToEmail || '')
       } else {
         this.activeGroupIdx = gIdx
@@ -603,8 +603,8 @@ export class ActivityLabelsComponent implements OnInit, OnDestroy, AfterViewInit
     }
   }
   deleteRowActivity(roleIdx: number, activityIdx: number) {
-    const roleGrp = this.groupList.at(roleIdx) as FormGroup
-    const activitiesLst = roleGrp.get('activities') as FormArray
+    const roleGrp = this.groupList.at(roleIdx) as UntypedFormGroup
+    const activitiesLst = roleGrp.get('activities') as UntypedFormArray
     activitiesLst.removeAt(activityIdx)
     this.watStore.setgetactivitiesGroup(this.groupList.value, false, true)
   }
@@ -641,7 +641,7 @@ export class ActivityLabelsComponent implements OnInit, OnDestroy, AfterViewInit
   hideName() {
     this.canshowName = -1
   }
-  trackByFn(index: number, item: FormGroup) {
+  trackByFn(index: number, item: UntypedFormGroup) {
     if (index) { }
     return item.value.localId
   }
@@ -663,7 +663,7 @@ export class ActivityLabelsComponent implements OnInit, OnDestroy, AfterViewInit
     // this.snackBar.open('This feature will be available soon!! ', undefined, { duration: 2000 })
     if (grpidx >= 0) {
       const role = this.groupList.at(grpidx).value
-      const countA = (this.groupList.at(grpidx).get('activities') as FormArray || []).length
+      const countA = (this.groupList.at(grpidx).get('activities') as UntypedFormArray || []).length
       const countC = this.getCompCount(_.get(role, 'groupName'), _.get(role, 'localId'), _.get(role, 'roleId'))
       const dialogRef = this.dialog.open(DialogConfirmComponent, {
         data: {
@@ -684,7 +684,7 @@ export class ActivityLabelsComponent implements OnInit, OnDestroy, AfterViewInit
       dialogRef.afterClosed().subscribe(result => {
         if (result) {
           // this.snackBar.open('This feature will be available soon!! ', undefined, { duration: 2000 })
-          (this.activityForm.controls['groupsArray'] as FormArray).removeAt(grpidx)
+          (this.activityForm.controls['groupsArray'] as UntypedFormArray).removeAt(grpidx)
           this.changeDetector.detectChanges()
           this.watStore.setgetactivitiesGroup(this.groupList.value, true, true)
           this.snackBar.open('Role removed successfully, Please sit back, Page will reload.!! ', undefined, { duration: 2000 })

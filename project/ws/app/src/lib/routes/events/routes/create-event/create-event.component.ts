@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ChangeDetectorRef } from '@angular/core'
-import { FormControl, FormGroup, Validators } from '@angular/forms'
+import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms'
 import { EventsService } from '../../services/events.service'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { MatPaginator } from '@angular/material/paginator'
@@ -35,7 +35,7 @@ export class CreateEventComponent implements OnInit {
   @Output() eOnRowClick = new EventEmitter<any>()
   @Output() eOnCreateClick = new EventEmitter<any>()
 
-  createEventForm: FormGroup
+  createEventForm: UntypedFormGroup
   namePatern = `^[a-zA-Z\\s\\']{1,32}$`
   department: any = {}
   departmentName = ''
@@ -114,19 +114,19 @@ export class CreateEventComponent implements OnInit {
         this.username = _.get(this.activeRoute, 'snapshot.data.configService.userProfile.userName')
       }
     }
-    this.createEventForm = new FormGroup({
-      eventPicture: new FormControl(''),
-      eventTitle: new FormControl('', [Validators.required]),
-      summary: new FormControl('', [Validators.required]),
-      description: new FormControl('', [Validators.required]),
-      agenda: new FormControl('', [Validators.required]),
-      eventType: new FormControl('', [Validators.required]),
-      eventDate: new FormControl('', [Validators.required]),
-      eventTime: new FormControl('', [Validators.required]),
-      eventDurationHours: new FormControl('', [Validators.required]),
-      eventDurationMinutes: new FormControl('', [Validators.required]),
-      conferenceLink: new FormControl('', [Validators.required, Validators.pattern(this.myreg)]),
-      presenters: new FormControl('', [Validators.required]),
+    this.createEventForm = new UntypedFormGroup({
+      eventPicture: new UntypedFormControl(''),
+      eventTitle: new UntypedFormControl('', [Validators.required]),
+      summary: new UntypedFormControl('', [Validators.required]),
+      description: new UntypedFormControl('', [Validators.required]),
+      agenda: new UntypedFormControl('', [Validators.required]),
+      eventType: new UntypedFormControl('', [Validators.required]),
+      eventDate: new UntypedFormControl('', [Validators.required]),
+      eventTime: new UntypedFormControl('', [Validators.required]),
+      eventDurationHours: new UntypedFormControl('', [Validators.required]),
+      eventDurationMinutes: new UntypedFormControl('', [Validators.required]),
+      conferenceLink: new UntypedFormControl('', [Validators.required, Validators.pattern(this.myreg)]),
+      presenters: new UntypedFormControl('', [Validators.required]),
     })
 
     this.createEventForm.controls['eventDurationHours'].setValue(0)

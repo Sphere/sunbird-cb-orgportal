@@ -1,5 +1,5 @@
 import { Component, EventEmitter, OnInit, Output, Input, ChangeDetectorRef } from '@angular/core'
-import { FormControl, FormGroup, Validators } from '@angular/forms'
+import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms'
 
 @Component({
   selector: 'ws-dropdown-dob',
@@ -10,7 +10,7 @@ export class DropdownDobComponent implements OnInit {
 
   @Output() dobValue = new EventEmitter<any>()
   @Input() dob?: String
-  dobForm: FormGroup
+  dobForm: UntypedFormGroup
 
   dateValue = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31]
   monthValue = [{ id: 1, name: 'January' },
@@ -30,10 +30,10 @@ export class DropdownDobComponent implements OnInit {
   yearsValue: number[] = []
   constructor(public cdr: ChangeDetectorRef) {
     this.initYear()
-    this.dobForm = new FormGroup({
-      dateField: new FormControl('', Validators.required),
-      monthField: new FormControl('', Validators.required),
-      yearField: new FormControl('', Validators.required),
+    this.dobForm = new UntypedFormGroup({
+      dateField: new UntypedFormControl('', Validators.required),
+      monthField: new UntypedFormControl('', Validators.required),
+      yearField: new UntypedFormControl('', Validators.required),
     })
   }
 

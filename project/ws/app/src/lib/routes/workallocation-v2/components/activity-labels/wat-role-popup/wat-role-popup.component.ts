@@ -1,5 +1,5 @@
 import { Component, Inject, OnInit } from '@angular/core'
-import { FormArray, FormBuilder, FormControl, FormGroup } from '@angular/forms'
+import { UntypedFormArray, UntypedFormBuilder, UntypedFormControl, UntypedFormGroup } from '@angular/forms'
 import { MatCheckboxChange } from '@angular/material/checkbox'
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog'
 import * as _ from 'lodash'
@@ -35,20 +35,20 @@ export interface IChield {
 export class WatRolePopupComponent implements OnInit {
   isChecked = true
   isCheckedAllA = true
-  watForm!: FormGroup
+  watForm!: UntypedFormGroup
   constructor(
     public dialogRef: MatDialogRef<WatRolePopupComponent>,
     @Inject(MAT_DIALOG_DATA) public data: IWatRolePopupData,
-    private formBuilder: FormBuilder) {
-    this.watForm = new FormGroup({})
+    private formBuilder: UntypedFormBuilder) {
+    this.watForm = new UntypedFormGroup({})
     this.watForm = this.formBuilder.group({
       acDetail: this.formBuilder.array([]),
-      IsRoleSelected: new FormControl(true, []),
+      IsRoleSelected: new UntypedFormControl(true, []),
     })
 
   }
   get getList() {
-    return this.watForm.get('acDetail') as FormArray
+    return this.watForm.get('acDetail') as UntypedFormArray
   }
   setWatValues(val: any) {
     this.watForm.patchValue(val)

@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, ElementRef, Inject } from '@angular/core'
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog'
-import { FormGroup, Validators, FormBuilder, FormControl } from '@angular/forms'
+import { UntypedFormGroup, Validators, UntypedFormBuilder, UntypedFormControl } from '@angular/forms'
 import { AllocationService } from '../../services/allocation.service'
 import { MatTabGroup } from '@angular/material/tabs'
 
@@ -49,7 +49,7 @@ export class AllocationActionsComponent implements OnInit {
   departmentName: any
   departmentID: any
   showRAerror = false
-  allocationFieldForm: FormGroup
+  allocationFieldForm: UntypedFormGroup
 
   activitieslist: any[] = []
   selectedTabIndex = 0
@@ -58,7 +58,7 @@ export class AllocationActionsComponent implements OnInit {
 
   constructor(
     private allocateSrvc: AllocationService,
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     private dialogRef: MatDialogRef<AllocationActionsComponent>,
     @Inject(MAT_DIALOG_DATA) public selectedUser: any
   ) {
@@ -95,10 +95,10 @@ export class AllocationActionsComponent implements OnInit {
   //   }
   // }
 
-  newRole(): FormGroup {
+  newRole(): UntypedFormGroup {
     return this.fb.group({
-      name: new FormControl(''),
-      childNodes: new FormControl(''),
+      name: new UntypedFormControl(''),
+      childNodes: new UntypedFormControl(''),
     })
   }
 

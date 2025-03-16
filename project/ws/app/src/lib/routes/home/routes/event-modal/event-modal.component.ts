@@ -1,5 +1,5 @@
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core'
-import { FormBuilder, FormGroup, Validators } from '@angular/forms'
+import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms'
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog'
 import { Subscription } from 'rxjs'
 import { take } from 'rxjs/operators'
@@ -12,7 +12,7 @@ import { IEventData } from '../../interface/events'
   styleUrls: ['./event-modal.component.scss'],
 })
 export class EventModalComponent implements OnInit, OnDestroy {
-  eventForm!: FormGroup
+  eventForm!: UntypedFormGroup
   isEditMode = false
   userData: any
   private userSubscription!: Subscription
@@ -20,7 +20,7 @@ export class EventModalComponent implements OnInit, OnDestroy {
   constructor(
     public dialogRef: MatDialogRef<EventModalComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     private eventService: EventService
   ) { }
 

@@ -296,7 +296,6 @@
       }
     }
   },
-  "defaultProject": "mdo",
   "schematics": {
     "@schematics/angular:component": {
       "style": "scss"

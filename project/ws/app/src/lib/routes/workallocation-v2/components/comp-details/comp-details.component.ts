@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core'
-import { FormArray, FormBuilder, FormControl, FormGroup } from '@angular/forms'
+import { UntypedFormArray, UntypedFormBuilder, UntypedFormControl, UntypedFormGroup } from '@angular/forms'
 import { ActivatedRoute } from '@angular/router'
 // tslint:disable
 import _ from 'lodash'
@@ -18,11 +18,11 @@ import { WatStoreService } from '../../services/wat.store.service'
 export class CompDetailsComponent implements OnInit, OnDestroy {
   dataStructure: NSWatCompetency.ICompActivity[] = []
   groupSubscription: any
-  compDetailForm!: FormGroup
+  compDetailForm!: UntypedFormGroup
   subscribeForm: any
   levelLest = ['Basic', 'Proficient', 'Advanced', 'Expert', 'Ustad']
   compTypList = ['Behavioural', 'Domain', 'Functional']
-  constructor(private watStore: WatStoreService, private formBuilder: FormBuilder, activated: ActivatedRoute) {
+  constructor(private watStore: WatStoreService, private formBuilder: UntypedFormBuilder, activated: ActivatedRoute) {
     this.generateForm()
     this.levelLest = activated.snapshot.data.pageData.data.levels
     this.compTypList = activated.snapshot.data.pageData.data.compTypes
@@ -47,8 +47,8 @@ export class CompDetailsComponent implements OnInit, OnDestroy {
       }
     })
   }
-  get compList(): FormArray {
-    return this.compDetailForm.get('competencyList') as FormArray
+  get compList(): UntypedFormArray {
+    return this.compDetailForm.get('competencyList') as UntypedFormArray
   }
   setCompValues(val: any) {
     this.compList.patchValue(val)
@@ -70,9 +70,9 @@ export class CompDetailsComponent implements OnInit, OnDestroy {
         const fg = this.formBuilder.group({
           localId: this.dataStructure[index].localId,
           compId: this.dataStructure[index].compId,
-          compName: new FormControl({ value: this.dataStructure[index].compName, disabled: true }),
+          compName: new UntypedFormControl({ value: this.dataStructure[index].compName, disabled: true }),
           compDescription: this.dataStructure[index].compDescription,
-          compLevel: new FormControl({ value: this.dataStructure[index].compLevel, disabled: false }),
+          compLevel: new UntypedFormControl({ value: this.dataStructure[index].compLevel, disabled: false }),
           compType: this.dataStructure[index].compType,
           compArea: this.dataStructure[index].compArea,
           compSource: this.dataStructure[index].compSource,

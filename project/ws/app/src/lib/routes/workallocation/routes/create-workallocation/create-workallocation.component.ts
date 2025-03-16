@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core'
-import { FormGroup, Validators, FormBuilder, FormArray, FormControl } from '@angular/forms'
+import { UntypedFormGroup, Validators, UntypedFormBuilder, UntypedFormArray, UntypedFormControl } from '@angular/forms'
 import { AllocationService } from '../../services/allocation.service'
 import { Router } from '@angular/router'
 import { ExportAsService, ExportAsConfig } from 'ngx-export-as'
@@ -21,7 +21,7 @@ export class CreateWorkallocationComponent implements OnInit {
   userslist!: any[]
   currentTab = 'officer'
   sticky = false
-  newAllocationForm: FormGroup
+  newAllocationForm: UntypedFormGroup
   formdata = {
     fname: '',
     email: '',
@@ -72,7 +72,7 @@ export class CreateWorkallocationComponent implements OnInit {
 
   constructor(
     private exportAsService: ExportAsService, private snackBar: MatSnackBar,
-    private fb: FormBuilder, private allocateSrvc: AllocationService,
+    private fb: UntypedFormBuilder, private allocateSrvc: AllocationService,
     private router: Router, public dialog: MatDialog,
     private configSvc: ConfigurationsService) {
     this.selectedIndex = 0
@@ -142,7 +142,7 @@ export class CreateWorkallocationComponent implements OnInit {
 
   // to set roles array field
   setRole() {
-    const control = this.newAllocationForm.get('rolelist') as FormArray
+    const control = this.newAllocationForm.get('rolelist') as UntypedFormArray
     this.formdata.rolelist.forEach((x: any) => {
       control.push(this.fb.group({
         name: x.name,
@@ -151,10 +151,10 @@ export class CreateWorkallocationComponent implements OnInit {
     })
   }
 
-  newRole(): FormGroup {
+  newRole(): UntypedFormGroup {
     return this.fb.group({
-      name: new FormControl(''),
-      childNodes: new FormControl(''),
+      name: new UntypedFormControl(''),
+      childNodes: new UntypedFormControl(''),
     })
   }
 
@@ -329,7 +329,7 @@ export class CreateWorkallocationComponent implements OnInit {
       actnodes.push(x.name)
     })
     formatselectedRole.childNodes = actnodes
-    const newrole = this.newAllocationForm.get('rolelist') as FormArray
+    const newrole = this.newAllocationForm.get('rolelist') as UntypedFormArray
     // newrole.push(this.newRole())
     newrole.at(0).patchValue(formatselectedRole)
     this.inputvar.nativeElement.value = ''
@@ -366,13 +366,13 @@ export class CreateWorkallocationComponent implements OnInit {
         this.selectedRole = ''
         this.activitieslist = []
 
-        const control = this.newAllocationForm.get('rolelist') as FormArray
+        const control = this.newAllocationForm.get('rolelist') as UntypedFormArray
         // tslint:disable-next-line:no-increment-decrement
         for (let i = control.length - 1; i >= 0; i--) {
           control.removeAt(i)
         }
 
-        const newrolefield = this.newAllocationForm.get('rolelist') as FormArray
+        const newrolefield = this.newAllocationForm.get('rolelist') as UntypedFormArray
         newrolefield.push(this.newRole())
 
         this.newAllocationForm.value.rolelist = this.ralist
@@ -394,12 +394,12 @@ export class CreateWorkallocationComponent implements OnInit {
         this.ralist.push(newroleformat)
         this.activitieslist = []
 
-        const control = this.newAllocationForm.get('rolelist') as FormArray
+        const control = this.newAllocationForm.get('rolelist') as UntypedFormArray
         // tslint:disable-next-line:no-increment-decrement
         for (let i = control.length - 1; i >= 0; i--) {
           control.removeAt(i)
         }
-        const newrolefield = this.newAllocationForm.get('rolelist') as FormArray
+        const newrolefield = this.newAllocationForm.get('rolelist') as UntypedFormArray
         newrolefield.push(this.newRole())
         // const newrole = this.newAllocationForm.get('rolelist') as FormArray
         // newrole.at(0).patchValue(newroleformat)
