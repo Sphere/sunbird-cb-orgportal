@@ -64,6 +64,7 @@ import { ServiceWorkerModule } from '@angular/service-worker'
 import { environment } from '../environments/environment'
 import { MatDialogModule } from '@angular/material/dialog'
 import { HammerGestureConfig } from '@angular/platform-browser'
+import { MatTabsModule } from '@angular/material/tabs'
 @Injectable()
 // export class HammerConfig extends GestureConfig {
 //   buildHammer(element: HTMLElement) {
@@ -75,7 +76,7 @@ export class HammerConfig extends HammerGestureConfig {
   override overrides = {
     pan: { direction: 6 }, // Allow both horizontal and vertical
     swipe: { direction: 6 }, // Allow both horizontal and vertical
-  };
+  }
 }
 const appInitializer = (initSvc: InitService, logger: LoggerService) => async () => {
   try {
@@ -93,16 +94,17 @@ const getBaseHref = (platformLocation: PlatformLocation): string => {
 @NgModule({
   declarations: [
     RootComponent,
+    TncComponent,
+    LoginRootDirective,
     LoginComponent,
     AppNavBarComponent,
     AppPublicNavBarComponent,
-    TncComponent,
     TncRendererComponent,
     AppFooterComponent,
     InvalidUserComponent,
     DialogConfirmComponent,
     LoginRootComponent,
-    LoginRootDirective,
+
   ],
   imports: [
     FormsModule,
@@ -113,7 +115,7 @@ const getBaseHref = (platformLocation: PlatformLocation): string => {
     BrowserAnimationsModule,
     KeycloakAngularModule,
     AppRoutingModule,
-    ...WIDGET_REGISTERED_MODULES,
+    WIDGET_REGISTERED_MODULES,
     WidgetResolverModule.forRoot(WIDGET_REGISTRATION_CONFIG),
     StickyHeaderModule,
     ErrorResolverModule,
@@ -147,15 +149,18 @@ const getBaseHref = (platformLocation: PlatformLocation): string => {
     PipeSafeSanitizerModule,
     TourModule,
     HammerModule,
+    MatTabsModule,
     ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production }),
   ],
   exports: [
     TncComponent,
+    MatDividerModule,
+    DialogConfirmComponent
   ],
   bootstrap: [RootComponent],
   entryComponents: [
-    DialogConfirmComponent,
-    LoginComponent,
+    // DialogConfirmComponent,
+    // LoginComponent,
   ],
   providers: [
     {

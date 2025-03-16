@@ -1,0 +1,40 @@
+<div class="container">
+  <h1 class="page-title">Events</h1>
+  <h2>Manage Events</h2>
+
+  <div class="header">
+    <h3>Events</h3>
+    <button class="create-btn" (click)="openEventModal()">Create New Event</button>
+  </div>
+
+  <!-- Search and Filter -->
+  <div class="participants-header">
+    <input type="text" placeholder="Search by name, location, registration type" [(ngModel)]="searchQuery"
+      (input)="filterEvents()" class="search-input" />
+    <button class="filter-btn">
+      <mat-icon class="material-icons-outlined">filter_alt</mat-icon> Filter
+    </button>
+  </div>
+
+  <!-- Events Table -->
+  <div class="events-table">
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Date</th>
+          <th>Location</th>
+          <th>Registration Type</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let event of filteredEvents" (click)="navigateToEvent(event)">
+          <td>{{ event.name }}</td>
+          <td>{{ event.date | date: 'shortDate' }}</td>
+          <td>{{ event.location }}</td>
+          <td>{{ event.registrationType }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

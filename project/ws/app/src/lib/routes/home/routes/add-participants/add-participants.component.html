@@ -1,0 +1,38 @@
+<div class="modal-header">
+  <h2 mat-dialog-title>Add Participant</h2>
+  <button mat-icon-button (click)="onCancel()">
+    <mat-icon>close</mat-icon>
+  </button>
+
+</div>
+
+<mat-dialog-content>
+  <div class="file-upload-header">
+    <p>Upload CSV file to add multiple participants</p>
+    <button class="download-btn" (click)="downloadSampleExcel()">
+      Download Sample Excel
+    </button>
+  </div>
+
+  <div class="file-upload-container">
+    <label class="custom-file-upload">
+      <input type="file" accept=".csv, .xlsx" (change)="onFileChange($event)">
+      Upload File
+    </label>
+    <span id="file-name">Only .csv, .xlsx file</span>
+  </div>
+
+  <!-- Display validation errors if any -->
+  <div class="error-messages" *ngIf="validationErrors.length > 0">
+    <p *ngFor="let error of validationErrors" class="error-text">{{ error }}</p>
+  </div>
+
+  <!-- Show success message when valid -->
+  <div class="success-message" *ngIf="isValidData && participants.length > 0">
+    <p class="success-text">All data is valid. Ready to submit!</p>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button [disabled]="!isValidData" (click)="saveParticipants()">Save & Add</button>
+</mat-dialog-actions>

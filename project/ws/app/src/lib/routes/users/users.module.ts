@@ -8,7 +8,7 @@ import { BreadcrumbsOrgModule, ScrollspyLeftMenuModule } from '@sunbird-cb/colle
 import { UsersUploadComponent } from './components/users-upload/users-upload.component'
 import {
 
-  MatPaginatorModule
+  MatPaginatorModule,
 } from '@angular/material/paginator'
 import { MatGridListModule } from '@angular/material/grid-list'
 import { MatListModule } from '@angular/material/list'

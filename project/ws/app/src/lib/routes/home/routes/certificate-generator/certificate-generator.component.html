@@ -1,0 +1,42 @@
+<div class="certificate-container">
+  <!-- Header -->
+  <div class="certificate-header">
+    <h2>Choose a certificate</h2>
+    <button class="close-btn" (click)="navigateBack()"><mat-icon>close</mat-icon></button>
+  </div>
+
+  <div class="certificate-header">
+    <p>Choose from the list of certificate templates</p>
+    <button class="download-btn" (click)="generateCertificate()"
+      [disabled]="isLoading || !certificates.length || isGenerating">
+      {{ isGenerating ? 'Generating...' : 'Generate & Download' }}
+    </button>
+  </div>
+
+  <!-- Show loading message -->
+  <div *ngIf="isGenerating" class="loading-overlay">
+    <!-- Loading certificates... -->
+  </div>
+
+  <!-- Show error message if failed to load -->
+  <div *ngIf="errorMessage" class="error-message">
+    {{ errorMessage }}
+  </div>
+
+  <!-- Certificate List -->
+  <div class="certificate-wrapper" *ngIf="!isLoading && certificates.length">
+    <div class="certificate-sidebar">
+      <div class="scrollable-thumbnails">
+        <div *ngFor="let cert of certificates; let i = index" [class.selected]="i === selectedCertIndex"
+          (click)="selectCertificate(i)">
+          <img [src]="cert.templateLogo" [alt]="cert.templateName">
+        </div>
+      </div>
+    </div>
+
+    <!-- Certificate Preview -->
+    <div class="certificate-preview">
+      <img [src]="certificates[selectedCertIndex]?.templateLogo" alt="Selected Certificate">
+    </div>
+  </div>
+</div>

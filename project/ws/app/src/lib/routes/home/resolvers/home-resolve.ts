@@ -31,7 +31,11 @@ export class HomeResolve
       userId = this.configSvc.userProfile && this.configSvc.userProfile.userId || ''
     }
     return this.profileV2Svc.fetchProfile(userId).pipe(
-      map(data => ({ data, error: null })),
+      map(data => {
+        console.log('Fetched profile data:', data)
+
+        return { data, error: null }
+      }),
       catchError(error => of({ error, data: null })),
     )
   }

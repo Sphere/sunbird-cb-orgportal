@@ -89,12 +89,12 @@ export class CreateEventComponent implements OnInit {
   departmentID: any
 
   constructor(private snackBar: MatSnackBar,
-    private eventsSvc: EventsService,
-    private matDialog: MatDialog,
-    private router: Router,
-    private configSvc: ConfigurationsService,
-    private changeDetectorRefs: ChangeDetectorRef,
-    private activeRoute: ActivatedRoute,
+              private eventsSvc: EventsService,
+              private matDialog: MatDialog,
+              private router: Router,
+              private configSvc: ConfigurationsService,
+              private changeDetectorRefs: ChangeDetectorRef,
+              private activeRoute: ActivatedRoute,
   ) {
     if (this.configSvc.userProfile) {
       this.userId = this.configSvc.userProfile.userId

@@ -1,0 +1,112 @@
+/* Modal container styles */
+::ng-deep .mat-dialog-container {
+  border-radius: 12px;
+  padding: 24px;
+  background: #fff;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+
+
+  /* Title styling */
+  h2 {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 0;
+  }
+}
+
+/* File upload header (aligned properly) */
+.file-upload-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+/* Download button styling */
+.download-btn {
+  min-width: 160px;
+  border-radius: 100px;
+  background-color: #1C5D95;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+
+/* File upload styling */
+.file-upload-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+input[type="file"] {
+  display: none;
+}
+
+.custom-file-upload {
+  display: inline-block;
+  background-color: white;
+  color: #1C5D95;
+  padding: 6px 20px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 16px;
+  text-align: center;
+  border: 1px solid #1C5D95;
+}
+
+// .custom-file-upload:hover {
+//   background-color: #0056b3;
+//   color: white;
+// }
+
+/* File format message */
+#file-name {
+  font-size: 14px;
+  color: gray;
+}
+
+/* Actions styling */
+mat-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+mat-dialog-actions button {
+  min-width: 120px;
+  border-radius: 100px;
+  background-color: #1C5D95;
+  color: white;
+  border: none;
+  padding: 8px;
+}
+
+.error-messages {
+  margin-top: 10px;
+  color: red;
+  font-size: 14px;
+}
+
+.error-text {
+  margin: 2px 0;
+}
+
+.success-message {
+  margin-top: 10px;
+  color: green;
+  font-size: 14px;
+}
+
+.success-text {
+  font-weight: bold;
+}

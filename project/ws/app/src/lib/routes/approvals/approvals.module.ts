@@ -6,7 +6,7 @@ import { RouterModule } from '@angular/router'
 import { ApprovalsRoutingModule } from './approvals.routing.module'
 import { BreadcrumbsOrgModule, ScrollspyLeftMenuModule } from '@sunbird-cb/collection'
 import {
-  MatIconModule
+  MatIconModule,
 } from '@angular/material/icon'
 import { MatGridListModule } from '@angular/material/grid-list'
 import { MatSidenavModule } from '@angular/material/sidenav'

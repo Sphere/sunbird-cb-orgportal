@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { MobileAppHomeComponent } from './components/mobile-app-home.component'
 import {
-  MatCardModule
+  MatCardModule,
 } from '@angular/material/card'
 import { MatTabsModule } from '@angular/material/tabs'
 import { MatToolbarModule } from '@angular/material/toolbar'

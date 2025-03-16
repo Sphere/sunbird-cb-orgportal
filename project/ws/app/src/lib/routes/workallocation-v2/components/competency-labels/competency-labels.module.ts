@@ -18,6 +18,8 @@ import { CdkTreeModule } from '@angular/cdk/tree'
 import { FormsModule, ReactiveFormsModule } from '@angular/forms'
 import { AutocompleteModule } from '../autocomplete/autocomplete.module'
 import { WatCompPopupComponent } from './wat-comp-popup/wat-comp-popup.component'
+import { MatDividerModule } from '@angular/material/divider'
+import { DialogConfirmComponent } from '../../../../../../../../../src/app/component/dialog-confirm/dialog-confirm.component'
 
 @NgModule({
   declarations: [
@@ -43,8 +45,9 @@ import { WatCompPopupComponent } from './wat-comp-popup/wat-comp-popup.component
     FormsModule,
     MatSelectModule,
     MatRadioModule,
+    MatDividerModule
   ],
-  entryComponents: [WatCompPopupComponent],
+  entryComponents: [WatCompPopupComponent, DialogConfirmComponent],
   exports: [CompetencyLabelsComponent],
 })
 export class CompetencyLabelsModule { }

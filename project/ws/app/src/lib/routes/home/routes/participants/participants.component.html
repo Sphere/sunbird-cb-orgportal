@@ -1,0 +1,30 @@
+<div class="tab-content ">
+  <!-- Search and Filter -->
+  <div class="participants-header">
+    <input type="text" placeholder="Search by name, place" [(ngModel)]="searchQuery" class="search-input" />
+    <button class="filter-btn">
+      <mat-icon class="material-icons-outlined">filter_alt</mat-icon> Filter
+    </button>
+  </div>
+
+  <!-- Participants Table -->
+  <div class="participants-table">
+    <table>
+      <thead>
+        <tr>
+          <th>First Name</th>
+          <th>Last Name</th>
+          <th>Place</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let participant of filteredParticipants()">
+          <td>{{ participant.firstName }}</td>
+          <td>{{ participant.lastName }}</td>
+          <td>{{ participant.place }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>

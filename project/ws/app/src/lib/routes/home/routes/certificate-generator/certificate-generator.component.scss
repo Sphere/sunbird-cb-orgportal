@@ -1,0 +1,189 @@
+.certificate-container {
+  padding: 20px;
+}
+
+.certificate-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.close-btn {
+  border: none;
+  background-color: inherit;
+}
+
+h2 {
+  font-size: 20px;
+  margin-top: 10px;
+}
+
+/* Wrapper for Sidebar & Preview */
+.certificate-wrapper {
+  display: flex;
+  gap: 20px;
+  box-shadow: 0px 0px 4px 0px #00000026;
+  padding: 10px;
+  border-radius: 10px;
+  margin-top: 20px;
+  justify-content: center;
+  /* Balances space */
+  align-items: center;
+  /* Aligns properly */
+}
+
+/* Sidebar: Thumbnails */
+.certificate-sidebar {
+  width: 330px;
+  /* Fixed width */
+  max-height: 530px;
+  /* Set height for scrolling */
+  overflow-y: auto;
+  /* Enables vertical scrolling */
+  border: 1px solid #ddd;
+  padding: 10px;
+  border-radius: 8px;
+}
+
+/* Scrollable thumbnails */
+.scrollable-thumbnails {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Individual Thumbnail */
+.certificate-sidebar div {
+  cursor: pointer;
+  border: 2px solid transparent;
+  padding: 5px;
+  transition: 0.3s;
+}
+
+.certificate-sidebar img {
+  width: 100%;
+  height: auto;
+  border-radius: 6px;
+}
+
+.certificate-sidebar .selected {
+  border-color: #007bff;
+}
+
+/* Certificate Preview */
+.certificate-preview {
+  flex-grow: 1;
+  /* Takes up available space */
+  display: flex;
+  justify-content: center;
+  /* Centers the image */
+}
+
+.certificate-preview img {
+  width: 100%;
+  max-width: 800px;
+  /* Ensures it doesn’t stretch too much */
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  display: block;
+  margin: auto;
+  /* Centers the image */
+}
+
+.download-btn {
+  background-color: #1C5D95;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  cursor: pointer;
+  border-radius: 100px;
+}
+
+.download-btn:hover {
+  background-color: #0056b3;
+}
+
+
+.loading-overlay {
+  position: fixed;
+  /* Covers entire screen */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  /* Semi-transparent background */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.5rem;
+  font-weight: bold;
+  z-index: 1000;
+  /* Ensure it's above other elements */
+}
+
+/* Optional: Add a loading spinner */
+.loading-overlay::before {
+  content: '';
+  width: 50px;
+  height: 50px;
+  border: 5px solid white;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  position: absolute;
+  top: 45%;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-overlay {
+  position: fixed;
+  /* Covers entire screen */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  /* Semi-transparent background */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.5rem;
+  font-weight: bold;
+  z-index: 1000;
+  /* Ensure it's above other elements */
+}
+
+/* Optional: Add a loading spinner */
+.loading-overlay::before {
+  content: '';
+  width: 50px;
+  height: 50px;
+  border: 5px solid white;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  position: absolute;
+  top: 45%;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}

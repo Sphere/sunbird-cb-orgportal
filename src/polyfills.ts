@@ -62,5 +62,4 @@ import 'zone.js' // Included with Angular CLI.
  */
 import 'hammerjs'
 import 'typeface-roboto'
-import '@angular/localize/init';
-
+import '@angular/localize/init'

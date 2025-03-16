@@ -46,6 +46,14 @@ import { UsersModule } from '../users/users.module'
 import { CompetenciesComponent } from './routes/competencies/competencies.component'
 import { SkillModule } from '../../../../../../../src/app/plugins/skill'
 import { SelfAssessmentComponent } from './routes/self-assessment/self-assessment.component'
+import { EventDashboardComponent } from './routes/event-dashboard/event-dashboard.component'
+import { EventDetailsComponent } from './routes/event-details/event-details.component'
+import { EventOverviewComponent } from './routes/event-overview/event-overview.component'
+import { ParticipantsComponent } from './routes/participants/participants.component'
+import { CertificateGeneratorComponent } from './routes/certificate-generator/certificate-generator.component'
+import { EventModalComponent } from './routes/event-modal/event-modal.component'
+import { AddParticipantsComponent } from './routes/add-participants/add-participants.component'
+import { MatDatepickerModule } from '@angular/material/datepicker'
 @NgModule({
   declarations: [
     HomeComponent,
@@ -57,6 +65,13 @@ import { SelfAssessmentComponent } from './routes/self-assessment/self-assessmen
     WelcomeComponent,
     CompetenciesComponent,
     SelfAssessmentComponent,
+    EventDashboardComponent,
+    EventDetailsComponent,
+    EventOverviewComponent,
+    ParticipantsComponent,
+    CertificateGeneratorComponent,
+    EventModalComponent,
+    AddParticipantsComponent,
   ],
   imports: [
     CommonModule,
@@ -106,8 +121,12 @@ import { SelfAssessmentComponent } from './routes/self-assessment/self-assessmen
     UsersModule,
     MatTableModule,
     SkillModule,
+    MatDatepickerModule,
+
   ],
   entryComponents: [
+    EventModalComponent,
+    AddParticipantsComponent,
   ],
   providers: [
     // CKEditorService,

@@ -15,6 +15,12 @@ import { UsersListResolve } from './resolvers/users-list-resolve.service'
 import { CompetenciesComponent } from './routes/competencies/competencies.component'
 import { SelfAssessmentComponent } from './routes/self-assessment/self-assessment.component'
 import { UserCompetencyComponent } from '../../../../../../../src/app/plugins/skill/components'
+import { EventDashboardComponent } from './routes/event-dashboard/event-dashboard.component'
+import { EventDetailsComponent } from './routes/event-details/event-details.component'
+import { EventOverviewComponent } from './routes/event-overview/event-overview.component'
+import { ParticipantsComponent } from './routes/participants/participants.component'
+import { CertificateGeneratorComponent } from './routes/certificate-generator/certificate-generator.component'
+
 const routes: Routes = [
   {
     path: '',
@@ -77,6 +83,33 @@ const routes: Routes = [
       {
         path: 'self-assessment',
         component: SelfAssessmentComponent,
+      },
+      {
+        path: 'event-dashboard',
+        component: EventDashboardComponent,
+      },
+      {
+        path: 'event-dashboard/:id',
+        component: EventDetailsComponent,
+        children: [
+          {
+            path: '',
+            pathMatch: 'full',  // Redirect empty path to 'overview'
+            redirectTo: 'overview',
+          },
+          {
+            path: 'overview',
+            component: EventOverviewComponent,
+          },
+          {
+            path: 'participants',
+            component: ParticipantsComponent,
+          },
+          {
+            path: 'certificate',
+            component: CertificateGeneratorComponent,
+          },
+        ],
       },
     ],
   },

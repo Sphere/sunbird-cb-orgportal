@@ -1,0 +1,53 @@
+<!-- <div class="event-dashboard">
+  <nav class="breadcrumb">
+    <span>Events</span> > <span>Dashboard</span>
+  </nav>
+
+  <div class="event-header">
+    <h1>{{ selectedEvent.name }}</h1>
+    <button class="edit-btn" (click)="editEvent()">
+      Edit event <mat-icon>edit</mat-icon>
+    </button>
+  </div>
+
+  <div class="tabs" >
+    <a [class.active]="activeTab === 'overview'" (click)="setTab('overview')">Overview</a>
+    <a [class.active]="activeTab === 'participants'" (click)="setTab('participants')">Participants</a>
+  </div>
+
+
+
+
+  <div *ngIf="activeTab === 'overview'" class="tab-content">
+    <ws-app-event-overview [selectedEvent]="selectedEvent"
+      (navigateToParticipants)="setTab('participants')"></ws-app-event-overview>
+  </div>
+
+  <div *ngIf="activeTab === 'participants'" class="tab-content">
+    <ws-app-participants></ws-app-participants>
+  </div>
+</div> -->
+
+
+<div class="event-dashboard">
+  <nav class="breadcrumb">
+    <span>Events</span> > <span>Dashboard</span>
+  </nav>
+
+  <div class="event-header" *ngIf="event && !isCertificateRoute">
+    <h1>{{ event.eventName }}</h1>
+    <button class="edit-btn" (click)="editEvent(event)">
+      Edit event <mat-icon>edit</mat-icon>
+    </button>
+  </div>
+
+  <!-- Show Tabs only if NOT on 'certificate' route -->
+  <!-- <div>{{activeTab}}</div> -->
+  <div class="tabs" *ngIf="!isCertificateRoute">
+    <a [class.active]="activeTab === 'overview'" (click)="setTab('overview')">Overview</a>
+    <a [class.active]="activeTab === 'participants'" (click)="setTab('participants')">Participants</a>
+  </div>
+
+  <!-- This will handle child components dynamically -->
+  <router-outlet></router-outlet>
+</div>

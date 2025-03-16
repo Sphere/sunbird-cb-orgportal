@@ -5,7 +5,7 @@ import { RouterModule } from '@angular/router'
 import { WorkallocationV2RoutingModule } from './workallocation-v2-routing.module'
 import { BreadcrumbsOrgModule, ScrollspyLeftMenuModule, UIORGTableModule } from '@sunbird-cb/collection'
 import {
-  MatSidenavModule
+  MatSidenavModule,
 } from '@angular/material/sidenav'
 import { MatGridListModule } from '@angular/material/grid-list'
 import { MatListModule } from '@angular/material/list'
@@ -47,6 +47,7 @@ import { NgCircleProgressModule } from 'ng-circle-progress'
 import { UserWorkService } from './services/user-work.service'
 import { DebounceClickDirective } from './directive/DebounceClickDirective'
 import { DisableButtonOnSubmitDirective } from './directive/DisableButtonOnSubmitDirective'
+import { DialogConfirmComponent } from '../../../../../../../src/app/component/dialog-confirm/dialog-confirm.component'
 
 @NgModule({
   declarations: [
@@ -74,6 +75,7 @@ import { DisableButtonOnSubmitDirective } from './directive/DisableButtonOnSubmi
   entryComponents: [
     // AllocationActionsComponent,
     // WatRolePopup,
+    DialogConfirmComponent
   ],
   providers: [WINDOW_PROVIDERS, WatStoreService, UserWorkService],
   // exports: [DownloadAllocationComponent],

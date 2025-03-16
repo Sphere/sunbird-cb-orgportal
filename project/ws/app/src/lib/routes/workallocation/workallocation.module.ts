@@ -6,7 +6,7 @@ import { RouterModule } from '@angular/router'
 import { WorkallocationRoutingModule } from './workallocation-routing.module'
 import { BreadcrumbsOrgModule, ScrollspyLeftMenuModule, UIORGTableModule } from '@sunbird-cb/collection'
 import {
-  MatSidenavModule
+  MatSidenavModule,
 } from '@angular/material/sidenav'
 import { MatGridListModule } from '@angular/material/grid-list'
 import { MatListModule } from '@angular/material/list'
@@ -30,6 +30,8 @@ import { UpdateWorkallocationComponent } from './routes/update-workallocation/up
 import { MatMenuModule } from '@angular/material/menu'
 import { AllocationActionsComponent } from './components/allocation-actions/allocation-actions.component'
 import { MatTabsModule } from '@angular/material/tabs'
+import { MatToolbarModule } from '@angular/material/toolbar'
+import { DialogConfirmComponent } from '../../../../../../../src/app/component/dialog-confirm/dialog-confirm.component'
 
 @NgModule({
   declarations: [CreateWorkallocationComponent, DownloadAllocationComponent, UpdateWorkallocationComponent, AllocationActionsComponent],
@@ -39,10 +41,10 @@ import { MatTabsModule } from '@angular/material/tabs'
     MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule, MatGridListModule,
     MatRadioModule, MatDialogModule, ReactiveFormsModule, MatSelectModule, MatProgressSpinnerModule,
     MatExpansionModule, MatDividerModule, MatPaginatorModule, MatTableModule, WidgetResolverModule,
-    UIORGTableModule, ExportAsModule, MatMenuModule, MatTabsModule,
+    UIORGTableModule, ExportAsModule, MatMenuModule, MatTabsModule, MatToolbarModule
   ],
   entryComponents: [
-    AllocationActionsComponent,
+    AllocationActionsComponent, DialogConfirmComponent
   ],
   exports: [DownloadAllocationComponent],
 })

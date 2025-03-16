@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { FaqHomeComponent } from './components/faq-home.component'
 import {
-  MatToolbarModule
+  MatToolbarModule,
 } from '@angular/material/toolbar'
 import { MatListModule } from '@angular/material/list'
 import { MatSidenavModule } from '@angular/material/sidenav'

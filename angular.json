@@ -36,6 +36,7 @@
               "src/styles/mat-typography.scss",
               "src/styles/styles.scss",
               "node_modules/shepherd.js/dist/css/shepherd.css",
+              "node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
               {
                 "input": "src/themes/theme-deep-purple.scss",
                 "bundleName": "theme-deep-purple"
@@ -79,7 +80,8 @@
             "scripts": [
               "node_modules/jquery/dist/jquery.min.js",
               "src/mdo-assets/telemetry.min.js",
-              "node_modules/shepherd.js/dist/js/shepherd.min.js"
+              "node_modules/shepherd.js/dist/js/shepherd.min.js",
+              "node_modules/hammerjs/hammer.min.js"
             ],
             "aot": false,
             "vendorChunk": true,
