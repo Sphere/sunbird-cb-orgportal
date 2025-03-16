@@ -4,9 +4,7 @@
     "outDir": "./out-tsc/app",
     "types": ["node", "@types/zip.js"]
   },
-  "angularCompilerOptions": {
-    "enableIvy": true
-  },
+  "angularCompilerOptions": {},
   "include": ["src/**/*.ts"],
   "exclude": ["src/test.ts", "src/**/*.spec.ts"]
 }
