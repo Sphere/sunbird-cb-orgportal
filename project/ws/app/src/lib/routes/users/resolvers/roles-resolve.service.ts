@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core'
-import { Resolve, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router'
+import { ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router'
 import { Observable, of } from 'rxjs'
 import { map, catchError } from 'rxjs/operators'
 import { IResolveResponse } from '@sunbird-cb/utils'
@@ -10,8 +10,7 @@ import _ from 'lodash'
 
 @Injectable()
 export class RolesResolver
-  implements
-  Resolve<Observable<IResolveResponse<any>> | IResolveResponse<any>> {
+   {
   constructor(private rolesService: RolesService) { }
 
   resolve(

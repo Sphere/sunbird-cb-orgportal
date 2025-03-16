@@ -1,12 +1,5 @@
 import { Injectable } from '@angular/core'
-import {
-  CanActivate,
-  ActivatedRouteSnapshot,
-  RouterStateSnapshot,
-  UrlTree,
-  Router,
-  // ActivatedRoute,
-} from '@angular/router'
+import { ActivatedRouteSnapshot, RouterStateSnapshot, UrlTree, Router } from '@angular/router'
 import { Observable } from 'rxjs'
 import { ConfigurationsService } from '@sunbird-cb/utils'
 // import { ConfigurationsService, AuthKeycloakService } from '@sunbird-cb/utils'
@@ -14,7 +7,7 @@ import { ConfigurationsService } from '@sunbird-cb/utils'
 @Injectable({
   providedIn: 'root',
 })
-export class EmptyRouteGuard implements CanActivate {
+export class EmptyRouteGuard  {
   constructor(
     private router: Router,
     private configSvc: ConfigurationsService,

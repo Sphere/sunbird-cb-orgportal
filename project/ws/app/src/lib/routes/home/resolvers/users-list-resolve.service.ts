@@ -1,5 +1,5 @@
 import { Injectable, SkipSelf } from '@angular/core'
-import { Resolve, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router'
+import { ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router'
 import { Observable, of } from 'rxjs'
 import { map, catchError } from 'rxjs/operators'
 import { IResolveResponse, ConfigurationsService } from '@sunbird-cb/utils'
@@ -9,8 +9,7 @@ import _ from 'lodash';
 
 @Injectable()
 export class UsersListResolve
-  implements
-  Resolve<Observable<IResolveResponse<any>> | IResolveResponse<any>> {
+   {
   constructor(private usersService: UsersService, @SkipSelf() private configSvc: ConfigurationsService) { }
 
   resolve(

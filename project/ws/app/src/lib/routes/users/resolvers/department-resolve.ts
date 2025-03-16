@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core'
-import { Resolve, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router'
+import { ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router'
 import { EMPTY, Observable } from 'rxjs'
 import { map, catchError } from 'rxjs/operators'
 import { } from '@sunbird-cb/collection'
@@ -9,8 +9,7 @@ import { UsersService } from '../services/users.service'
 
 @Injectable()
 export class DepartmentResolve
-  implements
-  Resolve<Observable<IResolveResponse<NSProfileDataV2.IProfile>> | IResolveResponse<NSProfileDataV2.IProfile>> {
+   {
   constructor(
     private usersService: UsersService,
     // private router: Router,
