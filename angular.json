@@ -97,7 +97,7 @@
             "production": {
               "outputPath": "dist/www/en",
               "baseHref": "/",
-              "localize": true,
+              "localize": false,
               "fileReplacements": [
                 {
                   "replace": "src/environments/environment.ts",

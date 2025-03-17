@@ -35,7 +35,7 @@ RUN npm install @sunbird-cb/utils@^1.0.21-ang-13-16 --legacy-peer-deps
 ENV NODE_OPTIONS="--max_old_space_size=8192"
 
 # Run Angular production build with optimized configuration
-RUN npm run build -- --configuration production
+RUN npm run build -- --configuration production --output-path=dist/www/en
 
 RUN npm run compress:brotli
 
