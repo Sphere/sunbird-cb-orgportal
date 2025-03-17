@@ -1,6 +1,8 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
+
+    "types": ["node"],
     "alwaysStrict": true,
     "baseUrl": "./",
     "declaration": false,

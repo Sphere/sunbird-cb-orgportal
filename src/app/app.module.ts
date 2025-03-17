@@ -33,7 +33,7 @@ import { WidgetResolverModule } from '@sunbird-cb/resolver'
 import { LoggerService, PipeSafeSanitizerModule } from '@sunbird-cb/utils'
 import { SearchModule } from '@ws/app/src/public-api'
 import 'hammerjs'
-import { KeycloakAngularModule } from 'keycloak-angular'
+import { KeycloakAngularModule, KeycloakService } from 'keycloak-angular'
 import { AppRoutingModule } from './app-routing.module'
 import { InitService } from './services/init.service'
 import { GlobalErrorHandlingService } from './services/global-error-handling.service'
@@ -196,6 +196,10 @@ const getBaseHref = (platformLocation: PlatformLocation): string => {
     { provide: HAMMER_GESTURE_CONFIG, useClass: HammerConfig },
     { provide: ErrorHandler, useClass: GlobalErrorHandlingService },
     MatDatepickerModule, MatNativeDateModule,
+    {
+      provide: KeycloakService,
+      useValue: new KeycloakService(),
+    },
   ]
 })
 export class AppModule { }
