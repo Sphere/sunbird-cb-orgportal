@@ -46,6 +46,6 @@ COPY assets/MDO/client-assets/dist www/en/assets
 
 # Install production dependencies only
 # RUN npm install --omit=dev --legacy-peer-deps
-EXPOSE 3004
+EXPOSE 3002
 
 CMD [ "npm", "run", "serve:prod" ]
