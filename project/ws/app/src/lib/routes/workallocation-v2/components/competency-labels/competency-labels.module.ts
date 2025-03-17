@@ -19,7 +19,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms'
 import { AutocompleteModule } from '../autocomplete/autocomplete.module'
 import { WatCompPopupComponent } from './wat-comp-popup/wat-comp-popup.component'
 import { MatDividerModule } from '@angular/material/divider'
-import { DialogConfirmComponent } from '../../../../../../../../../src/app/component/dialog-confirm/dialog-confirm.component'
+// import { DialogConfirmComponent } from '../../../../../../../../../src/app/component/dialog-confirm/dialog-confirm.component'
 
 @NgModule({
     declarations: [

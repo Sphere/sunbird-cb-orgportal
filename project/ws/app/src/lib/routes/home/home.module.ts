@@ -6,7 +6,7 @@ import { MatExpansionModule } from '@angular/material/expansion'
 import { MatDividerModule } from '@angular/material/divider'
 import { WidgetResolverModule } from '@sunbird-cb/resolver'
 import {
-  MatIconModule,
+    MatIconModule,
 
 } from '@angular/material/icon'
 import { MatLegacyListModule as MatListModule } from '@angular/material/legacy-list'
@@ -35,7 +35,6 @@ import { AboutComponent } from './routes/about/about.component'
 import { RolesAccessComponent } from './routes/roles-access/roles-access.component'
 import { ApprovalsComponent } from './routes/approvals/approvals.component'
 import { WorkallocationComponent } from './routes/workallocation/workallocation.component'
-import { Ng2SearchPipeModule } from 'ng2-search-filter'
 import { ExportAsModule } from 'ngx-export-as'
 import { WorkallocationModule } from '../workallocation/workallocation.module'
 import { NgxPaginationModule } from 'ngx-pagination'
@@ -54,6 +53,7 @@ import { CertificateGeneratorComponent } from './routes/certificate-generator/ce
 import { EventModalComponent } from './routes/event-modal/event-modal.component'
 import { AddParticipantsComponent } from './routes/add-participants/add-participants.component'
 import { MatDatepickerModule } from '@angular/material/datepicker'
+// import { Ng2SearchPipeModule } from 'ng2-search-filter'
 @NgModule({
     declarations: [
         HomeComponent,
@@ -75,7 +75,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker'
     ],
     imports: [
         CommonModule,
-        Ng2SearchPipeModule,
+        // Ng2SearchPipeModule,
         UIORGTableModule,
         WidgetResolverModule,
         ReactiveFormsModule,

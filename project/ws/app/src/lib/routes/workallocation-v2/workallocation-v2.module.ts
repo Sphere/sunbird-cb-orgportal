@@ -5,7 +5,7 @@ import { RouterModule } from '@angular/router'
 import { WorkallocationV2RoutingModule } from './workallocation-v2-routing.module'
 import { BreadcrumbsOrgModule, ScrollspyLeftMenuModule, UIORGTableModule } from '@sunbird-cb/collection'
 import {
-  MatSidenavModule,
+    MatSidenavModule,
 } from '@angular/material/sidenav'
 import { MatGridListModule } from '@angular/material/grid-list'
 import { MatLegacyListModule as MatListModule } from '@angular/material/legacy-list'
@@ -42,12 +42,12 @@ import { DraftAllocationsComponent } from './routes/draft-allocations/draft-allo
 import { PublishedAllocationsComponent } from './routes/published-allocations/published-allocations.component'
 import { CompDetailModule } from './components/comp-details/comp-details.module'
 import { NgxPaginationModule } from 'ngx-pagination'
-import { Ng2SearchPipeModule } from 'ng2-search-filter'
+// import { Ng2SearchPipeModule } from 'ng2-search-filter'
 import { NgCircleProgressModule } from 'ng-circle-progress'
 import { UserWorkService } from './services/user-work.service'
 import { DebounceClickDirective } from './directive/DebounceClickDirective'
 import { DisableButtonOnSubmitDirective } from './directive/DisableButtonOnSubmitDirective'
-import { DialogConfirmComponent } from '../../../../../../../src/app/component/dialog-confirm/dialog-confirm.component'
+// import { DialogConfirmComponent } from '../../../../../../../src/app/component/dialog-confirm/dialog-confirm.component'
 
 @NgModule({
     declarations: [
@@ -69,7 +69,8 @@ import { DialogConfirmComponent } from '../../../../../../../src/app/component/d
         MatRadioModule, MatDialogModule, MatSelectModule, MatProgressSpinnerModule,
         MatExpansionModule, MatDividerModule, MatPaginatorModule, MatTableModule, WidgetResolverModule,
         UIORGTableModule, ExportAsModule, MatMenuModule, MatTabsModule, MatProgressSpinnerModule, MatAutocompleteModule,
-        AutocompleteModule, ComponentSharedModule, NgxPaginationModule, Ng2SearchPipeModule,
+        AutocompleteModule, ComponentSharedModule, NgxPaginationModule,
+        // Ng2SearchPipeModule,
         NgCircleProgressModule.forRoot({}),
     ],
     providers: [WINDOW_PROVIDERS, WatStoreService, UserWorkService]

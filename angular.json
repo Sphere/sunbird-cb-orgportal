@@ -75,7 +75,9 @@
               },
               "node_modules/pdfjs-dist/web/pdf_viewer.css",
               "src/mdo-assets/fonts/lato/stylesheet.css",
-              "src/mdo-assets/fonts/montserrat/stylesheet.css"
+              "src/mdo-assets/fonts/montserrat/stylesheet.css",
+              "node_modules/typeface-roboto/index.css",
+              "src/styles.scss"
             ],
             "scripts": [
               "node_modules/jquery/dist/jquery.min.js",

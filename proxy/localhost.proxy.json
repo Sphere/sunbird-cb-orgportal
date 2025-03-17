@@ -1,6 +1,6 @@
 {
   "/apis/*": {
-    "target": "https://org-aastrika-stage.tarento.com",
+    "target": "https://org-sphere.aastrika.org",
     "secure": false,
     "logLevel": "debug",
     "changeOrigin": true,
@@ -8,7 +8,7 @@
       "/apis": "/apis"
     },
     "headers": {
-      "Cookie": "connect.sid=s%3ANZGAjVSYQjOkQuvzSi9mM64VNO9rL6XK.sSHTvAIaOdMQeTgfomBXB8jFOQ6mjtPRkkLsHC79EjI"
+      "Cookie": "connect.sid=s%3ATcgppG8DJ4wq75W1cjy99pT5S30RuoXu.%2F0FGt4z81vBBN%2B9hjJY1mDk6wD7mBl3MRpln5pmj0Qk"
     }
   },
   "/content-api/*": {

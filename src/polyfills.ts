@@ -51,5 +51,8 @@ import 'zone.js' // Included with Angular CLI.
  * APPLICATION IMPORTS
  */
 import 'hammerjs'
-import 'typeface-roboto'
 import '@angular/localize/init'
+
+(window as any).process = {
+  env: { DEBUG: undefined }
+}

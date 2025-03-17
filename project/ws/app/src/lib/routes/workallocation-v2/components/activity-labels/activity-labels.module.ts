@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { ActivityLabelsComponent } from './activity-labels.component'
 import {
-  MatLegacyAutocompleteModule as MatAutocompleteModule,
+    MatLegacyAutocompleteModule as MatAutocompleteModule,
 } from '@angular/material/legacy-autocomplete'
 import { MatLegacyCardModule as MatCardModule } from '@angular/material/legacy-card'
 import { MatLegacyCheckboxModule as MatCheckboxModule } from '@angular/material/legacy-checkbox'
@@ -20,7 +20,7 @@ import { AutocompleteModule } from '../autocomplete/autocomplete.module'
 import { ComponentSharedModule } from '../component-shared.module'
 import { WatRolePopupComponent } from './wat-role-popup/wat-role-popup.component'
 import { MatDividerModule } from '@angular/material/divider'
-import { DialogConfirmComponent } from '../../../../../../../../../src/app/component/dialog-confirm/dialog-confirm.component'
+// import { DialogConfirmComponent } from '../../../../../../../../../src/app/component/dialog-confirm/dialog-confirm.component'
 @NgModule({
     declarations: [
         ActivityLabelsComponent,
