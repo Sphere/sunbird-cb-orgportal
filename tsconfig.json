@@ -1,7 +1,8 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-
+    "esModuleInterop": false,
+    "skipLibCheck": true,
     "types": ["node"],
     "alwaysStrict": true,
     "baseUrl": "./",
