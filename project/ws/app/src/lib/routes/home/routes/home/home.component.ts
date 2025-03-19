@@ -59,26 +59,37 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.router.events.subscribe((event: Event) => {
       if (event instanceof NavigationEnd) {
         this.bindUrl(event.urlAfterRedirects.replace('/app/home/', ''))
-        // this.widgetData = this.activeRoute.snapshot.data &&
-        //   this.activeRoute.snapshot.data.pageData.data.menus || []
 
-        // if (_.get(this.activeRoute.snapshot, 'data.department.data')) {
         const fullProfile = _.get(this.activeRoute.snapshot, 'data.configService')
-        this.department = fullProfile.unMappedUser.rootOrgId
+        this.department = fullProfile?.unMappedUser?.rootOrgId
         this.departmentName = fullProfile ? fullProfile.unMappedUser.channel : ''
+
         if (fullProfile) {
-          const leftData = this.activeRoute.snapshot.data.pageData.data.menus
+          let leftData = _.get(this.activeRoute.snapshot, 'data.pageData.data.menus', [])
+          console.log('Original Menu Data:', leftData)
+          // Ensure leftData.widgetData exists before filtering
+          if (leftData.widgetData && Array.isArray(leftData.widgetData.menus)) {
+            // Only keep menus that contain "certificate_manager" in requiredRoles
+            leftData.widgetData.menus = leftData.widgetData.menus.filter((menu: { requiredRoles: any[] }) => {
+              console.log('Menu Roles:', menu.requiredRoles, this.myRoles)
+              if (this.myRoles.has('certificate_manager')) {
+                return menu.requiredRoles.includes('certificate_manager') // Keep only certificate_manager menus
+              }
+              return true // Keep all menus if the role is NOT "certificate_manager"
+            })
+          }
+          console.log('Filtered Menu Data:', leftData)
+          // Modify widgetData
           _.set(leftData, 'widgetData.logo', true)
-          // _.set(leftData, 'widgetData.logoPath', _.get(this.activeRoute, 'snapshot.data.department.data.logo'))
           _.set(leftData, 'widgetData.name', this.departmentName)
           _.set(leftData, 'widgetData.userRoles', this.myRoles)
+
           this.widgetData = leftData
+          console.log('Modified Menu Data:', this.widgetData)
         } else {
-          this.widgetData = _.get(this.activeRoute, 'snapshot.data.pageData.data.menus')
+          this.widgetData = _.get(this.activeRoute.snapshot, 'data.pageData.data.menus', [])
         }
 
-        // this.department = _.get(this.activeRoute, 'snapshot.data.department.data')
-        // this.departmentName = this.department ? this.department.deptName : ''
         if (this.configService.userProfile && this.configService.userProfile.departmentName) {
           this.configService.userProfile.departmentName = this.departmentName || 'Not Available'
         }
