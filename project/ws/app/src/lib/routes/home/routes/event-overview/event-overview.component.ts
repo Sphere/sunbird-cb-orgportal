@@ -239,7 +239,8 @@ export class EventOverviewComponent implements OnInit, OnDestroy {
             'Cache-Control': 'no-store',
             'Access-Control-Allow-Origin': '*',
             "Access-Control-Request-Method": "GET",
-            "Access-Control-Request-Headers": "*"
+            "Access-Control-Request-Headers": "*",
+            "content-type": "image/svg+xml"
           })
         }).toPromise()
 
