@@ -1,22 +1,24 @@
-import { Component, OnInit } from '@angular/core'
+import { Component, OnInit, OnDestroy } from '@angular/core'
 import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
 import { AddParticipantsComponent } from '../add-participants/add-participants.component'
 import { ActivatedRoute, Router } from '@angular/router'
 import { EventService } from '../../services/event.service'
-import { HttpClient } from '@angular/common/http'
+import { HttpClient, HttpHeaders } from '@angular/common/http'
 import { saveAs } from 'file-saver'
 import { svg2pdf } from 'svg2pdf.js'
 import JSZip from 'jszip'
 import jsPDF from 'jspdf'
+import { Subscription } from 'rxjs/internal/Subscription'
 @Component({
   selector: 'ws-app-event-overview',
   templateUrl: './event-overview.component.html',
   styleUrls: ['./event-overview.component.scss'],
 })
-export class EventOverviewComponent implements OnInit {
+export class EventOverviewComponent implements OnInit, OnDestroy {
   selectedEvent: any
   participantCount = 0
   certificateTemplates: any[] = []
+  private eventSubscription!: Subscription
 
   constructor(
     private dialog: MatDialog,
@@ -49,6 +51,13 @@ export class EventOverviewComponent implements OnInit {
     })
 
     console.log('Received Event in Overview:', this.selectedEvent, this.participantCount)
+  }
+
+  ngOnDestroy(): void {
+    if (this.eventSubscription) {
+      this.eventSubscription.unsubscribe()
+      console.log('Unsubscribed from getEventById')
+    }
   }
 
   /**
@@ -113,7 +122,7 @@ export class EventOverviewComponent implements OnInit {
       return
     }
 
-    this.eventService.getEventById(this.selectedEvent.eventId).subscribe({
+    this.eventSubscription = this.eventService.getEventById(this.selectedEvent.eventId).subscribe({
       next: eventData => {
         console.log('Event Data:', eventData)
 
@@ -223,7 +232,11 @@ export class EventOverviewComponent implements OnInit {
       const zip = new JSZip()
       // this.http.get(this.selectedEvent.selectedTemplate.templateLogo, { responseType: 'text' }) - for prod
       // this.http.get('/mdo-assets/images/RMC-Online.svg', { responseType: 'text' }) - local use age
-      const svgTemplate = await this.http.get(this.selectedEvent.selectedTemplate.templateLogo, { responseType: 'text' }).toPromise()
+      const svgTemplate = await this.http.get(this.selectedEvent.selectedTemplate.templateLogo, { responseType: 'text', headers: new HttpHeaders({ 'Cache-Control': 'no-store' }) }).toPromise()
+      fetch(this.selectedEvent.selectedTemplate.templateLogo, { mode: 'cors' })
+        .then(response => response.text())
+        .then(svg => console.log('Fetched SVG:', svg))
+        .catch(error => console.error('Fetch error:', error))
 
       for (const participant of participants) {
         console.log(`Generating certificate for: ${participant.firstName}`)
