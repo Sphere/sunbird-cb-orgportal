@@ -117,6 +117,11 @@ export class EventOverviewComponent implements OnInit, OnDestroy {
   }
 
   fetchSelectedCertificate(): void {
+
+    if (this.eventSubscription) {
+      this.eventSubscription.unsubscribe()
+    }
+
     if (!this.selectedEvent?.eventId) {
       console.error('Event ID is missing')
       return
@@ -222,7 +227,7 @@ export class EventOverviewComponent implements OnInit, OnDestroy {
   }
 
   // Generate & download all certificates as a ZIP file
-  async downloadAllCertificatesAsZip(participants: any[], date: string): Promise<void> {
+  async downloadAllCertificatesAsZipold(participants: any[], date: string): Promise<void> {
     if (!this.selectedEvent?.selectedTemplate?.templateLogo) {
       console.error('No certificate template selected')
       return
@@ -244,7 +249,7 @@ export class EventOverviewComponent implements OnInit, OnDestroy {
           })
         }).toPromise()
 
-      fetch(this.selectedEvent.selectedTemplate.templateLogo, { mode: 'cors' })
+      fetch(this.selectedEvent.selectedTemplate.templateLogo, { mode: 'no-cors' })
         .then(response => response.text())
         .then(svg => console.log('Fetched SVG:', svg))
         .catch(error => console.error('Fetch error:', error))
@@ -273,6 +278,48 @@ export class EventOverviewComponent implements OnInit, OnDestroy {
       console.error('Error during certificate generation:', error)
     }
   }
+
+  async downloadAllCertificatesAsZip(participants: any[], date: string) {
+    if (!this.selectedEvent?.selectedTemplate?.templateLogo) {
+      console.error('No certificate template selected')
+      return
+    }
+
+    try {
+      const zip = new JSZip()
+      const templateUrl = this.selectedEvent.selectedTemplate.templateLogo
+
+      // Fetch the SVG template
+      const response = await fetch(templateUrl, { cache: 'no-store' })
+      if (!response.ok) {
+        throw new Error(`Failed to fetch template: ${response.statusText}`)
+      }
+      const svgTemplate = await response.text()
+
+      for (const participant of participants) {
+        console.log(`Generating certificate for: ${participant.firstName}`)
+
+        // Generate personalized SVG with participant details
+        const personalizedSVG = this.generatePersonalizedSVG(svgTemplate, participant.firstName, date)
+
+        // Convert modified SVG to a PDF
+        const pdfBlob = await this.generatePDFBlob(personalizedSVG)
+
+        // Add the generated PDF to the ZIP file
+        const fileName = `${participant.firstName}-${date}.pdf`
+        zip.file(fileName, pdfBlob)
+        console.log(`Added ${fileName} to ZIP.`)
+      }
+
+      // Generate and download ZIP file
+      const zipBlob = await zip.generateAsync({ type: 'blob' })
+      saveAs(zipBlob, 'Certificates.zip')
+      console.log('ZIP file downloaded successfully.')
+    } catch (error) {
+      console.error('Error during certificate generation:', error)
+    }
+  }
+
 
   // Modify SVG by replacing placeholders with participant details
   generatePersonalizedSVG(svgTemplate: string, userName: string, date: string): string {
