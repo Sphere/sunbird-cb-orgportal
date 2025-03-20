@@ -232,7 +232,17 @@ export class EventOverviewComponent implements OnInit, OnDestroy {
       const zip = new JSZip()
       // this.http.get(this.selectedEvent.selectedTemplate.templateLogo, { responseType: 'text' }) - for prod
       // this.http.get('/mdo-assets/images/RMC-Online.svg', { responseType: 'text' }) - local use age
-      const svgTemplate = await this.http.get(this.selectedEvent.selectedTemplate.templateLogo, { responseType: 'text', headers: new HttpHeaders({ 'Cache-Control': 'no-store' }) }).toPromise()
+      const svgTemplate = await this.http.get(this.selectedEvent.selectedTemplate.templateLogo,
+        {
+          responseType: 'text',
+          headers: new HttpHeaders({
+            'Cache-Control': 'no-store',
+            'Access-Control-Allow-Origin': '*',
+            "Access-Control-Request-Method": "GET",
+            "Access-Control-Request-Headers": "*"
+          })
+        }).toPromise()
+
       fetch(this.selectedEvent.selectedTemplate.templateLogo, { mode: 'cors' })
         .then(response => response.text())
         .then(svg => console.log('Fetched SVG:', svg))
