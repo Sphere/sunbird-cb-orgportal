@@ -63,16 +63,22 @@ export class EventModalComponent implements OnInit, OnDestroy {
   }
 
   onSave(): void {
+
+    let formatedDate = this.formatDate(this.eventForm.value.eventDate)
+    console.log('formatedDate', formatedDate)
+
+
+    // console.log('date', new Date(this.eventForm.value.eventDate))
     if (this.eventForm.valid) {
       const eventData: IEventData = {
         eventName: this.eventForm.value.eventName,
         eventDescription: this.eventForm.value.eventDescription,
-        eventDate: this.eventForm.value.eventDate,
+        eventDate: formatedDate,
         eventPlace: this.eventForm.value.eventLocation,
         eventType: this.eventForm.value.certificateType,
         createdBy: this.userData.userName,
       }
-
+      console.log('Editmode', this.isEditMode)
       if (this.isEditMode) {
         eventData.eventId = this.data.event.eventId
         this.eventService.editEvent(eventData).subscribe(
@@ -96,5 +102,22 @@ export class EventModalComponent implements OnInit, OnDestroy {
         )
       }
     }
+  }
+
+  formatDate(date: string): string {
+
+    const selectedDate = new Date(date)
+    const currentTime = new Date()
+
+    // Set the current time on the selected date
+    selectedDate.setHours(
+      currentTime.getHours(),
+      currentTime.getMinutes(),
+      currentTime.getSeconds(),
+      currentTime.getMilliseconds()
+    )
+
+    return selectedDate.toISOString()
+
   }
 }
