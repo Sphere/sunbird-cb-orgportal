@@ -9,6 +9,9 @@ import { svg2pdf } from 'svg2pdf.js'
 import JSZip from 'jszip'
 import jsPDF from 'jspdf'
 import { Subscription } from 'rxjs/internal/Subscription'
+// @ts-ignore
+import montserratBase64 from '../../../../../../../../../src//mdo-assets/fonts/montserrat/montserrat-base64.js'
+// import { Console } from 'console'
 @Component({
   selector: 'ws-app-event-overview',
   templateUrl: './event-overview.component.html',
@@ -288,6 +291,7 @@ export class EventOverviewComponent implements OnInit, OnDestroy {
     try {
       const zip = new JSZip()
       const templateUrl = this.selectedEvent.selectedTemplate.templateLogo
+      // const templateUrl = "/mdo-assets/images/RMC-Online.svg"
 
       // Fetch the SVG template
       const response = await fetch(templateUrl, { cache: 'no-store' })
@@ -330,6 +334,13 @@ export class EventOverviewComponent implements OnInit, OnDestroy {
 
   // Convert modified SVG to a high-quality PDF using svg2pdf.js
   async generatePDFBlob(svgString: string): Promise<Blob> {
+
+    //     const simpleSvg = `
+    //   <svg xmlns="http://www.w3.org/2000/svg" width="200" height="100">
+    //     <text xmlns="http://www.w3.org/2000/svg" x="10" y="50" id="i0yd1c-2" font-family="Montserrat" font-size="24" style="box-sizing: border-box;font-size: 30px;white-space: pre;color: black;fill: black;text-align: center;text-anchor: middle;dominant-baseline: middle;font-family: "Montserrat";font-style: "italic" ;font-weight: 600;">Sumit</text>
+    //   </svg>
+    // `
+
     const tempDiv = document.createElement('div')
     tempDiv.innerHTML = svgString
     tempDiv.style.position = 'absolute'
@@ -338,6 +349,9 @@ export class EventOverviewComponent implements OnInit, OnDestroy {
 
     const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' })
 
+    pdf.addFileToVFS('Montserrat-Regular.ttf', montserratBase64)
+    pdf.addFont('Montserrat-Regular.ttf', 'Montserrat', 'normal')
+    pdf.setFont('Montserrat', 'normal')
     const svgElement = tempDiv.querySelector('svg') as SVGSVGElement
     if (svgElement) {
       await svg2pdf(svgElement, pdf, { x: 10, y: 10, width: 270, height: 190 })
