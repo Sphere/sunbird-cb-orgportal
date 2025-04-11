@@ -11,6 +11,8 @@ import jsPDF from 'jspdf'
 import { Subscription } from 'rxjs/internal/Subscription'
 // @ts-ignore
 import montserratBase64 from '../../../../../../../../../src//mdo-assets/fonts/montserrat/montserrat-base64.js'
+// @ts-ignore
+import montserratRegularBase64 from '../../../../../../../../../src/mdo-assets/fonts/montserrat/montserrat-regular-base64.js'
 // import { Console } from 'console'
 @Component({
   selector: 'ws-app-event-overview',
@@ -22,6 +24,7 @@ export class EventOverviewComponent implements OnInit, OnDestroy {
   participantCount = 0
   certificateTemplates: any[] = []
   private eventSubscription!: Subscription
+  nonRegistered = false
 
   constructor(
     private dialog: MatDialog,
@@ -52,6 +55,8 @@ export class EventOverviewComponent implements OnInit, OnDestroy {
         this.fetchSelectedCertificate()
       }
     })
+    this.nonRegistered = this.selectedEvent.registrationType === 'registred without sphere' ? true : false
+
 
     console.log('Received Event in Overview:', this.selectedEvent, this.participantCount)
   }
@@ -151,7 +156,10 @@ export class EventOverviewComponent implements OnInit, OnDestroy {
     const dialogRef = this.dialog.open(AddParticipantsComponent, {
       width: '650px',
       disableClose: true,
-      data: { eventId: this.selectedEvent.eventId },
+      data: {
+        eventId: this.selectedEvent.eventId,
+        eventType: this.nonRegistered
+      },
     })
 
     dialogRef.afterClosed().subscribe(result => {
@@ -301,10 +309,13 @@ export class EventOverviewComponent implements OnInit, OnDestroy {
       const svgTemplate = await response.text()
 
       for (const participant of participants) {
-        console.log(`Generating certificate for: ${participant.firstName}`)
-
+        console.log(`Generating certificate for: ${participant.firstName} Surname: ${participant.lastName}`)
+        let userName = participant.firstName
+        if (participant.lastName) {
+          userName += ` ${participant.lastName}`
+        }
         // Generate personalized SVG with participant details
-        const personalizedSVG = this.generatePersonalizedSVG(svgTemplate, participant.firstName, date)
+        const personalizedSVG = this.generatePersonalizedSVG(svgTemplate, userName, date)
 
         // Convert modified SVG to a PDF
         const pdfBlob = await this.generatePDFBlob(personalizedSVG)
@@ -335,9 +346,12 @@ export class EventOverviewComponent implements OnInit, OnDestroy {
   // Convert modified SVG to a high-quality PDF using svg2pdf.js
   async generatePDFBlob(svgString: string): Promise<Blob> {
 
-    //     const simpleSvg = `
+    // const simpleSvg = `
     //   <svg xmlns="http://www.w3.org/2000/svg" width="200" height="100">
-    //     <text xmlns="http://www.w3.org/2000/svg" x="10" y="50" id="i0yd1c-2" font-family="Montserrat" font-size="24" style="box-sizing: border-box;font-size: 30px;white-space: pre;color: black;fill: black;text-align: center;text-anchor: middle;dominant-baseline: middle;font-family: "Montserrat";font-style: "italic" ;font-weight: 600;">Sumit</text>
+    //     <text xmlns="http://www.w3.org/2000/svg" x="10" y="50" id="i0yd1c-2" font-family="Montserrat" font-size="24">Sumit</text>
+    //     <text x="10" y="80" font-family="Montserrat" font-size="30">
+    // Vishali sakar
+    //     </text>
     //   </svg>
     // `
 
@@ -346,6 +360,7 @@ export class EventOverviewComponent implements OnInit, OnDestroy {
     tempDiv.style.position = 'absolute'
     tempDiv.style.left = '-9999px'
     document.body.appendChild(tempDiv)
+    // console.log(svgString)
 
     const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' })
 

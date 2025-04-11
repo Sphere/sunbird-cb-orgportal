@@ -15,6 +15,8 @@ export class EventDashboardComponent implements OnInit {
   events: any[] = []
   filteredEvents: any[] = []
   searchQuery = ''
+  userId: string = ''
+  userName: any
 
   constructor(
     private eventService: EventService,
@@ -27,42 +29,60 @@ export class EventDashboardComponent implements OnInit {
   ngOnInit(): void {
     this.eventService.updateEvent(null)
     this.fetchUserDetails()
-    this.fetchEvents()
+
 
   }
 
   fetchUserDetails(): void {
     this.userService.getAllUsers().subscribe(response => {
-        const user = response.result.response
-        this.eventService.setUserData(
-          {
-            userId: user.userId,
-            userName: user.userName,
-          })
-        console.log('User Details:', response.result.response.userName)
-      },                                     error => {
-        console.error('Error fetching user details:', error)
-      })
+      const user = response.result.response
+      this.userId = user.userId
+      this.userName = user.userName
+      this.eventService.setUserData(
+        {
+          userId: user.userId,
+          userName: user.userName,
+        })
+      console.log('User Details:', this.userId, this.userName)
+      this.fetchEvents() // Fetch events after getting user details
+    }, error => {
+      console.error('Error fetching user details:', error)
+    })
   }
 
   fetchEvents(): void {
     this.eventService.getAllEvents().subscribe(response => {
-        console.log('Events:', response)
-        this.events = response.map((event: any) => ({
-          id: event.eventId,
-          name: event.eventName,
-          description: event.eventDescription,
-          location: event.eventPlace,
-          date: new Date(event.eventDate), // event.eventDate,
-          organizer: event.createdBy,
-          registrationType: event.eventType,
-        }))
-        // Sort events in descending order (latest first)
-        this.events.sort((a, b) => b.date.getTime() - a.date.getTime())
-        this.filteredEvents = [...this.events]
-      },                                       error => {
-        console.error('Error fetching events:', error)
+      console.log('Events:', response)
+      this.events = response.map((event: any) => ({
+        id: event.eventId,
+        name: event.eventName,
+        description: event.eventDescription,
+        location: event.eventPlace,
+        date: new Date(event.eventDate), // event.eventDate,
+        organizer: event.createdBy,
+        registrationType: event.eventType,
+        createdAt: new Date(event.createdAt),
+      }))
+
+      console.log('userId:', this.userId)
+      if (!this.userId) {
+        console.error('User ID is not available.')
+        this.fetchUserDetails()
       }
+      //Filter by current user (organizer)
+      const filteredByUser = this.events.filter(event => event.organizer === this.userId)
+      console.log('Filtered Events by User:', filteredByUser)
+
+      // 👉 Sort by date (latest first)
+      this.events = filteredByUser.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+      console.log('Sorted Events:', this.events)
+
+      // 👉 Assign to filteredEvents if needed for UI
+      this.filteredEvents = [...this.events]
+      console.log('Filtered Events:', this.filteredEvents)
+    }, error => {
+      console.error('Error fetching events:', error)
+    }
     )
   }
 

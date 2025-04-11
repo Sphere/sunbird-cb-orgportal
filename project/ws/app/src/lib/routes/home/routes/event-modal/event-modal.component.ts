@@ -76,7 +76,7 @@ export class EventModalComponent implements OnInit, OnDestroy {
         eventDate: formatedDate,
         eventPlace: this.eventForm.value.eventLocation,
         eventType: this.eventForm.value.certificateType,
-        createdBy: this.userData.userName,
+        createdBy: this.userData.userId,
       }
       console.log('Editmode', this.isEditMode)
       if (this.isEditMode) {

@@ -18,6 +18,7 @@ export class AddParticipantsComponent implements OnInit, OnDestroy {
   validationErrors: string[] = [] // Stores validation messages
   isValidData = false // Controls "Save & Add" button
   private subscription: Subscription | null = null
+  eventType: boolean = false
 
   constructor(
     private dialogRef: MatDialogRef<AddParticipantsComponent>,
@@ -25,6 +26,8 @@ export class AddParticipantsComponent implements OnInit, OnDestroy {
     private eventService: EventService
   ) {
     this.eventId = data.eventId
+    this.eventType = data.eventType
+    // console.log('Event Type:', this.eventType)
   }
 
   ngOnInit(): void { }
@@ -83,14 +86,15 @@ export class AddParticipantsComponent implements OnInit, OnDestroy {
     this.validationErrors = []
 
     this.participants.forEach((participant, index) => {
-      console.log(participant.firstName)
-      console.log(participant)
       if (!participant.firstName) {
         this.validationErrors.push(`Row ${index + 1}: First Name is required.`)
       }
-      console.log(participant.phone)
-      if (!participant.phone || !/^\d{10}$/.test(participant.phone)) {
-        this.validationErrors.push(`Row ${index + 1}: Invalid Phone Number (must be 10 digits).`)
+
+      if (this.eventType === false) {
+        console.log(participant.phone)
+        if (!participant.phone || !/^\d{10}$/.test(participant.phone)) {
+          this.validationErrors.push(`Row ${index + 1}: Invalid Phone Number (must be 10 digits).`)
+        }
       }
     })
 
