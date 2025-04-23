@@ -61,6 +61,7 @@ export class EventDashboardComponent implements OnInit {
         date: new Date(event.eventDate), // event.eventDate,
         organizer: event.createdBy,
         registrationType: event.eventType,
+        status: event.status,
         createdAt: new Date(event.createdAt),
       }))
 
