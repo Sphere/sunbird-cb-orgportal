@@ -121,9 +121,37 @@ export class AddParticipantsComponent implements OnInit, OnDestroy {
     )
   }
 
+  // downloadSampleExcel() {
+  //   const sampleData = `firstName,lastName,phone,location\nJohn,Doe,1234567890,California\nJane,Smith,9876543210,New York`
+  //   const blob = new Blob([sampleData], { type: 'text/csv' })
+  //   const url = window.URL.createObjectURL(blob)
+  //   const a = document.createElement('a')
+  //   a.href = url
+  //   a.download = 'Sample_Participants.xlsx'
+  //   a.click()
+  //   window.URL.revokeObjectURL(url)
+  // }
+
   downloadSampleExcel() {
-    const sampleData = `firstName,lastName,phone,location\nJohn,Doe,1234567890,California\nJane,Smith,9876543210,New York`
-    const blob = new Blob([sampleData], { type: 'text/csv' })
+
+    const sampleData = [
+      { firstName: 'John', lastName: 'Doe', phone: '1234567890', location: 'California' },
+      { firstName: 'Jane', lastName: 'Smith', phone: '9876543210', location: 'New York' }
+    ]
+
+    const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(sampleData)
+
+
+    const workbook: XLSX.WorkBook = {
+      Sheets: { 'Sample Participants': worksheet },
+      SheetNames: ['Sample Participants']
+    }
+
+
+    const excelBuffer: any = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' })
+
+
+    const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
     const url = window.URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
