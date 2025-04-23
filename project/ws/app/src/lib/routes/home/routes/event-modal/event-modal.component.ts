@@ -42,7 +42,7 @@ export class EventModalComponent implements OnInit, OnDestroy {
       eventName: ['', Validators.required],
       eventDate: ['', Validators.required],
       eventLocation: ['', Validators.required],
-      eventDescription: ['', [Validators.required]],
+      eventDescription: [''],
       certificateType: ['', Validators.required],
     })
 
@@ -72,7 +72,7 @@ export class EventModalComponent implements OnInit, OnDestroy {
     if (this.eventForm.valid) {
       const eventData: IEventData = {
         eventName: this.eventForm.value.eventName,
-        eventDescription: this.eventForm.value.eventDescription,
+        eventDescription: this.eventForm.value.eventDescription?.trim() || 'NA',
         eventDate: formatedDate,
         eventPlace: this.eventForm.value.eventLocation,
         eventType: this.eventForm.value.certificateType,
@@ -80,6 +80,7 @@ export class EventModalComponent implements OnInit, OnDestroy {
       }
       console.log('Editmode', this.isEditMode)
       if (this.isEditMode) {
+
         eventData.eventId = this.data.event.eventId
         this.eventService.editEvent(eventData).subscribe(
           response => {

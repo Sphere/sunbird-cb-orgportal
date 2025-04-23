@@ -48,13 +48,10 @@
       </div>
 
       <!-- Description -->
-      <label class="form-label">Enter your Description *</label>
+      <label class="form-label">Enter your Description</label>
       <mat-form-field appearance="outline" class="full-width">
         <textarea matInput rows="3" formControlName="eventDescription" placeholder="Description"></textarea>
         <mat-hint align="end">0/200 (In a few words, describe your event)</mat-hint>
-        <mat-error *ngIf="eventForm.get('eventDescription')?.invalid && eventForm.get('eventDescription')?.touched">
-          Description is required (max 200 chars)
-        </mat-error>
       </mat-form-field>
 
       <!-- Certificate Type Dropdown -->
