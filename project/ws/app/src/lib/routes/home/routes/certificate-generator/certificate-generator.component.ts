@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core'
 import { ActivatedRoute, Router } from '@angular/router'
 import { EventService } from '../../services/event.service'
 import { ICertificateTemplate } from '../../interface/events'
+import { take } from 'rxjs/operators'
 
 @Component({
   selector: 'ws-app-certificate-generator',
@@ -12,7 +13,7 @@ export class CertificateGeneratorComponent implements OnInit {
 
   certificates: ICertificateTemplate[] = []
   selectedCertIndex = 0
-  isLoading = true
+  // isLoading = true
   isGenerating = false
   errorMessage = ''
   eventId = '' // Store event ID dynamically
@@ -39,7 +40,7 @@ export class CertificateGeneratorComponent implements OnInit {
   }
 
   async fetchCertificates(): Promise<void> {
-    this.isLoading = true
+    // this.isLoading = true
     try {
       const response = await fetch(this.jsonUrl)
       if (!response.ok) { throw new Error('Failed to load certificates') }
@@ -62,7 +63,7 @@ export class CertificateGeneratorComponent implements OnInit {
       console.error('Error fetching templates:', error)
       this.errorMessage = 'Failed to load certificate templates.'
     } finally {
-      this.isLoading = false
+      // this.isLoading = false
     }
   }
 
@@ -72,8 +73,8 @@ export class CertificateGeneratorComponent implements OnInit {
 
   generateCertificate(): void {
     console.log('Generating certificate...')
-
-    if (this.isGenerating) { return }
+    this.isGenerating = true
+    // if (this.isGenerating) { return }
 
     const selectedTemplate = this.certificates[this.selectedCertIndex]
     if (!selectedTemplate || !this.eventId) {
@@ -81,15 +82,19 @@ export class CertificateGeneratorComponent implements OnInit {
       return
     }
 
+
     if (this.nonRegistered) {
-      this.isGenerating = true // Show loader
-      this.eventService.currentEvent.subscribe(event => {
-        const updatedEvent = { ...event, selectedTemplate }
-        this.eventService.updateEvent(updatedEvent)
-      })
+      // this.isGenerating = true // Show loader
+      this.eventService.currentEvent
+        .pipe(take(1)) // 👈 Only take one emission
+        .subscribe(event => {
+          const updatedEvent = { ...event, selectedTemplate }
+          this.eventService.updateEvent(updatedEvent)
+        })
 
       console.log('Selected Template:', selectedTemplate)
       const evendata = { eventId: this.eventId, templateId: selectedTemplate.templateId }
+      // localStorage.setItem('certificate', JSON.stringify(evendata))
       this.eventService.editEvent(evendata).subscribe(
         response => {
           console.log('Edit Event updated successfully:', response)
@@ -98,38 +103,34 @@ export class CertificateGeneratorComponent implements OnInit {
           console.error('Error updating event: non ', error)
         }
       )
-      this.isGenerating = false // Hide loader
+      // this.isGenerating = false // Hide loader
       this.navigateBack()
       return
     } else {
-      this.isGenerating = true // Show loader
-
       this.eventService.generateCertificate(this.eventId, selectedTemplate.templateId).subscribe({
         next: response => {
           console.log('Certificate generated successfully:', response)
-          this.eventService.currentEvent.subscribe(event => {
-            const updatedEvent = { ...event, selectedTemplate }
-            this.eventService.updateEvent(updatedEvent)
-          })
+          this.eventService.currentEvent
+            .pipe(take(1)) // 👈 Only take one emission
+            .subscribe(event => {
+              const updatedEvent = { ...event, selectedTemplate }
+              this.eventService.updateEvent(updatedEvent)
+            })
           const evendata = { eventId: this.eventId, templateId: selectedTemplate.templateId }
-          this.eventService.editEvent(evendata).subscribe(
-            res => {
-              console.log('Edit Event updated successfully:', res)
-            },
-            error => {
-              console.error('Error updating event:', error)
-            }
-          )
-          this.isGenerating = false
-          this.navigateBack() // ✅ Navigate back to overview
-          // alert("Certificate generated successfully!") // Replace with better UI feedback
+          // localStorage.setItem('certificate', JSON.stringify(evendata))
+          this.eventService.editEvent(evendata).subscribe({
+            next: res => console.log('Edit Event updated successfully:', res),
+            error: err => console.error('Error updating event:', err)
+          })
+          this.navigatetoHome() // ✅ Navigate back to overview
         },
         error: error => {
           console.error('Error generating certificate:', error)
-          // alert("Failed to generate certificate. Please try again.")
+          this.isGenerating = false
         },
         complete: () => {
-          this.isGenerating = false // Hide loader
+          this.isGenerating = false
+
         },
       })
     }
@@ -140,5 +141,9 @@ export class CertificateGeneratorComponent implements OnInit {
 
   navigateBack(): void {
     this.router.navigate(['../overview'], { relativeTo: this.route })
+  }
+
+  navigatetoHome(): void {
+    this.router.navigate(['/app/home/event-dashboard'])
   }
 }
