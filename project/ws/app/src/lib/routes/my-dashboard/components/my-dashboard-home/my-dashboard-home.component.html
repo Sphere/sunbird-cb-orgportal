@@ -9,8 +9,19 @@
 
 </mat-card> -->
 
-<div *ngIf="currentDashboard[0]" class="container-balanced mat-drawer-side">
-  <!-- <lib-rain-dashboards [layoutConfig]="currentDashboard[0].visualizationDetails"
+<mat-tab-group *ngIf="dashboardData.length>0" color="primary">
+  <mat-tab *ngFor="let report of dashboardData" [label]="report.name">
+    <div class="iframe-container">
+      <iframe title="iframe" [src]="report.link | safeUrl" width="100%" height="600" allowFullScreen>
+      </iframe>
+    </div>
+  </mat-tab>
+</mat-tab-group>
+
+
+
+<!-- <div *ngIf="currentDashboard[0]" class="container-balanced mat-drawer-side">
+  <lib-rain-dashboards [layoutConfig]="currentDashboard[0].visualizationDetails"
     [chartConfig]="currentDashboard[0].chartDetails" [dashboardConfig]="dashboardList"
     [showFilters]="currentDashboard[0].showFilters" [showWidgets]="currentDashboard[0].showWidgets"
     [filtersConfig]="currentDashboard[0].filtersDetails" [widgetConfig]="currentDashboard[0].widgetDetails"
@@ -19,5 +30,5 @@
     [showMessage]="currentDashboard[0].showMessage" [messageType]="currentDashboard[0].messageType"
     [message]="currentDashboard[0].message" (libDateFilterPreset)="getDateFilterPreset($event)"
     [mapLayoutFilePath]="mapPath">
-  </lib-rain-dashboards> -->
-</div>
+  </lib-rain-dashboards>
+</div> -->

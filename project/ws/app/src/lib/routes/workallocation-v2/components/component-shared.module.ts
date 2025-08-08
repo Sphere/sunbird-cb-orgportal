@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import {
-  MatSidenavModule,
+    MatSidenavModule,
 } from '@angular/material/sidenav'
 import { MatGridListModule } from '@angular/material/grid-list'
 import { MatLegacyListModule as MatListModule } from '@angular/material/legacy-list'
@@ -19,7 +19,7 @@ import { MatLegacyTableModule as MatTableModule } from '@angular/material/legacy
 import { MatLegacyAutocompleteModule as MatAutocompleteModule } from '@angular/material/legacy-autocomplete'
 import { MatExpansionModule } from '@angular/material/expansion'
 import { MatDividerModule } from '@angular/material/divider'
-import { MatLegacyTabsModule as MatTabsModule } from '@angular/material/legacy-tabs'
+import { MatTabsModule } from '@angular/material/tabs'
 import { MatLegacyMenuModule as MatMenuModule } from '@angular/material/legacy-menu'
 import { FormsModule, ReactiveFormsModule } from '@angular/forms'
 import { UserAutocompleteCardComponent } from './user-autocomplete-card/user-autocomplete-card.component'

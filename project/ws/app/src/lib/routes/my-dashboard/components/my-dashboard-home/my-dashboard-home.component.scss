@@ -13,3 +13,17 @@
 .height {
   height: -webkit-fill-available;
 }
+.mat-mdc-tab-group {
+  --mat-tab-header-active-label-text-color: #1C5D95;
+  --mdc-tab-indicator-active-indicator-color: #1C5D95;
+  --mat-tab-header-active-focus-indicator-color:#1C5D95;
+}
+
+.mat-mdc-tab.mdc-tab--active:focus .mdc-tab__text-label,
+.mat-mdc-tab.mdc-tab--active:hover .mdc-tab__text-label,
+.mat-mdc-tab.mdc-tab--active .mdc-tab__text-label{
+  color: #1C5D95 !important;
+}
+
+
+

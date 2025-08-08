@@ -8,17 +8,22 @@ import { BreadcrumbsOrgModule } from '@sunbird-cb/collection'
 import { MyDashboardHomeComponent } from './components/my-dashboard-home/my-dashboard-home.component'
 import { MyDashboardRoutingModule } from './my-dashboard-routing.module'
 // import { RainDashboardsModule } from '@sunbird-cb/rain-dashboards'
+import { SafeUrlPipe } from './components/my-dashboard-home/my-dashboard.pipe'
+import { ComponentSharedModule } from '../workallocation-v2/components/component-shared.module'
+import { MatTabsModule } from '@angular/material/tabs'
 
 @NgModule({
-  declarations: [MyDashboardHomeComponent],
+  declarations: [MyDashboardHomeComponent, SafeUrlPipe],
   imports: [
     CommonModule,
+    MatTabsModule,
     MyDashboardRoutingModule,
     MatCardModule,
     MatButtonModule,
     MatIconModule,
     MatToolbarModule,
     BreadcrumbsOrgModule,
+    ComponentSharedModule,
     // RainDashboardsModule,
   ], exports: [MyDashboardHomeComponent],
 })
