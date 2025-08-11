@@ -2,7 +2,7 @@ import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/cor
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser'
 import { IBtnAppsConfig, CustomTourService } from '@sunbird-cb/collection'
 import { NsWidgetResolver } from '@sunbird-cb/resolver'
-import { ConfigurationsService, NsInstanceConfig, NsPage } from '@sunbird-cb/utils'
+import { ConfigurationsService, NsPage } from '@sunbird-cb/utils'
 import { Router, NavigationStart, NavigationEnd, Event } from '@angular/router'
 
 @Component({
@@ -11,6 +11,7 @@ import { Router, NavigationStart, NavigationEnd, Event } from '@angular/router'
   styleUrls: ['./app-nav-bar.component.scss'],
 })
 export class AppNavBarComponent implements OnInit, OnChanges {
+  isDashboardReport: boolean = false
   @Input() mode: 'top' | 'bottom' = 'top'
   // @Input()
   // @HostBinding('id')
@@ -25,7 +26,7 @@ export class AppNavBarComponent implements OnInit, OnChanges {
   appIcon: SafeUrl | null = null
   appBottomIcon?: SafeUrl
   primaryNavbarBackground: Partial<NsPage.INavBackground> | null = null
-  primaryNavbarConfig: NsInstanceConfig.IPrimaryNavbarConfig | null = null
+  primaryNavbarConfig: any | null = null
   pageNavbar: Partial<NsPage.INavBackground> | null = null
   featureApps: string[] = []
   isHelpMenuRestricted = false
@@ -53,14 +54,23 @@ export class AppNavBarComponent implements OnInit, OnChanges {
   }
 
   ngOnInit() {
+    const roles = this.configSvc.unMappedUser?.roles || []
+    const hasDashboardViewerRole = roles.includes('MDO_DASHBOARD_VIEWER')
+    const hasAdminRole = roles.includes('MDO_ADMIN')
+
+    this.isDashboardReport = hasDashboardViewerRole
+
     this.router.events.subscribe((e: Event) => {
       if (e instanceof NavigationEnd) {
-        if ((e.url.includes('/app/setup') && this.configSvc.instanceConfig && !this.configSvc.instanceConfig.showNavBarInSetup)) {
+        if (
+          e.url.includes('/app/setup') &&
+          this.configSvc.instanceConfig &&
+          !this.configSvc.instanceConfig.showNavBarInSetup
+        ) {
           this.showAppNavBar = false
         } else {
           this.showAppNavBar = true
         }
-
       }
     })
 
@@ -77,7 +87,33 @@ export class AppNavBarComponent implements OnInit, OnChanges {
       this.primaryNavbarBackground = this.configSvc.primaryNavBar
       this.pageNavbar = this.configSvc.pageNavBar
       this.primaryNavbarConfig = this.configSvc.primaryNavBarConfig
+
+      if (this.primaryNavbarConfig?.mediumScreen?.right) {
+        this.primaryNavbarConfig.mediumScreen.right =
+          this.primaryNavbarConfig.mediumScreen.right.filter((item: any) => {
+            if (item.type === 'featureButton') {
+              const id = item.config?.actionBtnId
+
+              if (id === 'feature_home') {
+                return hasAdminRole
+              }
+              if (id === 'feature_mydashboard') {
+                return hasDashboardViewerRole
+              }
+              if (id === 'feature_notification') {
+                return false // Hide notification
+              }
+            }
+            return true
+          })
+      }
     }
+
+    console.log(
+      'Filtered Navbar Config:',
+      this.primaryNavbarConfig?.mediumScreen?.right
+    )
+
     if (this.configSvc.appsConfig) {
       this.featureApps = Object.keys(this.configSvc.appsConfig.features)
     }
