@@ -63,14 +63,16 @@ export class MyDashboardHomeComponent implements OnInit {
   }
   loadDashboardBasedOnOrg(): void {
     const orgPowerBiDashboardUrl = `https://aastar-assets.s3.ap-south-1.amazonaws.com/orgPowerBiDashboard.json?cb=${Date.now()}`
-
-    this.http.get<any[]>(orgPowerBiDashboardUrl).subscribe(
+    // const orgPowerBiDashboardUrl = `mdo-assets/files/orgPowerBiDashboard.json?cb=${Date.now()}`
+    this.http.get<any>(orgPowerBiDashboardUrl).subscribe(
       data => {
         const currentOrgId = this.configSvc?.userProfile?.rootOrgId
-        const orgData = data.find(org => org.orgId === currentOrgId)
+        const orgData = data.organisations.find((org: any) => org.orgId === currentOrgId)
 
-        if (orgData && orgData.reports) {
-          this.dashboardData = orgData.reports
+        if (orgData && orgData.reportRefs) {
+          this.dashboardData = orgData.reportRefs
+            .map((ref: any) => data.reports[ref])
+            .filter((report: any) => !!report)
         } else {
           this.dashboardData = []
         }
@@ -82,6 +84,7 @@ export class MyDashboardHomeComponent implements OnInit {
       }
     )
   }
+
 
   // getDashboardId(value: string) {
   //   this.selectedDashboardId = value
