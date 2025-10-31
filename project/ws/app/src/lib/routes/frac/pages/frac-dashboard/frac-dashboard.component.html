@@ -1,0 +1,37 @@
+<div class="frac-dashboard-container">
+
+  <section class="header">
+    <div class="wlc">
+      <div class="welcome-text">Welcome to the FRAC</div>
+    </div>
+    <div>
+      <div class="sub-text">
+        Upload competencies, activities, and roles, and map them to build your organization’s structure.
+      </div>
+    </div>
+  </section>
+
+  <section class="cards-grid">
+    <mat-card class="action-card" *ngFor="let card of actionCards">
+      <div class="card-content">
+        <div class="title">{{ card.title }}</div>
+        <div class="description">{{ card.description }}</div>
+      </div>
+      <div class="actions">
+        <button type="button" (click)="onBtnClick(action.redirectLink)" class="act-btn" mat-stroked-button
+          color="primary" *ngFor="let action of card.actions">
+          <mat-icon class="btn-color">{{ action.icon }}</mat-icon>
+          <div class="btn-color"> {{ action.label }} </div>
+        </button>
+      </div>
+    </mat-card>
+  </section>
+  <!-- commented recent-activity section TBD -->
+
+  <!-- <section class="recent-activity">
+    <h2>Recent Activity</h2>
+    <app-frac-table [columns]="recentActivityColumns" [data]="recentActivities" [maxHeight]="'300px'">
+    </app-frac-table>
+  </section> -->
+
+</div>

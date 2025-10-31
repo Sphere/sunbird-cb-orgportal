@@ -1,0 +1,89 @@
+<div class="header-container">
+  <div>
+    <button mat-stroked-button routerLink="/frac/dashboard" class="home-chip icon blue">
+      <mat-icon class="home-icon">home</mat-icon>
+      Home
+    </button>
+  </div>
+  <div>
+
+    <!-- Save Button -->
+    <button mat-stroked-button color="primary" class="save-btn">
+      <span style="color: white;">Save</span>
+    </button>
+  </div>
+</div>
+
+
+<div class="upload-container">
+
+  <div class="header">
+    <button mat-icon-button routerLink="/home">
+      <mat-icon>arrow_back_ios</mat-icon>
+    </button>
+    <h2>Upload Competency</h2>
+  </div>
+
+  <div class="sub-header">
+    <span>Upload Competency File (CSV or JSON)</span>
+
+  </div>
+
+  <div class="toolbar">
+    <div class="left-tools">
+
+      <div class="search-box">
+        <input matInput type="text" placeholder="Search by name, code" [(ngModel)]="searchTerm" />
+        <button mat-icon-button matSuffix class="icon-btn">
+          <mat-icon>search</mat-icon>
+        </button>
+      </div>
+      <div class="language-dropdown" (click)="toggleDropdown()">
+        <div class="dropdown-main">
+          <div class="label-container">
+            <div class="label">Language</div>
+            <div class="selected">{{ selectedLanguage }}</div>
+          </div>
+          <div class="icon">
+            <mat-icon>{{ isOpen ? 'expand_less' : 'expand_more' }}</mat-icon>
+          </div>
+        </div>
+
+        <div class="dropdown-list" *ngIf="isOpen" (click)="$event.stopPropagation()">
+          <div class="dropdown-item" *ngFor="let lang of languages" (click)="selectLanguage(lang, $event)">
+            {{ lang }}
+          </div>
+        </div>
+      </div>
+
+
+    </div>
+    <div class="right-tools">
+
+      <div class="button-group">
+        <!-- Remove Button (Red Outline + Icon) -->
+        <button mat-stroked-button class="app-btn icon red">
+          <mat-icon>delete</mat-icon>
+          Remove
+        </button>
+        <!-- Edit Button (Blue Outline + Icon) -->
+        <button mat-stroked-button class="app-btn icon blue">
+          <mat-icon>edit</mat-icon>
+          Edit
+        </button>
+        <!-- Secondary Button -->
+        <button mat-stroked-button class="app-btn secondary">
+          Download sample
+        </button>
+        <!-- Primary Button -->
+        <button mat-button class="app-btn primary">
+          Change File
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ✅ Reusable Table -->
+  <app-frac-table [columns]="tableConfig.columns" [data]="tableConfig.data" [showCheckbox]="true" [enableSorting]="true"
+    [enablePagination]="false" [gridStyle]="'both'" maxHeight="350px"></app-frac-table>
+</div>
