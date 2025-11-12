@@ -8,7 +8,7 @@
   <div>
 
     <!-- Save Button -->
-    <button mat-stroked-button color="primary" class="save-btn">
+    <button mat-stroked-button color="primary" class="save-btn" (click)="onSaveClicked()" [disabled]="!isEditing">
       <span style="color: white;">Save</span>
     </button>
   </div>
@@ -25,16 +25,17 @@
   </div>
 
   <div class="sub-header">
-    <span>Upload Competency File (CSV or JSON)</span>
+    <span>Upload Competency File (CSV or XLSX)</span>
 
   </div>
 
   <div class="toolbar">
     <div class="left-tools">
 
-      <div class="search-box">
-        <input matInput type="text" placeholder="Search by name, code" [(ngModel)]="searchTerm" />
-        <button mat-icon-button matSuffix class="icon-btn">
+      <!-- <div class="search-box">
+        <input matInput type="text" placeholder="Search by name, code" [(ngModel)]="searchTerm"
+          (keydown.enter)="onSearch()" />
+        <button mat-icon-button matSuffix class="icon-btn" (click)="onSearch()">
           <mat-icon>search</mat-icon>
         </button>
       </div>
@@ -54,30 +55,57 @@
             {{ lang }}
           </div>
         </div>
+      </div> -->
+
+      <div class="search-box">
+        <input matInput type="text" placeholder="Search by name, code" [(ngModel)]="searchTerm"
+          (input)="onSearchTermChange()" (keydown.enter)="onSearch()" />
+        <button mat-icon-button matSuffix class="icon-btn" (click)="onSearch()">
+          <mat-icon>search</mat-icon>
+        </button>
       </div>
 
+      <div class="language-dropdown" (click)="toggleDropdown()">
+        <div class="dropdown-main">
+          <div class="label-container">
+            <div class="label">Language</div>
+            <div class="selected">{{ selectedLanguage }}</div>
+          </div>
+          <div class="icon">
+            <mat-icon>{{ isOpen ? 'expand_less' : 'expand_more' }}</mat-icon>
+          </div>
+        </div>
 
+        <div class="dropdown-list" *ngIf="isOpen" (click)="$event.stopPropagation()">
+          <div class="dropdown-item" *ngFor="let lang of languages" (click)="selectLanguage(lang, $event)">
+            {{ lang }}
+          </div>
+        </div>
+      </div>
     </div>
     <div class="right-tools">
 
       <div class="button-group">
         <!-- Remove Button (Red Outline + Icon) -->
-        <button mat-stroked-button class="app-btn icon red">
+        <button mat-stroked-button class="app-btn icon red" (click)="onRemoveClicked()"
+          [disabled]="!selectedRows.length">
           <mat-icon>delete</mat-icon>
           Remove
         </button>
         <!-- Edit Button (Blue Outline + Icon) -->
-        <button mat-stroked-button class="app-btn icon blue">
+        <button mat-stroked-button class="app-btn icon blue" (click)="onEditClicked()"
+          [disabled]="!selectedRows.length">
           <mat-icon>edit</mat-icon>
           Edit
         </button>
+
         <!-- Secondary Button -->
-        <button mat-stroked-button class="app-btn secondary">
+        <button mat-stroked-button class="app-btn secondary" (click)="onDownloadTemplate()">
           Download sample
         </button>
         <!-- Primary Button -->
-        <button mat-button class="app-btn primary">
-          Change File
+        <button type="button" (click)="openUploadPopup()" mat-button class="app-btn primary">
+          Upload File
         </button>
       </div>
     </div>
@@ -85,5 +113,7 @@
 
   <!-- ✅ Reusable Table -->
   <app-frac-table [columns]="tableConfig.columns" [data]="tableConfig.data" [showCheckbox]="true" [enableSorting]="true"
-    [enablePagination]="false" [gridStyle]="'both'" maxHeight="350px"></app-frac-table>
+    [enablePagination]="false" [gridStyle]="'both'" [maxHeight]="'350px'" [isEditing]="isEditing"
+    (selectionChange)="onSelectionChange($event)">
+  </app-frac-table>
 </div>

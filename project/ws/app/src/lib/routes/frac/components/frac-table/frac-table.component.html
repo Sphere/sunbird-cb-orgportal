@@ -1,14 +1,16 @@
 <div class="frac-table-container" [style.max-height]="maxHeight" [ngClass]="gridStyle">
   <table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z1">
+
     <!-- Checkbox column -->
     <ng-container matColumnDef="select" *ngIf="showCheckbox">
-      <th mat-header-cell *matHeaderCellDef>
-        <mat-checkbox (change)="masterToggle()" [checked]="isAllSelected()"
-          [indeterminate]="selection.hasValue() && !isAllSelected()" [aria-label]="checkboxLabel()"></mat-checkbox>
-      </th>
+      <th mat-header-cell *matHeaderCellDef></th>
       <td mat-cell *matCellDef="let row">
-        <mat-checkbox (click)="$event.stopPropagation()" (change)="$event ? selection.toggle(row) : null"
-          [checked]="selection.isSelected(row)" [aria-label]="checkboxLabel(row)"></mat-checkbox>
+        <!-- <mat-checkbox (click)="$event.stopPropagation()" (change)="selection.toggle(row)"
+          [checked]="selection.isSelected(row)" [aria-label]="checkboxLabel(row)">
+        </mat-checkbox> -->
+        <mat-checkbox (click)="$event.stopPropagation()" (change)="onRowSelect(row)"
+          [checked]="selection.isSelected(row)" [aria-label]="checkboxLabel(row)">
+        </mat-checkbox>
       </td>
     </ng-container>
 
@@ -17,14 +19,55 @@
       <th mat-header-cell *matHeaderCellDef mat-sort-header [style.width]="col.width">
         {{ col.label }}
       </th>
-      <td mat-cell *matCellDef="let element">{{ element[col.key] }}</td>
+      <td mat-cell *matCellDef="let element">
+        <ng-container *ngIf="isEditing && selection.isSelected(element); else viewMode">
+          <input [(ngModel)]="element[col.key]" class="editable-input" />
+        </ng-container>
+
+        <ng-template #viewMode>
+          <div class="cell-content" [innerHTML]="element[col.key] | wordWrap:30"></div>
+        </ng-template>
+      </td>
     </ng-container>
 
-    <!-- Header and rows -->
+    <!-- Header -->
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+
+    <!-- Data rows -->
     <tr mat-row *matRowDef="let row; columns: displayedColumns" class="data-row"></tr>
+
+    <!-- ❗ Empty state row -->
+    <!-- <tr class="no-data-row" *matNoDataRow>
+      <td [attr.colspan]="displayedColumns.length" class="no-data-cell">
+        No data available
+      </td>
+    </tr> -->
+    <!-- <tr class="no-data-row" *matNoDataRow>
+      <td class="no-data-cell" [attr.colspan]="displayedColumns.length">
+        No data available
+      </td>
+    </tr> -->
+    <!-- <tr class="no-data-row" *matNoDataRow>
+      <td class="no-data-cell" [attr.colspan]="displayedColumns.length" [style.--col-count]="displayedColumns.length">
+        No data available
+      </td>
+    </tr> -->
+    <tr class="no-data-row" *matNoDataRow>
+      <td class="no-data-cell" *ngFor="let column of displayedColumns">
+        &nbsp;
+      </td>
+    </tr>
+
+    <tr class="no-data-message">
+      <td class="message-cell" [attr.colspan]="displayedColumns.length">
+        No data available
+      </td>
+    </tr>
+
+
   </table>
 </div>
 
 <!-- Pagination -->
-<mat-paginator *ngIf="enablePagination" [pageSizeOptions]="pageSizeOptions" showFirstLastButtons></mat-paginator>
+<mat-paginator *ngIf="enablePagination" [pageSizeOptions]="pageSizeOptions" showFirstLastButtons>
+</mat-paginator>

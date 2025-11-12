@@ -40,13 +40,15 @@ import { RoleMapComponent } from './pages/role/role-map/role-map.component'
 import { RolePositionAssignComponent } from './pages/role/role-position-assign/role-position-assign.component'
 
 // --- Shared Components ---
-import { FracUploadComponent } from './components/frac-upload/frac-upload.component'
+import { FracUploadPopupComponent } from './components/frac-upload/frac-upload-popup.component'
 import { FracTableComponent } from './components/frac-table/frac-table.component'
 import { FracMapperComponent } from './components/frac-mapper/frac-mapper.component'
 import { FracCardComponent } from './components/frac-card/frac-card.component'
 import { FormsModule } from '@angular/forms'
 import { MatSelectModule } from '@angular/material/select'
 import { MatCheckboxModule } from '@angular/material/checkbox'
+import { MatDialogModule } from '@angular/material/dialog'
+import { WordWrapPipe } from './pipes/word-wrap.pipe'
 
 @NgModule({
   declarations: [
@@ -73,10 +75,11 @@ import { MatCheckboxModule } from '@angular/material/checkbox'
     RolePositionAssignComponent,
 
     // Shared
-    FracUploadComponent,
+    FracUploadPopupComponent,
     FracTableComponent,
     FracMapperComponent,
     FracCardComponent,
+    WordWrapPipe
   ],
   imports: [
     CommonModule,
@@ -97,7 +100,11 @@ import { MatCheckboxModule } from '@angular/material/checkbox'
     FormsModule,
     MatSelectModule,
     MatCheckboxModule,
+    MatDialogModule,
 
+  ],
+  exports: [
+    WordWrapPipe,
   ],
 })
 export class FracModule { }

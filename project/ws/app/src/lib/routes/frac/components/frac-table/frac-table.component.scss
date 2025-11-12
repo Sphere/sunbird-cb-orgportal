@@ -162,3 +162,198 @@ mat-paginator {
   border-radius: 8px;
   font-family: 'Roboto', sans-serif;
 }
+
+
+// .no-data-row {
+//   text-align: center;
+//   height: 260px;
+//    td.no-data-cell {
+//     text-align: center;
+//     color: #666;
+//     font-size: 14px;
+//     font-style: italic;
+//     border-top: 1px solid #e0e0e0;
+
+//   }
+// }
+// .no-data-row {
+//   height: 260px;
+
+//   td.no-data-cell {
+//     text-align: center;
+//     color: #666;
+//     font-size: 14px;
+//     font-style: italic;
+//     border-top: 1px solid #e0e0e0;
+//     border-bottom: 1px solid #e0e0e0;
+//     border-right: 1px solid #e0e0e0;
+//   }
+
+//   // Remove the right border for the last column
+//   td.no-data-cell:last-child {
+//     border-right: none;
+//   }
+// }
+.no-data-row {
+  height: 260px;
+
+  td.no-data-cell {
+    text-align: center;
+    color: #666;
+    font-size: 14px;
+    font-style: italic;
+    border-top: 1px solid #e0e0e0;
+    border-bottom: 1px solid #e0e0e0;
+    border-left: 1px solid #e0e0e0;
+    border-right: 1px solid #e0e0e0;
+    position: relative;
+    padding: 16px;
+  }
+
+  // Create fake vertical grid lines within the no-data cell
+  td.no-data-cell::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-image: repeating-linear-gradient(
+      to right,
+      transparent,
+      transparent calc(100% / var(--col-count) - 1px),
+      #e0e0e0 calc(100% / var(--col-count))
+    );
+    pointer-events: none;
+  }
+}
+
+.no-data-row td.no-data-cell {
+  height: 40px;
+  border: 1px solid #e0e0e0;
+  background-color: #fafafa;
+}
+
+.no-data-message td.message-cell {
+  text-align: center;
+  color: #666;
+  font-size: 14px;
+  font-style: italic;
+  padding: 16px;
+  border: 1px solid #e0e0e0;
+  border-top: none;
+  background-color: #fff;
+}
+
+
+
+// .frac-table-container {
+//   table {
+//     width: 100%;
+//     border-collapse: separate;
+//     border-spacing: 0;
+//     border-radius: 8px;
+//     overflow: hidden;
+//   }
+
+//   th.mat-header-cell,
+//   td.mat-cell,
+//   td.mat-footer-cell {
+//     border-right: 1px solid #e0e0e0; // vertical lines
+//   }
+
+//   tr.mat-header-row th:last-child,
+//   tr.mat-row td:last-child {
+//     border-right: none; // remove border on last column
+//   }
+
+//   th.mat-header-cell {
+//     background: #e8f1fa; // light blue header
+//     font-weight: 500;
+//   }
+
+//   tr.mat-row,
+//   tr.no-data-row {
+//     td {
+//       border-bottom: 1px solid #e0e0e0;
+//       height: 48px;
+//     }
+//   }
+
+//   .no-data-row td {
+//     text-align: center;
+//     color: #808080;
+//     font-style: italic;
+//   }
+// }
+
+
+/* Base checkbox style (unchecked → white) */
+::ng-deep .mat-mdc-checkbox .mdc-checkbox__background {
+  background-color: #fff !important; /* Default white */
+  // border-color: black !important; /* Blue border */
+  border-radius: 5px !important; /* Rounded corners */
+  transition: all 0.2s ease-in-out;
+}
+
+/* Checked state → blue background, white tick */
+::ng-deep .mat-mdc-checkbox.mat-mdc-checkbox-checked .mdc-checkbox__background {
+  background-color: #007bff !important; /* Blue fill */
+  border-color: rgb(182, 182, 182) !important;
+}
+
+/* White checkmark inside blue box */
+::ng-deep .mat-mdc-checkbox .mdc-checkbox__checkmark-path {
+  stroke: #fff !important;
+}
+
+/* Hover → darker blue border */
+::ng-deep .mat-mdc-checkbox:hover .mdc-checkbox__background {
+  // border-color: black !important;
+}
+
+/* Disabled → light gray */
+::ng-deep .mat-mdc-checkbox.mat-mdc-checkbox--disabled .mdc-checkbox__background {
+  background-color: #f5f5f5 !important;
+  // border-color: #ddd !important;
+}
+
+
+.editable-input {
+  width: 100%;
+  padding: 6px 8px;
+  font-size: 14px;
+  border: 1px solid #cfd8dc;
+  border-radius: 4px;
+  background: #f8faff;
+  outline: none;
+  transition: 0.2s;
+
+  &:focus {
+    border-color: #007bff;
+    background: #fff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
+  }
+}
+
+tr.data-row.editing td {
+  background-color: #f0f7ff;
+}
+
+
+/* ----------- Wrapping & Cell Styling ----------- */
+.table-cell-wrap {
+  white-space: normal !important;
+  line-height: 1.5;
+  vertical-align: top;
+  padding: 8px 12px;
+}
+
+.cell-content {
+  display: block;
+  white-space: pre-wrap;
+  word-break: normal !important;       /* ✅ no mid-word breaks */
+  overflow-wrap: normal !important;    /* ✅ wrap only at spaces */
+  line-height: 1.5;
+}
+

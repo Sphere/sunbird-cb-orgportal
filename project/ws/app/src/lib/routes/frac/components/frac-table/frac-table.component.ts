@@ -4,6 +4,8 @@ import {
   ViewChild,
   OnChanges,
   AfterViewInit,
+  EventEmitter,
+  Output,
 } from '@angular/core'
 import { MatTableDataSource } from '@angular/material/table'
 import { MatPaginator } from '@angular/material/paginator'
@@ -47,6 +49,9 @@ export class FracTableComponent implements OnChanges, AfterViewInit {
 
   /** Configurable grid line style: horizontal | vertical | both | none */
   @Input() gridStyle: GridStyle = 'horizontal'
+
+  @Input() isEditing = false;
+  @Output() selectionChange = new EventEmitter<any[]>();
 
   /** Table data source */
   dataSource = new MatTableDataSource<any>([])
@@ -100,4 +105,9 @@ export class FracTableComponent implements OnChanges, AfterViewInit {
   applyFilter(value: string) {
     this.dataSource.filter = value.trim().toLowerCase()
   }
+  onRowSelect(row: any) {
+    this.selection.toggle(row)
+    this.selectionChange.emit(this.selection.selected)
+  }
+
 }
