@@ -1,13 +1,18 @@
 <div class="activity-mapping-list">
+
+  <!-- Header toolbar -->
   <div class="toolbar">
     <div class="title-header">List of Activities</div>
   </div>
+
   <div class="activity-container">
 
+    <!-- Top title bar -->
     <div class="title-bar">Activities</div>
 
     <div class="scroll-area">
 
+      <!-- Search input -->
       <div class="search-row">
         <div class="search-box">
           <input placeholder="Search Activity" [(ngModel)]="searchTerm" (input)="onSearchChange()" />
@@ -15,38 +20,40 @@
         </div>
       </div>
 
-      <div class="activity-list">
+      <!-- Activity list -->
+      <div class="activity-item" *ngFor="let a of filteredActivities" [class.selected]="selectedActivity === a"
+        (click)="activitySelectedHandler(a)">
+        <div class="expanded-card">
 
-        <div class="activity-item" *ngFor="let a of filteredActivities" (click)="expand(a)">
-          <div class="activity-box">
-            <div class="code">{{ a.code }}</div>
-            <div class="title">{{ a.title }}</div>
-            <mat-icon class="arrow">expand_more</mat-icon>
+          <!-- Row header with expand toggle -->
+          <div class="header-row" (click)="expand(a)">
+            <div class="exp-code">{{ a.code }}</div>
+            <div class="exp-title">{{ a.title }}</div>
+
+            <!-- Arrow shown only if competency details exist -->
+            <mat-icon *ngIf="a.competencyDetails?.length > 0" class="arrow">
+              {{ expanded === a ? 'expand_less' : 'expand_more' }}
+            </mat-icon>
           </div>
 
-          <div class="expanded-card" *ngIf="expanded === a">
-
-            <div class="header-row">
-              <div class="exp-code">{{ a.code }}</div>
-              <div class="exp-title">{{ a.title }}</div>
-            </div>
-
+          <!-- Expanded competency section -->
+          <div *ngIf="expanded === a">
             <div class="competency-row" *ngFor="let c of a.competencyDetails">
               <div class="rect-lg">
-                <div class="label">{{ c.label }}</div>
+                <div class="label">{{ c.code }} - {{ c.label }}</div>
               </div>
               <div class="rect-sm">
-                <div class="level">{{ c.level }}</div>
+                <div class="level">{{ c.levels }}</div>
               </div>
             </div>
-
           </div>
+
         </div>
-
       </div>
-
+      <!-- No data message -->
+      <div *ngIf="filteredActivities.length === 0" class="no-data">
+        Use the search bar to find the activity to map.
+      </div>
     </div>
-
   </div>
-
 </div>

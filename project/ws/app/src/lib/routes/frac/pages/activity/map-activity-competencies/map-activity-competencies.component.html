@@ -1,0 +1,60 @@
+<div class="header-container">
+  <button mat-stroked-button routerLink="/frac/dashboard" class="home-chip">
+    <mat-icon class="home-icon">home</mat-icon>
+    Home
+  </button>
+
+  <button mat-stroked-button class="save-btn" (click)="onSaveClicked()" [disabled]="!isEditing">
+    Save
+  </button>
+</div>
+
+<div class="upload-container">
+
+  <div class="header">
+    <button mat-icon-button routerLink="/home">
+      <mat-icon>arrow_back_ios</mat-icon>
+    </button>
+    <h2>Map activities</h2>
+  </div>
+
+  <div class="sub-header">
+    <span>Link each activity to one or more competency levels.</span>
+  </div>
+
+  <div class="left-tools">
+
+    <div class="language-dropdown" (click)="toggleDropdown()">
+      <div class="dropdown-main">
+        <div class="label-container">
+          <div class="label">Language</div>
+          <div class="selected">{{ selectedLanguage }}</div>
+        </div>
+        <mat-icon>{{ isOpen ? 'expand_less' : 'expand_more' }}</mat-icon>
+      </div>
+
+      <div class="dropdown-list" *ngIf="isOpen" (click)="$event.stopPropagation()">
+        <div *ngFor="let lang of languages" class="dropdown-item" (click)="selectLanguage(lang, $event)">
+          {{ lang }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-layout">
+
+    <div class="activities-panel">
+      <app-activity-mapping-list [activities]="filteredActivities" (searchChange)="onActivitySearch($event)"
+        (activitySelected)="onActivitySelected($event)" (toggle)="expand($event)">
+      </app-activity-mapping-list>
+    </div>
+
+    <div class="competency-panel">
+      <app-competency-mapping-table [competencies]="competencies" [selectedMap]="selectedMap"
+        (checked)="onCheck($event)" (searchChange)="onCompetencySearch($event)"
+        (addCompetency)="onAddCompetencyToActivity($event)">
+      </app-competency-mapping-table>
+    </div>
+
+  </div>
+</div>

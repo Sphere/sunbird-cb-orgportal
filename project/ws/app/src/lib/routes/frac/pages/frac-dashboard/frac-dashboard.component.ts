@@ -51,7 +51,7 @@ export class FracDashboardComponent {
     {
       title: 'Map Activities to Competencies',
       description: 'Link activities with the relevant competencies to build skill structures.',
-      actions: [{ label: 'Map now', icon: 'sync_alt' }],
+      actions: [{ label: 'Map now', redirectLink: '/app/frac/map-activity', icon: 'sync_alt' }],
     },
     {
       title: 'Map Roles to Activities',
