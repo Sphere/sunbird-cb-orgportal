@@ -290,32 +290,33 @@ mat-paginator {
 
 /* Base checkbox style (unchecked → white) */
 ::ng-deep .mat-mdc-checkbox .mdc-checkbox__background {
-  background-color: #fff !important; /* Default white */
-  // border-color: black !important; /* Blue border */
+  background-color: white !important; /* Default white */
+  border-color: #404040 !important; /* Blue border */
   border-radius: 5px !important; /* Rounded corners */
   transition: all 0.2s ease-in-out;
 }
 
 /* Checked state → blue background, white tick */
 ::ng-deep .mat-mdc-checkbox.mat-mdc-checkbox-checked .mdc-checkbox__background {
-  background-color: #007bff !important; /* Blue fill */
-  border-color: rgb(182, 182, 182) !important;
+  background-color: #1C5D95 !important; /* Blue fill */
+  border-color: #1C5D95 !important;
 }
 
 /* White checkmark inside blue box */
 ::ng-deep .mat-mdc-checkbox .mdc-checkbox__checkmark-path {
-  stroke: #fff !important;
+  stroke: #F3F4F4 !important;
+  background-color: #1C5D95 !important;
 }
 
 /* Hover → darker blue border */
 ::ng-deep .mat-mdc-checkbox:hover .mdc-checkbox__background {
-  // border-color: black !important;
+  border-color: #404040 !important;
 }
 
 /* Disabled → light gray */
 ::ng-deep .mat-mdc-checkbox.mat-mdc-checkbox--disabled .mdc-checkbox__background {
-  background-color: #f5f5f5 !important;
-  // border-color: #ddd !important;
+  background-color: #F3F4F4 !important;
+  border-color: #404040 !important;
 }
 
 

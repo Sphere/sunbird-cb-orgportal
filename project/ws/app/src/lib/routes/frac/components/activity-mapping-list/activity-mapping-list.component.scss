@@ -1,0 +1,161 @@
+.activity-container {
+  width: 100%;                     /* Responsive */
+  height: 556px;
+  background: #fff;
+  border-radius: 16px;
+  outline: 1px solid #E1DFDF;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Blue Top Bar */
+.title-bar {
+  position: absolute;
+  inset: 0 0 auto 0;               /* Top full width */
+  height: 41px;
+  background: #DFEDF9;
+  border-radius: 16px 16px 0 0;
+  padding: 12px 16px;
+  font-size: 14px;
+  font-family: Roboto;
+  font-weight: 500;
+}
+
+/* Scroll Area */
+.scroll-area {
+  position: absolute;
+  top: 56px;
+  left: 16px;
+  right: 16px;                      /* instead of fixed width */
+  bottom: 0;                        /* full height */
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Search Row */
+.search-row .search-box {
+  height: 45px;
+  background: white;
+  border-radius: 6px;
+  padding: 12px;
+  display: flex;
+  justify-content: space-between;
+  box-shadow: 0 0 4px rgba(0,0,0,0.15);
+
+  input {
+    border: none;
+    outline: none;
+    font-size: 14px;
+    width: 100%;                    /* Responsive input */
+  }
+
+  mat-icon {
+    color: #272727;
+  }
+}
+
+/* Activity List */
+.activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow-y: auto;
+}
+
+.activity-item {
+  cursor: pointer;
+}
+
+.activity-box {
+  height: 45px;
+  padding: 12px;
+  background: white;
+  border-radius: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 0 4px rgba(0,0,0,0.15);
+
+  .code {
+    font-size: 14px;
+    min-width: 40px;               /* Keep design but flexible */
+  }
+
+  .title {
+    flex: 1;
+    font-size: 14px;
+    padding-right: 8px;            /* avoid overlap with arrow */
+  }
+
+  .arrow {
+    font-size: 20px;
+  }
+}
+
+/* Expanded Block */
+.expanded-card {
+  background: #F3F8FD;
+  border-radius: 16px;
+  padding: 24px;
+  margin-top: 8px;
+  border: 1px solid #1C5C95;
+  box-shadow: 0 0 4px rgba(0,0,0,0.25);
+
+  .header-row {
+    display: flex;
+    gap: 16px;
+
+    .exp-code {
+      font-size: 20px;
+      font-weight: 500;
+      min-width: 40px;
+    }
+
+    .exp-title {
+      font-size: 14px;
+      flex: 1;
+      color: black;
+    }
+  }
+
+  .competency-row {
+    margin-top: 12px;
+    display: grid;
+    grid-template-columns: 1fr 80px;    /* Responsive left column */
+    gap: 8px;
+
+    .rect-lg,
+    .rect-sm {
+      background: #E3EFFA;
+      border-radius: 8px;
+    }
+
+    .label,
+    .level {
+      padding: 10px;
+      font-size: 14px;
+      color: #1C5D95;
+    }
+  }
+}
+
+.title-header {
+  color: black;
+  font-size: 20px;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 400;
+  // padding: 12px;
+  word-wrap: break-word;
+}
+
+.activity-mapping-list {
+  min-height: 600px;
+  height: 100%;
+}
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  padding: 14px;
+  align-items: flex-end;
+}

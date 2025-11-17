@@ -66,32 +66,7 @@
       </button>
     </div>
   </div>
-  <!-- Dropdown -->
-  <!-- <mat-form-field appearance="outline" class="language-dropdown" *ngIf="config.dropdown">
-    <mat-label>{{ config.dropdown.label }}</mat-label>
-    <mat-select [(value)]="selectedLanguage">
-      <mat-option *ngFor="let option of config.dropdown.options" [value]="option">
-        {{ option }}
-      </mat-option>
-    </mat-select>
-  </mat-form-field> -->
-  <!-- Custom Figma-style dropdown -->
-  <!-- <div class="custom-dropdown" *ngIf="config.dropdown">
-    <label class="dropdown-label">{{ config.dropdown.label }}</label>
 
-    <div class="dropdown-wrapper" (click)="toggleDropdown()">
-      <div class="dropdown-selected">
-        {{ selectedLanguage || 'Language' }}
-      </div>
-      <mat-icon class="dropdown-icon" [class.open]="isDropdownOpen">expand_more</mat-icon>
-    </div>
-
-    <div class="dropdown-options" *ngIf="isDropdownOpen">
-      <div class="dropdown-option" *ngFor="let option of config.dropdown.options" (click)="selectLanguage(option)">
-        {{ option }}
-      </div>
-    </div>
-  </div> -->
 
   <div class="custom-dropdown" *ngIf="config.dropdown" #dropdownContainer>
     <label class="dropdown-label">{{ config.dropdown.label }}</label>

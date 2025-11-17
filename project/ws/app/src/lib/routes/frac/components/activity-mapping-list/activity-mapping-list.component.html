@@ -1,0 +1,52 @@
+<div class="activity-mapping-list">
+  <div class="toolbar">
+    <div class="title-header">List of Activities</div>
+  </div>
+  <div class="activity-container">
+
+    <div class="title-bar">Activities</div>
+
+    <div class="scroll-area">
+
+      <div class="search-row">
+        <div class="search-box">
+          <input placeholder="Search Activity" [(ngModel)]="searchTerm" (input)="onSearchChange()" />
+          <mat-icon>search</mat-icon>
+        </div>
+      </div>
+
+      <div class="activity-list">
+
+        <div class="activity-item" *ngFor="let a of filteredActivities" (click)="expand(a)">
+          <div class="activity-box">
+            <div class="code">{{ a.code }}</div>
+            <div class="title">{{ a.title }}</div>
+            <mat-icon class="arrow">expand_more</mat-icon>
+          </div>
+
+          <div class="expanded-card" *ngIf="expanded === a">
+
+            <div class="header-row">
+              <div class="exp-code">{{ a.code }}</div>
+              <div class="exp-title">{{ a.title }}</div>
+            </div>
+
+            <div class="competency-row" *ngFor="let c of a.competencyDetails">
+              <div class="rect-lg">
+                <div class="label">{{ c.label }}</div>
+              </div>
+              <div class="rect-sm">
+                <div class="level">{{ c.level }}</div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

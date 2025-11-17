@@ -49,6 +49,10 @@ import { MatSelectModule } from '@angular/material/select'
 import { MatCheckboxModule } from '@angular/material/checkbox'
 import { MatDialogModule } from '@angular/material/dialog'
 import { WordWrapPipe } from './pipes/word-wrap.pipe'
+import { MapActivityCompetenciesComponent } from './pages/activity/map-activity-competencies/map-activity-competencies.component'
+import { ActivityMappingListComponent } from './components/activity-mapping-list/activity-mapping-list.component'
+import { CompetencyMappingTableComponent } from './components/competency-mapping-table/competency-mapping-table.component'
+
 
 @NgModule({
   declarations: [
@@ -79,7 +83,11 @@ import { WordWrapPipe } from './pipes/word-wrap.pipe'
     FracTableComponent,
     FracMapperComponent,
     FracCardComponent,
-    WordWrapPipe
+    WordWrapPipe,
+    MapActivityCompetenciesComponent,
+    ActivityMappingListComponent,
+    CompetencyMappingTableComponent
+
   ],
   imports: [
     CommonModule,

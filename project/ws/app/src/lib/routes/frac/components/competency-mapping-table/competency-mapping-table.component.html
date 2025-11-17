@@ -1,0 +1,61 @@
+<div class="competency-mapping-table">
+
+
+  <div class="toolbar">
+    <div class="title-bar">
+      Available Competencies
+    </div>
+    <div class="button-group">
+
+      <button mat-stroked-button class="app-btn secondary" (click)="onAddCompetency()">
+        Add Competency
+      </button>
+    </div>
+  </div>
+
+
+  <div class="competency-wrapper">
+
+    <div class="horizontal-scroll">
+      <div class="grid-container">
+
+        <!-- HEADER -->
+        <div class="header-bar grid-row">
+          <div class="cell label-cell">{{ headerConfig.codeLabel }}</div>
+
+          <div class="cell level-cell" *ngFor="let lvl of headerConfig.levels">
+            {{ lvl }}
+          </div>
+        </div>
+
+        <!-- SEARCH ROW -->
+        <div class="search-row">
+          <div class="search-box">
+            <input [placeholder]="headerConfig.searchPlaceholder" [(ngModel)]="searchTerm" (input)="onSearchChange()" />
+            <mat-icon>search</mat-icon>
+          </div>
+        </div>
+
+        <!-- TABLE DATA -->
+        <div class="table-area">
+          <div class="grid-row data-row" *ngFor="let c of filteredCompetencies">
+
+            <div class="cell label-cell">
+              <!-- <div class="code">{{ c.code }} - {{ c.label }}</div> -->
+              <div class="text">{{ c.code }} - {{ c.label }}</div>
+            </div>
+
+            <div class="cell checkbox-cell" *ngFor="let lvl of levels">
+              <mat-checkbox class="custom-checkbox" [checked]="isChecked(c.code, lvl)"
+                (change)="checkChange(c.code, lvl, $event.checked)">
+              </mat-checkbox>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>

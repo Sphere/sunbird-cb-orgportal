@@ -4,7 +4,7 @@ import { Observable } from 'rxjs'
 const API_END_POINTS = {
   UPDATE_ENTITY: '/apis/proxies/v8/api/entity/v1/update',
   UPLOAD_ENTITY: '/apis/proxies/v8/api/entity/v1/upload',
-  SEARCH_ENTITY: '/apis/proxies/v8/entity/v1/search',
+  SEARCH_ENTITY: '/apis/proxies/v8/api/entity/v1/search',
 }
 
 @Injectable({ providedIn: 'root' })

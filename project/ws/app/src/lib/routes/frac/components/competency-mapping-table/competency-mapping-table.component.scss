@@ -1,0 +1,232 @@
+/* Main wrapper */
+.competency-wrapper {
+  width: 100%;
+  height: 556px;
+  border-radius: 16px;
+  outline: 1px solid #E1DFDF;
+  background: #fff;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.horizontal-scroll {
+  overflow-x: auto;
+  overflow-y: auto;     /* FIX: allow vertical scroll */
+  width: 100%;
+  height: 100%;
+}
+
+.grid-container {
+  display: flex;
+  flex-direction: column;
+  width: max-content;
+  min-width: 100%;
+  height: 100%;         /* FIX: so table-area can flex properly */
+}
+
+
+/* Fully responsive grid layout */
+.grid-row {
+  display: grid;
+  grid-template-columns:
+    minmax(240px, 360px)     /* label column responsive */
+    repeat(var(--level-count), minmax(60px, 134px));
+  align-items: center;
+}
+
+/* ---- HEADER BAR ---- */
+.header-bar {
+  height: 40px;
+  background: #DFEDF9;
+  padding: 0 24px;
+  border-top-left-radius: 16px;
+  border-top-right-radius: 16px;
+
+  .cell {
+    font-size: 14px;
+    font-weight: 500;
+    text-align: center;
+  }
+
+  .label-cell {
+    text-align: left;
+  }
+}
+
+/* ---- SEARCH ROW ---- */
+.search-row {
+  padding: 16px 24px;
+
+  .search-box {
+    height: 45px;
+    padding: 0 12px;
+    background: #fff;
+    border-radius: 6px;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+
+    input {
+      flex: 1;
+      font-size: 14px;
+      border: none;
+      outline: none;
+    }
+  }
+}
+
+/* ---- TABLE AREA ---- */
+.table-area {
+  flex: 1;
+  border-top: 1px solid #DBDBDB;
+  overflow-y: auto;
+  min-height: 0;         /* crucial for flex scrolling */
+
+  .data-row {
+    padding: 16px 24px;
+    border-bottom: 1px solid #DBDBDB;
+
+    .label-cell {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+
+      .code {
+        font-weight: 600;
+      }
+
+      .text {
+        font-size: 14px;
+        color: #444;
+      }
+    }
+
+    .checkbox-cell {
+      display: flex;
+      justify-content: center;
+    }
+  }
+}
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  padding-bottom: 12px;
+  align-items: flex-end;
+}
+
+.title-bar {
+  color: black;
+  font-size: 20px;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 400;
+  word-wrap: break-word;
+}
+
+.button-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.app-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 50px !important;
+  padding: 8px 32px !important;
+  font-family: Roboto, sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  text-transform: none; // disable uppercase
+  transition: all 0.2s ease-in-out;
+  user-select: none;
+
+  mat-icon {
+    font-size: 18px;
+  }
+
+  &.primary {
+    background-color: #1c5d95;
+    color: #fff;
+    border: none;
+
+    &:hover {
+      background-color: #174e7f;
+    }
+  }
+
+  &.secondary {
+    color: #1c5d95;
+    border: 1px solid #1c5d95 !important;
+    background-color: #fff;
+
+    &:hover {
+      background-color: #e9f3fb;
+    }
+  }
+
+  &.icon {
+    padding: 8px 24px !important;
+
+    &.blue {
+      color: #1c5d95;
+      border: 1px solid #1c5d95 !important;
+
+      &:hover {
+        background-color: #e9f3fb;
+      }
+    }
+
+    &.red {
+      color: #ca0000;
+      border: 1px solid #ca0000 !important;
+
+      &:hover {
+        background-color: #ffe5e5;
+      }
+    }
+  }
+}
+
+.competency-mapping-table {
+  min-height: 600px;
+  height: 100%;
+}
+
+
+
+
+
+/* Base checkbox style (unchecked → white) */
+::ng-deep .mat-mdc-checkbox .mdc-checkbox__background {
+  background-color: white !important; /* Default white */
+  border-color: #404040 !important; /* Blue border */
+  border-radius: 5px !important; /* Rounded corners */
+  transition: all 0.2s ease-in-out;
+}
+
+/* Checked state → blue background, white tick */
+::ng-deep .mat-mdc-checkbox.mat-mdc-checkbox-checked .mdc-checkbox__background {
+  background-color: #1C5D95 !important; /* Blue fill */
+  border-color: #1C5D95 !important;
+}
+
+/* White checkmark inside blue box */
+::ng-deep .mat-mdc-checkbox .mdc-checkbox__checkmark-path {
+  stroke: #F3F4F4 !important;
+  background-color: #1C5D95 !important;
+}
+
+/* Hover → darker blue border */
+::ng-deep .mat-mdc-checkbox:hover .mdc-checkbox__background {
+  border-color: #404040 !important;
+}
+
+/* Disabled → light gray */
+::ng-deep .mat-mdc-checkbox.mat-mdc-checkbox--disabled .mdc-checkbox__background {
+  background-color: #F3F4F4 !important;
+  border-color: #404040 !important;
+}

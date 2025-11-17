@@ -7,6 +7,7 @@ import { FracDashboardComponent } from './pages/frac-dashboard/frac-dashboard.co
 import { CompetencyUploadComponent } from './pages/competency/competency-upload/competency-upload.component'
 import { ActivityUploadComponent } from './pages/activity/activity-upload/activity-upload.component'
 import { RoleUploadComponent } from './pages/role/role-upload/role-upload.component'
+import { MapActivityCompetenciesComponent } from './pages/activity/map-activity-competencies/map-activity-competencies.component'
 
 const routes: Routes = [
   {
@@ -34,6 +35,10 @@ const routes: Routes = [
         path: 'role',
         component: RoleUploadComponent, // ✅ direct component
       },
+      {
+        path: 'map-activity',
+        component: MapActivityCompetenciesComponent
+      }
     ],
   },
 ]
