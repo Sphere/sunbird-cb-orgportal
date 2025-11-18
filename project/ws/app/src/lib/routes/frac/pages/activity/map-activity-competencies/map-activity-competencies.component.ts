@@ -1,285 +1,409 @@
 import { Component, OnInit } from '@angular/core'
-import { Activity } from '../../../models/activity-competency.models'
+import {
+  Activity,
+  ActivityCompetencyDetail,
+  Competency,
+  SelectedMap,
+  SelectedCompetencySummary,
+  CompetencyCheckChangeEvent,
+  SelectedLevelCode
+} from '../../../models/activity-competency.models'
+
 import { transformActivities, transformCompetencies } from '../../../utils/common.util'
-// Load mock JSON without requiring tsconfig changes for resolveJsonModule
-// const mockCompentencyRes: any = require('../../../../../lib/routes/frac/mock-api-response/mockCompentencyRes.json')
 import mockCompentencyRes from '../../../mock-api-response/mockCompentencyRes.json'
 import mockAcitivityRes from '../../../mock-api-response/mockActivityRes.json'
+import { CustomSnackbarService } from '../../../services/custom-snackbar.service'
 
 
+
+interface MappingRequestItem {
+  type: 'ACTIVITY_COMPETENCY_LEVEL'
+  parentId: string
+  childMap: SelectedMap
+  childIds: string[] | null
+}
+
+interface MappingRequestPayload {
+  request: MappingRequestItem[]
+}
+
+interface RuntimeApiResponse<T> {
+  entity?: T
+}
 
 @Component({
   selector: 'ws-app-map-activitiy-competencies',
   templateUrl: './map-activity-competencies.component.html',
-  styleUrls: ['./map-activity-competencies.component.scss']
+  styleUrls: ['./map-activity-competencies.component.scss'],
 })
 export class MapActivityCompetenciesComponent implements OnInit {
-  // activities: Activity[] = [
-  //   {
-  //     code: 'A1',
-  //     title: 'Detect pregnancy and calculate Estimated Delivery Date of PW',
-  //     expanded: true,
-  //     competencies: [
-  //       { code: 'C1', label: 'Pregnancy Identification', levels: 'L1 L2' },
-  //       { code: 'C2', label: 'Birth Planning and Prep...', levels: 'L2, L3' },
-  //       { code: 'C3', label: 'Vaginal examination and...', levels: 'L1, L4, L5' },
-  //       { code: 'C4', label: 'Normal delivery', levels: 'L1-L5' }
-  //     ]
-  //   },
-  //   {
-  //     code: 'A2',
-  //     title: 'Birth Planning and Preparedness',
-  //     expanded: true,
-  //     competencies: [
-  //       { code: 'C1', label: 'Pregnancy Identification', levels: 'L1 L2' },
-  //       { code: 'C2', label: 'Birth Planning and Prep...', levels: 'L2, L3' },
-  //       { code: 'C3', label: 'Vaginal examination and...', levels: 'L1, L4, L5' },
-  //       { code: 'C4', label: 'Normal delivery', levels: 'L1-L5' }
-  //     ]
-  //   }
-  // ];
+  constructor(private snackbar: CustomSnackbarService) { }
+  readonly languages = ['English', 'Hindi', 'Kannada']
+  selectedLanguage = 'English'
+  isOpen = false
+  isEditing = true
 
-  // competencies = [
-  //   { code: 'C1', label: 'Pregnancy Identification' },
-  //   { code: 'C2', label: 'Birth Planning & Preparedness' },
-  //   { code: 'C3', label: 'Vaginal Examination' },
-  //   { code: 'C4', label: 'Normal Delivery' },
-  //   { code: 'C10', label: 'Neonatal Resuscitation' }
-  // ];
-  languages = ['English', 'Hindi', 'Kannada'];
-  selectedLanguage = 'English';
-  isOpen = false;
-  isEditing = true;
-  // Optional API response holder (if available at runtime)
-  apiResponse?: any
+  apiResponse?: RuntimeApiResponse<unknown>
 
-  // Levels derived from competencies
   levels: string[] = []
 
-  // Filtered competencies for the table/view
-  filteredCompetencies: any[] = [];
-  compentencyData: any[] = [];
-  competencies: any[] = [];
-  selectedMap: any = {};
-  selectedCompetencies: any[] = [];
-  filteredActivities: any[] = [];
-  expandedActivity: any = null;
-  activities: any[] = [];
-  activitiesData: any[] = [];
-  selectedActivity: any = null;
+  competencyData: Competency[] = []
+  competencies: Competency[] = []
+  filteredCompetencies: Competency[] = []
 
-  ngOnInit() {
-    console.log('Mock entity:', mockCompentencyRes.result?.data?.entity)
+  activitiesData: Activity[] = []
+  activities: any[] = []
+  filteredActivities: Activity[] = []
 
-    const apiEntity = mockCompentencyRes.result?.data?.entity || this.apiResponse?.entity  // from API
-    const transformed = transformCompetencies(apiEntity)
+  selectedMap: SelectedMap = {}
+  selectedCompetencies: SelectedCompetencySummary[] = []
 
-    console.log('Transformed competencies:', transformed)
-    this.compentencyData = transformed
+  expandedActivity: Activity | null = null
+  selectedActivity: (Activity & { competencyDetails?: ActivityCompetencyDetail[] }) | null = null
 
-    // this.competencies = transformed
-    console.log('Transformed competencies set to component property:', this.competencies)
+  updatedActivities: (Activity & { competencyDetails?: ActivityCompetencyDetail[] })[] = []
 
-    // Dynamic level list from API children
-    // this.levels = transformed[0]?.levels.map((l: any) => l.level) || []
-    // console.log('Levels:', this.levels)
-
-    // Pass to table component
-    // this.filteredCompetencies = [...this.competencies]
-    // console.log('Filtered competencies initialized:', this.filteredCompetencies)
-    this.getActivities()
+  ngOnInit(): void {
+    this.loadActivities()
+    this.loadCompetencies()
   }
 
-  getActivities() {
-    const apiEntity = mockAcitivityRes.result?.data?.entity || []
+  // ---------------------------------------------------------------------------
+  // Load Competencies
+  // ---------------------------------------------------------------------------
 
+  private loadCompetencies(): void {
+    try {
+      const mockEnvelope = mockCompentencyRes
+      const apiEntity = mockEnvelope.result?.data?.entity ?? this.apiResponse?.entity
 
-    this.activitiesData = transformActivities(apiEntity)
-    console.log('Transformed activities set to component property:', this.activitiesData)
-    // this.activities = [...this.activitiesData];
-    // this.filteredActivities = [...this.activities]
-  }
-
-  expand(activity: Activity) {
-    this.expandedActivity = this.expandedActivity === activity ? null : activity
-  }
-
-  onCheck({ code, level, checked }: any) {
-    if (!this.selectedMap[code]) {
-      this.selectedMap[code] = []
-    }
-
-    if (checked) {
-      // avoid duplicates
-      if (!this.selectedMap[code].includes(level)) {
-        this.selectedMap[code].push(level)
+      if (!apiEntity) {
+        console.warn('No competency data available')
+        return
       }
-    } else {
-      this.selectedMap[code] = this.selectedMap[code].filter((l: string) => l !== level)
+
+      const transformed = transformCompetencies(apiEntity)
+      this.competencyData = transformed
+      this.filteredCompetencies = [...transformed]
+
+      this.levels = this.extractLevels(transformed)
+    } catch (err) {
+      console.error('Failed to load competencies', err)
+      this.competencyData = []
+      this.filteredCompetencies = []
+      this.levels = []
     }
-
-    console.log('Updated mapping (parent):', this.selectedMap)
-
-    // ⬅️ Build the extra competencies summary object
-    this.transformSelCompetencies()
   }
 
-  toggleDropdown() {
+  private extractLevels(competencies: Competency[]): string[] {
+    if (!competencies.length || !competencies[0].levels) return []
+    return competencies[0].levels.map(l => l.level)
+  }
+
+  // ---------------------------------------------------------------------------
+  // Load Activities
+  // ---------------------------------------------------------------------------
+
+  private loadActivities(): void {
+    try {
+      const mockEnvelope = mockAcitivityRes
+
+      const apiEntity = mockEnvelope.result?.data?.entity
+
+      if (!apiEntity) {
+        console.warn('No activities data available')
+        return
+      }
+
+      const transformed = transformActivities(apiEntity)
+      this.activitiesData = transformed
+      this.activities = [...transformed]
+      this.filteredActivities = [...transformed]
+    } catch (err) {
+      console.error('Failed to load activities', err)
+      this.activitiesData = []
+      this.activities = []
+      this.filteredActivities = []
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Language Dropdown
+  // ---------------------------------------------------------------------------
+
+  toggleDropdown(): void {
     this.isOpen = !this.isOpen
   }
 
-  selectLanguage(lang: string, event: MouseEvent) {
+  selectLanguage(lang: string, event: MouseEvent): void {
     event.stopPropagation()
+    if (!this.languages.includes(lang)) return
     this.selectedLanguage = lang
     this.isOpen = false
   }
-  onSaveClicked() {
-    const payload = {
-      childMap: this.selectedMap,
-      competencies: this.selectedCompetencies,
-    }
 
-    console.log('Final payload to save:', payload)
-    // call API here with payload
+  // ---------------------------------------------------------------------------
+  // Activity Selection
+  // ---------------------------------------------------------------------------
+
+  expand(activity: Activity): void {
+    this.expandedActivity = this.expandedActivity === activity ? null : activity
   }
 
+  onActivitySelected(activity: Activity): void {
+    if (!activity.code) return
 
-  onAddCompetency() {
-    console.log('Add Competency clicked.')
-  }
-  onCompetencySearch(searchkey: string) {
-    console.log('Search term:-parent', searchkey)
-    const searchText = searchkey.toLowerCase()
+    const typed = activity as Activity & { competencyDetails?: ActivityCompetencyDetail[] }
+    this.selectedActivity = typed
 
-    this.filteredCompetencies = this.compentencyData.filter(c =>
-      c.code.toLowerCase().includes(searchText) ||
-      c.label.toLowerCase().includes(searchText)
-    )
+    this.restoreSelectedMapFromActivity(typed)
 
-    this.competencies = this.filteredCompetencies
-
-    this.levels = this.filteredCompetencies[0]?.levels.map((l: any) => l.level) || []
-
+    this.competencies = [...this.competencyData]
+    this.levels = this.extractLevels(this.competencyData)
   }
 
-  transformSelCompetencies() {
-    this.selectedCompetencies = Object.keys(this.selectedMap).map(code => {
-      // Find competency meta to get label
-      const comp = this.compentencyData.find(c => c.code === code)
-
-      // Extract level part from levelCode: "C5013_L3" -> "L3"
-      const levelsArray = this.selectedMap[code]
-        .map((lv: string) => lv.split('_')[1]) // ["L1","L3","L5"]
-        .sort((a: any, b: any) => Number(a.substring(1)) - Number(b.substring(1))) // sort by number
-
-      let levelsString = ''
-
-      // If L1-L5 full range, compress to "L1-L5"
-      if (this.hasFullRange(levelsArray)) {
-        levelsString = `${levelsArray[0]}-${levelsArray[levelsArray.length - 1]}`
-      } else {
-        levelsString = levelsArray.join(',')
-      }
-
-      return {
-        code,
-        label: comp?.label || '',
-        levels: levelsString,
-      }
-    })
-
-    console.log('Selected competencies summary:', this.selectedCompetencies)
-  }
-
-  hasFullRange(levels: string[]): boolean {
-    const expected = ['L1', 'L2', 'L3', 'L4', 'L5']
-    return (
-      levels.length === expected.length &&
-      expected.every((lvl, index) => levels[index] === lvl)
-    )
-  }
-
-
-
-  onActivitySelected(activity: any) {
-    this.selectedActivity = activity
-    console.log("Parent received selected activity:", activity)
-  }
-  onActivitySearch(keyword: string) {
-    const text = keyword.toLowerCase()
-
-    this.filteredActivities = this.activitiesData.filter(a =>
-      a.code.toLowerCase().includes(text) ||
-      a.title.toLowerCase().includes(text)
-    )
-    this.activities = this.filteredActivities
-  }
-  // onAddCompetencyToActivity() {
-  //   console.log('Add Competency to Activity clicked.')
-  //   const selectedActivity: any = this.selectedActivity
-  //   if (!selectedActivity) {
-  //     console.warn("No activity selected")
-  //     return
-  //   }
-
-  //   if (!selectedActivity.competencyDetails) {
-  //     selectedActivity.competencyDetails = []
-  //   }
-
-  //   // Merge competencies into activity
-  //   this.selectedCompetencies.forEach(comp => {
-  //     const alreadyExists = selectedActivity.competencyDetails
-  //       .some((c: any) => c.code === comp.code)
-
-  //     if (!alreadyExists) {
-  //       selectedActivity.competencyDetails.push(comp)
-  //     }
-  //   })
-  //   this.activities = [...selectedActivity]
-  //   console.log("Updated Activity:", selectedActivity)
-  // }
-
-
-  onAddCompetencyToActivity(selectedCompetencies: any[]) {
-    console.log('selectedCompetencies==', selectedCompetencies)
-    if (!this.selectedActivity) {
-      console.warn("No activity selected")
+  onActivitySearch(keyword: string): void {
+    const value = keyword.trim().toLowerCase()
+    if (!value) {
+      this.filteredActivities = [...this.activitiesData]
+      this.activities = [...this.activitiesData]
       return
     }
 
-    if (!this.selectedActivity.competencyDetails) {
-      this.selectedActivity.competencyDetails = []
-    }
-
-    // STEP 1: Rebuild the merged selected competencies
-    this.transformSelCompetencies() // updates this.selectedCompetencies
-
-    // STEP 2: Merge each competency into selectedActivity
-    this.selectedCompetencies.forEach(newComp => {
-      const existing = this.selectedActivity.competencyDetails
-        .find((c: any) => c.code === newComp.code)
-
-      if (existing) {
-        // Update existing entry (levels may change)
-        existing.levels = newComp.levels
-      } else {
-        // Add brand new competency
-        this.selectedActivity.competencyDetails.push({
-          code: newComp.code,
-          label: newComp.label,
-          levels: newComp.levels
-        })
-      }
-    })
-
-    console.log("Updated Activity:", this.selectedActivity)
-
-    // STEP 3: UPDATE the activities list so UI refreshes correctly
-    this.activities = this.activities.map(a =>
-      a.code === this.selectedActivity.code ? { ...this.selectedActivity } : a
+    this.filteredActivities = this.activitiesData.filter(
+      a =>
+        a.code.toLowerCase().includes(value) ||
+        a.title.toLowerCase().includes(value),
     )
 
-    console.log("Activities list updated:", this.activities)
+    this.activities = [...this.filteredActivities]
   }
 
+  private restoreSelectedMapFromActivity(activity: Activity & { competencyDetails?: ActivityCompetencyDetail[] }): void {
+    this.selectedMap = {}
+
+    const details = activity.competencyDetails
+    if (!details?.length) return
+
+    for (const comp of details) {
+      const { code, levels } = comp
+      if (!code || !levels) continue
+
+      this.selectedMap[code] = []
+
+      if (levels.includes('-')) {
+        const [start, end] = levels.split('-')
+        const s = Number(start.replace('L', ''))
+        const e = Number(end.replace('L', ''))
+        for (let i = s; i <= e; i++) this.selectedMap[code].push(`${code}_L${i}`)
+      } else {
+        levels
+          .split(',')
+          .map(l => l.trim())
+          .forEach(l => this.selectedMap[code].push(`${code}_${l}`))
+      }
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Competency Table Events
+  // ---------------------------------------------------------------------------
+
+  onCompetencySearch(keyword: string): void {
+    const value = keyword.trim().toLowerCase()
+
+    if (!value) {
+      this.filteredCompetencies = [...this.competencyData]
+      this.competencies = [...this.competencyData]
+      this.levels = this.extractLevels(this.competencyData)
+      return
+    }
+
+    this.filteredCompetencies = this.competencyData.filter(
+      c =>
+        c.code.toLowerCase().includes(value) ||
+        c.label.toLowerCase().includes(value),
+    )
+
+    this.competencies = [...this.filteredCompetencies]
+    this.levels = this.extractLevels(this.filteredCompetencies)
+  }
+
+  onCheck(event: CompetencyCheckChangeEvent): void {
+    const { code, level, checked } = event
+
+    if (!this.selectedMap[code]) this.selectedMap[code] = []
+
+    if (checked) {
+      if (!this.selectedMap[code].includes(level)) this.selectedMap[code].push(level)
+    } else {
+      this.selectedMap[code] = this.selectedMap[code].filter(l => l !== level)
+      if (!this.selectedMap[code].length) delete this.selectedMap[code]
+    }
+
+    this.transformSelectedCompetencies()
+  }
+
+  // ---------------------------------------------------------------------------
+  // Selected Competency Summary
+  // ---------------------------------------------------------------------------
+
+  private transformSelectedCompetencies(): void {
+    const result: SelectedCompetencySummary[] = []
+
+    for (const code of Object.keys(this.selectedMap)) {
+      const raw = this.selectedMap[code]
+      if (!raw?.length) continue
+
+      const meta = this.competencyData.find(c => c.code === code)
+      const sorted = this.sortLevels(raw)
+
+      const summary: SelectedCompetencySummary = {
+        code,
+        label: meta?.label ?? '',
+        levels: this.buildLevelString(sorted),
+      }
+
+      result.push(summary)
+    }
+
+    this.selectedCompetencies = result
+  }
+
+  private sortLevels(raw: SelectedLevelCode[]): string[] {
+    return raw
+      .map(r => r.split('_')[1])
+      .filter(Boolean)
+      .sort((a, b) => Number(a.slice(1)) - Number(b.slice(1)))
+  }
+
+  private buildLevelString(levels: string[]): string {
+    if (this.isFullRange(levels)) return `${levels[0]}-${levels[levels.length - 1]}`
+    return levels.join(',')
+  }
+
+  private isFullRange(levels: string[]): boolean {
+    const expected = ['L1', 'L2', 'L3', 'L4', 'L5']
+    return levels.length === 5 && levels.every((l, i) => l === expected[i])
+  }
+
+  // ---------------------------------------------------------------------------
+  // Add Competencies to Activity
+  // ---------------------------------------------------------------------------
+
+  onAddCompetencyToActivity($event: Event): void {
+    console.log('Add competency event:', $event)
+    if (!this.selectedActivity) {
+      this.snackbar.warning("Please select an activity first !!")
+      return
+    }
+    if (!this.selectedActivity.competencyDetails)
+      this.selectedActivity.competencyDetails = []
+
+    this.transformSelectedCompetencies()
+    const hasSelectedLevels =
+      Object.values(this.selectedMap).some((levels: any) => levels.length > 0)
+    const activityAlreadyHadCompetencies =
+      this.selectedActivity.competencyDetails.length > 0
+
+    if (!hasSelectedLevels && !activityAlreadyHadCompetencies) {
+      this.snackbar.warning("Please select at least one competency level to map !!")
+      return
+    }
+
+    this.removeDeselected()
+    this.updateOrInsertSelected()
+    this.refreshActivitiesState()
+  }
+
+  private removeDeselected(): void {
+    if (!this.selectedActivity?.competencyDetails) return
+
+    this.selectedActivity.competencyDetails =
+      this.selectedActivity.competencyDetails.filter(detail =>
+        this.selectedCompetencies.some(s => s.code === detail.code),
+      )
+  }
+
+  private updateOrInsertSelected(): void {
+    if (!this.selectedActivity) return
+
+    for (const summary of this.selectedCompetencies) {
+      const existing = this.selectedActivity.competencyDetails!.find(
+        c => c.code === summary.code,
+      )
+
+      if (existing) existing.levels = summary.levels
+      else
+        this.selectedActivity.competencyDetails!.push({
+          code: summary.code,
+          label: summary.label,
+          levels: summary.levels,
+        })
+    }
+  }
+
+  private refreshActivitiesState(): void {
+    if (!this.selectedActivity) return
+
+    this.activities = this.activities.map(a =>
+      a.code === this.selectedActivity!.code ? { ...this.selectedActivity } : a,
+    )
+
+    this.updatedActivities = this.activities
+      .filter((a): a is Activity & { competencyDetails: ActivityCompetencyDetail[] } =>
+        !!(a as any).competencyDetails?.length,
+      )
+      .map(a => a as Activity & { competencyDetails: ActivityCompetencyDetail[] })
+  }
+
+  // ---------------------------------------------------------------------------
+  // Save
+  // ---------------------------------------------------------------------------
+
+  onSaveClicked(): void {
+    const payload = this.buildPayload()
+
+    if (!payload.request.length) {
+      console.warn('Nothing to save')
+      return
+    }
+
+    console.log('Payload:', payload)
+  }
+
+  private buildPayload(): MappingRequestPayload {
+    return {
+      request: this.updatedActivities.map(a => ({
+        type: 'ACTIVITY_COMPETENCY_LEVEL',
+        parentId: a.code,
+        childMap: this.buildChildMap(a),
+        childIds: null,
+      })),
+    }
+  }
+
+  private buildChildMap(activity: Activity & { competencyDetails?: ActivityCompetencyDetail[] }): SelectedMap {
+    const map: SelectedMap = {}
+
+    for (const detail of activity.competencyDetails ?? []) {
+      const { code, levels } = detail
+      if (!code || !levels) continue
+
+      map[code] = []
+
+      if (levels.includes('-')) {
+        const [s, e] = levels.split('-')
+        for (let i = Number(s.replace('L', '')); i <= Number(e.replace('L', '')); i++)
+          map[code].push(`${code}_L${i}`)
+      } else {
+        levels
+          .split(',')
+          .map(l => l.trim())
+          .forEach(l => map[code].push(`${code}_L${l}`))
+      }
+    }
+
+    return map
+  }
 }

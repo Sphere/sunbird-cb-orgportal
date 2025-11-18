@@ -1,6 +1,6 @@
 <div class="competency-mapping-table">
 
-  <!-- Toolbar with title and action button -->
+  <!-- Header -->
   <div class="toolbar">
     <div class="title-bar">Available Competencies</div>
 
@@ -16,7 +16,7 @@
     <div class="horizontal-scroll">
       <div class="grid-container">
 
-        <!-- Header row -->
+        <!-- Header Columns -->
         <div class="header-bar grid-row">
           <div class="cell label-cell">{{ headerConfig.codeLabel }}</div>
 
@@ -25,7 +25,7 @@
           </div>
         </div>
 
-        <!-- Search row -->
+        <!-- Search bar -->
         <div class="search-row">
           <div class="search-box">
             <input [placeholder]="headerConfig.searchPlaceholder" [(ngModel)]="searchTerm" (input)="onSearchChange()" />
@@ -33,16 +33,16 @@
           </div>
         </div>
 
-        <!-- Table records -->
+        <!-- Data Rows -->
         <div class="table-area">
           <div class="grid-row data-row" *ngFor="let c of filteredCompetencies">
 
-            <!-- Competency label column -->
+            <!-- Code + Label -->
             <div class="cell label-cell">
               <div class="text">{{ c.code }} - {{ c.label }}</div>
             </div>
 
-            <!-- Level checkboxes -->
+            <!-- Dynamic Level Checkboxes -->
             <div class="cell checkbox-cell" *ngFor="let lvl of c.levels">
               <mat-checkbox [checked]="isChecked(c.code, lvl.code)"
                 (change)="checkChange(c.code, lvl.code, $event.checked)">
@@ -51,10 +51,12 @@
 
           </div>
         </div>
-        <!-- No data message -->
+
+        <!-- No Data -->
         <div *ngIf="filteredCompetencies.length === 0" class="no-data">
           Use the search bar to find the competency to map.
         </div>
+
       </div>
     </div>
 

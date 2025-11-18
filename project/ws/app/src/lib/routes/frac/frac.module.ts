@@ -52,6 +52,9 @@ import { WordWrapPipe } from './pipes/word-wrap.pipe'
 import { MapActivityCompetenciesComponent } from './pages/activity/map-activity-competencies/map-activity-competencies.component'
 import { ActivityMappingListComponent } from './components/activity-mapping-list/activity-mapping-list.component'
 import { CompetencyMappingTableComponent } from './components/competency-mapping-table/competency-mapping-table.component'
+import { MatSnackBarModule } from '@angular/material/snack-bar'
+import { CustomSnackbarService } from './services/custom-snackbar.service'
+import { CustomSnackbarComponent } from './components/custom-snackbar/custom-snackbar.component'
 
 
 @NgModule({
@@ -86,7 +89,8 @@ import { CompetencyMappingTableComponent } from './components/competency-mapping
     WordWrapPipe,
     MapActivityCompetenciesComponent,
     ActivityMappingListComponent,
-    CompetencyMappingTableComponent
+    CompetencyMappingTableComponent,
+    CustomSnackbarComponent
 
   ],
   imports: [
@@ -109,10 +113,14 @@ import { CompetencyMappingTableComponent } from './components/competency-mapping
     MatSelectModule,
     MatCheckboxModule,
     MatDialogModule,
+    MatSnackBarModule
 
   ],
   exports: [
     WordWrapPipe,
   ],
+  providers: [
+    CustomSnackbarService
+  ]
 })
 export class FracModule { }

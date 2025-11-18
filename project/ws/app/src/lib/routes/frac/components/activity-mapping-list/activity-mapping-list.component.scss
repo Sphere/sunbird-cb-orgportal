@@ -1,9 +1,12 @@
+/* Main container wrapper */
 .activity-mapping-list {
   min-height: 600px;
   height: 100%;
 }
 
-/* Toolbar section */
+/* ---------------------------
+   Toolbar
+----------------------------*/
 .toolbar {
   display: flex;
   justify-content: space-between;
@@ -12,14 +15,15 @@
 }
 
 .title-header {
-  color: black;
   font-size: 20px;
   font-family: 'Roboto', sans-serif;
   font-weight: 400;
-  word-wrap: break-word;
+  color: black;
 }
 
-/* Main container */
+/* ---------------------------
+   Main content container
+----------------------------*/
 .activity-container {
   width: 100%;
   height: 556px;
@@ -30,19 +34,20 @@
   overflow: hidden;
 }
 
-/* Blue top bar */
+/* Blue bar at the top */
 .title-bar {
   position: absolute;
-  inset: 0 0 auto 0;
+  top: 0;
+  width: 100%;
   height: 41px;
+  padding: 12px 16px;
   background: #DFEDF9;
   border-radius: 16px 16px 0 0;
-  padding: 12px 16px;
   font-size: 14px;
   font-weight: 500;
 }
 
-/* Scrollable area */
+/* Scrollable content area */
 .scroll-area {
   position: absolute;
   top: 56px;
@@ -54,22 +59,23 @@
   gap: 16px;
 }
 
-/* Search bar styling */
+/* ---------------------------
+   Search bar styling
+----------------------------*/
 .search-row .search-box {
   height: 45px;
+  display: flex;
+  align-items: center;
   background: white;
   border-radius: 6px;
   padding: 12px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   box-shadow: 0 0 4px rgba(0,0,0,0.15);
 
   input {
+    flex: 1;
     border: none;
     outline: none;
     font-size: 14px;
-    width: 100%;
   }
 
   mat-icon {
@@ -77,12 +83,13 @@
   }
 }
 
-/* Activity list item */
+/* ---------------------------
+   Activity list item
+----------------------------*/
 .activity-item {
   cursor: pointer;
 }
 
-/* Expanded activity card */
 .expanded-card {
   background: #F3F8FD;
   border-radius: 16px;
@@ -90,57 +97,68 @@
   margin-top: 8px;
   border: 1px solid #1C5C95;
   box-shadow: 0 0 4px rgba(0,0,0,0.25);
+}
 
-  /* Header row inside expanded card */
-  .header-row {
-    display: flex;
-    gap: 16px;
+/* Header row inside expanded card */
+.header-row {
+  display: flex;
+  gap: 16px;
 
-    .exp-code {
-      font-size: 20px;
-      font-weight: 500;
-    }
-
-    .exp-title {
-      flex: 1;
-      font-size: 14px;
-      color: black;
-    }
+  .exp-code {
+    font-size: 20px;
+    font-weight: 500;
   }
 
-  /* Competency rows */
-  .competency-row {
-    margin-top: 12px;
-    display: grid;
-    grid-template-columns: 1fr 80px;
-    gap: 8px;
-
-    .rect-lg,
-    .rect-sm {
-      background: #E3EFFA;
-      border-radius: 8px;
-    }
-
-    .label,
-    .level {
-      padding: 10px;
-      font-size: 14px;
-      color: #1C5D95;
-    }
+  .exp-title {
+    flex: 1;
+    font-size: 14px;
+    color: black;
   }
 }
 
+/* ---------------------------
+   Competency rows
+----------------------------*/
+.competency-section {
+  margin-top: 12px;
+}
+
+.competency-row {
+  display: grid;
+  grid-template-columns: 1fr 80px;
+  gap: 8px;
+  margin-bottom: 12px;
+
+  .rect-lg,
+  .rect-sm {
+    background: #E3EFFA;
+    border-radius: 8px;
+  }
+
+  .label,
+  .level {
+    padding: 10px;
+    font-size: 14px;
+    color: #1C5D95;
+    word-break: break-word;
+  }
+}
+
+/* ---------------------------
+   No data message
+----------------------------*/
 .no-data {
+  height: 85%;
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 85%;
-  text-align: center;
-  font-size: 14px;
   color: #666;
+  font-size: 14px;
+  text-align: center;
 }
+
+/* Highlight selected activity */
 .selected {
   background: #e9f3fb;
   border-radius: 8px;
-  // border: 1px solid #1c5d95;
 }
