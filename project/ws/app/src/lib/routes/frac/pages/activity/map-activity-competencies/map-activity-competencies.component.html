@@ -49,8 +49,8 @@
     </div>
 
     <div class="competency-panel">
-      <app-competency-mapping-table [competencies]="competencies" [selectedMap]="selectedMap"
-        (checked)="onCheck($event)" (searchChange)="onCompetencySearch($event)"
+      <app-competency-mapping-table [competencies]="competencies" [selectedActivity]="selectedActivity"
+        [selectedMap]="selectedMap" (checked)="onCheck($event)" (searchChange)="onCompetencySearch($event)"
         (addCompetency)="onAddCompetencyToActivity($event)">
       </app-competency-mapping-table>
     </div>

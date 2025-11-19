@@ -14,9 +14,11 @@
 
       <!-- Search bar -->
       <div class="search-row">
-        <div class="search-box">
-          <input placeholder="Search Activity" [(ngModel)]="searchTerm" (input)="onSearchChange()" />
-          <mat-icon>search</mat-icon>
+        <div class="shadow-wrapper">
+          <div class="search-box">
+            <input placeholder="Search Activity" [(ngModel)]="searchTerm" (input)="onSearchChange()" />
+            <mat-icon>search</mat-icon>
+          </div>
         </div>
       </div>
 

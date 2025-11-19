@@ -4,9 +4,7 @@
   height: 100%;
 }
 
-/* ---------------------------
-   Toolbar
-----------------------------*/
+/* Toolbar */
 .toolbar {
   display: flex;
   justify-content: space-between;
@@ -21,9 +19,7 @@
   color: black;
 }
 
-/* ---------------------------
-   Main content container
-----------------------------*/
+/* Main content */
 .activity-container {
   width: 100%;
   height: 556px;
@@ -31,10 +27,10 @@
   border-radius: 16px;
   outline: 1px solid #E1DFDF;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
 }
 
-/* Blue bar at the top */
+/* Blue bar */
 .title-bar {
   position: absolute;
   top: 0;
@@ -47,45 +43,58 @@
   font-weight: 500;
 }
 
-/* Scrollable content area */
+/* Scroll area */
 .scroll-area {
   position: absolute;
   top: 56px;
   left: 16px;
   right: 16px;
   bottom: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
-/* ---------------------------
-   Search bar styling
-----------------------------*/
-.search-row .search-box {
+/* Search wrapper */
+.search-row {
+  padding-right: 4px; /* avoids right clipping */
+}
+
+.shadow-wrapper {
+  padding: 4px; /* allows shadow to show */
+  border-radius: 6px;
+}
+
+/* Search box */
+.search-box {
   height: 45px;
   display: flex;
   align-items: center;
   background: white;
   border-radius: 6px;
   padding: 12px;
-  box-shadow: 0 0 4px rgba(0,0,0,0.15);
+
+  outline: 1px solid #E1DFDF;  /* Figma style */
+  box-shadow: 0px 0px 4px rgba(0,0,0,0.15); /* soft shadow */
 
   input {
     flex: 1;
     border: none;
     outline: none;
     font-size: 14px;
+    color: black;
+    font-family: 'Roboto';
   }
 
   mat-icon {
     color: #272727;
+    font-size: 20px;
   }
 }
 
-/* ---------------------------
-   Activity list item
-----------------------------*/
+/* Activity item */
 .activity-item {
   cursor: pointer;
 }
@@ -96,10 +105,10 @@
   padding: 24px;
   margin-top: 8px;
   border: 1px solid #1C5C95;
-  box-shadow: 0 0 4px rgba(0,0,0,0.25);
+  box-shadow: 0px 0px 4px rgba(0,0,0,0.25);
 }
 
-/* Header row inside expanded card */
+/* Header row */
 .header-row {
   display: flex;
   gap: 16px;
@@ -116,9 +125,7 @@
   }
 }
 
-/* ---------------------------
-   Competency rows
-----------------------------*/
+/* Competency rows */
 .competency-section {
   margin-top: 12px;
 }
@@ -141,12 +148,11 @@
     font-size: 14px;
     color: #1C5D95;
     word-break: break-word;
+
   }
 }
 
-/* ---------------------------
-   No data message
-----------------------------*/
+/* Empty state */
 .no-data {
   height: 85%;
   display: flex;
@@ -155,10 +161,10 @@
   color: #666;
   font-size: 14px;
   text-align: center;
-}
+  }
 
-/* Highlight selected activity */
+/* Selected */
 .selected {
-  background: #e9f3fb;
-  border-radius: 8px;
+  background: #e3e8ed;
+  border-radius: 16px;
 }

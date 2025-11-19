@@ -5,7 +5,7 @@
     <div class="title-bar">Available Competencies</div>
 
     <div class="button-group">
-      <button mat-stroked-button class="app-btn secondary" (click)="onAddCompetency()">
+      <button mat-stroked-button class="app-btn secondary" [disabled]="isAddDisabled()" (click)="onAddCompetency()">
         Add Competency
       </button>
     </div>

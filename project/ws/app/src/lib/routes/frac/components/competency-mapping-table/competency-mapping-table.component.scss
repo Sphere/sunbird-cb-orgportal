@@ -47,7 +47,7 @@
 .header-bar {
   height: 40px;
   background: #DFEDF9;
-  padding: 0 24px;
+  padding: 12px 16px;
   border-radius: 16px 16px 0 0;
 
   .cell {
@@ -157,6 +157,13 @@
     &:hover {
       background: #e9f3fb;
     }
+  }
+    &:disabled {
+    background: #fcf9f4 !important;   /* Beige background */
+    border-color: #808080 !important; /* Grey border */
+    color: #808080 !important;        /* Grey text */
+    cursor: not-allowed !important;
+    box-shadow: none !important;
   }
 }
 
