@@ -47,17 +47,35 @@
 .header-bar {
   height: 40px;
   background: #DFEDF9;
-  padding: 12px 16px;
+   padding: 12px 16px;
   border-radius: 16px 16px 0 0;
 
   .cell {
     font-size: 14px;
     font-weight: 500;
     text-align: center;
+    padding: 0 12px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    // border-right: 1px solid #9ab3d0;
   }
 
   .label-cell {
     text-align: left;
+    justify-content: flex-start;
+    padding-left: 12px;
+    // border-right: 1px solid #9ab3d0;
+  }
+
+  .level-cell {
+    text-align: center;
+    justify-content: center;
+  }
+
+  .level-cell:last-child {
+    border-right: none;
   }
 }
 
@@ -65,9 +83,20 @@
    SEARCH BOX
 --------------------------------*/
 .search-row {
-  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  padding: 10px 24px;
+  gap: 0;
+
+  .search-cell {
+    // width: 240px;
+    // border-right: 1px solid #dbdbdb;
+    // height: 45px;
+    // flex-shrink: 0;
+  }
 
   .search-box {
+    flex: 1;
     height: 45px;
     padding: 0 12px;
     background: #fff;
@@ -82,6 +111,10 @@
       border: none;
       outline: none;
     }
+
+    mat-icon {
+      cursor: pointer;
+    }
   }
 }
 
@@ -95,25 +128,39 @@
   border-top: 1px solid #DBDBDB;
 
   .data-row {
-    padding: 12px 24px;
+    padding: 0px 24px;
     border-bottom: 1px solid #DBDBDB;
 
-    .label-cell {
+    .cell {
+      padding: 12px 0px;
+      border-right: 1px solid #dbdbdb;
+      height: 100%;
       display: flex;
-      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .cell:last-child {
+      border-right: none;
+    }
+
+    .label-cell {
+      justify-content: flex-start;
+      // padding-left: 12px;
+      border-right: 1px solid #dbdbdb;
 
       .text {
         font-size: 14px;
-        color: #444;
+        color: #000000;
       }
     }
 
     .checkbox-cell {
-      display: flex;
       justify-content: center;
     }
   }
-}
+  }
+
 
 /* -------------------------------
    TOOLBAR

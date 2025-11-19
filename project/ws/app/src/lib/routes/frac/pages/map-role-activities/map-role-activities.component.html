@@ -6,7 +6,7 @@
   </button>
 
   <button mat-stroked-button class="save-btn" type="button" (click)="onSaveClicked()" [disabled]="!isEditing"
-    aria-label="Save mappings">
+    aria-label="Save role mappings">
     Save
   </button>
 </div>
@@ -17,11 +17,11 @@
       <img src="https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/icons/frac-left-arrow.svg" alt="back"
         class="back-icon" />
     </button>
-    <h2>Map activities</h2>
+    <h2>Map Roles</h2>
   </div>
 
   <div class="sub-header">
-    <span>Link each activity to one or more competency levels.</span>
+    <span>Link each roles to activity</span>
   </div>
 
   <div class="left-tools">
@@ -42,18 +42,25 @@
     </div>
   </div>
 
+  <!-- <div class="section-titles">
+    <div class="section-title">List of Roles</div>
+    <div class="section-title right">Available Activities</div>
+  </div> -->
+
   <div class="content-layout">
-    <div class="activities-panel">
-      <app-activity-mapping-list [activities]="filteredActivities" (searchChange)="onActivitySearch($event)"
-        (activitySelected)="onActivitySelected($event)" (toggle)="expand($event)">
-      </app-activity-mapping-list>
+    <!-- LEFT – ROLES PANEL -->
+    <div class="roles-panel">
+      <app-role-mapping-list [roles]="filteredRoles" (searchChange)="onRoleSearch($event)"
+        (roleSelected)="onRoleSelected($event)" (toggle)="onRoleToggleExpand($event)">
+      </app-role-mapping-list>
     </div>
 
-    <div class="competency-panel">
-      <app-competency-mapping-table [competencies]="competencies" [selectedActivity]="selectedActivity"
-        [selectedMap]="selectedMap" (checked)="onCheck($event)" (searchChange)="onCompetencySearch($event)"
-        (addCompetency)="onAddCompetencyToActivity($event)">
-      </app-competency-mapping-table>
+    <!-- RIGHT – ACTIVITIES PANEL -->
+    <div class="activities-panel">
+      <app-activity-mapping-table [activities]="filteredActivities" [selectedRole]="selectedRole"
+        [selectedActivityMap]="selectedActivityMap" (searchChange)="onActivitySearch($event)"
+        (activityCheckChange)="onActivityCheckChanged($event)" (addActivity)="onAddActivityToRole()">
+      </app-activity-mapping-table>
     </div>
   </div>
 </div>

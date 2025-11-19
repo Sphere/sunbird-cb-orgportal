@@ -69,3 +69,48 @@ export function transformCompetencyForUpdate(originalData: any[], editedRows: an
     return updatedCompetency
   })
 }
+
+
+export function transformCompetencies(apiData: any[]): any[] {
+  return apiData.map(item => ({
+    code: item.code,
+    label: item.name,
+    levels: item.children.map((child: any) => ({
+      level: child.level,
+      code: child.code
+    }))
+  }))
+}
+
+export function transformActivities(entity: any[]) {
+  return entity.map(item => ({
+    code: item.code,
+    title: item.name,
+    competencyDetails: [],
+  }))
+}
+
+// models: Role + RoleActivityDetail
+export interface RoleActivityDetail {
+  code: string
+  label: string
+}
+
+export interface RoleItem {
+  code: string
+  title: string
+  expanded?: boolean
+  activityDetails?: RoleActivityDetail[]
+}
+
+// RAW role entity → UI model
+export function transformRoles(apiEntity: any[]): RoleItem[] {
+  if (!Array.isArray(apiEntity)) return []
+
+  return apiEntity.map(item => ({
+    code: item.additionalProperties?.Code || item.code,
+    title: item.name || '',
+    expanded: false,
+    activityDetails: [], // will be filled by user mapping
+  }))
+}
