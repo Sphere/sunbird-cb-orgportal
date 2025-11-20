@@ -12,68 +12,81 @@ import { MatPaginator } from '@angular/material/paginator'
 import { MatSort } from '@angular/material/sort'
 import { SelectionModel } from '@angular/cdk/collections'
 
-export interface TableColumn {
-  key: string
-  label: string
-  width?: string
+/** Column configuration for Activity table */
+export interface ActivityTableColumn {
+  key: string        // Column data key (e.g., 'code', 'name')
+  label: string      // Column header label
+  width: string      // Fixed column width (e.g., '100px', '300px')
 }
 
+/** Grid line style options: horizontal, vertical, both, or none */
 type GridStyle = 'horizontal' | 'vertical' | 'both' | 'none'
 
 @Component({
-  selector: 'app-frac-table',
-  templateUrl: './frac-table.component.html',
-  styleUrls: ['./frac-table.component.scss'],
+  selector: 'app-upload-activity-list-table',
+  templateUrl: './upload-activity-list-table.component.html',
+  styleUrls: ['./upload-activity-list-table.component.scss'],
 })
-export class FracTableComponent implements OnChanges, AfterViewInit {
-  /** Columns config */
-  @Input() columns: TableColumn[] = []
+export class UploadActivityListTableComponent implements OnChanges, AfterViewInit {
+  // ============= INPUTS =============
 
-  /** Data to display */
+  /** Column configuration with headers and widths */
+  @Input() columns: ActivityTableColumn[] = []
+
+  /** Table data to display */
   @Input() data: any[] = []
 
-  /** Max height for scrollable table */
-  @Input() maxHeight: string = '400px'
-
-  /** Show checkbox column */
+  /** Show/hide checkbox selection column */
   @Input() showCheckbox = true
 
-  /** Enable sorting */
+  /** Enable sorting functionality */
   @Input() enableSorting = true
 
   /** Enable pagination */
-  @Input() enablePagination = true
+  @Input() enablePagination = false
 
-  /** Page size options */
+  /** Pagination page size options */
   @Input() pageSizeOptions: number[] = [5, 10, 20]
 
-  /** Configurable grid line style: horizontal | vertical | both | none */
-  @Input() gridStyle: GridStyle = 'horizontal'
+  /** Grid border style: 'horizontal' | 'vertical' | 'both' | 'none' */
+  @Input() gridStyle: GridStyle = 'both'
 
-  @Input() isEditing = false;
-  @Output() selectionChange = new EventEmitter<any[]>();
+  /** Enable/disable edit mode for selected rows */
+  @Input() isEditing = false
 
-  /** Table data source */
+  // ============= OUTPUTS =============
+
+  /** Emits array of selected rows when selection changes */
+  @Output() selectionChange = new EventEmitter<any[]>()
+
+  // ============= PROPERTIES =============
+
+  /** Material table data source */
   dataSource = new MatTableDataSource<any>([])
 
-  /** Selection model */
+  /** CDK selection model for checkboxes */
   selection = new SelectionModel<any>(true, [])
 
-  /** Column keys */
+  /** Dynamic column keys for table rendering */
   displayedColumns: string[] = []
 
   @ViewChild(MatPaginator) paginator!: MatPaginator
   @ViewChild(MatSort) sort!: MatSort
 
+  // ============= LIFECYCLE HOOKS =============
+
   ngOnChanges(): void {
+    // Update displayed columns based on checkbox visibility
     this.displayedColumns = this.showCheckbox
       ? ['select', ...this.columns.map(c => c.key)]
       : this.columns.map(c => c.key)
 
+    // Update data source
     this.dataSource = new MatTableDataSource(this.data)
   }
 
   ngAfterViewInit() {
+    // Attach paginator and sorter after view initialization
     setTimeout(() => {
       if (this.enablePagination && this.paginator)
         this.dataSource.paginator = this.paginator
@@ -82,34 +95,37 @@ export class FracTableComponent implements OnChanges, AfterViewInit {
     })
   }
 
+  // ============= CHECKBOX HANDLERS =============
 
-  /** Checkbox helpers */
+  /** Check if all rows are selected */
   isAllSelected() {
     const numSelected = this.selection.selected.length
     const numRows = this.dataSource.data.length
     return numSelected === numRows
   }
 
+  /** Toggle all rows selection */
   masterToggle() {
     this.isAllSelected()
       ? this.selection.clear()
       : this.dataSource.data.forEach(row => this.selection.select(row))
   }
 
+  /** Get checkbox aria-label text */
   checkboxLabel(row?: any): string {
     if (!row) return `${this.isAllSelected() ? 'deselect' : 'select'} all`
     return `${this.selection.isSelected(row) ? 'deselect' : 'select'} row`
   }
 
-  /** Optional filter method */
-  applyFilter(value: string) {
-    this.dataSource.filter = value.trim().toLowerCase()
-  }
+  // ============= ROW SELECTION =============
 
+  /** Toggle row selection and emit change event */
   onRowSelect(row: any) {
     this.selection.toggle(row)
     this.selectionChange.emit(this.selection.selected)
   }
+
+  // ============= EMPTY STATE =============
 
   /** Generate empty rows to fill container height (40px per row) */
   getEmptyRows(): any[] {

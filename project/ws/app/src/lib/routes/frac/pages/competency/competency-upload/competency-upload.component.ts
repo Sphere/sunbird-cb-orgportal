@@ -1,5 +1,6 @@
 import { Component } from '@angular/core'
 import { MatDialog } from '@angular/material/dialog'
+import { ActivatedRoute } from '@angular/router'
 import { FracUploadPopupComponent } from '../../../components/frac-upload/frac-upload-popup.component'
 import { UploadPopupConfig } from '../../../models/upload-popup-config.model'
 import { ITableConfig, TableTransformUtil } from '../../../utils/table-transform.util'
@@ -17,12 +18,14 @@ import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators'
 })
 export class CompetencyUploadComponent {
 
-  constructor(private dialog: MatDialog, private fracApiService: FracApiService, private tableTransformUtil: TableTransformUtil) { }
+  constructor(private dialog: MatDialog, private fracApiService: FracApiService, private tableTransformUtil: TableTransformUtil, private activatedRoute: ActivatedRoute) { }
   originalRowData: any[] = [];
   removedData: any[] = [];
   private searchSubject = new Subject<void>();
   private destroy$ = new Subject<void>();
   searchResults: any[] = [];
+  routeMode: string = 'upload'; // 'upload' or 'manage'
+  uploadButtonText: string = 'Upload File';
   // Table configuration
   // tableConfig = {
   //   columns: [
@@ -87,42 +90,110 @@ export class CompetencyUploadComponent {
             "description": "Conducts initial assessment to identify pregnancy, HRP, and estimate gestational age",
             "status": "Active",
             "children": [
-              {
-                "level": "L1",
-                "name": "Understands health of males and females",
-                "description": "Understands male and female reproductive anatomy"
-              },
-              {
-                "level": "L2",
-                "name": "Identifies pregnancy using Nischaya Kit",
-                "description": "Conducts pregnancy test using kit and interprets results"
-              }
+
             ]
           },
-          {
-            "type": "competency",
-            "code": "C401",
-            "name": "Pregnancy Identification",
-            "description": "Conducts initial assessment to identify pregnancy, HRP, and estimate gestational age",
-            "status": "Active",
-            "children": [
-              {
-                "level": "L1",
-                "name": "Understands health of males and females",
-                "description": "Understands male and female reproductive anatomy"
-              },
-              {
-                "level": "L2",
-                "name": "Identifies pregnancy using Nischaya Kit",
-                "description": "Conducts pregnancy test using kit and interprets results"
-              },
-              {
-                "level": "L3",
-                "name": "Identifies pregnancy using Nischaya Kit 3",
-                "description": "Conducts pregnancy test using kit and interprets results 3"
-              }
-            ]
-          }
+          // {
+          //   "type": "competency",
+          //   "code": "C401",
+          //   "name": "Pregnancy Identification",
+          //   "description": "Conducts initial assessment to identify pregnancy, HRP, and estimate gestational age",
+          //   "status": "Active",
+          //   "children": [
+          //     {
+          //       "level": "L1",
+          //       "name": "Understands health of males and females",
+          //       "description": "Understands male and female reproductive anatomy"
+          //     },
+          //     {
+          //       "level": "L2",
+          //       "name": "Identifies pregnancy using Nischaya Kit",
+          //       "description": "Conducts pregnancy test using kit and interprets results"
+          //     },
+          //     {
+          //       "level": "L3",
+          //       "name": "Identifies pregnancy using Nischaya Kit 3",
+          //       "description": "Conducts pregnancy test using kit and interprets results 3"
+          //     },
+          //     {
+          //       "level": "L4",
+          //       "name": "Understands health of males and females",
+          //       "description": "Understands male and female reproductive anatomy"
+          //     },
+          //     {
+          //       "level": "L5",
+          //       "name": "Identifies pregnancy using Nischaya Kit",
+          //       "description": "Conducts pregnancy test using kit and interprets results"
+          //     }
+          //   ]
+          // },
+          // {
+          //   "type": "competency",
+          //   "code": "C401",
+          //   "name": "Pregnancy Identification",
+          //   "description": "Conducts initial assessment to identify pregnancy, HRP, and estimate gestational age",
+          //   "status": "Active",
+          //   "children": [
+          //     {
+          //       "level": "L1",
+          //       "name": "Understands health of males and females",
+          //       "description": "Understands male and female reproductive anatomy"
+          //     },
+          //     {
+          //       "level": "L2",
+          //       "name": "Identifies pregnancy using Nischaya Kit",
+          //       "description": "Conducts pregnancy test using kit and interprets results"
+          //     },
+          //     {
+          //       "level": "L3",
+          //       "name": "Identifies pregnancy using Nischaya Kit 3",
+          //       "description": "Conducts pregnancy test using kit and interprets results 3"
+          //     },
+          //     {
+          //       "level": "L4",
+          //       "name": "Understands health of males and females",
+          //       "description": "Understands male and female reproductive anatomy"
+          //     },
+          //     {
+          //       "level": "L5",
+          //       "name": "Identifies pregnancy using Nischaya Kit",
+          //       "description": "Conducts pregnancy test using kit and interprets results"
+          //     }
+          //   ]
+          // }, {
+          //   "type": "competency",
+          //   "code": "C401",
+          //   "name": "Pregnancy Identification",
+          //   "description": "Conducts initial assessment to identify pregnancy, HRP, and estimate gestational age",
+          //   "status": "Active",
+          //   "children": [
+          //     {
+          //       "level": "L1",
+          //       "name": "Understands health of males and females",
+          //       "description": "Understands male and female reproductive anatomy"
+          //     },
+          //     {
+          //       "level": "L2",
+          //       "name": "Identifies pregnancy using Nischaya Kit",
+          //       "description": "Conducts pregnancy test using kit and interprets results"
+          //     },
+          //     {
+          //       "level": "L3",
+          //       "name": "Identifies pregnancy using Nischaya Kit 3",
+          //       "description": "Conducts pregnancy test using kit and interprets results 3"
+          //     },
+          //     {
+          //       "level": "L4",
+          //       "name": "Understands health of males and females",
+          //       "description": "Understands male and female reproductive anatomy"
+          //     },
+          //     {
+          //       "level": "L5",
+          //       "name": "Identifies pregnancy using Nischaya Kit",
+          //       "description": "Conducts pregnancy test using kit and interprets results"
+          //     }
+          //   ]
+          // }
         ]
       }
     }
@@ -151,10 +222,14 @@ export class CompetencyUploadComponent {
   isOpen = false
   languages = ['English', 'Hindi', 'Kannada', 'Tamil', 'English', 'Hindi', 'Kannada', 'Tamil']
   ngOnInit() {
-    this.tableConfig = this.tableTransformUtil.transformResponseToTableConfig(this.apiResponse)
-    console.log('Transformed Table Config:', this.tableConfig)
-    this.originalRowData = this.apiResponse.result.data.entity
-
+    // Detect route mode from query params and update button text
+    this.activatedRoute.queryParams.subscribe(queryParams => {
+      console.log('Query params received:', queryParams)
+      this.routeMode = queryParams['mode'] || 'upload' // Default to 'upload'
+      console.log('Route mode set to:', this.routeMode)
+      this.updateButtonText()
+      this.loadTableDataBasedOnMode()
+    })
 
     // ✅ Set up reactive debounced search
     this.searchSubject
@@ -164,8 +239,33 @@ export class CompetencyUploadComponent {
         takeUntil(this.destroy$)
       )
       .subscribe(() => this.onSearch())
+  }
 
+  /** Update button text based on route mode */
+  updateButtonText(): void {
+    console.log('updateButtonText called with routeMode:', this.routeMode)
+    if (this.routeMode === 'manage') {
+      this.uploadButtonText = 'Change File'
+    } else {
+      this.uploadButtonText = 'Upload File'
+    }
+    console.log('Button text set to:', this.uploadButtonText)
+  }
 
+  /** Load table data based on route mode */
+  loadTableDataBasedOnMode(): void {
+    if (this.routeMode === 'manage') {
+      // Show existing data in manage mode
+      this.tableConfig = this.tableTransformUtil.transformResponseToTableConfig(this.apiResponse)
+      console.log('Manage mode - Transformed Table Config:', this.tableConfig)
+      this.originalRowData = this.apiResponse.result.data.entity
+    } else {
+      // Show no-data state in upload mode (keep columns, empty data)
+      this.tableConfig = this.tableTransformUtil.transformResponseToTableConfig(this.apiResponse)
+      this.tableConfig.data = [] // Empty data to show no-data-row
+      this.originalRowData = []
+      console.log('Upload mode - Table showing no-data state')
+    }
   }
   /** 🔹 Called when user types */
   onSearchTermChange(): void {
@@ -339,6 +439,14 @@ export class CompetencyUploadComponent {
         console.error('❌ Upload failed:', err)
       },
     })
+  }
+
+  /**
+   * Check if table has data (not in no-data state)
+   * Returns true if table data exists, false if empty
+   */
+  hasTableData(): boolean {
+    return this.tableConfig.data && this.tableConfig.data.length > 0
   }
 
 }

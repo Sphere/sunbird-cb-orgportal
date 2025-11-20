@@ -21,49 +21,37 @@ export interface TableColumn {
 type GridStyle = 'horizontal' | 'vertical' | 'both' | 'none'
 
 @Component({
-  selector: 'app-frac-table',
-  templateUrl: './frac-table.component.html',
-  styleUrls: ['./frac-table.component.scss'],
+  selector: 'app-upload-competency-list-table',
+  templateUrl: './upload-competency-list-table.component.html',
+  styleUrls: ['./upload-competency-list-table.component.scss'],
 })
-export class FracTableComponent implements OnChanges, AfterViewInit {
-  /** Columns config */
+export class UploadCompetencyListTableComponent implements OnChanges, AfterViewInit {
+  // ============= INPUTS =============
+
   @Input() columns: TableColumn[] = []
-
-  /** Data to display */
   @Input() data: any[] = []
-
-  /** Max height for scrollable table */
   @Input() maxHeight: string = '400px'
-
-  /** Show checkbox column */
   @Input() showCheckbox = true
-
-  /** Enable sorting */
   @Input() enableSorting = true
-
-  /** Enable pagination */
   @Input() enablePagination = true
-
-  /** Page size options */
   @Input() pageSizeOptions: number[] = [5, 10, 20]
-
-  /** Configurable grid line style: horizontal | vertical | both | none */
   @Input() gridStyle: GridStyle = 'horizontal'
+  @Input() isEditing = false
 
-  @Input() isEditing = false;
-  @Output() selectionChange = new EventEmitter<any[]>();
+  // ============= OUTPUTS =============
 
-  /** Table data source */
+  @Output() selectionChange = new EventEmitter<any[]>()
+
+  // ============= PROPERTIES =============
+
   dataSource = new MatTableDataSource<any>([])
-
-  /** Selection model */
   selection = new SelectionModel<any>(true, [])
-
-  /** Column keys */
   displayedColumns: string[] = []
 
   @ViewChild(MatPaginator) paginator!: MatPaginator
   @ViewChild(MatSort) sort!: MatSort
+
+  // ============= LIFECYCLE HOOKS =============
 
   ngOnChanges(): void {
     this.displayedColumns = this.showCheckbox
@@ -82,36 +70,44 @@ export class FracTableComponent implements OnChanges, AfterViewInit {
     })
   }
 
+  // ============= CHECKBOX HANDLERS =============
 
-  /** Checkbox helpers */
+  /** Check if all rows are selected */
   isAllSelected() {
     const numSelected = this.selection.selected.length
     const numRows = this.dataSource.data.length
     return numSelected === numRows
   }
 
+  /** Toggle selection for all rows */
   masterToggle() {
     this.isAllSelected()
       ? this.selection.clear()
       : this.dataSource.data.forEach(row => this.selection.select(row))
   }
 
+  /** Get accessible label for checkbox */
   checkboxLabel(row?: any): string {
     if (!row) return `${this.isAllSelected() ? 'deselect' : 'select'} all`
     return `${this.selection.isSelected(row) ? 'deselect' : 'select'} row`
   }
 
-  /** Optional filter method */
-  applyFilter(value: string) {
-    this.dataSource.filter = value.trim().toLowerCase()
-  }
+  // ============= ROW SELECTION =============
 
+  /** Handle individual row selection */
   onRowSelect(row: any) {
     this.selection.toggle(row)
     this.selectionChange.emit(this.selection.selected)
   }
 
-  /** Generate empty rows to fill container height (40px per row) */
+  /** Filter table data by keyword */
+  applyFilter(value: string) {
+    this.dataSource.filter = value.trim().toLowerCase()
+  }
+
+  // ============= EMPTY STATE =============
+
+  /** Generate empty rows to fill container height when no data exists */
   getEmptyRows(): any[] {
     const rowHeight = 40
     const headerHeight = 40

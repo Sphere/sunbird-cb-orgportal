@@ -1,86 +1,7 @@
-// .frac-table-container {
-//   overflow-y: auto;
-//   border-radius: 8px;
-//   border: 1px solid #e0e0e0;
-//   background: #fff;
-//   width: 100%;
-//   display: block;
+// ============= COMPETENCY LIST TABLE CONTAINER =============
+// Main container for the upload competency list table with flex layout
 
-//   table {
-//     width: 100%;
-//     min-width: 600px;
-//     border-spacing: 0;
-//     border-collapse: collapse;
-
-//     th {
-//       background-color: #dfedf9;
-//       font-weight: 600;
-//       text-align: left;
-//       padding: 12px 16px;
-//       font-family: 'Roboto', sans-serif;
-//       font-size: 14px;
-//       position: sticky;
-//       top: 0;
-//       z-index: 2;
-//       white-space: nowrap;
-//     }
-
-//     td {
-//       padding: 12px 16px;
-//       font-family: 'Roboto', sans-serif;
-//       font-size: 14px;
-//       line-height: 20px;
-//       color: #333;
-//       white-space: nowrap;
-//     }
-
-//     tr.data-row:hover {
-//       background: #f9fbff;
-//     }
-//   }
-
-//   /* Grid Line Styles */
-//   &.horizontal table td {
-//     border-top: 1px solid #eee;
-//   }
-
-//   &.vertical table td {
-//     border-right: 1px solid #eee;
-//   }
-
-//   &.both table td {
-//     border-top: 1px solid #eee;
-//     border-right: 1px solid #eee;
-//   }
-
-//   &.both table tr:last-child td {
-//     border-bottom: 1px solid #eee;
-//   }
-
-//   /* Scrollbar */
-//   &::-webkit-scrollbar {
-//     height: 8px;
-//     width: 8px;
-//   }
-//   &::-webkit-scrollbar-thumb {
-//     background: #c7c7c7;
-//     border-radius: 4px;
-//   }
-
-//   @media (max-width: 768px) {
-//     table {
-//       font-size: 13px;
-//       min-width: unset;
-//     }
-
-//     th,
-//     td {
-//       padding: 10px;
-//     }
-//   }
-// }
-
-.frac-table-container {
+.upload-competency-list-table-container {
   width: 100%;
   max-height: 100%;
   overflow-y: auto;
@@ -98,6 +19,7 @@
     border-collapse: collapse;
     min-width: 600px;
 
+    // Base styles for all table headers and cells
     th, td {
       padding: 12px 16px;
       font-size: 14px;
@@ -107,7 +29,7 @@
       border: none;
     }
 
-    // Data column headers and cells - allow text wrapping on whitespace only
+    // Data columns: Support text wrapping on whitespace only
     th:not([style*="width: 50px"]),
     td:not([style*="width: 50px"]) {
       white-space: normal;
@@ -117,7 +39,7 @@
       text-overflow: ellipsis;
     }
 
-    // Checkbox column - center aligned
+    // Checkbox column: Fixed 50px width, center-aligned
     th[style*="width: 50px"],
     td[style*="width: 50px"] {
       text-align: center;
@@ -126,6 +48,7 @@
       line-height: 40px;
     }
 
+    // Header row styling: Blue background with sticky position
     th {
       background-color: #dfedf9;
       font-weight: 600;
@@ -134,13 +57,14 @@
       z-index: 2;
     }
 
-    // Reset default borders
+    // Remove default table borders
     th, td {
       border: none;
     }
   }
 
   // ============= GRID LINE STYLES =============
+  // Configurable grid line display: horizontal, vertical, both, or none
 
   &.horizontal table th,
   &.horizontal table td {
@@ -217,7 +141,8 @@
     }
   }
 }
-
+// ============= PAGINATION STYLING =============
+// Style for Material paginator footer
 
 mat-paginator {
   margin-top: 8px;
@@ -227,6 +152,7 @@ mat-paginator {
 }
 
 // ============= EMPTY STATE: BORDERED ROWS =============
+// Filler table for visual consistency when table is empty or partially filled
 
 .table-filler {
   width: 100%;
@@ -243,6 +169,7 @@ mat-paginator {
     .empty-row {
       height: 40px;
 
+      // Empty cell styling: Gray background to distinguish from data rows
       .empty-cell {
         padding: 12px 16px;
         background-color: #fafafa;
@@ -257,7 +184,7 @@ mat-paginator {
         border: none;
       }
 
-      // Checkbox column empty cell - center aligned
+      // Checkbox column in empty rows: Center-aligned and fixed width
       .empty-cell[style*="width: 50px"] {
         text-align: center;
         padding: 0;
@@ -272,35 +199,37 @@ mat-paginator {
   }
 }
 
-// ============= EMPTY ROW GRID LINE STYLES =============
+// ============= GRID LINE STYLES FOR EMPTY ROWS =============
+// Apply grid lines to empty rows based on selected grid style
 
-.frac-table-container.horizontal .table-filler .empty-table .empty-row .empty-cell {
+.upload-competency-list-table-container.horizontal .table-filler .empty-table .empty-row .empty-cell {
   border-bottom: 1px solid #e0e0e0;
   border-right: none;
 }
 
-.frac-table-container.vertical .table-filler .empty-table .empty-row .empty-cell {
+.upload-competency-list-table-container.vertical .table-filler .empty-table .empty-row .empty-cell {
   border-bottom: none;
   border-right: 1px solid #e0e0e0;
 }
 
-.frac-table-container.both .table-filler .empty-table .empty-row .empty-cell {
+.upload-competency-list-table-container.both .table-filler .empty-table .empty-row .empty-cell {
   border-bottom: 1px solid #e0e0e0;
   border-right: 1px solid #e0e0e0;
 }
 
 // Ensure last column never shows right border for empty rows
-.frac-table-container .table-filler .empty-table .empty-row .empty-cell:last-child {
+.upload-competency-list-table-container .table-filler .empty-table .empty-row .empty-cell:last-child {
   border-right: none !important;
 }
 
-.frac-table-container.none .table-filler .empty-table .empty-row .empty-cell {
+.upload-competency-list-table-container.none .table-filler .empty-table .empty-row .empty-cell {
   border: none;
 }
 
-// ============= CHECKBOX CUSTOM STYLING =============
+// ============= CHECKBOX STYLING =============
+// Customize Material checkbox appearance for the table
 
-/* Base checkbox style (unchecked → white) */
+// Unchecked checkbox: White background with dark border
 ::ng-deep .mat-mdc-checkbox .mdc-checkbox__background {
   background-color: white !important;
   border-color: #404040 !important;
@@ -308,26 +237,25 @@ mat-paginator {
   transition: all 0.2s ease-in-out;
 }
 
-/* Checked state → blue background, white tick */
+// Checked checkbox: Blue background with blue border
 ::ng-deep .mat-mdc-checkbox.mat-mdc-checkbox-checked .mdc-checkbox__background {
   background-color: #1C5D95 !important;
   border-color: #1C5D95 !important;
 }
 
-/* White checkmark inside blue box */
+// Checkmark color: White stroke on blue background
 ::ng-deep .mat-mdc-checkbox .mdc-checkbox__checkmark-path {
   stroke: #F3F4F4 !important;
   background-color: #1C5D95 !important;
 }
 
-/* Hover → darker blue border */
+// Hover state: Darker border for better visual feedback
 ::ng-deep .mat-mdc-checkbox:hover .mdc-checkbox__background {
   border-color: #404040 !important;
 }
 
-/* Disabled → light gray */
+// Disabled state: Light gray background
 ::ng-deep .mat-mdc-checkbox.mat-mdc-checkbox--disabled .mdc-checkbox__background {
   background-color: #F3F4F4 !important;
   border-color: #404040 !important;
 }
-

@@ -36,17 +36,17 @@ export class FracDashboardComponent {
     {
       title: 'Upload Competency',
       description: 'Add new competencies with code, name, description, area, and multilingual support.',
-      actions: [{ label: 'Upload', icon: 'cloud_upload', redirectLink: '/app/frac/competency' }, { label: 'Manage', icon: 'visibility' }],
+      actions: [{ label: 'Upload', icon: 'cloud_upload', redirectLink: '/app/frac/competency?mode=upload' }, { label: 'Manage', icon: 'visibility', redirectLink: '/app/frac/competency?mode=manage' }],
     },
     {
       title: 'Upload Activities',
       description: 'Upload activities that represent tasks to be mapped with competencies and roles.',
-      actions: [{ label: 'Upload', icon: 'file_upload' }, { label: 'Manage', icon: 'sync_alt' }],
+      actions: [{ label: 'Upload', icon: 'file_upload', redirectLink: '/app/frac/activity?mode=upload' }, { label: 'Manage', icon: 'sync_alt', redirectLink: '/app/frac/activity?mode=manage' }],
     },
     {
       title: 'Upload Roles',
       description: 'Add roles that define responsibilities in your organization.',
-      actions: [{ label: 'Upload', icon: 'backup', redirectTo: '/frac/competency' }, { label: 'Manage', icon: 'person_add' }],
+      actions: [{ label: 'Upload', icon: 'backup', redirectLink: '/app/frac/roles?mode=upload' }, { label: 'Manage', icon: 'person_add', redirectLink: '/app/frac/roles?mode=manage' }],
     },
     {
       title: 'Map Activities to Competencies',
@@ -56,7 +56,7 @@ export class FracDashboardComponent {
     {
       title: 'Map Roles to Activities',
       description: 'Assign activities to roles to define what each role is responsible for.',
-      actions: [{ label: 'Map now', icon: 'sync_alt' }],
+      actions: [{ label: 'Map now', redirectLink: '/app/frac/map-role', icon: 'sync_alt' }],
     },
     {
       title: 'Map Roles to Positions',

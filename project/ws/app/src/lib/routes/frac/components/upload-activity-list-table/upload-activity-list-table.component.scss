@@ -1,0 +1,299 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+}
+
+.activity-table-container {
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: auto;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  background: #fff;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+
+  table {
+    width: auto;
+    border-spacing: 0;
+    border-collapse: collapse;
+    min-width: 100%;
+    table-layout: fixed;
+
+    th, td {
+      padding: 8px 12px;
+      font-size: 14px;
+      text-align: left;
+      vertical-align: middle;
+      height: 40px;
+    }
+
+    th {
+      background-color: #dfedf9;
+      font-weight: 600;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    td {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    // Reset default borders
+    th, td {
+      border: none;
+    }
+  }
+
+  // ============= GRID LINE STYLES =============
+  // Apply borders based on gridStyle input
+
+  &.horizontal table th,
+  &.horizontal table td {
+    border-bottom: 1px solid #e0e0e0;
+  }
+
+  &.vertical table th,
+  &.vertical table td {
+    border-right: 1px solid #e0e0e0;
+  }
+
+  &.both table th,
+  &.both table td {
+    border-bottom: 1px solid #e0e0e0;
+    border-right: 1px solid #e0e0e0;
+  }
+
+  &.none table th,
+  &.none table td {
+    border: none;
+  }
+
+  // Last column never shows right border
+  table th:last-child,
+  table td:last-child {
+    border-right: none !important;
+  }
+
+  // ============= CHECKBOX COLUMN =============
+
+  table th:first-child,
+  table td:first-child {
+    width: 5%;
+    padding: 8px;
+    text-align: center;
+  }
+
+  // ============= CODE COLUMN (2nd child) =============
+
+  table th:nth-child(2),
+  table td:nth-child(2) {
+    width: 5%;
+  }
+
+  // ============= NAME COLUMN (3rd child) - Text wrapping =============
+
+  table td:nth-child(3) {
+    white-space: normal !important;
+    word-break: normal;
+    overflow-wrap: break-word !important;
+    word-wrap: break-word !important;
+    height: auto !important;
+    min-height: 40px;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    line-height: 1.5 !important;
+  }
+
+  table th:nth-child(3) {
+    white-space: normal;
+    word-break: normal;
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    line-height: 1.3;
+    min-height: 40px;
+    height: auto;
+  }
+
+  // ============= COLUMN WIDTHS =============
+  // Checkbox: 5%, Code: 5%, Name: 90%
+
+  table th:nth-child(3),
+  table td:nth-child(3) {
+    width: 90%;
+  }
+
+  // ============= CELL CONTENT & EDIT MODE =============
+
+  .cell-content {
+    white-space: inherit;
+    word-break: inherit;
+    overflow-wrap: inherit;
+    line-height: 1.5;
+  }
+
+  // Wrapper for edit input - ensures proper vertical alignment
+  .cell-edit-wrapper {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 32px;
+    padding: 0;
+  }
+
+  .editable-input {
+    width: calc(100% - 16px);
+    padding: 6px 8px;
+    border: 1px solid #1c5d95;
+    border-radius: 4px;
+    font-size: 14px;
+    font-family: 'Roboto', sans-serif;
+    outline: none;
+    box-sizing: border-box;
+    height: 32px;
+    vertical-align: middle;
+
+    &:focus {
+      box-shadow: 0 0 4px rgba(28, 93, 149, 0.3);
+      border: 2px solid #1c5d95;
+      padding: 5px 8px;
+    }
+  }
+}
+
+// ============= EMPTY STATE: BORDERED ROWS =============
+
+.table-filler {
+  width: 100%;
+  flex: 1;
+  overflow: hidden;
+
+  .empty-table {
+    width: auto;
+    min-width: 100%;
+    border-spacing: 0;
+    border-collapse: collapse;
+    table-layout: fixed;
+
+    .empty-row {
+      height: 40px;
+
+      .empty-cell {
+        padding: 8px 12px;
+        background-color: #fafafa;
+        height: 40px;
+        text-align: left;
+        vertical-align: middle;
+        white-space: nowrap;
+        overflow: hidden;
+      }
+
+      // Checkbox column empty cell
+      .empty-cell:first-child {
+        width: 5%;
+        padding: 8px 6px;
+      }
+
+      .empty-cell:last-child {
+        border-right: none;
+      }
+    }
+  }
+}
+
+// ============= EMPTY ROW COLUMN WIDTHS =============
+
+.activity-table-container .table-filler .empty-table {
+  .empty-row .empty-cell:nth-child(1) {
+    width: 5%;
+  }
+
+  .empty-row .empty-cell:nth-child(2) {
+    width: 5%;
+  }
+
+  .empty-row .empty-cell:nth-child(3) {
+    width: 90%;
+  }
+}
+
+// ============= EMPTY ROW GRID LINE STYLES =============
+
+.activity-table-container.horizontal .table-filler .empty-table .empty-row .empty-cell {
+  border-bottom: 1px solid #e0e0e0;
+  border-right: none;
+}
+
+.activity-table-container.vertical .table-filler .empty-table .empty-row .empty-cell {
+  border-bottom: none;
+  border-right: 1px solid #e0e0e0;
+}
+
+.activity-table-container.both .table-filler .empty-table .empty-row .empty-cell {
+  border-bottom: 1px solid #e0e0e0;
+  border-right: 1px solid #e0e0e0;
+}
+
+// Ensure last column never shows right border for empty rows
+.activity-table-container .table-filler .empty-table .empty-row .empty-cell:last-child {
+  border-right: none !important;
+}
+
+.activity-table-container.none .table-filler .empty-table .empty-row .empty-cell {
+  border: none;
+}
+
+// ============= RESPONSIVE TYPOGRAPHY =============
+
+@media (max-width: 768px) {
+  .activity-table-container table th,
+  .activity-table-container table td {
+    font-size: 13px;
+    padding: 6px 10px;
+  }
+}
+
+// ============= PAGINATION STYLING =============
+
+mat-paginator {
+  margin-top: 8px;
+  background: #fff;
+  border-radius: 8px;
+  font-family: 'Roboto', sans-serif;
+}
+
+// ============= CHECKBOX CUSTOM STYLING =============
+
+::ng-deep .mat-mdc-checkbox .mdc-checkbox__background {
+  background: white !important;
+  border-color: #404040 !important;
+  border-radius: 5px !important;
+}
+
+::ng-deep .mat-mdc-checkbox.mat-mdc-checkbox-checked .mdc-checkbox__background {
+  background: #1C5D95 !important;
+  border-color: #1C5D95 !important;
+}
+
+::ng-deep .mat-mdc-checkbox .mdc-checkbox__checkmark-path {
+  stroke: #F3F4F4 !important;
+}
+
+::ng-deep .mat-mdc-checkbox:hover .mdc-checkbox__background {
+  border-color: #404040 !important;
+}
+
+::ng-deep .mat-mdc-checkbox.mat-mdc-checkbox--disabled .mdc-checkbox__background {
+  background: #F3F4F4 !important;
+  border-color: #404040 !important;
+}

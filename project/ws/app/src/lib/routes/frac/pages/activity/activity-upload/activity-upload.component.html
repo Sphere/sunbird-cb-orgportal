@@ -1,3 +1,4 @@
+<!-- Top Navigation Bar -->
 <div class="header-container">
   <button routerLink="/frac/dashboard" class="home-chip" type="button" aria-label="Go to FRAC dashboard">
     <img src="https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/icons/home-frac.svg" alt="home"
@@ -5,32 +6,32 @@
     <span class="home-label">Home</span>
   </button>
 
-  <!-- Save Button - Disabled when no data -->
   <button class="save-btn" (click)="onSaveClicked()" [disabled]="!isEditing || !hasTableData()">
     <span style="color: white;">Save</span>
   </button>
 </div>
 
-
+<!-- Main Content -->
 <div class="upload-container">
-
+  <!-- Page Header -->
   <div class="header">
     <button class="back-button" routerLink="/home" type="button" aria-label="Back to home">
       <img src="https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/icons/frac-left-arrow.svg" alt="back"
         class="back-icon" />
     </button>
-    <h2>Upload Competency</h2>
+    <h2>Upload Activity</h2>
   </div>
 
+  <!-- Sub Header -->
   <div class="sub-header">
-    <span>Upload Competency File (CSV or XLSX)</span>
-
+    <span>Upload Activity File (CSV or JSON)</span>
   </div>
 
+  <!-- Toolbar: Search, Language, Buttons -->
   <div class="toolbar">
+    <!-- Left Tools: Search & Language Filter -->
     <div class="left-tools">
-
-
+      <!-- Search Box -->
       <div class="search-box">
         <input matInput type="text" placeholder="Search by name, code" [(ngModel)]="searchTerm"
           (input)="onSearchTermChange()" (keydown.enter)="onSearch()" />
@@ -39,6 +40,7 @@
         </button>
       </div>
 
+      <!-- Language Dropdown -->
       <div class="language-dropdown" (click)="toggleDropdown()">
         <div class="dropdown-main">
           <div class="label-container">
@@ -57,17 +59,19 @@
         </div>
       </div>
     </div>
-    <div class="right-tools">
 
+    <!-- Right Tools: Action Buttons -->
+    <div class="right-tools">
       <div class="button-group">
-        <!-- Remove Button (Red Outline + Icon) - Disabled when no data -->
+        <!-- Remove Button -->
         <button mat-stroked-button class="app-btn icon red" (click)="onRemoveClicked()"
           [disabled]="!selectedRows.length || !hasTableData()">
           <img src="https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/icons/delete_red_icon.svg" alt="delete"
             class="btn-icon" />
           Remove
         </button>
-        <!-- Edit Button (Blue Outline + Icon) - Disabled when no data -->
+
+        <!-- Edit Button -->
         <button mat-stroked-button class="app-btn icon blue" (click)="onEditClicked()"
           [disabled]="!selectedRows.length || !hasTableData()">
           <img src="https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/icons/edit_blue_icon.svg" alt="edit"
@@ -75,11 +79,12 @@
           Edit
         </button>
 
-        <!-- Secondary Button -->
+        <!-- Download Template Button -->
         <button mat-stroked-button class="app-btn secondary" (click)="onDownloadTemplate()">
           Download sample
         </button>
-        <!-- Primary Button -->
+
+        <!-- Upload File Button -->
         <button type="button" (click)="openUploadPopup()" mat-button class="app-btn primary">
           {{ uploadButtonText }}
         </button>
@@ -87,9 +92,9 @@
     </div>
   </div>
 
-  <!-- ✅ Reusable Table -->
-  <app-upload-competency-list-table [columns]="tableConfig.columns" [data]="tableConfig.data" [showCheckbox]="true"
+  <!-- Activity Table Component -->
+  <app-upload-activity-list-table [columns]="tableConfig.columns" [data]="tableConfig.data" [showCheckbox]="true"
     [enableSorting]="true" [enablePagination]="false" [gridStyle]="'both'" [isEditing]="isEditing"
     (selectionChange)="onSelectionChange($event)">
-  </app-upload-competency-list-table>
+  </app-upload-activity-list-table>
 </div>
