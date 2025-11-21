@@ -19,12 +19,12 @@
       <img src="https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/icons/frac-left-arrow.svg" alt="back"
         class="back-icon" />
     </button>
-    <h2>Upload Activity</h2>
+    <h2>Upload Role</h2>
   </div>
 
   <!-- Sub Header -->
   <div class="sub-header">
-    <span>Upload Activity File (CSV or JSON)</span>
+    <span>Upload role file (CSV or JSON)</span>
   </div>
 
   <!-- Toolbar: Search, Language, Buttons -->
@@ -92,7 +92,7 @@
     </div>
   </div>
 
-  <!-- Activity Table Component -->
+  <!-- Role Table Component: Reusing upload-activity-list-table as generic table -->
   <app-upload-activity-list-table [columns]="tableConfig.columns" [data]="tableConfig.data" [showCheckbox]="true"
     [enableSorting]="true" [enablePagination]="false" [gridStyle]="'both'" [isEditing]="isEditing"
     (selectionChange)="onSelectionChange($event)">

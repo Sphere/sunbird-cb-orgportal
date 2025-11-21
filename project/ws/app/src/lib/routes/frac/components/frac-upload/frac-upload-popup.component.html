@@ -75,7 +75,7 @@
       <div class="dropdown-selected">
         {{ selectedLanguage || 'Language' }}
       </div>
-      <mat-icon class="dropdown-icon" [class.open]="isDropdownOpen">expand_more</mat-icon>
+      <div class="dropdown-icon" [class.open]="isDropdownOpen"></div>
     </div>
 
     <div class="dropdown-options" *ngIf="isDropdownOpen">

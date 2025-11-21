@@ -99,8 +99,8 @@ export class MapRoleActivitiesComponent implements OnInit {
       const transformed = transformActivities(apiEntity)
       // transformActivities already builds { code, title }
       this.activitiesData = transformed
-      this.activities = [...transformed]
-      this.filteredActivities = [...transformed]
+      this.activities = []
+      this.filteredActivities = []
     } catch (e) {
       console.error('Failed to load activities', e)
       this.activitiesData = []

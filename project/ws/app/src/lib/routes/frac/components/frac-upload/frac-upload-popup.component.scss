@@ -1,63 +1,160 @@
+// ============= MATERIAL DIALOG CONTAINER STYLING =============
+// Override default Material Dialog styles to match Figma design
+
+::ng-deep {
+  // Style the dialog container (wrapper)
+  .mat-mdc-dialog-container {
+    border-radius: 30px !important;
+    overflow: visible !important;
+    padding: 0 !important;
+    max-width: 425px !important;
+
+    // Ensure the dialog surface (inner) also has rounded corners
+    .mdc-dialog__surface {
+      border-radius: 30px !important;
+      max-width: 425px !important;
+      overflow: visible !important;
+    }
+  }
+
+  // Apply to all dialog overlays
+  .mdc-dialog {
+    border-radius: 30px !important;
+    max-width: 425px !important;
+    overflow: visible !important;
+  }
+}
+
 .upload-popup-container {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
   padding: 24px;
-  border-radius: 12px;
+  border-radius: 30px;
   background: #fff;
-  box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.08);
+  box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.15);
   font-family: 'Roboto', sans-serif;
+  max-width: 425px;
+  overflow: visible;
+  position: relative;
+  z-index: 1;
 }
+
+// ============= TITLE =============
+// Modal title: 24px, font-weight 400
 
 .popup-title {
-  font-size: 20px;
-  font-weight: 600;
-  color: #222;
+  font-size: 24px;
+  font-weight: 400;
+  color: #000000;
   margin: 0;
+  line-height: 28.8px;
+  word-wrap: break-word;
 }
+
+// ============= SUBTITLE =============
+// Supported format text: 16px, font-weight 400
 
 .popup-subtext {
-  font-size: 14px;
-  color: #666;
-  margin-top: -8px;
-  margin-bottom: 12px;
+  font-size: 16px;
+  font-weight: 400;
+  color: #000000;
+  margin: 0;
+  margin-bottom: 8px;
+  line-height: auto;
+  word-wrap: break-word;
 }
 
-/* Upload Box */
-.upload-section {
-  display: flex;
-  justify-content: center;
-}
+// ============= UPLOAD BOX =============
+// Drag and drop area with icon and upload button
 
 .upload-box {
-  border: 1.5px dashed #d0d0d0;
-  border-radius: 10px;
   width: 100%;
-  padding: 28px;
-  text-align: center;
-  background: #fafafa;
-  transition: border-color 0.2s ease-in-out, background 0.2s;
+  height: 174px;
+  background: #fff;
+  box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.15);
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px;
+  border: 2px dashed #d0d0d0;
+  transition: all 0.25s ease;
+  cursor: pointer;
 
   &:hover {
-    border-color: #1976d2;
+    border-color: #1c5d95;
     background: #f0f8ff;
   }
 
-  .upload-icon {
-    color: #1976d2;
-    font-size: 40px;
-    margin-bottom: 12px;
+  // Drag-over state: highlight border and background
+  &.drag-over {
+    border-color: #1c5d95;
+    background: #eaf3fc;
+    box-shadow: 0 0 8px rgba(28, 93, 149, 0.3);
+    transform: scale(1.02);
+  }
+}
+
+// ============= FILE ICON =============
+// Upload icon: 40.5px × 54px, yellow background
+
+.file-icon-img {
+  width: 40.5px;
+  height: 54px;
+  object-fit: contain;
+  border-radius: 2px;
+  display: block;
+}
+
+// ============= UPLOAD TEXT =============
+// "Drag and drop a file here" text
+
+.upload-text,
+.or-text {
+  text-align: center;
+  color: #000000;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 400;
+  line-height: 16.8px;
+  word-wrap: break-word;
+  margin: 0;
+}
+
+.upload-text {
+  font-size: 14px;
+}
+
+.or-text {
+  font-size: 14px;
+}
+
+// ============= UPLOAD BUTTON (Inside Upload Box) =============
+// Primary filled button inside the drag-drop area
+
+.upload-box .upload-btn {
+  padding: 7px 24px !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  color: #fff !important;
+  background: #1c5d95 !important;
+  border: none !important;
+  border-radius: 50px !important;
+  text-transform: none !important;
+  box-shadow: none !important;
+  transition: background 0.3s ease !important;
+  cursor: pointer !important;
+
+  &:hover:not(:disabled) {
+    background: #144c7a !important;
   }
 
-  .drag-text {
-    font-size: 14px;
-    color: #555;
-    margin-bottom: 16px;
-  }
-
-  .upload-btn {
-    font-weight: 500;
-    text-transform: none;
+  &:disabled {
+    background: #bfbfbf !important;
+    color: #808080 !important;
+    cursor: not-allowed !important;
   }
 }
 
@@ -103,118 +200,174 @@
   }
 }
 
-/* Dropdown */
-.language-dropdown {
+// ============= FILE SELECTED BOX =============
+// Box showing selected file with remove button
+
+.file-selected-box {
   width: 100%;
-  margin-top: 12px;
-
-  ::ng-deep .mat-mdc-form-field-outline {
-    border-radius: 8px;
-  }
-}
-
-/* Buttons */
-.popup-actions {
+  height: 174px;
+  background: #fff;
+  box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.15);
+  border-radius: 6px;
+  position: relative;
   display: flex;
-  justify-content: flex-start;
-  gap: 12px;
-  // margin-top: 16px;
-
-  .btn-primary {
-  font-weight: 600;
-    color:#1c5d95;
-    border-color:  #1c5d95;
-    border-radius: 50px;
-    text-transform: none;
-  }
-
-  .btn-secondary {
-    font-weight: 600;
-    color:#1c5d95;
-    border-color:  #1c5d95;
-    border-radius: 50px;
-    text-transform: none;
-  }
+  justify-content: center;
+  align-items: center;
+  transition: all 0.25s ease;
 }
 
+.file-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: center;
+}
+
+.file-icon mat-icon {
+  font-size: 24px;
+  color: #000;
+}
+
+.file-name {
+  font-size: 16px;
+  font-family: 'Roboto', sans-serif;
+  color: #000;
+}
+
+.close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  color: #000;
+}
+
+// ============= CUSTOM DROPDOWN =============
+// Language selection dropdown with custom styling
 
 .custom-dropdown {
-  width: 312px;
-  margin-top: 16px;
+  width: 100%;
+  margin-top: 8px;
   position: relative;
   font-family: 'Roboto', sans-serif;
+  display: flex;
+  flex-direction: column;
 
+  // ============= DROPDOWN LABEL =============
   .dropdown-label {
     font-size: 18px;
     font-weight: 400;
-    color: #000;
-    margin-bottom: 8px;
+    color: #000000;
+    margin-bottom: 12px;
     display: block;
+    line-height: 28.8px;
+    word-wrap: break-word;
+    order: 1;
+    z-index: 10;
+    position: relative;
+    flex-shrink: 0;
   }
 
+  // ============= DROPDOWN WRAPPER =============
   .dropdown-wrapper {
     width: 100%;
+    height: 44px;
     background: #fff;
-    box-shadow: 0 0 4px rgba(0, 0, 0, 0.15);
+    box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.15);
     border-radius: 6px;
     padding: 12px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     cursor: pointer;
+    transition: box-shadow 0.2s ease;
+    order: 2;
+    position: relative;
+    z-index: 5;
+    margin-top: 8px;
+
+    &:hover {
+      box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.25);
+    }
   }
 
+  // ============= DROPDOWN SELECTED VALUE =============
   .dropdown-selected {
     font-size: 16px;
+    font-weight: 400;
     color: #808080;
+    line-height: 24px;
+    flex: 1;
+    word-wrap: break-word;
   }
 
+  // ============= DROPDOWN ICON =============
+  // Black chevron/arrow pointing down
   .dropdown-icon {
-    font-size: 20px;
+    flex-shrink: 0;
+    width: 11px;
+    height: 7px;
+    display: inline-block;
+    position: relative;
     transition: transform 0.2s ease;
-    color: #000;
+
+    // Create black chevron with pseudo-element
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #000;
+      clip-path: polygon(0 0, 50% 100%, 100% 0);
+    }
 
     &.open {
       transform: rotate(180deg);
     }
   }
 
-.dropdown-options {
-  position: absolute;
-  top: 58px;
-  width: 100%;
-  background: #fff;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-  border-radius: 6px;
-  z-index: 1000;
-  max-height: 150px; /* scrollable */
-  overflow-y: auto;  /* enable scroll */
-  transition: all 0.2s ease-in-out;
-  animation: dropdownFadeIn 0.15s ease-out;
+  // ============= DROPDOWN OPTIONS =============
+  .dropdown-options {
+    position: absolute;
+    top: 58px;
+    left: 0;
+    width: 100%;
+    background: #fff;
+    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.15);
+    border-radius: 6px;
+    z-index: 9999;
+    max-height: 150px;
+    overflow-y: auto;
+    transition: all 0.2s ease-in-out;
+    animation: dropdownFadeIn 0.15s ease-out;
 
-  .dropdown-option {
-    padding: 10px 12px;
-    font-size: 16px;
-    color: #000;
-    cursor: pointer;
-    transition: background 0.2s;
+    .dropdown-option {
+      padding: 10px 12px;
+      font-size: 16px;
+      font-weight: 400;
+      color: #000000;
+      cursor: pointer;
+      transition: background 0.2s;
+      line-height: 24px;
 
-    &:hover {
-      background: rgba(28, 93, 149, 0.1);
+      &:hover {
+        background: rgba(28, 93, 149, 0.1);
+      }
     }
+  }
+
+  // Subtle scrollbar styling
+  .dropdown-options::-webkit-scrollbar {
+    width: 6px;
+  }
+  .dropdown-options::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 6px;
   }
 }
 
-/* Subtle scrollbar */
-.dropdown-options::-webkit-scrollbar {
-  width: 6px;
-}
-.dropdown-options::-webkit-scrollbar-thumb {
-  background-color: #ccc;
-  border-radius: 6px;
-}
-
-/* Fade-in animation */
+// ============= DROPDOWN FADE-IN ANIMATION =============
 @keyframes dropdownFadeIn {
   from {
     opacity: 0;
@@ -224,8 +377,6 @@
     opacity: 1;
     transform: translateY(0);
   }
-}
-
 }
 
 
@@ -308,76 +459,72 @@
   font-size: 14px;
 }
 
-// .upload-btn {
-//   background: #1c5d95 !important;
-//   color: white !important;
-//   border-radius: 50px !important;
-//   padding: 7px 24px !important;
-//   text-transform: none !important;
-//   font-family: 'Roboto', sans-serif;
-//   font-size: 14px;
-//   font-weight: 400;
-//   box-shadow: none !important;
-// }
-.upload-btn {
-  background: #1c5d95 !important;
-  color: #fff !important;
-  border-radius: 50px !important;
-  padding: 7px 24px !important;
-  text-transform: none !important;
-  font-family: 'Roboto', sans-serif;
-  font-size: 14px;
-  font-weight: 400;
-  box-shadow: none !important;
-  border: none !important;
-  transition: background 0.3s ease;
+// ============= POPUP ACTIONS (BUTTONS) =============
+// Cancel and Confirm buttons at bottom of popup
 
-  &:hover:not(:disabled) {
-    background: #144c7a !important;
+.popup-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+
+  // ============= SECONDARY BUTTON (CANCEL) =============
+  .btn-secondary {
+    padding: 8px 32px !important;
+    font-weight: 400 !important;
+    font-size: 16px !important;
+    color: #2e6491 !important;
+    border: 1px solid #2e6491 !important;
+    border-radius: 50px !important;
+    background: #fff !important;
+    text-transform: none !important;
+    text-align: center !important;
+    line-height: auto !important;
+    word-wrap: break-word !important;
+    transition: all 0.3s ease !important;
+    cursor: pointer !important;
+
+    &:hover:not(:disabled) {
+      background: #f0f5f9 !important;
+      border-color: #1c5d95 !important;
+      color: #1c5d95 !important;
+    }
+
+    &:disabled {
+      color: #999 !important;
+      border-color: #ccc !important;
+      background: #f5f5f5 !important;
+      cursor: not-allowed !important;
+    }
   }
 
-  &:disabled {
-    background: #bfbfbf !important;
-    color: #808080 !important;
-    cursor: not-allowed !important;
-    pointer-events: none !important;
+  // ============= PRIMARY BUTTON (CONFIRM & UPLOAD) =============
+  .upload-btn {
+    padding: 8px 32px !important;
+    font-weight: 400 !important;
+    font-size: 16px !important;
+    color: #fff !important;
+    background: #1c5d95 !important;
+    border: none !important;
+    border-radius: 50px !important;
+    text-transform: none !important;
+    text-align: center !important;
+    line-height: auto !important;
+    word-wrap: break-word !important;
+    transition: all 0.3s ease !important;
+    cursor: pointer !important;
+    box-shadow: none !important;
+
+    &:hover:not(:disabled) {
+      background: #174b7d !important;
+    }
+
+    &:disabled {
+      background: #bfbfbf !important;
+      color: #808080 !important;
+      cursor: not-allowed !important;
+      pointer-events: none !important;
+    }
   }
-}
-
-
-
-/* ================================
-   DRAG & DROP STATE STYLING
-   ================================ */
-
-.upload-box {
-  border: 2px dashed #d0d0d0;
-  transition: all 0.25s ease;
-  cursor: pointer;
-
-  &:hover {
-    border-color: #1c5d95;
-    background: #f0f8ff;
-  }
-
-  /* 👇 Highlight when file is dragged over */
-  &.drag-over {
-    border-color: #1c5d95;
-    background: #eaf3fc;
-    box-shadow: 0 0 8px rgba(28, 93, 149, 0.3);
-    transform: scale(1.02);
-  }
-}
-
-/* File icon size remains consistent */
-.file-icon-img {
-  width: 48px;
-  height: 48px;
-  object-fit: contain;
-}
-
-/* Add smooth transitions */
-.upload-box,
-.file-selected-box {
-  transition: all 0.25s ease;
 }

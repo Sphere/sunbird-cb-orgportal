@@ -90,6 +90,39 @@ export function transformActivities(entity: any[]) {
   }))
 }
 
+/**
+ * 🔹 Transforms multiple edited flat activity rows into
+ * the structure expected by the FRAC API.
+ *
+ * ✅ Merges updated rows with original data instead of replacing them.
+ * ✅ Preserves unedited activities.
+ *
+ * @param originalData - Original activity list
+ * @param editedRows - Flattened user-edited rows from the table
+ * @returns Updated activity list ready for API update
+ */
+export function transformActivityForUpdate(originalData: any[], editedRows: any[]): any[] {
+  if (!Array.isArray(originalData) || !Array.isArray(editedRows)) return originalData
+
+  return originalData.map((activity) => {
+    const edited = editedRows.find((row) => row.code === activity.code)
+    if (!edited) return activity // 🔹 No changes → return as-is
+
+    // ✅ Merge top-level properties (keep old if not edited)
+    const updatedActivity = {
+      ...activity,
+      code: edited.code ?? activity.code,
+      name: edited.name ?? activity.name,
+      description: edited.description ?? activity.description,
+      type: edited.type ?? activity.type,
+      status: edited.status ?? activity.status,
+      children: [...(activity.children || [])],
+    }
+
+    return updatedActivity
+  })
+}
+
 // models: Role + RoleActivityDetail
 export interface RoleActivityDetail {
   code: string
@@ -112,5 +145,24 @@ export function transformRoles(apiEntity: any[]): RoleItem[] {
     title: item.name || '',
     expanded: false,
     activityDetails: [], // will be filled by user mapping
+  }))
+}
+
+// models: Position
+export interface PositionItem {
+  code: string
+  title: string
+}
+
+// RAW position entity → UI model
+export function transformPositions(apiEntity: any[]): PositionItem[] {
+  if (!Array.isArray(apiEntity)) return []
+
+  return apiEntity.map(item => ({
+    code: item.additionalProperties?.Code || item.code,
+    title: item.name || '',
+    expanded: false,
+    roleDetails: [],
+
   }))
 }

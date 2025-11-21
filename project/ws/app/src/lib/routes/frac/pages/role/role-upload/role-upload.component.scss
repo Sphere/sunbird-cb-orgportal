@@ -1,0 +1,468 @@
+// ============= HEADER CONTAINER =============
+// Top navigation bar with home button and save button
+
+.header-container {
+  display: flex;
+  background-color: #f3f8fd;
+  justify-content: space-between;
+  padding: 8px 48px;
+}
+
+// ============= HOME CHIP BUTTON =============
+// Pill-shaped button with home icon and label
+
+.home-chip {
+  padding: 8px 16px !important;
+  border-radius: 90px !important;
+  outline: 1px solid #1c5d95 !important;
+  outline-offset: -1px !important;
+  background: #f3f8fd !important;
+  display: inline-flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  height: auto !important;
+  min-height: 32px !important;
+  border: none !important;
+
+  .home-icon {
+    width: 16px !important;
+    height: 16px !important;
+    object-fit: contain !important;
+    flex-shrink: 0 !important;
+    display: inline-block !important;
+  }
+
+  .home-label {
+    color: #1c5d95 !important;
+    font-size: 16px !important;
+    font-family: Roboto, sans-serif !important;
+    font-weight: 400 !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+    display: inline !important;
+  }
+}
+
+// ============= SAVE BUTTON =============
+// Primary action button: blue filled, top right
+
+.save-btn {
+  background: #1c5d95 !important;
+  border: none !important;
+  border-radius: 50px !important;
+  color: #fff !important;
+  font-size: 14px !important;
+  font-family: Roboto, sans-serif !important;
+  padding: 8px 32px !important;
+  text-transform: none !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  transition: none !important;
+  will-change: auto !important;
+
+  span {
+    color: white !important;
+    font-size: 16px !important;
+    font-family: Roboto, sans-serif !important;
+    font-weight: 400 !important;
+    word-wrap: break-word !important;
+  }
+
+  &:hover:not(:disabled) {
+    background: #174b7d !important;
+  }
+
+  &:disabled {
+    width: 104px !important;
+    padding: 8px 32px !important;
+    background: #BFBFBF !important;
+    border: none !important;
+    border-radius: 50px !important;
+    cursor: not-allowed !important;
+
+    span {
+      color: #808080 !important;
+      font-size: 16px !important;
+      font-family: Roboto, sans-serif !important;
+      font-weight: 400 !important;
+      word-wrap: break-word !important;
+    }
+  }
+
+  &:hover:disabled {
+    background: #BFBFBF !important;
+  }
+}
+
+// ============= MAIN UPLOAD CONTAINER =============
+// Main content area with header, toolbar, and table
+
+.upload-container {
+  padding: 0px 48px 24px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  app-upload-activity-list-table {
+    display: flex;
+    width: 100%;
+    height: 529px;
+  }
+
+  // ============= HEADER SECTION =============
+  // Page title with back button
+
+  .header {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    flex-direction: column;
+    padding: 6px 0px 6px 0px;
+
+    h2 {
+      font-family: Roboto;
+      font-weight: 600;
+      font-size: 32px;
+      margin: 0;
+      color: #000000;
+    }
+  }
+
+  // ============= BACK BUTTON =============
+  // Navigation button to go back
+
+  .back-button {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    margin-bottom: 8px;
+
+    &:hover {
+      opacity: 0.7;
+    }
+
+    &:focus {
+      outline: 2px solid #1c5d95;
+      border-radius: 4px;
+    }
+
+    .back-icon {
+      width: 24px;
+      height: 24px;
+      object-fit: contain;
+    }
+  }
+
+  // ============= SUB HEADER =============
+  // Subtitle describing the upload
+
+  .sub-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    span {
+      font-size: 20px;
+      font-family: Roboto, sans-serif;
+      font-weight: 400;
+      color: #000000;
+      word-wrap: break-word;
+    }
+  }
+
+  // ============= TOOLBAR =============
+  // Search, language dropdown, and action buttons
+
+  .toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+  }
+}
+
+// ============= TOOLBAR SECTIONS =============
+
+.left-tools {
+  display: flex;
+  gap: 8px;
+}
+
+.right-tools {
+  display: flex;
+  gap: 8px;
+}
+
+// ============= SEARCH BOX =============
+// Search input with search icon
+
+.search-box {
+  width: 289px;
+  height: 44px;
+  padding: 0 12px;
+  background: #fff;
+  box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.15);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: Roboto, sans-serif;
+
+  input {
+    border: none;
+    outline: none;
+    font-size: 14px;
+    color: #272727;
+    flex: 1;
+    background: transparent;
+    padding-right: 6px;
+
+    &::placeholder {
+      color: #808080;
+      font-weight: 400;
+    }
+  }
+
+  .icon-btn {
+    color: #272727;
+  }
+
+  &:hover {
+    box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.25);
+  }
+}
+
+// ============= ICON BUTTON (Search) =============
+// Circular button with search icon
+
+.icon-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: background 0.2s ease, transform 0.2s ease;
+
+  mat-icon {
+    font-size: 18px;
+  }
+}
+
+// ============= LANGUAGE DROPDOWN =============
+// Dropdown for language selection
+
+.language-dropdown {
+  width: 197px;
+  position: relative;
+  font-family: Roboto, sans-serif;
+
+  .dropdown-main {
+    width: 100%;
+    height: 44px;
+    padding: 8px 16px;
+    background: #fff;
+    box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.15);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    transition: box-shadow 0.2s ease;
+    gap: 12px;
+
+    &:hover {
+      box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.25);
+    }
+  }
+
+  .label-container {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    gap: 2px;
+
+    .label {
+      font-size: 10px;
+      color: #999;
+      font-weight: 400;
+      line-height: 1;
+    }
+
+    .selected {
+      align-self: stretch;
+      color: black;
+      font-size: 16px;
+      font-family: Roboto, sans-serif;
+      font-weight: 400;
+      line-height: 24px;
+      word-wrap: break-word;
+    }
+  }
+
+  .icon {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  .dropdown-list {
+    position: absolute;
+    top: 48px;
+    left: 0;
+    width: 100%;
+    background: #fff;
+    box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.15);
+    border-radius: 6px;
+    z-index: 10;
+    overflow: hidden;
+
+    .dropdown-item {
+      padding: 10px 16px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+
+      &:hover {
+        background-color: #f5f5f5;
+      }
+    }
+  }
+}
+
+// ============= BUTTON GROUP =============
+// Container for action buttons
+
+.button-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+// ============= ACTION BUTTONS =============
+// Primary, secondary, and icon buttons with different styles
+
+.app-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  border-radius: 50px !important;
+  padding: 6px 20px !important;
+  font-family: Roboto, sans-serif !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  text-transform: none !important;
+  user-select: none !important;
+  transition: none !important;
+  will-change: auto !important;
+
+  mat-icon {
+    font-size: 18px !important;
+  }
+
+  .btn-icon {
+    width: 18px !important;
+    height: 18px !important;
+    object-fit: contain !important;
+    display: inline-block !important;
+    flex-shrink: 0 !important;
+    transition: none !important;
+  }
+
+  &:disabled .btn-icon {
+    filter: grayscale(100%) brightness(1.2) !important;
+  }
+
+  // Primary Button: Upload File (Blue filled)
+  &.primary {
+    background-color: #1c5d95 !important;
+    color: #fff !important;
+    border: none !important;
+
+    &:hover:not(:disabled) {
+      background-color: #174e7f !important;
+    }
+
+    &:disabled {
+      background-color: #1c5d95 !important;
+      opacity: 0.5 !important;
+      cursor: not-allowed !important;
+    }
+  }
+
+  // Secondary Button: Download Sample (Outlined)
+  &.secondary {
+    color: #1c5d95 !important;
+    border: 1px solid #1c5d95 !important;
+    background-color: #fff !important;
+
+    &:hover:not(:disabled) {
+      background-color: #e9f3fb !important;
+    }
+
+    &:disabled {
+      color: #999 !important;
+      border: 1px solid #ccc !important;
+      background-color: #f5f5f5 !important;
+      cursor: not-allowed !important;
+    }
+  }
+
+  // Icon Button: Edit and Remove (With icon and text)
+  &.icon {
+    padding: 6px 16px !important;
+
+    &.blue {
+      color: #1c5d95 !important;
+      border: 1px solid #1c5d95 !important;
+      background-color: #fff !important;
+
+      &:hover:not(:disabled) {
+        background-color: #e9f3fb !important;
+      }
+
+      &:disabled {
+        color: #999 !important;
+        border: 1px solid #ccc !important;
+        background-color: #f5f5f5 !important;
+        cursor: not-allowed !important;
+      }
+    }
+
+    &.red {
+      color: #ca0000 !important;
+      border: 1px solid #ca0000 !important;
+      background-color: #fff !important;
+
+      &:hover:not(:disabled) {
+        background-color: #ffe5e5 !important;
+      }
+
+      &:disabled {
+        color: #999 !important;
+        border: 1px solid #ccc !important;
+        background-color: #f5f5f5 !important;
+        cursor: not-allowed !important;
+      }
+    }
+  }
+
+  &:hover:disabled {
+    background: inherit !important;
+    cursor: not-allowed !important;
+  }
+}

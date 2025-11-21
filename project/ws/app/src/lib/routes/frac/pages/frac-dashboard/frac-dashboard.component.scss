@@ -1,96 +1,247 @@
+// ============= FRAC DASHBOARD CONTAINER =============
+// Main container for the FRAC dashboard with header and cards grid
 .frac-dashboard-container {
-  padding: 3rem;
+  padding: 54px;
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 24px;
+  background-color: #ffffff;
 
-  .header {
-    // text-align: center;
+  // ============= HEADER SECTION =============
+  // Welcome header with title and description
+  .header-section {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
 
+    // Welcome title: 40px, font-weight 500, black color
     .welcome-text {
-    color: #000000;
-    /* filter: drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.25)); */
-    text-align: left;
-    vertical-align: text-top;
-    font-size: 40px;
-    /* font-family: Roboto; */
-    line-height: auto;
-    border-style: hidden;
-    outline: none;
-    font-weight: 500;
-
+      color: #000000;
+      font-size: 40px;
+      font-family: Roboto, sans-serif;
+      font-weight: 500;
+      line-height: auto;
+      word-wrap: break-word;
+      margin: 0;
+      padding: 0;
     }
 
+    // Subtitle: 20px, font-weight 400, max-width 687px
     .sub-text {
-      color: #555;
-      font-size: 1rem;
-      margin-top: 0.5rem;
+      color: #000000;
+      font-size: 20px;
+      font-family: Roboto, sans-serif;
+      font-weight: 400;
+      line-height: 23px;
+      word-wrap: break-word;
+      max-width: 687px;
+      margin: 0;
+      padding: 0;
     }
   }
 
-  .recent-activity {
-    h2 {
-    margin-bottom: 1rem;
-    /* font-weight: 600; */
-    font-family: Roboto;
-    font-weight: 500;
-    font-style: Medium;
-    font-size: 24px;
-
-    line-height: 100%;
-    letter-spacing: 0%;
-    }
-  }
-
+  // ============= CARDS GRID SECTION =============
+  // Grid layout for action cards with 3 columns × 2 rows
   .cards-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(329px, 1fr));
-    gap: 2rem;
-    padding-right: 4rem;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    padding-right: 0;
 
+    // ============= ACTION CARD =============
+    // Individual card with title, description, and action buttons
     .action-card {
-      padding: 1rem;
+      padding: 16px;
+      background-color: #ffffff;
+      box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.25);
+      border-radius: 8px;
+      border: none;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      transition: box-shadow 0.3s;
-      border-radius: 8px;
-      // border: 1px solid #e0e0e0;
+      gap: 8px;
+      transition: box-shadow 0.3s ease;
 
       &:hover {
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.35);
       }
 
-      .title {
-    font-weight: 400;
-    font-size: 16px;
-    margin-bottom: 0.25rem;
-    font-family: "Roboto";
-      }
-
-      .description {
-     font-size: 14px;
-    color: #8A8787;
-    padding: 6px 0px 6px 0px;
-      }
-
-      .actions {
-        margin-top: 1rem;
+      // ============= CARD CONTENT =============
+      // Card header with title and description
+      .card-content {
         display: flex;
-        gap: 0.75rem;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: flex-start;
+        gap: 16px;
+
+        .card-header {
+          align-self: stretch;
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          align-items: flex-start;
+          gap: 8px;
+
+          // ============= CARD TITLE =============
+          // Card title: 16px, font-weight 400, black color
+          .card-title {
+            align-self: stretch;
+            color: #000000;
+            font-size: 16px;
+            font-family: Roboto, sans-serif;
+            font-weight: 400;
+            line-height: auto;
+            word-wrap: break-word;
+            margin: 0;
+            padding: 0;
+          }
+
+          // ============= CARD DESCRIPTION =============
+          // Description text: 14px, font-weight 400, gray color (#8A8787)
+          .card-description {
+            align-self: stretch;
+            color: #8a8787;
+            font-size: 14px;
+            font-family: Roboto, sans-serif;
+            font-weight: 400;
+            line-height: auto;
+            word-wrap: break-word;
+            margin: 0;
+            padding: 0;
+          }
+        }
+      }
+
+      // ============= CARD ACTIONS =============
+      // Action buttons container with flexbox layout
+      .card-actions {
+        align-self: stretch;
+        display: flex;
+        justify-content: flex-start;
+        align-items: flex-start;
+        gap: 8px;
         flex-wrap: wrap;
+        margin-top: 8px;
+
+        // ============= ACTION BUTTON =============
+        // Button with icon and label in pill shape (border-radius: 888px)
+        .action-btn {
+          padding: 8px 24px;
+          border-radius: 888px;
+          border: 1px solid #1c5d95;
+          outline: none;
+          background-color: transparent;
+          display: flex;
+          flex-direction: row;
+          justify-content: flex-start;
+          align-items: center;
+          gap: 8px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+
+          &:hover {
+            background-color: rgba(28, 93, 149, 0.08);
+            border-color: #1c5d95;
+          }
+
+          &:active {
+            background-color: rgba(28, 93, 149, 0.15);
+          }
+
+          // ============= ACTION ICON =============
+          // SVG icon: 15px or 12px based on button type
+          .action-icon {
+            width: 15px;
+            height: 15px;
+            object-fit: contain;
+            display: inline-block;
+          }
+
+          // ============= ACTION LABEL =============
+          // Button label text: 14px, font-weight 400, #1C5D95 blue
+          .action-label {
+            color: #1c5d95;
+            font-size: 14px;
+            font-family: Roboto, sans-serif;
+            font-weight: 400;
+            line-height: auto;
+            word-wrap: break-word;
+            white-space: nowrap;
+          }
+        }
       }
     }
   }
-  .wlc {
-   padding-bottom: 1rem;
+
+  // ============= RECENT ACTIVITY SECTION (COMMENTED) =============
+  // TBD: Recent activity section with table
+  // .recent-activity {
+  //   h2 {
+  //     margin-bottom: 1rem;
+  //     font-family: Roboto;
+  //     font-weight: 500;
+  //     font-size: 24px;
+  //     line-height: 100%;
+  //   }
+  // }
+}
+
+// ============= RESPONSIVE MEDIA QUERIES =============
+// Adjust grid layout for smaller screens
+@media (max-width: 1024px) {
+  .frac-dashboard-container {
+    .cards-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
   }
-  .act-btn {
-     border-radius: 888px;
-     border-color:  #1c5d95;
+}
+
+@media (max-width: 768px) {
+  .frac-dashboard-container {
+    padding: 24px;
+    gap: 24px;
+
+    .header-section {
+      .welcome-text {
+        font-size: 32px;
+      }
+
+      .sub-text {
+        font-size: 16px;
+        max-width: 100%;
+      }
+    }
+
+    .cards-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
   }
-  .btn-color {
-    color: #1c5d95;
+}
+
+@media (max-width: 480px) {
+  .frac-dashboard-container {
+    padding: 16px;
+    gap: 16px;
+
+    .header-section {
+      .welcome-text {
+        font-size: 24px;
+      }
+
+      .sub-text {
+        font-size: 14px;
+      }
+    }
+
+    .cards-grid {
+      grid-template-columns: 1fr;
+
+      .action-card {
+        width: 100%;
+      }
+    }
   }
 }
 

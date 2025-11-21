@@ -1,0 +1,54 @@
+<div class="position-mapping-list">
+
+  <div class="toolbar">
+    <div class="title-header">Positions</div>
+  </div>
+
+  <div class="role-container">
+    <div class="title-bar">Roles</div>
+
+    <div class="scroll-area">
+
+      <!-- search bar -->
+      <div class="search-row">
+        <div class="shadow-wrapper">
+          <div class="search-box">
+            <input placeholder="Search by name, code" [(ngModel)]="searchTerm" (input)="onSearchChange()" />
+            <mat-icon>search</mat-icon>
+          </div>
+        </div>
+      </div>
+
+      <!-- role list -->
+      <div class="role-item" *ngFor="let r of filteredRoles" [class.selected]="selectedRole === r"
+        (click)="roleSelectedHandler(r)">
+        <div class="expanded-card">
+
+          <div class="header-row" (click)="expand(r)">
+            <div class="exp-code">{{ r.code }}</div>
+            <!-- <div class="exp-title">{{ r.title }}</div> -->
+            <!-- Expand arrow (show only when levels are valid) -->
+            <mat-icon *ngIf="r.roleDetails?.length > 0" class="arrow">
+              {{ expanded === r ? 'expand_less' : 'expand_more' }}
+            </mat-icon>
+          </div>
+
+          <!-- mapped positions under role -->
+          <div *ngIf="expanded === r && r.roleDetails?.length" class="position-section">
+            <div class="position-row" *ngFor="let p of r.roleDetails">
+              <div class="pill">
+                <div class="position-label">{{ p.code }} - {{ p.label }}</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div *ngIf="filteredRoles.length === 0" class="no-data">
+        Use the search bar to find the role.
+      </div>
+
+    </div>
+  </div>
+</div>

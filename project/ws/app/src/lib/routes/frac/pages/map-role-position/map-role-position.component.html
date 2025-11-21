@@ -17,11 +17,11 @@
       <img src="https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/icons/frac-left-arrow.svg" alt="back"
         class="back-icon" />
     </button>
-    <h2>Map Roles</h2>
+    <h2>Map Roles to Position</h2>
   </div>
 
   <div class="sub-header">
-    <span>Link each roles to activity</span>
+    <span>Map roles to existing positions in the system.</span>
   </div>
 
   <div class="left-tools">
@@ -42,25 +42,20 @@
     </div>
   </div>
 
-  <!-- <div class="section-titles">
-    <div class="section-title">List of Roles</div>
-    <div class="section-title right">Available Activities</div>
-  </div> -->
-
   <div class="content-layout">
-    <!-- LEFT – ROLES PANEL -->
+    <!-- LEFT – POSITIONS PANEL -->
     <div class="roles-panel">
-      <app-role-mapping-list [roles]="filteredRoles" (searchChange)="onRoleSearch($event)"
-        (roleSelected)="onRoleSelected($event)" (toggle)="onRoleToggleExpand($event)">
-      </app-role-mapping-list>
+      <app-position-mapping-list [roles]="filteredPositions" (searchChange)="onPositionSearch($event)"
+        (roleSelected)="onPositionSelected($event)" (toggle)="onPositionToggleExpand($event)">
+      </app-position-mapping-list>
     </div>
 
-    <!-- RIGHT – ACTIVITIES PANEL -->
-    <div class="activities-panel">
-      <app-activity-mapping-table [activities]="filteredActivities" [selectedRole]="selectedRole"
-        [selectedActivityMap]="selectedActivityMap" (searchChange)="onActivitySearch($event)"
-        (activityCheckChange)="onActivityCheckChanged($event)" (addActivity)="onAddActivityToRole()">
-      </app-activity-mapping-table>
+    <!-- RIGHT – ROLES PANEL -->
+    <div class="positions-panel">
+      <app-role-mapping-table [positions]="filteredRoles" [selectedRole]="selectedPosition"
+        [selectedPositionMap]="selectedRoleMap" (searchChange)="onRoleSearch($event)"
+        (positionCheckChange)="onRoleCheckChanged($event)" (addPosition)="onAddRoleToPosition()">
+      </app-role-mapping-table>
     </div>
   </div>
 </div>
