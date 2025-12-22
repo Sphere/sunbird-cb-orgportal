@@ -1,128 +1,291 @@
-// ============= COMPETENCY LIST TABLE CONTAINER =============
-// Main container for the upload competency list table with flex layout
+// ============= UPLOAD COMPETENCY LIST TABLE CONTAINER =============
 
 .upload-competency-list-table-container {
   width: 100%;
-  max-height: 100%;
-  overflow-y: auto;
-  overflow-x: auto;
+  height: 529px;
+  overflow: auto;
   border-radius: 8px;
   border: 1px solid #e0e0e0;
   background: #fff;
-  position: relative;
   display: flex;
   flex-direction: column;
+  position: relative;
 
-  table {
-    width: 100%;
-    border-spacing: 0;
+  // ============= DATA TABLE (with data) =============
+
+  .data-table {
+    min-width: 100%;
+    width: auto;
     border-collapse: collapse;
-    min-width: 600px;
+    border-spacing: 0;
 
-    // Base styles for all table headers and cells
-    th, td {
-      padding: 12px 16px;
-      font-size: 14px;
-      text-align: left;
-      vertical-align: middle;
-      height: 40px;
-      border: none;
-    }
-
-    // Data columns: Support text wrapping on whitespace only
-    th:not([style*="width: 50px"]),
-    td:not([style*="width: 50px"]) {
-      white-space: normal;
-      word-break: normal;
-      overflow-wrap: break-word;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    // Checkbox column: Fixed 50px width, center-aligned
-    th[style*="width: 50px"],
-    td[style*="width: 50px"] {
-      text-align: center;
-      padding: 0;
-      white-space: nowrap;
-      line-height: 40px;
-    }
-
-    // Header row styling: Blue background with sticky position
-    th {
-      background-color: #dfedf9;
-      font-weight: 600;
+    thead {
       position: sticky;
       top: 0;
-      z-index: 2;
+      z-index: 10;
     }
 
-    // Remove default table borders
-    th, td {
+    // Header cells
+    th {
+      background-color: #dfedf9;
+      color: #333;
+      font-weight: 600;
+      font-size: 13px;
+      padding: 12px 16px;
+      height: 40px;
+      text-align: left;
+      vertical-align: middle;
       border: none;
+      white-space: nowrap;
+    }
+
+    // Checkbox column header
+    th:first-child {
+      width: 50px;
+      padding: 0;
+      text-align: center;
+    }
+
+    // Data cells
+    td {
+      padding: 12px 16px;
+      height: 40px;
+      font-size: 13px;
+      text-align: left;
+      vertical-align: middle;
+      border: none;
+      background: #fff;
+    }
+
+    // Checkbox column cells
+    td:first-child {
+      width: 50px;
+      padding: 0;
+      text-align: center;
+    }
+
+    // Data rows
+    tr.data-row {
+      &:hover {
+        background-color: #f5f5f5;
+      }
     }
   }
 
-  // ============= GRID LINE STYLES =============
-  // Configurable grid line display: horizontal, vertical, both, or none
+  // ============= GRID LINES (configurable) =============
 
-  &.horizontal table th,
-  &.horizontal table td {
-    border-bottom: 1px solid #e0e0e0;
+  &.horizontal {
+    .data-table th,
+    .data-table td {
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .header-row th,
+    .empty-row td,
+    .filler-row td {
+      border-bottom: 1px solid #e0e0e0;
+    }
   }
 
-  &.vertical table th,
-  &.vertical table td {
-    border-right: 1px solid #e0e0e0;
+  &.vertical {
+    .data-table th,
+    .data-table td {
+      border-right: 1px solid #e0e0e0;
+    }
+
+    .header-row th,
+    .empty-row td,
+    .filler-row td {
+      border-right: 1px solid #e0e0e0;
+    }
+
+    .table-filler::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      border-right: 1px solid #e0e0e0;
+      pointer-events: none;
+    }
   }
 
-  &.both table th,
-  &.both table td {
-    border-bottom: 1px solid #e0e0e0;
-    border-right: 1px solid #e0e0e0;
+  &.both {
+    .data-table th,
+    .data-table td {
+      border-bottom: 1px solid #e0e0e0;
+      border-right: 1px solid #e0e0e0;
+    }
+
+    .header-row th,
+    .empty-row td,
+    .filler-row td {
+      border-bottom: 1px solid #e0e0e0;
+      border-right: 1px solid #e0e0e0;
+    }
+
+    .table-filler::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      border-right: 1px solid #e0e0e0;
+      pointer-events: none;
+    }
   }
 
-  &.none table th,
-  &.none table td {
-    border: none;
-  }
-
-  // Last column never shows right border
-  table th:last-child,
-  table td:last-child {
+  // Remove right border from last column
+  .data-table th:last-child,
+  .data-table td:last-child,
+  .header-row th:last-child,
+  .empty-row td:last-child,
+  .filler-row td:last-child {
     border-right: none !important;
+  }
+
+  // ============= TABLE FILLER (empty state) =============
+
+  .table-filler {
+    flex: 1;
+    overflow-x: auto;
+    overflow-y: auto;
+    width: 100%;
+    min-width: 100%;
+    height: calc(100% - 40px);
+    min-height: calc(100% - 40px);
+    max-height: calc(100% - 40px);
+    position: relative;
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      border-right: 1px solid #e0e0e0;
+      pointer-events: none;
+    }
+
+    .empty-table {
+      min-width: 100%;
+      width: auto;
+      border-collapse: collapse;
+      border-spacing: 0;
+
+      // Header row in empty state
+      .header-row {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background-color: #dfedf9;
+
+        th {
+          background-color: #dfedf9;
+          color: #333;
+          font-weight: 600;
+          font-size: 13px;
+          padding: 12px 16px;
+          height: 40px;
+          text-align: left;
+          vertical-align: middle;
+          border: none;
+          white-space: nowrap;
+        }
+
+        th:first-child {
+          width: 50px;
+          padding: 0;
+          text-align: center;
+        }
+
+        th:last-child {
+          border-right: none;
+        }
+      }
+
+      // Empty rows (no data)
+      .empty-row,
+      .filler-row {
+        height: 40px;
+
+        td {
+          padding: 12px 16px;
+          background-color: #fafafa;
+          border: none;
+          text-align: left;
+          vertical-align: middle;
+        }
+
+        td:first-child {
+          width: 50px;
+          padding: 0;
+          text-align: center;
+        }
+
+        td:last-child {
+          border-right: none;
+        }
+      }
+    }
+
+    .filler-table {
+      min-width: 100%;
+      width: auto;
+      border-collapse: collapse;
+      border-spacing: 0;
+
+      .filler-row {
+        height: 40px;
+
+        td {
+          padding: 12px 16px;
+          background-color: #fafafa;
+          border: none;
+        }
+
+        td:first-child {
+          width: 50px;
+          padding: 0;
+        }
+
+        td:last-child {
+          border-right: none;
+        }
+      }
+    }
   }
 
   // ============= CELL CONTENT & EDIT MODE =============
 
   .cell-content {
     display: block;
-    white-space: pre-wrap;
-    word-break: normal !important;
-    overflow-wrap: normal !important;
-    line-height: 1.5;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: normal;
+    word-break: normal;
+    word-wrap: normal;
+    overflow-wrap: normal;
+    hyphens: none;
+    line-height: 1.4;
   }
 
-  // Wrapper for edit input - ensures proper vertical alignment
   .cell-edit-wrapper {
     display: flex;
     align-items: center;
     width: 100%;
     height: 32px;
-    padding: 0;
   }
 
   .editable-input {
-    width: calc(100% - 16px);
+    width: 100%;
     padding: 6px 8px;
     border: 1px solid #1c5d95;
     border-radius: 4px;
-    font-size: 14px;
+    font-size: 13px;
     font-family: 'Roboto', sans-serif;
     outline: none;
-    box-sizing: border-box;
     height: 32px;
-    vertical-align: middle;
 
     &:focus {
       box-shadow: 0 0 4px rgba(28, 93, 149, 0.3);
@@ -131,103 +294,19 @@
     }
   }
 
-  // ============= RESPONSIVE TYPOGRAPHY =============
-
-  @media (max-width: 768px) {
-    table th,
-    table td {
-      font-size: 13px;
-      padding: 10px 12px;
-    }
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
   }
-}
-// ============= PAGINATION STYLING =============
-// Style for Material paginator footer
-
-mat-paginator {
-  margin-top: 8px;
-  background: #fff;
-  border-radius: 8px;
-  font-family: 'Roboto', sans-serif;
-}
-
-// ============= EMPTY STATE: BORDERED ROWS =============
-// Filler table for visual consistency when table is empty or partially filled
-
-.table-filler {
-  width: 100%;
-  flex: 1;
-  overflow: hidden;
-
-  .empty-table {
-    width: 100%;
-    min-width: 600px;
-    border-spacing: 0;
-    border-collapse: collapse;
-    table-layout: fixed;
-
-    .empty-row {
-      height: 40px;
-
-      // Empty cell styling: Gray background to distinguish from data rows
-      .empty-cell {
-        padding: 12px 16px;
-        background-color: #fafafa;
-        height: 40px;
-        text-align: left;
-        vertical-align: middle;
-        white-space: normal;
-        word-break: normal;
-        overflow-wrap: break-word;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        border: none;
-      }
-
-      // Checkbox column in empty rows: Center-aligned and fixed width
-      .empty-cell[style*="width: 50px"] {
-        text-align: center;
-        padding: 0;
-        white-space: nowrap;
-        line-height: 40px;
-      }
-
-      .empty-cell:last-child {
-        border-right: none;
-      }
-    }
-  }
-}
-
-// ============= GRID LINE STYLES FOR EMPTY ROWS =============
-// Apply grid lines to empty rows based on selected grid style
-
-.upload-competency-list-table-container.horizontal .table-filler .empty-table .empty-row .empty-cell {
-  border-bottom: 1px solid #e0e0e0;
-  border-right: none;
-}
-
-.upload-competency-list-table-container.vertical .table-filler .empty-table .empty-row .empty-cell {
-  border-bottom: none;
-  border-right: 1px solid #e0e0e0;
-}
-
-.upload-competency-list-table-container.both .table-filler .empty-table .empty-row .empty-cell {
-  border-bottom: 1px solid #e0e0e0;
-  border-right: 1px solid #e0e0e0;
-}
-
-// Ensure last column never shows right border for empty rows
-.upload-competency-list-table-container .table-filler .empty-table .empty-row .empty-cell:last-child {
-  border-right: none !important;
-}
-
-.upload-competency-list-table-container.none .table-filler .empty-table .empty-row .empty-cell {
-  border: none;
 }
 
 // ============= CHECKBOX STYLING =============
-// Customize Material checkbox appearance for the table
 
 // Unchecked checkbox: White background with dark border
 ::ng-deep .mat-mdc-checkbox .mdc-checkbox__background {
@@ -258,4 +337,20 @@ mat-paginator {
 ::ng-deep .mat-mdc-checkbox.mat-mdc-checkbox--disabled .mdc-checkbox__background {
   background-color: #F3F4F4 !important;
   border-color: #404040 !important;
+}
+
+// ============= PAGINATION STYLING =============
+
+// Style for Material paginator footer
+::ng-deep mat-paginator {
+  background-color: #fff;
+  border-top: 1px solid #e0e0e0;
+  border-radius: 0 0 8px 8px;
+}
+
+mat-paginator {
+  margin-top: 8px;
+  background: #fff;
+  border-radius: 8px;
+  font-family: 'Roboto', sans-serif;
 }

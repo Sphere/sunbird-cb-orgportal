@@ -16,7 +16,7 @@ import { SelectionModel } from '@angular/cdk/collections'
 export interface ActivityTableColumn {
   key: string        // Column data key (e.g., 'code', 'name')
   label: string      // Column header label
-  width: string      // Fixed column width (e.g., '100px', '300px')
+  width?: string     // Fixed column width (e.g., '100px', '300px')
 }
 
 /** Grid line style options: horizontal, vertical, both, or none */
@@ -70,16 +70,27 @@ export class UploadActivityListTableComponent implements OnChanges, AfterViewIni
   /** Dynamic column keys for table rendering */
   displayedColumns: string[] = []
 
+  /** Default columns to show when no column config is provided */
+  defaultColumns: ActivityTableColumn[] = [
+    { key: 'code', label: 'Code' },
+    { key: 'name', label: 'Label' },
+    // { key: 'description', label: 'Description' },
+    // { key: 'type', label: 'Type' },
+    // { key: 'status', label: 'Status' },
+  ]
+
   @ViewChild(MatPaginator) paginator!: MatPaginator
   @ViewChild(MatSort) sort!: MatSort
 
   // ============= LIFECYCLE HOOKS =============
 
   ngOnChanges(): void {
+    const activeColumns = this.getActiveColumns()
+
     // Update displayed columns based on checkbox visibility
     this.displayedColumns = this.showCheckbox
-      ? ['select', ...this.columns.map(c => c.key)]
-      : this.columns.map(c => c.key)
+      ? ['select', ...activeColumns.map(c => c.key)]
+      : activeColumns.map(c => c.key)
 
     // Update data source
     this.dataSource = new MatTableDataSource(this.data)
@@ -146,5 +157,10 @@ export class UploadActivityListTableComponent implements OnChanges, AfterViewIni
     const availableHeight = containerHeight - headerHeight - dataRowsHeight
     const numEmptyRows = Math.ceil(availableHeight / rowHeight)
     return numEmptyRows > 0 ? new Array(numEmptyRows).fill(null) : []
+  }
+
+  /** Return provided columns or default columns when none were supplied */
+  getActiveColumns(): ActivityTableColumn[] {
+    return this.columns && this.columns.length > 0 ? this.columns : this.defaultColumns
   }
 }

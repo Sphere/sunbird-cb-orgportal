@@ -111,6 +111,11 @@ const routes: Routes = [
           },
         ],
       },
+      {
+        path: 'frac',
+        loadChildren: () =>
+          import('../frac/frac.module').then((m) => m.FracModule),
+      }
     ],
   },
 ]

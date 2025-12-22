@@ -48,15 +48,42 @@ export class UploadCompetencyListTableComponent implements OnChanges, AfterViewI
   selection = new SelectionModel<any>(true, [])
   displayedColumns: string[] = []
 
+  // ✅ Default columns for empty state (hardcoded)
+  defaultColumns: TableColumn[] = [
+    { key: 'code', label: 'Code' },
+    { key: 'name', label: 'Label' },
+    { key: 'description', label: 'Description' },
+    { key: 'type', label: 'Type' },
+    { key: 'status', label: 'Status' },
+    { key: `level_L1_label`, label: `Level 1 Label` },
+    { key: `level_L1_description`, label: `Level 1 Description` },
+
+    // { key: `level_L2_label`, label: `Level 2 Label` },
+    // { key: `level_L2_description`, label: `Level 2 Description` },
+
+    // { key: `level_L3_label`, label: `Level 3 Label` },
+    // { key: `level_L3_description`, label: `Level 3 Description` },
+
+    // { key: `level_L4_label`, label: `Level 4 Label` },
+    // { key: `level_L4_description`, label: `Level 4 Description` },
+
+    // { key: `level_L5_label`, label: `Level 5 Label` },
+    // { key: `level_L5_description`, label: `Level 5 Description` },
+
+  ]
+
   @ViewChild(MatPaginator) paginator!: MatPaginator
   @ViewChild(MatSort) sort!: MatSort
 
   // ============= LIFECYCLE HOOKS =============
 
   ngOnChanges(): void {
+    // ✅ Use provided columns, or default columns if empty
+    const activeColumns = this.columns && this.columns.length > 0 ? this.columns : this.defaultColumns
+
     this.displayedColumns = this.showCheckbox
-      ? ['select', ...this.columns.map(c => c.key)]
-      : this.columns.map(c => c.key)
+      ? ['select', ...activeColumns.map(c => c.key)]
+      : activeColumns.map(c => c.key)
 
     this.dataSource = new MatTableDataSource(this.data)
   }
@@ -68,6 +95,13 @@ export class UploadCompetencyListTableComponent implements OnChanges, AfterViewI
       if (this.enableSorting && this.sort)
         this.dataSource.sort = this.sort
     })
+  }
+
+  // ============= GET ACTIVE COLUMNS =============
+
+  /** Get columns to display - either provided or default */
+  getActiveColumns(): TableColumn[] {
+    return (this.columns && this.columns.length > 0) ? this.columns : this.defaultColumns
   }
 
   // ============= CHECKBOX HANDLERS =============

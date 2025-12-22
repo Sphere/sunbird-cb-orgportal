@@ -12,6 +12,7 @@ import { MatPaginatorModule } from '@angular/material/paginator'
 import { MatSortModule } from '@angular/material/sort'
 import { MatFormFieldModule } from '@angular/material/form-field'
 import { MatInputModule } from '@angular/material/input'
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner'
 
 // ✅ Shared / Utility Modules
 import { HorizontalScrollerModule } from '@sunbird-cb/utils'
@@ -25,25 +26,15 @@ import { FracDashboardComponent } from './pages/frac-dashboard/frac-dashboard.co
 
 // --- Competency Pages ---
 import { CompetencyUploadComponent } from './pages/competency/competency-upload/competency-upload.component'
-import { CompetencyListComponent } from './pages/competency/competency-list/competency-list.component'
-import { CompetencyDetailComponent } from './pages/competency/competency-detail/competency-detail.component'
 
 // --- Activity Pages ---
 import { ActivityUploadComponent } from './pages/activity/activity-upload/activity-upload.component'
-import { ActivityListComponent } from './pages/activity/activity-list/activity-list.component'
-import { ActivityMapComponent } from './pages/activity/activity-map/activity-map.component'
-
-// --- Role Pages ---
-import { RoleUploadComponent } from './pages/role/role-upload/role-upload.component'
-import { RoleListComponent } from './pages/role/role-list/role-list.component'
-import { RoleMapComponent } from './pages/role/role-map/role-map.component'
-import { RolePositionAssignComponent } from './pages/role/role-position-assign/role-position-assign.component'
 
 // --- Shared Components ---
 import { FracUploadPopupComponent } from './components/frac-upload/frac-upload-popup.component'
 import { FracTableComponent } from './components/frac-table/frac-table.component'
-import { FracMapperComponent } from './components/frac-mapper/frac-mapper.component'
-import { FracCardComponent } from './components/frac-card/frac-card.component'
+import { UploadActivityListTableComponent } from './components/upload-activity-list-table/upload-activity-list-table.component'
+import { UploadCompetencyListTableComponent } from './components/upload-competency-list-table/upload-competency-list-table.component'
 import { FormsModule } from '@angular/forms'
 import { MatSelectModule } from '@angular/material/select'
 import { MatCheckboxModule } from '@angular/material/checkbox'
@@ -55,6 +46,14 @@ import { CompetencyMappingTableComponent } from './components/competency-mapping
 import { MatSnackBarModule } from '@angular/material/snack-bar'
 import { CustomSnackbarService } from './services/custom-snackbar.service'
 import { CustomSnackbarComponent } from './components/custom-snackbar/custom-snackbar.component'
+import { MapRoleActivitiesComponent } from './pages/map-role-activities/map-role-activities.component'
+import { RoleMappingListComponent } from './components/role-mapping-list/role-mapping-list.component'
+import { ActivityMappingTableComponent } from './components/activity-mapping-table/activity-mapping-table.component'
+import { RoleUploadComponent } from './pages/role/role-upload/role-upload.component'
+import { MapRolePositionComponent } from './pages/map-role-position/map-role-position.component'
+import { RoleMappingTableComponent } from './components/role-mapping-table/role-mapping-table.component'
+import { PositionMappingListComponent } from './components/position-mapping-list/position-mapping-list.component'
+import { UploadResultModalComponent } from './components/upload-result-modal/upload-result-modal.component'
 
 
 @NgModule({
@@ -67,31 +66,28 @@ import { CustomSnackbarComponent } from './components/custom-snackbar/custom-sna
 
     // Competency
     CompetencyUploadComponent,
-    CompetencyListComponent,
-    CompetencyDetailComponent,
 
     // Activity
     ActivityUploadComponent,
-    ActivityListComponent,
-    ActivityMapComponent,
-
-    // Role
-    RoleUploadComponent,
-    RoleListComponent,
-    RoleMapComponent,
-    RolePositionAssignComponent,
 
     // Shared
     FracUploadPopupComponent,
     FracTableComponent,
-    FracMapperComponent,
-    FracCardComponent,
+    UploadActivityListTableComponent,
+    UploadCompetencyListTableComponent,
     WordWrapPipe,
     MapActivityCompetenciesComponent,
     ActivityMappingListComponent,
     CompetencyMappingTableComponent,
-    CustomSnackbarComponent
-
+    CustomSnackbarComponent,
+    MapRoleActivitiesComponent,
+    RoleMappingListComponent,
+    ActivityMappingTableComponent,
+    RoleUploadComponent,
+    MapRolePositionComponent,
+    PositionMappingListComponent,
+    RoleMappingTableComponent,
+    UploadResultModalComponent,
   ],
   imports: [
     CommonModule,
@@ -109,6 +105,7 @@ import { CustomSnackbarComponent } from './components/custom-snackbar/custom-sna
     MatSortModule,
     MatFormFieldModule,
     MatInputModule,
+    MatProgressSpinnerModule,
     FormsModule,
     MatSelectModule,
     MatCheckboxModule,

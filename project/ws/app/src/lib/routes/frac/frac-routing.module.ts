@@ -6,8 +6,10 @@ import { FracComponent } from './components/frac/frac.component'
 import { FracDashboardComponent } from './pages/frac-dashboard/frac-dashboard.component'
 import { CompetencyUploadComponent } from './pages/competency/competency-upload/competency-upload.component'
 import { ActivityUploadComponent } from './pages/activity/activity-upload/activity-upload.component'
-import { RoleUploadComponent } from './pages/role/role-upload/role-upload.component'
 import { MapActivityCompetenciesComponent } from './pages/activity/map-activity-competencies/map-activity-competencies.component'
+import { MapRoleActivitiesComponent } from './pages/map-role-activities/map-role-activities.component'
+import { RoleUploadComponent } from './pages/role/role-upload/role-upload.component'
+import { MapRolePositionComponent } from './pages/map-role-position/map-role-position.component'
 
 const routes: Routes = [
   {
@@ -25,19 +27,27 @@ const routes: Routes = [
       },
       {
         path: 'competency',
-        component: CompetencyUploadComponent, // ✅ direct component
+        component: CompetencyUploadComponent, // ✅ with optional query param mode
       },
       {
         path: 'activity',
-        component: ActivityUploadComponent, // ✅ direct component
+        component: ActivityUploadComponent, // ✅ with optional query param mode
       },
       {
         path: 'role',
-        component: RoleUploadComponent, // ✅ direct component
+        component: RoleUploadComponent, // ✅ with optional query param mode
       },
       {
         path: 'map-activity',
         component: MapActivityCompetenciesComponent
+      },
+      {
+        path: 'map-role',
+        component: MapRoleActivitiesComponent
+      },
+      {
+        path: 'map-role-position',
+        component: MapRolePositionComponent
       }
     ],
   },

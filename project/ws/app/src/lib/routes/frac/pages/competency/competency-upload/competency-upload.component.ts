@@ -3,13 +3,12 @@ import { MatDialog } from '@angular/material/dialog'
 import { ActivatedRoute } from '@angular/router'
 import { FracUploadPopupComponent } from '../../../components/frac-upload/frac-upload-popup.component'
 import { UploadPopupConfig } from '../../../models/upload-popup-config.model'
+import { UploadResultModalComponent, UploadResultData } from '../../../components/upload-result-modal/upload-result-modal.component'
 import { ITableConfig, TableTransformUtil } from '../../../utils/table-transform.util'
 import { FracApiService } from '../../../services/frac-api.service'
 import { transformCompetencyForUpdate } from '../../../utils/common.util'
 import { Subject } from 'rxjs'
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators'
-
-
 
 @Component({
   selector: 'ws-app-competency-upload',
@@ -17,210 +16,34 @@ import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators'
   styleUrls: ['./competency-upload.component.scss']
 })
 export class CompetencyUploadComponent {
+  constructor(
+    private dialog: MatDialog,
+    private fracApiService: FracApiService,
+    private tableTransformUtil: TableTransformUtil,
+    private activatedRoute: ActivatedRoute
+  ) { }
 
-  constructor(private dialog: MatDialog, private fracApiService: FracApiService, private tableTransformUtil: TableTransformUtil, private activatedRoute: ActivatedRoute) { }
+  // ============= STATE VARIABLES =============
   originalRowData: any[] = [];
   removedData: any[] = [];
   private searchSubject = new Subject<void>();
   private destroy$ = new Subject<void>();
   searchResults: any[] = [];
-  routeMode: string = 'upload'; // 'upload' or 'manage'
+  routeMode: string = 'upload';
   uploadButtonText: string = 'Upload File';
-  // Table configuration
-  // tableConfig = {
-  //   columns: [
-  //     { key: 'code', label: 'Code' },
-  //     { key: 'label', label: 'Label' },
-  //     { key: 'description', label: 'Description' },
-  //     { key: 'domain', label: 'Domain' },
-  //     { key: 'level1', label: 'Level 1' },
-  //     { key: 'level2', label: 'Level 2' },
-  //   ],
-  //   data: [
-  //     // {
-  //     //   code: 'C1',
-  //     //   label: 'Pregnancy Identification',
-  //     //   description: 'Conducts initial assessment to identify pregnancy and HRP',
-  //     //   domain: 'Community Outreach',
-  //     //   level1: 'Understands health assessment protocols',
-  //     //   level2: 'Identifies pregnancy using kits',
-  //     // },
-  //     // {
-  //     //   code: 'C2',
-  //     //   label: 'Birth Planning',
-  //     //   description: 'Creates and implements birth plans for PW including HRP',
-  //     //   domain: 'Community Outreach',
-  //     //   level1: 'Understands registration components',
-  //     //   level2: 'Prepares schedules for PW/HRP',
-  //     // },
-
-  //     {
-  //       "id": 106,
-  //       "type": "activity",
-  //       "name": "Verify maternal and child death and ensure reporting (MCDR)",
-  //       "description": "Verify maternal and child death and ensure reporting",
-  //       "additionalProperties": {
-  //         "Code": "A400"
-  //       },
-  //       "status": "Active",
-  //       "source": null,
-  //       "level": "A400",
-  //       "levelId": 0,
-  //       "createdDate": "2025-10-06T18:30:00.000+00:00",
-  //       "createdBy": "admin",
-  //       "updatedDate": "2025-10-06T18:30:00.000+00:00",
-  //       "updatedBy": "reviewer",
-  //       "reviewedDate": "2025-10-06T18:30:00.000+00:00",
-  //       "reviewedBy": "2025-10-07 00:00:00",
-  //       "translation": null,
-  //       "code": "A400",
-  //       "children": null
-  //     }
-  //   ],
-  // }
-  tableConfig: ITableConfig = { columns: [], data: [] };
-  apiResponse = {
-    "result": {
-      "data": {
-        "entity": [
-          {
-            "type": "competency",
-            "code": "C400",
-            "name": "Pregnancy Identification",
-            "description": "Conducts initial assessment to identify pregnancy, HRP, and estimate gestational age",
-            "status": "Active",
-            "children": [
-
-            ]
-          },
-          // {
-          //   "type": "competency",
-          //   "code": "C401",
-          //   "name": "Pregnancy Identification",
-          //   "description": "Conducts initial assessment to identify pregnancy, HRP, and estimate gestational age",
-          //   "status": "Active",
-          //   "children": [
-          //     {
-          //       "level": "L1",
-          //       "name": "Understands health of males and females",
-          //       "description": "Understands male and female reproductive anatomy"
-          //     },
-          //     {
-          //       "level": "L2",
-          //       "name": "Identifies pregnancy using Nischaya Kit",
-          //       "description": "Conducts pregnancy test using kit and interprets results"
-          //     },
-          //     {
-          //       "level": "L3",
-          //       "name": "Identifies pregnancy using Nischaya Kit 3",
-          //       "description": "Conducts pregnancy test using kit and interprets results 3"
-          //     },
-          //     {
-          //       "level": "L4",
-          //       "name": "Understands health of males and females",
-          //       "description": "Understands male and female reproductive anatomy"
-          //     },
-          //     {
-          //       "level": "L5",
-          //       "name": "Identifies pregnancy using Nischaya Kit",
-          //       "description": "Conducts pregnancy test using kit and interprets results"
-          //     }
-          //   ]
-          // },
-          // {
-          //   "type": "competency",
-          //   "code": "C401",
-          //   "name": "Pregnancy Identification",
-          //   "description": "Conducts initial assessment to identify pregnancy, HRP, and estimate gestational age",
-          //   "status": "Active",
-          //   "children": [
-          //     {
-          //       "level": "L1",
-          //       "name": "Understands health of males and females",
-          //       "description": "Understands male and female reproductive anatomy"
-          //     },
-          //     {
-          //       "level": "L2",
-          //       "name": "Identifies pregnancy using Nischaya Kit",
-          //       "description": "Conducts pregnancy test using kit and interprets results"
-          //     },
-          //     {
-          //       "level": "L3",
-          //       "name": "Identifies pregnancy using Nischaya Kit 3",
-          //       "description": "Conducts pregnancy test using kit and interprets results 3"
-          //     },
-          //     {
-          //       "level": "L4",
-          //       "name": "Understands health of males and females",
-          //       "description": "Understands male and female reproductive anatomy"
-          //     },
-          //     {
-          //       "level": "L5",
-          //       "name": "Identifies pregnancy using Nischaya Kit",
-          //       "description": "Conducts pregnancy test using kit and interprets results"
-          //     }
-          //   ]
-          // }, {
-          //   "type": "competency",
-          //   "code": "C401",
-          //   "name": "Pregnancy Identification",
-          //   "description": "Conducts initial assessment to identify pregnancy, HRP, and estimate gestational age",
-          //   "status": "Active",
-          //   "children": [
-          //     {
-          //       "level": "L1",
-          //       "name": "Understands health of males and females",
-          //       "description": "Understands male and female reproductive anatomy"
-          //     },
-          //     {
-          //       "level": "L2",
-          //       "name": "Identifies pregnancy using Nischaya Kit",
-          //       "description": "Conducts pregnancy test using kit and interprets results"
-          //     },
-          //     {
-          //       "level": "L3",
-          //       "name": "Identifies pregnancy using Nischaya Kit 3",
-          //       "description": "Conducts pregnancy test using kit and interprets results 3"
-          //     },
-          //     {
-          //       "level": "L4",
-          //       "name": "Understands health of males and females",
-          //       "description": "Understands male and female reproductive anatomy"
-          //     },
-          //     {
-          //       "level": "L5",
-          //       "name": "Identifies pregnancy using Nischaya Kit",
-          //       "description": "Conducts pregnancy test using kit and interprets results"
-          //     }
-          //   ]
-          // }
-        ]
-      }
-    }
-
-    // "result": {
-    //   "data": {
-    //     "entity": [
-    //       {
-    //         "type": "activity",
-    //         "code": "A400",
-    //         "name": "Verify maternal and child death and ensure reporting (MCDR)",
-    //         "description": "Conducts initial assessment to identify pregnancy, HRP, and estimate gestational age",
-    //         "status": "Active",
-    //         "additionalProperties": {
-    //           "Code": "A400"
-    //         }
-    //       }
-    //     ]
-    //   }
-    // }
-  }
 
 
+  // ============= LOADING & API RESPONSE =============
+  uploadProgress = 0
+  isUploading = false  // ✅ Track loading state for local spinner
+  apiResponse: any = null  // Store actual API response instead of hardcoded data
+  // ============= TABLE CONFIGURATION =============
+  tableConfig: ITableConfig = { columns: [], data: [] }
   selectedLanguage = 'English'
   searchTerm = ''
   isOpen = false
   languages = ['English', 'Hindi', 'Kannada', 'Tamil', 'English', 'Hindi', 'Kannada', 'Tamil']
+
   ngOnInit() {
     // Detect route mode from query params and update button text
     this.activatedRoute.queryParams.subscribe(queryParams => {
@@ -256,15 +79,16 @@ export class CompetencyUploadComponent {
   loadTableDataBasedOnMode(): void {
     if (this.routeMode === 'manage') {
       // Show existing data in manage mode
-      this.tableConfig = this.tableTransformUtil.transformResponseToTableConfig(this.apiResponse)
-      console.log('Manage mode - Transformed Table Config:', this.tableConfig)
-      this.originalRowData = this.apiResponse.result.data.entity
+      if (this.apiResponse) {
+        this.tableConfig = this.tableTransformUtil.transformResponseToTableConfig(this.apiResponse)
+        this.originalRowData = this.apiResponse.result.data.entity
+        console.log('Manage mode - Transformed Table Config:', this.tableConfig)
+      }
     } else {
-      // Show no-data state in upload mode (keep columns, empty data)
-      this.tableConfig = this.tableTransformUtil.transformResponseToTableConfig(this.apiResponse)
-      this.tableConfig.data = [] // Empty data to show no-data-row
+      // Show no-data state in upload mode
+      this.tableConfig = { columns: [], data: [] }
       this.originalRowData = []
-      console.log('Upload mode - Table showing no-data state')
+      console.log('Upload mode - Table cleared, ready for file upload')
     }
   }
   /** 🔹 Called when user types */
@@ -426,18 +250,119 @@ export class CompetencyUploadComponent {
     console.log('📥 Template downloaded from:', fileUrl)
   }
 
-  /** Handles actual API upload */
+  /** Handles actual API upload with modal result display */
   uploadFile(file: File) {
-    console.log('⏳ Uploading file:', file.name)
+    console.log('⏳ Starting file upload:', {
+      name: file.name,
+      size: file.size,
+      type: file.type,
+      lastModified: new Date(file.lastModified)
+    })
 
+    // ✅ Prevent multiple uploads - check if already uploading
+    if (this.isUploading) {
+      console.warn('⚠️ Upload already in progress, ignoring duplicate request')
+      return
+    }
+
+    // ✅ Show local loader
+    this.isUploading = true
+
+    // Use actual upload method
     this.fracApiService.uploadFile(file).subscribe({
       next: (res) => {
         console.log('✅ Upload successful:', res)
-        // Optionally refresh table or notify user
+
+        // ✅ Hide local loader
+        this.isUploading = false
+
+        // ✅ Store API response in global variable
+        this.apiResponse = res
+
+        // ✅ Check if response contains valid data
+        if (res?.result?.data?.entity && res.result.data.entity.length > 0) {
+          // ✅ Transform response and update table
+          this.tableConfig = this.tableTransformUtil.transformResponseToTableConfig(this.apiResponse)
+          this.originalRowData = res.result.data.entity
+
+          console.log('✅ Table updated with uploaded data:', {
+            rowCount: this.originalRowData.length,
+            tableConfig: this.tableConfig
+          })
+
+          // ✅ Show success modal with upload count
+          const uploadedCount = res.result.count || 1
+          const successData: UploadResultData = {
+            type: 'success',
+            title: 'Upload Successful',
+            message: 'Your competency data has been uploaded successfully.',
+            count: uploadedCount
+          }
+          this.showResultModal(successData)
+        } else {
+          console.warn('⚠️ Upload response received but no entity data found')
+          const warningData: UploadResultData = {
+            type: 'error',
+            title: 'No Data Found',
+            message: 'Upload completed but no entity data was returned from the server.',
+            errorDetails: 'Please verify the file format and try again.'
+          }
+          this.showResultModal(warningData)
+        }
       },
       error: (err) => {
-        console.error('❌ Upload failed:', err)
+        console.error('❌ Upload failed:', {
+          status: err.status,
+          statusText: err.statusText,
+          message: err.message,
+          error: err.error,
+          url: err.url
+        })
+
+        // ✅ Hide local loader on error
+        this.isUploading = false
+
+        // ✅ Handle error and show modal
+        this.handleUploadError(err)
       },
+    })
+  }
+
+  /** Handle upload error with appropriate message and show modal */
+  private handleUploadError(err: any): void {
+    // ✅ Extract API error details from Sunbird response format
+    const apiError = err.error?.params?.err
+    const apiErrorMsg = err.error?.params?.errmsg
+    const responseCode = err.error?.responseCode
+
+    // ✅ Simple approach: Show generic title with actual API error message
+    const errorTitle = 'Something Went Wrong'
+    const errorMessage = apiErrorMsg || err.statusText || err.message || 'An unexpected error occurred while uploading your file.'
+
+    // ✅ Build error details
+    const errorDetailsParts = []
+    if (apiError) errorDetailsParts.push(`Error Code: ${apiError}`)
+    if (responseCode) errorDetailsParts.push(`Response Code: ${responseCode}`)
+    if (err.status) errorDetailsParts.push(`HTTP Status: ${err.status}`)
+
+    const errorDetails = errorDetailsParts.length > 0 ? errorDetailsParts.join('\n') : undefined
+
+    const errorData: UploadResultData = {
+      type: 'error',
+      title: errorTitle,
+      message: errorMessage,
+      errorDetails: errorDetails
+    }
+
+    this.showResultModal(errorData)
+  }
+
+  /** Show result modal (success or error) */
+  private showResultModal(data: UploadResultData): void {
+    this.dialog.open(UploadResultModalComponent, {
+      width: '400px',
+      disableClose: false,
+      data: data
     })
   }
 

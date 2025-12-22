@@ -441,3 +441,103 @@
     cursor: not-allowed !important;
   }
 }
+
+// ✅ Loading Overlay Styles
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  border-radius: 4px;
+
+  &.show {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .spinner-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    background: white;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    position: relative;
+    min-width: 300px;
+
+    .custom-loader {
+      position: relative;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      .loader-icon {
+        position: absolute;
+        font-size: 48px;
+        width: 48px;
+        height: 48px;
+        color: #1976d2;
+        animation: iconPulse 2s ease-in-out infinite;
+        z-index: 2;
+      }
+
+      .loader-spinner {
+        animation: spinnerRotate 2s linear infinite;
+      }
+    }
+
+    .loading-text {
+      font-size: 16px;
+      font-weight: 600;
+      color: #333;
+      margin: 0;
+      text-align: center;
+    }
+
+    .loading-subtext {
+      font-size: 12px;
+      color: #999;
+      margin: 0;
+      text-align: center;
+    }
+  }
+}
+
+// Animation: Icon pulse effect
+@keyframes iconPulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.1);
+  }
+}
+
+// Animation: Spinner rotation
+@keyframes spinnerRotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+// Make parent relative for overlay positioning
+.upload-container {
+  position: relative;
+}

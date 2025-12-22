@@ -26,7 +26,8 @@ export class TableTransformUtil {
     // Register built-in handlers
     this.registerHandler('competency', this.createCompetencyTableConfig.bind(this))
     this.registerHandler('entity', this.createEntityTableConfig.bind(this))
-    this.registerHandler('activity', this.createActivityTableConfig.bind(this)) // 👈 new addition
+    this.registerHandler('activity', this.createActivityTableConfig.bind(this))
+    this.registerHandler('role', this.createRoleTableConfig.bind(this))
   }
 
   /**
@@ -128,21 +129,34 @@ export class TableTransformUtil {
   }
 
   /**
-   * Handles 'activity' type entities — shows Code, Label, Description, and Status.
+   * Handles 'activity' type entities — shows Code and Label only.
    */
   private createActivityTableConfig(entities: any[]): ITableConfig {
     const columns: ITableColumn[] = [
       { key: 'code', label: 'Code' },
-      { key: 'name', label: 'Label' },
-      { key: 'description', label: 'Description' },
-      { key: 'status', label: 'Status' },
+      { key: 'name', label: 'Name' },
     ]
 
     const data = entities.map((entity) => ({
       code: entity.code ?? entity.additionalProperties?.Code ?? '',
       name: entity.name ?? '',
-      description: entity.description ?? '',
-      status: entity.status ?? '',
+    }))
+
+    return { columns, data }
+  }
+
+  /**
+   * Handles 'role' type entities — shows Code and Name only.
+   */
+  private createRoleTableConfig(entities: any[]): ITableConfig {
+    const columns: ITableColumn[] = [
+      { key: 'code', label: 'Code' },
+      { key: 'name', label: 'Name' },
+    ]
+
+    const data = entities.map((entity) => ({
+      code: entity.code ?? entity.additionalProperties?.Code ?? '',
+      name: entity.name ?? '',
     }))
 
     return { columns, data }

@@ -1,0 +1,39 @@
+<div class="upload-result-modal">
+  <!-- Success State -->
+  <div *ngIf="isSuccess()" class="result-container success">
+    <div class="icon-wrapper success-icon">
+      <mat-icon>check_circle</mat-icon>
+    </div>
+    <h2 class="result-title">{{ data.title }}</h2>
+    <p class="result-message">{{ data.message }}</p>
+
+    <!-- Show count if available -->
+    <div *ngIf="data.count" class="count-badge">
+      <span>{{ data.count }} competency(ies) uploaded</span>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="isError()" class="result-container error">
+    <div class="icon-wrapper error-icon">
+      <mat-icon>error</mat-icon>
+    </div>
+    <h2 class="result-title">{{ data.title }}</h2>
+    <p class="result-message">{{ data.message }}</p>
+
+    <!-- Show error details if available -->
+    <div *ngIf="data.errorDetails" class="error-details">
+      <p class="error-detail-label">Error Details:</p>
+      <div class="error-detail-box">
+        {{ data.errorDetails }}
+      </div>
+    </div>
+  </div>
+
+  <!-- Action Button -->
+  <div class="modal-actions">
+    <button mat-raised-button [ngClass]="isSuccess() ? 'success-btn' : 'error-btn'" (click)="onClose()">
+      {{ isSuccess() ? 'Done' : 'Retry' }}
+    </button>
+  </div>
+</div>

@@ -3,6 +3,7 @@ import { MatDialog } from '@angular/material/dialog'
 import { ActivatedRoute } from '@angular/router'
 import { FracUploadPopupComponent } from '../../../components/frac-upload/frac-upload-popup.component'
 import { UploadPopupConfig } from '../../../models/upload-popup-config.model'
+import { UploadResultModalComponent, UploadResultData } from '../../../components/upload-result-modal/upload-result-modal.component'
 import { ITableConfig, TableTransformUtil } from '../../../utils/table-transform.util'
 import { FracApiService } from '../../../services/frac-api.service'
 import { transformActivityForUpdate } from '../../../utils/common.util'
@@ -58,6 +59,11 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
   selectedLanguage = 'English'
   languages = ['English', 'Hindi', 'Kannada', 'Tamil']
   isOpen = false
+
+  // ============= LOADING & API RESPONSE =============
+  uploadProgress = 0
+  isUploading = false  // ✅ Track loading state for local spinner
+  apiResponse: any = null  // Store actual API response
 
   // ============= INTERNAL STATE =============
 
@@ -249,45 +255,120 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
 
   /** Upload file to API */
   uploadFile(file: File): void {
+    console.log('⏳ Uploading role file:', {
+      name: file.name,
+      size: file.size,
+      type: file.type,
+      lastModified: new Date(file.lastModified)
+    })
+
+    // ✅ Prevent multiple uploads - check if already uploading
+    if (this.isUploading) {
+      console.warn('⚠️ Upload already in progress, ignoring duplicate request')
+      return
+    }
+
+    // ✅ Show local loader
+    this.isUploading = true
+
+    // Use actual upload method
     this.fracApiService.uploadFile(file).subscribe({
-      next: (res) => console.log('Upload successful:', res),
-      error: (err) => console.error('Upload failed:', err),
+      next: (res) => {
+        console.log('✅ Upload successful:', res)
+
+        // ✅ Hide local loader
+        this.isUploading = false
+
+        // ✅ Store API response globally
+        this.apiResponse = res
+
+        // ✅ Check if response contains valid data
+        if (res?.result?.data?.entity && res.result.data.entity.length > 0) {
+          // ✅ Transform response and update table
+          this.tableConfig = this.tableTransformUtil.transformResponseToTableConfig(this.apiResponse)
+          this.originalRowData = res.result.data.entity
+
+          // ✅ Show success modal with upload count
+          const uploadedCount = res.result.count || 1
+          const successData: UploadResultData = {
+            type: 'success',
+            title: 'Upload Successful',
+            message: 'Your role data has been uploaded successfully.',
+            count: uploadedCount
+          }
+          this.showResultModal(successData)
+        } else {
+          const warningData: UploadResultData = {
+            type: 'error',
+            title: 'No Data Found',
+            message: 'Upload completed but no entity data was returned from the server.',
+            errorDetails: 'Please verify the file format and try again.'
+          }
+          this.showResultModal(warningData)
+        }
+      },
+      error: (err) => {
+        console.error('❌ Upload failed:', {
+          status: err.status,
+          statusText: err.statusText,
+          message: err.message,
+          error: err.error,
+          url: err.url
+        })
+
+        // ✅ Hide local loader on error
+        this.isUploading = false
+
+        // ✅ Handle error and show modal
+        this.handleUploadError(err)
+      },
     })
   }
 
-  // ============= SAMPLE DATA (Mock Response) =============
+  /** Handle upload error with appropriate message and show modal */
+  private handleUploadError(err: any): void {
+    // ✅ Extract API error details from Sunbird response format
+    const apiError = err.error?.params?.err
+    const apiErrorMsg = err.error?.params?.errmsg
+    const responseCode = err.error?.responseCode
 
-  /** Sample API response for demonstration */
-  apiResponse = {
-    "result": {
-      "data": {
-        "entity": [
-          {
-            "type": "role",
-            "code": "R1",
-            "name": "Provide Antenatal and antepartum services through outreach and at facility",
-            "description": "Manages antenatal services delivery",
-            "status": "Active",
-            "children": []
-          },
-          {
-            "type": "role",
-            "code": "R2",
-            "name": "Conduct safe institutional delivery and provide Intrapartum care",
-            "description": "Manages institutional delivery services",
-            "status": "Active",
-            "children": []
-          },
-          {
-            "type": "role",
-            "code": "R3",
-            "name": "Provide Postpartum and postnatal services through outreach and at facility",
-            "description": "Manages postpartum services delivery",
-            "status": "Active",
-            "children": []
-          }
-        ]
-      }
+    // 🔍 DEBUG: Log all error details
+    console.log('🔍 DEBUG handleUploadError - Full error object:', err)
+    console.log('🔍 DEBUG - err.status:', err.status)
+    console.log('🔍 DEBUG - err.error:', err.error)
+    console.log('🔍 DEBUG - apiError:', apiError)
+    console.log('🔍 DEBUG - apiErrorMsg:', apiErrorMsg)
+    console.log('🔍 DEBUG - responseCode:', responseCode)
+
+    // ✅ Simple approach: Show generic title with actual API error message
+    const errorTitle = 'Something Went Wrong'
+    const errorMessage = apiErrorMsg || err.statusText || err.message || 'An unexpected error occurred while uploading your file.'
+
+    // ✅ Build error details
+    const errorDetailsParts = []
+    if (apiError) errorDetailsParts.push(`Error Code: ${apiError}`)
+    if (responseCode) errorDetailsParts.push(`Response Code: ${responseCode}`)
+    if (err.status) errorDetailsParts.push(`HTTP Status: ${err.status}`)
+
+    const errorDetails = errorDetailsParts.length > 0 ? errorDetailsParts.join('\n') : undefined
+
+    const errorData: UploadResultData = {
+      type: 'error',
+      title: errorTitle,
+      message: errorMessage,
+      errorDetails: errorDetails
     }
+
+    this.showResultModal(errorData)
   }
+
+  /** Show result modal (success or error) */
+  private showResultModal(data: UploadResultData): void {
+    this.dialog.open(UploadResultModalComponent, {
+      width: '400px',
+      disableClose: false,
+      data: data
+    })
+  }
+
 }

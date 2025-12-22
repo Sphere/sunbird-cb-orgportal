@@ -1,0 +1,151 @@
+.upload-result-modal {
+  padding: 32px 24px;
+  text-align: center;
+  min-width: 350px;
+}
+
+.result-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+
+  &.success {
+    .icon-wrapper {
+      background-color: #e8f5e9;
+      color: #2e7d32;
+    }
+  }
+
+  &.error {
+    .icon-wrapper {
+      background-color: #ffebee;
+      color: #c62828;
+    }
+  }
+}
+
+.icon-wrapper {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  animation: slideIn 0.3s ease-out;
+
+  mat-icon {
+    width: 48px;
+    height: 48px;
+    font-size: 48px;
+    line-height: 48px;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.result-title {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0;
+  color: #333;
+
+  .success & {
+    color: #2e7d32;
+  }
+
+  .error & {
+    color: #c62828;
+  }
+}
+
+.result-message {
+  font-size: 14px;
+  color: #666;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.count-badge {
+  background-color: #e8f5e9;
+  border: 1px solid #a5d6a7;
+  border-radius: 20px;
+  padding: 8px 16px;
+  margin-top: 8px;
+
+  span {
+    color: #2e7d32;
+    font-weight: 500;
+    font-size: 13px;
+  }
+}
+
+.error-details {
+  text-align: left;
+  margin-top: 16px;
+  padding: 16px;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+}
+
+.error-detail-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #666;
+  margin: 0 0 8px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.error-detail-box {
+  font-size: 12px;
+  color: #c62828;
+  background-color: #fff;
+  border: 1px solid #ffcdd2;
+  border-radius: 4px;
+  padding: 12px;
+  word-break: break-word;
+  font-family: 'Courier New', monospace;
+  max-height: 150px;
+  overflow-y: auto;
+  line-height: 1.4;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.success-btn {
+  background-color: #2e7d32 !important;
+  color: white !important;
+  padding: 8px 32px !important;
+  font-weight: 500;
+
+  &:hover {
+    background-color: #1b5e20 !important;
+  }
+}
+
+.error-btn {
+  background-color: #c62828 !important;
+  color: white !important;
+  padding: 8px 32px !important;
+  font-weight: 500;
+
+  &:hover {
+    background-color: #ad1457 !important;
+  }
+}
