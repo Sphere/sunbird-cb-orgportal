@@ -1,0 +1,99 @@
+<div class="playlist-filters-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1 class="main-title">e-Kshamata Admin Portal</h1>
+        <p class="main-subtitle">Oversee and customize learning content for State, District, and Block levels.</p>
+    </div>
+
+    <!-- Form Container -->
+    <form [formGroup]="filterForm" class="filter-form">
+        <!-- Section 1: Select Position and State -->
+        <div class="form-section">
+            <h2 class="section-title">Select Position and State to Manage</h2>
+            <p class="section-description">
+                Choose the learner organisation and position for which you want to manage courses and competencies.
+            </p>
+
+            <!-- Row 1: Organization & Position -->
+            <div class="form-row">
+                <!-- Organization Dropdown (Custom) -->
+                <div class="custom-select-wrapper">
+                    <select formControlName="orgId" class="custom-select" required>
+                        <option value="" disabled selected>Organisation*</option>
+                        <option *ngFor="let org of organizations" [value]="org.value">
+                            {{ org.label }}
+                        </option>
+                    </select>
+                    <div class="select-arrow"></div>
+                </div>
+
+                <!-- Position Dropdown (Custom) -->
+                <div class="custom-select-wrapper">
+                    <select formControlName="role" class="custom-select" required>
+                        <option value="" disabled selected>Position*</option>
+                        <option *ngFor="let position of positions" [value]="position.value">
+                            {{ position.label }}
+                        </option>
+                    </select>
+                    <div class="select-arrow"></div>
+                </div>
+            </div>
+
+            <!-- Row 2: District & Block -->
+            <div class="form-row">
+                <!-- District Dropdown (Custom) -->
+                <div class="custom-select-wrapper">
+                    <select formControlName="district" class="custom-select">
+                        <option value="" disabled selected>District</option>
+                        <option *ngFor="let district of districts" [value]="district.value">
+                            {{ district.label }}
+                        </option>
+                    </select>
+                    <div class="select-arrow"></div>
+                </div>
+
+                <!-- Block Dropdown (Custom) -->
+                <div class="custom-select-wrapper">
+                    <select formControlName="block" class="custom-select">
+                        <option value="" disabled selected>Block</option>
+                        <option *ngFor="let block of blocks" [value]="block.value">
+                            {{ block.label }}
+                        </option>
+                    </select>
+                    <div class="select-arrow"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 2: Select Language -->
+        <div class="form-section">
+            <h2 class="section-title">Select Language</h2>
+            <p class="section-description">
+                Choose the language in which learners will view their courses and competencies on the home screen.
+            </p>
+
+            <div class="form-row">
+                <!-- Language Dropdown (Custom - Full Width) -->
+                <div class="custom-select-wrapper custom-select-full">
+                    <select formControlName="language" class="custom-select" required>
+                        <option value="" disabled selected>Language*</option>
+                        <option *ngFor="let lang of languages" [value]="lang.value">
+                            {{ lang.label }}
+                        </option>
+                    </select>
+                    <div class="select-arrow"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Continue Button -->
+        <button type="button" class="continue-btn" [disabled]="filterForm.invalid || loading" (click)="onContinue()">
+            {{ loading ? 'Loading...' : 'Continue' }}
+        </button>
+
+        <!-- Error Message -->
+        <div *ngIf="errorMessage" class="error-message">
+            <span>⚠️ {{ errorMessage }}</span>
+        </div>
+    </form>
+</div>

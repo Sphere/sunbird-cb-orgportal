@@ -1,0 +1,117 @@
+<div class="playlist-summary-container">
+    <!-- Header Section (Figma: e-Kshamata Admin Portal) -->
+    <div class="header">
+        <h1 class="title">e-Kshamata Admin Portal</h1>
+        <p class="subtitle">Oversee and customize learning content for State, District, and Block levels.</p>
+    </div>
+
+    <!-- Filter Summary Row -->
+    <!-- Figma: Left aligned items with "Change" button at end -->
+    <!-- Org: BNRC Position: ANM Language: English -->
+    <div class="filter-summary-row" *ngIf="filters">
+        <div class="filter-group">
+            <span class="label">Org:</span>
+            <span class="value">{{ filters.orgId }}</span>
+        </div>
+
+        <div class="filter-group">
+            <span class="label">Position:</span>
+            <span class="value">{{ getRoleDisplay() }}</span>
+        </div>
+
+        <div class="filter-group">
+            <span class="label">Language: </span>
+            <span class="value">{{ filters.language }}</span>
+        </div>
+
+        <button class="change-btn" (click)="onChangeFilters()">
+            Change
+        </button>
+    </div>
+
+    <!-- Cards Container -->
+    <div class="cards-container">
+
+        <!-- Manage Course Card -->
+        <div class="summary-card">
+            <div class="card-header">
+                <h2>Manage Course</h2>
+                <p>Choose the courses to be displayed on the learner’s home page.</p>
+            </div>
+
+            <div class="stats-container">
+                <div class="stat-row">
+                    <span class="stat-label">Total Courses</span>
+                    <span class="stat-sep">:</span>
+                    <span class="stat-val highlight">{{ courseSummary.total }}</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Live</span>
+                    <span class="stat-sep">:</span>
+                    <span class="stat-val highlight">{{ courseSummary.live }}</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Hidden</span>
+                    <span class="stat-sep">:</span>
+                    <span class="stat-val highlight">{{ courseSummary.hidden }}</span>
+                </div>
+                <!-- Last Updated -->
+                <div class="stat-row last-updated">
+                    <div class="stat-label-group">
+                        <span class="stat-label">Last updated</span>
+                        <span class="stat-sep">:</span>
+                    </div>
+                    <span class="stat-val highlight">{{ courseSummary.lastUpdated }}</span>
+                </div>
+            </div>
+
+            <button class="create-btn" (click)="onManageCourse()">
+                <img src="https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/icons/frac_manage_icon.svg"
+                    alt="manage" class="btn-icon">
+                Create
+            </button>
+        </div>
+
+        <!-- Manage Competency Card -->
+        <div class="summary-card">
+            <div class="card-header">
+                <h2>Manage Competency</h2>
+                <p>Choose the competency to be displayed on the learner’s home page.</p>
+            </div>
+
+            <div class="stats-container">
+                <div class="stat-row">
+                    <span class="stat-label">Total Competency</span>
+                    <span class="stat-sep">:</span>
+                    <span class="stat-val highlight">{{ competencySummary.total }}</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Live</span>
+                    <span class="stat-sep">:</span>
+                    <span class="stat-val highlight">{{ competencySummary.live }}</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Hidden</span>
+                    <span class="stat-sep">:</span>
+                    <span class="stat-val highlight">{{ competencySummary.hidden }}</span>
+                </div>
+                <!-- Last Updated -->
+                <div class="stat-row last-updated">
+                    <div class="stat-label-group">
+                        <span class="stat-label">Last updated</span>
+                        <span class="stat-sep">:</span>
+                    </div>
+                    <span class="stat-val highlight">{{ competencySummary.lastUpdated }}</span>
+                </div>
+            </div>
+
+            <!-- Disabled State for Competency -->
+            <button class="create-btn disabled">
+                <img src="https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/icons/frac_manage_icon.svg"
+                    alt="manage" class="btn-icon">
+                Create
+            </button>
+        </div>
+
+    </div>
+</div>

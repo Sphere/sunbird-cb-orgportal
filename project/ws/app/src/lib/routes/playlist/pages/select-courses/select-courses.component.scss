@@ -1,0 +1,336 @@
+// ===========================================================================
+// SELECT COURSES PAGE - Styles (PURE CSS)
+// ===========================================================================
+
+// Override container-balanced padding from home component
+:host ::ng-deep .container-balanced {
+    padding: 0 !important;
+}
+
+.select-courses-container {
+    // max-width: 1440px;
+    margin: 0 auto;
+    padding: 0; // Reset padding to match 1440px layout if needed, or keep consistent
+    position: relative;
+    background: white;
+    min-height: 100vh;
+}
+
+// ---------------------------------------------------------------------------
+// HEADER WITH TABS ( 88px height white bg + tabs below?)
+// User Code: 
+// Top white bar 88px.
+// Tabs bar (Select Competencies) at top?
+// Actually, looking at screenshot 533: 
+// "Select Competencies" is a tab next to "Select Courses" in a light blue bar.
+// The blue bar is top-level.
+// ---------------------------------------------------------------------------
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 62px;
+    background: #EFF6FC; // Light blue 
+    padding: 0 36px;
+}
+
+.tabs {
+    display: flex;
+    gap: 32px;
+}
+
+.tab-button {
+    background: transparent;
+    border: none;
+    font-family: 'Roboto', sans-serif;
+    font-size: 24px;
+    cursor: pointer;
+    color: #000;
+    opacity: 0.4;
+    padding: 0;
+
+    &.active {
+        font-weight: 600; // Bold for active
+        opacity: 1;
+    }
+
+    &:hover {
+        opacity: 0.8;
+    }
+}
+
+.next-btn {
+    width: 156px;
+    height: 40px;
+    border-radius: 50px;
+    border: none;
+    background: #BFBFBF; // Disabled gray
+    color: #808080;
+    font-family: 'Roboto', sans-serif;
+    font-size: 14px;
+    cursor: not-allowed;
+
+    &:not(:disabled) {
+        background: #1C5D95; // primary blue
+        color: white;
+        cursor: pointer;
+
+        &:hover {
+            background: #164d7a;
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// BACK BUTTON
+// ---------------------------------------------------------------------------
+.back-text-btn {
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin: 20px 0 0 36px; // Left margin 
+    cursor: pointer;
+
+    .back-icon {
+        width: 24px;
+        height: 24px;
+    }
+}
+
+// ---------------------------------------------------------------------------
+// PAGE TITLE & SUBTITLE
+// ---------------------------------------------------------------------------
+.page-title {
+    margin: 16px 0 32px 36px; // Left 80px
+
+    h1 {
+        font-family: 'Roboto', sans-serif;
+        font-size: 32px;
+        font-weight: 600;
+        color: #000;
+        margin: 0 0 12px 0;
+    }
+
+    .subtitle {
+        font-family: 'Roboto', sans-serif;
+        font-size: 20px;
+        font-weight: 400;
+        color: #000;
+        margin: 0;
+    }
+}
+
+// ---------------------------------------------------------------------------
+// SEARCH FIELD ( 289px x 44px)
+// ---------------------------------------------------------------------------
+.search-container {
+    margin: 0 0 24px 36px; // Left 80px
+}
+
+.custom-search-field {
+    width: 289px;
+    height: 44px;
+    background: white;
+    box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.15);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 12px;
+
+    input {
+        border: none;
+        outline: none;
+        flex: 1;
+        font-family: 'Roboto', sans-serif;
+        font-size: 14px;
+        color: #000;
+
+        &::placeholder {
+            color: #808080;
+        }
+    }
+
+    .search-icon {
+        width: 21px;
+        height: 21px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        svg,
+        img {
+            width: 16px;
+            height: 16px;
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// TABLE CONTAINER & TABLE
+// ---------------------------------------------------------------------------
+.table-container {
+    width: calc(100% - 72px);
+    margin-left: 36px;
+    margin-right: 36px;
+    border-radius: 16px;
+    border: 1px solid #E1DFDF;
+    overflow: hidden;
+    background: white;
+    margin-bottom: 40px;
+}
+
+// Scrollable wrapper for table body
+.table-scroll-wrapper {
+    max-height: 560px;
+    overflow-y: auto;
+}
+
+.custom-table {
+    width: 100%;
+    border-collapse: collapse;
+
+    thead {
+        background: #DFEDF9;
+        height: 32px;
+
+        th {
+            font-family: 'Roboto', sans-serif;
+            font-size: 14px;
+            font-weight: 400;
+            color: #000;
+            text-align: left;
+            padding: 0 16px; // Same padding as body cells for alignment
+        }
+    }
+
+    tbody {
+        tr {
+            height: 48px; // Approx row height
+            border-bottom: 1px solid #E1DFDF; // Darker border for visible grid (styled)
+
+            &:last-child {
+                border-bottom: none;
+            }
+
+            &:hover {
+                background-color: #f9f9f9;
+            }
+
+            &.selected-row {
+                background-color: #e3f2fd;
+            }
+
+            &.preselected-row {
+                background-color: #fff8e1;
+            }
+        }
+
+        td {
+            font-family: 'Roboto', sans-serif;
+            font-size: 16px; // Body font 16px
+            font-weight: 400;
+            color: #000;
+            padding: 0 16px;
+            // Optional: Add vertical borders if "grid" implies full grid?
+            // border-right: 1px solid #f0f0f0; 
+            // Keeping row-only for now as per usual material/list style
+        }
+    }
+}
+
+// Column Widths
+.checkbox-col {
+    width: 48px; // Fixed width for checkbox icon
+    min-width: 48px;
+    max-width: 48px;
+    padding-left: 16px !important;
+    // Add vertical divider on right side (between checkbox and name)
+    border-right: 1px solid #E1DFDF;
+}
+
+.name-col {
+    width: 50%; // Takes 50% of remaining space
+    // Add vertical divider on right side (between name and source)
+    border-right: 1px solid #E1DFDF;
+}
+
+.source-col {
+    width: 50%; // Takes 50% of remaining space
+    padding-left: 24px !important;
+}
+
+// ---------------------------------------------------------------------------
+// CUSTOM CHECKBOX (custom style)
+// ---------------------------------------------------------------------------
+.custom-checkbox {
+    display: block;
+    position: relative;
+    padding-left: 0;
+    margin-bottom: 0;
+    cursor: pointer;
+    width: 20px;
+    height: 20px;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+
+    input {
+        position: absolute;
+        opacity: 0;
+        cursor: pointer;
+        height: 0;
+        width: 0;
+    }
+
+    .checkmark {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 18.8px;
+        width: 18.8px;
+        background-color: white;
+        border: 1.76px solid #404040; // border
+        border-radius: 4.7px; // radius
+    }
+
+    input:checked~.checkmark {
+        background-color: #1C5D95; // primary color for checked
+        border-color: #1C5D95;
+    }
+
+    .checkmark:after {
+        content: "";
+        position: absolute;
+        display: none;
+    }
+
+    input:checked~.checkmark:after {
+        display: block;
+    }
+
+    // Checkmark icon (CSS draw)
+    .checkmark:after {
+        left: 6px;
+        top: 2px;
+        width: 5px;
+        height: 10px;
+        border: solid white;
+        border-width: 0 2px 2px 0;
+        -webkit-transform: rotate(45deg);
+        -ms-transform: rotate(45deg);
+        transform: rotate(45deg);
+    }
+}
+
+// ---------------------------------------------------------------------------
+// LOADING & EMPTY STATE
+// ---------------------------------------------------------------------------
+.loading,
+.empty-state {
+    margin-left: 36px;
+    padding: 40px;
+    color: #666;
+    font-family: 'Roboto', sans-serif;
+}

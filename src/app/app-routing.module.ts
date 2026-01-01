@@ -100,6 +100,18 @@ const routes: Routes = [
     },
   },
   {
+    path: 'app/playlist',
+    loadChildren: () => import('./routes/route-playlist-standalone.module').then(u => u.RoutePlaylistStandaloneModule),
+    canActivate: [GeneralGuard],
+    data: {
+      pageType: 'feature',
+      pageKey: 'playlist',
+    },
+    resolve: {
+      pageData: PageResolve,
+    },
+  },
+  {
     path: 'app/frac',
     loadChildren: () => import('./routes/route-frac.module').then(u => u.RouteFracModule),
     canActivate: [GeneralGuard],

@@ -1,0 +1,91 @@
+<div class="select-courses-container">
+    <!-- Header with Tab Navigation -->
+    <div class="header">
+        <div class="tabs">
+            <button class="tab-button" (click)="onTabClick('competency')">Select Competencies</button>
+            <!-- <button class="tab-button active">Select Courses</button> -->
+        </div>
+
+        <button class="next-btn" (click)="onNext()" [disabled]="!isNextEnabled()">
+            Next
+        </button>
+    </div>
+
+    <!-- Back Button -->
+    <button class="back-text-btn" (click)="onBack()">
+        <img src="https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/icons/frac-left-arrow.svg" alt="back"
+            class="back-icon">
+    </button>
+
+    <!-- Page Title -->
+    <div class="page-title">
+        <h1>Select Courses</h1>
+        <p class="subtitle">Choose which courses learners will see on their home screen.</p>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="search-container">
+        <div class="custom-search-field">
+            <input type="text" placeholder="Search by name, code" [(ngModel)]="searchTerm" (input)="onSearch()">
+            <span class="search-icon">
+                <svg width="21" height="21" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="9" cy="9" r="7" stroke="#272727" stroke-width="2" />
+                    <line x1="14" y1="14" x2="19" y2="19" stroke="#272727" stroke-width="2" stroke-linecap="round" />
+                </svg>
+            </span>
+        </div>
+    </div>
+
+    <!-- Loading Indicator -->
+    <div *ngIf="loading" class="loading">
+        <p>Loading courses...</p>
+    </div>
+
+    <!-- Course Table (Pure HTML) -->
+    <div *ngIf="!loading" class="table-container">
+        <!-- Scrollable table area (560px max) -->
+        <div class="table-scroll-wrapper">
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th class="checkbox-col">
+                            <label class="custom-checkbox">
+                                <input type="checkbox" (change)="$event ? masterToggle() : null"
+                                    [checked]="selection.hasValue() && isAllSelected()"
+                                    [indeterminate]="selection.hasValue() && !isAllSelected()">
+                                <span class="checkmark"></span>
+                            </label>
+                        </th>
+                        <th class="name-col">Name</th>
+                        <th class="source-col">Source</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let row of filteredCourses" [class.selected-row]="selection.isSelected(row)"
+                        [class.preselected-row]="row.isPreselected">
+                        <td class="checkbox-col">
+                            <label class="custom-checkbox">
+                                <input type="checkbox" (click)="$event.stopPropagation()"
+                                    (change)="$event ? selection.toggle(row) : null"
+                                    [checked]="selection.isSelected(row)">
+                                <span class="checkmark"></span>
+                            </label>
+                        </td>
+                        <td class="name-col">{{ row.name }}</td>
+                        <td class="source-col">{{ row.sourceName }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination (Outside scroll area) -->
+        <mat-paginator [length]="totalCourses" [pageSize]="pageSize" [pageSizeOptions]="[20, 50, 100]"
+            showFirstLastButtons class="custom-paginator">
+        </mat-paginator>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!loading && allCourses.length === 0" class="empty-state">
+        <p>No courses found</p>
+    </div>
+</div>

@@ -1,0 +1,234 @@
+// ===========================================================================
+// PURE CUSTOM CSS - NO ANGULAR MATERIAL
+// Exact styling with native HTML select elements
+// ===========================================================================
+
+.playlist-filters-container {
+    // max-width: 1140px;
+    margin: 0 auto;
+    padding: 64px;
+}
+
+// ---------------------------------------------------------------------------
+// PAGE HEADER
+// ---------------------------------------------------------------------------
+.page-header {
+    margin-bottom: 48px;
+}
+
+.main-title {
+    color: #000;
+    font-size: 36px;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 500;
+    margin: 0 0 16px 0;
+    line-height: 1.2;
+}
+
+.main-subtitle {
+    color: #000;
+    font-size: 20px;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400;
+    margin: 0;
+    line-height: 1.4;
+    max-width: 687px;
+}
+
+// ---------------------------------------------------------------------------
+// FORM SECTIONS
+// ---------------------------------------------------------------------------
+.filter-form {
+    .form-section {
+        margin-bottom: 16px;
+    }
+
+    .section-title {
+        color: #000;
+        font-size: 24px;
+        font-family: 'Roboto', sans-serif;
+        font-weight: 500;
+        margin: 0 0 12px 0;
+    }
+
+    .section-description {
+        color: #000;
+        font-size: 20px;
+        font-family: 'Roboto', sans-serif;
+        font-weight: 400;
+        margin: 0 0 24px 0;
+        line-height: 1.4;
+        max-width: 638px;
+    }
+
+    .form-row {
+        display: flex;
+        gap: 40px;
+        margin-bottom: 24px;
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// CUSTOM SELECT DROPDOWNS (Styles)
+// ---------------------------------------------------------------------------
+.custom-select-wrapper {
+    position: relative;
+    width: 300px;
+
+    // Full width variant for language
+    &.custom-select-full {
+        width: 640px;
+    }
+
+    // The actual select element
+    .custom-select {
+        width: 100%;
+        height: 44px;
+        padding: 0 40px 0 16px; // Right padding for arrow
+        background: white;
+        box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.25);
+        border-radius: 6px;
+        border: none;
+        outline: none;
+
+        // Typography
+        color: #000;
+        font-size: 16px;
+        font-family: 'Roboto', sans-serif;
+        font-weight: 400;
+        line-height: 24px;
+
+        // Remove default appearance
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+
+        cursor: pointer;
+
+        // Placeholder (disabled option)
+        option:disabled {
+            color: #808080;
+        }
+
+        // Filled state
+        option:not(:disabled) {
+            color: #000;
+        }
+
+        // When nothing selected (placeholder showing)
+        &:invalid {
+            color: #808080;
+        }
+
+        // Focus state
+        &:focus {
+            box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        // Disabled state
+        &:disabled {
+            background: #f5f5f5;
+            color: #999;
+            cursor: not-allowed;
+        }
+    }
+
+    // Custom arrow (triangle)
+    .select-arrow {
+        position: absolute;
+        right: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 0;
+        height: 0;
+        border-left: 5.5px solid transparent;
+        border-right: 5.5px solid transparent;
+        border-top: 7px solid #000;
+        pointer-events: none; // Click passes through to select
+    }
+
+    // Disabled arrow
+    select:disabled+.select-arrow {
+        border-top-color: #999;
+    }
+}
+
+// ---------------------------------------------------------------------------
+// CONTINUE BUTTON (EXACT PILL)
+// ---------------------------------------------------------------------------
+.continue-btn {
+    width: 134px;
+    height: 36px;
+    padding: 7px 24px;
+    background: #1976d2;
+    color: white;
+    border: none;
+    border-radius: 50px; // Pill shape
+    font-size: 14px;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400;
+    cursor: pointer;
+    margin-top: 24px;
+    transition: background 0.2s;
+
+    &:hover:not(:disabled) {
+        background: #1565c0;
+    }
+
+    &:disabled {
+        background: #bfbfbf; // Exact disabled color
+        color: #808080; // Exact disabled text
+        cursor: not-allowed;
+    }
+
+    &:active:not(:disabled) {
+        background: #0d47a1;
+    }
+}
+
+// ---------------------------------------------------------------------------
+// ERROR MESSAGE
+// ---------------------------------------------------------------------------
+.error-message {
+    margin-top: 16px;
+    padding: 12px 16px;
+    background: #ffebee;
+    border-left: 4px solid #f44336;
+    border-radius: 4px;
+    color: #c62828;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+// ---------------------------------------------------------------------------
+// RESPONSIVE
+// ---------------------------------------------------------------------------
+@media (max-width: 768px) {
+    .playlist-filters-container {
+        padding: 32px 16px;
+    }
+
+    .filter-form {
+        .form-row {
+            flex-direction: column;
+            gap: 16px;
+        }
+    }
+
+    .custom-select-wrapper {
+        width: 100%;
+
+        &.custom-select-full {
+            width: 100%;
+        }
+    }
+
+    .main-subtitle,
+    .section-description {
+        max-width: 100%;
+    }
+}

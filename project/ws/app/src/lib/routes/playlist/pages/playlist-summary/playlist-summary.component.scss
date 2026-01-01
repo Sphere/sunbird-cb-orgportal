@@ -1,0 +1,224 @@
+// ===========================================================================
+// PLAYLIST SUMMARY PAGE - Styles
+// ===========================================================================
+
+.playlist-summary-container {
+    padding: 0 40px; // Match side padding
+    max-width: 1440px;
+    margin: 0 auto;
+    background: white;
+    min-height: 100vh;
+}
+
+// ---------------------------------------------------------------------------
+// HEADER
+// ---------------------------------------------------------------------------
+.header {
+    margin: 24px 0 32px 0; // Adjust formatting
+}
+
+.title {
+    color: black;
+    font-size: 36px; // 36px
+    font-family: 'Roboto', sans-serif;
+    font-weight: 500;
+    margin: 0 0 14px 0;
+}
+
+.subtitle {
+    color: black;
+    font-size: 20px;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400;
+    margin: 0;
+}
+
+// ---------------------------------------------------------------------------
+// FILTER SUMMARY ROW
+// ---------------------------------------------------------------------------
+.filter-summary-row {
+    display: flex;
+    align-items: center;
+    gap: 24px; // Gap between groups
+    margin-bottom: 40px;
+    padding-left: 0;
+}
+
+.filter-group {
+    display: flex;
+    align-items: center;
+    gap: 8px; // Gap between label and value (default text space)
+}
+
+.label {
+    color: #808080;
+    font-size: 18px;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400;
+}
+
+.value {
+    color: #1C5D95; // Blue color  code (Or black based on screenshot? Code says #1C5D95)
+    // Wait, let's re-read code.
+    // <span style="color: #1C5D95; ..."> BNRC</span>
+    // Yes, provided code says #1C5D95.
+    font-size: 18px;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400;
+}
+
+.change-btn {
+    width: 104px;
+    height: 30px;
+    border-radius: 50px;
+    border: 1px solid #1C5D95;
+    background: transparent;
+    color: #1C5D95;
+    font-size: 14px;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-left: 0; // Just inline
+
+    &:hover {
+        background: #f0f8ff;
+    }
+}
+
+// ---------------------------------------------------------------------------
+// CARDS CONTAINER
+// ---------------------------------------------------------------------------
+.cards-container {
+    display: flex;
+    gap: 24px; // Spacing between cards (893px left for 2nd card implies ~420 width + gap)
+    flex-wrap: wrap;
+}
+
+// ---------------------------------------------------------------------------
+// SUMMARY CARD
+// ---------------------------------------------------------------------------
+.summary-card {
+    width: 420px;
+    padding: 24px;
+    background: white;
+    box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.25);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.card-header {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 24px;
+
+    h2 {
+        color: black;
+        font-size: 22px;
+        font-family: 'Roboto', sans-serif;
+        font-weight: 500;
+        margin: 0;
+    }
+
+    p {
+        color: #272727;
+        font-size: 16px;
+        font-family: 'Roboto', sans-serif;
+        font-weight: 400;
+        margin: 0;
+        line-height: 1.4;
+    }
+}
+
+.stats-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.stat-row {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400;
+
+    &.last-updated {
+        justify-content: flex-start;
+        gap: 24px;
+    }
+
+    // Default row has spacing
+}
+
+.stat-label {
+    width: 120px; // Approx width to align colons
+    color: #808080;
+    font-weight: 400; // spec (explicit)
+}
+
+.stat-label-group {
+    display: flex;
+    gap: 24px; // "Last updated" and ":" gap
+    align-items: center;
+}
+
+.stat-sep {
+    color: black;
+    margin-right: 24px; // Spacing after colon
+    font-weight: 400; // spec (explicit)
+}
+
+.stat-val {
+    color: #1C5D95; // Blue highlight
+    font-weight: 400; // spec (CRITICAL FIX - was missing)
+
+    &.highlight {
+        // already blue
+    }
+}
+
+// ---------------------------------------------------------------------------
+// CREATE BUTTON
+// ---------------------------------------------------------------------------
+.create-btn {
+    width: 134px;
+    height: 36px; // Approx based on padding
+    border-radius: 50px; // Pill shape
+    border: 1px solid #1C5D95;
+    background: white;
+    color: #1C5D95;
+    font-size: 14px;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+
+    &:hover {
+        background: #f0f8ff;
+    }
+
+    &.disabled {
+        border-color: #BFBFBF;
+        color: #BFBFBF;
+        pointer-events: none;
+
+        .btn-icon {
+            filter: grayscale(100%) opacity(0.5);
+        }
+    }
+
+    .btn-icon {
+        width: 16px;
+        height: 16px;
+    }
+}
