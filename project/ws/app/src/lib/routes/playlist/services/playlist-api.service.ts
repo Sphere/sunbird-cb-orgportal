@@ -18,9 +18,6 @@ import {
 })
 export class PlaylistApiService {
     private readonly API_BASE = '/apis/protected/v8/playlist'
-    // Proxied endpoints (avoid CORS)
-    private readonly CREATE_API = '/playlist-api/create'
-    private readonly UPDATE_API = '/playlist-api/update'
 
     constructor(private http: HttpClient) { }
 
@@ -64,12 +61,9 @@ export class PlaylistApiService {
 
         playlists.forEach(playlist => {
             if (playlist?.dataSource) {
-                // playlist.dataSource.forEach(source => {
-                // Only process static data sources (as per requirements)
                 if (playlist?.dataSource?.type === 'static' && Array.isArray(playlist?.dataSource?.payload)) {
                     allIds.push(...playlist?.dataSource?.payload)
                 }
-                // })
             }
         })
 
@@ -78,28 +72,56 @@ export class PlaylistApiService {
     }
 
     /**
+     * Build scope object dynamically
+     * Only includes keys that have non-empty values
+     * @param data Object with potential scope fields
+     * @returns Scope object with only non-empty values
+     */
+    private buildScope(data: { orgId: string, role: string[], state?: string[], district?: string[], language: string }): any {
+        const scope: any = {}
+
+        // Add all non-empty values
+        Object.entries(data).forEach(([key, value]) => {
+            if (value !== undefined && value !== null) {
+                // For arrays, only add if has items
+                if (Array.isArray(value)) {
+                    if (value.length > 0) {
+                        scope[key] = value
+                    }
+                } else if (value !== '') {
+                    // For strings, only add if not empty
+                    scope[key] = value
+                }
+            }
+        })
+
+        return scope
+    }
+
+    /**
      * Create a new playlist
      * Used when search returns empty (new entry)
      * 
-     * @param filters Playlist filters (org, role, language)
+     * @param filters Playlist filters (org, role, state, district, language)
      * @param courseIds Ordered array of selected course IDs
      * @returns Observable of create response
      */
     createPlaylist(filters: PlaylistFilters, courseIds: string[]): Observable<any> {
-        // Generate random playlist ID in format: playlistmdo{random}
         const playlistId = `playlistmdo${Math.floor(Math.random() * 1000000)}`
 
         const payload = {
             request: {
                 playlist: {
                     playlistId,
-                    scope: {
+                    scope: this.buildScope({
                         orgId: filters.orgId,
                         role: filters.role,
+                        state: filters.state,
+                        district: filters.district,
                         language: filters.language,
-                    },
+                    }),
                     dataSource: {
-                        type: 'static' as const,
+                        type: 'static',
                         payload: courseIds,
                     },
                 },
@@ -107,13 +129,13 @@ export class PlaylistApiService {
         }
 
         console.log('📝 Creating new playlist:', payload)
-        return this.http.post(this.CREATE_API, payload)
+        return this.http.post(`${this.API_BASE}/create`, payload)
     }
 
     /**
      * Update an existing playlist
      * Used when search returns existing data
-     * Updates only the dataSource.payload with new course IDs in new order
+     * Updates the dataSource.payload with new course IDs in new order
      * 
      * @param existingPlaylist The existing playlist object (contains id)
      * @param courseIds New ordered array of course IDs
@@ -123,23 +145,25 @@ export class PlaylistApiService {
         const payload = {
             request: {
                 playlist: {
-                    id: existingPlaylist.id, // Required for update
-                    playlistId: existingPlaylist.name || `playlistmdo${Math.floor(Math.random() * 1000000)}`,
-                    scope: {
+                    id: existingPlaylist.id,
+                    playlistId: existingPlaylist.playlistId || existingPlaylist.name || `playlist${existingPlaylist.id}`,
+                    scope: this.buildScope({
                         orgId: existingPlaylist.orgId,
                         role: existingPlaylist.role,
+                        state: existingPlaylist.state,
+                        district: existingPlaylist.district,
                         language: existingPlaylist.language,
-                    },
+                    }),
                     dataSource: {
-                        type: 'static' as const,
-                        payload: courseIds, // New course IDs in new order
+                        type: 'static',
+                        payload: courseIds,
                     },
                 },
             },
         }
 
         console.log('🔄 Updating existing playlist:', payload)
-        return this.http.put(this.UPDATE_API, payload)
+        return this.http.put(`${this.API_BASE}/update`, payload)
     }
 
     /**
@@ -156,10 +180,8 @@ export class PlaylistApiService {
         existingPlaylist?: Playlist
     ): Observable<any> {
         if (existingPlaylist) {
-            // Update existing
             return this.updatePlaylist(existingPlaylist, courseIds)
         } else {
-            // Create new
             return this.createPlaylist(filters, courseIds)
         }
     }

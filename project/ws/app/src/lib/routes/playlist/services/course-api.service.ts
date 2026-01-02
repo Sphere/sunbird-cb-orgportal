@@ -9,8 +9,7 @@ import {
 } from '../models/course.model'
 
 /**
- * Course API Service
- * Handles course search and retrieval from Sunbird
+ * Service for course search and retrieval operations.
  */
 @Injectable({
     providedIn: 'root',
@@ -22,13 +21,10 @@ export class CourseApiService {
     constructor(private http: HttpClient) { }
 
     /**
-     * Search for courses using Sunbird API
-     * Filters by Live status and Course primary category
-     * 
+     * Searches for courses using Sunbird API.
      * @param language Language code for filtering
-     * @param limit Number of results per page (default: 20)
-     * @param offset Pagination offset (default: 0)
-     * @returns Observable of courses and total count
+     * @param limit Number of results per page
+     * @param offset Pagination offset
      */
     searchCourses(
         language: string,
@@ -62,13 +58,9 @@ export class CourseApiService {
     }
 
     /**
-     * Search courses by name or source
-     * Client-side filtering for search functionality
-     * Generic to work with both Course and SelectableCourse types
-     * 
+     * Filters courses by name or source (client-side).
      * @param courses Array of courses to filter
      * @param searchTerm Search query
-     * @returns Filtered array of courses
      */
     filterCourses<T extends Course>(courses: T[], searchTerm: string): T[] {
         if (!searchTerm || searchTerm.trim() === '') {
@@ -77,9 +69,24 @@ export class CourseApiService {
 
         const term = searchTerm.toLowerCase().trim()
 
-        return courses.filter(course =>
-            course.name.toLowerCase().includes(term) ||
-            course.sourceName.toLowerCase().includes(term)
-        )
+        return courses.filter(course => {
+            const name = course.name?.toLowerCase() || ''
+            const sourceName = course.sourceName?.toLowerCase() || ''
+            return name.includes(term) || sourceName.includes(term)
+        })
+    }
+
+    /**
+     * Loads all courses for a language in a single request.
+     * @param language Language code
+     */
+    async loadAllCourses(language: string): Promise<Course[]> {
+        const result = await this.searchCourses(language, 9999, 0).toPromise()
+
+        if (!result || !result.courses) {
+            return []
+        }
+
+        return result.courses
     }
 }

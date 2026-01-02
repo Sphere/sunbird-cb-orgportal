@@ -107,6 +107,9 @@ export class PlaylistFiltersComponent implements OnInit {
         this.errorMessage = ''
 
         try {
+            // Clear course cache to ensure fresh data is fetched with new filters
+            this.state.clearCourseCache()
+
             // Save filters to state
             this.state.setFilters(filters)
 

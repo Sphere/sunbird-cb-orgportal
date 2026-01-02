@@ -151,7 +151,7 @@
 
     &.last-updated {
         justify-content: flex-start;
-        gap: 24px;
+        // gap: 24px;
     }
 
     // Default row has spacing
@@ -165,7 +165,7 @@
 
 .stat-label-group {
     display: flex;
-    gap: 24px; // "Last updated" and ":" gap
+    // gap: 24px; // "Last updated" and ":" gap
     align-items: center;
 }
 

@@ -36,9 +36,10 @@
         </div>
     </div>
 
-    <!-- Loading Indicator -->
-    <div *ngIf="loading" class="loading">
-        <p>Loading courses...</p>
+    <!-- Loading Indicator - Shows spinner in place of table -->
+    <div *ngIf="loading" class="loading-container">
+        <div class="spinner"></div>
+        <p class="loading-text">Loading courses...</p>
     </div>
 
     <!-- Course Table (Pure HTML) -->
@@ -49,18 +50,26 @@
                 <thead>
                     <tr>
                         <th class="checkbox-col">
-                            <label class="custom-checkbox">
+                            <!-- <label class="custom-checkbox">
                                 <input type="checkbox" (change)="$event ? masterToggle() : null"
                                     [checked]="selection.hasValue() && isAllSelected()"
                                     [indeterminate]="selection.hasValue() && !isAllSelected()">
                                 <span class="checkmark"></span>
-                            </label>
+                            </label> -->
                         </th>
                         <th class="name-col">Name</th>
                         <th class="source-col">Source</th>
                     </tr>
                 </thead>
                 <tbody>
+                    <!-- Empty State - shown when no courses -->
+                    <tr *ngIf="filteredCourses.length === 0" class="empty-state-row">
+                        <td colspan="3" class="empty-state-cell">
+                            <p>No courses found</p>
+                        </td>
+                    </tr>
+
+                    <!-- Course rows -->
                     <tr *ngFor="let row of filteredCourses" [class.selected-row]="selection.isSelected(row)"
                         [class.preselected-row]="row.isPreselected">
                         <td class="checkbox-col">
@@ -82,10 +91,5 @@
         <mat-paginator [length]="totalCourses" [pageSize]="pageSize" [pageSizeOptions]="[20, 50, 100]"
             showFirstLastButtons class="custom-paginator">
         </mat-paginator>
-    </div>
-
-    <!-- Empty State -->
-    <div *ngIf="!loading && allCourses.length === 0" class="empty-state">
-        <p>No courses found</p>
     </div>
 </div>

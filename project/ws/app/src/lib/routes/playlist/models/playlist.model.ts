@@ -4,13 +4,24 @@
  */
 
 /**
- * Filter criteria for playlist search
+ * Filter criteria for playlist search and creation
  */
 export interface PlaylistFilters {
     orgId: string
     role: string[]
-    district?: string
-    block?: string
+    state?: string[]
+    district?: string[]
+    language: string
+}
+
+/**
+ * Playlist scope for create/update requests
+ */
+export interface PlaylistScope {
+    orgId: string
+    role: string[]
+    state?: string[]
+    district?: string[]
     language: string
 }
 
@@ -41,13 +52,30 @@ export interface PlaylistDataSource {
  */
 export interface Playlist {
     id: string
-    name: string
+    playlistId?: string
+    name?: string
     orgId: string
     role: string[]
+    state?: string[]
+    district?: string[]
     language: string
     dataSource: PlaylistDataSource
     createdOn?: string
     updatedOn?: string
+}
+
+/**
+ * Playlist create/update request payload
+ */
+export interface PlaylistCreateUpdateRequest {
+    request: {
+        playlist: {
+            id?: string  // Required for update only
+            playlistId: string
+            scope: PlaylistScope
+            dataSource: PlaylistDataSource
+        }
+    }
 }
 
 /**

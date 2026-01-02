@@ -87,8 +87,11 @@ export class PlaylistSummaryComponent implements OnInit {
 
     /**
      * Navigate to course selection page
+     * Clears course cache to ensure fresh data is fetched from search API
      */
     onManageCourse(): void {
+        // Clear course cache to ensure fresh data is fetched from sunbirdigot/search
+        this.state.clearCourseCache()
         this.router.navigate(['/app/playlist/select-courses'])
     }
 
