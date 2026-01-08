@@ -12,7 +12,7 @@ export interface CourseSearchRequest {
             primaryCategory: string[]
             status: string[]
             lang: string[]
-            channel: string
+            channel?: string
         }
         limit: number
         offset: number

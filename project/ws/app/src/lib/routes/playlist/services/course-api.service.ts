@@ -16,7 +16,7 @@ import {
 })
 export class CourseApiService {
     private readonly API_BASE = '/apis/proxies/v8/sunbirdigot'
-    private readonly CHANNEL_ID = '0132317968766894088'
+    // private readonly CHANNEL_ID = '0132317968766894088'
 
     constructor(private http: HttpClient) { }
 
@@ -36,8 +36,7 @@ export class CourseApiService {
                 filters: {
                     primaryCategory: ['Course'],
                     status: ['Live'],
-                    lang: [language],
-                    channel: this.CHANNEL_ID,
+                    lang: [language]
                 },
                 limit,
                 offset,

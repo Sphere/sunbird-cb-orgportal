@@ -138,22 +138,48 @@ export class SelectCoursesComponent implements OnInit, AfterViewInit {
 
     /** Sorts courses with preselected items first (in playlist order) */
     private applyPreselectionAndSort(): void {
-        const preselected = this.allCourses.filter(c => c.isPreselected)
-        const notPreselected = this.allCourses.filter(c => !c.isPreselected)
+        // Check if we have saved selections from a previous visit (e.g., coming back from manage-order)
+        const savedSelections = this.state.getSelectedCourses()
 
-        // Sort preselected courses by their original playlist order
-        preselected.sort((a, b) => {
-            const indexA = this.existingCourseIds.indexOf(a.identifier)
-            const indexB = this.existingCourseIds.indexOf(b.identifier)
-            return (indexA === -1 ? 9999 : indexA) - (indexB === -1 ? 9999 : indexB)
-        })
+        if (savedSelections && savedSelections.length > 0) {
+            // Restore user's previous selections
+            const savedIds = savedSelections.map(c => c.identifier)
 
-        this.allCourses = [...preselected, ...notPreselected]
+            const preselected = this.allCourses.filter(c => savedIds.includes(c.identifier))
+            const notPreselected = this.allCourses.filter(c => !savedIds.includes(c.identifier))
 
-        // Auto-select preselected courses
-        preselected.forEach(course => {
-            this.selection.select(course)
-        })
+            // Sort preselected courses by their saved order
+            preselected.sort((a, b) => {
+                const indexA = savedIds.indexOf(a.identifier)
+                const indexB = savedIds.indexOf(b.identifier)
+                return indexA - indexB
+            })
+
+            this.allCourses = [...preselected, ...notPreselected]
+
+            // Restore selections
+            preselected.forEach(course => {
+                this.selection.select(course)
+            })
+        } else {
+            // No saved selections - use existing playlist courses
+            const preselected = this.allCourses.filter(c => c.isPreselected)
+            const notPreselected = this.allCourses.filter(c => !c.isPreselected)
+
+            // Sort preselected courses by their original playlist order
+            preselected.sort((a, b) => {
+                const indexA = this.existingCourseIds.indexOf(a.identifier)
+                const indexB = this.existingCourseIds.indexOf(b.identifier)
+                return (indexA === -1 ? 9999 : indexA) - (indexB === -1 ? 9999 : indexB)
+            })
+
+            this.allCourses = [...preselected, ...notPreselected]
+
+            // Auto-select preselected courses
+            preselected.forEach(course => {
+                this.selection.select(course)
+            })
+        }
     }
 
     /** Handles search input with client-side filtering */
@@ -161,10 +187,15 @@ export class SelectCoursesComponent implements OnInit, AfterViewInit {
         this.currentPage = 0
 
         if (this.searchTerm.trim() === '') {
+            // Search cleared - restore all courses
             this.searchResultCourses = [...this.allCourses]
         } else {
+            // Filter courses based on search term
             this.searchResultCourses = this.courseApi.filterCourses(this.allCourses, this.searchTerm)
         }
+
+        // Apply sorting to keep selected courses at top
+        this.sortBySelection()
 
         this.totalCourses = this.searchResultCourses.length
         this.applyPagination()
@@ -175,6 +206,63 @@ export class SelectCoursesComponent implements OnInit, AfterViewInit {
                 this.paginator.length = this.totalCourses
             }
         }, 0)
+    }
+
+    /**
+     * Handles course selection/deselection
+     * Dynamically re-sorts to show all selected courses at the top
+     */
+    onSelectionChange(row: SelectableCourse, event: any): void {
+        // Toggle selection
+        if (event.target.checked) {
+            this.selection.select(row)
+        } else {
+            this.selection.deselect(row)
+        }
+
+        // Re-sort: Selected courses first, then unselected
+        this.sortBySelection()
+
+        // Reset to page 1 to show newly selected courses
+        this.currentPage = 0
+        this.applyPagination()
+
+        setTimeout(() => {
+            if (this.paginator) {
+                this.paginator.pageIndex = 0
+            }
+        }, 0)
+    }
+
+    /**
+     * Sort courses: Default preselected first, then user-selected, then unselected
+     */
+    private sortBySelection(): void {
+        const defaultPreselected: SelectableCourse[] = []
+        const userSelected: SelectableCourse[] = []
+        const unselected: SelectableCourse[] = []
+
+        this.searchResultCourses.forEach(course => {
+            const isSelected = this.selection.isSelected(course)
+
+            if (course.isPreselected) {
+                // Default courses from API (always at top)
+                defaultPreselected.push(course)
+            } else if (isSelected) {
+                // User-selected courses (show after defaults)
+                userSelected.push(course)
+            } else {
+                // Unselected courses (at bottom)
+                unselected.push(course)
+            }
+        })
+
+        // Maintain original order within each group
+        this.searchResultCourses = [
+            ...defaultPreselected,
+            ...userSelected,
+            ...unselected
+        ]
     }
 
     /** Checks if all visible rows are selected */

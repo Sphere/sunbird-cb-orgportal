@@ -1,28 +1,25 @@
-import { Component, OnInit } from '@angular/core'
+import { Component, OnInit, ViewEncapsulation } from '@angular/core'
 import { FormBuilder, FormGroup, Validators } from '@angular/forms'
 import { Router } from '@angular/router'
 import { PlaylistApiService } from '../../services/playlist-api.service'
 import { PlaylistStateService } from '../../services/playlist-state.service'
 import { PlaylistFilters } from '../../models/playlist.model'
 
-/**
- * Playlist Filters Component
- * 
- * First page in the playlist workflow
- * Allows admin to select Organization, Role, District, Block, and Language
- * Calls playlist search API and navigates to summary page
- */
 @Component({
     selector: 'app-playlist-filters',
     templateUrl: './playlist-filters.component.html',
     styleUrls: ['./playlist-filters.component.scss'],
+    encapsulation: ViewEncapsulation.None,
 })
 export class PlaylistFiltersComponent implements OnInit {
     filterForm!: FormGroup
     loading = false
     errorMessage = ''
 
-    // Dropdown options (TODO: Load from API or config)
+    /**
+     * Dropdown options for organizations
+     * Note: Currently using hardcoded values. In future, can be loaded from API or configuration file.
+     */
     organizations = [
         { value: '0142443633580769283117', label: 'BNRC' },
         { value: 'MOHFW', label: 'Ministry of Health and Family Welfare' },

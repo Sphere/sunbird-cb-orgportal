@@ -62,6 +62,7 @@ export interface Playlist {
     dataSource: PlaylistDataSource
     createdOn?: string
     updatedOn?: string
+    updated_at?: string
 }
 
 /**

@@ -62,20 +62,63 @@ export class PlaylistSummaryComponent implements OnInit {
      */
     private loadExistingPlaylist(): void {
         this.existingCourseIds = this.state.getExistingCourseIds()
+        const existingPlaylist = this.state.getExistingPlaylist()
+        console.log('Existing playlist:', existingPlaylist)
 
         // Show actual course count from existing playlist
         this.courseSummary.total = this.existingCourseIds.length
 
-        // TODO: Get actual live/hidden counts from API
-        // For now, show total count and set live=total, hidden=0
+        /**
+         * Display course summary statistics
+         * Currently showing total count with all courses marked as live.
+         * Future enhancement: Integrate with API to get actual live/hidden course counts.
+         */
         if (this.existingCourseIds.length > 0) {
             this.courseSummary.live = this.existingCourseIds.length
             this.courseSummary.hidden = 0
-            this.courseSummary.lastUpdated = 'Not available'
+            this.courseSummary.lastUpdated = existingPlaylist?.updated_at
+                ? this.timeAgo(existingPlaylist.updated_at)
+                : 'Not available'
         }
 
         console.log('Existing playlist course IDs:', this.existingCourseIds)
         console.log('Course summary:', this.courseSummary)
+    }
+
+    /**
+     * Transforms a date string into a relative time string (e.g. "2 mins ago", "1 hr ago")
+     */
+    private timeAgo(dateString: string): string {
+        const date = new Date(dateString)
+        const now = new Date()
+        const seconds = Math.floor((now.getTime() - date.getTime()) / 1000)
+
+        if (seconds < 60) {
+            return 'Just now'
+        }
+
+        const minutes = Math.floor(seconds / 60)
+        if (minutes < 60) {
+            return `${minutes} min${minutes > 1 ? 's' : ''} ago`
+        }
+
+        const hours = Math.floor(minutes / 60)
+        if (hours < 24) {
+            return `${hours} hr${hours > 1 ? 's' : ''} ago`
+        }
+
+        const days = Math.floor(hours / 24)
+        if (days < 30) {
+            return `${days} day${days > 1 ? 's' : ''} ago`
+        }
+
+        const months = Math.floor(days / 30)
+        if (months < 12) {
+            return `${months} month${months > 1 ? 's' : ''} ago`
+        }
+
+        const years = Math.floor(months / 12)
+        return `${years} year${years > 1 ? 's' : ''} ago`
     }
 
     /**
@@ -87,20 +130,22 @@ export class PlaylistSummaryComponent implements OnInit {
 
     /**
      * Navigate to course selection page
-     * Clears course cache to ensure fresh data is fetched from search API
+     * Clears course cache and selections to ensure fresh start
      */
     onManageCourse(): void {
         // Clear course cache to ensure fresh data is fetched from sunbirdigot/search
         this.state.clearCourseCache()
+        // Clear any previously selected courses to start fresh
+        this.state.clearSelectedCourses()
         this.router.navigate(['/app/playlist/select-courses'])
     }
 
     /**
-     * Navigate to competency management (disabled for now)
+     * Navigate to competency management page
+     * Note: Feature not yet implemented. Planned for future release.
      */
     onManageCompetency(): void {
-        // TODO: Implement in future phase
-        console.log('Competency management not yet implemented')
+        console.log('Competency management feature is planned for a future release')
     }
 
     /**

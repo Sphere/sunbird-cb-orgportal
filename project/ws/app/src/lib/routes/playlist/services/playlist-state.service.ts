@@ -94,6 +94,15 @@ export class PlaylistStateService {
         this.courseCacheLanguage = ''
     }
 
+    /**
+     * Clear selected/ordered courses
+     * Used when starting a new playlist creation flow
+     */
+    clearSelectedCourses(): void {
+        this.selectedCoursesSubject.next([])
+        this.orderedCoursesSubject.next([])
+    }
+
     clearState(): void {
         this.filtersSubject.next(null)
         this.existingPlaylistSubject.next(null)

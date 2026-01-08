@@ -16,52 +16,48 @@
 
             <!-- Row 1: Organization & Position -->
             <div class="form-row">
-                <!-- Organization Dropdown (Custom) -->
-                <div class="custom-select-wrapper">
-                    <select formControlName="orgId" class="custom-select" required>
-                        <option value="" disabled selected>Organisation*</option>
-                        <option *ngFor="let org of organizations" [value]="org.value">
+                <!-- Organization Dropdown -->
+                <mat-form-field class="custom-mat-select" appearance="outline">
+                    <mat-label>Organisation</mat-label>
+                    <mat-select formControlName="orgId" required panelClass="playlist-dropdown">
+                        <mat-option *ngFor="let org of organizations" [value]="org.value">
                             {{ org.label }}
-                        </option>
-                    </select>
-                    <div class="select-arrow"></div>
-                </div>
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
 
-                <!-- Position Dropdown (Custom) -->
-                <div class="custom-select-wrapper">
-                    <select formControlName="role" class="custom-select" required>
-                        <option value="" disabled selected>Position*</option>
-                        <option *ngFor="let position of positions" [value]="position.value">
+                <!-- Position Multi-Select -->
+                <mat-form-field class="custom-mat-select" appearance="outline">
+                    <mat-label>Position</mat-label>
+                    <mat-select formControlName="role" multiple required panelClass="playlist-dropdown">
+                        <mat-option *ngFor="let position of positions" [value]="position.value">
                             {{ position.label }}
-                        </option>
-                    </select>
-                    <div class="select-arrow"></div>
-                </div>
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
             </div>
 
             <!-- Row 2: District & Block -->
             <div class="form-row">
-                <!-- District Dropdown (Custom) -->
-                <div class="custom-select-wrapper">
-                    <select formControlName="district" class="custom-select">
-                        <option value="" disabled selected>District</option>
-                        <option *ngFor="let district of districts" [value]="district.value">
+                <!-- District Dropdown -->
+                <mat-form-field class="custom-mat-select" appearance="outline">
+                    <mat-label>District</mat-label>
+                    <mat-select formControlName="district" panelClass="playlist-dropdown">
+                        <mat-option *ngFor="let district of districts" [value]="district.value">
                             {{ district.label }}
-                        </option>
-                    </select>
-                    <div class="select-arrow"></div>
-                </div>
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
 
-                <!-- Block Dropdown (Custom) -->
-                <div class="custom-select-wrapper">
-                    <select formControlName="block" class="custom-select">
-                        <option value="" disabled selected>Block</option>
-                        <option *ngFor="let block of blocks" [value]="block.value">
+                <!-- Block Dropdown -->
+                <mat-form-field class="custom-mat-select" appearance="outline">
+                    <mat-label>Block</mat-label>
+                    <mat-select formControlName="block" panelClass="playlist-dropdown">
+                        <mat-option *ngFor="let block of blocks" [value]="block.value">
                             {{ block.label }}
-                        </option>
-                    </select>
-                    <div class="select-arrow"></div>
-                </div>
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
             </div>
         </div>
 
@@ -73,16 +69,15 @@
             </p>
 
             <div class="form-row">
-                <!-- Language Dropdown (Custom - Full Width) -->
-                <div class="custom-select-wrapper custom-select-full">
-                    <select formControlName="language" class="custom-select" required>
-                        <option value="" disabled selected>Language*</option>
-                        <option *ngFor="let lang of languages" [value]="lang.value">
+                <!-- Language Dropdown (Full Width) -->
+                <mat-form-field class="custom-mat-select custom-mat-select-full" appearance="outline">
+                    <mat-label>Language</mat-label>
+                    <mat-select formControlName="language" required panelClass="playlist-dropdown">
+                        <mat-option *ngFor="let lang of languages" [value]="lang.value">
                             {{ lang.label }}
-                        </option>
-                    </select>
-                    <div class="select-arrow"></div>
-                </div>
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
             </div>
         </div>
 
