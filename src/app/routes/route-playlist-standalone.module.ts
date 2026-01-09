@@ -7,6 +7,7 @@ import { STANDALONE_PLAYLIST_ROUTES } from '@ws/app/src/lib/routes/playlist/play
 import { SelectCoursesComponent } from '@ws/app/src/lib/routes/playlist/pages/select-courses/select-courses.component'
 import { ManageCourseOrderComponent } from '@ws/app/src/lib/routes/playlist/pages/manage-course-order/manage-course-order.component'
 import { SuccessDialogComponent } from '@ws/app/src/lib/routes/playlist/components/success-dialog/success-dialog.component'
+import { RoleConfirmDialogComponent } from '@ws/app/src/lib/routes/playlist/components/role-confirm-dialog/role-confirm-dialog.component'
 
 /**
  * Standalone Playlist Module for routes outside home (/app/playlist/)
@@ -17,6 +18,7 @@ import { SuccessDialogComponent } from '@ws/app/src/lib/routes/playlist/componen
         SelectCoursesComponent,
         ManageCourseOrderComponent,
         SuccessDialogComponent,
+        RoleConfirmDialogComponent,
     ],
     imports: [
         RouterModule.forChild(STANDALONE_PLAYLIST_ROUTES),
@@ -24,3 +26,4 @@ import { SuccessDialogComponent } from '@ws/app/src/lib/routes/playlist/componen
     ],
 })
 export class RoutePlaylistStandaloneModule { }
+

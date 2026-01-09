@@ -1,0 +1,48 @@
+<div class="role-confirm-dialog">
+    <h2 mat-dialog-title class="dialog-title">
+        <mat-icon class="warning-icon">warning</mat-icon>
+        {{ labels.dialogTitle }}
+    </h2>
+
+    <mat-dialog-content class="dialog-content">
+        <!-- Case 1: New roles being added -->
+        <div *ngIf="hasNewRoles" class="message-section">
+            <p class="message-text">
+                <strong>{{ labels.newRolesLabel }}</strong>
+            </p>
+            <div class="role-tags new-roles">
+                <span *ngFor="let role of data.newRoles" class="role-tag">{{ role }}</span>
+            </div>
+            <p class="info-text">
+                {{ labels.newRolesInfo }}
+            </p>
+        </div>
+
+        <!-- Case 2: Existing roles user didn't select -->
+        <div *ngIf="hasExistingOnlyRoles" class="message-section">
+            <p class="message-text">
+                <strong>{{ labels.existingRolesLabel }}</strong>
+            </p>
+            <div class="role-tags existing-roles">
+                <span *ngFor="let role of data.existingOnlyRoles" class="role-tag">{{ role }}</span>
+            </div>
+            <p class="warning-text">
+                <mat-icon class="small-icon">info</mat-icon>
+                {{ labels.existingRolesWarning }}
+            </p>
+        </div>
+
+        <p class="confirm-question">
+            {{ labels.confirmQuestion }}
+        </p>
+    </mat-dialog-content>
+
+    <mat-dialog-actions class="dialog-actions">
+        <button mat-stroked-button (click)="onCancel()" class="cancel-btn">
+            {{ labels.cancelBtn }}
+        </button>
+        <button mat-flat-button color="primary" (click)="onConfirm()" class="confirm-btn">
+            {{ labels.confirmBtn }}
+        </button>
+    </mat-dialog-actions>
+</div>

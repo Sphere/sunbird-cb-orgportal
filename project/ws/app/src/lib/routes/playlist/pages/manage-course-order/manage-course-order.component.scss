@@ -129,7 +129,7 @@
 // ===========================================================================
 
 .search-container {
-    padding: 16px;
+    padding: 16px 16px 0px 16px;
 }
 
 .search-field {
@@ -168,7 +168,7 @@
 // ===========================================================================
 
 .courses-list {
-    padding: 0 16px 16px 16px;
+    padding: 8px 16px 16px 16px; // Added top padding to prevent first card border clipping
     display: flex;
     flex-direction: column;
     gap: 16px;
@@ -176,6 +176,7 @@
     overflow-y: auto;
     min-height: 0;
 }
+
 
 .course-item {
     padding: 16px;

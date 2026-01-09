@@ -250,14 +250,17 @@ $table-height: 560px;
                 background-color: #f9f9f9;
             }
 
+            // Selected row - light green for clear distinction from header
             &.selected-row {
-                background-color: #e3f2fd;
+                background-color: #F0F3F4;
             }
 
+            // Preselected (from existing playlist)
             &.preselected-row {
-                background-color: #fff8e1;
+                background-color: #fff8e1; // Light yellow/amber
             }
         }
+
 
         td {
             font-family: 'Roboto', sans-serif;

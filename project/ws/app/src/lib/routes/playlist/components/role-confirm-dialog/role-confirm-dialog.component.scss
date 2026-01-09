@@ -1,0 +1,110 @@
+.role-confirm-dialog {
+    padding: 8px;
+    max-width: 420px;
+
+    .dialog-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #d84315;
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 16px;
+
+        .warning-icon {
+            color: #f57c00;
+            font-size: 28px;
+            width: 28px;
+            height: 28px;
+        }
+    }
+
+    .dialog-content {
+        padding: 0 8px;
+
+        .message-section {
+            margin-bottom: 20px;
+            padding: 12px;
+            background: #fafafa;
+            border-radius: 8px;
+            border-left: 4px solid #1C5D95;
+
+            .message-text {
+                margin: 0 0 10px 0;
+                font-size: 14px;
+                color: #333;
+            }
+
+            .info-text {
+                margin: 10px 0 0 0;
+                font-size: 13px;
+                color: #666;
+            }
+
+            .warning-text {
+                margin: 10px 0 0 0;
+                font-size: 13px;
+                color: #e65100;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+
+                .small-icon {
+                    font-size: 16px;
+                    width: 16px;
+                    height: 16px;
+                }
+            }
+        }
+
+        .role-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+
+            .role-tag {
+                display: inline-block;
+                padding: 6px 12px;
+                border-radius: 20px;
+                font-size: 13px;
+                font-weight: 500;
+            }
+
+            &.new-roles .role-tag {
+                background: #e8f5e9;
+                color: #2e7d32;
+                border: 1px solid #a5d6a7;
+            }
+
+            &.existing-roles .role-tag {
+                background: #fff3e0;
+                color: #e65100;
+                border: 1px solid #ffcc80;
+            }
+        }
+
+        .confirm-question {
+            margin: 20px 0 0 0;
+            font-size: 15px;
+            font-weight: 500;
+            color: #333;
+            text-align: center;
+        }
+    }
+
+    .dialog-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        padding: 16px 8px 8px;
+
+        .cancel-btn {
+            color: #666;
+        }
+
+        .confirm-btn {
+            background: #1C5D95;
+            color: #fff !important;
+        }
+    }
+}

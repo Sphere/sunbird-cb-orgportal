@@ -1,9 +1,10 @@
 import { Component, OnInit, ViewEncapsulation } from '@angular/core'
 import { FormBuilder, FormGroup, Validators } from '@angular/forms'
 import { Router } from '@angular/router'
-import { PlaylistApiService } from '../../services/playlist-api.service'
+import { PlaylistApiService, PlaylistType } from '../../services/playlist-api.service'
 import { PlaylistStateService } from '../../services/playlist-state.service'
 import { PlaylistFilters } from '../../models/playlist.model'
+
 
 @Component({
     selector: 'app-playlist-filters',
@@ -16,14 +17,11 @@ export class PlaylistFiltersComponent implements OnInit {
     loading = false
     errorMessage = ''
 
-    /**
-     * Dropdown options for organizations
-     * Note: Currently using hardcoded values. In future, can be loaded from API or configuration file.
-     */
-    organizations = [
-        { value: '0142443633580769283117', label: 'BNRC' },
-        { value: 'MOHFW', label: 'Ministry of Health and Family Welfare' },
-    ]
+    /** Dropdown options - Organizations loaded from API */
+    organizations: { value: string, label: string }[] = []
+    filteredOrganizations: { value: string, label: string }[] = []
+    loadingOrganizations = false
+    orgSearchTerm = ''
 
     positions = [
         { value: 'ANM', label: 'ANM' },
@@ -57,7 +55,36 @@ export class PlaylistFiltersComponent implements OnInit {
 
     ngOnInit(): void {
         this.initForm()
+        this.loadOrganizations()
         this.loadPreviousFilters()
+    }
+
+    /** Load organizations from API */
+    private loadOrganizations(): void {
+        this.loadingOrganizations = true
+        this.playlistApi.searchOrganizations().subscribe({
+            next: (orgs) => {
+                this.organizations = orgs
+                this.filteredOrganizations = [...orgs]
+                this.loadingOrganizations = false
+            },
+            error: (err) => {
+                console.error('Failed to load organizations:', err)
+                this.loadingOrganizations = false
+            }
+        })
+    }
+
+    /** Filter organizations based on search term */
+    filterOrganizations(): void {
+        if (!this.orgSearchTerm.trim()) {
+            this.filteredOrganizations = [...this.organizations]
+        } else {
+            const search = this.orgSearchTerm.toLowerCase()
+            this.filteredOrganizations = this.organizations.filter(org =>
+                org.label.toLowerCase().includes(search)
+            )
+        }
     }
 
     /**
@@ -110,13 +137,8 @@ export class PlaylistFiltersComponent implements OnInit {
             // Save filters to state
             this.state.setFilters(filters)
 
-            console.log('🔍 Calling playlist search API with filters:', filters)
-
             // Search for existing playlists
-            const playlists = await this.playlistApi.searchPlaylist(filters).toPromise()
-
-            console.log('📦 Playlist API Response:', playlists)
-            console.log('📦 Number of playlists found:', playlists?.length || 0)
+            const playlists = await this.playlistApi.searchPlaylist(filters, PlaylistType.COURSE).toPromise()
 
             // Store the first playlist object (if exists) for update API
             const existingPlaylist = playlists && playlists.length > 0 ? playlists[0] : null
@@ -125,15 +147,12 @@ export class PlaylistFiltersComponent implements OnInit {
             // Extract existing course IDs if playlist exists
             const existingCourseIds = this.playlistApi.extractCourseIds(playlists || [])
 
-            console.log('📋 Extracted course IDs:', existingCourseIds)
-            console.log('📋 Total unique course IDs:', existingCourseIds.length)
-
             this.state.setExistingCourseIds(existingCourseIds)
 
             // Navigate to summary page
             this.router.navigate(['/app/home/playlist/summary'])
         } catch (error) {
-            console.error('❌ Error searching playlist:', error)
+            console.error('Error searching playlist:', error)
             this.errorMessage = 'Failed to load playlist data. Please try again.'
         } finally {
             this.loading = false

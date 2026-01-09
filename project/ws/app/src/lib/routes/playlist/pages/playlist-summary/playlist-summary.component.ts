@@ -35,6 +35,11 @@ export class PlaylistSummaryComponent implements OnInit {
         lastUpdated: '16hrs ago',
     }
 
+    /** Returns true if existing playlist has courses (show Manage), false for new (show Create) */
+    get hasExistingPlaylist(): boolean {
+        return this.existingCourseIds.length > 0
+    }
+
     constructor(
         private router: Router,
         private state: PlaylistStateService

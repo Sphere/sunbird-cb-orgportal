@@ -15,6 +15,21 @@ export interface PlaylistFilters {
 }
 
 /**
+ * Result of comparing selected roles with existing playlist roles
+ * Used to show confirmation dialog when roles differ
+ */
+export interface RoleComparisonResult {
+    /** Roles selected by user but not in existing playlist (new additions) */
+    newRoles: string[]
+    /** Roles in existing playlist but not selected by user */
+    existingOnlyRoles: string[]
+    /** True if selected roles exactly match existing roles */
+    isExactMatch: boolean
+    /** True if no existing playlist (new creation) */
+    isNewPlaylist: boolean
+}
+
+/**
  * Playlist scope for create/update requests
  */
 export interface PlaylistScope {
@@ -27,6 +42,7 @@ export interface PlaylistScope {
 
 /**
  * Playlist search request payload
+ * Unique key: orgId + language + role + playlistId
  */
 export interface PlaylistSearchRequest {
     request: {
@@ -34,6 +50,7 @@ export interface PlaylistSearchRequest {
             orgId: string
             role: string[]
             language: string
+            playlistId: string  // Unique key includes playlistId
         }
     }
 }

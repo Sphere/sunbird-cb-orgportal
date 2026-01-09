@@ -16,11 +16,23 @@
 
             <!-- Row 1: Organization & Position -->
             <div class="form-row">
-                <!-- Organization Dropdown -->
+                <!-- Organization Dropdown with Search -->
                 <mat-form-field class="custom-mat-select" appearance="outline">
                     <mat-label>Organisation</mat-label>
-                    <mat-select formControlName="orgId" required panelClass="playlist-dropdown">
-                        <mat-option *ngFor="let org of organizations" [value]="org.value">
+                    <mat-select formControlName="orgId" required panelClass="playlist-dropdown org-dropdown"
+                        disableOptionCentering>
+                        <!-- Search Input -->
+                        <mat-option class="search-option" disabled>
+                            <input class="org-search-input" type="text" placeholder="Search Organisation..."
+                                [(ngModel)]="orgSearchTerm" [ngModelOptions]="{standalone: true}"
+                                (input)="filterOrganizations()" (keydown)="$event.stopPropagation()">
+                        </mat-option>
+
+                        <mat-option *ngIf="loadingOrganizations" disabled>Loading...</mat-option>
+                        <mat-option *ngIf="!loadingOrganizations && filteredOrganizations.length === 0" disabled>
+                            No Organisation found
+                        </mat-option>
+                        <mat-option *ngFor="let org of filteredOrganizations" [value]="org.value">
                             {{ org.label }}
                         </mat-option>
                     </mat-select>

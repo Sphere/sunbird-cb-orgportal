@@ -3,9 +3,10 @@ import { Router } from '@angular/router'
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop'
 import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
 import { PlaylistStateService } from '../../services/playlist-state.service'
-import { PlaylistApiService } from '../../services/playlist-api.service'
+import { PlaylistApiService, PlaylistType } from '../../services/playlist-api.service'
 import { SelectableCourse } from '../../models/course.model'
 import { SuccessDialogComponent } from '../../components/success-dialog/success-dialog.component'
+import { RoleConfirmDialogComponent, RoleConfirmDialogData } from '../../components/role-confirm-dialog/role-confirm-dialog.component'
 
 /**
  * Manage Course Order Component
@@ -57,7 +58,6 @@ export class ManageCourseOrderComponent implements OnInit {
 
         this.filteredCourses = [...this.orderedCourses]
 
-        console.log('📋 Loaded selected courses for ordering:', this.orderedCourses.length)
     }
 
     /**
@@ -78,7 +78,6 @@ export class ManageCourseOrderComponent implements OnInit {
             this.filteredCourses = [...this.orderedCourses]
         }
 
-        console.log('🔄 Course order updated:', this.orderedCourses.map(c => c.name))
     }
 
     /**
@@ -116,47 +115,78 @@ export class ManageCourseOrderComponent implements OnInit {
     /**
      * Save the ordered playlist
      * Creates new playlist if none exists, updates if playlist found
+     * Shows confirmation dialog if roles differ from existing configuration
      */
     async onSave(): Promise<void> {
+        // Get filters and existing playlist
+        const filters = this.state.getFilters()
+        const existingPlaylist = this.state.getExistingPlaylist()
+
+        if (!filters) {
+            console.error('No filters found in state')
+            alert('Error: Missing filter information. Please start from the filters page.')
+            this.router.navigate(['/app/home/playlist/filters'])
+            return
+        }
+
+        // Compare roles before saving
+        const roleComparison = this.state.compareRoles(filters.role)
+
+
+        // If roles differ, show confirmation dialog
+        if (!roleComparison.isNewPlaylist && !roleComparison.isExactMatch) {
+            const dialogData: RoleConfirmDialogData = {
+                newRoles: roleComparison.newRoles,
+                existingOnlyRoles: roleComparison.existingOnlyRoles,
+                isNewPlaylist: roleComparison.isNewPlaylist
+            }
+
+            const dialogRef = this.dialog.open(RoleConfirmDialogComponent, {
+                width: '450px',
+                disableClose: true,
+                data: dialogData
+            })
+
+            const confirmed = await dialogRef.afterClosed().toPromise()
+
+            if (!confirmed) {
+
+                return
+            }
+
+
+        }
+
+        // Proceed with save
         this.saving = true
 
         try {
             // Save ordered courses to state
             this.state.setOrderedCourses(this.orderedCourses)
 
-            // Get filters and existing playlist
-            const filters = this.state.getFilters()
-            const existingPlaylist = this.state.getExistingPlaylist()
-
-            if (!filters) {
-                console.error('❌ No filters found in state')
-                alert('Error: Missing filter information. Please start from the filters page.')
-                this.router.navigate(['/app/home/playlist/filters'])
-                return
-            }
-
             // Extract ordered course IDs
             const courseIds = this.orderedCourses.map(c => c.identifier)
 
-            console.log('💾 Saving playlist...')
-            console.log('  - Filters:', filters)
-            console.log('  - Course IDs (ordered):', courseIds)
-            console.log('  - Existing Playlist:', existingPlaylist ? `ID: ${existingPlaylist.id}` : 'None (will create)')
+            // Merge roles (combine existing + selected)
+            const mergedRoles = this.state.getMergedRoles(filters.role)
+            const filtersWithMergedRoles = { ...filters, role: mergedRoles }
 
-            // Call save API (automatically decides create vs update)
-            const response = await this.playlistApi.savePlaylist(
-                filters,
+            // Call save API
+            await this.playlistApi.savePlaylist(
+                filtersWithMergedRoles,
                 courseIds,
-                existingPlaylist || undefined
+                existingPlaylist || undefined,
+                PlaylistType.COURSE
             ).toPromise()
 
-            console.log('✅ Playlist saved successfully:', response)
+
 
             // Re-fetch playlist data to get fresh data from API
             // This prevents showing stale cached data (2 min delay issue)
-            console.log('🔄 Re-fetching playlist data to get latest state...')
+
             try {
-                const freshPlaylists = await this.playlistApi.searchPlaylist(filters).toPromise()
+                // Search using unique key: orgId + language + role + playlistId
+                const freshPlaylists = await this.playlistApi.searchPlaylist(filters, PlaylistType.COURSE).toPromise()
                 const freshPlaylist = freshPlaylists && freshPlaylists.length > 0 ? freshPlaylists[0] : null
                 const freshCourseIds = this.playlistApi.extractCourseIds(freshPlaylists || [])
 
@@ -164,9 +194,9 @@ export class ManageCourseOrderComponent implements OnInit {
                 this.state.setExistingPlaylist(freshPlaylist)
                 this.state.setExistingCourseIds(freshCourseIds)
 
-                console.log('✅ Fresh data loaded:', freshCourseIds.length, 'courses')
+
             } catch (refetchError) {
-                console.warn('⚠️ Could not re-fetch playlist data (not critical):', refetchError)
+                console.warn('Could not re-fetch playlist data:', refetchError)
                 // Continue anyway - the save was successful
             }
 
