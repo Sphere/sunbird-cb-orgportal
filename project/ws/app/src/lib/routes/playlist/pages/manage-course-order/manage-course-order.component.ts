@@ -7,6 +7,7 @@ import { PlaylistApiService, PlaylistType } from '../../services/playlist-api.se
 import { SelectableCourse } from '../../models/course.model'
 import { SuccessDialogComponent } from '../../components/success-dialog/success-dialog.component'
 import { RoleConfirmDialogComponent, RoleConfirmDialogData } from '../../components/role-confirm-dialog/role-confirm-dialog.component'
+import { ErrorDialogComponent, ErrorDialogData } from '../../components/error-dialog/error-dialog.component'
 
 /**
  * Manage Course Order Component
@@ -209,16 +210,44 @@ export class ManageCourseOrderComponent implements OnInit {
 
             // Handle Continue button click
             dialogRef.afterClosed().subscribe(() => {
-                // Navigate to filters page (as per requirement)
                 this.router.navigate(['/app/home/playlist/filters'])
             })
 
-        } catch (error: any) {
-            console.error('❌ Error saving playlist:', error)
+        } catch (err: any) {
+            console.error('Playlist save error:', JSON.stringify(err?.error || err, null, 2))
+            const apiError = err?.error || err
+            const firstError = apiError?.result?.errors?.[0]?.message
+            const errorMessage = firstError
+                || apiError?.params?.errmsg
+                || apiError?.message
+                || err?.message
+                || 'Failed to save playlist'
 
-            // Show detailed error message
-            const errorMsg = error?.error?.message || error?.message || 'Unknown error occurred'
-            alert(`Failed to save playlist:\n\n${errorMsg}\n\nPlease try again or contact support.`)
+            // Format additional error details if multiple errors exist
+            const allErrors = apiError?.result?.errors
+            const errorDetails = allErrors && allErrors.length > 1
+                ? allErrors.map((e: any) => `• ${e.message}`).join('\n')
+                : null
+
+            // Show error dialog
+            const errorDialogData: ErrorDialogData = {
+                title: 'Save Failed',
+                message: errorMessage,
+                details: errorDetails
+            }
+
+            const errorDialogRef = this.dialog.open(ErrorDialogComponent, {
+                width: '400px',
+                disableClose: false,
+                data: errorDialogData
+            })
+
+            // Handle retry
+            errorDialogRef.afterClosed().subscribe((retry: boolean) => {
+                if (retry) {
+                    this.onSave()
+                }
+            })
         } finally {
             this.saving = false
         }

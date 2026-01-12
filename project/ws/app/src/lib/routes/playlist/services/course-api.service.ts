@@ -15,7 +15,7 @@ import {
     providedIn: 'root',
 })
 export class CourseApiService {
-    private readonly API_BASE = '/apis/proxies/v8/sunbirdigot'
+    private readonly API_BASE = '/apis/public/v8/mobileApp/contentSearch'
     // private readonly CHANNEL_ID = '0132317968766894088'
 
     constructor(private http: HttpClient) { }
@@ -35,7 +35,6 @@ export class CourseApiService {
             request: {
                 filters: {
                     primaryCategory: ['Course'],
-                    status: ['Live'],
                     lang: [language]
                 },
                 limit,
@@ -43,11 +42,13 @@ export class CourseApiService {
                 sort_by: {
                     createdOn: 'desc',
                 },
+                fields: ["name", "sourceName"]
             },
         }
 
+
         return this.http
-            .post<CourseSearchResponse>(`${this.API_BASE}/search`, payload)
+            .post<CourseSearchResponse>(`${this.API_BASE}`, payload)
             .pipe(
                 map(response => ({
                     courses: response.result.content || [],

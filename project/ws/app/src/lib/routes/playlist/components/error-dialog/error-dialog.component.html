@@ -1,0 +1,24 @@
+<div class="error-dialog">
+    <div class="dialog-header">
+        <mat-icon class="error-icon">error_outline</mat-icon>
+        <h2 class="dialog-title">{{ data.title }}</h2>
+    </div>
+
+    <div class="dialog-content">
+        <p class="error-message">{{ data.message }}</p>
+
+        <div *ngIf="data.details" class="error-details">
+            <span class="details-label">Details:</span>
+            <p class="details-text">{{ data.details }}</p>
+        </div>
+    </div>
+
+    <div class="dialog-actions">
+        <button mat-stroked-button class="close-btn" (click)="onClose()">
+            {{ labels.close }}
+        </button>
+        <button mat-raised-button class="retry-btn" (click)="onRetry()">
+            {{ labels.tryAgain }}
+        </button>
+    </div>
+</div>

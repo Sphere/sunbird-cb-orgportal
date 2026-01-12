@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http'
 import { Injectable } from '@angular/core'
-import { Observable } from 'rxjs'
-import { map } from 'rxjs/operators'
+import { Observable, throwError } from 'rxjs'
+import { map, tap, catchError } from 'rxjs/operators'
 import {
     Playlist,
     PlaylistFilters,
@@ -136,23 +136,25 @@ export class PlaylistApiService {
     /**
      * Build scope object dynamically
      * Only includes keys that have non-empty values
-     * @param data Object with potential scope fields
-     * @returns Scope object with only non-empty values
+     * Ensures state and district are always arrays
      */
     private buildScope(data: { orgId: string, role: string[], state?: string[], district?: string[], language: string }): any {
         const scope: any = {}
 
-        // Add all non-empty values
         Object.entries(data).forEach(([key, value]) => {
             if (value !== undefined && value !== null) {
-                // For arrays, only add if has items
                 if (Array.isArray(value)) {
+                    // Only include non-empty arrays
                     if (value.length > 0) {
                         scope[key] = value
                     }
-                } else if (value !== '') {
-                    // For strings, only add if not empty
-                    scope[key] = value
+                } else if (typeof value === 'string' && value !== '') {
+                    // For state and district, ensure they are arrays even if passed as string
+                    if (key === 'state' || key === 'district') {
+                        scope[key] = [value]
+                    } else {
+                        scope[key] = value
+                    }
                 }
             }
         })
@@ -197,7 +199,14 @@ export class PlaylistApiService {
             },
         }
 
-        return this.http.post(`${this.API_BASE}/create`, payload)
+        return this.http.post<any>(`${this.API_BASE}/create`, payload).pipe(
+            tap(response => {
+                if (response?.responseCode !== 'OK' && response?.responseCode !== 'SUCCESS') {
+                    throw response
+                }
+            }),
+            catchError(err => throwError(err))
+        )
     }
 
 
@@ -219,7 +228,7 @@ export class PlaylistApiService {
                     playlistId: existingPlaylist.playlistId || existingPlaylist.name || `playlist${existingPlaylist.id}`,
                     scope: this.buildScope({
                         orgId: filters.orgId,
-                        role: filters.role,  // Use merged roles from filters
+                        role: filters.role,
                         state: filters.state,
                         district: filters.district,
                         language: filters.language,
@@ -232,7 +241,14 @@ export class PlaylistApiService {
             },
         }
 
-        return this.http.put(`${this.API_BASE}/update`, payload)
+        return this.http.put<any>(`${this.API_BASE}/update`, payload).pipe(
+            tap(response => {
+                if (response?.responseCode !== 'OK' && response?.responseCode !== 'SUCCESS') {
+                    throw response
+                }
+            }),
+            catchError(err => throwError(err))
+        )
     }
 
     /**

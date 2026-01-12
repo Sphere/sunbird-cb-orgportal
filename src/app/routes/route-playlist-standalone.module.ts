@@ -8,10 +8,10 @@ import { SelectCoursesComponent } from '@ws/app/src/lib/routes/playlist/pages/se
 import { ManageCourseOrderComponent } from '@ws/app/src/lib/routes/playlist/pages/manage-course-order/manage-course-order.component'
 import { SuccessDialogComponent } from '@ws/app/src/lib/routes/playlist/components/success-dialog/success-dialog.component'
 import { RoleConfirmDialogComponent } from '@ws/app/src/lib/routes/playlist/components/role-confirm-dialog/role-confirm-dialog.component'
+import { ErrorDialogComponent } from '@ws/app/src/lib/routes/playlist/components/error-dialog/error-dialog.component'
 
 /**
  * Standalone Playlist Module for routes outside home (/app/playlist/)
- * Contains select-courses and manage-order pages without sidebar
  */
 @NgModule({
     declarations: [
@@ -19,6 +19,7 @@ import { RoleConfirmDialogComponent } from '@ws/app/src/lib/routes/playlist/comp
         ManageCourseOrderComponent,
         SuccessDialogComponent,
         RoleConfirmDialogComponent,
+        ErrorDialogComponent,
     ],
     imports: [
         RouterModule.forChild(STANDALONE_PLAYLIST_ROUTES),
@@ -26,4 +27,3 @@ import { RoleConfirmDialogComponent } from '@ws/app/src/lib/routes/playlist/comp
     ],
 })
 export class RoutePlaylistStandaloneModule { }
-

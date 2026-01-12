@@ -8,11 +8,13 @@
  */
 export interface PlaylistFilters {
     orgId: string
+    orgName?: string
     role: string[]
     state?: string[]
     district?: string[]
     language: string
 }
+
 
 /**
  * Result of comparing selected roles with existing playlist roles

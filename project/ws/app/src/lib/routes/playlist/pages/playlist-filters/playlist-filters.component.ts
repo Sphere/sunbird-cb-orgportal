@@ -31,19 +31,20 @@ export class PlaylistFiltersComponent implements OnInit {
     ]
 
     districts = [
-        { value: 'district1', label: 'District 1' },
-        { value: 'district2', label: 'District 2' },
+        // { value: 'district1', label: 'District 1' },
+        // { value: 'district2', label: 'District 2' },
     ]
 
     blocks = [
-        { value: 'block1', label: 'Block 1' },
-        { value: 'block2', label: 'Block 2' },
+        // { value: 'block1', label: 'Block 1' },
+        // { value: 'block2', label: 'Block 2' },
     ]
 
     languages = [
         { value: 'en', label: 'English' },
         { value: 'hi', label: 'Hindi' },
-        { value: 'ta', label: 'Tamil' },
+        { value: 'kn', label: 'Kannada' },
+        { value: 'tn', label: 'Tamil' },
     ]
 
     constructor(
@@ -127,8 +128,13 @@ export class PlaylistFiltersComponent implements OnInit {
             filters.role = [filters.role]
         }
 
+        // Add org name for display purposes
+        const selectedOrg = this.organizations.find(org => org.value === filters.orgId)
+        filters.orgName = selectedOrg?.label || filters.orgId
+
         this.loading = true
         this.errorMessage = ''
+
 
         try {
             // Clear course cache to ensure fresh data is fetched with new filters

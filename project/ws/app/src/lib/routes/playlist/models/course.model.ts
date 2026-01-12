@@ -10,7 +10,7 @@ export interface CourseSearchRequest {
     request: {
         filters: {
             primaryCategory: string[]
-            status: string[]
+            status?: string[]
             lang: string[]
             channel?: string
         }
@@ -19,6 +19,7 @@ export interface CourseSearchRequest {
         sort_by: {
             createdOn: string
         }
+        fields: string[]
     }
 }
 

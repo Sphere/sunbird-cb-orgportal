@@ -13,7 +13,10 @@
             <span class="label">Org:</span>
             <span class="value">{{ filters.orgId }}</span>
         </div>
-
+        <div class="filter-group">
+            <span class="label">Org Name:</span>
+            <span class="value">{{ filters.orgName }}</span>
+        </div>
         <div class="filter-group">
             <span class="label">Position:</span>
             <span class="value">{{ getRoleDisplay() }}</span>
@@ -45,7 +48,7 @@
                     <span class="stat-sep">:</span>
                     <span class="stat-val highlight">{{ courseSummary.total }}</span>
                 </div>
-                <div class="stat-row">
+                <!-- <div class="stat-row">
                     <span class="stat-label">Live</span>
                     <span class="stat-sep">:</span>
                     <span class="stat-val highlight">{{ courseSummary.live }}</span>
@@ -54,7 +57,7 @@
                     <span class="stat-label">Hidden</span>
                     <span class="stat-sep">:</span>
                     <span class="stat-val highlight">{{ courseSummary.hidden }}</span>
-                </div>
+                </div> -->
                 <!-- Last Updated -->
                 <div class="stat-row last-updated">
                     <div class="stat-label-group">
@@ -85,7 +88,7 @@
                     <span class="stat-sep">:</span>
                     <span class="stat-val highlight">{{ competencySummary.total }}</span>
                 </div>
-                <div class="stat-row">
+                <!-- <div class="stat-row">
                     <span class="stat-label">Live</span>
                     <span class="stat-sep">:</span>
                     <span class="stat-val highlight">{{ competencySummary.live }}</span>
@@ -94,7 +97,7 @@
                     <span class="stat-label">Hidden</span>
                     <span class="stat-sep">:</span>
                     <span class="stat-val highlight">{{ competencySummary.hidden }}</span>
-                </div>
+                </div> -->
                 <!-- Last Updated -->
                 <div class="stat-row last-updated">
                     <div class="stat-label-group">
