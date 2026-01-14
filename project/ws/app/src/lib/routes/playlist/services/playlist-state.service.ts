@@ -2,6 +2,8 @@ import { Injectable } from '@angular/core'
 import { BehaviorSubject } from 'rxjs'
 import { PlaylistFilters, Playlist, RoleComparisonResult } from '../models/playlist.model'
 import { Course, SelectableCourse } from '../models/course.model'
+import { SelectableCompetency } from '../models/competency.model'
+
 
 
 /**
@@ -16,13 +18,21 @@ export class PlaylistStateService {
     private filtersSubject = new BehaviorSubject<PlaylistFilters | null>(null)
     public filters$ = this.filtersSubject.asObservable()
 
-    // Existing playlist (for edit mode)
+    // Course Playlist (for edit mode)
     private existingPlaylistSubject = new BehaviorSubject<Playlist | null>(null)
     public existingPlaylist$ = this.existingPlaylistSubject.asObservable()
 
     // Course IDs from existing playlist (for preselection)
     private existingCourseIdsSubject = new BehaviorSubject<string[]>([])
     public existingCourseIds$ = this.existingCourseIdsSubject.asObservable()
+
+    // Competency Playlist (for edit mode)
+    private existingCompetencyPlaylistSubject = new BehaviorSubject<Playlist | null>(null)
+    public existingCompetencyPlaylist$ = this.existingCompetencyPlaylistSubject.asObservable()
+
+    // Competency IDs from existing playlist
+    private existingCompetencyIdsSubject = new BehaviorSubject<string[]>([])
+    public existingCompetencyIds$ = this.existingCompetencyIdsSubject.asObservable()
 
     // Selected courses
     private selectedCoursesSubject = new BehaviorSubject<SelectableCourse[]>([])
@@ -36,7 +46,13 @@ export class PlaylistStateService {
     private courseCache: Course[] = []
     private courseCacheLanguage: string = ''
 
+    // Competency state
+    private selectedCompetenciesSubject = new BehaviorSubject<SelectableCompetency[]>([])
+    public selectedCompetencies$ = this.selectedCompetenciesSubject.asObservable()
+
     constructor() { }
+
+
 
     setFilters(filters: PlaylistFilters): void {
         this.filtersSubject.next(filters)
@@ -60,6 +76,22 @@ export class PlaylistStateService {
 
     getExistingPlaylist(): Playlist | null {
         return this.existingPlaylistSubject.value
+    }
+
+    setExistingCompetencyPlaylist(playlist: Playlist | null): void {
+        this.existingCompetencyPlaylistSubject.next(playlist)
+    }
+
+    getExistingCompetencyPlaylist(): Playlist | null {
+        return this.existingCompetencyPlaylistSubject.value
+    }
+
+    setExistingCompetencyIds(ids: string[]): void {
+        this.existingCompetencyIdsSubject.next(ids)
+    }
+
+    getExistingCompetencyIds(): string[] {
+        return this.existingCompetencyIdsSubject.value
     }
 
     setSelectedCourses(courses: SelectableCourse[]): void {
@@ -97,11 +129,22 @@ export class PlaylistStateService {
 
     /**
      * Clear selected/ordered courses
-     * Used when starting a new playlist creation flow
      */
     clearSelectedCourses(): void {
         this.selectedCoursesSubject.next([])
         this.orderedCoursesSubject.next([])
+    }
+
+    setSelectedCompetencies(competencies: SelectableCompetency[]): void {
+        this.selectedCompetenciesSubject.next(competencies)
+    }
+
+    getSelectedCompetencies(): SelectableCompetency[] {
+        return this.selectedCompetenciesSubject.value
+    }
+
+    clearSelectedCompetencies(): void {
+        this.selectedCompetenciesSubject.next([])
     }
 
     /**

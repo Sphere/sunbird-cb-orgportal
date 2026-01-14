@@ -4,6 +4,8 @@ import { PlaylistFiltersComponent } from './pages/playlist-filters/playlist-filt
 import { PlaylistSummaryComponent } from './pages/playlist-summary/playlist-summary.component'
 import { SelectCoursesComponent } from './pages/select-courses/select-courses.component'
 import { ManageCourseOrderComponent } from './pages/manage-course-order/manage-course-order.component'
+import { SelectCompetenciesComponent } from './pages/select-competencies/select-competencies.component'
+import { ManageCompetencyOrderComponent } from './pages/manage-competency-order/manage-competency-order.component'
 
 /**
  * Routes for /app/home/playlist/ (with sidebar)
@@ -35,6 +37,14 @@ export const STANDALONE_PLAYLIST_ROUTES: Routes = [
     {
         path: 'manage-order',
         component: ManageCourseOrderComponent,
+    },
+    {
+        path: 'select-competencies',
+        component: SelectCompetenciesComponent,
+    },
+    {
+        path: 'manage-competency-order',
+        component: ManageCompetencyOrderComponent,
     },
 ]
 

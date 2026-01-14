@@ -134,6 +134,69 @@ export class PlaylistApiService {
     }
 
     /**
+     * Extract competency IDs from competency playlist
+     * Competency payload structure: [{ "c1": { id: 100, ... } }, { "c2": { id: 101, ... } }]
+     */
+    extractCompetencyIds(playlists: Playlist[]): string[] {
+        if (!playlists || playlists.length === 0) {
+            return []
+        }
+
+        const allIds: string[] = []
+
+        playlists.forEach(playlist => {
+            if (playlist?.dataSource?.type === 'competency' && Array.isArray(playlist?.dataSource?.payload)) {
+                playlist.dataSource.payload.forEach((item: any) => {
+                    // Each item is like { "c1": { id: 100, name: "..." } }
+                    const keys = Object.keys(item)
+                    if (keys.length > 0) {
+                        const competencyData = item[keys[0]]
+                        if (competencyData?.id) {
+                            allIds.push(String(competencyData.id))
+                        }
+                    }
+                })
+            }
+        })
+
+        return Array.from(new Set(allIds))
+    }
+
+    /**
+     * Extract full competency data from playlist for preselection
+     */
+    extractCompetencyData(playlists: Playlist[]): any[] {
+        if (!playlists || playlists.length === 0) {
+            return []
+        }
+
+        const competencies: any[] = []
+
+        playlists.forEach(playlist => {
+            if (playlist?.dataSource?.type === 'competency' && Array.isArray(playlist?.dataSource?.payload)) {
+                playlist.dataSource.payload.forEach((item: any) => {
+                    const keys = Object.keys(item)
+                    if (keys.length > 0) {
+                        const competencyData = item[keys[0]]
+                        if (competencyData) {
+                            competencies.push({
+                                id: String(competencyData.id),
+                                code: competencyData.additionalProperties?.Code || keys[0].toUpperCase(),
+                                name: competencyData.name,
+                                description: competencyData.description,
+                                levels: competencyData.additionalProperties?.competencyLevelDescription || []
+                            })
+                        }
+                    }
+                })
+            }
+        })
+
+        return competencies
+    }
+
+    /**
+
      * Build scope object dynamically
      * Only includes keys that have non-empty values
      * Ensures state and district are always arrays

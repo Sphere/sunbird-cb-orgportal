@@ -1,10 +1,15 @@
-import { Component } from '@angular/core'
-import { MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog'
+import { Component, Inject } from '@angular/core'
+import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog'
+
+/** Dialog data interface */
+export interface SuccessDialogData {
+    title?: string
+    message?: string
+}
 
 /**
  * Success Dialog Component
  * Displays after successful playlist save
- * Success dialog for playlist save confirmation
  */
 @Component({
     selector: 'app-success-dialog',
@@ -12,7 +17,16 @@ import { MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dia
     styleUrls: ['./success-dialog.component.scss']
 })
 export class SuccessDialogComponent {
-    constructor(public dialogRef: MatDialogRef<SuccessDialogComponent, any>) { }
+    title: string
+    message: string
+
+    constructor(
+        public dialogRef: MatDialogRef<SuccessDialogComponent>,
+        @Inject(MAT_DIALOG_DATA) public data: SuccessDialogData
+    ) {
+        this.title = data?.title || 'Courses Updated'
+        this.message = data?.message || 'Learners will now see the updated courses on their home screen.'
+    }
 
     onContinue(): void {
         this.dialogRef.close('continue')

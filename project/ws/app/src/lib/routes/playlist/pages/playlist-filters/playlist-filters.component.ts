@@ -135,7 +135,6 @@ export class PlaylistFiltersComponent implements OnInit {
         this.loading = true
         this.errorMessage = ''
 
-
         try {
             // Clear course cache to ensure fresh data is fetched with new filters
             this.state.clearCourseCache()
@@ -143,17 +142,23 @@ export class PlaylistFiltersComponent implements OnInit {
             // Save filters to state
             this.state.setFilters(filters)
 
-            // Search for existing playlists
-            const playlists = await this.playlistApi.searchPlaylist(filters, PlaylistType.COURSE).toPromise()
+            // Search for both Course and Competency playlists in parallel
+            const [coursePlaylists, competencyPlaylists] = await Promise.all([
+                this.playlistApi.searchPlaylist(filters, PlaylistType.COURSE).toPromise(),
+                this.playlistApi.searchPlaylist(filters, PlaylistType.COMPETENCY).toPromise()
+            ])
 
-            // Store the first playlist object (if exists) for update API
-            const existingPlaylist = playlists && playlists.length > 0 ? playlists[0] : null
-            this.state.setExistingPlaylist(existingPlaylist)
-
-            // Extract existing course IDs if playlist exists
-            const existingCourseIds = this.playlistApi.extractCourseIds(playlists || [])
-
+            // Store Course playlist data
+            const existingCoursePlaylist = coursePlaylists && coursePlaylists.length > 0 ? coursePlaylists[0] : null
+            this.state.setExistingPlaylist(existingCoursePlaylist)
+            const existingCourseIds = this.playlistApi.extractCourseIds(coursePlaylists || [])
             this.state.setExistingCourseIds(existingCourseIds)
+
+            // Store Competency playlist data
+            const existingCompetencyPlaylist = competencyPlaylists && competencyPlaylists.length > 0 ? competencyPlaylists[0] : null
+            this.state.setExistingCompetencyPlaylist(existingCompetencyPlaylist)
+            const existingCompetencyIds = this.playlistApi.extractCompetencyIds(competencyPlaylists || [])
+            this.state.setExistingCompetencyIds(existingCompetencyIds)
 
             // Navigate to summary page
             this.router.navigate(['/app/home/playlist/summary'])
@@ -164,6 +169,7 @@ export class PlaylistFiltersComponent implements OnInit {
             this.loading = false
         }
     }
+
 
     /**
      * Check if form field has error

@@ -9,6 +9,8 @@ import { ManageCourseOrderComponent } from '@ws/app/src/lib/routes/playlist/page
 import { SuccessDialogComponent } from '@ws/app/src/lib/routes/playlist/components/success-dialog/success-dialog.component'
 import { RoleConfirmDialogComponent } from '@ws/app/src/lib/routes/playlist/components/role-confirm-dialog/role-confirm-dialog.component'
 import { ErrorDialogComponent } from '@ws/app/src/lib/routes/playlist/components/error-dialog/error-dialog.component'
+import { SelectCompetenciesComponent } from '@ws/app/src/lib/routes/playlist/pages/select-competencies/select-competencies.component'
+import { ManageCompetencyOrderComponent } from '@ws/app/src/lib/routes/playlist/pages/manage-competency-order/manage-competency-order.component'
 
 /**
  * Standalone Playlist Module for routes outside home (/app/playlist/)
@@ -20,6 +22,8 @@ import { ErrorDialogComponent } from '@ws/app/src/lib/routes/playlist/components
         SuccessDialogComponent,
         RoleConfirmDialogComponent,
         ErrorDialogComponent,
+        SelectCompetenciesComponent,
+        ManageCompetencyOrderComponent,
     ],
     imports: [
         RouterModule.forChild(STANDALONE_PLAYLIST_ROUTES),

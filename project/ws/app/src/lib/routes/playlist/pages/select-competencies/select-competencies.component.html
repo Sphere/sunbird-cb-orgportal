@@ -1,0 +1,84 @@
+<div class="select-competencies-container">
+    <!-- Header -->
+    <div class="header">
+        <div class="tabs">
+            <!-- <button class="tab-button active">Select Competencies</button> -->
+        </div>
+        <button class="next-btn" [disabled]="!hasSelection" (click)="onAssignCourses()">
+            Assign courses
+        </button>
+    </div>
+
+    <!-- Back Button -->
+    <button class="back-text-btn" (click)="onBack()">
+        <img src="https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/icons/frac-left-arrow.svg" alt="back"
+            class="back-icon">
+    </button>
+
+    <!-- Page Title -->
+    <div class="page-title">
+        <h1>Select Competencies</h1>
+        <p class="subtitle">Choose which competencies learners will see on their home screen.</p>
+    </div>
+
+    <!-- Search -->
+    <div class="search-container">
+        <div class="custom-search-field">
+            <input type="text" placeholder="Search by name, code" [(ngModel)]="searchTerm" (input)="onSearch()">
+            <span class="search-icon">
+                <svg width="21" height="21" viewBox="0 0 21 21" fill="none">
+                    <circle cx="9" cy="9" r="7" stroke="#272727" stroke-width="2" />
+                    <line x1="14" y1="14" x2="19" y2="19" stroke="#272727" stroke-width="2" stroke-linecap="round" />
+                </svg>
+            </span>
+        </div>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="loading-container">
+        <div class="spinner"></div>
+        <p class="loading-text">Loading competencies...</p>
+    </div>
+
+    <!-- Table -->
+    <div *ngIf="!loading" class="table-container">
+        <div class="table-scroll-wrapper">
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th class="checkbox-col"></th>
+                        <th class="code-col">Code</th>
+                        <th class="name-col">Name</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Empty State -->
+                    <tr *ngIf="filteredCompetencies.length === 0" class="empty-state-row">
+                        <td colspan="3" class="empty-state-cell">
+                            <p>No competencies found</p>
+                        </td>
+                    </tr>
+
+                    <!-- Competency rows -->
+                    <tr *ngFor="let row of filteredCompetencies" [class.selected-row]="selection.isSelected(row)"
+                        [class.preselected-row]="row.isPreselected">
+                        <td class="checkbox-col">
+                            <label class="custom-checkbox">
+                                <input type="checkbox" (click)="$event.stopPropagation()"
+                                    (change)="onSelectionChange(row, $event)" [checked]="selection.isSelected(row)">
+                                <span class="checkmark"></span>
+                            </label>
+                        </td>
+                        <td class="code-col">{{ row.code }}</td>
+                        <td class="name-col">{{ row.name }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <mat-paginator [length]="totalCompetencies" [pageSize]="pageSize" [pageSizeOptions]="[20, 50, 100]"
+            showFirstLastButtons class="custom-paginator">
+        </mat-paginator>
+    </div>
+</div>

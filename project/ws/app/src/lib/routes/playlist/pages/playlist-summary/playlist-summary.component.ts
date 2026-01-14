@@ -3,13 +3,6 @@ import { Router } from '@angular/router'
 import { PlaylistStateService } from '../../services/playlist-state.service'
 import { PlaylistFilters } from '../../models/playlist.model'
 
-/**
- * Playlist Summary Component
- * 
- * Displays summary of existing playlist (if any)
- * Shows "Manage Course" and "Manage Competency" cards
- * Allows user to change filters or proceed to course selection
- */
 @Component({
     selector: 'app-playlist-summary',
     templateUrl: './playlist-summary.component.html',
@@ -18,24 +11,26 @@ import { PlaylistFilters } from '../../models/playlist.model'
 export class PlaylistSummaryComponent implements OnInit {
     filters: PlaylistFilters | null = null
     existingCourseIds: string[] = []
+    existingCompetencyIds: string[] = []
 
     // Course statistics
     courseSummary = {
         total: 0,
-
         lastUpdated: 'N/A',
     }
 
-    // Competency statistics (placeholder for future)
+    // Competency statistics
     competencySummary = {
         total: 0,
-
         lastUpdated: 'N/A',
     }
 
-    /** Returns true if existing playlist has courses (show Manage), false for new (show Create) */
-    get hasExistingPlaylist(): boolean {
+    get hasExistingCoursePlaylist(): boolean {
         return this.existingCourseIds.length > 0
+    }
+
+    get hasExistingCompetencyPlaylist(): boolean {
+        return this.existingCompetencyIds.length > 0
     }
 
     constructor(
@@ -46,6 +41,7 @@ export class PlaylistSummaryComponent implements OnInit {
     ngOnInit(): void {
         this.loadFilters()
         this.loadExistingPlaylist()
+        this.loadExistingCompetencyPlaylist()
     }
 
     /**
@@ -66,25 +62,30 @@ export class PlaylistSummaryComponent implements OnInit {
     private loadExistingPlaylist(): void {
         this.existingCourseIds = this.state.getExistingCourseIds()
         const existingPlaylist = this.state.getExistingPlaylist()
-        console.log('Existing playlist:', existingPlaylist)
 
-        // Show actual course count from existing playlist
         this.courseSummary.total = this.existingCourseIds.length
 
-        /**
-         * Display course summary statistics
-         * Currently showing total count with all courses marked as live.
-         * Future enhancement: Integrate with API to get actual live/hidden course counts.
-         */
         if (this.existingCourseIds.length > 0) {
-
             this.courseSummary.lastUpdated = existingPlaylist?.updated_at
                 ? this.timeAgo(existingPlaylist?.updated_at)
                 : 'N/A'
         }
+    }
 
-        console.log('Existing playlist course IDs:', this.existingCourseIds)
-        console.log('Course summary:', this.courseSummary)
+    /**
+     * Load existing competency playlist data from state
+     */
+    private loadExistingCompetencyPlaylist(): void {
+        this.existingCompetencyIds = this.state.getExistingCompetencyIds()
+        const existingPlaylist = this.state.getExistingCompetencyPlaylist()
+
+        this.competencySummary.total = this.existingCompetencyIds.length
+
+        if (this.existingCompetencyIds.length > 0) {
+            this.competencySummary.lastUpdated = existingPlaylist?.updated_at
+                ? this.timeAgo(existingPlaylist?.updated_at)
+                : 'N/A'
+        }
     }
 
     /**
@@ -143,12 +144,12 @@ export class PlaylistSummaryComponent implements OnInit {
     }
 
     /**
-     * Navigate to competency management page
-     * Note: Feature not yet implemented. Planned for future release.
+     * Navigate to competency selection page
      */
-    onManageCompetency(): void {
-        console.log('Competency management feature is planned for a future release')
+    onCompetencyClick(): void {
+        this.router.navigate(['/app/playlist/select-competencies'])
     }
+
 
     /**
      * Get display value for selected roles

@@ -1,0 +1,122 @@
+<div class="manage-order-container">
+    <!-- Breadcrumb Top Bar -->
+    <div class="top-bar">
+        <!-- <div class="breadcrumb">Select Competencies</div> -->
+        <button class="save-btn-top" [disabled]="!allCompetenciesComplete || saving" (click)="onSave()">
+            <span *ngIf="!saving">Save</span>
+            <span *ngIf="saving">Saving...</span>
+        </button>
+    </div>
+
+    <!-- Back Button -->
+    <button class="back-btn" (click)="onBack()">
+        <img src="https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/icons/frac-left-arrow.svg" alt="back"
+            class="back-icon">
+    </button>
+
+    <!-- Header -->
+    <h1 class="page-title">Manage Competency Order</h1>
+    <p class="page-subtitle">Assign courses to competency levels and set the display order of competencies.</p>
+
+    <!-- Assign Courses Button -->
+    <div class="action-row">
+        <button class="assign-btn" [disabled]="!selectedCompetency || !isCurrentCompetencyComplete()"
+            (click)="onAssignCourses()">
+            Assign courses
+        </button>
+    </div>
+
+    <!-- Two Column Layout -->
+    <div class="content-wrapper">
+        <!-- Left Panel: Competencies Card -->
+        <div class="competencies-card">
+            <!-- Card Header -->
+            <div class="card-header">
+                <span class="header-label">Competencies</span>
+            </div>
+
+            <!-- Search Field -->
+            <div class="search-container">
+                <mat-form-field appearance="outline" class="search-field">
+                    <input matInput placeholder="Search by name, code" [(ngModel)]="searchTerm" (input)="onSearch()">
+                    <mat-icon matSuffix>search</mat-icon>
+                </mat-form-field>
+            </div>
+
+            <!-- Competency List -->
+            <div cdkDropList class="competencies-list" (cdkDropListDropped)="onDrop($event)">
+                <div *ngFor="let competency of filteredCompetencies" cdkDrag class="competency-item"
+                    [class.selected]="selectedCompetency === competency"
+                    [class.complete]="isCompetencyComplete(competency)" (click)="onSelectCompetency(competency)">
+
+                    <!-- Drag Handle -->
+                    <div class="drag-handle" cdkDragHandle>
+                        <img src="https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/icons/Vector-drag.svg"
+                            alt="drag" class="drag-icon">
+                    </div>
+
+                    <!-- Order Number and Competency Info -->
+                    <div class="competency-content">
+                        <div class="order-number">{{ competency.displayOrder }}</div>
+                        <div class="competency-info">
+                            <div class="competency-name">{{ competency.name }}</div>
+                            <div *ngIf="isCompetencyComplete(competency)" class="competency-code">Courses Assigned</div>
+                        </div>
+                    </div>
+
+                    <!-- Completed Badge -->
+                    <div *ngIf="isCompetencyComplete(competency)" class="complete-badge">
+                        <img src="https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/icons/success_checked_green.svg"
+                            alt="completed" class="check-icon">
+                    </div>
+
+                    <!-- Drag Placeholder -->
+                    <div class="placeholder" *cdkDragPlaceholder></div>
+                </div>
+
+                <!-- Empty State -->
+                <div *ngIf="filteredCompetencies.length === 0 && searchTerm" class="empty-state">
+                    <p>No competencies match your search</p>
+                    <button mat-stroked-button (click)="searchTerm=''; onSearch()">Clear Search</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Panel: Levels Card -->
+        <div class="levels-card">
+            <!-- Card Header -->
+            <div class="card-header">
+                <span class="header-label">Levels</span>
+            </div>
+
+            <div *ngIf="selectedCompetency" class="levels-content">
+                <!-- Competency Title -->
+                <div class="competency-title">{{ selectedCompetency.name }}</div>
+
+                <!-- Level Rows -->
+                <div class="levels-list">
+                    <div *ngFor="let level of selectedCompetency.levels" class="level-row">
+                        <div class="level-label">Level {{ level.level }}</div>
+                        <div class="level-dropdown">
+                            <mat-form-field appearance="outline" class="dropdown-field">
+                                <mat-select [value]="level.courseId" placeholder="Search or select Course"
+                                    (selectionChange)="onCourseSelect(level, $event.value)">
+                                    <mat-option *ngIf="loadingCourses" disabled>Loading courses...</mat-option>
+                                    <mat-option *ngIf="!loadingCourses && courses.length === 0" disabled>No courses
+                                        available</mat-option>
+                                    <mat-option *ngFor="let course of courses" [value]="course.identifier">
+                                        {{ course.name }}
+                                    </mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div *ngIf="!selectedCompetency" class="no-selection">
+                <p>Select a competency to assign courses</p>
+            </div>
+        </div>
+    </div>
+</div>

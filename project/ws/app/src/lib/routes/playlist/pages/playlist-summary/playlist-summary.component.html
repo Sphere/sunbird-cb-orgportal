@@ -71,7 +71,7 @@
             <button class="create-btn" (click)="onManageCourse()">
                 <img src="https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/icons/frac_manage_icon.svg"
                     alt="manage" class="btn-icon">
-                {{ hasExistingPlaylist ? 'Manage' : 'Create' }}
+                {{ hasExistingCoursePlaylist ? 'Manage' : 'Create' }}
             </button>
         </div>
 
@@ -108,13 +108,14 @@
                 </div>
             </div>
 
-            <!-- Disabled State for Competency -->
-            <button class="create-btn disabled">
+            <!-- Create/Manage Competency Button -->
+            <button class="create-btn" (click)="onCompetencyClick()">
                 <img src="https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/icons/frac_manage_icon.svg"
                     alt="manage" class="btn-icon">
-                Create
+                {{ hasExistingCompetencyPlaylist ? 'Manage' : 'Create' }}
             </button>
         </div>
+
 
     </div>
 </div>

@@ -59,12 +59,13 @@ export interface PlaylistSearchRequest {
 
 /**
  * Data source within a playlist
- * Only 'static' type is used for course management
+ * 'static' for course management, 'competency' for competency management
  */
 export interface PlaylistDataSource {
-    type: 'static' | 'dynamic'
-    payload: string[]  // Array of course do_ids
+    type: 'static' | 'dynamic' | 'competency'
+    payload: any[]  // Array of course do_ids or competency objects
 }
+
 
 /**
  * Playlist object from API response
