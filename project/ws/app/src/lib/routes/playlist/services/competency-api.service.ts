@@ -1,26 +1,60 @@
 import { HttpClient } from '@angular/common/http'
 import { Injectable } from '@angular/core'
-import { Observable } from 'rxjs'
+import { Observable, of } from 'rxjs'
 import { map } from 'rxjs/operators'
 import { Competency } from '../models/competency.model'
+import { MOCK_COMPETENCY_LIST_RESPONSE } from './competency-mock-data'
+import { RawCompetencyEntity } from '../utils/competency-transformer'
 
+/**
+ * Service to handle competency data retrieval.
+ * 
+ * Note: Currently relies on mock data ('competency-mock-data.ts') 
+ * because the backend API is not yet fully integrated.
+ */
 @Injectable({
     providedIn: 'root',
 })
 export class CompetencyApiService {
     private readonly API_BASE = '/apis/proxies/v8/entity/v1'
 
-    /**
-     * Temporary API endpoint to get all competencies
-     * TODO: Remove once playlist competency data is available
-     */
-    private readonly TEMP_COMPETENCY_API = '/apis/protected/v8/entityCompetency'
-
     constructor(private http: HttpClient) { }
 
     /**
-     * Search competencies using entity API
-     * Uses: POST /apis/proxies/v8/entity/v1/search
+     * Fetches the list of competencies, filtered by language.
+     * 
+     * Currently returns mock data. When the backend is ready, this should
+     * be updated to call the real API endpoint.
+     * 
+     * @param _language The language code (e.g. 'en', 'hi') - currently unused until real API is ready
+     * @returns An observable of raw competency entities
+     */
+    getCompetencyListByLanguage(_language: string = 'en'): Observable<RawCompetencyEntity[]> {
+        // We are using mock data temporarily until the API is ready.
+        const mockEntities = MOCK_COMPETENCY_LIST_RESPONSE.result.data.entity as RawCompetencyEntity[]
+
+        // In a real API scenario, filtering would happen on the server.
+        // For now, we return the mock data directly.
+        return of(mockEntities)
+
+        // Future Implementation:
+        /*
+        return this.http.post<any>(`${this.API_BASE}/upload`, { 
+            request: { 
+                entity: { type: 'competency', language: _language } 
+            } 
+        }).pipe(
+            map(response => response?.result?.data?.entity || [])
+        )
+        */
+    }
+
+    /**
+     * Searches for competencies using the legacy search API.
+     * Kept for backward compatibility.
+     * 
+     * @param query Search term
+     * @param limit Max results (default 100)
      */
     searchCompetencies(query?: string, limit: number = 100): Observable<Competency[]> {
         const payload: any = {
@@ -47,47 +81,26 @@ export class CompetencyApiService {
     }
 
 
-    /**
-     * Get all competencies (temporary API)
-     * Uses: POST /apis/protected/v8/entityCompetency/getAllEntity
-     */
-    getAllCompetencies(): Observable<Competency[]> {
-        const payload = {
-            search: {
-                type: 'Competency'
-            }
-        }
-
-        return this.http
-            .post<any>(`${this.TEMP_COMPETENCY_API}/getAllEntity`, payload)
-            .pipe(
-                map(response => {
-                    const entities = response?.result?.response || []
-                    const mapped = entities.map((entity: any) => this.mapToCompetency(entity))
-
-                    // Deduplicate by ID - keep first occurrence
-                    const uniqueMap = new Map<string, Competency>()
-                    mapped.forEach((c: Competency) => {
-                        if (!uniqueMap.has(c.id)) {
-                            uniqueMap.set(c.id, c)
-                        }
-                    })
-
-                    return Array.from(uniqueMap.values())
-                })
-            )
-    }
-
 
     /**
      * Map API response to Competency model
      * Handles competencyLevelDescription as JSON string or array
+     * 
+     * NOTE: This mapper works with both old and new API responses
      */
     private mapToCompetency(entity: any): Competency {
         let levels: any[] = []
 
-        // competencyLevelDescription can be a JSON string or array
-        if (entity?.additionalProperties?.competencyLevelDescription) {
+        // Handle children array (new format from mock/API)
+        if (entity?.children && Array.isArray(entity.children)) {
+            levels = entity.children.map((child: any) => ({
+                level: child.levelId || parseInt(child.level?.replace('L', '') || '0', 10),
+                name: child.name,
+                description: child.description
+            }))
+        }
+        // Handle competencyLevelDescription (old format)
+        else if (entity?.additionalProperties?.competencyLevelDescription) {
             const levelDesc = entity.additionalProperties.competencyLevelDescription
             if (typeof levelDesc === 'string') {
                 try {
@@ -98,20 +111,23 @@ export class CompetencyApiService {
             } else if (Array.isArray(levelDesc)) {
                 levels = levelDesc
             }
+
+            // Ensure level is a number
+            levels = levels.map((l: any) => ({
+                level: typeof l.level === 'number' ? l.level : parseInt(l.level, 10),
+                name: l.name,
+                description: l.description
+            }))
         }
 
         return {
             id: String(entity.id),
-            code: entity.additionalProperties?.Code || `C${entity.id}`,
+            code: entity.code || entity.additionalProperties?.Code || `C${entity.id}`,
             name: entity.name || '',
             description: entity.description || '',
             type: entity.type || 'Competency',
             status: entity.status,
-            levels: levels.map((l: any) => ({
-                level: parseInt(l.level, 10),
-                name: l.name,
-                description: l.description
-            }))
+            levels
         }
     }
 }

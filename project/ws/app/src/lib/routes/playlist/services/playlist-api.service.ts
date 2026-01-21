@@ -226,6 +226,31 @@ export class PlaylistApiService {
     }
 
     /**
+     * Build competency payload in the required format
+     * Converts array of competency objects to c1, c2, c3... format
+     * 
+     * @param competencies Array of competency objects with id, code, name, etc.
+     * @returns Array of objects in format [{ "c1": {...} }, { "c2": {...} }]
+     */
+    buildCompetencyPayload(competencies: any[]): any[] {
+        return competencies.map((comp, index) => {
+            const key = `c${index + 1}`
+            return {
+                [key]: {
+                    id: comp.id,
+                    name: comp.name,
+                    type: comp.type || 'Competency',
+                    description: comp.description || '',
+                    additionalProperties: {
+                        Code: comp.code || key.toUpperCase(),
+                        competencyLevelDescription: comp.levels || []
+                    }
+                }
+            }
+        })
+    }
+
+    /**
      * Create a new playlist
      * Used when search returns empty (new entry)
      * Uses configurable playlistId based on type
@@ -243,6 +268,17 @@ export class PlaylistApiService {
         // Use configured playlistId for new playlists
         const playlistId = PLAYLIST_IDS[playlistType]
 
+        // Build dataSource based on playlist type
+        const dataSource = playlistType === PlaylistType.COMPETENCY
+            ? {
+                type: 'competency',
+                payload: courseIds  // For competency, this should be the competency objects array
+            }
+            : {
+                type: 'static',
+                payload: courseIds
+            }
+
         const payload = {
             request: {
                 playlist: {
@@ -254,10 +290,7 @@ export class PlaylistApiService {
                         district: filters.district,
                         language: filters.language,
                     }),
-                    dataSource: {
-                        type: 'static',
-                        payload: courseIds,
-                    },
+                    dataSource,
                 },
             },
         }
@@ -283,7 +316,18 @@ export class PlaylistApiService {
      * @param courseIds New ordered array of course IDs
      * @returns Observable of update response
      */
-    updatePlaylist(existingPlaylist: Playlist, filters: PlaylistFilters, courseIds: string[]): Observable<any> {
+    updatePlaylist(existingPlaylist: Playlist, filters: PlaylistFilters, courseIds: string[], isCompetency: boolean = false): Observable<any> {
+        // Build dataSource based on existing playlist type
+        const dataSource = isCompetency || existingPlaylist.dataSource?.type === 'competency'
+            ? {
+                type: 'competency',
+                payload: courseIds  // For competency, this is the competency objects array
+            }
+            : {
+                type: 'static',
+                payload: courseIds
+            }
+
         const payload = {
             request: {
                 playlist: {
@@ -296,10 +340,7 @@ export class PlaylistApiService {
                         district: filters.district,
                         language: filters.language,
                     }),
-                    dataSource: {
-                        type: 'static',
-                        payload: courseIds,
-                    },
+                    dataSource,
                 },
             },
         }
@@ -331,8 +372,9 @@ export class PlaylistApiService {
         existingPlaylist?: Playlist,
         playlistType: PlaylistType = PlaylistType.COURSE
     ): Observable<any> {
+        const isCompetency = playlistType === PlaylistType.COMPETENCY
         if (existingPlaylist) {
-            return this.updatePlaylist(existingPlaylist, filters, courseIds)
+            return this.updatePlaylist(existingPlaylist, filters, courseIds, isCompetency)
         } else {
             return this.createPlaylist(filters, courseIds, playlistType)
         }

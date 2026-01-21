@@ -65,19 +65,36 @@ export class SelectCompetenciesComponent implements OnInit, AfterViewInit {
     /** Loads competencies from API and preselects existing ones */
     private loadCompetencies(): void {
         this.loading = true
-        this.competencyApi.getAllCompetencies().subscribe({
+
+        // Get language from playlist filters
+        const filters = this.state.getFilters()
+        const language = filters?.language || 'en'
+
+        console.log(`[SelectCompetencies] Loading competencies for language: ${language}`)
+
+        this.competencyApi.getCompetencyListByLanguage(language).subscribe({
             next: (data) => {
                 this.allCompetencies = data.map((c, index) => {
-                    const isPreselected = this.existingCompetencyIds.includes(c.id)
+                    // Convert number ID to string for compatibility
+                    const competencyId = String(c.id)
+                    const isPreselected = this.existingCompetencyIds.includes(competencyId)
 
                     return {
                         ...c,
+                        id: competencyId,  // Convert to string
                         selected: isPreselected,
                         isPreselected,
                         displayOrder: index + 1,
                         coursesAssigned: false,
-                        levels: c.levels && c.levels.length > 0
-                            ? c.levels.map(l => ({ ...l, courseId: undefined, courseName: undefined }))
+                        // Map children to levels for UI compatibility
+                        levels: c.children && c.children.length > 0
+                            ? c.children.map((child: any) => ({
+                                level: child.levelId || child.level,
+                                name: child.name,
+                                description: child.description,
+                                courseId: undefined,
+                                courseName: undefined
+                            }))
                             : [
                                 { level: 1 },
                                 { level: 2 },
@@ -173,6 +190,9 @@ export class SelectCompetenciesComponent implements OnInit, AfterViewInit {
         } else {
             this.selection.deselect(row)
         }
+
+        // Update state service immediately with current selection
+        this.state.setSelectedCompetencies(this.selection.selected)
 
         this.sortBySelection()
         this.currentPage = 0
