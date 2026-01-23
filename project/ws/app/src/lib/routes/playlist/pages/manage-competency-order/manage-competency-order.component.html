@@ -45,7 +45,7 @@
 
             <!-- Competency List -->
             <div cdkDropList class="competencies-list" (cdkDropListDropped)="onDrop($event)">
-                <div *ngFor="let competency of filteredCompetencies" cdkDrag class="competency-item"
+                <div *ngFor="let competency of filteredCompetencies; let i = index" cdkDrag class="competency-item"
                     [class.selected]="selectedCompetency === competency"
                     [class.complete]="isCompetencyComplete(competency)" (click)="onSelectCompetency(competency)">
 
@@ -57,7 +57,7 @@
 
                     <!-- Order Number and Competency Info -->
                     <div class="competency-content">
-                        <div class="order-number">{{ competency.displayOrder }}</div>
+                        <div class="order-number">{{ i + 1 }}</div>
                         <div class="competency-info">
                             <div class="competency-name">{{ competency.name }}</div>
                             <div *ngIf="isCompetencyComplete(competency)" class="competency-code">Courses Assigned</div>
@@ -101,10 +101,13 @@
                             <mat-form-field appearance="outline" class="dropdown-field">
                                 <mat-select [value]="level.courseId" placeholder="Search or select Course"
                                     (selectionChange)="onCourseSelect(level, $event.value)">
-                                    <mat-option *ngIf="loadingCourses" disabled>Loading courses...</mat-option>
-                                    <mat-option *ngIf="!loadingCourses && courses.length === 0" disabled>No courses
-                                        available</mat-option>
-                                    <mat-option *ngFor="let course of courses" [value]="course.identifier">
+                                    <mat-option *ngIf="loadingCourses" disabled>Loading courses for this
+                                        competency...</mat-option>
+                                    <mat-option *ngIf="!loadingCourses && getCoursesForLevel(level.level).length === 0"
+                                        disabled>No courses
+                                        available for this level</mat-option>
+                                    <mat-option *ngFor="let course of getCoursesForLevel(level.level)"
+                                        [value]="course.identifier">
                                         {{ course.name }}
                                     </mat-option>
                                 </mat-select>

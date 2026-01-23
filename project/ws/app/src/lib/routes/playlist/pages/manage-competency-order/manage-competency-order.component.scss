@@ -217,23 +217,24 @@
 
 .competency-item {
     padding: 16px;
-    background: white;
-    box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.25);
+    background: white; // Default: White background
+    box-shadow: none; // No shadow by default
     border-radius: 8px;
     display: flex;
     align-items: center;
     gap: 21px;
     cursor: pointer;
     transition: all 0.2s;
-    border: 2px solid transparent;
+    border: 2px solid #E1DFDF; // Light gray border by default
 
     &:hover {
-        box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.3);
+        box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.15);
     }
 
     &.selected {
-        border-color: #1C5D95;
-        background: #F5FAFF;
+        border-color: #1C5D95; // Blue border when selected/clicked
+        background: #EFF6FC; // Light blue background when selected
+        box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.15); // Subtle shadow when selected
     }
 
     &.complete {
@@ -416,7 +417,7 @@
     flex: 1;
 
     .dropdown-field {
-        width: 100%;
+        width: 90%; // Reduced by 10% from 100%
 
         ::ng-deep {
             .mat-form-field-wrapper {

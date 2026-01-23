@@ -11,14 +11,13 @@ import { SuccessDialogComponent } from '../../components/success-dialog/success-
 import { ErrorDialogComponent } from '../../components/error-dialog/error-dialog.component'
 
 /**
- * Competency Order Management
+ * Component for managing competency playlists.
  * 
- * Manages the ordering and course assignment for competency playlists.
- * Key responsibilities:
- * - Reordering competencies via drag-and-drop
- * - Assigning courses to competency levels
- * - Pre-populating existing course assignments when editing
- * - Building and saving playlist payloads with proper metadata
+ * This is where users can:
+ * - Reorder competencies by dragging them around
+ * - Assign courses to each competency level (L1-L5)
+ * - See which competencies already have courses assigned
+ * - Save everything back to the playlist
  */
 @Component({
     selector: 'app-manage-competency-order',
@@ -36,6 +35,11 @@ export class ManageCompetencyOrderComponent implements OnInit {
     saving = false
     autoSaving = false
 
+    // Cache for competency-specific courses: Map<competencyId, Course[]>
+    private competencyCoursesCache = new Map<string, Course[]>()
+    // Filtered courses per level for current competency: Map<level, Course[]>
+    levelFilteredCourses = new Map<number, Course[]>()
+
     constructor(
         private router: Router,
         private dialog: MatDialog,
@@ -46,13 +50,14 @@ export class ManageCompetencyOrderComponent implements OnInit {
 
     ngOnInit(): void {
         this.loadCompetencies()
-        this.loadCourses()
+        // Note: Courses are now loaded per competency when selected (loadCompetencyLevelCourses)
+        // No need to load all courses upfront
     }
 
     /**
-     * Load selected competencies from state
-     * Redirects to selection page if none selected
-     * Pre-populates existing course assignments if editing an existing playlist
+     * Loads the competencies that were selected on the previous page.
+     * If nothing was selected, we send them back to the selection page.
+     * If we're editing an existing playlist, we also restore which courses were assigned before.
      */
     private loadCompetencies(): void {
         const selected = this.state.getSelectedCompetencies()
@@ -61,31 +66,47 @@ export class ManageCompetencyOrderComponent implements OnInit {
             return
         }
 
-        // Get existing playlist to pre-populate course assignments
+        // Get existing playlist to pre-populate course assignments and order
         const existingPlaylist = this.state.getExistingCompetencyPlaylist()
+        const existingPayload = existingPlaylist?.dataSource?.payload || []
 
-        this.competencies = selected.map((c, index) => {
+        this.competencies = selected.map((c, arrayIndex) => {
+            // Find existing competency data to get saved index/order
+            const existingComp = existingPayload.find((item: any) =>
+                item?.id === parseInt(c.id, 10)
+            )
+
+            // V2 format: index field determines position (0-based), displayOrder is 1-based
+            // If index exists, use it; otherwise use array position
+            const savedIndex = existingComp?.index
+            const displayOrder = savedIndex !== undefined ? savedIndex + 1 : arrayIndex + 1
+
             const comp: SelectableCompetency = {
                 ...c,
-                displayOrder: index + 1,
+                displayOrder: displayOrder,
                 levels: c.levels || this.getDefaultLevels()
             }
 
-            if (existingPlaylist?.dataSource?.payload) {
-                this.restoreSavedCourseAssignments(comp, existingPlaylist.dataSource.payload)
+            if (existingPayload.length > 0) {
+                this.restoreSavedCourseAssignments(comp, existingPayload)
             }
 
             return comp
         })
 
+        // Sort by displayOrder to ensure correct visual order
+        this.competencies.sort((a, b) => a.displayOrder - b.displayOrder)
+
         this.filteredCompetencies = [...this.competencies]
 
+        // Auto-select first competency and load its courses
         if (this.competencies.length > 0) {
             this.selectedCompetency = this.competencies[0]
+            this.loadCompetencyLevelCourses(this.competencies[0])
         }
     }
 
-    /** Returns default 5 levels structure */
+    /** Creates the default 5-level structure for competencies */
     private getDefaultLevels(): CompetencyLevel[] {
         return [
             { level: 1 },
@@ -97,69 +118,34 @@ export class ManageCompetencyOrderComponent implements OnInit {
     }
 
     /**
-     * Load courses for dropdown selection
-     * Falls back to 'en' if filters not available
-     */
-    private async loadCourses(): Promise<void> {
-        const filters = this.state.getFilters()
-        const language = filters?.language || 'en'
-
-        this.loadingCourses = true
-
-        try {
-            const cached = this.state.getCachedCourses(language)
-            if (cached && cached.length > 0) {
-                this.courses = cached
-                this.loadingCourses = false
-                return
-            }
-
-            const response = await this.courseApi.searchCourses(language, 500, 0).toPromise()
-            this.courses = response?.courses || []
-
-            if (this.courses.length > 0) {
-                this.state.setCachedCourses(this.courses, language)
-            }
-        } catch (error) {
-            console.error('Failed to load courses:', error)
-        } finally {
-            this.loadingCourses = false
-        }
-    }
-
-    /**
-     * When editing an existing playlist, pre-fill the course dropdowns
-     * with whatever courses were previously assigned to each level.
+     * When editing an existing playlist, we need to show which courses were already assigned.
+     * This method fills in those course selections so users can see what they had before.
      */
     private restoreSavedCourseAssignments(competency: SelectableCompetency, playlistPayload: any[]): void {
         if (!playlistPayload || !competency?.id || !competency.levels) return
 
-        const existingComp = playlistPayload.find((item: any) => {
-            if (!item) return false
-            const key = Object.keys(item)[0]
-            return item[key]?.id === parseInt(competency.id, 10)
-        })
+        // V2 format: payload is flat array, find by id directly
+        const existingComp = playlistPayload.find((item: any) =>
+            item?.id === parseInt(competency.id, 10)
+        )
 
-        if (!existingComp) return
+        if (!existingComp || !existingComp.levels) return
 
-        const key = Object.keys(existingComp)[0]
-        const levelDescriptions = existingComp[key]?.additionalProperties?.competencyLevelDescription
-        if (!levelDescriptions) return
+        console.log(`[RestoreCourses] Found existing competency ${competency.id} with ${existingComp.levels.length} levels`)
 
-        const currentLanguage = this.state.getFilters()?.language || 'en'
-
+        // V2 format: levels array with courseId directly
         competency.levels.forEach(level => {
-            const levelDesc = levelDescriptions.find((ld: any) => ld.level === level.level)
-            const courseForLang = levelDesc?.course?.find((c: any) => c.lang === currentLanguage)
+            const savedLevel = existingComp.levels.find((l: any) => l.level === level.level)
 
-            if (courseForLang?.id) {
-                level.courseId = courseForLang.id
-                level.courseName = this.courses.find(c => c.identifier === courseForLang.id)?.name || ''
+            if (savedLevel?.courseId) {
+                level.courseId = savedLevel.courseId
+                level.courseName = savedLevel.name || ''
+                console.log(`[RestoreCourses] Restored level ${level.level} with courseId: ${level.courseId}`)
             }
         })
     }
 
-    /** Handle drag and drop reordering */
+    /** Handles when users drag and drop to reorder competencies */
     onDrop(event: CdkDragDrop<SelectableCompetency[]>): void {
         // Don't allow reordering while auto-saving
         if (this.autoSaving) {
@@ -177,19 +163,19 @@ export class ManageCompetencyOrderComponent implements OnInit {
         this.autoSaveOrder()
     }
 
-    /** Update display order after reordering */
+    /** Updates the display numbers after reordering (1, 2, 3, etc.) */
     private updateOrderNumbers(): void {
         this.competencies.forEach((c, index) => {
             c.displayOrder = index + 1
         })
     }
 
-    /** Filter competencies by search term */
+    /** Filters the competency list based on what the user types in the search box */
     onSearch(): void {
         this.filterCompetencies()
     }
 
-    /** Get filtered competencies based on search */
+    /** Actually does the filtering logic */
     filterCompetencies(): void {
         if (!this.competencies) {
             this.filteredCompetencies = []
@@ -205,12 +191,77 @@ export class ManageCompetencyOrderComponent implements OnInit {
             : [...this.competencies]
     }
 
-    /** Select a competency to edit its levels */
+    /** 
+     * When a user clicks on a competency card, we select it and load the courses for it.
+     * Each competency has its own set of courses, so we fetch them on demand.
+     */
     onSelectCompetency(competency: SelectableCompetency): void {
         this.selectedCompetency = competency
+        this.loadCompetencyLevelCourses(competency)
     }
 
-    /** Handle course selection for a level */
+    /**
+     * Loads the courses that are mapped to a specific competency.
+     * We cache the results so we don't have to fetch them again if the user switches back.
+     */
+    private async loadCompetencyLevelCourses(competency: SelectableCompetency): Promise<void> {
+        if (!competency?.id) return
+
+        // Check cache first
+        const cached = this.competencyCoursesCache.get(competency.id)
+        if (cached) {
+            console.log(`[LoadCompetencyCourses] Using cached courses for competency ${competency.id}`)
+            this.updateLevelFilteredCourses(competency.id, cached)
+            return
+        }
+
+        // Fetch from API
+        const filters = this.state.getFilters()
+        const language = filters?.language || 'en'
+
+        this.loadingCourses = true
+
+        try {
+            const response = await this.courseApi.searchCoursesByCompetency(competency.id, language).toPromise()
+            const courses = response?.courses || []
+
+            console.log(`[LoadCompetencyCourses] Fetched ${courses.length} courses for competency ${competency.id}`)
+
+            // Cache the results
+            this.competencyCoursesCache.set(competency.id, courses)
+
+            // Update level-filtered courses
+            this.updateLevelFilteredCourses(competency.id, courses)
+        } catch (error) {
+            console.error('Failed to load competency courses:', error)
+            this.levelFilteredCourses.clear()
+        } finally {
+            this.loadingCourses = false
+        }
+    }
+
+    /**
+     * Organizes courses by level (L1, L2, L3, L4, L5).
+     * Each level dropdown will only show courses that are appropriate for that level.
+     */
+    private updateLevelFilteredCourses(competencyId: string, courses: Course[]): void {
+        this.levelFilteredCourses.clear()
+
+        for (let level = 1; level <= 5; level++) {
+            const filtered = this.courseApi.filterCoursesByLevel(courses, competencyId, level)
+            this.levelFilteredCourses.set(level, filtered)
+            console.log(`[UpdateLevelCourses] Level ${level}: ${filtered.length} courses`)
+        }
+    }
+
+    /**
+     * Gets the courses to show in a specific level's dropdown.
+     */
+    getCoursesForLevel(level: number): Course[] {
+        return this.levelFilteredCourses.get(level) || this.courses
+    }
+
+    /** Saves the course selection when a user picks one from the dropdown */
     onCourseSelect(level: CompetencyLevel, courseId: string): void {
         if (!level || !courseId) return
 
@@ -223,15 +274,14 @@ export class ManageCompetencyOrderComponent implements OnInit {
         }
     }
 
-    /** Check if current competency has all levels assigned */
+    /** Checks if the currently selected competency has all 5 levels filled in */
     isCurrentCompetencyComplete(): boolean {
         if (!this.selectedCompetency?.levels) return false
         return this.selectedCompetency.levels.every(l => !!l.courseId)
     }
 
     /**
-     * Mark current competency as complete
-     * Moves to next incomplete competency
+     * Marks the current competency as done and moves to the next one that needs work.
      */
     onAssignCourses(): void {
         if (!this.selectedCompetency || !this.isCurrentCompetencyComplete()) return
@@ -244,26 +294,26 @@ export class ManageCompetencyOrderComponent implements OnInit {
         }
     }
 
-    /** Check if a competency has all levels assigned */
+    /** Checks if a competency has all its courses assigned */
     isCompetencyComplete(competency: SelectableCompetency): boolean {
         if (!competency) return false
         return competency.coursesAssigned || (competency.levels?.every(l => !!l.courseId) ?? false)
     }
 
-    /** Check if all competencies are complete */
+    /** Returns true only if every competency has all its courses assigned */
     get allCompetenciesComplete(): boolean {
         if (!this.competencies || this.competencies.length === 0) return false
         return this.competencies.every(c => this.isCompetencyComplete(c))
     }
 
-    /** Navigate back to selection page */
+    /** Takes the user back to the competency selection page */
     onBack(): void {
         this.router.navigate(['/app/playlist/select-competencies'])
     }
 
     /**
-     * Save competency playlist
-     * Calls playlist API to create or update with competency payload structure
+     * Saves the entire competency playlist to the backend.
+     * This is called when the user clicks the Save button.
      */
     onSave(): void {
         // if (!this.allCompetenciesComplete) {
@@ -291,7 +341,6 @@ export class ManageCompetencyOrderComponent implements OnInit {
         // Use CompetencyTransformer to build proper payload with all required fields
         const competencyPayload = this.buildPlaylistPayload(
             this.competencies,
-            language,
             authToken,
             existingPlaylist
         )
@@ -315,21 +364,21 @@ export class ManageCompetencyOrderComponent implements OnInit {
             })
     }
 
-    /** Show success dialog and navigate to summary */
+    /** Shows a success message and takes the user to the summary page */
     private showSuccess(title: string, message: string): void {
         this.dialog.open(SuccessDialogComponent, { data: { title, message } })
             .afterClosed()
             .subscribe(() => this.router.navigate(['/app/home/playlist/summary']))
     }
 
-    /** Show error dialog */
+    /** Shows an error message to the user */
     private showError(message: string): void {
         this.dialog.open(ErrorDialogComponent, { data: { message } })
     }
 
     /**
-     * Auto-save competency order after drag-drop
-     * Only saves if all competencies have courses assigned to all levels
+     * Automatically saves the playlist after reordering.
+     * We only do this if all competencies are complete (to avoid saving incomplete data).
      */
     private autoSaveOrder(): void {
         // Don't auto-save if not all competencies are complete
@@ -349,12 +398,10 @@ export class ManageCompetencyOrderComponent implements OnInit {
         this.autoSaving = true
 
         // Build competency payload using CompetencyTransformer
-        const language = filters.language || 'en'
         const authToken = 'system'
 
         const competencyPayload = this.buildPlaylistPayload(
             this.competencies,
-            language,
             authToken,
             existingPlaylist || undefined
         )
@@ -379,13 +426,17 @@ export class ManageCompetencyOrderComponent implements OnInit {
     }
 
     /**
-     * Converts our UI competency data into the API format.
-     * Includes all the metadata the backend expects (dates, status, etc.)
-     * and handles language-specific fields for non-English playlists.
+     * Converts our UI data into the format the API expects (V2 format).
+     * The new format uses a flat array where each competency has an index field.
+     * 
+     * Example:
+     * [
+     *   { index: 0, id: 100, code: "C1", name: "...", levels: [...] },
+     *   { index: 1, id: 200, code: "C2", name: "...", levels: [...] }
+     * ]
      */
     private buildPlaylistPayload(
         competencies: SelectableCompetency[],
-        language: string,
         authToken: string,
         existingPlaylist?: any
     ): any[] {
@@ -395,36 +446,41 @@ export class ManageCompetencyOrderComponent implements OnInit {
             return []
         }
 
-        return competencies.map((comp) => {
+        return competencies.map((comp, arrayIndex) => {
             const competencyCode = comp.code || this.generateCompetencyCode(comp)
-            const competencyKey = competencyCode.toLowerCase()
 
+            // Build the competency data
             const competencyData = this.buildCompetencyData(
                 comp,
                 competencyCode,
-                language,
                 authToken,
                 existingPlaylist
             )
-            return { [competencyKey]: competencyData }
+
+            // Add index field based on array position (0-based)
+            // Array position 0 → index: 0 (shows as card 1)
+            // Array position 1 → index: 1 (shows as card 2)
+            competencyData.index = arrayIndex
+
+            return competencyData
         })
     }
 
     /**
-     * Generates a competency code using the database ID.
-     * This keeps the code stable even when reordering competencies.
+     * Generates a stable code for a competency based on its database ID.
+     * This way the code stays the same even if we reorder things.
      */
     private generateCompetencyCode(comp: SelectableCompetency): string {
         return `C${comp.id}`
     }
 
     /**
-     * Creates a complete competency object with all the fields the API needs.
+     * Builds a complete competency object with all the metadata the API needs.
+     * This includes timestamps, status, and all the other fields the backend expects.
      */
     private buildCompetencyData(
         comp: SelectableCompetency,
         code: string,
-        language: string,
         authToken: string,
         existingPlaylist?: any
     ): any {
@@ -434,23 +490,16 @@ export class ManageCompetencyOrderComponent implements OnInit {
 
         const data: any = {
             id: parseInt(comp.id, 10),
-            type: 'Competency',
+            code: code,
             name: comp.name,
             description: comp.description || '',
-            additionalProperties: {
-                Code: code,
-                CompentencyType: comp.type || 'Domain',
-                CompetencyArea: 'Management',
-                competencyLevelDescription: this.buildLevelDescriptions(comp, language)
-            },
+            type: comp.type || 'Domain',
+            area: 'Management',
+            levels: this.buildLevels(comp),
 
-            // TODO: Future feature - Will support multiple status values (DRAFT, PUBLISHED, ARCHIVED, etc.)
-            // For now, all competencies are marked as UNVERIFIED
+            // Status and metadata
             status: 'UNVERIFIED',
             source: null,
-
-            // TODO: Future feature - Will support different proficiency levels (BEGINNER, INTERMEDIATE, EXPERT)
-            // Currently defaulting to INITIATE for all competencies
             level: 'INITIATE',
             levelId: 0,
             isActive: true,
@@ -461,25 +510,17 @@ export class ManageCompetencyOrderComponent implements OnInit {
             updatedDate: now,
             updatedBy: authToken,
 
-            // TODO: Future feature - Will implement review/approval workflow
-            // When implemented, managers can review and approve competency playlists
-            // reviewedDate will be set when someone approves, reviewedBy will store their username
+            // Review workflow fields
             reviewedDate: null,
-            reviewedBy: null,
-
-            wfId: null,
-            children: []
-        }
-
-        if (language !== 'en') {
-            this.addLanguageFields(data.additionalProperties, comp, language)
+            reviewedBy: null
         }
 
         return data
     }
 
     /**
-     * Finds existing competency data from the saved playlist to preserve audit fields.
+     * Finds a competency in the existing playlist data.
+     * We need this to preserve creation dates and other audit info when updating.
      */
     private findExistingCompetency(competencyId: string, existingPlaylist?: any): any {
         if (!existingPlaylist?.dataSource?.payload || !competencyId) return null
@@ -487,33 +528,20 @@ export class ManageCompetencyOrderComponent implements OnInit {
         const compId = parseInt(competencyId, 10)
         if (isNaN(compId)) return null
 
+        // V2 format: payload is a flat array of competency objects
         for (const item of existingPlaylist.dataSource.payload) {
-            const key = item ? Object.keys(item)[0] : null
-            if (key && item[key]?.id === compId) {
-                return item[key]
+            if (item?.id === compId) {
+                return item
             }
         }
         return null
     }
 
     /**
-     * For non-English playlists, adds the translated name/description.
-     * English versions are already in the main name/description fields.
+     * Builds the levels array with the assigned courses.
+     * In V2 format, we put the courseId directly in each level object.
      */
-    private addLanguageFields(additionalProps: any, comp: SelectableCompetency, language: string): void {
-        if (comp.name) {
-            additionalProps[`lang-${language}-name`] = comp.name
-        }
-        if (comp.description) {
-            additionalProps[`lang-${language}-description`] = comp.description
-        }
-    }
-
-    /**
-     * Creates the level array with assigned courses for each level.
-     * Course IDs are language-specific (different courses for Hindi vs English).
-     */
-    private buildLevelDescriptions(comp: SelectableCompetency, language: string): any[] {
+    private buildLevels(comp: SelectableCompetency): any[] {
         if (!comp.levels || comp.levels.length === 0) {
             return []
         }
@@ -525,20 +553,9 @@ export class ManageCompetencyOrderComponent implements OnInit {
                 description: level.description || ''
             }
 
-            if (language !== 'en') {
-                if (level.name) {
-                    levelData[`lang-${language}-name`] = level.name
-                }
-                if (level.description) {
-                    levelData[`lang-${language}-description`] = level.description
-                }
-            }
-
+            // Add courseId directly if assigned
             if (level.courseId) {
-                levelData.course = [{
-                    lang: language,
-                    id: level.courseId
-                }]
+                levelData.courseId = level.courseId
             }
 
             return levelData

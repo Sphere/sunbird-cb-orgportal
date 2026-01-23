@@ -24,6 +24,32 @@ export interface CourseSearchRequest {
 }
 
 /**
+ * Competency-based course search request payload
+ * Used to search for courses mapped to specific competency levels
+ */
+export interface CompetencyCourseSearchRequest {
+    request: {
+        filters: {
+            competencySearch: string[]  // e.g., ["100-1", "100-2", "100-3", "100-4", "100-5"]
+            lang: string[]
+            primaryCategory: string[]
+        }
+        exists: string[]  // e.g., ["competencies_v1"]
+        fields: string[]
+    }
+}
+
+/**
+ * Competency information from course metadata
+ * Parsed from the competencies_v1 JSON string field
+ */
+export interface CompetencyInfo {
+    competencyName: string
+    competencyId: string | number
+    level: string | number
+}
+
+/**
  * Course object from Sunbird API
  */
 export interface Course {
@@ -37,6 +63,8 @@ export interface Course {
     updatedOn?: string
     description?: string
     thumbnail?: string
+    competencies_v1?: string   // JSON string of CompetencyInfo[]
+    competencySearch?: string[] // Array like ["100-1", "100-2"]
 }
 
 /**

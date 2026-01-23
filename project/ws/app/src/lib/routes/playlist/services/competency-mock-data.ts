@@ -1,18 +1,20 @@
 /**
- * Mock Competency List Data
+ * Competency Mock Data
  * 
- * This file contains mock data for competency list API response.
- * This data simulates the response from: POST /apis/proxies/v8/entity/v1/upload
+ * This file provides sample competency data for development and testing purposes.
+ * It mimics what we'll eventually get from the real competency API.
  * 
- * TODO: Once the real API is ready, replace this mock with actual API integration
- * in competency-api.service.ts
+ * Why we need this:
+ * - The actual API integration is still in progress
+ * - This lets us build and test the UI without waiting for the backend
+ * - Makes it easier to develop offline or when the API is unavailable
  * 
- * Response Structure:
- * - result.data.entity[]: Array of competency entities
- * - Each entity has: id, name, description, code, language, children (levels)
- * - Children represent competency levels (L1-L5)
+ * What's inside:
+ * - Two sample competencies: "Pregnancy Identification" and "Birth Planning and Preparedness"
+ * - Each competency has 5 levels (L1-L5) representing different skill stages
+ * - The structure matches exactly what the real API will return
  * 
- * @see https://api-docs/entity/v1/upload for API documentation
+ * Note: Once the API is live, we'll swap this out for real data calls in competency-api.service.ts
  */
 
 export const MOCK_COMPETENCY_LIST_RESPONSE = {
@@ -32,7 +34,7 @@ export const MOCK_COMPETENCY_LIST_RESPONSE = {
         "data": {
             "entity": [
                 {
-                    "id": 661,
+                    "id": 100,
                     "type": "competency",
                     "name": "Pregnancy Identification",
                     "description": "Conducts initial assessment to identify pregnancy, High risk pregnancy and estimate gestational age",
@@ -126,7 +128,7 @@ export const MOCK_COMPETENCY_LIST_RESPONSE = {
                     ]
                 },
                 {
-                    "id": 667,
+                    "id": 101,
                     "type": "competency",
                     "name": "Birth Planning and Preparedness",
                     "description": "Creates and implements Micro-birth Plans for PW",

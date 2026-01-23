@@ -10,7 +10,8 @@ import {
 } from '../models/playlist.model'
 
 /**
- * Playlist Types - for configurable playlist IDs
+ * Different types of playlists we support.
+ * This helps us organize and manage different kinds of learning content.
  */
 export enum PlaylistType {
     COURSE = 'COURSE',
@@ -18,18 +19,18 @@ export enum PlaylistType {
 }
 
 /**
- * Configurable Playlist IDs
- * Used when creating new playlists (CREATE operation)
- * For UPDATE, existing playlistId from API is used
+ * Playlist identifiers for each type.
+ * When creating a new playlist, we use these IDs to tell the backend what kind it is.
+ * When updating an existing one, we use whatever ID it already has.
  */
 export const PLAYLIST_IDS = {
     [PlaylistType.COURSE]: 'Playlist_Course',
-    [PlaylistType.COMPETENCY]: 'Playlist_Competency',
+    [PlaylistType.COMPETENCY]: 'COMPETENCY_PLAYLIST_V2',
 } as const
 
 /**
- * Playlist API Service
- * Handles all playlist-related API calls
+ * Service for managing playlists.
+ * This handles everything related to creating, updating, and searching for playlists.
  */
 @Injectable({
     providedIn: 'root',
@@ -42,8 +43,8 @@ export class PlaylistApiService {
 
 
     /**
-     * Fetch all root organizations for dropdown
-     * Maps API response to dropdown format: { value: id, label: orgName }
+     * Gets the list of organizations to show in the dropdown.
+     * We only fetch root organizations (not sub-orgs) and format them nicely for the UI.
      */
     searchOrganizations(): Observable<{ value: string, label: string }[]> {
         const payload = {
@@ -74,12 +75,12 @@ export class PlaylistApiService {
 
 
     /**
-     * Search for existing playlists based on filters
-     * Unique key: orgId + language + role + playlistId
+     * Looks for playlists that match the given criteria.
+     * Each playlist is unique based on: organization, language, role, and playlist type.
      * 
-     * @param filters Organization, role, and language filters
-     * @param playlistType Type of playlist to search for (defaults to COURSE)
-     * @returns Observable of playlists array
+     * @param filters What organization, role, and language to search for
+     * @param playlistType Whether we're looking for course or competency playlists
+     * @returns List of matching playlists
      */
     searchPlaylist(
         filters: PlaylistFilters,
@@ -107,12 +108,11 @@ export class PlaylistApiService {
     }
 
     /**
-     * Extract course IDs from existing playlist
-     * Only processes 'static' type data sources
-     * Deduplicates IDs before returning
+     * Pulls out the course IDs from a playlist.
+     * We only look at 'static' playlists (not dynamic ones) and remove any duplicates.
      * 
-     * @param playlists Array of playlists from search
-     * @returns Deduplicated array of course do_ids
+     * @param playlists The playlists to extract from
+     * @returns Clean list of unique course IDs
      */
     extractCourseIds(playlists: Playlist[]): string[] {
         if (!playlists || playlists.length === 0) {
@@ -134,8 +134,8 @@ export class PlaylistApiService {
     }
 
     /**
-     * Extract competency IDs from competency playlist
-     * Competency payload structure: [{ "c1": { id: 100, ... } }, { "c2": { id: 101, ... } }]
+     * Gets competency IDs from a competency playlist.
+     * The V2 format stores competencies as a flat array with id, code, and other details.
      */
     extractCompetencyIds(playlists: Playlist[]): string[] {
         if (!playlists || playlists.length === 0) {
@@ -147,23 +147,22 @@ export class PlaylistApiService {
         playlists.forEach(playlist => {
             if (playlist?.dataSource?.type === 'competency' && Array.isArray(playlist?.dataSource?.payload)) {
                 playlist.dataSource.payload.forEach((item: any) => {
-                    // Each item is like { "c1": { id: 100, name: "..." } }
-                    const keys = Object.keys(item)
-                    if (keys.length > 0) {
-                        const competencyData = item[keys[0]]
-                        if (competencyData?.id) {
-                            allIds.push(String(competencyData.id))
-                        }
+                    // V2 format: item is directly { id: 100, code: "C1", ... }
+                    if (item?.id) {
+                        allIds.push(String(item.id))
                     }
                 })
             }
         })
 
-        return Array.from(new Set(allIds))
+        // Return all IDs (including duplicates) to get correct count
+        // Note: If backend sends duplicate IDs, that's a data issue
+        return allIds
     }
 
     /**
-     * Extract full competency data from playlist for preselection
+     * Extracts complete competency information from a playlist.
+     * This is used when editing an existing playlist - we need to show what was already selected.
      */
     extractCompetencyData(playlists: Playlist[]): any[] {
         if (!playlists || playlists.length === 0) {
@@ -175,18 +174,16 @@ export class PlaylistApiService {
         playlists.forEach(playlist => {
             if (playlist?.dataSource?.type === 'competency' && Array.isArray(playlist?.dataSource?.payload)) {
                 playlist.dataSource.payload.forEach((item: any) => {
-                    const keys = Object.keys(item)
-                    if (keys.length > 0) {
-                        const competencyData = item[keys[0]]
-                        if (competencyData) {
-                            competencies.push({
-                                id: String(competencyData.id),
-                                code: competencyData.additionalProperties?.Code || keys[0].toUpperCase(),
-                                name: competencyData.name,
-                                description: competencyData.description,
-                                levels: competencyData.additionalProperties?.competencyLevelDescription || []
-                            })
-                        }
+                    // V2 format: flat structure with direct fields
+                    if (item) {
+                        competencies.push({
+                            id: String(item.id),
+                            code: item.code || `C${item.id}`,
+                            name: item.name,
+                            description: item.description || '',
+                            type: item.type || 'Domain',
+                            levels: item.levels || []
+                        })
                     }
                 })
             }
@@ -196,10 +193,8 @@ export class PlaylistApiService {
     }
 
     /**
-
-     * Build scope object dynamically
-     * Only includes keys that have non-empty values
-     * Ensures state and district are always arrays
+     * Builds the scope object for the API request.
+     * We only include fields that actually have values, and make sure state/district are arrays.
      */
     private buildScope(data: { orgId: string, role: string[], state?: string[], district?: string[], language: string }): any {
         const scope: any = {}
@@ -226,11 +221,11 @@ export class PlaylistApiService {
     }
 
     /**
-     * Build competency payload in the required format
-     * Converts array of competency objects to c1, c2, c3... format
+     * Formats competencies for the API.
+     * Takes our UI competency objects and converts them to the c1, c2, c3 format the backend expects.
      * 
-     * @param competencies Array of competency objects with id, code, name, etc.
-     * @returns Array of objects in format [{ "c1": {...} }, { "c2": {...} }]
+     * @param competencies The competencies to format
+     * @returns Formatted array ready for the API
      */
     buildCompetencyPayload(competencies: any[]): any[] {
         return competencies.map((comp, index) => {
@@ -251,14 +246,13 @@ export class PlaylistApiService {
     }
 
     /**
-     * Create a new playlist
-     * Used when search returns empty (new entry)
-     * Uses configurable playlistId based on type
+     * Creates a brand new playlist.
+     * This is called when we don't find an existing playlist for the given filters.
      * 
-     * @param filters Playlist filters (org, role, state, district, language)
-     * @param courseIds Ordered array of selected course IDs
-     * @param playlistType Type of playlist (COURSE or COMPETENCY) - defaults to COURSE
-     * @returns Observable of create response
+     * @param filters Who this playlist is for (organization, role, etc.)
+     * @param courseIds The courses or competencies to include
+     * @param playlistType What kind of playlist we're creating
+     * @returns API response
      */
     createPlaylist(
         filters: PlaylistFilters,
@@ -307,14 +301,13 @@ export class PlaylistApiService {
 
 
     /**
-     * Update an existing playlist
-     * Used when search returns existing data
-     * Updates scope with merged roles from filters & course IDs
+     * Updates an existing playlist with new content.
+     * This is called when we found a playlist and want to modify it.
      * 
-     * @param existingPlaylist The existing playlist object (contains id)
-     * @param filters Filters containing merged roles
-     * @param courseIds New ordered array of course IDs
-     * @returns Observable of update response
+     * @param existingPlaylist The playlist we're updating
+     * @param filters Updated filter values (roles might be merged)
+     * @param courseIds The new list of courses/competencies
+     * @returns API response
      */
     updatePlaylist(existingPlaylist: Playlist, filters: PlaylistFilters, courseIds: string[], isCompetency: boolean = false): Observable<any> {
         // Build dataSource based on existing playlist type
@@ -356,15 +349,14 @@ export class PlaylistApiService {
     }
 
     /**
-     * Save playlist (wrapper that decides create vs update)
-     * - For CREATE: Uses configured playlistId based on type
-     * - For UPDATE: Uses existing playlistId from the playlist, roles from filters (merged)
+     * Saves a playlist - either creates a new one or updates an existing one.
+     * This is the main method you'll call. It figures out whether to create or update automatically.
      * 
-     * @param filters Playlist filters (with merged roles for update)
-     * @param courseIds Ordered array of course IDs
-     * @param existingPlaylist Optional existing playlist (if found from search)
-     * @param playlistType Type of playlist for new creation (defaults to COURSE)
-     * @returns Observable of save response
+     * @param filters Who this playlist is for
+     * @param courseIds What content to include
+     * @param existingPlaylist If we found an existing playlist, pass it here
+     * @param playlistType What kind of playlist this is
+     * @returns API response
      */
     savePlaylist(
         filters: PlaylistFilters,
