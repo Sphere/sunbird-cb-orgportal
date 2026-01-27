@@ -123,12 +123,7 @@ export class CompetencyTransformer {
         authToken: string = 'system'
     ): { [key: string]: PlaylistCompetency } {
 
-        console.log(`[CompetencyTransformer] Transforming competency:`, {
-            id: rawEntity.id,
-            code: rawEntity.code,
-            language,
-            hasExisting: !!existingCompetency
-        })
+
 
         // Generate root key: lowercase code (C97 → c97)
         const rootKey = rawEntity.code.toLowerCase()
@@ -189,18 +184,13 @@ export class CompetencyTransformer {
             createdBy: existingCompetency?.createdBy || authToken,
             updatedDate: timestamp,
             updatedBy: authToken,
-            reviewedDate: null,
-            reviewedBy: null,
+            reviewedDate: existingCompetency?.reviewedDate || null,
+            reviewedBy: existingCompetency?.reviewedBy || null,
             wfId: null,
             children: []
         }
 
-        console.log(`[CompetencyTransformer] Transformation complete:`, {
-            rootKey,
-            id: competency.id,
-            levelsCount: levelDescriptions.length,
-            isUpdate: !!existingCompetency
-        })
+
 
         return { [rootKey]: competency }
     }
@@ -222,12 +212,7 @@ export class CompetencyTransformer {
         const langNameKey = `lang-${language}-name`
         const langDescKey = `lang-${language}-description`
 
-        console.log(`[CompetencyTransformer] Building language fields:`, {
-            language,
-            isEnglish: language === 'en',
-            langNameKey,
-            langDescKey
-        })
+
 
         return {
             name,
@@ -251,7 +236,7 @@ export class CompetencyTransformer {
         existingCompetency?: any
     ): PlaylistCompetencyLevel[] {
 
-        console.log(`[CompetencyTransformer] Transforming ${rawLevels.length} levels for language: ${language}`)
+
 
         return rawLevels.map((rawLevel, index) => {
             const levelNumber = String(rawLevel.levelId || index + 1)
@@ -289,15 +274,11 @@ export class CompetencyTransformer {
                     // Keep all existing course mappings
                     level.course = [...existingLevel.course]
 
-                    console.log(`[CompetencyTransformer] Preserved ${level.course.length} course mappings for level ${levelNumber}`)
+
                 }
             }
 
-            console.log(`[CompetencyTransformer] Transformed level ${levelNumber}:`, {
-                name: level.name,
-                hasLangName: !!level[langNameKey],
-                coursesCount: level.course?.length || 0
-            })
+
 
             return level
         })
@@ -346,11 +327,7 @@ export class CompetencyTransformer {
         language: string
     ): PlaylistCompetency {
 
-        console.log(`[CompetencyTransformer] Updating course for level ${levelNumber}:`, {
-            courseId,
-            language,
-            competencyId: competency.id
-        })
+
 
         const levels = competency.additionalProperties.competencyLevelDescription
         const levelIndex = levels.findIndex(l => l.level === levelNumber)
@@ -373,11 +350,11 @@ export class CompetencyTransformer {
         if (existingCourseIndex !== -1) {
             // Update existing mapping
             level.course[existingCourseIndex].id = courseId
-            console.log(`[CompetencyTransformer] Updated existing course mapping for language: ${language}`)
+
         } else {
             // Add new mapping
             level.course.push({ lang: language, id: courseId })
-            console.log(`[CompetencyTransformer] Added new course mapping for language: ${language}`)
+
         }
 
         // Update timestamp
@@ -412,11 +389,7 @@ export class CompetencyTransformer {
         authToken: string = 'system'
     ): any[] {
 
-        console.log(`[CompetencyTransformer] Building playlist payload:`, {
-            entitiesCount: rawEntities.length,
-            language,
-            hasExisting: !!existingPayload
-        })
+
 
         return rawEntities.map((rawEntity) => {
             // Find existing competency by ID
@@ -460,7 +433,7 @@ export class CompetencyTransformer {
             }
         }
 
-        console.log(`[CompetencyTransformer] All courses complete for competency ${competency.id}`)
+
         return true
     }
 
@@ -519,10 +492,7 @@ export class CompetencyTransformer {
         language: string
     ): PlaylistCompetencyLevel[] {
 
-        console.log(`[CompetencyTransformer] Merging level descriptions for language: ${language}`, {
-            existingCount: existingLevels?.length || 0,
-            newCount: newLevels?.length || 0
-        })
+
 
         if (!existingLevels || existingLevels.length === 0) {
             return newLevels
@@ -572,14 +542,11 @@ export class CompetencyTransformer {
 
                 merged[existingIndex] = mergedLevel
 
-                console.log(`[CompetencyTransformer] Merged level ${newLevel.level}:`, {
-                    preservedFields: Object.keys(existing).length,
-                    totalFields: Object.keys(mergedLevel).length
-                })
+
             } else {
                 // New level - add it
                 merged.push(newLevel)
-                console.log(`[CompetencyTransformer] Added new level ${newLevel.level}`)
+
             }
         })
 
@@ -608,11 +575,11 @@ export class CompetencyTransformer {
             if (existingIndex !== -1) {
                 // Update existing course for this language
                 merged[existingIndex] = newCourse
-                console.log(`[CompetencyTransformer] Updated course for language: ${newCourse.lang}`)
+
             } else {
                 // Add new course for new language
                 merged.push(newCourse)
-                console.log(`[CompetencyTransformer] Added course for new language: ${newCourse.lang}`)
+
             }
         })
 
@@ -655,11 +622,7 @@ export class CompetencyTransformer {
         authToken: string = 'system'
     ): any[] {
 
-        console.log(`[CompetencyTransformer] Performing non-destructive update:`, {
-            existingCount: existingPayload?.length || 0,
-            updatesCount: updates?.length || 0,
-            language
-        })
+
 
         if (!existingPayload || existingPayload.length === 0) {
             return updates
@@ -699,20 +662,12 @@ export class CompetencyTransformer {
                 result.push({ [updateKey]: merged })
                 processedIds.add(updateComp.id)
 
-                console.log(`[CompetencyTransformer] Merged existing competency:`, {
-                    id: updateComp.id,
-                    oldKey: existing.key,
-                    newKey: updateKey,
-                    positionChanged: existing.key !== updateKey
-                })
+
             } else {
                 // New competency - add as is
                 result.push(updateItem)
                 processedIds.add(updateComp.id)
-                console.log(`[CompetencyTransformer] Added new competency:`, {
-                    id: updateComp.id,
-                    key: updateKey
-                })
+
             }
         })
 
@@ -723,18 +678,11 @@ export class CompetencyTransformer {
             const comp = item[key]
             if (comp.id && !processedIds.has(comp.id)) {
                 result.push(item)
-                console.log(`[CompetencyTransformer] Preserved unmodified competency:`, {
-                    id: comp.id,
-                    key
-                })
+
             }
         })
 
-        console.log(`[CompetencyTransformer] Non-destructive update complete:`, {
-            originalCount: existingPayload.length,
-            resultCount: result.length,
-            preserved: result.length - updates.length
-        })
+
 
         return result
     }
@@ -756,7 +704,7 @@ export class CompetencyTransformer {
         authToken: string
     ): PlaylistCompetency {
 
-        console.log(`[CompetencyTransformer] Merging competency ${existing.id}`, { language })
+
 
         // Start with existing data
         const merged: any = { ...existing }
@@ -817,12 +765,6 @@ export class CompetencyTransformer {
             }
         })
 
-        console.log(`[CompetencyTransformer] Competency merge complete`, {
-            id: merged.id,
-            preservedFields: Object.keys(existing).length,
-            totalFields: Object.keys(merged).length,
-            levelsCount: merged.additionalProperties.competencyLevelDescription.length
-        })
 
         return merged as PlaylistCompetency
     }
@@ -847,11 +789,6 @@ export class CompetencyTransformer {
         const competency = competencyItem[oldKey]
         const newKey = newCode.toLowerCase()
 
-        console.log(`[CompetencyTransformer] Changing competency position:`, {
-            oldKey,
-            newKey,
-            id: competency.id
-        })
 
         // Update the code in additionalProperties
         if (competency.additionalProperties) {
@@ -861,4 +798,3 @@ export class CompetencyTransformer {
         return { [newKey]: competency }
     }
 }
-

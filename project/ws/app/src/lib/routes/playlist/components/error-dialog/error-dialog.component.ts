@@ -1,12 +1,22 @@
 import { Component, Inject } from '@angular/core'
 import { MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA, MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog'
 
+/**
+ * Data passed to the Error Dialog
+ */
 export interface ErrorDialogData {
+    /** Dialog title */
     title: string
+    /** Main error message */
     message: string
+    /** Optional technical details */
     details?: string
 }
 
+/**
+ * Error Dialog Component
+ * Displays error messages with optional retry functionality
+ */
 @Component({
     selector: 'app-error-dialog',
     templateUrl: './error-dialog.component.html',

@@ -171,11 +171,11 @@
     }
 
     ::ng-deep {
-        .mat-mdc-form-field {
+        .mat-form-field {
             width: 100%;
         }
 
-        .mat-mdc-form-field-flex {
+        .mat-form-field-flex {
             height: 44px;
             background: white;
             box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.25);
@@ -183,12 +183,12 @@
             align-items: center;
         }
 
-        .mat-mdc-text-field-wrapper {
+        .mat-form-field-wrapper {
             padding: 0;
             height: 44px;
         }
 
-        .mat-mdc-form-field-infix {
+        .mat-form-field-infix {
             padding: 12px 16px;
             border: none;
             min-height: 44px;
@@ -198,7 +198,7 @@
         }
 
         // Label positioning - inside field at top when filled
-        .mat-mdc-floating-label {
+        .mat-floating-label {
             position: relative;
             top: 0 !important;
             left: 0 !important;
@@ -213,16 +213,16 @@
         }
 
         // Remove the floating animation
-        .mdc-floating-label--float-above {
+        .mat-form-field-label-wrapper {
             transform: none !important;
         }
 
-        .mat-mdc-form-field-subscript-wrapper {
+        .mat-form-field-subscript-wrapper {
             display: none;
         }
 
         // Selected value styling
-        .mat-mdc-select-value {
+        .mat-select-value {
             color: #000;
             font-size: 14px !important;
             font-family: 'Roboto', sans-serif;
@@ -230,12 +230,12 @@
             line-height: 1;
         }
 
-        .mat-mdc-select-value-text {
+        .mat-select-value-text {
             font-size: 14px !important;
         }
 
         // Placeholder when empty - centered, 16px
-        .mat-mdc-select-placeholder {
+        .mat-select-placeholder {
             color: #808080;
             font-size: 16px !important;
             font-family: 'Roboto', sans-serif;
@@ -243,49 +243,54 @@
             line-height: 24px !important;
         }
 
-        // Arrow icon
-        .mat-mdc-select-arrow {
-            color: #000;
+        // Hide Material's default arrow
+        .mat-select-arrow {
+            display: none !important;
         }
 
-        .mat-mdc-select-arrow-wrapper {
+        .mat-select-arrow-wrapper {
             height: 7px;
+            position: relative;
 
-            .mat-mdc-select-arrow svg {
+            .mat-select-arrow svg {
                 display: none;
+            }
+
+            // Custom arrow using S3 image (11px x 7px)
+            &::after {
+                content: '';
+                display: block;
+                width: 11px;
+                height: 7px;
+                background-image: url('https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/icons/down-arrow.svg');
+                background-size: contain;
+                background-repeat: no-repeat;
+                background-position: center;
+                position: absolute;
+                top: 0;
+                left: 0;
             }
         }
 
-        // Custom arrow to match Figma (11px x 7px black triangle)
-        .mat-mdc-select-arrow::after {
-            content: '';
-            width: 0;
-            height: 0;
-            border-left: 5.5px solid transparent;
-            border-right: 5.5px solid transparent;
-            border-top: 7px solid #000;
-            position: absolute;
-        }
-
         // Remove outline border
-        .mdc-notched-outline {
+        .mat-form-field-outline {
             display: none;
         }
 
         // Focus state
         &.mat-focused {
-            .mat-mdc-form-field-flex {
+            .mat-form-field-flex {
                 box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.3);
             }
         }
 
         // When field has value - show label at top
         &.mat-form-field-should-float {
-            .mat-mdc-form-field-infix {
+            .mat-form-field-infix {
                 justify-content: flex-start;
             }
 
-            .mat-mdc-floating-label {
+            .mat-floating-label {
                 font-size: 8px !important;
                 display: block;
             }
@@ -293,11 +298,11 @@
 
         // When field is empty - hide label, center placeholder
         &:not(.mat-form-field-should-float) {
-            .mat-mdc-form-field-infix {
+            .mat-form-field-infix {
                 justify-content: center;
             }
 
-            .mat-mdc-floating-label {
+            .mat-floating-label {
                 display: none;
             }
         }

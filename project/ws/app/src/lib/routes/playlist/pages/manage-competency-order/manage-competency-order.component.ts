@@ -9,6 +9,7 @@ import { SelectableCompetency, CompetencyLevel } from '../../models/competency.m
 import { Course } from '../../models/course.model'
 import { SuccessDialogComponent } from '../../components/success-dialog/success-dialog.component'
 import { ErrorDialogComponent } from '../../components/error-dialog/error-dialog.component'
+import { RoleConfirmDialogComponent, RoleConfirmDialogData } from '../../components/role-confirm-dialog/role-confirm-dialog.component'
 
 /**
  * Component for managing competency playlists.
@@ -91,6 +92,15 @@ export class ManageCompetencyOrderComponent implements OnInit {
                 this.restoreSavedCourseAssignments(comp, existingPayload)
             }
 
+            // If this competency already has all 5 levels with courses assigned,
+            // mark it as complete so it shows the checkmark
+            if (comp.levels && comp.levels.length === 5) {
+                const allLevelsHaveCourses = comp.levels.every(l => !!l.courseId)
+                if (allLevelsHaveCourses) {
+                    comp.coursesAssigned = true
+                }
+            }
+
             return comp
         })
 
@@ -131,7 +141,7 @@ export class ManageCompetencyOrderComponent implements OnInit {
 
         if (!existingComp || !existingComp.levels) return
 
-        console.log(`[RestoreCourses] Found existing competency ${competency.id} with ${existingComp.levels.length} levels`)
+
 
         // V2 format: levels array with courseId directly
         competency.levels.forEach(level => {
@@ -140,7 +150,7 @@ export class ManageCompetencyOrderComponent implements OnInit {
             if (savedLevel?.courseId) {
                 level.courseId = savedLevel.courseId
                 level.courseName = savedLevel.name || ''
-                console.log(`[RestoreCourses] Restored level ${level.level} with courseId: ${level.courseId}`)
+
             }
         })
     }
@@ -210,7 +220,7 @@ export class ManageCompetencyOrderComponent implements OnInit {
         // Check cache first
         const cached = this.competencyCoursesCache.get(competency.id)
         if (cached) {
-            console.log(`[LoadCompetencyCourses] Using cached courses for competency ${competency.id}`)
+
             this.updateLevelFilteredCourses(competency.id, cached)
             return
         }
@@ -225,7 +235,7 @@ export class ManageCompetencyOrderComponent implements OnInit {
             const response = await this.courseApi.searchCoursesByCompetency(competency.id, language).toPromise()
             const courses = response?.courses || []
 
-            console.log(`[LoadCompetencyCourses] Fetched ${courses.length} courses for competency ${competency.id}`)
+
 
             // Cache the results
             this.competencyCoursesCache.set(competency.id, courses)
@@ -250,7 +260,7 @@ export class ManageCompetencyOrderComponent implements OnInit {
         for (let level = 1; level <= 5; level++) {
             const filtered = this.courseApi.filterCoursesByLevel(courses, competencyId, level)
             this.levelFilteredCourses.set(level, filtered)
-            console.log(`[UpdateLevelCourses] Level ${level}: ${filtered.length} courses`)
+
         }
     }
 
@@ -286,18 +296,23 @@ export class ManageCompetencyOrderComponent implements OnInit {
     onAssignCourses(): void {
         if (!this.selectedCompetency || !this.isCurrentCompetencyComplete()) return
 
+        // Mark as assigned - this will show the checkmark
         this.selectedCompetency.coursesAssigned = true
 
+        // Move to next incomplete competency and load its courses
         const nextIncomplete = this.competencies.find(c => !this.isCompetencyComplete(c))
         if (nextIncomplete) {
             this.selectedCompetency = nextIncomplete
+            this.loadCompetencyLevelCourses(nextIncomplete)
         }
     }
 
     /** Checks if a competency has all its courses assigned */
     isCompetencyComplete(competency: SelectableCompetency): boolean {
         if (!competency) return false
-        return competency.coursesAssigned || (competency.levels?.every(l => !!l.courseId) ?? false)
+        // Only return true if explicitly marked as assigned via "Assign courses" button
+        // This prevents auto-check when dropdowns are filled
+        return competency.coursesAssigned === true
     }
 
     /** Returns true only if every competency has all its courses assigned */
@@ -314,40 +329,61 @@ export class ManageCompetencyOrderComponent implements OnInit {
     /**
      * Saves the entire competency playlist to the backend.
      * This is called when the user clicks the Save button.
+     * Shows confirmation dialog if roles differ from existing configuration.
      */
-    onSave(): void {
-        // if (!this.allCompetenciesComplete) {
-        //     this.showError('Please assign courses to all levels for all competencies')
-        //     return
-        // }
-
-        this.saving = true
+    async onSave(): Promise<void> {
+        // Get filters and existing playlist
         const filters = this.state.getFilters()
         const existingPlaylist = this.state.getExistingCompetencyPlaylist() || undefined
 
         if (!filters) {
             this.showError('Filter data not found')
-            this.saving = false
             return
         }
 
-        // Build competency payload using CompetencyTransformer
-        const language = filters.language || 'en'
-        const authToken = 'system' // You can get this from auth service if available
+        // Compare roles before saving
+        const roleComparison = this.state.compareRoles(filters.role)
 
-        console.log('[ManageCompetencyOrder] Building payload for language:', language)
-        console.log('[ManageCompetencyOrder] Number of competencies:', this.competencies.length)
+        // If roles differ, show confirmation dialog
+        if (!roleComparison.isNewPlaylist && !roleComparison.isExactMatch) {
+            const dialogData: RoleConfirmDialogData = {
+                newRoles: roleComparison.newRoles,
+                existingOnlyRoles: roleComparison.existingOnlyRoles,
+                isNewPlaylist: roleComparison.isNewPlaylist
+            }
 
-        // Use CompetencyTransformer to build proper payload with all required fields
+            const dialogRef = this.dialog.open(RoleConfirmDialogComponent, {
+                width: '450px',
+                disableClose: true,
+                data: dialogData
+            })
+
+            const confirmed = await dialogRef.afterClosed().toPromise()
+
+            if (!confirmed) {
+                return // User cancelled
+            }
+        }
+
+        // Proceed with save
+        this.saving = true
+
+        // Build competency payload
+        const authToken = 'system'
+
         const competencyPayload = this.buildPlaylistPayload(
             this.competencies,
             authToken,
             existingPlaylist
         )
 
-        console.log('[ManageCompetencyOrder] Final payload:', JSON.stringify(competencyPayload, null, 2))
 
-        this.playlistApi.savePlaylist(filters, competencyPayload, existingPlaylist, PlaylistType.COMPETENCY)
+
+        // Merge roles (combine existing + selected)
+        const mergedRoles = this.state.getMergedRoles(filters.role)
+        const filtersWithMergedRoles = { ...filters, role: mergedRoles }
+
+        this.playlistApi.savePlaylist(filtersWithMergedRoles, competencyPayload, existingPlaylist, PlaylistType.COMPETENCY)
             .subscribe({
                 next: () => {
                     this.saving = false
@@ -383,7 +419,7 @@ export class ManageCompetencyOrderComponent implements OnInit {
     private autoSaveOrder(): void {
         // Don't auto-save if not all competencies are complete
         if (!this.allCompetenciesComplete) {
-            console.log('Auto-save skipped: Not all competencies have courses assigned')
+
             return
         }
 
@@ -414,7 +450,7 @@ export class ManageCompetencyOrderComponent implements OnInit {
         ).subscribe({
             next: () => {
                 this.autoSaving = false
-                console.log('Competency order auto-saved successfully')
+
                 // Optional: Show subtle toast notification
             },
             error: (error: Error) => {
@@ -511,8 +547,8 @@ export class ManageCompetencyOrderComponent implements OnInit {
             updatedBy: authToken,
 
             // Review workflow fields
-            reviewedDate: null,
-            reviewedBy: null
+            reviewedDate: existingCompetency?.reviewedDate || null,
+            reviewedBy: existingCompetency?.reviewedBy || null
         }
 
         return data

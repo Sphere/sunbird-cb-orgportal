@@ -70,7 +70,7 @@ export class SelectCompetenciesComponent implements OnInit, AfterViewInit {
         const filters = this.state.getFilters()
         const language = filters?.language || 'en'
 
-        console.log(`[SelectCompetencies] Loading competencies for language: ${language}`)
+
 
         this.competencyApi.getCompetencyListByLanguage(language).subscribe({
             next: (data) => {
