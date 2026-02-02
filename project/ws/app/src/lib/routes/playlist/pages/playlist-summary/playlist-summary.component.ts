@@ -38,6 +38,10 @@ export class PlaylistSummaryComponent implements OnInit {
         private state: PlaylistStateService
     ) { }
 
+    /**
+     * Component initialization.
+     * Loads filters and existing playlist data from the global state.
+     */
     ngOnInit(): void {
         this.loadFilters()
         this.loadExistingPlaylist()
@@ -45,7 +49,8 @@ export class PlaylistSummaryComponent implements OnInit {
     }
 
     /**
-     * Load filters from state
+     * Retrieves the active playlist filters from the state service.
+     * If no filters are found, redirects the user back to the initialization step.
      */
     private loadFilters(): void {
         this.filters = this.state.getFilters()
@@ -57,7 +62,8 @@ export class PlaylistSummaryComponent implements OnInit {
     }
 
     /**
-     * Load existing playlist data from state
+     * Loads the existing course-based playlist details.
+     * Calculates the total count and formats the last-updated timestamp for display.
      */
     private loadExistingPlaylist(): void {
         this.existingCourseIds = this.state.getExistingCourseIds()
@@ -73,7 +79,8 @@ export class PlaylistSummaryComponent implements OnInit {
     }
 
     /**
-     * Load existing competency playlist data from state
+     * Loads the existing competency-based playlist details.
+     * Syncs with the latest competency IDs and updates the visual summary.
      */
     private loadExistingCompetencyPlaylist(): void {
         this.existingCompetencyIds = this.state.getExistingCompetencyIds()
@@ -125,15 +132,15 @@ export class PlaylistSummaryComponent implements OnInit {
     }
 
     /**
-     * Navigate back to filters page
+     * Navigates back to the initial filter configuration screen.
      */
     onChangeFilters(): void {
         this.router.navigate(['/app/home/playlist/filters'])
     }
 
     /**
-     * Navigate to course selection page
-     * Clears course cache and selections to ensure fresh start
+     * Navigates to the course selection workflow.
+     * Ensures any stale course data is cleared before starting the refresh process.
      */
     onManageCourse(): void {
         // Clear course cache to ensure fresh data is fetched from sunbirdigot/search
@@ -144,7 +151,8 @@ export class PlaylistSummaryComponent implements OnInit {
     }
 
     /**
-     * Navigate to competency selection page
+     * Navigates to the competency selection workflow.
+     * Allows the user to browse and check/uncheck competencies for the playlist.
      */
     onCompetencyClick(): void {
         this.router.navigate(['/app/playlist/select-competencies'])
@@ -152,7 +160,7 @@ export class PlaylistSummaryComponent implements OnInit {
 
 
     /**
-     * Get display value for selected roles
+     * Formats the list of selected roles into a user-friendly string.
      */
     getRoleDisplay(): string {
         if (!this.filters || !this.filters.role) {

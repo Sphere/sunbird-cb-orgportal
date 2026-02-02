@@ -98,11 +98,13 @@
                     <div *ngFor="let level of selectedCompetency.levels" class="level-row">
                         <div class="level-label">Level {{ level.level }}</div>
                         <div class="level-dropdown">
-                            <mat-form-field appearance="outline" class="dropdown-field">
-                                <mat-select [value]="level.courseId" placeholder="Search or select Course"
+                            <!-- Shimmer Loader -->
+                            <div *ngIf="loadingCourses" class="shimmer-row"></div>
+
+                            <!-- Course Dropdown -->
+                            <mat-form-field *ngIf="!loadingCourses" appearance="outline" class="dropdown-field">
+                                <mat-select [(ngModel)]="level.courseId" placeholder="Search or select Course"
                                     (selectionChange)="onCourseSelect(level, $event.value)">
-                                    <mat-option *ngIf="loadingCourses" disabled>Loading courses for this
-                                        competency...</mat-option>
                                     <mat-option *ngIf="!loadingCourses && getCoursesForLevel(level.level).length === 0"
                                         disabled>No courses
                                         available for this level</mat-option>

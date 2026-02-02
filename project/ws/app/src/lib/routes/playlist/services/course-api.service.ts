@@ -9,25 +9,23 @@ import {
     CompetencyCourseSearchRequest,
     CompetencyInfo,
 } from '../models/course.model'
+import { getLevelCount } from '../config/competency.config'
 
 /**
- * Service for course search and retrieval operations.
+ * Service for searching and retrieving course-related metadata.
+ * Handles both general course searches and specialized competency-based course lookups.
  */
 @Injectable({
     providedIn: 'root',
 })
 export class CourseApiService {
-    // private readonly API_BASE = '/apis/public/v8/mobileApp/contentSearch'
-    private readonly API_BASE = `/apis/proxies/v8/sunbirdigot/search`
-    // private readonly CHANNEL_ID = '0132317968766894088'
+    private readonly API_BASE = `/api/proxies/v8/sunbirdigot/search`
 
     constructor(private http: HttpClient) { }
 
     /**
-     * Searches for courses using Sunbird API.
-     * @param language Language code for filtering
-     * @param limit Number of results per page
-     * @param offset Pagination offset
+     * Executes a general search for all available courses.
+     * Supports pagination via limit and offset, and filters results by the provided language.
      */
     searchCourses(
         language: string,
@@ -61,8 +59,9 @@ export class CourseApiService {
     }
 
     /**
-     * Searches for courses mapped to a specific competency across all 5 levels.
-     * Transforms competency ID (e.g., "100") into level-based search array ["100-1", "100-2", "100-3", "100-4", "100-5"].
+     * Searches for courses mapped to a specific competency across all configured levels.
+     * Transforms competency ID (e.g., "100") into level-based search array.
+     * Currently: ["100-1", "100-2", "100-3", "100-4", "100-5"] for 5 levels.
      * 
      * @param competencyId The competency ID (e.g., "100", "200")
      * @param language Language code for filtering
@@ -113,9 +112,55 @@ export class CourseApiService {
      *   }
      * }
      */
+    /**
+     * Searches for courses mapped to multiple competencies.
+     * 
+     * @param competencyIds Array of competency IDs (e.g., ["100", "200"])
+     * @param language Language code
+     */
+    searchCoursesByMultipleCompetencies(
+        competencyIds: string[],
+        language: string
+    ): Observable<{ courses: Course[]; totalCount: number }> {
+        const levelCount = getLevelCount()
+        const competencySearch: string[] = []
+
+        competencyIds.forEach(id => {
+            for (let i = 1; i <= levelCount; i++) {
+                competencySearch.push(`${id}-${i}`)
+            }
+        })
+
+        const payload = {
+            request: {
+                filters: {
+                    competencySearch,
+                    lang: [language],
+                    primaryCategory: ['Course']
+                },
+                exists: ['competencies_v1'],
+                fields: ['name', 'sourceName', 'competencies_v1', 'competencySearch'],
+                limit: 9999
+            }
+        }
+
+        return this.http
+            .post<CourseSearchResponse>(`${this.API_BASE}`, payload)
+            .pipe(
+                map(response => ({
+                    courses: response.result.content || [],
+                    totalCount: response.result.count || 0,
+                }))
+            )
+    }
+
+    /**
+     * Construct the API request payload for fetching courses by competency.
+     * This method dynamically expands the requested levels based on system configuration.
+     */
     buildCompetencySearchRequest(competencyId: string, language: string): CompetencyCourseSearchRequest {
-        // Generate competency search array: ["100-1", "100-2", "100-3", "100-4", "100-5"]
-        const competencySearch = Array.from({ length: 5 }, (_, i) => `${competencyId}-${i + 1}`)
+        const levelCount = getLevelCount()
+        const competencySearch = Array.from({ length: levelCount }, (_, i) => `${competencyId}-${i + 1}`)
 
         return {
             request: {
@@ -164,7 +209,7 @@ export class CourseApiService {
      * 
      * @param courses Array of courses with competency mappings
      * @param competencyId The competency ID to filter by
-     * @param level The specific level to filter (1-5)
+     * @param level The specific level to filter (e.g., 1-5 for current 5-level system)
      * @returns Filtered array of courses
      * 
      * @example
@@ -184,9 +229,8 @@ export class CourseApiService {
     }
 
     /**
-     * Filters courses by name or source (client-side).
-     * @param courses Array of courses to filter
-     * @param searchTerm Search query
+     * Performs a client-side filter of the course list.
+     * Matches user input against course names and source provider names.
      */
     filterCourses<T extends Course>(courses: T[], searchTerm: string): T[] {
         if (!searchTerm || searchTerm.trim() === '') {
@@ -202,9 +246,9 @@ export class CourseApiService {
         })
     }
 
-    /**
-     * Loads all courses for a language in a single request.
-     * @param language Language code
+    /** 
+     * Fetches the entire available course library for a specific language.
+     * This is useful for caching purposes and large-scale selection screens.
      */
     async loadAllCourses(language: string): Promise<Course[]> {
         const result = await this.searchCourses(language, 9999, 0).toPromise()

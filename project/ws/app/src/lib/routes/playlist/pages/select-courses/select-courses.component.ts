@@ -8,8 +8,8 @@ import { PlaylistStateService } from '../../services/playlist-state.service'
 import { Course, SelectableCourse } from '../../models/course.model'
 
 /**
- * Course selection component for playlist creation/editing.
- * Features: checkbox selection, preselection, search, and pagination.
+ * Component for browsing and selecting courses for a playlist.
+ * Handles existing selection restoration, client-side search, and managed pagination.
  */
 @Component({
     selector: 'app-select-courses',
@@ -40,6 +40,10 @@ export class SelectCoursesComponent implements OnInit, AfterViewInit {
         private state: PlaylistStateService
     ) { }
 
+    /**
+     * Component initialization.
+     * Loads the existing playlist context and triggers the master course list fetch.
+     */
     ngOnInit(): void {
         this.loadExistingPlaylist()
         this.loadCourses()
@@ -116,7 +120,10 @@ export class SelectCoursesComponent implements OnInit, AfterViewInit {
         }
     }
 
-    /** Applies client-side pagination to search results */
+    /** 
+     * Applies pagination to the current search results.
+     * Updates the data source to reflect only the courses visible on the current page.
+     */
     private applyPagination(): void {
         const start = this.currentPage * this.pageSize
         const end = start + this.pageSize
@@ -125,7 +132,10 @@ export class SelectCoursesComponent implements OnInit, AfterViewInit {
         this.dataSource.data = this.filteredCourses
     }
 
-    /** Converts Course to SelectableCourse with preselection status */
+    /** 
+     * Transforms a raw Course object into a SelectableCourse.
+     * Checks against the existing playlist to mark items as pre-selected.
+     */
     private toSelectableCourse(course: Course): SelectableCourse {
         const isPreselected = this.existingCourseIds.includes(course.identifier)
 
@@ -234,8 +244,11 @@ export class SelectCoursesComponent implements OnInit, AfterViewInit {
         }, 0)
     }
 
-    /**
-     * Sort courses: Default preselected first, then user-selected, then unselected
+    /** 
+     * Sorts the course list to maintain a logical hierarchy:
+     * 1. Mandatory/Existing courses from the database.
+     * 2. New selections made during the current session.
+     * 3. All other available courses.
      */
     private sortBySelection(): void {
         const defaultPreselected: SelectableCourse[] = []
@@ -246,13 +259,10 @@ export class SelectCoursesComponent implements OnInit, AfterViewInit {
             const isSelected = this.selection.isSelected(course)
 
             if (course.isPreselected) {
-                // Default courses from API (always at top)
                 defaultPreselected.push(course)
             } else if (isSelected) {
-                // User-selected courses (show after defaults)
                 userSelected.push(course)
             } else {
-                // Unselected courses (at bottom)
                 unselected.push(course)
             }
         })
@@ -265,14 +275,19 @@ export class SelectCoursesComponent implements OnInit, AfterViewInit {
         ]
     }
 
-    /** Checks if all visible rows are selected */
+    /** 
+     * Checks if every course on the current page is currently selected.
+     * Used to drive the state of the master "select all" checkbox.
+     */
     isAllSelected(): boolean {
         const numSelected = this.selection.selected.length
         const numRows = this.dataSource.data.length
         return numSelected === numRows
     }
 
-    /** Toggles selection for all visible rows */
+    /** 
+     * Selects or deselects all courses on the current page in a single action.
+     */
     masterToggle(): void {
         if (this.isAllSelected()) {
             this.selection.clear()
@@ -294,7 +309,9 @@ export class SelectCoursesComponent implements OnInit, AfterViewInit {
         this.router.navigate(['/app/home/playlist/summary'])
     }
 
-    /** Saves selection and navigates to manage order page */
+    /** 
+     * Finalizes selections and proceeds to the course ordering screen.
+     */
     onNext(): void {
         this.state.setSelectedCourses(this.selection.selected)
         this.router.navigate(['/app/playlist/manage-order'])

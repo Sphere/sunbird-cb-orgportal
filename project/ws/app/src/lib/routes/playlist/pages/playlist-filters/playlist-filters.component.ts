@@ -30,15 +30,9 @@ export class PlaylistFiltersComponent implements OnInit {
         { value: 'MEDICAL OFFICER-UP', label: 'Medical Officer - UP' },
     ]
 
-    districts = [
-        // { value: 'district1', label: 'District 1' },
-        // { value: 'district2', label: 'District 2' },
-    ]
+    districts = []
 
-    blocks = [
-        // { value: 'block1', label: 'Block 1' },
-        // { value: 'block2', label: 'Block 2' },
-    ]
+    blocks = []
 
     languages = [
         { value: 'en', label: 'English' },
@@ -54,13 +48,20 @@ export class PlaylistFiltersComponent implements OnInit {
         private state: PlaylistStateService
     ) { }
 
+    /**
+     * Component initialization.
+     * Sets up the reactive form and triggers initial data loading for organizations.
+     */
     ngOnInit(): void {
         this.initForm()
         this.loadOrganizations()
         this.loadPreviousFilters()
     }
 
-    /** Load organizations from API */
+    /**
+     * Fetches the list of valid organizations from the API.
+     * These organizations populate the primary selection dropdown.
+     */
     private loadOrganizations(): void {
         this.loadingOrganizations = true
         this.playlistApi.searchOrganizations().subscribe({
@@ -76,7 +77,10 @@ export class PlaylistFiltersComponent implements OnInit {
         })
     }
 
-    /** Filter organizations based on search term */
+    /** 
+     * Filters the organization dropdown results based on user input.
+     * Performs a case-insensitive search to help users find their organization quickly.
+     */
     filterOrganizations(): void {
         if (!this.orgSearchTerm.trim()) {
             this.filteredOrganizations = [...this.organizations]
@@ -172,7 +176,8 @@ export class PlaylistFiltersComponent implements OnInit {
 
 
     /**
-     * Check if form field has error
+     * Utility to check if a specific form field has validation errors.
+     * Returns true only if the field is both invalid and has been interacted with.
      */
     hasError(fieldName: string): boolean {
         const field = this.filterForm.get(fieldName)

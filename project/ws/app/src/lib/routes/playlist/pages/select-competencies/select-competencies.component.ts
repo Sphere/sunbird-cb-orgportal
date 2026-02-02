@@ -5,10 +5,11 @@ import { SelectionModel } from '@angular/cdk/collections'
 import { CompetencyApiService } from '../../services/competency-api.service'
 import { PlaylistStateService } from '../../services/playlist-state.service'
 import { SelectableCompetency } from '../../models/competency.model'
+import { getLevelNumbers } from '../../config/competency.config'
 
 /**
- * Competency selection component for playlist creation/editing.
- * Features: checkbox selection, preselection, search, and pagination.
+ * Component to handle competency selection.
+ * Supports search, pagination, and persistence across navigation.
  */
 @Component({
     selector: 'app-select-competencies',
@@ -43,8 +44,12 @@ export class SelectCompetenciesComponent implements OnInit, AfterViewInit {
         this.loadCompetencies()
     }
 
+    /**
+     * Initializes the paginator subscription after the view is fully rendered.
+     * The actual data loading handles the paginator configuration.
+     */
     ngAfterViewInit(): void {
-        // Paginator subscription is set up in loadCompetencies() after data loads
+        // Initialization handled in loadCompetencies
     }
 
     /** Sets up paginator event subscription (called once after data loads) */
@@ -62,102 +67,142 @@ export class SelectCompetenciesComponent implements OnInit, AfterViewInit {
         this.paginatorSubscriptionSetup = true
     }
 
-    /** Loads competencies from API and preselects existing ones */
+    /** Loads competency list and restores state */
     private loadCompetencies(): void {
-        this.loading = true
-
-        // Get language from playlist filters
         const filters = this.state.getFilters()
-        const language = filters?.language || 'en'
+        if (!filters) {
+            this.router.navigate(['/app/home/playlist/filters'])
+            return
+        }
 
+        this.loading = true
+        const language = filters.language || 'en'
 
+        const cached = this.state.getCachedCompetencies(language)
+        if (cached) {
+            this.processCompetencies(cached)
+            this.finalizeLoading()
+            return
+        }
 
         this.competencyApi.getCompetencyListByLanguage(language).subscribe({
             next: (data) => {
-                this.allCompetencies = data.map((c, index) => {
-                    // Convert number ID to string for compatibility
-                    const competencyId = String(c.id)
-                    const isPreselected = this.existingCompetencyIds.includes(competencyId)
-
-                    return {
-                        ...c,
-                        id: competencyId,  // Convert to string
-                        selected: isPreselected,
-                        isPreselected,
-                        displayOrder: index + 1,
-                        coursesAssigned: false,
-                        // Map children to levels for UI compatibility
-                        levels: c.children && c.children.length > 0
-                            ? c.children.map((child: any) => ({
-                                level: child.levelId || child.level,
-                                name: child.name,
-                                description: child.description,
-                                courseId: undefined,
-                                courseName: undefined
-                            }))
-                            : [
-                                { level: 1 },
-                                { level: 2 },
-                                { level: 3 },
-                                { level: 4 },
-                                { level: 5 }
-                            ]
-                    } as SelectableCompetency
-                })
-
-                this.totalCompetencies = this.allCompetencies.length
-                this.applyPreselectionAndSort()
-                this.searchResultCompetencies = [...this.allCompetencies]
-                this.totalCompetencies = this.searchResultCompetencies.length
-                this.applyPagination()
-
-                // Configure paginator after view is ready
-                setTimeout(() => {
-                    if (this.paginator) {
-                        this.paginator.length = this.totalCompetencies
-                        this.paginator.pageSize = this.pageSize
-                        this.paginator.pageIndex = 0
-                        this.setupPaginatorSubscription()
-                    }
-                }, 0)
-
-                this.loading = false
+                this.state.setCachedCompetencies(data, language)
+                this.processCompetencies(data)
+                this.finalizeLoading()
             },
             error: (err) => {
-                console.error('Failed to load competencies:', err)
+                console.error('Error loading competencies:', err)
                 this.loading = false
             }
         })
     }
 
-    /** Applies client-side pagination to search results */
+    /** Maps raw competencies to selectable objects (resets UI state) */
+    private processCompetencies(data: any[]): void {
+        this.allCompetencies = data.map((c, index) => {
+            const id = String(c.id)
+            const isPreselected = this.existingCompetencyIds.includes(id)
+
+            return {
+                ...c,
+                id,
+                selected: isPreselected,
+                isPreselected,
+                displayOrder: index + 1,
+                coursesAssigned: false,
+                levels: c.children && c.children.length > 0
+                    ? c.children.map((child: any) => ({
+                        level: child.levelId || child.level,
+                        name: child.name,
+                        description: child.description,
+                        courseId: undefined,
+                        courseName: undefined
+                    }))
+                    : getLevelNumbers().map(level => ({ level }))
+            } as SelectableCompetency
+        })
+    }
+
+    /**
+     * Finalizes the internal state once data is loaded (either from cache or API).
+     * This prepares the search results, applies initial sorting, and sets up pagination.
+     */
+    private finalizeLoading(): void {
+        this.applyPreselectionAndSort()
+        this.searchResultCompetencies = [...this.allCompetencies]
+        this.totalCompetencies = this.searchResultCompetencies.length
+        this.applyPagination()
+
+        // Configure the paginator UI component once data is ready
+        setTimeout(() => {
+            if (this.paginator) {
+                this.paginator.length = this.totalCompetencies
+                this.paginator.pageSize = this.pageSize
+                this.paginator.pageIndex = 0
+                this.setupPaginatorSubscription()
+            }
+        }, 0)
+
+        this.loading = false
+    }
+
+    /** Handles pagination */
     private applyPagination(): void {
         const start = this.currentPage * this.pageSize
         const end = start + this.pageSize
         this.filteredCompetencies = this.searchResultCompetencies.slice(start, end)
     }
 
-    /** Sorts competencies with preselected items first */
+    /** Sorts competencies with preselected items first (matching select-courses logic) */
     private applyPreselectionAndSort(): void {
-        const preselected = this.allCompetencies.filter(c => c.isPreselected)
-        const notPreselected = this.allCompetencies.filter(c => !c.isPreselected)
+        this.selection.clear()
 
-        // Sort preselected by their original order
-        preselected.sort((a, b) => {
-            const indexA = this.existingCompetencyIds.indexOf(a.id)
-            const indexB = this.existingCompetencyIds.indexOf(b.id)
-            return (indexA === -1 ? 9999 : indexA) - (indexB === -1 ? 9999 : indexB)
-        })
+        // Check if we have saved selections from a previous visit
+        const savedSelections = this.state.getSelectedCompetencies()
 
-        this.allCompetencies = [...preselected, ...notPreselected]
+        if (savedSelections && savedSelections.length > 0) {
+            // Restore user's previous selections
+            const savedIds = savedSelections.map(c => c.id)
 
-        // Auto-select preselected competencies
-        preselected.forEach(competency => {
-            this.selection.select(competency)
-        })
+            const selected = this.allCompetencies.filter(c => savedIds.includes(c.id))
+            const unselected = this.allCompetencies.filter(c => !savedIds.includes(c.id))
+
+            // Sort selected competencies by their saved order
+            selected.sort((a, b) => {
+                const indexA = savedIds.indexOf(a.id)
+                const indexB = savedIds.indexOf(b.id)
+                return (indexA === -1 ? 9999 : indexA) - (indexB === -1 ? 9999 : indexB)
+            })
+
+            this.allCompetencies = [...selected, ...unselected]
+
+            // Restore selections to the SelectionModel
+            selected.forEach(competency => {
+                this.selection.select(competency)
+            })
+        } else {
+            // No saved selections - use existing playlist competencies (preselected from DB)
+            const preselected = this.allCompetencies.filter(c => c.isPreselected)
+            const others = this.allCompetencies.filter(c => !c.isPreselected)
+
+            // Sort preselected by their original order from state
+            preselected.sort((a, b) => {
+                const indexA = this.existingCompetencyIds.indexOf(a.id)
+                const indexB = this.existingCompetencyIds.indexOf(b.id)
+                return (indexA === -1 ? 9999 : indexA) - (indexB === -1 ? 9999 : indexB)
+            })
+
+            this.allCompetencies = [...preselected, ...others]
+
+            // Auto-select preselected competencies
+            preselected.forEach(competency => {
+                this.selection.select(competency)
+            })
+        }
     }
 
-    /** Handles search input with client-side filtering */
+    /** Filters competencies based on name or code */
     onSearch(): void {
         this.currentPage = 0
 
@@ -183,16 +228,13 @@ export class SelectCompetenciesComponent implements OnInit, AfterViewInit {
         }, 0)
     }
 
-    /** Handles competency selection/deselection */
+    /** Syncs checkbox state and re-sorts list */
     onSelectionChange(row: SelectableCompetency, event: any): void {
         if (event.target.checked) {
             this.selection.select(row)
         } else {
             this.selection.deselect(row)
         }
-
-        // Update state service immediately with current selection
-        this.state.setSelectedCompetencies(this.selection.selected)
 
         this.sortBySelection()
         this.currentPage = 0
@@ -205,7 +247,7 @@ export class SelectCompetenciesComponent implements OnInit, AfterViewInit {
         }, 0)
     }
 
-    /** Sort competencies: preselected first, then user-selected, then unselected */
+    /** Sorts list: preselected/active first, then others */
     private sortBySelection(): void {
         const defaultPreselected: SelectableCompetency[] = []
         const userSelected: SelectableCompetency[] = []
@@ -235,10 +277,17 @@ export class SelectCompetenciesComponent implements OnInit, AfterViewInit {
         return this.selection.selected.length > 0
     }
 
+    /**
+     * Returns the user to the playlist summary dashboard.
+     */
     onBack(): void {
         this.router.navigate(['/app/home/playlist/summary'])
     }
 
+    /**
+     * Saves the current selections to the global state and navigates to the management page.
+     * This is the bridge between selecting competencies and assigning courses to them.
+     */
     onAssignCourses(): void {
         this.state.setSelectedCompetencies(this.selection.selected)
         this.router.navigate(['/app/playlist/manage-competency-order'])

@@ -10,13 +10,14 @@ import { Course } from '../../models/course.model'
 import { SuccessDialogComponent } from '../../components/success-dialog/success-dialog.component'
 import { ErrorDialogComponent } from '../../components/error-dialog/error-dialog.component'
 import { RoleConfirmDialogComponent, RoleConfirmDialogData } from '../../components/role-confirm-dialog/role-confirm-dialog.component'
+import { getLevelNumbers } from '../../config/competency.config'
 
 /**
  * Component for managing competency playlists.
  * 
  * This is where users can:
  * - Reorder competencies by dragging them around
- * - Assign courses to each competency level (L1-L5)
+ * - Assign courses to each competency level (currently L1-L5, configurable)
  * - See which competencies already have courses assigned
  * - Save everything back to the playlist
  */
@@ -49,10 +50,12 @@ export class ManageCompetencyOrderComponent implements OnInit {
         private courseApi: CourseApiService
     ) { }
 
+    /**
+     * Component initialization.
+     * Loads selected competencies from state and sets up initial data.
+     */
     ngOnInit(): void {
         this.loadCompetencies()
-        // Note: Courses are now loaded per competency when selected (loadCompetencyLevelCourses)
-        // No need to load all courses upfront
     }
 
     /**
@@ -109,22 +112,63 @@ export class ManageCompetencyOrderComponent implements OnInit {
 
         this.filteredCompetencies = [...this.competencies]
 
-        // Auto-select first competency and load its courses
+        // Auto-select first competency and load its courses immediately
         if (this.competencies.length > 0) {
             this.selectedCompetency = this.competencies[0]
             this.loadCompetencyLevelCourses(this.competencies[0])
         }
     }
 
-    /** Creates the default 5-level structure for competencies */
+    /**
+     * Loads the courses that are mapped to a specific competency.
+     * We cache the results in a local Map so we don't have to fetch them again 
+     * if the user switches back and forth between competencies.
+     */
+    private async loadCompetencyLevelCourses(competency: SelectableCompetency): Promise<void> {
+        if (!competency?.id) return
+
+        // Check local cache first to avoid redundant API calls
+        const cached = this.competencyCoursesCache.get(competency.id)
+        if (cached) {
+            this.courses = cached
+            this.updateLevelFilteredCourses(competency.id, cached)
+            return
+        }
+
+        const filters = this.state.getFilters()
+        const language = filters?.language || 'en'
+
+        this.loadingCourses = true
+
+        try {
+            const response = await this.courseApi.searchCoursesByCompetency(competency.id, language).toPromise()
+            const courses = response?.courses || []
+
+            // Update main courses list for selection lookup
+            this.courses = courses
+
+            // Save results to local cache Map
+            this.competencyCoursesCache.set(competency.id, courses)
+
+            // Update level-filtered courses for the UI
+            this.updateLevelFilteredCourses(competency.id, courses)
+        } catch (error) {
+            console.error('Failed to load competency courses:', error)
+            this.levelFilteredCourses.clear()
+        } finally {
+            this.loadingCourses = false
+        }
+    }
+
+    /**
+     * Creates the default level structure for competencies.
+     * Currently generates 5 levels: L1, L2, L3, L4, L5
+     * This is configurable and can be changed to support more or fewer levels.
+     */
     private getDefaultLevels(): CompetencyLevel[] {
-        return [
-            { level: 1 },
-            { level: 2 },
-            { level: 3 },
-            { level: 4 },
-            { level: 5 }
-        ]
+        return getLevelNumbers().map(levelNum => ({
+            level: levelNum
+        }))
     }
 
     /**
@@ -145,12 +189,11 @@ export class ManageCompetencyOrderComponent implements OnInit {
 
         // V2 format: levels array with courseId directly
         competency.levels.forEach(level => {
-            const savedLevel = existingComp.levels.find((l: any) => l.level === level.level)
+            const savedLevel = existingComp.levels.find((l: any) => String(l.level) === String(level.level))
 
             if (savedLevel?.courseId) {
                 level.courseId = savedLevel.courseId
                 level.courseName = savedLevel.name || ''
-
             }
         })
     }
@@ -173,7 +216,10 @@ export class ManageCompetencyOrderComponent implements OnInit {
         this.autoSaveOrder()
     }
 
-    /** Updates the display numbers after reordering (1, 2, 3, etc.) */
+    /** 
+     * Recalculates the display order for all competencies.
+     * This is called after reordering to ensure the 1, 2, 3... numbering stays sequential.
+     */
     private updateOrderNumbers(): void {
         this.competencies.forEach((c, index) => {
             c.displayOrder = index + 1
@@ -211,57 +257,18 @@ export class ManageCompetencyOrderComponent implements OnInit {
     }
 
     /**
-     * Loads the courses that are mapped to a specific competency.
-     * We cache the results so we don't have to fetch them again if the user switches back.
-     */
-    private async loadCompetencyLevelCourses(competency: SelectableCompetency): Promise<void> {
-        if (!competency?.id) return
-
-        // Check cache first
-        const cached = this.competencyCoursesCache.get(competency.id)
-        if (cached) {
-
-            this.updateLevelFilteredCourses(competency.id, cached)
-            return
-        }
-
-        // Fetch from API
-        const filters = this.state.getFilters()
-        const language = filters?.language || 'en'
-
-        this.loadingCourses = true
-
-        try {
-            const response = await this.courseApi.searchCoursesByCompetency(competency.id, language).toPromise()
-            const courses = response?.courses || []
-
-
-
-            // Cache the results
-            this.competencyCoursesCache.set(competency.id, courses)
-
-            // Update level-filtered courses
-            this.updateLevelFilteredCourses(competency.id, courses)
-        } catch (error) {
-            console.error('Failed to load competency courses:', error)
-            this.levelFilteredCourses.clear()
-        } finally {
-            this.loadingCourses = false
-        }
-    }
-
-    /**
-     * Organizes courses by level (L1, L2, L3, L4, L5).
+     * Organizes courses by level.
+     * Currently: L1, L2, L3, L4, L5 (configurable)
      * Each level dropdown will only show courses that are appropriate for that level.
      */
     private updateLevelFilteredCourses(competencyId: string, courses: Course[]): void {
         this.levelFilteredCourses.clear()
 
-        for (let level = 1; level <= 5; level++) {
+        // Iterate through all configured levels (currently 1-5)
+        getLevelNumbers().forEach(level => {
             const filtered = this.courseApi.filterCoursesByLevel(courses, competencyId, level)
             this.levelFilteredCourses.set(level, filtered)
-
-        }
+        })
     }
 
     /**
@@ -284,7 +291,10 @@ export class ManageCompetencyOrderComponent implements OnInit {
         }
     }
 
-    /** Checks if the currently selected competency has all 5 levels filled in */
+    /** 
+     * Validates if the currently selected competency is ready to be assigned.
+     * Returns true only if all required levels (typically L1-L5) have a course selected.
+     */
     isCurrentCompetencyComplete(): boolean {
         if (!this.selectedCompetency?.levels) return false
         return this.selectedCompetency.levels.every(l => !!l.courseId)
@@ -315,7 +325,10 @@ export class ManageCompetencyOrderComponent implements OnInit {
         return competency.coursesAssigned === true
     }
 
-    /** Returns true only if every competency has all its courses assigned */
+    /** 
+     * Determines if the entire playlist is valid for final saving.
+     * For a master competency playlist, every selected competency must have its course assignments finalized.
+     */
     get allCompetenciesComplete(): boolean {
         if (!this.competencies || this.competencies.length === 0) return false
         return this.competencies.every(c => this.isCompetencyComplete(c))
@@ -407,7 +420,9 @@ export class ManageCompetencyOrderComponent implements OnInit {
             .subscribe(() => this.router.navigate(['/app/home/playlist/summary']))
     }
 
-    /** Shows an error message to the user */
+    /**
+     * Utility to display a standardized error message dialog.
+     */
     private showError(message: string): void {
         this.dialog.open(ErrorDialogComponent, { data: { message } })
     }
@@ -433,7 +448,7 @@ export class ManageCompetencyOrderComponent implements OnInit {
 
         this.autoSaving = true
 
-        // Build competency payload using CompetencyTransformer
+
         const authToken = 'system'
 
         const competencyPayload = this.buildPlaylistPayload(

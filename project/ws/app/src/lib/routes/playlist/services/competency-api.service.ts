@@ -7,10 +7,8 @@ import { MOCK_COMPETENCY_LIST_RESPONSE } from './competency-mock-data'
 import { RawCompetencyEntity } from '../utils/competency-transformer'
 
 /**
- * Service to handle competency data retrieval.
- * 
- * Note: Currently relies on mock data ('competency-mock-data.ts') 
- * because the backend API is not yet fully integrated.
+ * Service for retrieving competency data.
+ * Currently serves as a wrapper for both legacy entity search and modern mock-based retrieval.
  */
 @Injectable({
     providedIn: 'root',
@@ -21,13 +19,8 @@ export class CompetencyApiService {
     constructor(private http: HttpClient) { }
 
     /**
-     * Fetches the list of competencies, filtered by language.
-     * 
-     * Currently returns mock data. When the backend is ready, this should
-     * be updated to call the real API endpoint.
-     * 
-     * @param _language The language code (e.g. 'en', 'hi') - currently unused until real API is ready
-     * @returns An observable of raw competency entities
+     * Retrieves the master list of competencies filtered by language.
+     * Note: This currently pulls from a static mock source while global API integration is pending.
      */
     getCompetencyListByLanguage(_language: string = 'en'): Observable<RawCompetencyEntity[]> {
         // We are using mock data temporarily until the API is ready.
@@ -37,24 +30,12 @@ export class CompetencyApiService {
         // For now, we return the mock data directly.
         return of(mockEntities)
 
-        // Future Implementation:
-        /*
-        return this.http.post<any>(`${this.API_BASE}/upload`, { 
-            request: { 
-                entity: { type: 'competency', language: _language } 
-            } 
-        }).pipe(
-            map(response => response?.result?.data?.entity || [])
-        )
-        */
+
     }
 
     /**
-     * Searches for competencies using the legacy search API.
-     * Kept for backward compatibility.
-     * 
-     * @param query Search term
-     * @param limit Max results (default 100)
+     * Searches for competencies using the legacy entity-based API.
+     * Provides backward compatibility for older competency structures.
      */
     searchCompetencies(query?: string, limit: number = 100): Observable<Competency[]> {
         const payload: any = {
@@ -83,10 +64,8 @@ export class CompetencyApiService {
 
 
     /**
-     * Map API response to Competency model
-     * Handles competencyLevelDescription as JSON string or array
-     * 
-     * NOTE: This mapper works with both old and new API responses
+     * Maps a raw API entity into a structured Competency model.
+     * Normalizes varying response formats (nested children vs. additionalProperties) into a unified level structure.
      */
     private mapToCompetency(entity: any): Competency {
         let levels: any[] = []

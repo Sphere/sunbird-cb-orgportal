@@ -46,6 +46,10 @@ export class PlaylistStateService {
     private courseCache: Course[] = []
     private courseCacheLanguage: string = ''
 
+    // Competency cache for search
+    private competencyCache: any[] = []
+    private competencyCacheLanguage: string = ''
+
     // Competency state
     private selectedCompetenciesSubject = new BehaviorSubject<SelectableCompetency[]>([])
     public selectedCompetencies$ = this.selectedCompetenciesSubject.asObservable()
@@ -54,67 +58,83 @@ export class PlaylistStateService {
 
 
 
+    /** Stores the current playlist filter criteria */
     setFilters(filters: PlaylistFilters): void {
         this.filtersSubject.next(filters)
     }
 
+    /** Retrieves the currently active filters */
     getFilters(): PlaylistFilters | null {
         return this.filtersSubject.value
     }
 
+    /** Stores the IDs of courses present in the existing playlist (for pre-selection) */
     setExistingCourseIds(ids: string[]): void {
         this.existingCourseIdsSubject.next(ids)
     }
 
+    /** Retrieves pre-selection course IDs */
     getExistingCourseIds(): string[] {
         return this.existingCourseIdsSubject.value
     }
 
+    /** Stores the full course playlist object for reference during updates */
     setExistingPlaylist(playlist: Playlist | null): void {
         this.existingPlaylistSubject.next(playlist)
     }
 
+    /** Retrieves the existing course playlist object */
     getExistingPlaylist(): Playlist | null {
         return this.existingPlaylistSubject.value
     }
 
+    /** Stores the full competency playlist object */
     setExistingCompetencyPlaylist(playlist: Playlist | null): void {
         this.existingCompetencyPlaylistSubject.next(playlist)
     }
 
+    /** Retrieves the existing competency playlist object */
     getExistingCompetencyPlaylist(): Playlist | null {
         return this.existingCompetencyPlaylistSubject.value
     }
 
+    /** Stores the IDs of competencies present in the existing playlist */
     setExistingCompetencyIds(ids: string[]): void {
         this.existingCompetencyIdsSubject.next(ids)
     }
 
+    /** Retrieves pre-selection competency IDs */
     getExistingCompetencyIds(): string[] {
         return this.existingCompetencyIdsSubject.value
     }
 
+    /** Stores the user's current course selections */
     setSelectedCourses(courses: SelectableCourse[]): void {
         this.selectedCoursesSubject.next(courses)
     }
 
+    /** Retrieves the active list of selected courses */
     getSelectedCourses(): SelectableCourse[] {
         return this.selectedCoursesSubject.value
     }
 
+    /** Stores the final order of courses after drag-and-drop */
     setOrderedCourses(courses: SelectableCourse[]): void {
         this.orderedCoursesSubject.next(courses)
     }
 
+    /** Retrieves the manually ordered list of courses */
     getOrderedCourses(): SelectableCourse[] {
         return this.orderedCoursesSubject.value
     }
 
+    /** Caches the master list of courses to avoid redundant API calls */
     setCachedCourses(courses: Course[], language: string): void {
         this.courseCache = courses
         this.courseCacheLanguage = language
     }
 
+    /** Retrieves courses from cache if the language matches */
     getCachedCourses(language: string): Course[] | null {
         if (this.courseCacheLanguage === language && this.courseCache.length > 0) {
             return this.courseCache
@@ -122,45 +142,58 @@ export class PlaylistStateService {
         return null
     }
 
+    /** Clears the course search cache */
     clearCourseCache(): void {
         this.courseCache = []
         this.courseCacheLanguage = ''
     }
 
-    /**
-     * Clear selected/ordered courses
-     */
+    /** Caches raw competency data after a successful fetch */
+    setCachedCompetencies(competencies: any[], language: string): void {
+        this.competencyCache = competencies
+        this.competencyCacheLanguage = language
+    }
+
+    /** Retrieves raw competency data from cache */
+    getCachedCompetencies(language: string): any[] | null {
+        if (this.competencyCacheLanguage === language && this.competencyCache.length > 0) {
+            return this.competencyCache
+        }
+        return null
+    }
+
+    /** Clears the competency search cache */
+    clearCompetencyCache(): void {
+        this.competencyCache = []
+        this.competencyCacheLanguage = ''
+    }
+
+    /** Resets all course-related selections */
     clearSelectedCourses(): void {
         this.selectedCoursesSubject.next([])
         this.orderedCoursesSubject.next([])
     }
 
+    /** Stores the user's current competency selections */
     setSelectedCompetencies(competencies: SelectableCompetency[]): void {
         this.selectedCompetenciesSubject.next(competencies)
     }
 
+    /** Retrieves the active list of selected competencies */
     getSelectedCompetencies(): SelectableCompetency[] {
         return this.selectedCompetenciesSubject.value
     }
 
+    /** Resets current competency selections */
     clearSelectedCompetencies(): void {
         this.selectedCompetenciesSubject.next([])
     }
 
     /**
-     * Compare selected roles with existing playlist roles
-     * 
-     * Use Cases:
-     * 1. New roles added: User selected roles not in existing playlist
-     * 2. Existing-only roles: Roles in DB but user didn't select
-     * 3. Exact match: No differences
-     * 4. New playlist: No existing data to compare
-     * 
-     * @param selectedRoles Roles user selected in the filter (can be null/undefined)
-     * @returns RoleComparisonResult with newRoles, existingOnlyRoles, and flags
+     * Compares currently selected roles with the roles defined in the existing playlist.
+     * Helps determine if an update is needed or if a new playlist should be created.
      */
     compareRoles(selectedRoles: string[] | null | undefined): RoleComparisonResult {
-        // Default result for edge cases
         const defaultResult: RoleComparisonResult = {
             newRoles: [],
             existingOnlyRoles: [],
@@ -168,43 +201,33 @@ export class PlaylistStateService {
             isNewPlaylist: true
         }
 
-        // Handle null/undefined selectedRoles
         const safeSelectedRoles = selectedRoles ?? []
-
         const existingPlaylist = this.getExistingPlaylist()
 
-        // No existing playlist - it's a new creation, no comparison needed
         if (!existingPlaylist) {
             return defaultResult
         }
 
-        // Get existing roles with null safety
         const existingRoles = existingPlaylist.role ?? []
 
-        // Edge case: both empty
         if (safeSelectedRoles.length === 0 && existingRoles.length === 0) {
             return { ...defaultResult, isNewPlaylist: false }
         }
 
-        // Normalize to uppercase for case-insensitive comparison
         const selectedSet = new Set(safeSelectedRoles.map(r => r?.toUpperCase?.() ?? ''))
         const existingSet = new Set(existingRoles.map(r => r?.toUpperCase?.() ?? ''))
 
-        // Remove empty strings from sets
         selectedSet.delete('')
         existingSet.delete('')
 
-        // Find new roles (in selected but not in existing)
         const newRoles = safeSelectedRoles.filter(r =>
             r && !existingSet.has(r.toUpperCase())
         )
 
-        // Find existing-only roles (in existing but not selected)
         const existingOnlyRoles = existingRoles.filter(r =>
             r && !selectedSet.has(r.toUpperCase())
         )
 
-        // Check if exact match (no differences)
         const isExactMatch = newRoles.length === 0 && existingOnlyRoles.length === 0
 
         return {
@@ -216,40 +239,26 @@ export class PlaylistStateService {
     }
 
     /**
-     * Merge selected roles with existing playlist roles
-     * Combines both sets without duplicates (case-insensitive deduplication)
-     * 
-     * Use Cases:
-     * 1. Update playlist: Merge new roles with existing
-     * 2. Create playlist: Return selected roles as-is
-     * 
-     * @param selectedRoles Roles user selected in the filter (can be null/undefined)
-     * @returns Merged unique role array (preserves original case)
+     * Combines currently selected roles with existing playlist roles.
+     * Ensures a unique set of roles while preserving the original casing where possible.
      */
     getMergedRoles(selectedRoles: string[] | null | undefined): string[] {
-        // Handle null/undefined
         const safeSelectedRoles = selectedRoles ?? []
-
         const existingPlaylist = this.getExistingPlaylist()
 
-        // No existing playlist - return selected roles only
         if (!existingPlaylist) {
-            return safeSelectedRoles.filter(r => r) // Filter out null/empty
+            return safeSelectedRoles.filter(r => r)
         }
 
         const existingRoles = existingPlaylist.role ?? []
-
-        // Merge and deduplicate (case-insensitive but preserve original case)
         const roleMap = new Map<string, string>()
 
-        // Add existing roles first
         existingRoles.forEach(role => {
             if (role) {
                 roleMap.set(role.toUpperCase(), role)
             }
         })
 
-        // Add selected roles (may override case, which is fine)
         safeSelectedRoles.forEach(role => {
             if (role) {
                 roleMap.set(role.toUpperCase(), role)
@@ -259,14 +268,16 @@ export class PlaylistStateService {
         return Array.from(roleMap.values())
     }
 
-
+    /** Full reset of all application state - used when leaving the playlist workflow */
     clearState(): void {
         this.filtersSubject.next(null)
         this.existingPlaylistSubject.next(null)
         this.existingCourseIdsSubject.next([])
         this.selectedCoursesSubject.next([])
         this.orderedCoursesSubject.next([])
+        this.clearSelectedCompetencies()
         this.clearCourseCache()
+        this.clearCompetencyCache()
     }
 }
 

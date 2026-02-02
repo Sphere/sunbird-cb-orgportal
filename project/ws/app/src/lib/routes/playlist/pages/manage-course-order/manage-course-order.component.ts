@@ -10,12 +10,8 @@ import { RoleConfirmDialogComponent, RoleConfirmDialogData } from '../../compone
 import { ErrorDialogComponent, ErrorDialogData } from '../../components/error-dialog/error-dialog.component'
 
 /**
- * Manage Course Order Component
- * 
- * Final page in playlist workflow
- * Allows admin to reorder selected courses via drag & drop
- * Shows dynamic order numbers
- * Provides save functionality
+ * Component for finalizing the order of courses within a playlist.
+ * Features drag-and-drop reordering, searching within the selection, and persistence to the database.
  */
 @Component({
     selector: 'app-manage-course-order',
@@ -40,7 +36,8 @@ export class ManageCourseOrderComponent implements OnInit {
     }
 
     /**
-     * Load selected courses from state
+     * Loads the courses selected from the previous step.
+     * If selections are missing, redirects the user back to the course selection screen.
      */
     private loadSelectedCourses(): void {
         const selectedCourses = this.state.getSelectedCourses()
@@ -51,7 +48,7 @@ export class ManageCourseOrderComponent implements OnInit {
             return
         }
 
-        // Assign display order
+        // Initialize the local course array with sequential display numbers
         this.orderedCourses = selectedCourses.map((course, index) => ({
             ...course,
             displayOrder: index + 1,
@@ -61,9 +58,9 @@ export class ManageCourseOrderComponent implements OnInit {
 
     }
 
-    /**
-     * Handle drag and drop event
-     * Updates order dynamically
+    /** 
+     * Handles the drag-and-drop event to reorder courses.
+     * Triggers a recalculation of display numbers to maintain a sequential 1, 2, 3... list.
      */
     onDrop(event: CdkDragDrop<SelectableCourse[]>): void {
         // Move item in the array
@@ -81,8 +78,8 @@ export class ManageCourseOrderComponent implements OnInit {
 
     }
 
-    /**
-     * Update display order numbers after reordering
+    /** 
+     * Recalculates display orders for all courses after a drag-and-drop event.
      */
     private updateOrderNumbers(): void {
         this.orderedCourses.forEach((course, index) => {
@@ -151,11 +148,8 @@ export class ManageCourseOrderComponent implements OnInit {
             const confirmed = await dialogRef.afterClosed().toPromise()
 
             if (!confirmed) {
-
                 return
             }
-
-
         }
 
         // Proceed with save
@@ -194,8 +188,6 @@ export class ManageCourseOrderComponent implements OnInit {
                 // Update state with fresh data
                 this.state.setExistingPlaylist(freshPlaylist)
                 this.state.setExistingCourseIds(freshCourseIds)
-
-
             } catch (refetchError) {
                 console.warn('Could not re-fetch playlist data:', refetchError)
                 // Continue anyway - the save was successful
@@ -253,8 +245,9 @@ export class ManageCourseOrderComponent implements OnInit {
         }
     }
 
-    /**
-     * Check if save button should be enabled
+    /** 
+     * Validates if the playlist is ready to be saved.
+     * Requires at least one selected course and that no save operation is currently in progress.
      */
     isSaveEnabled(): boolean {
         return this.orderedCourses.length > 0 && !this.saving
