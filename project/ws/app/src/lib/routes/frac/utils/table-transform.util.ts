@@ -40,7 +40,7 @@ export class TableTransformUtil {
       return this.createEmptyTableConfig()
     }
 
-    const entityType = entities[0]?.type?.toLowerCase()
+    const entityType = this.detectEntityType(entities)
     const handler = this.tableHandlers[entityType]
 
     return handler ? handler(entities) : this.createGenericTableConfig(entities)
@@ -74,7 +74,20 @@ export class TableTransformUtil {
     let maxLevelCount = 0
     entities.forEach((entity) => {
       const childCount = entity.children?.length || 0
-      if (childCount > maxLevelCount) maxLevelCount = childCount
+      const levelsCount = Array.isArray(entity.levels) ? entity.levels.length : 0
+      if (childCount > maxLevelCount) {
+        maxLevelCount = childCount
+      }
+      if (levelsCount > maxLevelCount) {
+        maxLevelCount = levelsCount
+      }
+
+      if (!childCount && !levelsCount) {
+        const levelFromFlatResponse = this.extractCompetencyLevelCount(entity)
+        if (levelFromFlatResponse > maxLevelCount) {
+          maxLevelCount = levelFromFlatResponse
+        }
+      }
     })
 
     // Generate level columns
@@ -99,11 +112,29 @@ export class TableTransformUtil {
         status: entity.status ?? '',
       };
 
-      (entity.children || []).forEach((child: any) => {
-        const levelKey = child.level || `L${child.levelId}`
-        row[`level_${levelKey}_label`] = child.name ?? ''
-        row[`level_${levelKey}_description`] = child.description ?? ''
-      })
+      if (Array.isArray(entity.children) && entity.children.length) {
+        entity.children.forEach((child: any) => {
+          const levelKey = child.level || `L${child.levelId}`
+          row[`level_${levelKey}_label`] = child.name ?? ''
+          row[`level_${levelKey}_description`] = child.description ?? ''
+        })
+      } else if (Array.isArray(entity.levels) && entity.levels.length) {
+        entity.levels.forEach((level: any) => {
+          const levelNumber = level?.levelNumber ?? level?.level ?? level?.levelId
+          const numericLevel = Number(levelNumber)
+          if (!Number.isFinite(numericLevel) || numericLevel <= 0) {
+            return
+          }
+
+          row[`level_L${numericLevel}_label`] = level?.levelName ?? level?.name ?? ''
+          row[`level_L${numericLevel}_description`] = level?.levelDescription ?? level?.description ?? ''
+        })
+      } else {
+        for (let level = 1; level <= maxLevelCount; level += 1) {
+          row[`level_L${level}_label`] = entity[`competencyLevel${level}Name`] ?? ''
+          row[`level_L${level}_description`] = entity[`competencyLevel${level}Description`] ?? ''
+        }
+      }
 
       data.push(row)
     })
@@ -184,11 +215,38 @@ export class TableTransformUtil {
   /** Extracts entity list from multiple API response structures. */
   private extractEntityList(response: any): any[] {
     if (!response) return []
+
+    if (Array.isArray(response)) {
+      return response
+    }
+
     const entityList =
+      response?.result?.entity ||
       response?.result?.data?.entity ||
       response?.data?.entity ||
       response?.entity
     return Array.isArray(entityList) ? entityList : []
+  }
+
+  private detectEntityType(entities: any[]): string {
+    return (
+      entities[0]?.entityType?.toLowerCase() ||
+      entities[0]?.type?.toLowerCase() ||
+      ''
+    )
+  }
+
+  private extractCompetencyLevelCount(entity: any): number {
+    const keys = Object.keys(entity || {})
+    const levelKeys = keys
+      .map((key) => key.match(/^competencyLevel(\d+)(Name|Description)$/)?.[1])
+      .filter((value): value is string => Boolean(value))
+
+    if (!levelKeys.length) {
+      return 0
+    }
+
+    return Math.max(...levelKeys.map(level => Number(level)))
   }
 
   /** Converts object keys into user-friendly labels. */

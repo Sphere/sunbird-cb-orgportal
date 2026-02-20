@@ -69,6 +69,9 @@ export class UploadActivityListTableComponent implements OnChanges, AfterViewIni
 
   /** Dynamic column keys for table rendering */
   displayedColumns: string[] = []
+  activeColumns: ActivityTableColumn[] = []
+  emptyRows: any[] = []
+  fillerRows: any[] = []
 
   /** Default columns to show when no column config is provided */
   defaultColumns: ActivityTableColumn[] = [
@@ -85,15 +88,17 @@ export class UploadActivityListTableComponent implements OnChanges, AfterViewIni
   // ============= LIFECYCLE HOOKS =============
 
   ngOnChanges(): void {
-    const activeColumns = this.getActiveColumns()
+    this.activeColumns = this.columns && this.columns.length > 0 ? this.columns : this.defaultColumns
 
     // Update displayed columns based on checkbox visibility
     this.displayedColumns = this.showCheckbox
-      ? ['select', ...activeColumns.map(c => c.key)]
-      : activeColumns.map(c => c.key)
+      ? ['select', ...this.activeColumns.map(c => c.key)]
+      : this.activeColumns.map(c => c.key)
 
     // Update data source
     this.dataSource = new MatTableDataSource(this.data)
+    this.emptyRows = this.computeEmptyRows()
+    this.fillerRows = this.computeEmptyRowsForData()
   }
 
   ngAfterViewInit() {
@@ -120,6 +125,7 @@ export class UploadActivityListTableComponent implements OnChanges, AfterViewIni
     this.isAllSelected()
       ? this.selection.clear()
       : this.dataSource.data.forEach(row => this.selection.select(row))
+    this.selectionChange.emit(this.selection.selected)
   }
 
   /** Get checkbox aria-label text */
@@ -139,7 +145,7 @@ export class UploadActivityListTableComponent implements OnChanges, AfterViewIni
   // ============= EMPTY STATE =============
 
   /** Generate empty rows to fill container height (40px per row) */
-  getEmptyRows(): any[] {
+  private computeEmptyRows(): any[] {
     const rowHeight = 40
     const headerHeight = 40
     const containerHeight = 529
@@ -149,7 +155,7 @@ export class UploadActivityListTableComponent implements OnChanges, AfterViewIni
   }
 
   /** Generate empty rows to fill remaining space when data exists */
-  getEmptyRowsForData(): any[] {
+  private computeEmptyRowsForData(): any[] {
     const rowHeight = 40
     const headerHeight = 40
     const containerHeight = 529
@@ -157,10 +163,5 @@ export class UploadActivityListTableComponent implements OnChanges, AfterViewIni
     const availableHeight = containerHeight - headerHeight - dataRowsHeight
     const numEmptyRows = Math.ceil(availableHeight / rowHeight)
     return numEmptyRows > 0 ? new Array(numEmptyRows).fill(null) : []
-  }
-
-  /** Return provided columns or default columns when none were supplied */
-  getActiveColumns(): ActivityTableColumn[] {
-    return this.columns && this.columns.length > 0 ? this.columns : this.defaultColumns
   }
 }

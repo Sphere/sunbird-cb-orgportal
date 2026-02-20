@@ -1,8 +1,11 @@
-import { Component, OnInit } from '@angular/core'
+import { Component, OnDestroy, OnInit } from '@angular/core'
+import { MatDialog } from '@angular/material/dialog'
+import { forkJoin, of, Subject } from 'rxjs'
+import { catchError, debounceTime, distinctUntilChanged, map, switchMap, takeUntil } from 'rxjs/operators'
+import { UploadResultData, UploadResultModalComponent } from '../../components/upload-result-modal/upload-result-modal.component'
 import { CustomSnackbarService } from '../../services/custom-snackbar.service'
+import { FracApiService } from '../../services/frac-api.service'
 import { transformRoles, transformActivities } from '../../utils/common.util'
-import roleMockRes from '../../mock-api-response/mockActivityRes.json'
-import activityMockRes from '../../mock-api-response/mockActivityRes.json'
 
 interface RoleActivityDetail {
   code: string
@@ -21,15 +24,12 @@ interface ActivityItem {
   title: string
 }
 
-interface RoleActivityMappingItem {
-  type: 'ROLE_ACTIVITY'
-  parentId: string
-  childMap: null
-  childIds: string[]
-}
-
-interface RoleActivityMappingPayload {
-  request: RoleActivityMappingItem[]
+interface RoleActivityApiRequestItem {
+  parentEntityType: 'Role'
+  parentEntityCode: string
+  childEntityType: 'Activity'
+  childEntityCode: string
+  competencies: any[]
 }
 
 @Component({
@@ -37,15 +37,21 @@ interface RoleActivityMappingPayload {
   templateUrl: './map-role-activities.component.html',
   styleUrls: ['./map-role-activities.component.scss'],
 })
-export class MapRoleActivitiesComponent implements OnInit {
+export class MapRoleActivitiesComponent implements OnInit, OnDestroy {
 
-  constructor(private snackbar: CustomSnackbarService) { }
+  constructor(
+    private snackbar: CustomSnackbarService,
+    private fracApiService: FracApiService,
+    private dialog: MatDialog,
+  ) { }
 
   // language
-  readonly languages = ['English', 'Hindi', 'Kannada']
+  readonly languages = ['English', 'Hindi', 'Kannada', 'Tamil']
   selectedLanguage = 'English'
   isOpen = false
   isEditing = true
+  isSaving = false
+  isRoleMappingLoading = false
 
   // left – roles
   rolesData: RoleItem[] = []
@@ -66,47 +72,104 @@ export class MapRoleActivitiesComponent implements OnInit {
   // roles that have mapping changes
   updatedRoles: RoleItem[] = []
 
+  roleSearchTerm = ''
+  activitySearchTerm = ''
+
+  private roleSearch$ = new Subject<string>()
+  private activitySearch$ = new Subject<string>()
+  private destroy$ = new Subject<void>()
+
   ngOnInit(): void {
-    this.loadRoles()
-    this.loadActivities()
+    this.setupSearchStreams()
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next()
+    this.destroy$.complete()
+  }
+
+  private setupSearchStreams(): void {
+    this.roleSearch$
+      .pipe(
+        debounceTime(500),
+        distinctUntilChanged(),
+        takeUntil(this.destroy$),
+      )
+      .subscribe(keyword => this.fetchRoles(keyword))
+
+    this.activitySearch$
+      .pipe(
+        debounceTime(500),
+        distinctUntilChanged(),
+        takeUntil(this.destroy$),
+      )
+      .subscribe(keyword => this.fetchActivities(keyword))
   }
 
   // ---------------------------------------------------------------------------
-  // Load roles (left)
+  // API search
   // ---------------------------------------------------------------------------
-  private loadRoles(): void {
-    try {
-      const apiEntity = roleMockRes.result?.data?.entity ?? []
 
-      this.rolesData = transformRoles(apiEntity)
-      this.roles = [...this.rolesData]
-      this.filteredRoles = [...this.rolesData]
-    } catch (e) {
-      console.error('Failed to load roles', e)
-      this.rolesData = []
-      this.roles = []
-      this.filteredRoles = []
-    }
+  private fetchRoles(keyword: string): void {
+    this.fracApiService.searchEntities('role', keyword, this.selectedLanguage).subscribe({
+      next: (res) => {
+        const apiEntity = this.extractEntityList(res)
+        const transformed = transformRoles(apiEntity)
+
+        this.rolesData = transformed
+        this.roles = [...transformed]
+        this.filteredRoles = [...transformed]
+
+        if (this.selectedRole) {
+          const matched = transformed.find(r => r.code === this.selectedRole!.code)
+          if (!matched) {
+            this.selectedRole = null
+            this.selectedActivityMap = {}
+            this.selectedActivitySummary = []
+          }
+        }
+      },
+      error: (e) => {
+        console.error('Failed to load roles', e)
+        this.rolesData = []
+        this.roles = []
+        this.filteredRoles = []
+      },
+    })
   }
 
-  // ---------------------------------------------------------------------------
-  // Load activities (right)
-  // ---------------------------------------------------------------------------
-  private loadActivities(): void {
-    try {
-      const apiEntity = activityMockRes.result?.data?.entity ?? []
+  private fetchActivities(keyword: string): void {
+    this.fracApiService.searchEntities('activity', keyword, this.selectedLanguage).subscribe({
+      next: (res) => {
+        const apiEntity = this.extractEntityList(res)
+        const transformed = transformActivities(apiEntity) as ActivityItem[]
 
-      const transformed = transformActivities(apiEntity)
-      // transformActivities already builds { code, title }
-      this.activitiesData = transformed
-      this.activities = []
-      this.filteredActivities = []
-    } catch (e) {
-      console.error('Failed to load activities', e)
-      this.activitiesData = []
-      this.activities = []
-      this.filteredActivities = []
-    }
+        this.activitiesData = transformed
+        this.activities = [...transformed]
+        this.filteredActivities = [...transformed]
+
+        this.buildSelectedActivitySummary()
+      },
+      error: (e) => {
+        console.error('Failed to load activities', e)
+        this.activitiesData = []
+        this.activities = []
+        this.filteredActivities = []
+      },
+    })
+  }
+
+  private extractEntityList(response: any): any[] {
+    if (!response) return []
+    if (Array.isArray(response)) return response
+
+    const entityList =
+      response?.result?.entity ||
+      response?.result?.data?.entity ||
+      response?.data?.entity ||
+      response?.entity
+
+    return Array.isArray(entityList) ? entityList : []
   }
 
   // ---------------------------------------------------------------------------
@@ -121,75 +184,169 @@ export class MapRoleActivitiesComponent implements OnInit {
     if (!this.languages.includes(lang)) return
     this.selectedLanguage = lang
     this.isOpen = false
+
+    if (this.roleSearchTerm) {
+      this.roleSearch$.next(this.roleSearchTerm)
+    } else {
+      this.rolesData = []
+      this.roles = []
+      this.filteredRoles = []
+      this.selectedRole = null
+      this.selectedActivityMap = {}
+      this.selectedActivitySummary = []
+    }
+
+    if (this.activitySearchTerm) {
+      this.activitySearch$.next(this.activitySearchTerm)
+    } else {
+      this.activitiesData = []
+      this.activities = []
+      this.filteredActivities = []
+    }
   }
 
   // ---------------------------------------------------------------------------
   // Roles (left pane)
   // ---------------------------------------------------------------------------
   onRoleSearch(keyword: string): void {
-    const value = keyword.trim().toLowerCase()
-    if (!value) {
-      this.filteredRoles = [...this.rolesData]
-      this.roles = [...this.rolesData]
-      return
-    }
-
-    this.filteredRoles = this.rolesData.filter(r =>
-      r.code.toLowerCase().includes(value) ||
-      r.title.toLowerCase().includes(value),
-    )
-
-    this.roles = [...this.filteredRoles]
+    this.roleSearchTerm = keyword.trim()
+    this.roleSearch$.next(this.roleSearchTerm)
   }
 
   onRoleSelected(role: RoleItem): void {
     this.selectedRole = role
 
-    // restore per-role selection map
-    this.restoreSelectedActivityMapFromRole(role)
-
-    // make sure activities list is the full list initially
-    this.activities = [...this.activitiesData]
-    this.filteredActivities = [...this.activitiesData]
+    this.loadRoleActivityMappings(role)
   }
 
   onRoleToggleExpand(role: RoleItem): void {
     this.expandedRole = this.expandedRole === role ? null : role
   }
 
-  private restoreSelectedActivityMapFromRole(role: RoleItem): void {
-    this.selectedActivityMap = {}
+  private loadRoleActivityMappings(role: RoleItem): void {
+    this.isRoleMappingLoading = true
 
-    if (!role.activityDetails?.length) {
-      this.selectedActivitySummary = []
+    this.fracApiService.searchEntityMapping('role', role.code, this.selectedLanguage)
+      .pipe(
+        switchMap((res) => {
+          const mappedActivities = this.extractMappedActivities(res)
+
+          if (!mappedActivities.length) {
+            return of({ mappedActivities, hydratedActivities: [] as ActivityItem[] })
+          }
+
+          const mappedCodes = mappedActivities.map(item => item.code).filter(Boolean)
+          return this.fetchActivitiesByCodes(mappedCodes).pipe(
+            map((hydratedActivities) => ({ mappedActivities, hydratedActivities })),
+          )
+        }),
+        takeUntil(this.destroy$),
+      )
+      .subscribe({
+        next: ({ mappedActivities, hydratedActivities }) => {
+          if (this.selectedRole?.code !== role.code) {
+            return
+          }
+          this.isRoleMappingLoading = false
+          this.applyMappedActivitiesToRole(role, mappedActivities, hydratedActivities)
+        },
+        error: (err) => {
+          if (this.selectedRole?.code !== role.code) {
+            return
+          }
+          this.isRoleMappingLoading = false
+          console.error('Failed to load role mappings', err)
+          this.selectedActivityMap = {}
+          this.selectedActivitySummary = []
+          this.snackbar.error('Unable to fetch existing role mappings.')
+        },
+      })
+  }
+
+  private extractMappedActivities(response: any): RoleActivityDetail[] {
+    const result = Array.isArray(response?.result) ? response.result : []
+    const first = result[0] || {}
+    const childHierarchy = Array.isArray(first?.childHierarchy) ? first.childHierarchy : []
+
+    return childHierarchy
+      .filter((child: any) => (child?.entityType || '').toLowerCase() === 'activity')
+      .map((child: any) => ({
+        code: (child?.entityCode || '').trim(),
+        label: child?.entityName || '',
+      }))
+      .filter((item: RoleActivityDetail) => !!item.code)
+  }
+
+  private fetchActivitiesByCodes(codes: string[]) {
+    const uniqueCodes = Array.from(new Set(codes.filter(Boolean)))
+
+    if (!uniqueCodes.length) {
+      return of([] as ActivityItem[])
+    }
+
+    const requests = uniqueCodes.map((code) =>
+      this.fracApiService.searchEntities('activity', code, this.selectedLanguage).pipe(
+        map((res) => {
+          const apiEntity = this.extractEntityList(res)
+          const transformed = transformActivities(apiEntity) as ActivityItem[]
+          const exactMatch = transformed.find(item => item.code === code)
+          return exactMatch || transformed[0] || { code, title: '' }
+        }),
+        catchError(() => of({ code, title: '' } as ActivityItem)),
+      ),
+    )
+
+    return forkJoin(requests).pipe(
+      map((items) => {
+        const deduped = new Map<string, ActivityItem>()
+        items.forEach((item) => {
+          if (item?.code && !deduped.has(item.code)) {
+            deduped.set(item.code, item)
+          }
+        })
+        return Array.from(deduped.values())
+      }),
+    )
+  }
+
+  private applyMappedActivitiesToRole(
+    role: RoleItem,
+    mappedActivities: RoleActivityDetail[],
+    hydratedActivities: ActivityItem[],
+  ): void {
+    const activityDetails: RoleActivityDetail[] = mappedActivities.map((mapped) => {
+      const hydrated = hydratedActivities.find(item => item.code === mapped.code)
+      return {
+        code: mapped.code,
+        label: hydrated?.title || mapped.label || '',
+      }
+    })
+
+    role.activityDetails = activityDetails
+    this.selectedActivityMap = {}
+    activityDetails.forEach((detail) => {
+      this.selectedActivityMap[detail.code] = true
+    })
+
+    this.selectedActivitySummary = [...activityDetails]
+
+    const shouldKeepSearchedList = !!this.activitySearchTerm
+    if (shouldKeepSearchedList) {
+      this.activitySearch$.next(this.activitySearchTerm)
       return
     }
 
-    for (const a of role.activityDetails) {
-      if (!a.code) continue
-      this.selectedActivityMap[a.code] = true
-    }
-
-    this.buildSelectedActivitySummary()
+    this.activitiesData = [...hydratedActivities]
+    this.activities = [...hydratedActivities]
+    this.filteredActivities = [...hydratedActivities]
   }
 
   // ---------------------------------------------------------------------------
   // Activities (right pane)
   // ---------------------------------------------------------------------------
   onActivitySearch(keyword: string): void {
-    const value = keyword.trim().toLowerCase()
-    if (!value) {
-      this.filteredActivities = [...this.activitiesData]
-      this.activities = [...this.activitiesData]
-      return
-    }
-
-    this.filteredActivities = this.activitiesData.filter(a =>
-      a.code.toLowerCase().includes(value) ||
-      a.title.toLowerCase().includes(value),
-    )
-
-    this.activities = [...this.filteredActivities]
+    this.activitySearchTerm = keyword.trim()
+    this.activitySearch$.next(this.activitySearchTerm)
   }
 
   onActivityCheckChanged(event: { code: string; checked: boolean }): void {
@@ -211,9 +368,10 @@ export class MapRoleActivitiesComponent implements OnInit {
     for (const code of Object.keys(this.selectedActivityMap)) {
       if (!this.selectedActivityMap[code]) continue
       const meta = this.activitiesData.find(a => a.code === code)
+      const existing = this.selectedRole?.activityDetails?.find(a => a.code === code)
       result.push({
         code,
-        label: meta?.title ?? '',
+        label: meta?.title || existing?.label || '',
       })
     }
 
@@ -283,12 +441,22 @@ export class MapRoleActivitiesComponent implements OnInit {
   private refreshRolesState(): void {
     if (!this.selectedRole) return
 
+    const updatedSelectedRole: RoleItem = {
+      ...this.selectedRole,
+      code: this.selectedRole.code,
+      title: this.selectedRole.title,
+    }
+
     this.roles = this.roles.map(r =>
-      r.code === this.selectedRole!.code ? { ...this.selectedRole! } : r,
+      r.code === updatedSelectedRole.code ? updatedSelectedRole : r,
     )
 
     this.rolesData = this.rolesData.map(r =>
-      r.code === this.selectedRole!.code ? { ...this.selectedRole! } : r,
+      r.code === updatedSelectedRole.code ? updatedSelectedRole : r,
+    )
+
+    this.filteredRoles = this.filteredRoles.map(r =>
+      r.code === updatedSelectedRole.code ? updatedSelectedRole : r,
     )
 
     // Track roles that will go into payload
@@ -299,26 +467,106 @@ export class MapRoleActivitiesComponent implements OnInit {
   // Save
   // ---------------------------------------------------------------------------
   onSaveClicked(): void {
+    this.syncCurrentSelectedRoleSelection()
     const payload = this.buildPayload()
 
-    if (!payload.request.length) {
+    if (!payload.length) {
       this.snackbar.warning('Nothing to save !!')
       return
     }
 
-    console.log('Role–Activity payload:', payload)
-    // TODO: inject service + call POST here
-    this.snackbar.success('Role–activity mapping saved (mock).')
+    if (this.isSaving) {
+      return
+    }
+
+    this.isSaving = true
+
+    this.fracApiService.mapEntity(payload).subscribe({
+      next: (res) => {
+        this.isSaving = false
+
+        const mappedPairs = this.extractMappedPairs(res, payload)
+        const successData: UploadResultData = {
+          type: 'success',
+          title: 'Mapping Saved',
+          message: 'Role to activity mappings saved successfully.',
+          errorDetails: mappedPairs.join('\n'),
+        }
+        this.showResultModal(successData)
+      },
+      error: (err) => {
+        this.isSaving = false
+
+        const errorMessage =
+          err?.error?.params?.errmsg ||
+          err?.error?.message ||
+          err?.statusText ||
+          err?.message ||
+          'Failed to save role to activity mapping.'
+
+        const failureData: UploadResultData = {
+          type: 'error',
+          title: 'Mapping Failed',
+          message: errorMessage,
+          errorDetails: err?.status ? `HTTP Status: ${err.status}` : undefined,
+        }
+
+        this.showResultModal(failureData)
+      },
+    })
   }
 
-  private buildPayload(): RoleActivityMappingPayload {
-    return {
-      request: this.updatedRoles.map(r => ({
-        type: 'ROLE_ACTIVITY',        // <<< adjust if backend uses other type
-        parentId: r.code,
-        childMap: null,
-        childIds: (r.activityDetails ?? []).map(a => a.code),
-      })),
+  private buildPayload(): RoleActivityApiRequestItem[] {
+    const payload: RoleActivityApiRequestItem[] = []
+
+    for (const role of this.updatedRoles) {
+      const childCodes = (role.activityDetails ?? []).map(a => a.code).filter(Boolean)
+      for (const childCode of childCodes) {
+        payload.push({
+          parentEntityType: 'Role',
+          parentEntityCode: role.code,
+          childEntityType: 'Activity',
+          childEntityCode: childCode,
+          competencies: [],
+        })
+      }
     }
+
+    return payload
+  }
+
+  private syncCurrentSelectedRoleSelection(): void {
+    if (!this.selectedRole) return
+
+    if (!this.selectedRole.activityDetails) {
+      this.selectedRole.activityDetails = []
+    }
+
+    this.buildSelectedActivitySummary()
+    this.removeDeselectedActivities()
+    this.updateOrInsertActivities()
+    this.refreshRolesState()
+  }
+
+  private extractMappedPairs(response: any, fallbackPayload: RoleActivityApiRequestItem[]): string[] {
+    const resultArray = Array.isArray(response?.result) ? response.result : []
+    const source = resultArray.length ? resultArray : fallbackPayload
+
+    return source
+      .map((item: any) => {
+        const parentCode = item?.parentEntityCode || ''
+        const childCode = item?.childEntityCode || ''
+        return `${parentCode} <=> ${childCode}`
+      })
+      .filter(Boolean)
+  }
+
+  private showResultModal(data: UploadResultData): void {
+    this.dialog.open(UploadResultModalComponent, {
+      width: '440px',
+      disableClose: true,
+      panelClass: 'upload-result-dialog',
+      data,
+    })
   }
 }

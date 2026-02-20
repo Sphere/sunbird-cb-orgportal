@@ -1,4 +1,7 @@
-import { Component, OnInit } from '@angular/core'
+import { Component, OnDestroy, OnInit } from '@angular/core'
+import { MatDialog } from '@angular/material/dialog'
+import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators'
+import { Subject } from 'rxjs'
 import {
   Activity,
   ActivityCompetencyDetail,
@@ -8,27 +11,17 @@ import {
   CompetencyCheckChangeEvent,
   SelectedLevelCode
 } from '../../../models/activity-competency.models'
-
 import { transformActivities, transformCompetencies } from '../../../utils/common.util'
-import mockCompentencyRes from '../../../mock-api-response/mockCompentencyRes.json'
-import mockAcitivityRes from '../../../mock-api-response/mockActivityRes.json'
 import { CustomSnackbarService } from '../../../services/custom-snackbar.service'
+import { FracApiService } from '../../../services/frac-api.service'
+import { UploadResultData, UploadResultModalComponent } from '../../../components/upload-result-modal/upload-result-modal.component'
 
-
-
-interface MappingRequestItem {
-  type: 'ACTIVITY_COMPETENCY_LEVEL'
-  parentId: string
-  childMap: SelectedMap
-  childIds: string[] | null
-}
-
-interface MappingRequestPayload {
-  request: MappingRequestItem[]
-}
-
-interface RuntimeApiResponse<T> {
-  entity?: T
+interface ActivityCompetencyApiRequestItem {
+  parentEntityType: 'Activity'
+  parentEntityCode: string
+  childEntityType: 'Competency'
+  childEntityCode: string
+  competencies: number[]
 }
 
 @Component({
@@ -36,14 +29,18 @@ interface RuntimeApiResponse<T> {
   templateUrl: './map-activity-competencies.component.html',
   styleUrls: ['./map-activity-competencies.component.scss'],
 })
-export class MapActivityCompetenciesComponent implements OnInit {
-  constructor(private snackbar: CustomSnackbarService) { }
-  readonly languages = ['English', 'Hindi', 'Kannada']
+export class MapActivityCompetenciesComponent implements OnInit, OnDestroy {
+  constructor(
+    private snackbar: CustomSnackbarService,
+    private fracApiService: FracApiService,
+    private dialog: MatDialog,
+  ) { }
+
+  readonly languages = ['English', 'Hindi', 'Kannada', 'Tamil']
   selectedLanguage = 'English'
   isOpen = false
   isEditing = true
-
-  apiResponse?: RuntimeApiResponse<unknown>
+  isSaving = false
 
   levels: string[] = []
 
@@ -52,7 +49,7 @@ export class MapActivityCompetenciesComponent implements OnInit {
   filteredCompetencies: Competency[] = []
 
   activitiesData: Activity[] = []
-  activities: any[] = []
+  activities: Activity[] = []
   filteredActivities: Activity[] = []
 
   selectedMap: SelectedMap = {}
@@ -63,68 +60,134 @@ export class MapActivityCompetenciesComponent implements OnInit {
 
   updatedActivities: (Activity & { competencyDetails?: ActivityCompetencyDetail[] })[] = []
 
+  activitySearchTerm = ''
+  competencySearchTerm = ''
+
+  private activitySearch$ = new Subject<string>()
+  private competencySearch$ = new Subject<string>()
+  private destroy$ = new Subject<void>()
+
   ngOnInit(): void {
-    this.loadActivities()
-    this.loadCompetencies()
+    this.setupSearchStreams()
+    this.resetInitialView()
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next()
+    this.destroy$.complete()
+  }
+
+  private setupSearchStreams(): void {
+    this.activitySearch$
+      .pipe(
+        debounceTime(500),
+        distinctUntilChanged(),
+        takeUntil(this.destroy$),
+      )
+      .subscribe(keyword => this.fetchActivities(keyword))
+
+    this.competencySearch$
+      .pipe(
+        debounceTime(500),
+        distinctUntilChanged(),
+        takeUntil(this.destroy$),
+      )
+      .subscribe(keyword => {
+        if (!this.selectedActivity) {
+          this.clearCompetencies()
+          return
+        }
+        this.fetchCompetencies(keyword)
+      })
+  }
+
+  private resetInitialView(): void {
+    this.activitiesData = []
+    this.activities = []
+    this.filteredActivities = []
+
+    this.clearCompetencies()
+    this.selectedMap = {}
+    this.selectedCompetencies = []
+    this.selectedActivity = null
+    this.expandedActivity = null
+    this.updatedActivities = []
   }
 
   // ---------------------------------------------------------------------------
-  // Load Competencies
+  // API Search Integration
   // ---------------------------------------------------------------------------
 
-  private loadCompetencies(): void {
-    try {
-      const mockEnvelope = mockCompentencyRes
-      const apiEntity = mockEnvelope.result?.data?.entity ?? this.apiResponse?.entity
+  private fetchActivities(keyword: string): void {
+    this.fracApiService.searchEntities('activity', keyword, this.selectedLanguage).subscribe({
+      next: (res) => {
+        const entityList = this.extractEntityList(res)
+        const transformed = transformActivities(entityList)
 
-      if (!apiEntity) {
-        console.warn('No competency data available')
-        return
-      }
+        this.activitiesData = transformed
+        this.activities = [...transformed]
+        this.filteredActivities = [...transformed]
 
-      const transformed = transformCompetencies(apiEntity)
-      this.competencyData = transformed
-      this.filteredCompetencies = [...transformed]
+        if (this.selectedActivity) {
+          const matchingActivity = transformed.find(a => a.code === this.selectedActivity!.code)
+          if (!matchingActivity) {
+            this.selectedActivity = null
+            this.selectedMap = {}
+            this.selectedCompetencies = []
+            this.clearCompetencies()
+          }
+        }
+      },
+      error: (err) => {
+        console.error('Failed to fetch activities', err)
+        this.activitiesData = []
+        this.activities = []
+        this.filteredActivities = []
+      },
+    })
+  }
 
-      this.levels = this.extractLevels(transformed)
-    } catch (err) {
-      console.error('Failed to load competencies', err)
-      this.competencyData = []
-      this.filteredCompetencies = []
-      this.levels = []
-    }
+  private fetchCompetencies(keyword: string): void {
+    this.fracApiService.searchEntities('competency', keyword, this.selectedLanguage).subscribe({
+      next: (res) => {
+        const entityList = this.extractEntityList(res)
+        const transformed = transformCompetencies(entityList)
+
+        this.competencyData = transformed
+        this.competencies = [...transformed]
+        this.filteredCompetencies = [...transformed]
+        this.levels = this.extractLevels(transformed)
+      },
+      error: (err) => {
+        console.error('Failed to fetch competencies', err)
+        this.clearCompetencies()
+      },
+    })
+  }
+
+  private extractEntityList(response: any): any[] {
+    if (!response) return []
+    if (Array.isArray(response)) return response
+
+    const entityList =
+      response?.result?.entity ||
+      response?.result?.data?.entity ||
+      response?.data?.entity ||
+      response?.entity
+
+    return Array.isArray(entityList) ? entityList : []
+  }
+
+  private clearCompetencies(): void {
+    this.competencyData = []
+    this.competencies = []
+    this.filteredCompetencies = []
+    this.levels = []
   }
 
   private extractLevels(competencies: Competency[]): string[] {
     if (!competencies.length || !competencies[0].levels) return []
-    return competencies[0].levels.map(l => l.level)
-  }
-
-  // ---------------------------------------------------------------------------
-  // Load Activities
-  // ---------------------------------------------------------------------------
-
-  private loadActivities(): void {
-    try {
-      const mockEnvelope = mockAcitivityRes
-
-      const apiEntity = mockEnvelope.result?.data?.entity
-
-      if (!apiEntity) {
-        console.warn('No activities data available')
-        return
-      }
-
-      const transformed = transformActivities(apiEntity)
-      this.activitiesData = transformed
-      this.activities = [...transformed]
-      this.filteredActivities = [...transformed]
-    } catch (err) {
-      console.error('Failed to load activities', err)
-      this.activitiesData = []
-      this.activities = []
-      this.filteredActivities = []
-    }
+    return competencies[0].levels.map((l: any) => l.level)
   }
 
   // ---------------------------------------------------------------------------
@@ -138,8 +201,28 @@ export class MapActivityCompetenciesComponent implements OnInit {
   selectLanguage(lang: string, event: MouseEvent): void {
     event.stopPropagation()
     if (!this.languages.includes(lang)) return
+
     this.selectedLanguage = lang
     this.isOpen = false
+
+    // Re-run activity search in selected language (or keep empty state on no search)
+    if (this.activitySearchTerm) {
+      this.activitySearch$.next(this.activitySearchTerm)
+    } else {
+      this.activitiesData = []
+      this.activities = []
+      this.filteredActivities = []
+      this.selectedActivity = null
+      this.selectedMap = {}
+      this.selectedCompetencies = []
+    }
+
+    // Competency search depends on selected activity and query.
+    if (this.selectedActivity && this.competencySearchTerm) {
+      this.competencySearch$.next(this.competencySearchTerm)
+    } else {
+      this.clearCompetencies()
+    }
   }
 
   // ---------------------------------------------------------------------------
@@ -155,28 +238,16 @@ export class MapActivityCompetenciesComponent implements OnInit {
 
     const typed = activity as Activity & { competencyDetails?: ActivityCompetencyDetail[] }
     this.selectedActivity = typed
-
     this.restoreSelectedMapFromActivity(typed)
 
-    this.competencies = [...this.competencyData]
-    this.levels = this.extractLevels(this.competencyData)
+    // As requested: competency search depends on selected activity.
+    // Keep competency section in empty state until user searches.
+    this.clearCompetencies()
   }
 
   onActivitySearch(keyword: string): void {
-    const value = keyword.trim().toLowerCase()
-    if (!value) {
-      this.filteredActivities = [...this.activitiesData]
-      this.activities = [...this.activitiesData]
-      return
-    }
-
-    this.filteredActivities = this.activitiesData.filter(
-      a =>
-        a.code.toLowerCase().includes(value) ||
-        a.title.toLowerCase().includes(value),
-    )
-
-    this.activities = [...this.filteredActivities]
+    this.activitySearchTerm = keyword.trim()
+    this.activitySearch$.next(this.activitySearchTerm)
   }
 
   private restoreSelectedMapFromActivity(activity: Activity & { competencyDetails?: ActivityCompetencyDetail[] }): void {
@@ -203,6 +274,8 @@ export class MapActivityCompetenciesComponent implements OnInit {
           .forEach(l => this.selectedMap[code].push(`${code}_${l}`))
       }
     }
+
+    this.transformSelectedCompetencies()
   }
 
   // ---------------------------------------------------------------------------
@@ -210,23 +283,17 @@ export class MapActivityCompetenciesComponent implements OnInit {
   // ---------------------------------------------------------------------------
 
   onCompetencySearch(keyword: string): void {
-    const value = keyword.trim().toLowerCase()
+    this.competencySearchTerm = keyword.trim()
 
-    if (!value) {
-      this.filteredCompetencies = [...this.competencyData]
-      this.competencies = [...this.competencyData]
-      this.levels = this.extractLevels(this.competencyData)
+    if (!this.selectedActivity) {
+      if (this.competencySearchTerm) {
+        this.snackbar.warning('Please select at least one activity before searching competency !!')
+      }
+      this.clearCompetencies()
       return
     }
 
-    this.filteredCompetencies = this.competencyData.filter(
-      c =>
-        c.code.toLowerCase().includes(value) ||
-        c.label.toLowerCase().includes(value),
-    )
-
-    this.competencies = [...this.filteredCompetencies]
-    this.levels = this.extractLevels(this.filteredCompetencies)
+    this.competencySearch$.next(this.competencySearchTerm)
   }
 
   onCheck(event: CompetencyCheckChangeEvent): void {
@@ -294,7 +361,7 @@ export class MapActivityCompetenciesComponent implements OnInit {
   onAddCompetencyToActivity($event: Event): void {
     console.log('Add competency event:', $event)
     if (!this.selectedActivity) {
-      this.snackbar.warning("Please select an activity first !!")
+      this.snackbar.warning('Please select an activity first !!')
       return
     }
     if (!this.selectedActivity.competencyDetails)
@@ -307,7 +374,7 @@ export class MapActivityCompetenciesComponent implements OnInit {
       this.selectedActivity.competencyDetails.length > 0
 
     if (!hasSelectedLevels && !activityAlreadyHadCompetencies) {
-      this.snackbar.warning("Please select at least one competency level to map !!")
+      this.snackbar.warning('Please select at least one competency level to map !!')
       return
     }
 
@@ -346,8 +413,18 @@ export class MapActivityCompetenciesComponent implements OnInit {
   private refreshActivitiesState(): void {
     if (!this.selectedActivity) return
 
+    const updatedSelectedActivity: Activity & { competencyDetails?: ActivityCompetencyDetail[] } = {
+      ...this.selectedActivity,
+      code: this.selectedActivity.code,
+      title: this.selectedActivity.title,
+    }
+
     this.activities = this.activities.map(a =>
-      a.code === this.selectedActivity!.code ? { ...this.selectedActivity } : a,
+      a.code === updatedSelectedActivity.code ? updatedSelectedActivity : a,
+    )
+
+    this.filteredActivities = this.filteredActivities.map(a =>
+      a.code === updatedSelectedActivity.code ? updatedSelectedActivity : a,
     )
 
     this.updatedActivities = this.activities
@@ -362,48 +439,134 @@ export class MapActivityCompetenciesComponent implements OnInit {
   // ---------------------------------------------------------------------------
 
   onSaveClicked(): void {
+    this.syncCurrentSelectedActivitySelection()
     const payload = this.buildPayload()
 
-    if (!payload.request.length) {
-      console.warn('Nothing to save')
+    if (!payload.length) {
+      this.snackbar.warning('Nothing to save !!')
       return
     }
 
-    console.log('Payload:', payload)
-  }
-
-  private buildPayload(): MappingRequestPayload {
-    return {
-      request: this.updatedActivities.map(a => ({
-        type: 'ACTIVITY_COMPETENCY_LEVEL',
-        parentId: a.code,
-        childMap: this.buildChildMap(a),
-        childIds: null,
-      })),
+    if (this.isSaving) {
+      return
     }
+
+    this.isSaving = true
+
+    this.fracApiService.mapEntity(payload).subscribe({
+      next: (res) => {
+        this.isSaving = false
+
+        const mappedPairs = this.extractMappedPairs(res, payload)
+        const successData: UploadResultData = {
+          type: 'success',
+          title: 'Mapping Saved',
+          message: 'Activity to competency mappings were saved successfully.',
+          errorDetails: mappedPairs.join('\n'),
+        }
+        this.showResultModal(successData)
+      },
+      error: (err) => {
+        this.isSaving = false
+
+        const errorMessage =
+          err?.error?.params?.errmsg ||
+          err?.error?.message ||
+          err?.statusText ||
+          err?.message ||
+          'Failed to save activity to competency mapping.'
+
+        const failureData: UploadResultData = {
+          type: 'error',
+          title: 'Mapping Failed',
+          message: errorMessage,
+          errorDetails: err?.status ? `HTTP Status: ${err.status}` : undefined,
+        }
+
+        this.showResultModal(failureData)
+      },
+    })
   }
 
-  private buildChildMap(activity: Activity & { competencyDetails?: ActivityCompetencyDetail[] }): SelectedMap {
-    const map: SelectedMap = {}
+  private buildPayload(): ActivityCompetencyApiRequestItem[] {
+    const payload: ActivityCompetencyApiRequestItem[] = []
 
-    for (const detail of activity.competencyDetails ?? []) {
-      const { code, levels } = detail
-      if (!code || !levels) continue
+    for (const activity of this.updatedActivities) {
+      for (const detail of activity.competencyDetails ?? []) {
+        if (!detail?.code) continue
 
-      map[code] = []
-
-      if (levels.includes('-')) {
-        const [s, e] = levels.split('-')
-        for (let i = Number(s.replace('L', '')); i <= Number(e.replace('L', '')); i++)
-          map[code].push(`${code}_L${i}`)
-      } else {
-        levels
-          .split(',')
-          .map(l => l.trim())
-          .forEach(l => map[code].push(`${code}_L${l}`))
+        payload.push({
+          parentEntityType: 'Activity',
+          parentEntityCode: activity.code,
+          childEntityType: 'Competency',
+          childEntityCode: detail.code,
+          competencies: this.extractCompetencyLevels(detail.levels),
+        })
       }
     }
 
-    return map
+    return payload
+  }
+
+  private extractCompetencyLevels(levels: string): number[] {
+    if (!levels) return []
+
+    if (levels.includes('-')) {
+      const [start, end] = levels.split('-')
+      const startNum = Number(start.replace('L', ''))
+      const endNum = Number(end.replace('L', ''))
+      if (!Number.isFinite(startNum) || !Number.isFinite(endNum) || endNum < startNum) {
+        return []
+      }
+
+      const result: number[] = []
+      for (let i = startNum; i <= endNum; i++) {
+        result.push(i)
+      }
+      return result
+    }
+
+    return levels
+      .split(',')
+      .map(l => Number(l.trim().replace('L', '')))
+      .filter(n => Number.isFinite(n))
+      .sort((a, b) => a - b)
+  }
+
+  private syncCurrentSelectedActivitySelection(): void {
+    if (!this.selectedActivity) return
+
+    if (!this.selectedActivity.competencyDetails) {
+      this.selectedActivity.competencyDetails = []
+    }
+
+    this.transformSelectedCompetencies()
+    this.removeDeselected()
+    this.updateOrInsertSelected()
+    this.refreshActivitiesState()
+  }
+
+  private extractMappedPairs(response: any, fallbackPayload: ActivityCompetencyApiRequestItem[]): string[] {
+    const resultArray = Array.isArray(response?.result) ? response.result : []
+    const source = resultArray.length ? resultArray : fallbackPayload
+
+    return source
+      .map((item: any) => {
+        const parentCode = item?.parentEntityCode || ''
+        const childCode = item?.childEntityCode || ''
+        const competencies = Array.isArray(item?.competencies) ? item.competencies : []
+        const levelsText = competencies.length ? ` [L${competencies.join(',L')}]` : ''
+        return `${parentCode} <=> ${childCode}${levelsText}`
+      })
+      .filter(Boolean)
+  }
+
+  private showResultModal(data: UploadResultData): void {
+    this.dialog.open(UploadResultModalComponent, {
+      width: '440px',
+      disableClose: true,
+      panelClass: 'upload-result-dialog',
+      data,
+    })
   }
 }

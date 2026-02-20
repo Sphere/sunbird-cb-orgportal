@@ -1,39 +1,63 @@
-<div class="upload-result-modal">
-  <!-- Success State -->
-  <div *ngIf="isSuccess()" class="result-container success">
-    <div class="icon-wrapper success-icon">
-      <mat-icon>check_circle</mat-icon>
+<div class="upload-result-modal" [class.success]="isSuccess()" [class.error]="isError()">
+  <div class="modal-status">
+    <button class="close-btn" (click)="onClose()" aria-label="Close dialog">
+      <mat-icon>close</mat-icon>
+    </button>
+    <div class="status-icon-wrapper">
+      <mat-icon class="status-icon">{{ isSuccess() ? 'check_circle' : 'cancel' }}</mat-icon>
     </div>
-    <h2 class="result-title">{{ data.title }}</h2>
-    <p class="result-message">{{ data.message }}</p>
-
-    <!-- Show count if available -->
-    <div *ngIf="data.count" class="count-badge">
-      <span>{{ data.count }} competency(ies) uploaded</span>
-    </div>
+    <h2 class="status-title">{{ data.title }}</h2>
+    <p class="status-message">{{ data.message }}</p>
   </div>
 
-  <!-- Error State -->
-  <div *ngIf="isError()" class="result-container error">
-    <div class="icon-wrapper error-icon">
-      <mat-icon>error</mat-icon>
+  <div class="modal-content">
+    <div *ngIf="isSuccess() && data.count" class="summary-badge">
+      <mat-icon class="badge-icon">done_all</mat-icon>
+      <span>{{ data.count }} {{ data.count === 1 ? 'item' : 'items' }} processed successfully</span>
     </div>
-    <h2 class="result-title">{{ data.title }}</h2>
-    <p class="result-message">{{ data.message }}</p>
 
-    <!-- Show error details if available -->
-    <div *ngIf="data.errorDetails" class="error-details">
-      <p class="error-detail-label">Error Details:</p>
-      <div class="error-detail-box">
-        {{ data.errorDetails }}
+    <div *ngIf="isSuccess() && hasMappingDetails" class="mapping-container">
+      <div class="mapping-header">
+        <div class="mapping-title">
+          <mat-icon>link</mat-icon>
+          <span>Role-Activity Mappings</span>
+        </div>
+        <div class="mapping-badge">{{ mappedRoleCount }} roles | {{ mappingPairCount }} mappings</div>
+      </div>
+
+      <div class="mapping-content">
+        <div class="mapping-item" *ngFor="let group of mappingGroups">
+          <div class="role-section">
+            <div class="role-label">Role</div>
+            <div class="role-name">{{ group.parent }}</div>
+          </div>
+          <div class="arrow-section">
+            <mat-icon>arrow_forward</mat-icon>
+          </div>
+          <div class="activities-section">
+            <div class="activities-label">Activities ({{ group.children.length }})</div>
+            <div class="activities-list">
+              <span class="activity-chip" *ngFor="let child of group.children">{{ child }}</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
+
+    <div *ngIf="detailLines.length && (!isSuccess() || !hasMappingDetails)" class="details-container">
+      <div class="details-header">
+        <mat-icon>info</mat-icon>
+        <span>Details</span>
+      </div>
+      <ul class="details-list">
+        <li *ngFor="let detail of detailLines">{{ detail }}</li>
+      </ul>
+    </div>
   </div>
 
-  <!-- Action Button -->
-  <div class="modal-actions">
-    <button mat-raised-button [ngClass]="isSuccess() ? 'success-btn' : 'error-btn'" (click)="onClose()">
-      {{ isSuccess() ? 'Done' : 'Retry' }}
+  <div class="modal-footer">
+    <button mat-flat-button class="primary-btn" (click)="onClose()">
+      {{ isSuccess() ? 'Done' : 'Close' }}
     </button>
   </div>
 </div>

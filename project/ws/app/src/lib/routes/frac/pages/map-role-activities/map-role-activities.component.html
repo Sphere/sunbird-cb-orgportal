@@ -5,13 +5,20 @@
     <span class="home-label">Home</span>
   </button>
 
-  <button mat-stroked-button class="save-btn" type="button" (click)="onSaveClicked()" [disabled]="!isEditing"
+  <button mat-stroked-button class="save-btn" type="button" (click)="onSaveClicked()" [disabled]="!isEditing || isSaving"
     aria-label="Save role mappings">
-    Save
+    {{ isSaving ? 'Saving...' : 'Save' }}
   </button>
 </div>
 
 <div class="upload-container">
+  <div class="loading-overlay" *ngIf="isSaving">
+    <div class="spinner-container">
+      <mat-spinner [diameter]="42" [strokeWidth]="4"></mat-spinner>
+      <p class="loading-text">Saving role to activity mappings...</p>
+    </div>
+  </div>
+
   <div class="header">
     <button class="back-button" routerLink="/app/home/frac/dashboard" type="button" aria-label="Back to home">
       <img src="https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/icons/frac-left-arrow.svg" alt="back"
@@ -57,6 +64,10 @@
 
     <!-- RIGHT – ACTIVITIES PANEL -->
     <div class="activities-panel">
+      <div class="mapping-load-overlay" *ngIf="isRoleMappingLoading">
+        <mat-spinner [diameter]="36" [strokeWidth]="4"></mat-spinner>
+        <p>Loading existing mapping...</p>
+      </div>
       <app-activity-mapping-table [activities]="filteredActivities" [selectedRole]="selectedRole"
         [selectedActivityMap]="selectedActivityMap" (searchChange)="onActivitySearch($event)"
         (activityCheckChange)="onActivityCheckChanged($event)" (addActivity)="onAddActivityToRole()">

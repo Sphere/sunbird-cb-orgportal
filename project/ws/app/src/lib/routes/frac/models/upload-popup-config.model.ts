@@ -24,3 +24,9 @@ export interface UploadPopupConfig {
     html?: string // optional: parent can pass custom HTML block
   }
 }
+
+export interface UploadPopupResult {
+  action: 'upload'
+  file: File
+  language: string
+}

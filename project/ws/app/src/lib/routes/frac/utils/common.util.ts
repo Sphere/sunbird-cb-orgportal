@@ -72,14 +72,36 @@ export function transformCompetencyForUpdate(originalData: any[], editedRows: an
 
 
 export function transformCompetencies(apiData: any[]): any[] {
-  return apiData.map(item => ({
-    code: item.code,
-    label: item.name,
-    levels: item.children.map((child: any) => ({
-      level: child.level,
-      code: child.code
-    }))
-  }))
+  return apiData.map(item => {
+    const fromChildren = Array.isArray(item.children)
+      ? item.children.map((child: any) => ({
+        level: child.level || `L${child.levelId}`,
+        code: child.code || item.code,
+      }))
+      : []
+
+    const fromLevels = Array.isArray(item.levels)
+      ? item.levels
+        .map((level: any) => {
+          const levelNumber = Number(level?.levelNumber ?? level?.level ?? level?.levelId)
+          if (!Number.isFinite(levelNumber) || levelNumber <= 0) {
+            return null
+          }
+
+          return {
+            level: `L${levelNumber}`,
+            code: item.code,
+          }
+        })
+        .filter(Boolean)
+      : []
+
+    return {
+      code: item.code,
+      label: item.name,
+      levels: fromChildren.length ? fromChildren : fromLevels,
+    }
+  })
 }
 
 export function transformActivities(entity: any[]) {

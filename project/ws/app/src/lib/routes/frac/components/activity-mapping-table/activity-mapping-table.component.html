@@ -42,7 +42,7 @@
       </div>
 
       <div *ngIf="filteredActivities.length === 0" class="no-data">
-        Use the search bar to find the activity.
+        {{ emptyStateMessage }}
       </div>
 
     </div>

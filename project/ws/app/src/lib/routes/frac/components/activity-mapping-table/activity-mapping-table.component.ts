@@ -51,4 +51,18 @@ export class ActivityMappingTableComponent implements OnInit, OnChanges {
     if (!hasSelected && !hadPrevious) return true
     return false
   }
+
+  get emptyStateMessage(): string {
+    const hasSearch = !!this.searchTerm.trim()
+
+    if (!this.selectedRole) {
+      return 'Select a role to view and map activities.'
+    }
+
+    if (hasSearch) {
+      return 'No activities found for your search.'
+    }
+
+    return 'No existing activities mapped to this role. Search and add activities.'
+  }
 }

@@ -9,6 +9,11 @@ export interface UploadResultData {
   errorDetails?: string
 }
 
+interface MappingGroup {
+  parent: string
+  children: string[]
+}
+
 @Component({
   selector: 'ws-app-upload-result-modal',
   templateUrl: './upload-result-modal.component.html',
@@ -26,6 +31,52 @@ export class UploadResultModalComponent {
 
   isError(): boolean {
     return this.data.type === 'error'
+  }
+
+  get detailLines(): string[] {
+    return (this.data.errorDetails || '')
+      .split('\n')
+      .map(line => line.trim())
+      .filter(Boolean)
+  }
+
+  get mappingGroups(): MappingGroup[] {
+    const groups: Record<string, Set<string>> = {}
+
+    for (const line of this.detailLines) {
+      const match = line.match(/^(.+?)\s*<=>\s*(.+)$/)
+      if (!match) {
+        continue
+      }
+
+      const parent = match[1].trim()
+      const child = match[2].trim()
+      if (!parent || !child) {
+        continue
+      }
+
+      if (!groups[parent]) {
+        groups[parent] = new Set<string>()
+      }
+      groups[parent].add(child)
+    }
+
+    return Object.keys(groups).map(parent => ({
+      parent,
+      children: Array.from(groups[parent]),
+    }))
+  }
+
+  get hasMappingDetails(): boolean {
+    return this.mappingGroups.length > 0
+  }
+
+  get mappingPairCount(): number {
+    return this.mappingGroups.reduce((total, group) => total + group.children.length, 0)
+  }
+
+  get mappedRoleCount(): number {
+    return this.mappingGroups.length
   }
 
   onClose(): void {

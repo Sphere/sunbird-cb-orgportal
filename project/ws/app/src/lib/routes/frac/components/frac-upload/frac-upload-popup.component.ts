@@ -1,6 +1,6 @@
 import { Component, ElementRef, HostListener, Inject, OnInit, ViewChild } from '@angular/core'
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog'
-import { UploadPopupConfig } from '../../models/upload-popup-config.model'
+import { UploadPopupConfig, UploadPopupResult } from '../../models/upload-popup-config.model'
 
 @Component({
   selector: 'ws-app-frac-upload',
@@ -17,7 +17,7 @@ export class FracUploadPopupComponent implements OnInit {
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public config: UploadPopupConfig,
-    private dialogRef: MatDialogRef<FracUploadPopupComponent>
+    private dialogRef: MatDialogRef<FracUploadPopupComponent, UploadPopupResult>
   ) { }
 
   ngOnInit(): void {
@@ -83,10 +83,15 @@ export class FracUploadPopupComponent implements OnInit {
       alert('Please select a file first.')
       return
     }
+    if (!this.selectedLanguage) {
+      alert('Please select language.')
+      return
+    }
 
     this.dialogRef.close({
       action: 'upload',
       file: this.selectedFile,
+      language: this.selectedLanguage,
     })
   }
 

@@ -2,13 +2,21 @@ import { Component, OnInit, OnDestroy } from '@angular/core'
 import { MatDialog } from '@angular/material/dialog'
 import { ActivatedRoute } from '@angular/router'
 import { FracUploadPopupComponent } from '../../../components/frac-upload/frac-upload-popup.component'
-import { UploadPopupConfig } from '../../../models/upload-popup-config.model'
+import { UploadPopupConfig, UploadPopupResult } from '../../../models/upload-popup-config.model'
 import { UploadResultModalComponent, UploadResultData } from '../../../components/upload-result-modal/upload-result-modal.component'
 import { ITableConfig, TableTransformUtil } from '../../../utils/table-transform.util'
 import { FracApiService } from '../../../services/frac-api.service'
 import { transformActivityForUpdate } from '../../../utils/common.util'
-import { Subject } from 'rxjs'
-import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators'
+import { merge, Subject, Subscription } from 'rxjs'
+import { debounceTime, distinctUntilChanged, filter, takeUntil } from 'rxjs/operators'
+
+type SearchSource = 'typing' | 'icon' | 'enter' | 'language' | 'init'
+
+interface SearchTriggerPayload {
+  keyword: string
+  language: string
+  source: SearchSource
+}
 
 @Component({
   selector: 'ws-app-role-upload',
@@ -63,34 +71,44 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
   // ============= LOADING & API RESPONSE =============
   uploadProgress = 0
   isUploading = false  // ✅ Track loading state for local spinner
+  isSearching = false
   apiResponse: any = null  // Store actual API response
 
   // ============= INTERNAL STATE =============
 
-  private searchSubject = new Subject<void>()
+  private searchTrigger$ = new Subject<SearchTriggerPayload>()
+  private searchSubscription: Subscription | null = null
   private destroy$ = new Subject<void>()
 
   // ============= LIFECYCLE =============
 
   ngOnInit(): void {
+    const debouncedTypingSearch$ = this.searchTrigger$.pipe(
+      filter(payload => payload.source === 'typing'),
+      debounceTime(500),
+      distinctUntilChanged((previous, current) =>
+        previous.keyword === current.keyword && previous.language === current.language
+      )
+    )
+
+    const immediateSearch$ = this.searchTrigger$.pipe(
+      filter(payload => payload.source !== 'typing')
+    )
+
+    merge(debouncedTypingSearch$, immediateSearch$)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(payload => this.fetchEntitiesForTable(payload.keyword, payload.language))
+
     // Load route mode and initialize table
     this.activatedRoute.queryParams.subscribe(queryParams => {
       this.routeMode = queryParams['mode'] || 'upload'
       this.updateButtonText()
       this.loadTableDataBasedOnMode()
     })
-
-    // Set up debounced search (500ms delay)
-    this.searchSubject
-      .pipe(
-        debounceTime(500),
-        distinctUntilChanged(),
-        takeUntil(this.destroy$)
-      )
-      .subscribe(() => this.onSearch())
   }
 
   ngOnDestroy(): void {
+    this.searchSubscription?.unsubscribe()
     this.destroy$.next()
     this.destroy$.complete()
   }
@@ -100,13 +118,10 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
   /** Load table data based on route mode */
   loadTableDataBasedOnMode(): void {
     if (this.routeMode === 'manage') {
-      // Manage mode: show existing data
-      this.tableConfig = this.tableTransformUtil.transformResponseToTableConfig(this.apiResponse)
-      this.originalRowData = this.apiResponse.result.data.entity
+      this.triggerSearch('init')
     } else {
       // Upload mode: show empty table
-      this.tableConfig = this.tableTransformUtil.transformResponseToTableConfig(this.apiResponse)
-      this.tableConfig.data = []
+      this.tableConfig = { columns: [], data: [] }
       this.originalRowData = []
     }
   }
@@ -127,24 +142,59 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
 
   /** Trigger search on input change (debounced) */
   onSearchTermChange(): void {
-    this.searchSubject.next()
+    this.triggerSearch('typing')
   }
 
   /** Execute search API call */
   onSearch(): void {
-    const keyword = this.searchTerm.trim()
-    if (!keyword) return
+    this.triggerSearch('icon')
+  }
 
-    this.fracApiService
-      .searchEntities('role', keyword, this.selectedLanguage)
+  onSearchEnter(): void {
+    this.triggerSearch('enter')
+  }
+
+  private triggerSearch(source: SearchSource): void {
+    const payload: SearchTriggerPayload = {
+      keyword: this.searchTerm.trim(),
+      language: this.selectedLanguage,
+      source,
+    }
+    this.searchTrigger$.next(payload)
+  }
+
+  private fetchEntitiesForTable(keyword: string, language: string = this.selectedLanguage): void {
+    this.searchSubscription?.unsubscribe()
+    this.isSearching = true
+
+    this.searchSubscription = this.fracApiService
+      .searchEntities('role', keyword, language)
       .subscribe({
         next: (res) => {
-          this.searchResults = res?.result?.data?.entity || []
+          this.isSearching = false
+          const entityList = this.extractEntityList(res)
+          this.searchResults = entityList
+          this.originalRowData = entityList
+          this.tableConfig = this.tableTransformUtil.transformResponseToTableConfig(entityList)
         },
         error: (err) => {
+          this.isSearching = false
           console.error('Search failed:', err)
         }
       })
+  }
+
+  private extractEntityList(response: any): any[] {
+    if (!response) return []
+    if (Array.isArray(response)) return response
+
+    const entityList =
+      response?.result?.entity ||
+      response?.result?.data?.entity ||
+      response?.data?.entity ||
+      response?.entity
+
+    return Array.isArray(entityList) ? entityList : []
   }
 
   // ============= LANGUAGE DROPDOWN =============
@@ -159,7 +209,7 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
     event.stopPropagation()
     this.selectedLanguage = lang
     this.isOpen = false
-    this.onSearch()
+    this.triggerSearch('language')
   }
 
   // ============= TABLE SELECTION =============
@@ -233,6 +283,7 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
       dropdown: {
         label: 'Select Language',
         options: ['English', 'Hindi', 'Kannada', 'Tamil'],
+        defaultValue: this.selectedLanguage,
       },
       actions: {
         secondary: { label: 'Cancel' },
@@ -246,15 +297,16 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
       data: config,
     })
 
-    dialogRef.afterClosed().subscribe((result) => {
+    dialogRef.afterClosed().subscribe((result: UploadPopupResult | undefined) => {
       if (result?.action === 'upload' && result?.file) {
-        this.uploadFile(result.file)
+        this.uploadFile(result.file, result.language || this.selectedLanguage)
       }
     })
   }
 
   /** Upload file to API */
-  uploadFile(file: File): void {
+  uploadFile(file: File, language: string = this.selectedLanguage): void {
+    this.selectedLanguage = language
     console.log('⏳ Uploading role file:', {
       name: file.name,
       size: file.size,
@@ -272,7 +324,7 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
     this.isUploading = true
 
     // Use actual upload method
-    this.fracApiService.uploadFile(file).subscribe({
+    this.fracApiService.uploadFile(file, language).subscribe({
       next: (res) => {
         console.log('✅ Upload successful:', res)
 
@@ -282,29 +334,17 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
         // ✅ Store API response globally
         this.apiResponse = res
 
-        // ✅ Check if response contains valid data
-        if (res?.result?.data?.entity && res.result.data.entity.length > 0) {
-          // ✅ Transform response and update table
-          this.tableConfig = this.tableTransformUtil.transformResponseToTableConfig(this.apiResponse)
-          this.originalRowData = res.result.data.entity
-
-          // ✅ Show success modal with upload count
-          const uploadedCount = res.result.count || 1
+        if (this.isValidUploadSuccessResponse(res, 'role')) {
+          const uploadedCount = res?.result?.entityCode?.length || res?.result?.count || 1
           const successData: UploadResultData = {
             type: 'success',
             title: 'Upload Successful',
             message: 'Your role data has been uploaded successfully.',
             count: uploadedCount
           }
-          this.showResultModal(successData)
+          this.showResultModal(successData, true)
         } else {
-          const warningData: UploadResultData = {
-            type: 'error',
-            title: 'No Data Found',
-            message: 'Upload completed but no entity data was returned from the server.',
-            errorDetails: 'Please verify the file format and try again.'
-          }
-          this.showResultModal(warningData)
+          this.showResultModal(this.createUploadFailureModalData(res), false)
         }
       },
       error: (err) => {
@@ -320,54 +360,223 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
         this.isUploading = false
 
         // ✅ Handle error and show modal
-        this.handleUploadError(err)
+        void this.handleUploadError(err)
       },
     })
   }
 
-  /** Handle upload error with appropriate message and show modal */
-  private handleUploadError(err: any): void {
-    // ✅ Extract API error details from Sunbird response format
-    const apiError = err.error?.params?.err
-    const apiErrorMsg = err.error?.params?.errmsg
-    const responseCode = err.error?.responseCode
+  private isValidUploadSuccessResponse(response: any, expectedEntityType: string): boolean {
+    const normalizedResponse = this.normalizeUploadResponse(response)
+    const responseCode = (normalizedResponse?.responseCode || '').toString().toLowerCase()
+    const paramsStatus = (normalizedResponse?.params?.status || '').toString().toLowerCase()
+    const entityType = (normalizedResponse?.result?.entityType || '').toString().toLowerCase()
+    const hasEntityCodeList = Array.isArray(normalizedResponse?.result?.entityCode)
 
-    // 🔍 DEBUG: Log all error details
-    console.log('🔍 DEBUG handleUploadError - Full error object:', err)
-    console.log('🔍 DEBUG - err.status:', err.status)
-    console.log('🔍 DEBUG - err.error:', err.error)
-    console.log('🔍 DEBUG - apiError:', apiError)
-    console.log('🔍 DEBUG - apiErrorMsg:', apiErrorMsg)
-    console.log('🔍 DEBUG - responseCode:', responseCode)
+    const hasSuccessStatus =
+      responseCode === 'ok' ||
+      responseCode === '200 ok' ||
+      responseCode === 'created' ||
+      responseCode === '201 created' ||
+      paramsStatus === 'success' ||
+      paramsStatus === 'ok' ||
+      paramsStatus === '200 ok' ||
+      paramsStatus === 'created' ||
+      paramsStatus === '201 created'
 
-    // ✅ Simple approach: Show generic title with actual API error message
-    const errorTitle = 'Something Went Wrong'
-    const errorMessage = apiErrorMsg || err.statusText || err.message || 'An unexpected error occurred while uploading your file.'
+    return hasSuccessStatus && hasEntityCodeList && entityType === expectedEntityType.toLowerCase()
+  }
 
-    // ✅ Build error details
-    const errorDetailsParts = []
-    if (apiError) errorDetailsParts.push(`Error Code: ${apiError}`)
-    if (responseCode) errorDetailsParts.push(`Response Code: ${responseCode}`)
-    if (err.status) errorDetailsParts.push(`HTTP Status: ${err.status}`)
-
-    const errorDetails = errorDetailsParts.length > 0 ? errorDetailsParts.join('\n') : undefined
-
-    const errorData: UploadResultData = {
-      type: 'error',
-      title: errorTitle,
-      message: errorMessage,
-      errorDetails: errorDetails
+  private extractAffectedCodes(response: any): string[] {
+    const normalizedResponse = this.normalizeUploadResponse(response)
+    const entityCodes = normalizedResponse?.result?.entityCode
+    if (Array.isArray(entityCodes)) {
+      return entityCodes.filter((code: any) => Boolean(code))
     }
 
-    this.showResultModal(errorData)
+    const entries = Array.isArray(normalizedResponse?.result) ? normalizedResponse.result : []
+    return entries
+      .map((item: any) => item?.code)
+      .filter((code: any) => Boolean(code))
+  }
+
+  private isMeaningfulApiMessage(message: string | undefined): boolean {
+    const normalized = (message || '').trim().toLowerCase()
+    if (!normalized) {
+      return false
+    }
+    return normalized !== 'error' && normalized !== 'failed'
+  }
+
+  private createUploadFailureModalData(response: any): UploadResultData {
+    const normalizedResponse = this.normalizeUploadResponse(response)
+    const apiMessage =
+      (normalizedResponse?.params?.errmsg as string | undefined) ||
+      normalizedResponse?.errmsg ||
+      normalizedResponse?.message ||
+      normalizedResponse?.error_description
+    const responseCode =
+      normalizedResponse?.responseCode ||
+      normalizedResponse?.code ||
+      normalizedResponse?.status
+    const paramsStatus =
+      normalizedResponse?.params?.status ||
+      normalizedResponse?.statusText
+    const affectedCodes = this.extractAffectedCodes(normalizedResponse)
+    const affectedCodesDetails = affectedCodes.length
+      ? `Affected Codes: ${affectedCodes.join(', ')}`
+      : undefined
+
+    const detailsParts = [responseCode, paramsStatus, affectedCodesDetails].filter(Boolean)
+    const message = this.isMeaningfulApiMessage(apiMessage)
+      ? apiMessage!.trim()
+      : (affectedCodes.length ? 'Duplicate entry found.' : 'Upload failed. Please verify your file and try again.')
+
+    return {
+      type: 'error',
+      title: 'Upload Failed',
+      message,
+      errorDetails: detailsParts.length ? detailsParts.join('\n') : undefined,
+    }
+  }
+
+  private normalizeUploadResponse(response: any): any {
+    if (!response) {
+      return null
+    }
+
+    if (typeof response === 'string') {
+      try {
+        return JSON.parse(response)
+      } catch {
+        return { params: { errmsg: response } }
+      }
+    }
+
+    if (Array.isArray(response)) {
+      return { result: response }
+    }
+
+    if (typeof response !== 'object') {
+      return { params: { errmsg: String(response) } }
+    }
+
+    const looksLikeUploadPayload =
+      Boolean(response?.params?.errmsg) ||
+      Boolean(response?.responseCode) ||
+      Boolean(response?.result?.entityCode) ||
+      Array.isArray(response?.result)
+
+    if (looksLikeUploadPayload) {
+      return response
+    }
+
+    const nestedCandidates = [
+      response.error,
+      response.body,
+      response.data,
+      response.response,
+      response.rejection,
+      response.payload,
+      response.text,
+    ]
+
+    for (const candidate of nestedCandidates) {
+      if (!candidate) continue
+      const normalizedCandidate = this.normalizeUploadResponse(candidate)
+      if (
+        normalizedCandidate?.params?.errmsg ||
+        normalizedCandidate?.responseCode ||
+        normalizedCandidate?.result?.entityCode ||
+        Array.isArray(normalizedCandidate?.result)
+      ) {
+        return normalizedCandidate
+      }
+    }
+
+    return response
+  }
+
+  private async resolveUploadErrorPayload(err: any): Promise<any> {
+    const normalizedDirect = this.normalizeUploadResponse(err)
+    if (
+      normalizedDirect?.params?.errmsg ||
+      normalizedDirect?.responseCode ||
+      normalizedDirect?.result ||
+      normalizedDirect?.message
+    ) {
+      return normalizedDirect
+    }
+
+    const rawError = err?.error
+
+    if (rawError instanceof Blob) {
+      try {
+        const text = await rawError.text()
+        const normalizedFromBlob = this.normalizeUploadResponse(text)
+        if (
+          normalizedFromBlob?.params?.errmsg ||
+          normalizedFromBlob?.responseCode ||
+          normalizedFromBlob?.result
+        ) {
+          return normalizedFromBlob
+        }
+      } catch {
+        // Fall back below.
+      }
+    }
+
+    if (typeof rawError === 'string') {
+      const normalizedFromString = this.normalizeUploadResponse(rawError)
+      if (
+        normalizedFromString?.params?.errmsg ||
+        normalizedFromString?.responseCode ||
+        normalizedFromString?.result
+      ) {
+        return normalizedFromString
+      }
+    }
+
+    return normalizedDirect
+  }
+
+  /** Handle upload error with appropriate message and show modal */
+  private async handleUploadError(err: any): Promise<void> {
+    const resolvedPayload = await this.resolveUploadErrorPayload(err)
+
+    if (
+      resolvedPayload?.params?.errmsg ||
+      resolvedPayload?.responseCode ||
+      resolvedPayload?.result ||
+      resolvedPayload?.message
+    ) {
+      this.showResultModal(this.createUploadFailureModalData(resolvedPayload), false)
+      return
+    }
+
+    const fallbackData: UploadResultData = {
+      type: 'error',
+      title: 'Upload Failed',
+      message: err?.statusText || err?.message || 'An unexpected error occurred while uploading your file.',
+      errorDetails: err?.status ? `HTTP Status: ${err.status}` : undefined
+    }
+
+    this.showResultModal(fallbackData, false)
   }
 
   /** Show result modal (success or error) */
-  private showResultModal(data: UploadResultData): void {
-    this.dialog.open(UploadResultModalComponent, {
+  private showResultModal(data: UploadResultData, refreshOnClose = false): void {
+    const dialogRef = this.dialog.open(UploadResultModalComponent, {
       width: '400px',
-      disableClose: false,
+      disableClose: true,
+      panelClass: 'upload-result-dialog',
       data: data
+    })
+
+    dialogRef.afterClosed().pipe(takeUntil(this.destroy$)).subscribe(() => {
+      if (!refreshOnClose) {
+        return
+      }
+      this.triggerSearch('icon')
     })
   }
 

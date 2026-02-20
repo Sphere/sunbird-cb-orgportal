@@ -3,6 +3,7 @@ import {
   Input,
   ViewChild,
   OnChanges,
+  SimpleChanges,
   AfterViewInit,
   EventEmitter,
   Output,
@@ -37,6 +38,7 @@ export class UploadCompetencyListTableComponent implements OnChanges, AfterViewI
   @Input() pageSizeOptions: number[] = [5, 10, 20]
   @Input() gridStyle: GridStyle = 'horizontal'
   @Input() isEditing = false
+  @Input() editRows: any[] = []
 
   // ============= OUTPUTS =============
 
@@ -47,6 +49,9 @@ export class UploadCompetencyListTableComponent implements OnChanges, AfterViewI
   dataSource = new MatTableDataSource<any>([])
   selection = new SelectionModel<any>(true, [])
   displayedColumns: string[] = []
+  activeColumns: TableColumn[] = []
+  emptyRows: any[] = []
+  fillerRows: any[] = []
 
   // ✅ Default columns for empty state (hardcoded)
   defaultColumns: TableColumn[] = [
@@ -77,15 +82,21 @@ export class UploadCompetencyListTableComponent implements OnChanges, AfterViewI
 
   // ============= LIFECYCLE HOOKS =============
 
-  ngOnChanges(): void {
+  ngOnChanges(changes: SimpleChanges): void {
     // ✅ Use provided columns, or default columns if empty
-    const activeColumns = this.columns && this.columns.length > 0 ? this.columns : this.defaultColumns
+    this.activeColumns = this.columns && this.columns.length > 0 ? this.columns : this.defaultColumns
 
     this.displayedColumns = this.showCheckbox
-      ? ['select', ...activeColumns.map(c => c.key)]
-      : activeColumns.map(c => c.key)
+      ? ['select', ...this.activeColumns.map(c => c.key)]
+      : this.activeColumns.map(c => c.key)
 
     this.dataSource = new MatTableDataSource(this.data)
+    this.emptyRows = this.computeEmptyRows()
+    this.fillerRows = this.computeEmptyRowsForData()
+    if (changes.data || changes.columns) {
+      this.selection.clear()
+      this.selectionChange.emit([])
+    }
   }
 
   ngAfterViewInit() {
@@ -98,11 +109,6 @@ export class UploadCompetencyListTableComponent implements OnChanges, AfterViewI
   }
 
   // ============= GET ACTIVE COLUMNS =============
-
-  /** Get columns to display - either provided or default */
-  getActiveColumns(): TableColumn[] {
-    return (this.columns && this.columns.length > 0) ? this.columns : this.defaultColumns
-  }
 
   // ============= CHECKBOX HANDLERS =============
 
@@ -118,6 +124,7 @@ export class UploadCompetencyListTableComponent implements OnChanges, AfterViewI
     this.isAllSelected()
       ? this.selection.clear()
       : this.dataSource.data.forEach(row => this.selection.select(row))
+    this.selectionChange.emit(this.selection.selected)
   }
 
   /** Get accessible label for checkbox */
@@ -134,6 +141,31 @@ export class UploadCompetencyListTableComponent implements OnChanges, AfterViewI
     this.selectionChange.emit(this.selection.selected)
   }
 
+  isRowInEditMode(row: any): boolean {
+    return this.isEditing && this.editRows.includes(row)
+  }
+
+  isTextAreaField(columnKey: string): boolean {
+    const key = (columnKey || '').toLowerCase()
+    const isLevelLabel = key.includes('level_') && key.includes('_label')
+    return (
+      key.includes('name') ||
+      key.includes('description') ||
+      key === 'type' ||
+      key === 'status' ||
+      isLevelLabel
+    )
+  }
+
+  isCodeField(columnKey: string): boolean {
+    return (columnKey || '').toLowerCase() === 'code'
+  }
+
+  isTallDescriptionField(columnKey: string): boolean {
+    const key = (columnKey || '').toLowerCase()
+    return key === 'description' || /^level_l\d+_description$/.test(key)
+  }
+
   /** Filter table data by keyword */
   applyFilter(value: string) {
     this.dataSource.filter = value.trim().toLowerCase()
@@ -142,7 +174,7 @@ export class UploadCompetencyListTableComponent implements OnChanges, AfterViewI
   // ============= EMPTY STATE =============
 
   /** Generate empty rows to fill container height when no data exists */
-  getEmptyRows(): any[] {
+  private computeEmptyRows(): any[] {
     const rowHeight = 40
     const headerHeight = 40
     const containerHeight = 529
@@ -152,7 +184,7 @@ export class UploadCompetencyListTableComponent implements OnChanges, AfterViewI
   }
 
   /** Generate empty rows to fill remaining space when data exists */
-  getEmptyRowsForData(): any[] {
+  private computeEmptyRowsForData(): any[] {
     const rowHeight = 40
     const headerHeight = 40
     const containerHeight = 529

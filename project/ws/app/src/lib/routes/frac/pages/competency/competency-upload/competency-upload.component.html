@@ -33,7 +33,7 @@
 
       <div class="search-box">
         <input matInput type="text" placeholder="Search by name, code" [(ngModel)]="searchTerm"
-          (input)="onSearchTermChange()" (keydown.enter)="onSearch()" />
+          (input)="onSearchTermChange()" (keydown.enter)="onSearchEnter()" />
         <button mat-icon-button matSuffix class="icon-btn" (click)="onSearch()">
           <mat-icon>search</mat-icon>
         </button>
@@ -99,9 +99,19 @@
     </div>
   </div>
 
-  <!-- ✅ Reusable Table -->
-  <app-upload-competency-list-table [columns]="tableConfig.columns" [data]="tableConfig.data" [showCheckbox]="true"
-    [enableSorting]="true" [enablePagination]="false" [gridStyle]="'both'" [isEditing]="isEditing"
-    (selectionChange)="onSelectionChange($event)">
-  </app-upload-competency-list-table>
+  <div class="table-section">
+    <div class="table-loading-overlay" *ngIf="isSearching && !isUploading">
+      <div class="table-loader-content">
+        <mat-spinner [diameter]="36" [strokeWidth]="4"></mat-spinner>
+        <p>Loading table data...</p>
+      </div>
+    </div>
+
+    <!-- ✅ Reusable Table -->
+    <app-upload-competency-list-table [columns]="tableConfig.columns" [data]="tableConfig.data" [showCheckbox]="true"
+      [enableSorting]="true" [enablePagination]="false" [gridStyle]="'both'" [isEditing]="isEditing"
+      [editRows]="editRows"
+      (selectionChange)="onSelectionChange($event)">
+    </app-upload-competency-list-table>
+  </div>
 </div>

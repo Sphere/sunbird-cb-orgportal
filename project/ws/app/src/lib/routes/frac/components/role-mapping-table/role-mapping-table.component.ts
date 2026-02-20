@@ -25,23 +25,12 @@ export class RoleMappingTableComponent implements OnInit, OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['positions']) {
       this.filteredPositions = [...this.positions]
-      this.searchTerm = ''
     }
   }
 
   onSearchChange(): void {
-    const searchValue = this.searchTerm.trim().toLowerCase()
-
-    if (!searchValue) {
-      this.filteredPositions = [...this.positions]
-    } else {
-      this.filteredPositions = this.positions.filter(p =>
-        p.code?.toLowerCase().includes(searchValue) ||
-        p.title?.toLowerCase().includes(searchValue),
-      )
-    }
-
-    this.searchChange.emit(this.searchTerm)
+    // Search is API-driven from parent; keep input stable across responses.
+    this.searchChange.emit(this.searchTerm.trim())
   }
 
   isChecked(code: string): boolean {
@@ -66,4 +55,3 @@ export class RoleMappingTableComponent implements OnInit, OnChanges {
     return false
   }
 }
-

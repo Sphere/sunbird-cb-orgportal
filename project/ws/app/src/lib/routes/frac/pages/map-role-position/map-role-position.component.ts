@@ -1,8 +1,11 @@
-import { Component, OnInit } from '@angular/core'
+import { Component, OnDestroy, OnInit } from '@angular/core'
+import { MatDialog } from '@angular/material/dialog'
+import { Subject } from 'rxjs'
+import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators'
+import { UploadResultData, UploadResultModalComponent } from '../../components/upload-result-modal/upload-result-modal.component'
 import { CustomSnackbarService } from '../../services/custom-snackbar.service'
+import { FracApiService } from '../../services/frac-api.service'
 import { transformRoles, transformPositions } from '../../utils/common.util'
-import roleMockRes from '../../mock-api-response/mockActivityRes.json'
-import positionMockRes from '../../mock-api-response/mockActivityRes.json'
 
 interface PositionRoleDetail {
   code: string
@@ -21,15 +24,12 @@ interface RoleItem {
   title: string
 }
 
-interface RolePositionMappingItem {
-  type: 'ROLE_POSITION'
-  parentId: string
-  childMap: null
-  childIds: string[]
-}
-
-interface RolePositionMappingPayload {
-  request: RolePositionMappingItem[]
+interface PositionRoleApiRequestItem {
+  parentEntityType: 'Position'
+  parentEntityCode: string
+  childEntityType: 'Role'
+  childEntityCode: string
+  competencies: any[]
 }
 
 @Component({
@@ -37,15 +37,20 @@ interface RolePositionMappingPayload {
   templateUrl: './map-role-position.component.html',
   styleUrls: ['./map-role-position.component.scss'],
 })
-export class MapRolePositionComponent implements OnInit {
+export class MapRolePositionComponent implements OnInit, OnDestroy {
 
-  constructor(private snackbar: CustomSnackbarService) { }
+  constructor(
+    private snackbar: CustomSnackbarService,
+    private fracApiService: FracApiService,
+    private dialog: MatDialog,
+  ) { }
 
   // language
-  readonly languages = ['English', 'Hindi', 'Kannada']
+  readonly languages = ['English', 'Hindi', 'Kannada', 'Tamil']
   selectedLanguage = 'English'
   isOpen = false
   isEditing = true
+  isSaving = false
 
   // left – positions
   positionsData: PositionItem[] = []
@@ -66,46 +71,104 @@ export class MapRolePositionComponent implements OnInit {
   // positions that have mapping changes
   updatedPositions: PositionItem[] = []
 
+  positionSearchTerm = ''
+  roleSearchTerm = ''
+
+  private positionSearch$ = new Subject<string>()
+  private roleSearch$ = new Subject<string>()
+  private destroy$ = new Subject<void>()
+
   ngOnInit(): void {
-    this.loadRoles()
-    this.loadPositions()
+    this.setupSearchStreams()
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next()
+    this.destroy$.complete()
+  }
+
+  private setupSearchStreams(): void {
+    this.positionSearch$
+      .pipe(
+        debounceTime(500),
+        distinctUntilChanged(),
+        takeUntil(this.destroy$),
+      )
+      .subscribe(keyword => this.fetchPositions(keyword))
+
+    this.roleSearch$
+      .pipe(
+        debounceTime(500),
+        distinctUntilChanged(),
+        takeUntil(this.destroy$),
+      )
+      .subscribe(keyword => this.fetchRoles(keyword))
   }
 
   // ---------------------------------------------------------------------------
-  // Load positions (left)
+  // API search
   // ---------------------------------------------------------------------------
-  private loadPositions(): void {
-    try {
-      const apiEntity = positionMockRes.result?.data?.entity ?? []
 
-      this.positionsData = transformPositions(apiEntity)
-      this.positions = [...this.positionsData]
-      this.filteredPositions = [...this.positionsData]
-    } catch (e) {
-      console.error('Failed to load positions', e)
-      this.positionsData = []
-      this.positions = []
-      this.filteredPositions = []
-    }
+  private fetchPositions(keyword: string): void {
+    this.fracApiService.searchEntities('position', keyword, this.selectedLanguage).subscribe({
+      next: (res) => {
+        const apiEntity = this.extractEntityList(res)
+        const transformed = transformPositions(apiEntity) as PositionItem[]
+
+        this.positionsData = transformed
+        this.positions = [...transformed]
+        this.filteredPositions = [...transformed]
+
+        if (this.selectedPosition) {
+          const matched = transformed.find(p => p.code === this.selectedPosition!.code)
+          if (!matched) {
+            this.selectedPosition = null
+            this.selectedRoleMap = {}
+            this.selectedRoleSummary = []
+          }
+        }
+      },
+      error: (e) => {
+        console.error('Failed to load positions', e)
+        this.positionsData = []
+        this.positions = []
+        this.filteredPositions = []
+      },
+    })
   }
 
-  // ---------------------------------------------------------------------------
-  // Load roles (right)
-  // ---------------------------------------------------------------------------
-  private loadRoles(): void {
-    try {
-      const apiEntity = roleMockRes.result?.data?.entity ?? []
+  private fetchRoles(keyword: string): void {
+    this.fracApiService.searchEntities('role', keyword, this.selectedLanguage).subscribe({
+      next: (res) => {
+        const apiEntity = this.extractEntityList(res)
+        const transformed = transformRoles(apiEntity) as RoleItem[]
 
-      const transformed = transformRoles(apiEntity)
-      this.rolesData = transformed
-      this.roles = []
-      this.filteredRoles = []
-    } catch (e) {
-      console.error('Failed to load roles', e)
-      this.rolesData = []
-      this.roles = []
-      this.filteredRoles = []
-    }
+        this.rolesData = transformed
+        this.roles = [...transformed]
+        this.filteredRoles = [...transformed]
+
+        this.buildSelectedRoleSummary()
+      },
+      error: (e) => {
+        console.error('Failed to load roles', e)
+        this.rolesData = []
+        this.roles = []
+        this.filteredRoles = []
+      },
+    })
+  }
+
+  private extractEntityList(response: any): any[] {
+    if (!response) return []
+    if (Array.isArray(response)) return response
+
+    const entityList =
+      response?.result?.entity ||
+      response?.result?.data?.entity ||
+      response?.data?.entity ||
+      response?.entity
+
+    return Array.isArray(entityList) ? entityList : []
   }
 
   // ---------------------------------------------------------------------------
@@ -120,25 +183,33 @@ export class MapRolePositionComponent implements OnInit {
     if (!this.languages.includes(lang)) return
     this.selectedLanguage = lang
     this.isOpen = false
+
+    if (this.positionSearchTerm) {
+      this.positionSearch$.next(this.positionSearchTerm)
+    } else {
+      this.positionsData = []
+      this.positions = []
+      this.filteredPositions = []
+      this.selectedPosition = null
+      this.selectedRoleMap = {}
+      this.selectedRoleSummary = []
+    }
+
+    if (this.roleSearchTerm) {
+      this.roleSearch$.next(this.roleSearchTerm)
+    } else {
+      this.rolesData = []
+      this.roles = []
+      this.filteredRoles = []
+    }
   }
 
   // ---------------------------------------------------------------------------
   // Positions (left pane)
   // ---------------------------------------------------------------------------
   onPositionSearch(keyword: string): void {
-    const value = keyword.trim().toLowerCase()
-    if (!value) {
-      this.filteredPositions = [...this.positionsData]
-      this.positions = [...this.positionsData]
-      return
-    }
-
-    this.filteredPositions = this.positionsData.filter(p =>
-      p.code.toLowerCase().includes(value) ||
-      p.title.toLowerCase().includes(value),
-    )
-
-    this.positions = [...this.filteredPositions]
+    this.positionSearchTerm = keyword.trim()
+    this.positionSearch$.next(this.positionSearchTerm)
   }
 
   onPositionSelected(position: PositionItem): void {
@@ -146,10 +217,6 @@ export class MapRolePositionComponent implements OnInit {
 
     // restore per-position selection map
     this.restoreSelectedRoleMapFromPosition(position)
-
-    // Show all available roles for the selected position (reset search)
-    this.filteredRoles = [...this.rolesData]
-    this.roles = [...this.rolesData]
   }
 
   onPositionToggleExpand(position: PositionItem): void {
@@ -176,19 +243,8 @@ export class MapRolePositionComponent implements OnInit {
   // Roles (right pane)
   // ---------------------------------------------------------------------------
   onRoleSearch(keyword: string): void {
-    const searchValue = keyword.trim().toLowerCase()
-
-    if (!searchValue) {
-      this.filteredRoles = [...this.rolesData]
-    } else {
-      this.filteredRoles = this.rolesData.filter(r =>
-        r.code?.toLowerCase().includes(searchValue) ||
-        r.title?.toLowerCase().includes(searchValue),
-      )
-    }
-    // This method is called from child component but filtering
-    // is already done in the child component itself
-    // Parent just needs to emit/track if needed for future use
+    this.roleSearchTerm = keyword.trim()
+    this.roleSearch$.next(this.roleSearchTerm)
   }
 
   onRoleCheckChanged(event: { code: string; checked: boolean }): void {
@@ -282,48 +338,132 @@ export class MapRolePositionComponent implements OnInit {
   private refreshPositionsState(): void {
     if (!this.selectedPosition) return
 
+    const updatedSelectedPosition: PositionItem = {
+      ...this.selectedPosition,
+      code: this.selectedPosition.code,
+      title: this.selectedPosition.title,
+    }
+
     this.positions = this.positions.map(p =>
-      p.code === this.selectedPosition!.code ? { ...this.selectedPosition! } : p,
+      p.code === updatedSelectedPosition.code ? updatedSelectedPosition : p,
     )
 
     this.positionsData = this.positionsData.map(p =>
-      p.code === this.selectedPosition!.code ? { ...this.selectedPosition! } : p,
+      p.code === updatedSelectedPosition.code ? updatedSelectedPosition : p,
+    )
+
+    this.filteredPositions = this.filteredPositions.map(p =>
+      p.code === updatedSelectedPosition.code ? updatedSelectedPosition : p,
     )
 
     // Track positions that will go into payload
     this.updatedPositions = this.positions.filter(p => p.roleDetails?.length)
-
-    // Refresh available roles display for the currently selected position
-    if (this.selectedPosition) {
-      this.filteredRoles = [...this.rolesData]
-      this.roles = [...this.rolesData]
-    }
   }
 
   // ---------------------------------------------------------------------------
   // Save
   // ---------------------------------------------------------------------------
   onSaveClicked(): void {
+    this.syncCurrentSelectedPositionSelection()
     const payload = this.buildPayload()
 
-    if (!payload.request.length) {
+    if (!payload.length) {
       this.snackbar.warning('Nothing to save !!')
       return
     }
 
-    console.log('Position–Role payload:', payload)
-    // TODO: inject service + call POST here
-    this.snackbar.success('Position–role mapping saved (mock).')
+    if (this.isSaving) {
+      return
+    }
+
+    this.isSaving = true
+
+    this.fracApiService.mapEntity(payload).subscribe({
+      next: (res) => {
+        this.isSaving = false
+
+        const mappedPairs = this.extractMappedPairs(res, payload)
+        const successData: UploadResultData = {
+          type: 'success',
+          title: 'Mapping Saved',
+          message: 'Position to role mappings were saved successfully.',
+          errorDetails: mappedPairs.join('\n'),
+        }
+        this.showResultModal(successData)
+      },
+      error: (err) => {
+        this.isSaving = false
+
+        const errorMessage =
+          err?.error?.params?.errmsg ||
+          err?.error?.message ||
+          err?.statusText ||
+          err?.message ||
+          'Failed to save position to role mapping.'
+
+        const failureData: UploadResultData = {
+          type: 'error',
+          title: 'Mapping Failed',
+          message: errorMessage,
+          errorDetails: err?.status ? `HTTP Status: ${err.status}` : undefined,
+        }
+
+        this.showResultModal(failureData)
+      },
+    })
   }
 
-  private buildPayload(): RolePositionMappingPayload {
-    return {
-      request: this.updatedPositions.map(p => ({
-        type: 'ROLE_POSITION',
-        parentId: p.code,
-        childMap: null,
-        childIds: (p.roleDetails ?? []).map(r => r.code),
-      })),
+  private buildPayload(): PositionRoleApiRequestItem[] {
+    const payload: PositionRoleApiRequestItem[] = []
+
+    for (const position of this.updatedPositions) {
+      const childCodes = (position.roleDetails ?? []).map(r => r.code).filter(Boolean)
+      for (const childCode of childCodes) {
+        payload.push({
+          parentEntityType: 'Position',
+          parentEntityCode: position.code,
+          childEntityType: 'Role',
+          childEntityCode: childCode,
+          competencies: [],
+        })
+      }
     }
+
+    return payload
+  }
+
+  private syncCurrentSelectedPositionSelection(): void {
+    if (!this.selectedPosition) return
+
+    if (!this.selectedPosition.roleDetails) {
+      this.selectedPosition.roleDetails = []
+    }
+
+    this.buildSelectedRoleSummary()
+    this.removeDeselectedRoles()
+    this.updateOrInsertRoles()
+    this.refreshPositionsState()
+  }
+
+  private extractMappedPairs(response: any, fallbackPayload: PositionRoleApiRequestItem[]): string[] {
+    const resultArray = Array.isArray(response?.result) ? response.result : []
+    const source = resultArray.length ? response.result : fallbackPayload
+
+    return source
+      .map((item: any) => {
+        const parentCode = item?.parentEntityCode || ''
+        const childCode = item?.childEntityCode || ''
+        return `${parentCode} <=> ${childCode}`
+      })
+      .filter(Boolean)
+  }
+
+  private showResultModal(data: UploadResultData): void {
+    this.dialog.open(UploadResultModalComponent, {
+      width: '440px',
+      disableClose: true,
+      panelClass: 'upload-result-dialog',
+      data,
+    })
   }
 }

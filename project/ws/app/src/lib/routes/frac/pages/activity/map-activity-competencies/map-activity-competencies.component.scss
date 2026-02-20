@@ -3,6 +3,7 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+  position: relative;
 
   .header {
     display: flex;
@@ -228,4 +229,32 @@
 .left-tools {
   display: flex;
   gap: 8px;
+}
+
+.loading-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 999;
+  background: rgba(255, 255, 255, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.spinner-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  background: #fff;
+  padding: 20px 24px;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.loading-text {
+  margin: 0;
+  font-size: 14px;
+  color: #1c5d95;
+  font-family: Roboto, sans-serif;
 }

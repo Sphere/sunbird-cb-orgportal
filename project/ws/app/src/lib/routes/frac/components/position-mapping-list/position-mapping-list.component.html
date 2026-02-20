@@ -5,7 +5,7 @@
   </div>
 
   <div class="role-container">
-    <div class="title-bar">Roles</div>
+    <div class="title-bar">Positions</div>
 
     <div class="scroll-area">
 
@@ -19,14 +19,14 @@
         </div>
       </div>
 
-      <!-- role list -->
+      <!-- position list -->
       <div class="role-item" *ngFor="let r of filteredRoles" [class.selected]="selectedRole === r"
         (click)="roleSelectedHandler(r)">
         <div class="expanded-card">
 
           <div class="header-row" (click)="expand(r)">
-            <div class="exp-code">{{ r.code }}</div>
-            <!-- <div class="exp-title">{{ r.title }}</div> -->
+            <div class="exp-code">{{ r.title }}</div>
+            <!-- <div class="exp-title">{{ r.title || r.description || '-' }}</div> -->
             <!-- Expand arrow (show only when levels are valid) -->
             <mat-icon *ngIf="r.roleDetails?.length > 0" class="arrow">
               {{ expanded === r ? 'expand_less' : 'expand_more' }}
@@ -46,7 +46,7 @@
       </div>
 
       <div *ngIf="filteredRoles.length === 0" class="no-data">
-        Use the search bar to find the role.
+        Use the search bar to find the position.
       </div>
 
     </div>
