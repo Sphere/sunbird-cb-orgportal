@@ -27,8 +27,9 @@ export class FracApiService {
   }
 
   /** ✅ Update entity API */
-  updateEntity(payload: any): Observable<any> {
-    return this.http.post(API_END_POINTS.UPDATE_ENTITY, payload, { headers: this.headers })
+  updateEntity(payload: any, userId?: string): Observable<any> {
+    const params = new HttpParams().set('userId', userId || this.getLoggedInUserIdentifier())
+    return this.http.put(API_END_POINTS.UPDATE_ENTITY, payload, { headers: this.headers, params })
   }
 
   /** ✅ Entity mapping API */

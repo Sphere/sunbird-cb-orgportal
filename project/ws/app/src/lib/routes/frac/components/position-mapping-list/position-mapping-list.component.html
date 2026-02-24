@@ -13,39 +13,51 @@
       <div class="search-row">
         <div class="shadow-wrapper">
           <div class="search-box">
-            <input placeholder="Search by name, code" [(ngModel)]="searchTerm" (input)="onSearchChange()" />
-            <mat-icon>search</mat-icon>
+            <input placeholder="Search by name, code" [(ngModel)]="searchTerm"
+              (input)="onSearchChange()" (keyup.enter)="onSearchSubmit()" />
+            <mat-icon (click)="onSearchSubmit()">search</mat-icon>
           </div>
         </div>
       </div>
 
       <!-- position list -->
-      <div class="role-item" *ngFor="let r of filteredRoles" [class.selected]="selectedRole === r"
-        (click)="roleSelectedHandler(r)">
-        <div class="expanded-card">
-
-          <div class="header-row" (click)="expand(r)">
-            <div class="exp-code">{{ r.title }}</div>
-            <!-- <div class="exp-title">{{ r.title || r.description || '-' }}</div> -->
-            <!-- Expand arrow (show only when levels are valid) -->
-            <mat-icon *ngIf="r.roleDetails?.length > 0" class="arrow">
-              {{ expanded === r ? 'expand_less' : 'expand_more' }}
-            </mat-icon>
+      <ng-container *ngIf="isLoading">
+        <div class="role-item shimmer-item" *ngFor="let _ of [1, 2, 3, 4]">
+          <div class="expanded-card">
+            <div class="shimmer-line title"></div>
           </div>
+        </div>
+      </ng-container>
 
-          <!-- mapped positions under role -->
-          <div *ngIf="expanded === r && r.roleDetails?.length" class="position-section">
-            <div class="position-row" *ngFor="let p of r.roleDetails">
-              <div class="pill">
-                <div class="position-label">{{ p.code }} - {{ p.label }}</div>
+      <ng-container *ngIf="!isLoading">
+        <div class="role-item" *ngFor="let r of filteredRoles; trackBy: trackByCode"
+          [class.selected]="selectedPositionCode === r.code"
+          (click)="roleSelectedHandler(r)">
+          <div class="expanded-card">
+
+            <div class="header-row" (click)="onHeaderClick(r, $event)">
+              <div class="exp-code">{{ r.title }}</div>
+              <!-- <div class="exp-title">{{ r.title || r.description || '-' }}</div> -->
+              <!-- Expand arrow (show only when levels are valid) -->
+              <mat-icon *ngIf="r.roleDetails?.length > 0" class="arrow">
+                {{ expandedPositionCode === r.code ? 'expand_less' : 'expand_more' }}
+              </mat-icon>
+            </div>
+
+            <!-- mapped positions under role -->
+            <div *ngIf="expandedPositionCode === r.code && r.roleDetails?.length" class="position-section">
+              <div class="position-row" *ngFor="let p of r.roleDetails">
+                <div class="pill">
+                  <div class="position-label">{{ p.code }} - {{ p.label }}</div>
+                </div>
               </div>
             </div>
+
           </div>
-
         </div>
-      </div>
+      </ng-container>
 
-      <div *ngIf="filteredRoles.length === 0" class="no-data">
+      <div *ngIf="!isLoading && filteredRoles.length === 0" class="no-data">
         Use the search bar to find the position.
       </div>
 

@@ -98,8 +98,8 @@
   border-radius: 16px;
   padding: 24px;
   margin-top: 4px;
-  border: 1px solid #1c5c95;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+  border: 1px solid transparent;
+  box-shadow: none;
   width: 100%;
   box-sizing: border-box;
 }
@@ -164,8 +164,14 @@
 }
 
 .selected {
-  background: #e3e8ed;
+  background: transparent;
   border-radius: 16px;
+
+  .expanded-card {
+    border-color: #1c5c95;
+    outline: 1px solid #1c5c95;
+    outline-offset: -1px;
+  }
 }
 
 /* scrollbar styling */
@@ -180,4 +186,29 @@
 .scroll-area::-webkit-scrollbar-thumb {
   background-color: #bfbfbf;
   border-radius: 3px;
+}
+
+.shimmer-item .expanded-card {
+  display: grid;
+}
+
+.shimmer-line {
+  height: 14px;
+  border-radius: 8px;
+  background: linear-gradient(90deg, #e9eff6 25%, #dfe8f3 37%, #e9eff6 63%);
+  background-size: 400% 100%;
+  animation: shimmer 1.2s ease-in-out infinite;
+}
+
+.shimmer-line.title {
+  width: 75%;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
 }

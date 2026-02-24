@@ -9,6 +9,8 @@ export class ActivityMappingListComponent implements OnInit, OnChanges {
 
   /* INPUT: List of activities */
   @Input() activities: any[] = [];
+  @Input() isLoading = false;
+  @Input() selectedActivityCode: string | null = null;
 
   /* OUTPUT: Emit search keyword to parent */
   @Output() searchChange = new EventEmitter<string>();
@@ -19,7 +21,6 @@ export class ActivityMappingListComponent implements OnInit, OnChanges {
   searchTerm = '';
   filteredActivities: any[] = [];
   expanded: any = null;
-  selectedActivity: any = null;
 
   ngOnInit() {
     this.filteredActivities = [...this.activities]
@@ -41,8 +42,11 @@ export class ActivityMappingListComponent implements OnInit, OnChanges {
 
   /** User clicked an activity */
   activitySelectedHandler(a: any) {
-    this.selectedActivity = a
     this.activitySelected.emit(a)
+  }
+
+  trackByCode(index: number, item: any): string {
+    return item?.code || `${index}`
   }
 
   /** Check if activity has any valid competency levels */

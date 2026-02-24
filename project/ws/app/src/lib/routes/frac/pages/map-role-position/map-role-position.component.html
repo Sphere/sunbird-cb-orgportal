@@ -1,5 +1,5 @@
 <div class="header-container">
-  <button routerLink="/app/home/frac/dashboard" class="home-chip" type="button" aria-label="Go to FRAC dashboard">
+  <button class="home-chip" type="button" aria-label="Go to FRAC dashboard" (click)="onHomeClick()">
     <img src="https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/icons/home-frac.svg" alt="home"
       class="home-icon" />
     <span class="home-label">Home</span>
@@ -52,7 +52,10 @@
   <div class="content-layout">
     <!-- LEFT – POSITIONS PANEL -->
     <div class="roles-panel">
-      <app-position-mapping-list [roles]="filteredPositions" (searchChange)="onPositionSearch($event)"
+      <app-position-mapping-list [roles]="filteredPositions" [isLoading]="isPositionsLoading"
+        [selectedPositionCode]="selectedPosition?.code || null"
+        (searchChange)="onPositionSearch($event)"
+        (searchSubmit)="onPositionSearchSubmit($event)"
         (roleSelected)="onPositionSelected($event)" (toggle)="onPositionToggleExpand($event)">
       </app-position-mapping-list>
     </div>
@@ -60,7 +63,8 @@
     <!-- RIGHT – ROLES PANEL -->
     <div class="positions-panel">
       <app-role-mapping-table [positions]="filteredRoles" [selectedRole]="selectedPosition"
-        [selectedPositionMap]="selectedRoleMap" (searchChange)="onRoleSearch($event)"
+        [selectedPositionMap]="selectedRoleMap" [isLoading]="isRolesLoading || isPositionRoleMappingLoading"
+        (searchChange)="onRoleSearch($event)"
         (positionCheckChange)="onRoleCheckChanged($event)" (addPosition)="onAddRoleToPosition()">
       </app-role-mapping-table>
     </div>

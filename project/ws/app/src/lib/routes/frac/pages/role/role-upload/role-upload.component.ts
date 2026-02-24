@@ -1,13 +1,13 @@
 import { Component, OnInit, OnDestroy } from '@angular/core'
 import { MatDialog } from '@angular/material/dialog'
-import { ActivatedRoute } from '@angular/router'
+import { ActivatedRoute, Router } from '@angular/router'
 import { FracUploadPopupComponent } from '../../../components/frac-upload/frac-upload-popup.component'
 import { UploadPopupConfig, UploadPopupResult } from '../../../models/upload-popup-config.model'
 import { UploadResultModalComponent, UploadResultData } from '../../../components/upload-result-modal/upload-result-modal.component'
+import { UnsavedChangesModalComponent } from '../../../components/unsaved-changes-modal/unsaved-changes-modal.component'
 import { ITableConfig, TableTransformUtil } from '../../../utils/table-transform.util'
 import { FracApiService } from '../../../services/frac-api.service'
-import { transformActivityForUpdate } from '../../../utils/common.util'
-import { merge, Subject, Subscription } from 'rxjs'
+import { forkJoin, merge, Subject, Subscription } from 'rxjs'
 import { debounceTime, distinctUntilChanged, filter, takeUntil } from 'rxjs/operators'
 
 type SearchSource = 'typing' | 'icon' | 'enter' | 'language' | 'init'
@@ -29,7 +29,8 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
     private dialog: MatDialog,
     private fracApiService: FracApiService,
     private tableTransformUtil: TableTransformUtil,
-    private activatedRoute: ActivatedRoute
+    private activatedRoute: ActivatedRoute,
+    private router: Router,
   ) { }
 
   // ============= ROUTE STATE =============
@@ -72,6 +73,7 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
   uploadProgress = 0
   isUploading = false  // ✅ Track loading state for local spinner
   isSearching = false
+  isUpdating = false
   apiResponse: any = null  // Store actual API response
 
   // ============= INTERNAL STATE =============
@@ -142,15 +144,24 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
 
   /** Trigger search on input change (debounced) */
   onSearchTermChange(): void {
+    if (this.isFilterControlsDisabled()) {
+      return
+    }
     this.triggerSearch('typing')
   }
 
   /** Execute search API call */
   onSearch(): void {
+    if (this.isFilterControlsDisabled()) {
+      return
+    }
     this.triggerSearch('icon')
   }
 
   onSearchEnter(): void {
+    if (this.isFilterControlsDisabled()) {
+      return
+    }
     this.triggerSearch('enter')
   }
 
@@ -201,11 +212,19 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
 
   /** Toggle language dropdown visibility */
   toggleDropdown(): void {
+    if (this.isFilterControlsDisabled()) {
+      this.isOpen = false
+      return
+    }
     this.isOpen = !this.isOpen
   }
 
   /** Select language and search immediately */
   selectLanguage(lang: string, event: MouseEvent): void {
+    if (this.isFilterControlsDisabled()) {
+      event.stopPropagation()
+      return
+    }
     event.stopPropagation()
     this.selectedLanguage = lang
     this.isOpen = false
@@ -232,15 +251,83 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
 
   /** Save edited rows */
   onSaveClicked(): void {
-    this.isEditing = false
+    if (!this.selectedRows.length) {
+      return
+    }
 
-    const updatedRoles = transformActivityForUpdate(this.originalRowData, this.selectedRows)
-    const payload = { request: updatedRoles }
+    if (this.isUpdating) {
+      return
+    }
 
-    this.fracApiService.updateEntity(payload).subscribe({
-      next: (res) => console.log('Update successful:', res),
-      error: (err) => console.error('Update failed:', err),
+    const payloads = this.selectedRows
+      .map(row => this.buildRoleUpdatePayload(row))
+      .filter(Boolean) as any[]
+
+    if (!payloads.length) {
+      return
+    }
+
+    this.isUpdating = true
+
+    forkJoin(payloads.map(payload => this.fracApiService.updateEntity(payload))).subscribe({
+      next: () => {
+        this.isUpdating = false
+        this.isEditing = false
+        this.selectedRows = []
+
+        const successData: UploadResultData = {
+          type: 'success',
+          title: 'Update Successful',
+          message: `${payloads.length} role ${payloads.length === 1 ? 'record' : 'records'} updated successfully.`,
+          count: payloads.length,
+        }
+        this.showResultModal(successData, false, true)
+      },
+      error: (err) => {
+        this.isUpdating = false
+        const failureData: UploadResultData = {
+          type: 'error',
+          title: 'Update Failed',
+          message:
+            err?.error?.params?.errmsg ||
+            err?.error?.message ||
+            err?.statusText ||
+            err?.message ||
+            'Failed to update role.',
+          errorDetails: err?.status ? `HTTP Status: ${err.status}` : undefined,
+        }
+        this.showResultModal(failureData, false)
+      },
     })
+  }
+
+  private buildRoleUpdatePayload(row: any): any | null {
+    if (!row?.code) {
+      return null
+    }
+
+    const original = this.originalRowData.find(item => item?.code === row.code) || {}
+    const languageCode = original?.languageCode || this.getLanguageCode(this.selectedLanguage)
+
+    return {
+      entityType: 'Role',
+      id: original?.id || row?.id || '',
+      code: original?.code || row?.code || '',
+      languageCode,
+      name: row?.name ?? original?.name ?? '',
+    }
+  }
+
+  private getLanguageCode(language: string): string {
+    const normalized = (language || '').trim().toLowerCase()
+    const languageMap: Record<string, string> = {
+      english: 'en',
+      hindi: 'hi',
+      kannada: 'kn',
+      tamil: 'ta',
+    }
+
+    return languageMap[normalized] || 'en'
   }
 
   // ============= TABLE ACTIONS: REMOVE =============
@@ -263,11 +350,14 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
 
   /** Download CSV template for bulk upload */
   onDownloadTemplate(): void {
-    const fileUrl = 'https://aastar-app-assets.s3.ap-south-1.amazonaws.com/role_template.csv'
+    const languageCode = this.getLanguageCode(this.selectedLanguage)
+    const fileUrl = languageCode === 'hi'
+      ? 'https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/files/sample_role_hi_list.csv'
+      : 'https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/files/sample_role_en_list.csv'
 
     const link = document.createElement('a')
     link.href = fileUrl
-    link.download = fileUrl.split('/').pop() || 'role_template.csv'
+    link.download = fileUrl.split('/').pop() || 'sample_role_en_list.csv'
     link.click()
   }
 
@@ -334,15 +424,16 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
         // ✅ Store API response globally
         this.apiResponse = res
 
+        const uploadedCodes = this.getUploadedEntityCodes(res, 'role')
         if (this.isValidUploadSuccessResponse(res, 'role')) {
-          const uploadedCount = res?.result?.entityCode?.length || res?.result?.count || 1
+          const uploadedCount = uploadedCodes.length || res?.result?.count || 1
           const successData: UploadResultData = {
             type: 'success',
             title: 'Upload Successful',
             message: 'Your role data has been uploaded successfully.',
             count: uploadedCount
           }
-          this.showResultModal(successData, true)
+          this.showResultModal(successData, false, false, '/app/frac/role?mode=manage')
         } else {
           this.showResultModal(this.createUploadFailureModalData(res), false)
         }
@@ -369,8 +460,6 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
     const normalizedResponse = this.normalizeUploadResponse(response)
     const responseCode = (normalizedResponse?.responseCode || '').toString().toLowerCase()
     const paramsStatus = (normalizedResponse?.params?.status || '').toString().toLowerCase()
-    const entityType = (normalizedResponse?.result?.entityType || '').toString().toLowerCase()
-    const hasEntityCodeList = Array.isArray(normalizedResponse?.result?.entityCode)
 
     const hasSuccessStatus =
       responseCode === 'ok' ||
@@ -383,20 +472,60 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
       paramsStatus === 'created' ||
       paramsStatus === '201 created'
 
-    return hasSuccessStatus && hasEntityCodeList && entityType === expectedEntityType.toLowerCase()
+    return hasSuccessStatus && this.getUploadedEntityCodes(normalizedResponse, expectedEntityType).length > 0
   }
 
   private extractAffectedCodes(response: any): string[] {
     const normalizedResponse = this.normalizeUploadResponse(response)
-    const entityCodes = normalizedResponse?.result?.entityCode
-    if (Array.isArray(entityCodes)) {
-      return entityCodes.filter((code: any) => Boolean(code))
+    const uploadedCodes = this.getUploadedEntityCodes(normalizedResponse)
+    if (uploadedCodes.length) {
+      return uploadedCodes
     }
 
     const entries = Array.isArray(normalizedResponse?.result) ? normalizedResponse.result : []
     return entries
       .map((item: any) => item?.code)
       .filter((code: any) => Boolean(code))
+  }
+
+  private getUploadedEntityCodes(response: any, expectedEntityType?: string): string[] {
+    const normalizedResponse = this.normalizeUploadResponse(response)
+    const entityBlocks = this.getUploadEntityBlocks(normalizedResponse)
+    const expectedType = (expectedEntityType || '').toLowerCase()
+    const collectedCodes: string[] = []
+
+    entityBlocks.forEach((item: any) => {
+      const entityType = (item?.entityType || '').toString().toLowerCase()
+      if (expectedType && entityType !== expectedType) {
+        return
+      }
+
+      const entityCodes = Array.isArray(item?.entityCode) ? item.entityCode : []
+      entityCodes.forEach((code: any) => {
+        const normalizedCode = (code ?? '').toString().trim()
+        if (normalizedCode) {
+          collectedCodes.push(normalizedCode)
+        }
+      })
+    })
+
+    return collectedCodes
+  }
+
+  private getUploadEntityBlocks(response: any): any[] {
+    const legacyEntityType = response?.result?.entityType
+    const legacyEntityCodes = Array.isArray(response?.result?.entityCode) ? response.result.entityCode : []
+    const entityList = Array.isArray(response?.result?.entity) ? response.result.entity : []
+    const blocks: any[] = [...entityList]
+
+    if (legacyEntityType || legacyEntityCodes.length) {
+      blocks.push({
+        entityType: legacyEntityType,
+        entityCode: legacyEntityCodes,
+      })
+    }
+
+    return blocks
   }
 
   private isMeaningfulApiMessage(message: string | undefined): boolean {
@@ -426,7 +555,6 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
       ? `Affected Codes: ${affectedCodes.join(', ')}`
       : undefined
 
-    const detailsParts = [responseCode, paramsStatus, affectedCodesDetails].filter(Boolean)
     const message = this.isMeaningfulApiMessage(apiMessage)
       ? apiMessage!.trim()
       : (affectedCodes.length ? 'Duplicate entry found.' : 'Upload failed. Please verify your file and try again.')
@@ -435,8 +563,34 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
       type: 'error',
       title: 'Upload Failed',
       message,
-      errorDetails: detailsParts.length ? detailsParts.join('\n') : undefined,
+      errorDetails: this.buildErrorDetails(responseCode, paramsStatus, affectedCodesDetails),
     }
+  }
+
+  private buildErrorDetails(responseCode: unknown, paramsStatus: unknown, affectedCodesDetails?: string): string | undefined {
+    const uniqueDetails: string[] = []
+    const seen = new Set<string>()
+
+    const appendIfUnique = (value: unknown): void => {
+      const detail = (value ?? '').toString().trim()
+      if (!detail) {
+        return
+      }
+
+      const normalized = detail.toLowerCase()
+      if (seen.has(normalized)) {
+        return
+      }
+
+      seen.add(normalized)
+      uniqueDetails.push(detail)
+    }
+
+    appendIfUnique(responseCode)
+    appendIfUnique(paramsStatus)
+    appendIfUnique(affectedCodesDetails)
+
+    return uniqueDetails.length ? uniqueDetails.join('\n') : undefined
   }
 
   private normalizeUploadResponse(response: any): any {
@@ -464,6 +618,7 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
       Boolean(response?.params?.errmsg) ||
       Boolean(response?.responseCode) ||
       Boolean(response?.result?.entityCode) ||
+      Array.isArray(response?.result?.entity) ||
       Array.isArray(response?.result)
 
     if (looksLikeUploadPayload) {
@@ -487,6 +642,7 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
         normalizedCandidate?.params?.errmsg ||
         normalizedCandidate?.responseCode ||
         normalizedCandidate?.result?.entityCode ||
+        Array.isArray(normalizedCandidate?.result?.entity) ||
         Array.isArray(normalizedCandidate?.result)
       ) {
         return normalizedCandidate
@@ -564,7 +720,12 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
   }
 
   /** Show result modal (success or error) */
-  private showResultModal(data: UploadResultData, refreshOnClose = false): void {
+  private showResultModal(
+    data: UploadResultData,
+    refreshOnClose = false,
+    redirectOnClose = false,
+    redirectToUrl?: string,
+  ): void {
     const dialogRef = this.dialog.open(UploadResultModalComponent, {
       width: '400px',
       disableClose: true,
@@ -573,11 +734,57 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
     })
 
     dialogRef.afterClosed().pipe(takeUntil(this.destroy$)).subscribe(() => {
+      if (redirectToUrl && data.type === 'success') {
+        this.router.navigateByUrl(redirectToUrl)
+        return
+      }
+
+      if (redirectOnClose && data.type === 'success') {
+        this.router.navigateByUrl('/app/home/frac/dashboard')
+        return
+      }
+
       if (!refreshOnClose) {
         return
       }
       this.triggerSearch('icon')
     })
+  }
+
+  onHomeClick(): void {
+    if (this.isUpdating) {
+      return
+    }
+
+    if (!this.isEditing) {
+      this.router.navigateByUrl('/app/home/frac/dashboard')
+      return
+    }
+
+    const dialogRef = this.dialog.open(UnsavedChangesModalComponent, {
+      width: '363px',
+      maxWidth: '92vw',
+      disableClose: true,
+      panelClass: 'unsaved-changes-dialog',
+      data: {
+        title: 'You Have Unsaved Changes',
+        message: 'You’re about to return to the home screen. Any unsaved changes will be lost.',
+        continueLabel: 'Continue',
+        cancelLabel: 'Cancel',
+      },
+    })
+
+    dialogRef.afterClosed()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((action: 'continue' | 'cancel' | undefined) => {
+        if (action === 'continue') {
+          this.router.navigateByUrl('/app/home/frac/dashboard')
+        }
+      })
+  }
+
+  isFilterControlsDisabled(): boolean {
+    return this.isUploading || this.routeMode === 'upload'
   }
 
 }

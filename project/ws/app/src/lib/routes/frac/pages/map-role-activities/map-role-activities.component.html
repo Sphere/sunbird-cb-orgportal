@@ -1,5 +1,5 @@
 <div class="header-container">
-  <button routerLink="/app/home/frac/dashboard" class="home-chip" type="button" aria-label="Go to FRAC dashboard">
+  <button class="home-chip" type="button" aria-label="Go to FRAC dashboard" (click)="onHomeClick()">
     <img src="https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/icons/home-frac.svg" alt="home"
       class="home-icon" />
     <span class="home-label">Home</span>
@@ -57,19 +57,19 @@
   <div class="content-layout">
     <!-- LEFT – ROLES PANEL -->
     <div class="roles-panel">
-      <app-role-mapping-list [roles]="filteredRoles" (searchChange)="onRoleSearch($event)"
+      <app-role-mapping-list [roles]="filteredRoles" [isLoading]="isRolesLoading"
+        [selectedRoleCode]="selectedRole?.code || null"
+        (searchChange)="onRoleSearch($event)"
         (roleSelected)="onRoleSelected($event)" (toggle)="onRoleToggleExpand($event)">
       </app-role-mapping-list>
     </div>
 
     <!-- RIGHT – ACTIVITIES PANEL -->
     <div class="activities-panel">
-      <div class="mapping-load-overlay" *ngIf="isRoleMappingLoading">
-        <mat-spinner [diameter]="36" [strokeWidth]="4"></mat-spinner>
-        <p>Loading existing mapping...</p>
-      </div>
       <app-activity-mapping-table [activities]="filteredActivities" [selectedRole]="selectedRole"
-        [selectedActivityMap]="selectedActivityMap" (searchChange)="onActivitySearch($event)"
+        [selectedActivityMap]="selectedActivityMap" [isLoading]="isRoleMappingLoading || isActivitiesLoading"
+        [isActionLoading]="isValidatingActivityMappings"
+        (searchChange)="onActivitySearch($event)"
         (activityCheckChange)="onActivityCheckChanged($event)" (addActivity)="onAddActivityToRole()">
       </app-activity-mapping-table>
     </div>

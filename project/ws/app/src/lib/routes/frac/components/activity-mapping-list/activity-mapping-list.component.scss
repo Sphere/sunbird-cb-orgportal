@@ -104,8 +104,8 @@
   border-radius: 16px;
   padding: 24px;
   margin-top: 8px;
-  border: 1px solid #1C5C95;
-  box-shadow: 0px 0px 4px rgba(0,0,0,0.25);
+  border: 1px solid transparent;
+  box-shadow: none;
 }
 
 /* Header row */
@@ -165,6 +165,42 @@
 
 /* Selected */
 .selected {
-  background: #e3e8ed;
+  background: transparent;
   border-radius: 16px;
+
+  .expanded-card {
+    border-color: #1c5c95;
+    outline: 1px solid #1c5c95;
+    outline-offset: -1px;
+  }
+}
+
+.shimmer-item .expanded-card {
+  display: grid;
+  gap: 12px;
+}
+
+.shimmer-line {
+  height: 14px;
+  border-radius: 8px;
+  background: linear-gradient(90deg, #e9eff6 25%, #dfe8f3 37%, #e9eff6 63%);
+  background-size: 400% 100%;
+  animation: shimmer 1.2s ease-in-out infinite;
+}
+
+.shimmer-line.code {
+  width: 25%;
+}
+
+.shimmer-line.title {
+  width: 80%;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
 }

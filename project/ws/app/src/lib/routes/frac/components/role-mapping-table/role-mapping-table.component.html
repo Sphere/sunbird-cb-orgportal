@@ -22,29 +22,44 @@
       <div class="search-row">
         <div class="search-cell">
           <div class="search-box">
-            <input placeholder="Search by name, code" [(ngModel)]="searchTerm" (input)="onSearchChange()" />
+            <input placeholder="Search by name, code" [(ngModel)]="searchTerm"
+              [disabled]="!selectedRole" (input)="onSearchChange()" />
             <mat-icon>search</mat-icon>
           </div>
         </div>
       </div>
 
       <!-- table rows -->
-      <div class="rows-wrapper">
-        <div class="position-row" *ngFor="let p of filteredPositions">
-          <div class="check-cell">
-            <mat-checkbox [checked]="isChecked(p.code)" (change)="onCheckboxChange(p.code, $event.checked)">
-            </mat-checkbox>
+      <div class="rows-wrapper" [class.loading]="isLoading">
+        <ng-container *ngIf="isLoading">
+          <div class="shimmer-state">
+            <div class="position-row shimmer-row" *ngFor="let _ of [1, 2, 3, 4, 5]">
+              <div class="check-cell">
+                <div class="shimmer-box checkbox"></div>
+              </div>
+              <div class="text-cell">
+                <div class="shimmer-box text"></div>
+              </div>
+            </div>
           </div>
-          <div class="text-cell">
-            {{ p.code }}- {{ p.title }}
+        </ng-container>
+
+        <ng-container *ngIf="!isLoading">
+          <div class="position-row" *ngFor="let p of filteredPositions">
+            <div class="check-cell">
+              <mat-checkbox [checked]="isChecked(p.code)" (change)="onCheckboxChange(p.code, $event.checked)">
+              </mat-checkbox>
+            </div>
+            <div class="text-cell">
+              {{ p.code }}- {{ p.title }}
+            </div>
           </div>
-        </div>
+        </ng-container>
       </div>
 
-      <div *ngIf="filteredPositions.length === 0" class="no-data">
+      <div *ngIf="!isLoading && filteredPositions.length === 0" class="no-data">
         <div class="no-data-text">
-          <span *ngIf="positions.length === 0">Please select a position/search to view available roles.</span>
-          <span *ngIf="positions.length > 0">No roles found matching your search.</span>
+          <span>{{ emptyStateMessage }}</span>
         </div>
       </div>
 

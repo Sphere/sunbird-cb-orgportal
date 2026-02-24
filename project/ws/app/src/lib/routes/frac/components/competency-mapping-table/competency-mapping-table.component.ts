@@ -21,6 +21,7 @@ export class CompetencyMappingTableComponent implements OnInit, OnChanges {
 
   @Input() levels: string[] = ['L1', 'L2', 'L3', 'L4', 'L5'];
   @Input() selectedActivity: any = null;
+  @Input() isLoading = false;
 
   /* ---------------------------
      Output events to parent
@@ -31,32 +32,38 @@ export class CompetencyMappingTableComponent implements OnInit, OnChanges {
 
   searchTerm = '';
   filteredCompetencies: any[] = [];
+  displayLevels: string[] = ['L1', 'L2', 'L3', 'L4', 'L5'];
 
   ngOnInit() {
     this.filteredCompetencies = [...this.competencies]
-
-    // Set dynamic grid column count based on levels
-    document.documentElement.style.setProperty(
-      '--level-count',
-      this.levels.length.toString()
-    )
+    this.syncDisplayLevels()
   }
 
   ngOnChanges() {
     this.filteredCompetencies = [...this.competencies]
+    this.syncDisplayLevels()
+  }
 
-    if (this.levels?.length) {
-      document.documentElement.style.setProperty(
-        '--level-count',
-        this.levels.length.toString()
-      )
-    }
+  private syncDisplayLevels(): void {
+    const defaultLevels = ['L1', 'L2', 'L3', 'L4', 'L5']
+    const normalizedIncomingLevels = (this.levels || [])
+      .map(level => (level || '').toString().trim().toUpperCase())
+      .filter(level => /^L\d+$/.test(level))
+
+    const extraLevels = normalizedIncomingLevels.filter(level => !defaultLevels.includes(level))
+    this.displayLevels = [...defaultLevels, ...extraLevels]
+
+    // Keep grid columns aligned with rendered level cells.
+    document.documentElement.style.setProperty('--level-count', this.displayLevels.length.toString())
   }
 
   /* --------------------------------
      Send search input to parent
   -------------------------------- */
   onSearchChange() {
+    if (!this.selectedActivity) {
+      return
+    }
     this.searchChange.emit(this.searchTerm)
   }
 

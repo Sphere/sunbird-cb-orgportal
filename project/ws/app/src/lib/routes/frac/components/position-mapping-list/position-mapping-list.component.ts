@@ -8,15 +8,17 @@ import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChange
 export class PositionMappingListComponent implements OnInit, OnChanges {
 
   @Input() roles: any[] = []
+  @Input() isLoading = false
+  @Input() selectedPositionCode: string | null = null
 
   @Output() searchChange = new EventEmitter<string>()
+  @Output() searchSubmit = new EventEmitter<string>()
   @Output() roleSelected = new EventEmitter<any>()
   @Output() toggle = new EventEmitter<any>()
 
   searchTerm = ''
   filteredRoles: any[] = []
-  selectedRole: any = null
-  expanded: any = null
+  expandedPositionCode: string | null = null
 
   ngOnInit(): void {
     this.filteredRoles = [...this.roles]
@@ -29,18 +31,33 @@ export class PositionMappingListComponent implements OnInit, OnChanges {
   }
 
   onSearchChange(): void {
-
     this.searchChange.emit(this.searchTerm)
   }
 
+  onSearchSubmit(): void {
+    this.searchSubmit.emit(this.searchTerm)
+  }
+
+  onHeaderClick(item: any, event: MouseEvent): void {
+    event.stopPropagation()
+    const itemCode = item?.code || null
+    if (itemCode && itemCode !== this.selectedPositionCode) {
+      this.roleSelected.emit(item)
+    }
+    this.expand(item)
+  }
+
   expand(item: any): void {
-    this.expanded = this.expanded === item ? null : item
+    const nextCode = item?.code || null
+    this.expandedPositionCode = this.expandedPositionCode === nextCode ? null : nextCode
     this.toggle.emit(item)
   }
 
   roleSelectedHandler(r: any): void {
-    this.selectedRole = r
     this.roleSelected.emit(r)
   }
-}
 
+  trackByCode(index: number, item: any): string {
+    return item?.code || `${index}`
+  }
+}

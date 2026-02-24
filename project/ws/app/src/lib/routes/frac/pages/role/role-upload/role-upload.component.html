@@ -1,13 +1,13 @@
 <!-- Top Navigation Bar -->
 <div class="header-container">
-  <button routerLink="/app/home/frac/dashboard" class="home-chip" type="button" aria-label="Go to FRAC dashboard">
+  <button class="home-chip" type="button" aria-label="Go to FRAC dashboard" (click)="onHomeClick()">
     <img src="https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/icons/home-frac.svg" alt="home"
       class="home-icon" />
     <span class="home-label">Home</span>
   </button>
 
-  <button class="save-btn" (click)="onSaveClicked()" [disabled]="!isEditing || !hasTableData()">
-    <span style="color: white;">Save</span>
+  <button class="save-btn" (click)="onSaveClicked()" [disabled]="!isEditing || !hasTableData() || isUpdating">
+    <span style="color: white;">{{ isUpdating ? 'Saving...' : 'Save' }}</span>
   </button>
 </div>
 
@@ -15,7 +15,7 @@
 <div class="upload-container">
   <!-- Page Header -->
   <div class="header">
-    <button class="back-button" routerLink="/app/home/frac/dashboard" type="button" aria-label="Back to home">
+    <button class="back-button" type="button" aria-label="Back to home" (click)="onHomeClick()">
       <img src="https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/icons/frac-left-arrow.svg" alt="back"
         class="back-icon" />
     </button>
@@ -32,16 +32,18 @@
     <!-- Left Tools: Search & Language Filter -->
     <div class="left-tools">
       <!-- Search Box -->
-      <div class="search-box">
+      <div class="search-box" [class.disabled]="isFilterControlsDisabled()">
         <input matInput type="text" placeholder="Search by name, code" [(ngModel)]="searchTerm"
+          [disabled]="isFilterControlsDisabled()"
           (input)="onSearchTermChange()" (keydown.enter)="onSearchEnter()" />
-        <button mat-icon-button matSuffix class="icon-btn" (click)="onSearch()">
+        <button mat-icon-button matSuffix class="icon-btn" (click)="onSearch()"
+          [disabled]="isFilterControlsDisabled()">
           <mat-icon>search</mat-icon>
         </button>
       </div>
 
       <!-- Language Dropdown -->
-      <div class="language-dropdown" (click)="toggleDropdown()">
+      <div class="language-dropdown" [class.disabled]="isFilterControlsDisabled()" (click)="toggleDropdown()">
         <div class="dropdown-main">
           <div class="label-container">
             <div class="label">Language</div>
@@ -52,7 +54,7 @@
           </div>
         </div>
 
-        <div class="dropdown-list" *ngIf="isOpen" (click)="$event.stopPropagation()">
+        <div class="dropdown-list" *ngIf="isOpen && !isFilterControlsDisabled()" (click)="$event.stopPropagation()">
           <div class="dropdown-item" *ngFor="let lang of languages" (click)="selectLanguage(lang, $event)">
             {{ lang }}
           </div>
@@ -101,16 +103,10 @@
   </div>
 
   <div class="table-section">
-    <div class="table-loading-overlay" *ngIf="isSearching && !isUploading">
-      <div class="table-loader-content">
-        <mat-spinner [diameter]="36" [strokeWidth]="4"></mat-spinner>
-        <p>Loading table data...</p>
-      </div>
-    </div>
-
     <!-- Role Table Component: Reusing upload-activity-list-table as generic table -->
     <app-upload-activity-list-table [columns]="tableConfig.columns" [data]="tableConfig.data" [showCheckbox]="true"
       [enableSorting]="true" [enablePagination]="false" [gridStyle]="'both'" [isEditing]="isEditing"
+      [isLoading]="isSearching && routeMode === 'manage'"
       (selectionChange)="onSelectionChange($event)">
     </app-upload-activity-list-table>
   </div>

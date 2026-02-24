@@ -683,3 +683,19 @@ h3.shepherd-title {
   padding: 16px !important;
   border-radius: 40px !important;
 }
+
+/* FRAC upload result popup: enforce radius on Material dialog surface */
+.cdk-overlay-pane.upload-result-dialog .mat-mdc-dialog-container,
+.upload-result-dialog .mat-mdc-dialog-container {
+  padding: 0 !important;
+  --mdc-dialog-container-shape: 18px !important;
+}
+
+.cdk-overlay-pane.upload-result-dialog .mat-mdc-dialog-surface,
+.cdk-overlay-pane.upload-result-dialog .mdc-dialog__surface,
+.upload-result-dialog .mat-mdc-dialog-surface,
+.upload-result-dialog .mdc-dialog__surface {
+  border-radius: 18px !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+}

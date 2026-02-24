@@ -1,5 +1,5 @@
 <div class="header-container">
-  <button routerLink="/app/home/frac/dashboard" class="home-chip" type="button" aria-label="Go to FRAC dashboard">
+  <button class="home-chip" type="button" aria-label="Go to FRAC dashboard" (click)="onHomeClick()">
     <img src="https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/icons/home-frac.svg" alt="home"
       class="home-icon" />
     <span class="home-label">Home</span>
@@ -51,15 +51,18 @@
 
   <div class="content-layout">
     <div class="activities-panel">
-      <app-activity-mapping-list [activities]="filteredActivities" (searchChange)="onActivitySearch($event)"
+      <app-activity-mapping-list [activities]="filteredActivities" [isLoading]="isActivitiesLoading"
+        [selectedActivityCode]="selectedActivity?.code || null"
+        (searchChange)="onActivitySearch($event)"
         (activitySelected)="onActivitySelected($event)" (toggle)="expand($event)">
       </app-activity-mapping-list>
     </div>
 
     <div class="competency-panel">
       <app-competency-mapping-table [competencies]="competencies" [selectedActivity]="selectedActivity"
-        [selectedMap]="selectedMap" (checked)="onCheck($event)" (searchChange)="onCompetencySearch($event)"
-        (addCompetency)="onAddCompetencyToActivity($event)">
+        [selectedMap]="selectedMap" [isLoading]="isActivityMappingLoading || isCompetenciesLoading"
+        (checked)="onCheck($event)" (searchChange)="onCompetencySearch($event)"
+        (addCompetency)="onAddCompetencyToActivity()">
       </app-competency-mapping-table>
     </div>
   </div>

@@ -54,6 +54,8 @@ import { MapRolePositionComponent } from './pages/map-role-position/map-role-pos
 import { RoleMappingTableComponent } from './components/role-mapping-table/role-mapping-table.component'
 import { PositionMappingListComponent } from './components/position-mapping-list/position-mapping-list.component'
 import { UploadResultModalComponent } from './components/upload-result-modal/upload-result-modal.component'
+import { MappingRequiredModalComponent } from './components/mapping-required-modal/mapping-required-modal.component'
+import { UnsavedChangesModalComponent } from './components/unsaved-changes-modal/unsaved-changes-modal.component'
 
 
 @NgModule({
@@ -88,6 +90,8 @@ import { UploadResultModalComponent } from './components/upload-result-modal/upl
     PositionMappingListComponent,
     RoleMappingTableComponent,
     UploadResultModalComponent,
+    MappingRequiredModalComponent,
+    UnsavedChangesModalComponent,
   ],
   imports: [
     CommonModule,

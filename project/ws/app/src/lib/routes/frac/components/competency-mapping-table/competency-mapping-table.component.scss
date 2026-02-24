@@ -254,6 +254,36 @@
   text-align: center;
 }
 
+.shimmer-row .cell {
+  min-height: 44px;
+}
+
+.shimmer-box {
+  height: 16px;
+  border-radius: 8px;
+  background: linear-gradient(90deg, #e9eff6 25%, #dfe8f3 37%, #e9eff6 63%);
+  background-size: 400% 100%;
+  animation: shimmer 1.2s ease-in-out infinite;
+}
+
+.shimmer-box.text {
+  width: 80%;
+}
+
+.shimmer-box.checkbox {
+  width: 18px;
+  height: 18px;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}
+
 .competency-mapping-table {
   min-height: 600px;
   height: 100%;

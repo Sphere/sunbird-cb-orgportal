@@ -2,6 +2,9 @@ import {
   Component,
   Input,
   ViewChild,
+  ViewChildren,
+  ElementRef,
+  QueryList,
   OnChanges,
   SimpleChanges,
   AfterViewInit,
@@ -39,6 +42,7 @@ export class UploadCompetencyListTableComponent implements OnChanges, AfterViewI
   @Input() gridStyle: GridStyle = 'horizontal'
   @Input() isEditing = false
   @Input() editRows: any[] = []
+  @Input() isLoading = false
 
   // ============= OUTPUTS =============
 
@@ -79,6 +83,9 @@ export class UploadCompetencyListTableComponent implements OnChanges, AfterViewI
 
   @ViewChild(MatPaginator) paginator!: MatPaginator
   @ViewChild(MatSort) sort!: MatSort
+  @ViewChildren('headerCell', { read: ElementRef }) headerCells!: QueryList<ElementRef<HTMLElement>>
+
+  loadingColumnWidths: number[] = []
 
   // ============= LIFECYCLE HOOKS =============
 
@@ -97,6 +104,8 @@ export class UploadCompetencyListTableComponent implements OnChanges, AfterViewI
       this.selection.clear()
       this.selectionChange.emit([])
     }
+
+    this.scheduleLoadingWidthSync()
   }
 
   ngAfterViewInit() {
@@ -105,7 +114,15 @@ export class UploadCompetencyListTableComponent implements OnChanges, AfterViewI
         this.dataSource.paginator = this.paginator
       if (this.enableSorting && this.sort)
         this.dataSource.sort = this.sort
+      this.syncLoadingColumnWidths()
     })
+
+    this.headerCells?.changes.subscribe(() => this.syncLoadingColumnWidths())
+  }
+
+  getLoadingCellWidth(index: number): number | null {
+    const width = this.loadingColumnWidths[index]
+    return width && width > 0 ? width : null
   }
 
   // ============= GET ACTIVE COLUMNS =============
@@ -192,5 +209,19 @@ export class UploadCompetencyListTableComponent implements OnChanges, AfterViewI
     const availableHeight = containerHeight - headerHeight - dataRowsHeight
     const numEmptyRows = Math.ceil(availableHeight / rowHeight)
     return numEmptyRows > 0 ? new Array(numEmptyRows).fill(null) : []
+  }
+
+  private scheduleLoadingWidthSync(): void {
+    setTimeout(() => this.syncLoadingColumnWidths())
+  }
+
+  private syncLoadingColumnWidths(): void {
+    if (!this.headerCells || !this.headerCells.length) {
+      return
+    }
+
+    this.loadingColumnWidths = this.headerCells
+      .toArray()
+      .map(cell => Math.round(cell.nativeElement.getBoundingClientRect().width))
   }
 }

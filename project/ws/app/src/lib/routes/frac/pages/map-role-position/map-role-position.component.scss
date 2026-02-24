@@ -240,3 +240,11 @@
   color: #1c5d95;
   font-family: Roboto, sans-serif;
 }
+
+:host ::ng-deep .unsaved-changes-dialog .mat-mdc-dialog-surface {
+  padding: 0;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #ffffff;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.15);
+}

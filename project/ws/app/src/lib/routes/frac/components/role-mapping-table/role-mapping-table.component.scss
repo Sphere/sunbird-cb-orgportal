@@ -146,6 +146,16 @@
   margin-top: 0;
 }
 
+.rows-wrapper.loading {
+  min-height: 320px;
+  display: flex;
+  align-items: center;
+}
+
+.shimmer-state {
+  width: 100%;
+}
+
 .position-row {
   display: grid;
   grid-template-columns: 40px 1fr;
@@ -193,6 +203,39 @@
   justify-content: center;
   align-items: center;
   width: 100%;
+}
+
+.shimmer-row .check-cell,
+.shimmer-row .text-cell {
+  min-height: 52px;
+}
+
+.shimmer-box {
+  height: 16px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #e9eff6 25%, #dfe8f3 37%, #e9eff6 63%);
+  background-size: 400% 100%;
+  animation: shimmer 1.2s ease-in-out infinite;
+}
+
+.shimmer-box.checkbox {
+  width: 16px;
+  height: 16px;
+  border-radius: 2px;
+}
+
+.shimmer-box.text {
+  width: 88%;
+  height: 14px;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
 }
 
 /* checkbox tweaks */

@@ -1,13 +1,13 @@
 import { Component } from '@angular/core'
 import { MatDialog } from '@angular/material/dialog'
-import { ActivatedRoute } from '@angular/router'
+import { ActivatedRoute, Router } from '@angular/router'
 import { FracUploadPopupComponent } from '../../../components/frac-upload/frac-upload-popup.component'
 import { UploadPopupConfig, UploadPopupResult } from '../../../models/upload-popup-config.model'
 import { UploadResultModalComponent, UploadResultData } from '../../../components/upload-result-modal/upload-result-modal.component'
+import { UnsavedChangesModalComponent } from '../../../components/unsaved-changes-modal/unsaved-changes-modal.component'
 import { ITableConfig, TableTransformUtil } from '../../../utils/table-transform.util'
 import { FracApiService } from '../../../services/frac-api.service'
-import { transformCompetencyForUpdate } from '../../../utils/common.util'
-import { merge, Subject, Subscription } from 'rxjs'
+import { forkJoin, merge, Subject, Subscription } from 'rxjs'
 import { debounceTime, distinctUntilChanged, filter, takeUntil } from 'rxjs/operators'
 
 type SearchSource = 'typing' | 'icon' | 'enter' | 'language' | 'init'
@@ -28,7 +28,8 @@ export class CompetencyUploadComponent {
     private dialog: MatDialog,
     private fracApiService: FracApiService,
     private tableTransformUtil: TableTransformUtil,
-    private activatedRoute: ActivatedRoute
+    private activatedRoute: ActivatedRoute,
+    private router: Router,
   ) { }
 
   // ============= STATE VARIABLES =============
@@ -46,6 +47,7 @@ export class CompetencyUploadComponent {
   uploadProgress = 0
   isUploading = false  // ✅ Track loading state for local spinner
   isSearching = false
+  isUpdating = false
   apiResponse: any = null  // Store actual API response instead of hardcoded data
   // ============= TABLE CONFIGURATION =============
   tableConfig: ITableConfig = { columns: [], data: [] }
@@ -105,15 +107,24 @@ export class CompetencyUploadComponent {
   }
   /** 🔹 Called when user types */
   onSearchTermChange(): void {
+    if (this.isFilterControlsDisabled()) {
+      return
+    }
     this.triggerSearch('typing')
   }
 
   /** 🔹 Manual search trigger (Enter key / icon click) */
   onSearch(): void {
+    if (this.isFilterControlsDisabled()) {
+      return
+    }
     this.triggerSearch('icon')
   }
 
   onSearchEnter(): void {
+    if (this.isFilterControlsDisabled()) {
+      return
+    }
     this.triggerSearch('enter')
   }
 
@@ -176,19 +187,60 @@ export class CompetencyUploadComponent {
       paramsStatus === 'created' ||
       paramsStatus === '201 created'
 
-    return Boolean(
-      hasSuccessStatus &&
-      normalizedResponse?.result?.entityType?.toLowerCase() === 'competency' &&
-      Array.isArray(normalizedResponse?.result?.entityCode)
-    )
+    return hasSuccessStatus && this.getUploadedEntityCodes(normalizedResponse, 'competency').length > 0
   }
 
   private extractAffectedCodes(response: any): string[] {
     const normalizedResponse = this.normalizeUploadResponse(response)
+    const uploadedCodes = this.getUploadedEntityCodes(normalizedResponse)
+    if (uploadedCodes.length) {
+      return uploadedCodes
+    }
+
     const entries = Array.isArray(normalizedResponse?.result) ? normalizedResponse.result : []
     return entries
       .map((item: any) => item?.code)
       .filter((code: any) => Boolean(code))
+  }
+
+  private getUploadedEntityCodes(response: any, expectedEntityType?: string): string[] {
+    const normalizedResponse = this.normalizeUploadResponse(response)
+    const entityBlocks = this.getUploadEntityBlocks(normalizedResponse)
+    const expectedType = (expectedEntityType || '').toLowerCase()
+    const collectedCodes: string[] = []
+
+    entityBlocks.forEach((item: any) => {
+      const entityType = (item?.entityType || '').toString().toLowerCase()
+      if (expectedType && entityType !== expectedType) {
+        return
+      }
+
+      const entityCodes = Array.isArray(item?.entityCode) ? item.entityCode : []
+      entityCodes.forEach((code: any) => {
+        const normalizedCode = (code ?? '').toString().trim()
+        if (normalizedCode) {
+          collectedCodes.push(normalizedCode)
+        }
+      })
+    })
+
+    return collectedCodes
+  }
+
+  private getUploadEntityBlocks(response: any): any[] {
+    const legacyEntityType = response?.result?.entityType
+    const legacyEntityCodes = Array.isArray(response?.result?.entityCode) ? response.result.entityCode : []
+    const entityList = Array.isArray(response?.result?.entity) ? response.result.entity : []
+    const blocks: any[] = [...entityList]
+
+    if (legacyEntityType || legacyEntityCodes.length) {
+      blocks.push({
+        entityType: legacyEntityType,
+        entityCode: legacyEntityCodes,
+      })
+    }
+
+    return blocks
   }
 
   private isMeaningfulApiMessage(message: string | undefined): boolean {
@@ -196,7 +248,17 @@ export class CompetencyUploadComponent {
     if (!normalized) {
       return false
     }
-    return normalized !== 'error' && normalized !== 'failed'
+    return !this.isGenericFailureText(normalized)
+  }
+
+  private isGenericFailureText(text: string): boolean {
+    const normalized = (text || '').trim().toLowerCase()
+    return (
+      normalized === 'error' ||
+      normalized === 'failed' ||
+      normalized === 'bad request' ||
+      normalized === 'request failed'
+    )
   }
 
   private createUploadFailureModalData(response: any): UploadResultData {
@@ -218,7 +280,6 @@ export class CompetencyUploadComponent {
       ? `Affected Codes: ${affectedCodes.join(', ')}`
       : undefined
 
-    const detailsParts = [responseCode, paramsStatus, affectedCodesDetails].filter(Boolean)
     const message = this.isMeaningfulApiMessage(apiMessage)
       ? apiMessage!.trim()
       : (affectedCodes.length ? 'Duplicate entry found.' : 'Upload failed. Please verify your file and try again.')
@@ -227,8 +288,38 @@ export class CompetencyUploadComponent {
       type: 'error',
       title: 'Upload Failed',
       message,
-      errorDetails: detailsParts.length ? detailsParts.join('\n') : undefined,
+      errorDetails: this.buildErrorDetails(responseCode, paramsStatus, affectedCodesDetails),
     }
+  }
+
+  private buildErrorDetails(responseCode: unknown, paramsStatus: unknown, affectedCodesDetails?: string): string | undefined {
+    const uniqueDetails: string[] = []
+    const seen = new Set<string>()
+
+    const appendIfUnique = (value: unknown): void => {
+      const detail = (value ?? '').toString().trim()
+      if (!detail) {
+        return
+      }
+
+      const normalized = detail.toLowerCase()
+      if (this.isGenericFailureText(normalized)) {
+        return
+      }
+
+      if (seen.has(normalized)) {
+        return
+      }
+
+      seen.add(normalized)
+      uniqueDetails.push(detail)
+    }
+
+    appendIfUnique(responseCode)
+    appendIfUnique(paramsStatus)
+    appendIfUnique(affectedCodesDetails)
+
+    return uniqueDetails.length ? uniqueDetails.join('\n') : undefined
   }
 
   private normalizeUploadResponse(response: any): any {
@@ -256,6 +347,8 @@ export class CompetencyUploadComponent {
     const looksLikeUploadPayload =
       Boolean(response?.params?.errmsg) ||
       Boolean(response?.responseCode) ||
+      Boolean(response?.result?.entityCode) ||
+      Array.isArray(response?.result?.entity) ||
       Array.isArray(response?.result)
 
     if (looksLikeUploadPayload) {
@@ -278,6 +371,8 @@ export class CompetencyUploadComponent {
       if (
         normalizedCandidate?.params?.errmsg ||
         normalizedCandidate?.responseCode ||
+        normalizedCandidate?.result?.entityCode ||
+        Array.isArray(normalizedCandidate?.result?.entity) ||
         Array.isArray(normalizedCandidate?.result)
       ) {
         return normalizedCandidate
@@ -341,11 +436,19 @@ export class CompetencyUploadComponent {
 
   /** 🔹 Dropdown toggle */
   toggleDropdown(): void {
+    if (this.isFilterControlsDisabled()) {
+      this.isOpen = false
+      return
+    }
     this.isOpen = !this.isOpen
   }
 
   /** 🔹 On language selection — search immediately */
   selectLanguage(lang: string, event: MouseEvent): void {
+    if (this.isFilterControlsDisabled()) {
+      event.stopPropagation()
+      return
+    }
     event.stopPropagation()
     this.selectedLanguage = lang
     this.isOpen = false
@@ -440,24 +543,125 @@ export class CompetencyUploadComponent {
       return
     }
 
-    this.isEditing = false
-    console.log('💾 Save clicked. Edited Data:', rowsToUpdate)
-    console.log('🧠 Original Row Data:', this.originalRowData)
+    if (this.isUpdating) {
+      return
+    }
 
-    // 🧠 Transform all edited rows into nested structure
-    const updatedCompetencies = transformCompetencyForUpdate(this.originalRowData, rowsToUpdate)
+    const payloads = rowsToUpdate
+      .map(row => this.buildCompetencyUpdatePayload(row))
+      .filter(Boolean) as any[]
 
-    console.log('🟢 Updated Competencies (Multiple Rows):', updatedCompetencies)
+    if (!payloads.length) {
+      console.warn('⚠️ No valid payload generated for selected rows.')
+      return
+    }
 
-    // ✅ Send all updated competencies in one go (bulk update)
-    const payload = { request: updatedCompetencies }
+    this.isUpdating = true
 
-    this.fracApiService.updateEntity(payload).subscribe({
-      next: (res) => console.log('✅ Bulk Update Success:', res),
-      error: (err) => console.error('❌ Update Failed:', err),
+    forkJoin(payloads.map(payload => this.fracApiService.updateEntity(payload))).subscribe({
+      next: () => {
+        this.isUpdating = false
+        this.isEditing = false
+        this.editRows = []
+        this.selectedRows = []
+
+        const successData: UploadResultData = {
+          type: 'success',
+          title: 'Update Successful',
+          message: `${payloads.length} competency ${payloads.length === 1 ? 'record' : 'records'} updated successfully.`,
+          count: payloads.length,
+        }
+        this.showResultModal(successData, false, '/app/home/frac/dashboard')
+      },
+      error: (err) => {
+        this.isUpdating = false
+        console.error('❌ Update Failed:', err)
+
+        const failureData: UploadResultData = {
+          type: 'error',
+          title: 'Update Failed',
+          message:
+            err?.error?.params?.errmsg ||
+            err?.error?.message ||
+            err?.statusText ||
+            err?.message ||
+            'Failed to update competency.',
+          errorDetails: err?.status ? `HTTP Status: ${err.status}` : undefined,
+        }
+        this.showResultModal(failureData, false)
+      },
+    })
+  }
+
+  private buildCompetencyUpdatePayload(row: any): any | null {
+    if (!row?.code) {
+      return null
+    }
+
+    const original = this.originalRowData.find(item => item?.code === row.code) || {}
+    const languageCode = original?.languageCode || this.getLanguageCode(this.selectedLanguage)
+
+    const competencyLevels = this.extractCompetencyLevelsFromRow(row)
+
+    return {
+      entityType: 'Competency',
+      code: row.code,
+      languageCode,
+      name: row.name ?? original?.name ?? '',
+      description: row.description ?? original?.description ?? '',
+      status: row.status ?? original?.status ?? 'Active',
+      area: row.area ?? original?.area ?? '',
+      type: row.type ?? original?.type ?? '',
+      competencyLevels,
+    }
+  }
+
+  private extractCompetencyLevelsFromRow(row: any): any[] {
+    const levelMap: Record<number, { levelNumber: number; levelName: string; levelDescription: string }> = {}
+
+    Object.keys(row || {}).forEach((key) => {
+      const match = key.match(/^level_L(\d+)_(label|description)$/)
+      if (!match) {
+        return
+      }
+
+      const levelNumber = Number(match[1])
+      const fieldType = match[2]
+      if (!Number.isFinite(levelNumber) || levelNumber <= 0) {
+        return
+      }
+
+      if (!levelMap[levelNumber]) {
+        levelMap[levelNumber] = {
+          levelNumber,
+          levelName: '',
+          levelDescription: '',
+        }
+      }
+
+      const value = (row[key] ?? '').toString().trim()
+      if (fieldType === 'label') {
+        levelMap[levelNumber].levelName = value
+      } else {
+        levelMap[levelNumber].levelDescription = value
+      }
     })
 
-    this.editRows = []
+    return Object.values(levelMap)
+      .filter(level => level.levelName || level.levelDescription)
+      .sort((a, b) => a.levelNumber - b.levelNumber)
+  }
+
+  private getLanguageCode(language: string): string {
+    const normalized = (language || '').trim().toLowerCase()
+    const languageMap: Record<string, string> = {
+      english: 'en',
+      hindi: 'hi',
+      kannada: 'kn',
+      tamil: 'ta',
+    }
+
+    return languageMap[normalized] || 'en'
   }
 
   onRemoveClicked() {
@@ -476,15 +680,14 @@ export class CompetencyUploadComponent {
     console.log('📋 Remaining Data:', this.tableConfig.data)
   }
   onDownloadTemplate() {
-    // 🔹 Option 1: If the file is stored locally in assets folder
-    // const fileUrl = '/assets/frac/temp.csv' // or .csv
-
-    // 🔹 Option 2: If the file is hosted on S3, use the S3 public URL instead
-    const fileUrl = 'https://aastar-app-assets.s3.ap-south-1.amazonaws.com/final_single_row_questions.xlsx'
+    const languageCode = this.getLanguageCode(this.selectedLanguage)
+    const fileUrl = languageCode === 'hi'
+      ? 'https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/files/sample_competency_hi_list.csv'
+      : 'https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/files/sample_competency_en_list.csv'
 
     const link = document.createElement('a')
     link.href = fileUrl
-    link.download = fileUrl.split('/').pop() || 'template.xlsx'
+    link.download = fileUrl.split('/').pop() || 'sample_competency_en_list.csv'
     link.click()
 
     console.log('📥 Template downloaded from:', fileUrl)
@@ -521,8 +724,9 @@ export class CompetencyUploadComponent {
         this.apiResponse = res
 
         // ✅ Validate new upload response contract
+        const uploadedCodes = this.getUploadedEntityCodes(res, 'competency')
         if (this.isValidUploadSuccessResponse(res)) {
-          const uploadedCount = res?.result?.entityCode?.length || 0
+          const uploadedCount = uploadedCodes.length || res?.result?.count || 0
 
           this.selectedRows = []
           this.editRows = []
@@ -534,7 +738,7 @@ export class CompetencyUploadComponent {
             message: 'Your competency data has been uploaded successfully.',
             count: uploadedCount || 1
           }
-          this.showResultModal(successData, true)
+          this.showResultModal(successData, false, '/app/frac/competency?mode=manage')
         } else {
           console.warn('⚠️ Upload API returned failure payload:', res)
           this.showResultModal(this.createUploadFailureModalData(res), false)
@@ -585,7 +789,7 @@ export class CompetencyUploadComponent {
   }
 
   /** Show result modal (success or error) */
-  private showResultModal(data: UploadResultData, refreshOnClose = false): void {
+  private showResultModal(data: UploadResultData, refreshOnClose = false, redirectToUrl?: string): void {
     const dialogRef = this.dialog.open(UploadResultModalComponent, {
       width: '400px',
       disableClose: true,
@@ -594,6 +798,11 @@ export class CompetencyUploadComponent {
     })
 
     dialogRef.afterClosed().pipe(takeUntil(this.destroy$)).subscribe(() => {
+      if (redirectToUrl && data.type === 'success') {
+        this.router.navigateByUrl(redirectToUrl)
+        return
+      }
+
       if (!refreshOnClose) {
         return
       }
@@ -602,12 +811,48 @@ export class CompetencyUploadComponent {
     })
   }
 
+  onHomeClick(): void {
+    if (this.isUpdating) {
+      return
+    }
+
+    if (!this.isEditing) {
+      this.router.navigateByUrl('/app/home/frac/dashboard')
+      return
+    }
+
+    const dialogRef = this.dialog.open(UnsavedChangesModalComponent, {
+      width: '363px',
+      maxWidth: '92vw',
+      disableClose: true,
+      panelClass: 'unsaved-changes-dialog',
+      data: {
+        title: 'You Have Unsaved Changes',
+        message: 'You’re about to return to the home screen. Any unsaved changes will be lost.',
+        continueLabel: 'Continue',
+        cancelLabel: 'Cancel',
+      },
+    })
+
+    dialogRef.afterClosed()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((action: 'continue' | 'cancel' | undefined) => {
+        if (action === 'continue') {
+          this.router.navigateByUrl('/app/home/frac/dashboard')
+        }
+      })
+  }
+
   /**
    * Check if table has data (not in no-data state)
    * Returns true if table data exists, false if empty
    */
   hasTableData(): boolean {
     return this.tableConfig.data && this.tableConfig.data.length > 0
+  }
+
+  isFilterControlsDisabled(): boolean {
+    return this.isUploading || this.routeMode === 'upload'
   }
 
 }

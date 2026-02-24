@@ -23,44 +23,56 @@
       </div>
 
       <!-- Activity List -->
-      <div class="activity-item" *ngFor="let a of filteredActivities" [class.selected]="selectedActivity === a"
-        (click)="activitySelectedHandler(a)">
-        <div class="expanded-card">
-
-          <!-- Row header -->
-          <div class="header-row" (click)="expand(a)">
-            <div class="exp-code">{{ a.code }}</div>
-            <div class="exp-title">{{ a.title }}</div>
-
-            <!-- Expand arrow (show only when levels are valid) -->
-            <mat-icon *ngIf="a.competencyDetails?.length > 0 && hasValidLevels(a)" class="arrow">
-              {{ expanded === a ? 'expand_less' : 'expand_more' }}
-            </mat-icon>
+      <ng-container *ngIf="isLoading">
+        <div class="activity-item shimmer-item" *ngFor="let _ of [1, 2, 3, 4]">
+          <div class="expanded-card">
+            <div class="shimmer-line code"></div>
+            <div class="shimmer-line title"></div>
           </div>
-
-          <!-- Expanded competency list -->
-          <div *ngIf="expanded === a && hasValidLevels(a)" class="competency-section">
-            <div class="competency-row" *ngFor="let c of a.competencyDetails">
-
-              <!-- Show row only if levels are present -->
-              <ng-container *ngIf="c.levels?.trim()">
-                <div class="rect-lg">
-                  <div class="label">{{ c.code }} - {{ c.label }}</div>
-                </div>
-
-                <div class="rect-sm">
-                  <div class="level">{{ c.levels }}</div>
-                </div>
-              </ng-container>
-
-            </div>
-          </div>
-
         </div>
-      </div>
+      </ng-container>
+
+      <ng-container *ngIf="!isLoading">
+        <div class="activity-item" *ngFor="let a of filteredActivities; trackBy: trackByCode"
+          [class.selected]="selectedActivityCode === a.code"
+          (click)="activitySelectedHandler(a)">
+          <div class="expanded-card">
+
+            <!-- Row header -->
+            <div class="header-row" (click)="expand(a)">
+              <div class="exp-code">{{ a.code }}</div>
+              <div class="exp-title">{{ a.title }}</div>
+
+              <!-- Expand arrow (show only when levels are valid) -->
+              <mat-icon *ngIf="a.competencyDetails?.length > 0 && hasValidLevels(a)" class="arrow">
+                {{ expanded === a ? 'expand_less' : 'expand_more' }}
+              </mat-icon>
+            </div>
+
+            <!-- Expanded competency list -->
+            <div *ngIf="expanded === a && hasValidLevels(a)" class="competency-section">
+              <div class="competency-row" *ngFor="let c of a.competencyDetails">
+
+                <!-- Show row only if levels are present -->
+                <ng-container *ngIf="c.levels?.trim()">
+                  <div class="rect-lg">
+                    <div class="label">{{ c.code }} - {{ c.label }}</div>
+                  </div>
+
+                  <div class="rect-sm">
+                    <div class="level">{{ c.levels }}</div>
+                  </div>
+                </ng-container>
+
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </ng-container>
 
       <!-- Empty state -->
-      <div *ngIf="filteredActivities.length === 0" class="no-data">
+      <div *ngIf="!isLoading && filteredActivities.length === 0" class="no-data">
         Use the search bar to find the activity to map.
       </div>
 

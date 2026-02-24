@@ -1,5 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core'
 import { MatDialog } from '@angular/material/dialog'
+import { Router } from '@angular/router'
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators'
 import { Subject } from 'rxjs'
 import {
@@ -14,6 +15,7 @@ import {
 import { transformActivities, transformCompetencies } from '../../../utils/common.util'
 import { CustomSnackbarService } from '../../../services/custom-snackbar.service'
 import { FracApiService } from '../../../services/frac-api.service'
+import { UnsavedChangesModalComponent } from '../../../components/unsaved-changes-modal/unsaved-changes-modal.component'
 import { UploadResultData, UploadResultModalComponent } from '../../../components/upload-result-modal/upload-result-modal.component'
 
 interface ActivityCompetencyApiRequestItem {
@@ -34,6 +36,7 @@ export class MapActivityCompetenciesComponent implements OnInit, OnDestroy {
     private snackbar: CustomSnackbarService,
     private fracApiService: FracApiService,
     private dialog: MatDialog,
+    private router: Router,
   ) { }
 
   readonly languages = ['English', 'Hindi', 'Kannada', 'Tamil']
@@ -41,6 +44,10 @@ export class MapActivityCompetenciesComponent implements OnInit, OnDestroy {
   isOpen = false
   isEditing = true
   isSaving = false
+  isActivitiesLoading = false
+  isCompetenciesLoading = false
+  isActivityMappingLoading = false
+  hasUnsavedChanges = false
 
   levels: string[] = []
 
@@ -66,6 +73,10 @@ export class MapActivityCompetenciesComponent implements OnInit, OnDestroy {
   private activitySearch$ = new Subject<string>()
   private competencySearch$ = new Subject<string>()
   private destroy$ = new Subject<void>()
+  private readonly activityMappingCache = new Map<string, ActivityCompetencyDetail[]>()
+  private readonly activityDraftStore = new Map<string, ActivityCompetencyDetail[]>()
+  private readonly activityMappedCompetenciesCache = new Map<string, Competency[]>()
+  private activeMappingRequestKey: string | null = null
 
   ngOnInit(): void {
     this.setupSearchStreams()
@@ -112,6 +123,8 @@ export class MapActivityCompetenciesComponent implements OnInit, OnDestroy {
     this.selectedActivity = null
     this.expandedActivity = null
     this.updatedActivities = []
+    this.activeMappingRequestKey = null
+    this.activityDraftStore.clear()
   }
 
   // ---------------------------------------------------------------------------
@@ -119,26 +132,41 @@ export class MapActivityCompetenciesComponent implements OnInit, OnDestroy {
   // ---------------------------------------------------------------------------
 
   private fetchActivities(keyword: string): void {
+    this.isActivitiesLoading = true
     this.fracApiService.searchEntities('activity', keyword, this.selectedLanguage).subscribe({
       next: (res) => {
+        this.isActivitiesLoading = false
         const entityList = this.extractEntityList(res)
         const transformed = transformActivities(entityList)
+        const hydrated = transformed.map((activity) => {
+          const details = this.getHydratedActivityCompetencyDetails(activity.code)
+          return details ? { ...activity, competencyDetails: details } : activity
+        })
 
-        this.activitiesData = transformed
-        this.activities = [...transformed]
-        this.filteredActivities = [...transformed]
+        this.activitiesData = hydrated
+        this.activities = [...hydrated]
+        this.filteredActivities = [...hydrated]
 
         if (this.selectedActivity) {
-          const matchingActivity = transformed.find(a => a.code === this.selectedActivity!.code)
+          const hasSearchKeyword = !!keyword.trim()
+          const matchingActivity = hydrated.find(a => a.code === this.selectedActivity!.code)
           if (!matchingActivity) {
+            if (hasSearchKeyword) {
+              return
+            }
             this.selectedActivity = null
             this.selectedMap = {}
             this.selectedCompetencies = []
             this.clearCompetencies()
+          } else {
+            const typed = matchingActivity as Activity & { competencyDetails?: ActivityCompetencyDetail[] }
+            this.selectedActivity = typed
+            this.applyMappedDetailsToActivity(typed, typed.competencyDetails || [])
           }
         }
       },
       error: (err) => {
+        this.isActivitiesLoading = false
         console.error('Failed to fetch activities', err)
         this.activitiesData = []
         this.activities = []
@@ -148,8 +176,10 @@ export class MapActivityCompetenciesComponent implements OnInit, OnDestroy {
   }
 
   private fetchCompetencies(keyword: string): void {
+    this.isCompetenciesLoading = true
     this.fracApiService.searchEntities('competency', keyword, this.selectedLanguage).subscribe({
       next: (res) => {
+        this.isCompetenciesLoading = false
         const entityList = this.extractEntityList(res)
         const transformed = transformCompetencies(entityList)
 
@@ -159,6 +189,7 @@ export class MapActivityCompetenciesComponent implements OnInit, OnDestroy {
         this.levels = this.extractLevels(transformed)
       },
       error: (err) => {
+        this.isCompetenciesLoading = false
         console.error('Failed to fetch competencies', err)
         this.clearCompetencies()
       },
@@ -185,6 +216,13 @@ export class MapActivityCompetenciesComponent implements OnInit, OnDestroy {
     this.levels = []
   }
 
+  private setMappedCompetencies(competencies: Competency[]): void {
+    this.competencyData = competencies.map(item => ({ ...item, levels: [...(item.levels || [])] }))
+    this.competencies = this.competencyData.map(item => ({ ...item, levels: [...(item.levels || [])] }))
+    this.filteredCompetencies = this.competencyData.map(item => ({ ...item, levels: [...(item.levels || [])] }))
+    this.levels = this.extractLevels(this.competencyData)
+  }
+
   private extractLevels(competencies: Competency[]): string[] {
     if (!competencies.length || !competencies[0].levels) return []
     return competencies[0].levels.map((l: any) => l.level)
@@ -204,23 +242,20 @@ export class MapActivityCompetenciesComponent implements OnInit, OnDestroy {
 
     this.selectedLanguage = lang
     this.isOpen = false
+    this.activeMappingRequestKey = null
 
-    // Re-run activity search in selected language (or keep empty state on no search)
-    if (this.activitySearchTerm) {
-      this.activitySearch$.next(this.activitySearchTerm)
-    } else {
-      this.activitiesData = []
-      this.activities = []
-      this.filteredActivities = []
-      this.selectedActivity = null
-      this.selectedMap = {}
-      this.selectedCompetencies = []
-    }
+    // Re-run activity search in selected language with current query (including empty).
+    this.activitySearch$.next(this.activitySearchTerm)
 
-    // Competency search depends on selected activity and query.
-    if (this.selectedActivity && this.competencySearchTerm) {
-      this.competencySearch$.next(this.competencySearchTerm)
+    if (this.selectedActivity) {
+      if (this.competencySearchTerm) {
+        this.competencySearch$.next(this.competencySearchTerm)
+      } else {
+        this.loadSelectedActivityMappings(this.selectedActivity)
+      }
     } else {
+      this.isCompetenciesLoading = false
+      this.isActivityMappingLoading = false
       this.clearCompetencies()
     }
   }
@@ -236,13 +271,17 @@ export class MapActivityCompetenciesComponent implements OnInit, OnDestroy {
   onActivitySelected(activity: Activity): void {
     if (!activity.code) return
 
+    const nextKey = this.buildMappingCacheKey(activity.code)
+    if (this.selectedActivity?.code === activity.code && this.hasActivityMappings(nextKey)) {
+      return
+    }
+
     const typed = activity as Activity & { competencyDetails?: ActivityCompetencyDetail[] }
     this.selectedActivity = typed
-    this.restoreSelectedMapFromActivity(typed)
-
-    // As requested: competency search depends on selected activity.
-    // Keep competency section in empty state until user searches.
+    this.selectedMap = {}
+    this.selectedCompetencies = []
     this.clearCompetencies()
+    this.loadSelectedActivityMappings(typed)
   }
 
   onActivitySearch(keyword: string): void {
@@ -278,6 +317,170 @@ export class MapActivityCompetenciesComponent implements OnInit, OnDestroy {
     this.transformSelectedCompetencies()
   }
 
+  private buildMappingCacheKey(activityCode: string): string {
+    return `${this.selectedLanguage.trim().toLowerCase()}::${(activityCode || '').trim()}`
+  }
+
+  private loadSelectedActivityMappings(activity: Activity & { competencyDetails?: ActivityCompetencyDetail[] }): void {
+    const requestKey = this.buildMappingCacheKey(activity.code)
+    this.isActivityMappingLoading = true
+
+    if (this.activityDraftStore.has(requestKey)) {
+      const draftDetails = this.activityDraftStore.get(requestKey) || []
+      const cachedCompetencies = this.activityMappedCompetenciesCache.get(requestKey) || []
+      this.setMappedCompetencies(cachedCompetencies)
+      this.applyMappedDetailsToActivity(activity, draftDetails)
+      this.isActivityMappingLoading = false
+      return
+    }
+
+    if (this.activityMappingCache.has(requestKey)) {
+      const cachedDetails = this.activityMappingCache.get(requestKey) || []
+      const cachedCompetencies = this.activityMappedCompetenciesCache.get(requestKey) || []
+      this.setMappedCompetencies(cachedCompetencies)
+      this.applyMappedDetailsToActivity(activity, cachedDetails)
+      this.isActivityMappingLoading = false
+      return
+    }
+
+    if (this.activeMappingRequestKey === requestKey) {
+      this.isActivityMappingLoading = false
+      return
+    }
+
+    this.activeMappingRequestKey = requestKey
+
+    this.fracApiService.searchEntityMapping('activity', activity.code, this.selectedLanguage)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (res) => {
+          this.isActivityMappingLoading = false
+          if (this.activeMappingRequestKey === requestKey) {
+            this.activeMappingRequestKey = null
+          }
+
+          if (this.selectedActivity?.code !== activity.code || this.buildMappingCacheKey(activity.code) !== requestKey) {
+            return
+          }
+
+          const mappedDetails = this.extractMappedCompetencyDetails(res)
+          const mappedCompetencies = this.extractMappedCompetencyRows(res)
+          this.activityMappingCache.set(requestKey, mappedDetails)
+          this.activityMappedCompetenciesCache.set(requestKey, mappedCompetencies)
+          this.setMappedCompetencies(mappedCompetencies)
+          this.applyMappedDetailsToActivity(activity, mappedDetails)
+        },
+        error: (err) => {
+          this.isActivityMappingLoading = false
+          if (this.activeMappingRequestKey === requestKey) {
+            this.activeMappingRequestKey = null
+          }
+          if (this.selectedActivity?.code !== activity.code || this.buildMappingCacheKey(activity.code) !== requestKey) {
+            return
+          }
+
+          console.error('Failed to fetch activity mappings', err)
+          this.applyMappedDetailsToActivity(activity, [])
+        },
+      })
+  }
+
+  private applyMappedDetailsToActivity(
+    activity: Activity & { competencyDetails?: ActivityCompetencyDetail[] },
+    mappedDetails: ActivityCompetencyDetail[],
+  ): void {
+    const normalizedDetails = this.cloneActivityDetails(mappedDetails)
+    activity.competencyDetails = normalizedDetails
+
+    this.activitiesData = this.activitiesData.map((a) =>
+      a.code === activity.code ? { ...a, competencyDetails: this.cloneActivityDetails(normalizedDetails) } : a,
+    )
+
+    this.activities = this.activities.map((a) =>
+      a.code === activity.code ? { ...a, competencyDetails: this.cloneActivityDetails(normalizedDetails) } : a,
+    )
+
+    this.filteredActivities = this.filteredActivities.map((a) =>
+      a.code === activity.code ? { ...a, competencyDetails: this.cloneActivityDetails(normalizedDetails) } : a,
+    )
+
+    if (this.selectedActivity?.code === activity.code) {
+      this.selectedActivity = {
+        ...this.selectedActivity,
+        competencyDetails: this.cloneActivityDetails(normalizedDetails),
+      }
+      this.restoreSelectedMapFromActivity(this.selectedActivity)
+    }
+  }
+
+  private extractMappedCompetencyDetails(response: any): ActivityCompetencyDetail[] {
+    const result = Array.isArray(response?.result) ? response.result : []
+    const first = result[0] || {}
+    const childHierarchy = Array.isArray(first?.childHierarchy) ? first.childHierarchy : []
+
+    return childHierarchy
+      .filter((child: any) => (child?.entityType || '').toLowerCase() === 'competency')
+      .map((child: any) => {
+        const code = (child?.entityCode || '').trim()
+        const label = child?.entityName || ''
+        const competencies = Array.isArray(child?.competencies) ? child.competencies : []
+        const levels = this.formatMappedLevels(competencies)
+
+        return { code, label, levels }
+      })
+      .filter((item: ActivityCompetencyDetail) => !!item.code)
+  }
+
+  private extractMappedCompetencyRows(response: any): Competency[] {
+    const result = Array.isArray(response?.result) ? response.result : []
+    const first = result[0] || {}
+    const childHierarchy = Array.isArray(first?.childHierarchy) ? first.childHierarchy : []
+
+    return childHierarchy
+      .filter((child: any) => (child?.entityType || '').toLowerCase() === 'competency')
+      .map((child: any) => {
+        const code = (child?.entityCode || '').trim()
+        const label = child?.entityName || ''
+        const levelNumbers = this.extractLevelNumbers(child?.competencies)
+
+        return {
+          code,
+          label,
+          levels: levelNumbers.map(level => ({ level: `L${level}`, code })),
+        } as Competency
+      })
+      .filter((item: Competency) => !!item.code)
+  }
+
+  private extractLevelNumbers(levels: any[]): number[] {
+    if (!Array.isArray(levels)) return []
+
+    return Array.from(
+      new Set(
+        levels
+          .map((level: any) => {
+            if (typeof level === 'number' || typeof level === 'string') {
+              return Number(level)
+            }
+            return Number(level?.levelNumber ?? level?.level ?? level?.levelId)
+          })
+          .filter((value: number) => Number.isFinite(value) && value > 0)
+          .sort((a: number, b: number) => a - b),
+      ),
+    )
+  }
+
+  private formatMappedLevels(levels: any[]): string {
+    const normalized = this.extractLevelNumbers(levels)
+
+    if (!normalized.length) return ''
+    if (normalized.length === 5 && normalized.every((value, index) => value === index + 1)) {
+      return 'L1-L5'
+    }
+
+    return normalized.map(level => `L${level}`).join(',')
+  }
+
   // ---------------------------------------------------------------------------
   // Competency Table Events
   // ---------------------------------------------------------------------------
@@ -286,6 +489,7 @@ export class MapActivityCompetenciesComponent implements OnInit, OnDestroy {
     this.competencySearchTerm = keyword.trim()
 
     if (!this.selectedActivity) {
+      this.isCompetenciesLoading = false
       if (this.competencySearchTerm) {
         this.snackbar.warning('Please select at least one activity before searching competency !!')
       }
@@ -358,8 +562,7 @@ export class MapActivityCompetenciesComponent implements OnInit, OnDestroy {
   // Add Competencies to Activity
   // ---------------------------------------------------------------------------
 
-  onAddCompetencyToActivity($event: Event): void {
-    console.log('Add competency event:', $event)
+  onAddCompetencyToActivity(): void {
     if (!this.selectedActivity) {
       this.snackbar.warning('Please select an activity first !!')
       return
@@ -381,6 +584,8 @@ export class MapActivityCompetenciesComponent implements OnInit, OnDestroy {
     this.removeDeselected()
     this.updateOrInsertSelected()
     this.refreshActivitiesState()
+    this.hasUnsavedChanges = true
+    this.snackbar.success('Activity–competency mapping updated successfully.')
   }
 
   private removeDeselected(): void {
@@ -413,11 +618,17 @@ export class MapActivityCompetenciesComponent implements OnInit, OnDestroy {
   private refreshActivitiesState(): void {
     if (!this.selectedActivity) return
 
+    const normalizedDetails = this.cloneActivityDetails(this.selectedActivity.competencyDetails || [])
     const updatedSelectedActivity: Activity & { competencyDetails?: ActivityCompetencyDetail[] } = {
       ...this.selectedActivity,
       code: this.selectedActivity.code,
       title: this.selectedActivity.title,
+      competencyDetails: normalizedDetails,
     }
+
+    this.activitiesData = this.activitiesData.map(a =>
+      a.code === updatedSelectedActivity.code ? updatedSelectedActivity : a,
+    )
 
     this.activities = this.activities.map(a =>
       a.code === updatedSelectedActivity.code ? updatedSelectedActivity : a,
@@ -427,11 +638,17 @@ export class MapActivityCompetenciesComponent implements OnInit, OnDestroy {
       a.code === updatedSelectedActivity.code ? updatedSelectedActivity : a,
     )
 
-    this.updatedActivities = this.activities
-      .filter((a): a is Activity & { competencyDetails: ActivityCompetencyDetail[] } =>
-        !!(a as any).competencyDetails?.length,
-      )
-      .map(a => a as Activity & { competencyDetails: ActivityCompetencyDetail[] })
+    this.selectedActivity = updatedSelectedActivity
+    this.setActivityDraft(updatedSelectedActivity.code, normalizedDetails)
+
+    this.activityMappingCache.set(
+      this.buildMappingCacheKey(this.selectedActivity.code),
+      this.cloneActivityDetails(this.selectedActivity.competencyDetails || []),
+    )
+    this.activityMappedCompetenciesCache.set(
+      this.buildMappingCacheKey(this.selectedActivity.code),
+      this.competencyData.map(item => ({ ...item, levels: [...(item.levels || [])] })),
+    )
   }
 
   // ---------------------------------------------------------------------------
@@ -456,6 +673,9 @@ export class MapActivityCompetenciesComponent implements OnInit, OnDestroy {
     this.fracApiService.mapEntity(payload).subscribe({
       next: (res) => {
         this.isSaving = false
+        this.hasUnsavedChanges = false
+        this.activityDraftStore.clear()
+        this.syncUpdatedActivitiesFromDraftStore()
 
         const mappedPairs = this.extractMappedPairs(res, payload)
         const successData: UploadResultData = {
@@ -464,7 +684,7 @@ export class MapActivityCompetenciesComponent implements OnInit, OnDestroy {
           message: 'Activity to competency mappings were saved successfully.',
           errorDetails: mappedPairs.join('\n'),
         }
-        this.showResultModal(successData)
+        this.showResultModal(successData, true)
       },
       error: (err) => {
         this.isSaving = false
@@ -489,23 +709,27 @@ export class MapActivityCompetenciesComponent implements OnInit, OnDestroy {
   }
 
   private buildPayload(): ActivityCompetencyApiRequestItem[] {
-    const payload: ActivityCompetencyApiRequestItem[] = []
+    const payloadByPair = new Map<string, ActivityCompetencyApiRequestItem>()
 
-    for (const activity of this.updatedActivities) {
-      for (const detail of activity.competencyDetails ?? []) {
-        if (!detail?.code) continue
+    for (const [key, competencyDetails] of this.activityDraftStore.entries()) {
+      const activityCode = this.extractEntityCodeFromMappingKey(key)
+      if (!activityCode) continue
 
-        payload.push({
+      for (const detail of competencyDetails) {
+        const competencyCode = (detail?.code || '').trim()
+        if (!competencyCode) continue
+
+        payloadByPair.set(`${activityCode}::${competencyCode}`, {
           parentEntityType: 'Activity',
-          parentEntityCode: activity.code,
+          parentEntityCode: activityCode,
           childEntityType: 'Competency',
-          childEntityCode: detail.code,
+          childEntityCode: competencyCode,
           competencies: this.extractCompetencyLevels(detail.levels),
         })
       }
     }
 
-    return payload
+    return Array.from(payloadByPair.values())
   }
 
   private extractCompetencyLevels(levels: string): number[] {
@@ -546,6 +770,82 @@ export class MapActivityCompetenciesComponent implements OnInit, OnDestroy {
     this.refreshActivitiesState()
   }
 
+  private hasActivityMappings(key: string): boolean {
+    return this.activityDraftStore.has(key) || this.activityMappingCache.has(key)
+  }
+
+  private cloneActivityDetails(details: ActivityCompetencyDetail[]): ActivityCompetencyDetail[] {
+    return (details || [])
+      .filter((detail) => !!detail?.code)
+      .map((detail) => ({
+        code: detail.code,
+        label: detail.label || '',
+        levels: detail.levels || '',
+      }))
+  }
+
+  private extractEntityCodeFromMappingKey(key: string): string {
+    const separator = '::'
+    const separatorIndex = key.indexOf(separator)
+    if (separatorIndex === -1) {
+      return key
+    }
+
+    return key.slice(separatorIndex + separator.length)
+  }
+
+  private getHydratedActivityCompetencyDetails(activityCode: string): ActivityCompetencyDetail[] | null {
+    const key = this.buildMappingCacheKey(activityCode)
+    const draftDetails = this.activityDraftStore.get(key)
+    if (draftDetails) {
+      return this.cloneActivityDetails(draftDetails)
+    }
+
+    const mappedDetails = this.activityMappingCache.get(key)
+    if (mappedDetails) {
+      return this.cloneActivityDetails(mappedDetails)
+    }
+
+    return null
+  }
+
+  private setActivityDraft(activityCode: string, details: ActivityCompetencyDetail[]): void {
+    const key = this.buildMappingCacheKey(activityCode)
+    const normalizedDetails = this.cloneActivityDetails(details)
+
+    if (normalizedDetails.length) {
+      this.activityDraftStore.set(key, normalizedDetails)
+    } else {
+      this.activityDraftStore.delete(key)
+    }
+
+    this.activityMappingCache.set(key, normalizedDetails)
+    this.syncUpdatedActivitiesFromDraftStore()
+  }
+
+  private syncUpdatedActivitiesFromDraftStore(): void {
+    const activityMap = new Map<string, ActivityCompetencyDetail[]>()
+
+    for (const [key, details] of this.activityDraftStore.entries()) {
+      const activityCode = this.extractEntityCodeFromMappingKey(key)
+      if (!activityCode || !details.length) continue
+      activityMap.set(activityCode, this.cloneActivityDetails(details))
+    }
+
+    this.updatedActivities = Array.from(activityMap.entries()).map(([code, competencyDetails]) => {
+      const metadata =
+        this.activitiesData.find(activity => activity.code === code) ||
+        this.activities.find(activity => activity.code === code) ||
+        this.filteredActivities.find(activity => activity.code === code)
+
+      return {
+        code,
+        title: metadata?.title || code,
+        competencyDetails,
+      }
+    })
+  }
+
   private extractMappedPairs(response: any, fallbackPayload: ActivityCompetencyApiRequestItem[]): string[] {
     const resultArray = Array.isArray(response?.result) ? response.result : []
     const source = resultArray.length ? resultArray : fallbackPayload
@@ -561,12 +861,52 @@ export class MapActivityCompetenciesComponent implements OnInit, OnDestroy {
       .filter(Boolean)
   }
 
-  private showResultModal(data: UploadResultData): void {
-    this.dialog.open(UploadResultModalComponent, {
+  private showResultModal(data: UploadResultData, redirectOnClose = false): void {
+    const dialogRef = this.dialog.open(UploadResultModalComponent, {
       width: '440px',
       disableClose: true,
       panelClass: 'upload-result-dialog',
       data,
     })
+
+    dialogRef.afterClosed()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        if (redirectOnClose && data.type === 'success') {
+          this.router.navigateByUrl('/app/home/frac/dashboard')
+        }
+      })
+  }
+
+  onHomeClick(): void {
+    if (this.isSaving) {
+      return
+    }
+
+    if (!this.hasUnsavedChanges) {
+      this.router.navigateByUrl('/app/home/frac/dashboard')
+      return
+    }
+
+    const dialogRef = this.dialog.open(UnsavedChangesModalComponent, {
+      width: '363px',
+      maxWidth: '92vw',
+      disableClose: true,
+      panelClass: 'unsaved-changes-dialog',
+      data: {
+        title: 'You Have Unsaved Changes',
+        message: 'You’re about to return to the home screen. Any unsaved changes will be lost.',
+        continueLabel: 'Continue',
+        cancelLabel: 'Cancel',
+      },
+    })
+
+    dialogRef.afterClosed()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((action: 'continue' | 'cancel' | undefined) => {
+        if (action === 'continue') {
+          this.router.navigateByUrl('/app/home/frac/dashboard')
+        }
+      })
   }
 }

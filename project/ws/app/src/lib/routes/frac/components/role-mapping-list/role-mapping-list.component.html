@@ -20,32 +20,44 @@
       </div>
 
       <!-- role list -->
-      <div class="role-item" *ngFor="let r of filteredRoles" [class.selected]="selectedRole === r"
-        (click)="roleSelectedHandler(r)">
-        <div class="expanded-card">
-
-          <div class="header-row" (click)="expand(r)">
-            <div class="exp-code">{{ r.code }}</div>
-            <div class="exp-title">{{ r.title }}</div>
-            <!-- Expand arrow (show only when levels are valid) -->
-            <mat-icon *ngIf="r.activityDetails?.length > 0" class="arrow">
-              {{ expanded === r ? 'expand_less' : 'expand_more' }}
-            </mat-icon>
+      <ng-container *ngIf="isLoading">
+        <div class="role-item shimmer-item" *ngFor="let _ of [1, 2, 3, 4]">
+          <div class="expanded-card">
+            <div class="shimmer-line code"></div>
+            <div class="shimmer-line title"></div>
           </div>
+        </div>
+      </ng-container>
 
-          <!-- mapped activities under role -->
-          <div *ngIf="expanded === r && r.activityDetails?.length" class="activity-section">
-            <div class="activity-row" *ngFor="let a of r.activityDetails">
-              <div class="pill">
-                <div class="activity-label">{{ a.code }} - {{ a.label }}</div>
+      <ng-container *ngIf="!isLoading">
+        <div class="role-item" *ngFor="let r of filteredRoles; trackBy: trackByCode"
+          [class.selected]="selectedRoleCode === r.code"
+          (click)="roleSelectedHandler(r)">
+          <div class="expanded-card">
+
+            <div class="header-row" (click)="onHeaderClick(r, $event)">
+              <div class="exp-code">{{ r.code }}</div>
+              <div class="exp-title">{{ r.title }}</div>
+              <!-- Expand arrow (show only when levels are valid) -->
+              <mat-icon *ngIf="r.activityDetails?.length > 0" class="arrow">
+                {{ expandedRoleCode === r.code ? 'expand_less' : 'expand_more' }}
+              </mat-icon>
+            </div>
+
+            <!-- mapped activities under role -->
+            <div *ngIf="expandedRoleCode === r.code && r.activityDetails?.length" class="activity-section">
+              <div class="activity-row" *ngFor="let a of r.activityDetails">
+                <div class="pill">
+                  <div class="activity-label">{{ a.code }} - {{ a.label }}</div>
+                </div>
               </div>
             </div>
+
           </div>
-
         </div>
-      </div>
+      </ng-container>
 
-      <div *ngIf="filteredRoles.length === 0" class="no-data">
+      <div *ngIf="!isLoading && filteredRoles.length === 0" class="no-data">
         Use the search bar to find the role.
       </div>
 

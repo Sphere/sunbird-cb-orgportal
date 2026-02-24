@@ -8,6 +8,8 @@ import { Component, Input, Output, EventEmitter, OnInit, OnChanges } from '@angu
 export class RoleMappingListComponent implements OnInit, OnChanges {
 
   @Input() roles: any[] = []
+  @Input() isLoading = false
+  @Input() selectedRoleCode: string | null = null
 
   @Output() searchChange = new EventEmitter<string>()
   @Output() roleSelected = new EventEmitter<any>()
@@ -15,8 +17,7 @@ export class RoleMappingListComponent implements OnInit, OnChanges {
 
   searchTerm = ''
   filteredRoles: any[] = []
-  selectedRole: any = null
-  expanded: any = null
+  expandedRoleCode: string | null = null
 
   ngOnInit(): void {
     this.filteredRoles = [...this.roles]
@@ -30,13 +31,26 @@ export class RoleMappingListComponent implements OnInit, OnChanges {
     this.searchChange.emit(this.searchTerm)
   }
 
+  onHeaderClick(item: any, event: MouseEvent): void {
+    event.stopPropagation()
+    const itemCode = item?.code || null
+    if (itemCode && itemCode !== this.selectedRoleCode) {
+      this.roleSelected.emit(item)
+    }
+    this.expand(item)
+  }
+
   expand(item: any): void {
-    this.expanded = this.expanded === item ? null : item
+    const nextCode = item?.code || null
+    this.expandedRoleCode = this.expandedRoleCode === nextCode ? null : nextCode
     this.toggle.emit(item)
   }
 
   roleSelectedHandler(r: any): void {
-    this.selectedRole = r
     this.roleSelected.emit(r)
+  }
+
+  trackByCode(index: number, item: any): string {
+    return item?.code || `${index}`
   }
 }

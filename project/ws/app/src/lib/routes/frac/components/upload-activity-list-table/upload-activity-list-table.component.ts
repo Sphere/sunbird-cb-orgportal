@@ -2,6 +2,9 @@ import {
   Component,
   Input,
   ViewChild,
+  ViewChildren,
+  ElementRef,
+  QueryList,
   OnChanges,
   AfterViewInit,
   EventEmitter,
@@ -35,6 +38,7 @@ export class UploadActivityListTableComponent implements OnChanges, AfterViewIni
 
   /** Table data to display */
   @Input() data: any[] = []
+  @Input() isLoading = false
 
   /** Show/hide checkbox selection column */
   @Input() showCheckbox = true
@@ -84,6 +88,9 @@ export class UploadActivityListTableComponent implements OnChanges, AfterViewIni
 
   @ViewChild(MatPaginator) paginator!: MatPaginator
   @ViewChild(MatSort) sort!: MatSort
+  @ViewChildren('headerCell', { read: ElementRef }) headerCells!: QueryList<ElementRef<HTMLElement>>
+
+  loadingColumnWidths: number[] = []
 
   // ============= LIFECYCLE HOOKS =============
 
@@ -99,6 +106,7 @@ export class UploadActivityListTableComponent implements OnChanges, AfterViewIni
     this.dataSource = new MatTableDataSource(this.data)
     this.emptyRows = this.computeEmptyRows()
     this.fillerRows = this.computeEmptyRowsForData()
+    this.scheduleLoadingWidthSync()
   }
 
   ngAfterViewInit() {
@@ -108,7 +116,15 @@ export class UploadActivityListTableComponent implements OnChanges, AfterViewIni
         this.dataSource.paginator = this.paginator
       if (this.enableSorting && this.sort)
         this.dataSource.sort = this.sort
+      this.syncLoadingColumnWidths()
     })
+
+    this.headerCells?.changes.subscribe(() => this.syncLoadingColumnWidths())
+  }
+
+  getLoadingCellWidth(index: number): number | null {
+    const width = this.loadingColumnWidths[index]
+    return width && width > 0 ? width : null
   }
 
   // ============= CHECKBOX HANDLERS =============
@@ -142,6 +158,10 @@ export class UploadActivityListTableComponent implements OnChanges, AfterViewIni
     this.selectionChange.emit(this.selection.selected)
   }
 
+  isCodeField(columnKey: string): boolean {
+    return (columnKey || '').toLowerCase() === 'code'
+  }
+
   // ============= EMPTY STATE =============
 
   /** Generate empty rows to fill container height (40px per row) */
@@ -163,5 +183,19 @@ export class UploadActivityListTableComponent implements OnChanges, AfterViewIni
     const availableHeight = containerHeight - headerHeight - dataRowsHeight
     const numEmptyRows = Math.ceil(availableHeight / rowHeight)
     return numEmptyRows > 0 ? new Array(numEmptyRows).fill(null) : []
+  }
+
+  private scheduleLoadingWidthSync(): void {
+    setTimeout(() => this.syncLoadingColumnWidths())
+  }
+
+  private syncLoadingColumnWidths(): void {
+    if (!this.headerCells || !this.headerCells.length) {
+      return
+    }
+
+    this.loadingColumnWidths = this.headerCells
+      .toArray()
+      .map(cell => Math.round(cell.nativeElement.getBoundingClientRect().width))
   }
 }

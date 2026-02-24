@@ -22,26 +22,42 @@
       <div class="search-row">
         <div class="search-cell">
           <div class="search-box">
-            <input placeholder="Search by name, code" [(ngModel)]="searchTerm" (input)="onSearchChange()" />
+            <input placeholder="Search by name, code" [(ngModel)]="searchTerm"
+              [disabled]="!selectedRole" (input)="onSearchChange()" />
             <mat-icon>search</mat-icon>
           </div>
         </div>
       </div>
 
       <!-- table rows -->
-      <div class="rows-wrapper">
-        <div class="activity-row" *ngFor="let a of filteredActivities">
-          <div class="check-cell">
-            <mat-checkbox [checked]="isChecked(a.code)" (change)="onCheckboxChange(a.code, $event.checked)">
-            </mat-checkbox>
+      <div class="rows-wrapper" [class.loading]="isLoading">
+        <ng-container *ngIf="isLoading">
+          <div class="shimmer-state">
+            <div class="activity-row shimmer-row" *ngFor="let _ of [1, 2, 3, 4, 5]">
+              <div class="check-cell">
+                <div class="shimmer-box checkbox"></div>
+              </div>
+              <div class="text-cell">
+                <div class="shimmer-box text"></div>
+              </div>
+            </div>
           </div>
-          <div class="text-cell">
-            {{ a.code }}- {{ a.title }}
+        </ng-container>
+
+        <ng-container *ngIf="!isLoading">
+          <div class="activity-row" *ngFor="let a of filteredActivities">
+            <div class="check-cell">
+              <mat-checkbox [checked]="isChecked(a.code)" (change)="onCheckboxChange(a.code, $event.checked)">
+              </mat-checkbox>
+            </div>
+            <div class="text-cell">
+              {{ a.code }}- {{ a.title }}
+            </div>
           </div>
-        </div>
+        </ng-container>
       </div>
 
-      <div *ngIf="filteredActivities.length === 0" class="no-data">
+      <div *ngIf="!isLoading && filteredActivities.length === 0" class="no-data">
         {{ emptyStateMessage }}
       </div>
 

@@ -17,20 +17,6 @@ Use a better box model (opinionated).
   box-sizing: border-box;
 }
 
-/* FRAC result modal: keep Material dialog surface radius in sync with inner card */
-.upload-result-dialog .mat-mdc-dialog-container {
-  padding: 0 !important;
-}
-
-.upload-result-dialog .mat-mdc-dialog-surface,
-.upload-result-dialog .mdc-dialog__surface,
-.upload-result-dialog.cdk-overlay-pane .mat-mdc-dialog-surface {
-  border-radius: 14px !important;
-  overflow: hidden !important;
-  padding: 0 !important;
-  background: transparent !important;
-}
-
 /**
 Use a more readable tab size (opinionated).
 */

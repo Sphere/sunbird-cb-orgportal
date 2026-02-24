@@ -10,6 +10,8 @@ export class ActivityMappingTableComponent implements OnInit, OnChanges {
   @Input() activities: any[] = []
   @Input() selectedRole: any = null
   @Input() selectedActivityMap: { [code: string]: boolean } = {}
+  @Input() isLoading = false
+  @Input() isActionLoading = false
 
   @Output() searchChange = new EventEmitter<string>()
   @Output() activityCheckChange = new EventEmitter<{ code: string; checked: boolean }>()
@@ -27,6 +29,9 @@ export class ActivityMappingTableComponent implements OnInit, OnChanges {
   }
 
   onSearchChange(): void {
+    if (!this.selectedRole) {
+      return
+    }
     this.searchChange.emit(this.searchTerm)
   }
 
@@ -43,6 +48,7 @@ export class ActivityMappingTableComponent implements OnInit, OnChanges {
   }
 
   isAddDisabled(): boolean {
+    if (this.isLoading || this.isActionLoading) return true
     if (!this.selectedRole) return true
 
     const hasSelected = Object.values(this.selectedActivityMap || {}).some(v => v)

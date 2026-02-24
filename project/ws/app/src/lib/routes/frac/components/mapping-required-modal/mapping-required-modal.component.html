@@ -1,0 +1,21 @@
+<div class="mapping-required-modal">
+  <h2 class="title">Mapping Required</h2>
+
+  <p class="description">
+    The following activities are not mapped to any competency and cannot be assigned to roles:
+  </p>
+
+  <div class="list-title">List of Activities</div>
+
+  <div class="list-box">
+    <div class="activity-row" *ngFor="let item of data.activities">
+      <div class="activity-code">{{ item.code }}</div>
+      <div class="activity-label">{{ item.label }}</div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button type="button" mat-stroked-button class="back-btn" (click)="onBack()">Back</button>
+    <button type="button" mat-flat-button class="map-now-btn" (click)="onMapNow()">Map now</button>
+  </div>
+</div>

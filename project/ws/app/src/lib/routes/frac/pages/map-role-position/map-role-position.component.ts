@@ -1,8 +1,10 @@
 import { Component, OnDestroy, OnInit } from '@angular/core'
 import { MatDialog } from '@angular/material/dialog'
+import { Router } from '@angular/router'
 import { Subject } from 'rxjs'
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators'
 import { UploadResultData, UploadResultModalComponent } from '../../components/upload-result-modal/upload-result-modal.component'
+import { UnsavedChangesModalComponent } from '../../components/unsaved-changes-modal/unsaved-changes-modal.component'
 import { CustomSnackbarService } from '../../services/custom-snackbar.service'
 import { FracApiService } from '../../services/frac-api.service'
 import { transformRoles, transformPositions } from '../../utils/common.util'
@@ -43,6 +45,7 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
     private snackbar: CustomSnackbarService,
     private fracApiService: FracApiService,
     private dialog: MatDialog,
+    private router: Router,
   ) { }
 
   // language
@@ -51,6 +54,10 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
   isOpen = false
   isEditing = true
   isSaving = false
+  isPositionsLoading = false
+  isRolesLoading = false
+  isPositionRoleMappingLoading = false
+  hasUnsavedChanges = false
 
   // left – positions
   positionsData: PositionItem[] = []
@@ -77,6 +84,9 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
   private positionSearch$ = new Subject<string>()
   private roleSearch$ = new Subject<string>()
   private destroy$ = new Subject<void>()
+  private readonly positionRoleMappingCache = new Map<string, PositionRoleDetail[]>()
+  private readonly positionDraftStore = new Map<string, PositionRoleDetail[]>()
+  private activePositionRoleMappingRequestKey: string | null = null
 
   ngOnInit(): void {
     this.setupSearchStreams()
@@ -110,25 +120,39 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
   // ---------------------------------------------------------------------------
 
   private fetchPositions(keyword: string): void {
+    this.isPositionsLoading = true
     this.fracApiService.searchEntities('position', keyword, this.selectedLanguage).subscribe({
       next: (res) => {
+        this.isPositionsLoading = false
         const apiEntity = this.extractEntityList(res)
         const transformed = transformPositions(apiEntity) as PositionItem[]
+        const hydrated = transformed.map((position) => {
+          const details = this.getHydratedPositionRoleDetails(position.code)
+          return details ? { ...position, roleDetails: details } : position
+        })
 
-        this.positionsData = transformed
-        this.positions = [...transformed]
-        this.filteredPositions = [...transformed]
+        this.positionsData = hydrated
+        this.positions = [...hydrated]
+        this.filteredPositions = [...hydrated]
 
         if (this.selectedPosition) {
-          const matched = transformed.find(p => p.code === this.selectedPosition!.code)
+          const hasSearchKeyword = !!keyword.trim()
+          const matched = hydrated.find(p => p.code === this.selectedPosition!.code)
           if (!matched) {
+            if (hasSearchKeyword) {
+              return
+            }
             this.selectedPosition = null
             this.selectedRoleMap = {}
             this.selectedRoleSummary = []
+          } else {
+            this.selectedPosition = matched
+            this.applyMappedRolesToPosition(matched, matched.roleDetails || [])
           }
         }
       },
       error: (e) => {
+        this.isPositionsLoading = false
         console.error('Failed to load positions', e)
         this.positionsData = []
         this.positions = []
@@ -138,8 +162,10 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
   }
 
   private fetchRoles(keyword: string): void {
+    this.isRolesLoading = true
     this.fracApiService.searchEntities('role', keyword, this.selectedLanguage).subscribe({
       next: (res) => {
+        this.isRolesLoading = false
         const apiEntity = this.extractEntityList(res)
         const transformed = transformRoles(apiEntity) as RoleItem[]
 
@@ -150,6 +176,7 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
         this.buildSelectedRoleSummary()
       },
       error: (e) => {
+        this.isRolesLoading = false
         console.error('Failed to load roles', e)
         this.rolesData = []
         this.roles = []
@@ -183,24 +210,13 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
     if (!this.languages.includes(lang)) return
     this.selectedLanguage = lang
     this.isOpen = false
+    this.activePositionRoleMappingRequestKey = null
 
-    if (this.positionSearchTerm) {
-      this.positionSearch$.next(this.positionSearchTerm)
-    } else {
-      this.positionsData = []
-      this.positions = []
-      this.filteredPositions = []
-      this.selectedPosition = null
-      this.selectedRoleMap = {}
-      this.selectedRoleSummary = []
-    }
+    this.positionSearch$.next(this.positionSearchTerm)
+    this.roleSearch$.next(this.roleSearchTerm)
 
-    if (this.roleSearchTerm) {
-      this.roleSearch$.next(this.roleSearchTerm)
-    } else {
-      this.rolesData = []
-      this.roles = []
-      this.filteredRoles = []
+    if (this.selectedPosition?.code) {
+      this.loadPositionRoleMappings(this.selectedPosition)
     }
   }
 
@@ -212,31 +228,129 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
     this.positionSearch$.next(this.positionSearchTerm)
   }
 
+  onPositionSearchSubmit(keyword: string): void {
+    this.positionSearchTerm = keyword.trim()
+    this.fetchPositions(this.positionSearchTerm)
+  }
+
   onPositionSelected(position: PositionItem): void {
     this.selectedPosition = position
-
-    // restore per-position selection map
-    this.restoreSelectedRoleMapFromPosition(position)
+    this.selectedRoleMap = {}
+    this.selectedRoleSummary = []
+    this.loadPositionRoleMappings(position)
   }
 
   onPositionToggleExpand(position: PositionItem): void {
     this.expandedPosition = this.expandedPosition === position ? null : position
   }
 
-  private restoreSelectedRoleMapFromPosition(position: PositionItem): void {
-    this.selectedRoleMap = {}
+  private loadPositionRoleMappings(position: PositionItem): void {
+    const requestKey = this.buildPositionMappingKey(position.code)
+    this.isPositionRoleMappingLoading = true
 
-    if (!position.roleDetails?.length) {
-      this.selectedRoleSummary = []
+    const draft = this.positionDraftStore.get(requestKey)
+    if (draft) {
+      this.applyMappedRolesToPosition(position, draft)
+      this.isPositionRoleMappingLoading = false
       return
     }
 
-    for (const r of position.roleDetails) {
-      if (!r.code) continue
-      this.selectedRoleMap[r.code] = true
+    const cached = this.positionRoleMappingCache.get(requestKey)
+    if (cached) {
+      this.applyMappedRolesToPosition(position, cached)
+      this.isPositionRoleMappingLoading = false
+      return
     }
 
-    this.buildSelectedRoleSummary()
+    if (this.activePositionRoleMappingRequestKey === requestKey) {
+      this.isPositionRoleMappingLoading = false
+      return
+    }
+
+    this.activePositionRoleMappingRequestKey = requestKey
+
+    this.fracApiService.searchEntityMapping('position', position.code, this.selectedLanguage)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (res) => {
+          if (this.activePositionRoleMappingRequestKey === requestKey) {
+            this.activePositionRoleMappingRequestKey = null
+          }
+
+          if (this.selectedPosition?.code !== position.code || this.buildPositionMappingKey(position.code) !== requestKey) {
+            return
+          }
+          this.isPositionRoleMappingLoading = false
+          const mappedRoles = this.extractMappedRoles(res)
+          this.positionRoleMappingCache.set(requestKey, this.cloneRoleDetails(mappedRoles))
+          this.applyMappedRolesToPosition(position, mappedRoles)
+        },
+        error: (err) => {
+          if (this.activePositionRoleMappingRequestKey === requestKey) {
+            this.activePositionRoleMappingRequestKey = null
+          }
+
+          if (this.selectedPosition?.code !== position.code || this.buildPositionMappingKey(position.code) !== requestKey) {
+            return
+          }
+          this.isPositionRoleMappingLoading = false
+          console.error('Failed to load position mappings', err)
+          this.selectedRoleMap = {}
+          this.selectedRoleSummary = []
+          this.snackbar.error('Unable to fetch existing position mappings.')
+        },
+      })
+  }
+
+  private extractMappedRoles(response: any): PositionRoleDetail[] {
+    const result = Array.isArray(response?.result) ? response.result : []
+    const first = result[0] || {}
+    const childHierarchy = Array.isArray(first?.childHierarchy) ? first.childHierarchy : []
+
+    return childHierarchy
+      .filter((child: any) => (child?.entityType || '').toLowerCase() === 'role')
+      .map((child: any) => ({
+        code: (child?.entityCode || '').trim(),
+        label: child?.entityName || '',
+      }))
+      .filter((item: PositionRoleDetail) => !!item.code)
+  }
+
+  private applyMappedRolesToPosition(position: PositionItem, mappedRoles: PositionRoleDetail[]): void {
+    const roleDetails: PositionRoleDetail[] = mappedRoles.map((mapped) => ({
+      code: mapped.code,
+      label: mapped.label || '',
+    }))
+
+    this.applyPositionDetailsToCollections(position.code, position.title, roleDetails)
+
+    if (this.selectedPosition?.code === position.code) {
+      this.selectedPosition = {
+        ...this.selectedPosition,
+        roleDetails: this.cloneRoleDetails(roleDetails),
+      }
+    }
+
+    position.roleDetails = roleDetails
+    this.selectedRoleMap = {}
+    roleDetails.forEach((detail) => {
+      this.selectedRoleMap[detail.code] = true
+    })
+    this.selectedRoleSummary = [...roleDetails]
+
+    const shouldKeepSearchedList = !!this.roleSearchTerm
+    if (shouldKeepSearchedList) {
+      this.roleSearch$.next(this.roleSearchTerm)
+      return
+    }
+
+    const mappedList: RoleItem[] = roleDetails.map((role) => ({
+      code: role.code,
+      title: role.label,
+    }))
+    this.rolesData = [...mappedList]
+    this.roles = [...mappedList]
+    this.filteredRoles = [...mappedList]
   }
 
   // ---------------------------------------------------------------------------
@@ -266,9 +380,10 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
     for (const code of Object.keys(this.selectedRoleMap)) {
       if (!this.selectedRoleMap[code]) continue
       const meta = this.rolesData.find(r => r.code === code)
+      const existing = this.selectedPosition?.roleDetails?.find(r => r.code === code)
       result.push({
         code,
-        label: meta?.title ?? '',
+        label: meta?.title || existing?.label || '',
       })
     }
 
@@ -303,6 +418,7 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
     this.removeDeselectedRoles()
     this.updateOrInsertRoles()
     this.refreshPositionsState()
+    this.hasUnsavedChanges = true
 
     this.snackbar.success('Position–role mapping updated successfully.')
   }
@@ -338,26 +454,17 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
   private refreshPositionsState(): void {
     if (!this.selectedPosition) return
 
+    const normalizedRoleDetails = this.cloneRoleDetails(this.selectedPosition.roleDetails || [])
     const updatedSelectedPosition: PositionItem = {
       ...this.selectedPosition,
       code: this.selectedPosition.code,
       title: this.selectedPosition.title,
+      roleDetails: normalizedRoleDetails,
     }
 
-    this.positions = this.positions.map(p =>
-      p.code === updatedSelectedPosition.code ? updatedSelectedPosition : p,
-    )
-
-    this.positionsData = this.positionsData.map(p =>
-      p.code === updatedSelectedPosition.code ? updatedSelectedPosition : p,
-    )
-
-    this.filteredPositions = this.filteredPositions.map(p =>
-      p.code === updatedSelectedPosition.code ? updatedSelectedPosition : p,
-    )
-
-    // Track positions that will go into payload
-    this.updatedPositions = this.positions.filter(p => p.roleDetails?.length)
+    this.selectedPosition = updatedSelectedPosition
+    this.applyPositionDetailsToCollections(updatedSelectedPosition.code, updatedSelectedPosition.title, normalizedRoleDetails)
+    this.setPositionDraft(updatedSelectedPosition.code, normalizedRoleDetails)
   }
 
   // ---------------------------------------------------------------------------
@@ -381,6 +488,9 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
     this.fracApiService.mapEntity(payload).subscribe({
       next: (res) => {
         this.isSaving = false
+        this.hasUnsavedChanges = false
+        this.positionDraftStore.clear()
+        this.syncUpdatedPositionsFromDraftStore()
 
         const mappedPairs = this.extractMappedPairs(res, payload)
         const successData: UploadResultData = {
@@ -389,7 +499,7 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
           message: 'Position to role mappings were saved successfully.',
           errorDetails: mappedPairs.join('\n'),
         }
-        this.showResultModal(successData)
+        this.showResultModal(successData, true)
       },
       error: (err) => {
         this.isSaving = false
@@ -415,13 +525,25 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
 
   private buildPayload(): PositionRoleApiRequestItem[] {
     const payload: PositionRoleApiRequestItem[] = []
+    const mappedPairs = new Set<string>()
 
-    for (const position of this.updatedPositions) {
-      const childCodes = (position.roleDetails ?? []).map(r => r.code).filter(Boolean)
-      for (const childCode of childCodes) {
+    for (const [key, roleDetails] of this.positionDraftStore.entries()) {
+      const positionCode = this.extractEntityCodeFromMappingKey(key)
+      if (!positionCode) continue
+
+      for (const roleDetail of roleDetails) {
+        const childCode = (roleDetail?.code || '').trim()
+        if (!childCode) continue
+
+        const pairKey = `${positionCode}::${childCode}`
+        if (mappedPairs.has(pairKey)) {
+          continue
+        }
+        mappedPairs.add(pairKey)
+
         payload.push({
           parentEntityType: 'Position',
-          parentEntityCode: position.code,
+          parentEntityCode: positionCode,
           childEntityType: 'Role',
           childEntityCode: childCode,
           competencies: [],
@@ -445,9 +567,102 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
     this.refreshPositionsState()
   }
 
+  private buildPositionMappingKey(positionCode: string): string {
+    return `${this.selectedLanguage.trim().toLowerCase()}::${(positionCode || '').trim()}`
+  }
+
+  private extractEntityCodeFromMappingKey(key: string): string {
+    const separator = '::'
+    const separatorIndex = key.indexOf(separator)
+    if (separatorIndex === -1) {
+      return key
+    }
+
+    return key.slice(separatorIndex + separator.length)
+  }
+
+  private cloneRoleDetails(details: PositionRoleDetail[]): PositionRoleDetail[] {
+    return (details || [])
+      .filter((detail) => !!detail?.code)
+      .map((detail) => ({
+        code: detail.code,
+        label: detail.label || '',
+      }))
+  }
+
+  private getHydratedPositionRoleDetails(positionCode: string): PositionRoleDetail[] | null {
+    const key = this.buildPositionMappingKey(positionCode)
+    const draftDetails = this.positionDraftStore.get(key)
+    if (draftDetails) {
+      return this.cloneRoleDetails(draftDetails)
+    }
+
+    const mappedDetails = this.positionRoleMappingCache.get(key)
+    if (mappedDetails) {
+      return this.cloneRoleDetails(mappedDetails)
+    }
+
+    return null
+  }
+
+  private applyPositionDetailsToCollections(positionCode: string, positionTitle: string, details: PositionRoleDetail[]): void {
+    const positionUpdater = (position: PositionItem): PositionItem => {
+      if (position.code !== positionCode) {
+        return position
+      }
+
+      return {
+        ...position,
+        title: positionTitle || position.title,
+        roleDetails: this.cloneRoleDetails(details),
+      }
+    }
+
+    this.positions = this.positions.map(positionUpdater)
+    this.positionsData = this.positionsData.map(positionUpdater)
+    this.filteredPositions = this.filteredPositions.map(positionUpdater)
+  }
+
+  private setPositionDraft(positionCode: string, details: PositionRoleDetail[]): void {
+    const key = this.buildPositionMappingKey(positionCode)
+    const normalizedDetails = this.cloneRoleDetails(details)
+
+    if (normalizedDetails.length) {
+      this.positionDraftStore.set(key, normalizedDetails)
+    } else {
+      this.positionDraftStore.delete(key)
+    }
+
+    this.positionRoleMappingCache.set(key, normalizedDetails)
+    this.syncUpdatedPositionsFromDraftStore()
+  }
+
+  private syncUpdatedPositionsFromDraftStore(): void {
+    const positionMap = new Map<string, PositionRoleDetail[]>()
+
+    for (const [key, details] of this.positionDraftStore.entries()) {
+      const positionCode = this.extractEntityCodeFromMappingKey(key)
+      if (!positionCode || !details.length) continue
+      positionMap.set(positionCode, this.cloneRoleDetails(details))
+    }
+
+    this.updatedPositions = Array.from(positionMap.entries()).map(([code, roleDetails]) => {
+      const metadata =
+        this.positionsData.find(position => position.code === code) ||
+        this.positions.find(position => position.code === code) ||
+        this.filteredPositions.find(position => position.code === code)
+
+      return {
+        code,
+        title: metadata?.title || code,
+        roleDetails,
+      }
+    })
+  }
+
   private extractMappedPairs(response: any, fallbackPayload: PositionRoleApiRequestItem[]): string[] {
     const resultArray = Array.isArray(response?.result) ? response.result : []
-    const source = resultArray.length ? response.result : fallbackPayload
+    const source = resultArray.length ? resultArray : fallbackPayload
 
     return source
       .map((item: any) => {
@@ -458,12 +673,52 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
       .filter(Boolean)
   }
 
-  private showResultModal(data: UploadResultData): void {
-    this.dialog.open(UploadResultModalComponent, {
+  private showResultModal(data: UploadResultData, redirectOnClose = false): void {
+    const dialogRef = this.dialog.open(UploadResultModalComponent, {
       width: '440px',
       disableClose: true,
       panelClass: 'upload-result-dialog',
       data,
     })
+
+    dialogRef.afterClosed()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        if (redirectOnClose && data.type === 'success') {
+          this.router.navigateByUrl('/app/home/frac/dashboard')
+        }
+      })
+  }
+
+  onHomeClick(): void {
+    if (this.isSaving) {
+      return
+    }
+
+    if (!this.hasUnsavedChanges) {
+      this.router.navigateByUrl('/app/home/frac/dashboard')
+      return
+    }
+
+    const dialogRef = this.dialog.open(UnsavedChangesModalComponent, {
+      width: '363px',
+      maxWidth: '92vw',
+      disableClose: true,
+      panelClass: 'unsaved-changes-dialog',
+      data: {
+        title: 'You Have Unsaved Changes',
+        message: 'You’re about to return to the home screen. Any unsaved changes will be lost.',
+        continueLabel: 'Continue',
+        cancelLabel: 'Cancel',
+      },
+    })
+
+    dialogRef.afterClosed()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((action: 'continue' | 'cancel' | undefined) => {
+        if (action === 'continue') {
+          this.router.navigateByUrl('/app/home/frac/dashboard')
+        }
+      })
   }
 }
