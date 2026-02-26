@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnChanges } from '@angular/core'
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges } from '@angular/core'
 
 @Component({
   selector: 'app-competency-mapping-table',
@@ -22,6 +22,7 @@ export class CompetencyMappingTableComponent implements OnInit, OnChanges {
   @Input() levels: string[] = ['L1', 'L2', 'L3', 'L4', 'L5'];
   @Input() selectedActivity: any = null;
   @Input() isLoading = false;
+  @Input() searchResetKey = 0;
 
   /* ---------------------------
      Output events to parent
@@ -39,9 +40,12 @@ export class CompetencyMappingTableComponent implements OnInit, OnChanges {
     this.syncDisplayLevels()
   }
 
-  ngOnChanges() {
+  ngOnChanges(changes: SimpleChanges) {
     this.filteredCompetencies = [...this.competencies]
     this.syncDisplayLevels()
+    if (changes['searchResetKey'] && !changes['searchResetKey'].firstChange) {
+      this.searchTerm = ''
+    }
   }
 
   private syncDisplayLevels(): void {
@@ -126,6 +130,22 @@ export class CompetencyMappingTableComponent implements OnInit, OnChanges {
     if (!hasSelectedLevels && !hadPreviousCompetencies) return true
 
     return false // Enable otherwise
+  }
+
+  get emptyStateTitle(): string {
+    if (!this.selectedActivity) {
+      return 'Activity not selected'
+    }
+    return this.searchTerm.trim() ? 'No competency found' : 'No competency mapped yet'
+  }
+
+  get emptyStateMessage(): string {
+    if (!this.selectedActivity) {
+      return 'Please select an activity to search competency.'
+    }
+    return this.searchTerm.trim()
+      ? 'No competency matches your search. Try another keyword.'
+      : 'Use the search bar to find the competency to map.'
   }
 
 }

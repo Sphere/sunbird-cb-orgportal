@@ -10,6 +10,7 @@ export class PositionMappingListComponent implements OnInit, OnChanges {
   @Input() roles: any[] = []
   @Input() isLoading = false
   @Input() selectedPositionCode: string | null = null
+  @Input() searchResetKey = 0
 
   @Output() searchChange = new EventEmitter<string>()
   @Output() searchSubmit = new EventEmitter<string>()
@@ -27,6 +28,9 @@ export class PositionMappingListComponent implements OnInit, OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['roles']) {
       this.filteredRoles = [...this.roles]
+    }
+    if (changes['searchResetKey'] && !changes['searchResetKey'].firstChange) {
+      this.searchTerm = ''
     }
   }
 

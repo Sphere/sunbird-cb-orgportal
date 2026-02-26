@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnChanges, OnInit } from '@angular/core'
+import { Component, Input, Output, EventEmitter, OnChanges, OnInit, SimpleChanges } from '@angular/core'
 
 @Component({
   selector: 'app-activity-mapping-table',
@@ -12,6 +12,7 @@ export class ActivityMappingTableComponent implements OnInit, OnChanges {
   @Input() selectedActivityMap: { [code: string]: boolean } = {}
   @Input() isLoading = false
   @Input() isActionLoading = false
+  @Input() searchResetKey = 0
 
   @Output() searchChange = new EventEmitter<string>()
   @Output() activityCheckChange = new EventEmitter<{ code: string; checked: boolean }>()
@@ -24,8 +25,11 @@ export class ActivityMappingTableComponent implements OnInit, OnChanges {
     this.filteredActivities = [...this.activities]
   }
 
-  ngOnChanges(): void {
+  ngOnChanges(changes: SimpleChanges): void {
     this.filteredActivities = [...this.activities]
+    if (changes['searchResetKey'] && !changes['searchResetKey'].firstChange) {
+      this.searchTerm = ''
+    }
   }
 
   onSearchChange(): void {
@@ -70,5 +74,19 @@ export class ActivityMappingTableComponent implements OnInit, OnChanges {
     }
 
     return 'No existing activities mapped to this role. Search and add activities.'
+  }
+
+  get emptyStateTitle(): string {
+    if (!this.selectedRole) {
+      return 'Role not selected'
+    }
+    return this.searchTerm.trim() ? 'No activity found' : 'No activity mapped yet'
+  }
+
+  get emptyStateIcon(): string {
+    if (!this.selectedRole) {
+      return 'touch_app'
+    }
+    return this.searchTerm.trim() ? 'manage_search' : 'playlist_add_check'
   }
 }

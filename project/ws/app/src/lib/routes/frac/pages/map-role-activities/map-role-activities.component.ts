@@ -82,6 +82,7 @@ export class MapRoleActivitiesComponent implements OnInit, OnDestroy {
 
   roleSearchTerm = ''
   activitySearchTerm = ''
+  searchResetKey = 0
 
   private roleSearch$ = new Subject<string>()
   private activitySearch$ = new Subject<string>()
@@ -92,6 +93,7 @@ export class MapRoleActivitiesComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.setupSearchStreams()
+    this.resetInitialView()
   }
 
   ngOnDestroy(): void {
@@ -115,6 +117,34 @@ export class MapRoleActivitiesComponent implements OnInit, OnDestroy {
         takeUntil(this.destroy$),
       )
       .subscribe(keyword => this.fetchActivities(keyword))
+  }
+
+  private resetInitialView(): void {
+    this.searchResetKey += 1
+    this.roleSearchTerm = ''
+    this.activitySearchTerm = ''
+    this.hasUnsavedChanges = false
+    this.isRoleMappingLoading = false
+    this.isRolesLoading = false
+    this.isActivitiesLoading = false
+    this.isValidatingActivityMappings = false
+    this.activeRoleMappingRequestKey = null
+
+    this.rolesData = []
+    this.roles = []
+    this.filteredRoles = []
+    this.activitiesData = []
+    this.activities = []
+    this.filteredActivities = []
+
+    this.selectedRole = null
+    this.expandedRole = null
+    this.selectedActivityMap = {}
+    this.selectedActivitySummary = []
+    this.updatedRoles = []
+
+    this.roleMappingCache.clear()
+    this.roleDraftStore.clear()
   }
 
   // ---------------------------------------------------------------------------
@@ -210,17 +240,21 @@ export class MapRoleActivitiesComponent implements OnInit, OnDestroy {
   selectLanguage(lang: string, event: MouseEvent): void {
     event.stopPropagation()
     if (!this.languages.includes(lang)) return
+    if (this.selectedLanguage === lang) {
+      this.isOpen = false
+      return
+    }
+
+    const hadUnsavedChanges = this.hasUnsavedChanges || this.roleDraftStore.size > 0
     this.selectedLanguage = lang
     this.isOpen = false
-    this.activeRoleMappingRequestKey = null
+    this.resetInitialView()
 
-    this.roleSearch$.next(this.roleSearchTerm)
-    this.activitySearch$.next(this.activitySearchTerm)
-
-    if (this.selectedRole?.code) {
-      const selected = this.selectedRole
-      this.loadRoleActivityMappings(selected)
-    }
+    this.snackbar.warning(
+      hadUnsavedChanges
+        ? 'Language changed. Unsaved mapping changes were reset. Please search again.'
+        : 'Language changed. Please search again to load data.',
+    )
   }
 
   // ---------------------------------------------------------------------------
@@ -429,13 +463,16 @@ export class MapRoleActivitiesComponent implements OnInit, OnDestroy {
       return
     }
 
+    const previousSignature = this.getRoleActivityDetailsSignature(this.selectedRole.activityDetails || [])
     const selectedActivities = [...this.selectedActivitySummary]
     if (!selectedActivities.length) {
       this.removeDeselectedActivities()
       this.updateOrInsertActivities()
       this.refreshRolesState()
-      this.hasUnsavedChanges = true
-      this.snackbar.success('Role–activity mapping updated successfully.')
+      const currentSignature = this.getRoleActivityDetailsSignature(this.selectedRole.activityDetails || [])
+      const hasChanges = previousSignature !== currentSignature
+      this.hasUnsavedChanges = this.hasUnsavedChanges || hasChanges
+      this.snackbar.success('Role–Activity linked successfully. Please tap Save to apply changes.')
       return
     }
 
@@ -454,8 +491,10 @@ export class MapRoleActivitiesComponent implements OnInit, OnDestroy {
           this.removeDeselectedActivities()
           this.updateOrInsertActivities()
           this.refreshRolesState()
-          this.hasUnsavedChanges = true
-          this.snackbar.success('Role–activity mapping updated successfully.')
+          const currentSignature = this.getRoleActivityDetailsSignature(this.selectedRole?.activityDetails || [])
+          const hasChanges = previousSignature !== currentSignature
+          this.hasUnsavedChanges = this.hasUnsavedChanges || hasChanges
+          this.snackbar.success('Role–Activity linked successfully. Please tap Save to apply changes.')
         },
         error: (err) => {
           this.isValidatingActivityMappings = false
@@ -591,10 +630,84 @@ export class MapRoleActivitiesComponent implements OnInit, OnDestroy {
       return
     }
 
-    if (this.isSaving) {
+    if (this.isSaving || this.isValidatingActivityMappings) {
       return
     }
 
+    this.validateSaveActivities(payload)
+  }
+
+  private validateSaveActivities(payload: RoleActivityApiRequestItem[]): void {
+    const uniqueActivities = this.extractUniqueActivitiesFromPayload(payload)
+    if (!uniqueActivities.length) {
+      this.persistRoleActivityMappings(payload)
+      return
+    }
+
+    this.isValidatingActivityMappings = true
+    this.findActivitiesMissingCompetencyMapping(uniqueActivities)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (missingActivities) => {
+          this.isValidatingActivityMappings = false
+          if (missingActivities.length) {
+            this.snackbar.warning('Some selected activities are missing competency mapping.')
+            this.openMappingRequiredModal(missingActivities)
+            return
+          }
+
+          this.persistRoleActivityMappings(payload)
+        },
+        error: (err) => {
+          this.isValidatingActivityMappings = false
+          console.error('Failed to validate activities before save', err)
+          this.snackbar.error('Unable to validate activity competency mappings. Please try again.')
+        },
+      })
+  }
+
+  private extractUniqueActivitiesFromPayload(payload: RoleActivityApiRequestItem[]): RoleActivityDetail[] {
+    const uniqueActivities = new Map<string, RoleActivityDetail>()
+
+    payload.forEach((item) => {
+      const activityCode = (item?.childEntityCode || '').trim()
+      if (!activityCode || uniqueActivities.has(activityCode)) {
+        return
+      }
+
+      uniqueActivities.set(activityCode, {
+        code: activityCode,
+        label: this.getActivityLabelForValidation(activityCode),
+      })
+    })
+
+    return Array.from(uniqueActivities.values())
+  }
+
+  private getActivityLabelForValidation(activityCode: string): string {
+    const activity =
+      this.activitiesData.find(item => item.code === activityCode) ||
+      this.activities.find(item => item.code === activityCode) ||
+      this.filteredActivities.find(item => item.code === activityCode)
+
+    if (activity?.title) {
+      return activity.title
+    }
+
+    const roleCollections = [this.rolesData, this.roles, this.filteredRoles]
+    for (const collection of roleCollections) {
+      for (const role of collection) {
+        const mappedActivity = role?.activityDetails?.find(detail => detail.code === activityCode)
+        if (mappedActivity?.label) {
+          return mappedActivity.label
+        }
+      }
+    }
+
+    return 'Activity name not available'
+  }
+
+  private persistRoleActivityMappings(payload: RoleActivityApiRequestItem[]): void {
     this.isSaving = true
 
     this.fracApiService.mapEntity(payload).subscribe({
@@ -700,6 +813,13 @@ export class MapRoleActivitiesComponent implements OnInit, OnDestroy {
         code: detail.code,
         label: detail.label || '',
       }))
+  }
+
+  private getRoleActivityDetailsSignature(details: RoleActivityDetail[]): string {
+    return this.cloneActivityDetails(details)
+      .sort((left, right) => left.code.localeCompare(right.code, undefined, { numeric: true, sensitivity: 'base' }))
+      .map((detail) => `${detail.code}|${detail.label}`)
+      .join('||')
   }
 
   private getHydratedRoleActivityDetails(roleCode: string): RoleActivityDetail[] | null {

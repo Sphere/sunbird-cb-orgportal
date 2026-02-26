@@ -69,7 +69,13 @@
 
         <!-- No Data -->
         <div *ngIf="!isLoading && filteredCompetencies.length === 0" class="no-data">
-          {{ selectedActivity ? 'Use the search bar to find the competency to map.' : 'Please select an activity to search competency.' }}
+          <div class="empty-state-card">
+            <div class="icon-shell">
+              <mat-icon class="empty-state-icon">{{ selectedActivity ? 'playlist_add_check' : 'touch_app' }}</mat-icon>
+            </div>
+            <div class="empty-state-title">{{ emptyStateTitle }}</div>
+            <div class="empty-state-message">{{ emptyStateMessage }}</div>
+          </div>
         </div>
 
       </div>

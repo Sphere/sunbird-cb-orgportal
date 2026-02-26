@@ -1,5 +1,13 @@
 <div class="activity-table-container" [ngClass]="gridStyle">
-  <table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z1" style="table-layout: fixed;">
+  <table
+    mat-table
+    [dataSource]="dataSource"
+    matSort
+    matSortActive="code"
+    matSortDirection="asc"
+    matSortDisableClear
+    class="mat-elevation-z1"
+    style="table-layout: fixed;">
     <!-- Checkbox selection column: 50px fixed width for consistent alignment with filler rows -->
     <ng-container matColumnDef="select" *ngIf="showCheckbox">
       <th mat-header-cell *matHeaderCellDef #headerCell style="width: 50px;"></th>
@@ -60,7 +68,9 @@
     </div>
   </div>
 
-  <!-- Empty state: bordered grid rows for visual consistency (when no data) -->
+  <!-- Empty/filler bordered rows are intentionally disabled for role/activity upload screens
+       to keep a plain white table body background behind the empty-state info card.
+       Keep this block for future re-enable if visual grid fillers are needed again.
   <div class="table-filler" *ngIf="dataSource.data.length === 0">
     <table class="empty-table">
       <thead class="sr-only">
@@ -70,15 +80,12 @@
         </tr>
       </thead>
       <tr class="empty-row" *ngFor="let i of emptyRows">
-        <!-- Checkbox column empty cell: 50px fixed width -->
         <td class="empty-cell" *ngIf="showCheckbox" style="width: 50px;">&nbsp;</td>
-        <!-- Data column empty cells -->
         <td class="empty-cell" *ngFor="let col of activeColumns" [style.width]="col.width">&nbsp;</td>
       </tr>
     </table>
   </div>
 
-  <!-- Filler rows when data exists but doesn't fill container height -->
   <div class="table-filler" *ngIf="dataSource.data.length > 0">
     <table class="empty-table">
       <thead class="sr-only">
@@ -88,13 +95,12 @@
         </tr>
       </thead>
       <tr class="empty-row" *ngFor="let i of fillerRows">
-        <!-- Checkbox column empty cell: 50px fixed width -->
         <td class="empty-cell" *ngIf="showCheckbox" style="width: 50px;">&nbsp;</td>
-        <!-- Data column empty cells -->
         <td class="empty-cell" *ngFor="let col of activeColumns" [style.width]="col.width">&nbsp;</td>
       </tr>
     </table>
   </div>
+  -->
 </div>
 
 <!-- Pagination footer (optional) -->

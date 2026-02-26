@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnChanges } from '@angular/core'
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges } from '@angular/core'
 
 @Component({
   selector: 'app-activity-mapping-list',
@@ -11,6 +11,7 @@ export class ActivityMappingListComponent implements OnInit, OnChanges {
   @Input() activities: any[] = [];
   @Input() isLoading = false;
   @Input() selectedActivityCode: string | null = null;
+  @Input() searchResetKey = 0;
 
   /* OUTPUT: Emit search keyword to parent */
   @Output() searchChange = new EventEmitter<string>();
@@ -26,8 +27,11 @@ export class ActivityMappingListComponent implements OnInit, OnChanges {
     this.filteredActivities = [...this.activities]
   }
 
-  ngOnChanges() {
+  ngOnChanges(changes: SimpleChanges) {
     this.filteredActivities = [...this.activities]
+    if (changes['searchResetKey'] && !changes['searchResetKey'].firstChange) {
+      this.searchTerm = ''
+    }
   }
 
   /** Emit search keyword to parent */

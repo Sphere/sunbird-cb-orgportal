@@ -53,6 +53,7 @@
     <!-- LEFT – POSITIONS PANEL -->
     <div class="roles-panel">
       <app-position-mapping-list [roles]="filteredPositions" [isLoading]="isPositionsLoading"
+        [searchResetKey]="searchResetKey"
         [selectedPositionCode]="selectedPosition?.code || null"
         (searchChange)="onPositionSearch($event)"
         (searchSubmit)="onPositionSearchSubmit($event)"
@@ -63,6 +64,7 @@
     <!-- RIGHT – ROLES PANEL -->
     <div class="positions-panel">
       <app-role-mapping-table [positions]="filteredRoles" [selectedRole]="selectedPosition"
+        [searchResetKey]="searchResetKey"
         [selectedPositionMap]="selectedRoleMap" [isLoading]="isRolesLoading || isPositionRoleMappingLoading"
         (searchChange)="onRoleSearch($event)"
         (positionCheckChange)="onRoleCheckChanged($event)" (addPosition)="onAddRoleToPosition()">

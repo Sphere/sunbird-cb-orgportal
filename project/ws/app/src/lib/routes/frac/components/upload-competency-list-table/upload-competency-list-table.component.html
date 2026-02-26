@@ -1,6 +1,7 @@
 <div class="upload-competency-list-table-container" [ngClass]="gridStyle">
   <div class="table-pane">
-    <table mat-table [dataSource]="dataSource" matSort class="data-table">
+    <table mat-table [dataSource]="dataSource" matSort matSortActive="code" matSortDirection="asc" matSortDisableClear
+      class="data-table">
       <!-- Checkbox column: 50px fixed width -->
       <ng-container matColumnDef="select" *ngIf="showCheckbox">
         <th mat-header-cell *matHeaderCellDef #headerCell></th>
@@ -20,12 +21,10 @@
           <ng-container *ngIf="isRowInEditMode(element); else viewMode">
             <div class="cell-edit-wrapper" [class.long-field]="isTextAreaField(col.key)">
               <textarea *ngIf="isTextAreaField(col.key); else shortInput" [(ngModel)]="element[col.key]"
-                [class.tall-description]="isTallDescriptionField(col.key)"
-                class="editable-textarea" rows="2" [attr.placeholder]="'Enter ' + col.label.toLowerCase()"
-                [attr.aria-label]="col.label"></textarea>
+                [class.tall-description]="isTallDescriptionField(col.key)" class="editable-textarea" rows="2"
+                [attr.placeholder]="'Enter ' + col.label.toLowerCase()" [attr.aria-label]="col.label"></textarea>
               <ng-template #shortInput>
-                <input [(ngModel)]="element[col.key]" class="editable-input"
-                  [readonly]="isCodeField(col.key)"
+                <input [(ngModel)]="element[col.key]" class="editable-input" [readonly]="isCodeField(col.key)"
                   [class.readonly-input]="isCodeField(col.key)" />
               </ng-template>
             </div>
@@ -41,25 +40,19 @@
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
 
       <!-- Table data rows -->
-    <tr mat-row *matRowDef="let row; columns: displayedColumns" class="data-row"
-      [class.editing-row]="isRowInEditMode(row)">
-    </tr>
-  </table>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns" class="data-row"
+        [class.editing-row]="isRowInEditMode(row)">
+      </tr>
+    </table>
 
     <div class="rows-loading-overlay" *ngIf="isLoading">
       <div class="rows-loading-row" *ngFor="let _ of [1, 2, 3, 4, 5, 6, 7, 8]">
-        <div
-          class="rows-loading-cell checkbox-cell"
-          *ngIf="showCheckbox"
-          [style.width.px]="getLoadingCellWidth(0) || null"
-          [style.flex]="getLoadingCellWidth(0) ? '0 0 auto' : null">
+        <div class="rows-loading-cell checkbox-cell" *ngIf="showCheckbox"
+          [style.width.px]="getLoadingCellWidth(0) || null" [style.flex]="getLoadingCellWidth(0) ? '0 0 auto' : null">
           <div class="shimmer-box checkbox"></div>
         </div>
-        <div
-          class="rows-loading-cell"
-          *ngFor="let col of activeColumns; let colIndex = index"
-          [class.code-cell]="col.key === 'code'"
-          [class.short-cell]="col.key === 'type' || col.key === 'status'"
+        <div class="rows-loading-cell" *ngFor="let col of activeColumns; let colIndex = index"
+          [class.code-cell]="col.key === 'code'" [class.short-cell]="col.key === 'type' || col.key === 'area'"
           [style.width.px]="getLoadingCellWidth(colIndex + (showCheckbox ? 1 : 0)) || null"
           [style.flex]="getLoadingCellWidth(colIndex + (showCheckbox ? 1 : 0)) ? '0 0 auto' : null">
           <div class="shimmer-box text"></div>

@@ -58,7 +58,13 @@
       </ng-container>
 
       <div *ngIf="!isLoading && filteredRoles.length === 0" class="no-data">
-        Use the search bar to find the role.
+        <div class="empty-state-card">
+          <div class="icon-shell">
+            <mat-icon class="empty-state-icon">manage_search</mat-icon>
+          </div>
+          <div class="empty-state-title">No role found</div>
+          <div class="empty-state-message">Use the search bar to find the role to map.</div>
+        </div>
       </div>
 
     </div>

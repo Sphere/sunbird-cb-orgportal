@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit, OnChanges } from '@angular/core'
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges } from '@angular/core'
 
 @Component({
   selector: 'app-role-mapping-list',
@@ -10,6 +10,7 @@ export class RoleMappingListComponent implements OnInit, OnChanges {
   @Input() roles: any[] = []
   @Input() isLoading = false
   @Input() selectedRoleCode: string | null = null
+  @Input() searchResetKey = 0
 
   @Output() searchChange = new EventEmitter<string>()
   @Output() roleSelected = new EventEmitter<any>()
@@ -23,8 +24,11 @@ export class RoleMappingListComponent implements OnInit, OnChanges {
     this.filteredRoles = [...this.roles]
   }
 
-  ngOnChanges(): void {
+  ngOnChanges(changes: SimpleChanges): void {
     this.filteredRoles = [...this.roles]
+    if (changes['searchResetKey'] && !changes['searchResetKey'].firstChange) {
+      this.searchTerm = ''
+    }
   }
 
   onSearchChange(): void {

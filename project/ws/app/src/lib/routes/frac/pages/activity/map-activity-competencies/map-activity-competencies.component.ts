@@ -69,6 +69,7 @@ export class MapActivityCompetenciesComponent implements OnInit, OnDestroy {
 
   activitySearchTerm = ''
   competencySearchTerm = ''
+  searchResetKey = 0
 
   private activitySearch$ = new Subject<string>()
   private competencySearch$ = new Subject<string>()
@@ -113,6 +114,11 @@ export class MapActivityCompetenciesComponent implements OnInit, OnDestroy {
   }
 
   private resetInitialView(): void {
+    this.searchResetKey += 1
+    this.activitySearchTerm = ''
+    this.competencySearchTerm = ''
+    this.hasUnsavedChanges = false
+
     this.activitiesData = []
     this.activities = []
     this.filteredActivities = []
@@ -123,8 +129,13 @@ export class MapActivityCompetenciesComponent implements OnInit, OnDestroy {
     this.selectedActivity = null
     this.expandedActivity = null
     this.updatedActivities = []
+    this.isActivitiesLoading = false
+    this.isCompetenciesLoading = false
+    this.isActivityMappingLoading = false
     this.activeMappingRequestKey = null
+    this.activityMappingCache.clear()
     this.activityDraftStore.clear()
+    this.activityMappedCompetenciesCache.clear()
   }
 
   // ---------------------------------------------------------------------------
@@ -239,25 +250,21 @@ export class MapActivityCompetenciesComponent implements OnInit, OnDestroy {
   selectLanguage(lang: string, event: MouseEvent): void {
     event.stopPropagation()
     if (!this.languages.includes(lang)) return
+    if (this.selectedLanguage === lang) {
+      this.isOpen = false
+      return
+    }
 
+    const hadUnsavedChanges = this.hasUnsavedChanges || this.activityDraftStore.size > 0
     this.selectedLanguage = lang
     this.isOpen = false
-    this.activeMappingRequestKey = null
+    this.resetInitialView()
 
-    // Re-run activity search in selected language with current query (including empty).
-    this.activitySearch$.next(this.activitySearchTerm)
-
-    if (this.selectedActivity) {
-      if (this.competencySearchTerm) {
-        this.competencySearch$.next(this.competencySearchTerm)
-      } else {
-        this.loadSelectedActivityMappings(this.selectedActivity)
-      }
-    } else {
-      this.isCompetenciesLoading = false
-      this.isActivityMappingLoading = false
-      this.clearCompetencies()
-    }
+    this.snackbar.warning(
+      hadUnsavedChanges
+        ? 'Language changed. Unsaved mapping changes were reset. Please search again.'
+        : 'Language changed. Please search again to load data.',
+    )
   }
 
   // ---------------------------------------------------------------------------
@@ -581,11 +588,15 @@ export class MapActivityCompetenciesComponent implements OnInit, OnDestroy {
       return
     }
 
+    const previousSignature = this.getActivityCompetencyDetailsSignature(this.selectedActivity.competencyDetails || [])
+
     this.removeDeselected()
     this.updateOrInsertSelected()
     this.refreshActivitiesState()
-    this.hasUnsavedChanges = true
-    this.snackbar.success('Activity–competency mapping updated successfully.')
+    const currentSignature = this.getActivityCompetencyDetailsSignature(this.selectedActivity.competencyDetails || [])
+    const hasChanges = previousSignature !== currentSignature
+    this.hasUnsavedChanges = this.hasUnsavedChanges || hasChanges
+    this.snackbar.success('Activity–Competency linked successfully. Please tap Save to apply changes.')
   }
 
   private removeDeselected(): void {
@@ -782,6 +793,18 @@ export class MapActivityCompetenciesComponent implements OnInit, OnDestroy {
         label: detail.label || '',
         levels: detail.levels || '',
       }))
+  }
+
+  private getActivityCompetencyDetailsSignature(details: ActivityCompetencyDetail[]): string {
+    return this.cloneActivityDetails(details)
+      .map((detail) => ({
+        code: detail.code,
+        label: detail.label || '',
+        levels: this.extractCompetencyLevels(detail.levels || '').join(','),
+      }))
+      .sort((left, right) => left.code.localeCompare(right.code, undefined, { numeric: true, sensitivity: 'base' }))
+      .map((detail) => `${detail.code}|${detail.label}|${detail.levels}`)
+      .join('||')
   }
 
   private extractEntityCodeFromMappingKey(key: string): string {

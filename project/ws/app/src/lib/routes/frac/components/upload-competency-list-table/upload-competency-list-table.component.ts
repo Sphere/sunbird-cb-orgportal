@@ -13,7 +13,7 @@ import {
 } from '@angular/core'
 import { MatTableDataSource } from '@angular/material/table'
 import { MatPaginator } from '@angular/material/paginator'
-import { MatSort } from '@angular/material/sort'
+import { MatSort, Sort } from '@angular/material/sort'
 import { SelectionModel } from '@angular/cdk/collections'
 
 export interface TableColumn {
@@ -63,7 +63,7 @@ export class UploadCompetencyListTableComponent implements OnChanges, AfterViewI
     { key: 'name', label: 'Label' },
     { key: 'description', label: 'Description' },
     { key: 'type', label: 'Type' },
-    { key: 'status', label: 'Status' },
+    { key: 'area', label: 'Area' },
     { key: `level_L1_label`, label: `Level 1 Label` },
     { key: `level_L1_description`, label: `Level 1 Description` },
 
@@ -98,6 +98,7 @@ export class UploadCompetencyListTableComponent implements OnChanges, AfterViewI
       : this.activeColumns.map(c => c.key)
 
     this.dataSource = new MatTableDataSource(this.data)
+    this.configureDataSource()
     this.emptyRows = this.computeEmptyRows()
     this.fillerRows = this.computeEmptyRowsForData()
     if (changes.data || changes.columns) {
@@ -110,10 +111,7 @@ export class UploadCompetencyListTableComponent implements OnChanges, AfterViewI
 
   ngAfterViewInit() {
     setTimeout(() => {
-      if (this.enablePagination && this.paginator)
-        this.dataSource.paginator = this.paginator
-      if (this.enableSorting && this.sort)
-        this.dataSource.sort = this.sort
+      this.configureDataSource()
       this.syncLoadingColumnWidths()
     })
 
@@ -169,7 +167,7 @@ export class UploadCompetencyListTableComponent implements OnChanges, AfterViewI
       key.includes('name') ||
       key.includes('description') ||
       key === 'type' ||
-      key === 'status' ||
+      key === 'area' ||
       isLevelLabel
     )
   }
@@ -213,6 +211,65 @@ export class UploadCompetencyListTableComponent implements OnChanges, AfterViewI
 
   private scheduleLoadingWidthSync(): void {
     setTimeout(() => this.syncLoadingColumnWidths())
+  }
+
+  private configureDataSource(): void {
+    this.dataSource.sortingDataAccessor = (item: any, property: string): string => {
+      return this.normalizeSortValue(item?.[property])
+    }
+
+    this.dataSource.sortData = (data: any[], sort: Sort): any[] => {
+      if (!sort.active || sort.direction === '') {
+        return data.slice()
+      }
+
+      const isAscending = sort.direction === 'asc'
+      return data.slice().sort((left: any, right: any) => {
+        const leftValue = this.normalizeSortValue(left?.[sort.active])
+        const rightValue = this.normalizeSortValue(right?.[sort.active])
+        const comparison = this.compareSortValues(leftValue, rightValue)
+        return isAscending ? comparison : -comparison
+      })
+    }
+
+    if (this.enablePagination && this.paginator) {
+      this.dataSource.paginator = this.paginator
+    }
+    if (this.enableSorting && this.sort) {
+      this.dataSource.sort = this.sort
+      this.applyDefaultSort()
+    }
+  }
+
+  private applyDefaultSort(): void {
+    if (!this.enableSorting || !this.sort || this.sort.direction) {
+      return
+    }
+
+    const defaultSortKey = this.resolveDefaultSortKey()
+    if (!defaultSortKey) {
+      return
+    }
+
+    this.sort.active = defaultSortKey
+    this.sort.direction = 'asc'
+    this.sort.sortChange.emit({ active: defaultSortKey, direction: 'asc' })
+  }
+
+  private resolveDefaultSortKey(): string | null {
+    if (this.activeColumns.some(column => column.key === 'code')) {
+      return 'code'
+    }
+
+    return this.activeColumns[0]?.key || null
+  }
+
+  private normalizeSortValue(value: unknown): string {
+    return (value ?? '').toString().trim()
+  }
+
+  private compareSortValues(left: string, right: string): number {
+    return left.localeCompare(right, undefined, { numeric: true, sensitivity: 'base' })
   }
 
   private syncLoadingColumnWidths(): void {

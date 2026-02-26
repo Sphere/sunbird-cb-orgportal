@@ -88,7 +88,6 @@
   // ============= GRID LINES (configurable) =============
 
   &.horizontal {
-    .data-table th,
     .data-table td {
       border-bottom: 1px solid #e0e0e0;
     }
@@ -124,7 +123,10 @@
   }
 
   &.both {
-    .data-table th,
+    .data-table th {
+      border-right: 1px solid #e0e0e0;
+    }
+
     .data-table td {
       border-bottom: 1px solid #e0e0e0;
       border-right: 1px solid #e0e0e0;

@@ -5,9 +5,9 @@
     <span class="home-label">Home</span>
   </button>
 
-  <button mat-stroked-button class="save-btn" type="button" (click)="onSaveClicked()" [disabled]="!isEditing || isSaving"
+  <button mat-stroked-button class="save-btn" type="button" (click)="onSaveClicked()" [disabled]="!isEditing || isSaving || isValidatingActivityMappings"
     aria-label="Save role mappings">
-    {{ isSaving ? 'Saving...' : 'Save' }}
+    {{ isSaving ? 'Saving...' : (isValidatingActivityMappings ? 'Validating...' : 'Save') }}
   </button>
 </div>
 
@@ -58,6 +58,7 @@
     <!-- LEFT – ROLES PANEL -->
     <div class="roles-panel">
       <app-role-mapping-list [roles]="filteredRoles" [isLoading]="isRolesLoading"
+        [searchResetKey]="searchResetKey"
         [selectedRoleCode]="selectedRole?.code || null"
         (searchChange)="onRoleSearch($event)"
         (roleSelected)="onRoleSelected($event)" (toggle)="onRoleToggleExpand($event)">
@@ -67,6 +68,7 @@
     <!-- RIGHT – ACTIVITIES PANEL -->
     <div class="activities-panel">
       <app-activity-mapping-table [activities]="filteredActivities" [selectedRole]="selectedRole"
+        [searchResetKey]="searchResetKey"
         [selectedActivityMap]="selectedActivityMap" [isLoading]="isRoleMappingLoading || isActivitiesLoading"
         [isActionLoading]="isValidatingActivityMappings"
         (searchChange)="onActivitySearch($event)"

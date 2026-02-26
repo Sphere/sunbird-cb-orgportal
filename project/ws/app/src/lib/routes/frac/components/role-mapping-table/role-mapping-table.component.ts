@@ -11,6 +11,7 @@ export class RoleMappingTableComponent implements OnInit, OnChanges {
   @Input() selectedRole: any = null
   @Input() selectedPositionMap: { [code: string]: boolean } = {}
   @Input() isLoading = false
+  @Input() searchResetKey = 0
 
   @Output() searchChange = new EventEmitter<string>()
   @Output() positionCheckChange = new EventEmitter<{ code: string; checked: boolean }>()
@@ -26,6 +27,9 @@ export class RoleMappingTableComponent implements OnInit, OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['positions']) {
       this.filteredPositions = [...this.positions]
+    }
+    if (changes['searchResetKey'] && !changes['searchResetKey'].firstChange) {
+      this.searchTerm = ''
     }
   }
 
@@ -71,5 +75,19 @@ export class RoleMappingTableComponent implements OnInit, OnChanges {
     }
 
     return 'No existing roles mapped to this position. Search and add roles.'
+  }
+
+  get emptyStateTitle(): string {
+    if (!this.selectedRole) {
+      return 'Position not selected'
+    }
+    return this.searchTerm.trim() ? 'No role found' : 'No role mapped yet'
+  }
+
+  get emptyStateIcon(): string {
+    if (!this.selectedRole) {
+      return 'touch_app'
+    }
+    return this.searchTerm.trim() ? 'manage_search' : 'playlist_add_check'
   }
 }

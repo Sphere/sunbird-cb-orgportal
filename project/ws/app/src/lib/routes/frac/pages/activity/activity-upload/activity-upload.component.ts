@@ -18,6 +18,13 @@ interface SearchTriggerPayload {
   source: SearchSource
 }
 
+interface UploadEmptyStateConfig {
+  icon: string
+  title: string
+  message: string
+  suggestion: string
+}
+
 @Component({
   selector: 'ws-app-activity-upload',
   templateUrl: './activity-upload.component.html',
@@ -68,6 +75,18 @@ export class ActivityUploadComponent implements OnInit, OnDestroy {
   selectedLanguage = 'English'
   languages = ['English', 'Hindi', 'Kannada', 'Tamil']
   isOpen = false
+  readonly uploadEmptyStateConfig: UploadEmptyStateConfig = {
+    icon: 'upload_file',
+    title: 'No file uploaded yet',
+    message: 'Upload your activity file to preview the records.',
+    suggestion: 'Choose a language and download the appropriate sample template.',
+  }
+  readonly noResultEmptyStateConfig: UploadEmptyStateConfig = {
+    icon: 'search_off',
+    title: 'No results found',
+    message: 'No activity records match the selected filters.',
+    suggestion: 'Try a different search keyword or language.',
+  }
 
   // ============= LOADING & API RESPONSE =============
   uploadProgress = 0
@@ -81,6 +100,8 @@ export class ActivityUploadComponent implements OnInit, OnDestroy {
   private searchTrigger$ = new Subject<SearchTriggerPayload>()
   private searchSubscription: Subscription | null = null
   private destroy$ = new Subject<void>()
+  private baselineTableSignature = ''
+  private baselineRowSignatureByCode = new Map<string, string>()
 
   // ============= LIFECYCLE =============
 
@@ -125,6 +146,10 @@ export class ActivityUploadComponent implements OnInit, OnDestroy {
       // Upload mode: show empty table
       this.tableConfig = { columns: [], data: [] }
       this.originalRowData = []
+      this.selectedRows = []
+      this.removedData = []
+      this.isEditing = false
+      this.captureBaselineTableState()
     }
   }
 
@@ -138,6 +163,14 @@ export class ActivityUploadComponent implements OnInit, OnDestroy {
   /** Check if table has data */
   hasTableData(): boolean {
     return this.tableConfig.data && this.tableConfig.data.length > 0
+  }
+
+  hasPendingTableChanges(): boolean {
+    if (this.routeMode !== 'manage') {
+      return false
+    }
+
+    return this.computeTableSignature(this.tableConfig.data) !== this.baselineTableSignature
   }
 
   // ============= SEARCH & FILTER =============
@@ -184,9 +217,14 @@ export class ActivityUploadComponent implements OnInit, OnDestroy {
         next: (res) => {
           this.isSearching = false
           const entityList = this.extractEntityList(res)
-          this.searchResults = entityList
-          this.originalRowData = entityList
-          this.tableConfig = this.tableTransformUtil.transformResponseToTableConfig(entityList)
+          const sortedEntityList = this.sortEntitiesForDisplay(entityList)
+          this.searchResults = sortedEntityList
+          this.originalRowData = sortedEntityList
+          this.tableConfig = this.tableTransformUtil.transformResponseToTableConfig(sortedEntityList)
+          this.selectedRows = []
+          this.removedData = []
+          this.isEditing = false
+          this.captureBaselineTableState()
         },
         error: (err) => {
           this.isSearching = false
@@ -208,27 +246,53 @@ export class ActivityUploadComponent implements OnInit, OnDestroy {
     return Array.isArray(entityList) ? entityList : []
   }
 
+  private sortEntitiesForDisplay(entities: any[]): any[] {
+    return [...(entities || [])].sort((left: any, right: any) => {
+      const leftCode = this.normalizeSortValue(left?.code || left?.additionalProperties?.Code)
+      const rightCode = this.normalizeSortValue(right?.code || right?.additionalProperties?.Code)
+      const codeComparison = this.compareSortValues(leftCode, rightCode)
+      if (codeComparison !== 0) {
+        return codeComparison
+      }
+
+      const leftName = this.normalizeSortValue(left?.name || left?.title)
+      const rightName = this.normalizeSortValue(right?.name || right?.title)
+      return this.compareSortValues(leftName, rightName)
+    })
+  }
+
+  private normalizeSortValue(value: unknown): string {
+    return (value ?? '').toString().trim()
+  }
+
+  private compareSortValues(left: string, right: string): number {
+    return left.localeCompare(right, undefined, { numeric: true, sensitivity: 'base' })
+  }
+
   // ============= LANGUAGE DROPDOWN =============
 
   /** Toggle language dropdown visibility */
   toggleDropdown(): void {
-    if (this.isFilterControlsDisabled()) {
+    if (this.isLanguageDropdownDisabled()) {
       this.isOpen = false
       return
     }
     this.isOpen = !this.isOpen
   }
 
-  /** Select language and search immediately */
+  /** Select language; in upload mode this only affects sample download language */
   selectLanguage(lang: string, event: MouseEvent): void {
-    if (this.isFilterControlsDisabled()) {
+    if (this.isLanguageDropdownDisabled()) {
       event.stopPropagation()
       return
     }
     event.stopPropagation()
     this.selectedLanguage = lang
     this.isOpen = false
-    this.triggerSearch('language')
+
+    if (this.routeMode === 'manage') {
+      this.triggerSearch('language')
+    }
   }
 
   // ============= TABLE SELECTION =============
@@ -259,7 +323,13 @@ export class ActivityUploadComponent implements OnInit, OnDestroy {
       return
     }
 
-    const payloads = this.selectedRows
+    const changedRows = this.selectedRows.filter(row => this.isRowChanged(row))
+    if (!changedRows.length) {
+      console.warn('No changes detected to save.')
+      return
+    }
+
+    const payloads = changedRows
       .map(row => this.buildActivityUpdatePayload(row))
       .filter(Boolean) as any[]
 
@@ -278,10 +348,11 @@ export class ActivityUploadComponent implements OnInit, OnDestroy {
         const successData: UploadResultData = {
           type: 'success',
           title: 'Update Successful',
-          message: `${payloads.length} activity ${payloads.length === 1 ? 'record' : 'records'} updated successfully.`,
-          count: payloads.length,
+          message: `${changedRows.length} activity ${changedRows.length === 1 ? 'record' : 'records'} updated successfully.`,
+          count: changedRows.length,
         }
-        this.showResultModal(successData, false, true)
+        this.captureBaselineTableState()
+        this.showResultModal(successData, true)
       },
       error: (err) => {
         this.isUpdating = false
@@ -747,7 +818,7 @@ export class ActivityUploadComponent implements OnInit, OnDestroy {
       if (!refreshOnClose) {
         return
       }
-      this.triggerSearch('icon')
+      this.triggerSearch('init')
     })
   }
 
@@ -756,7 +827,7 @@ export class ActivityUploadComponent implements OnInit, OnDestroy {
       return
     }
 
-    if (!this.isEditing) {
+    if (!this.hasPendingTableChanges()) {
       this.router.navigateByUrl('/app/home/frac/dashboard')
       return
     }
@@ -785,6 +856,65 @@ export class ActivityUploadComponent implements OnInit, OnDestroy {
 
   isFilterControlsDisabled(): boolean {
     return this.isUploading || this.routeMode === 'upload'
+  }
+
+  isLanguageDropdownDisabled(): boolean {
+    return this.isUploading
+  }
+
+  get activeEmptyStateConfig(): UploadEmptyStateConfig {
+    return this.routeMode === 'manage' ? this.noResultEmptyStateConfig : this.uploadEmptyStateConfig
+  }
+
+  shouldShowTableEmptyState(): boolean {
+    if (this.isUploading || this.isSearching || this.hasTableData()) {
+      return false
+    }
+
+    return this.routeMode === 'upload' || this.routeMode === 'manage'
+  }
+
+  private isRowChanged(row: any): boolean {
+    const code = (row?.code ?? '').toString().trim()
+    if (!code) {
+      return true
+    }
+
+    const baselineRowSignature = this.baselineRowSignatureByCode.get(code)
+    const currentSignature = this.getRowSignature(row)
+    return baselineRowSignature !== currentSignature
+  }
+
+  private captureBaselineTableState(): void {
+    const rows = this.tableConfig?.data || []
+    this.baselineTableSignature = this.computeTableSignature(rows)
+    this.baselineRowSignatureByCode = new Map<string, string>()
+
+    rows.forEach((row) => {
+      const code = (row?.code ?? '').toString().trim()
+      if (!code) {
+        return
+      }
+      this.baselineRowSignatureByCode.set(code, this.getRowSignature(row))
+    })
+  }
+
+  private computeTableSignature(rows: any[]): string {
+    return (rows || [])
+      .map((row) => this.getRowSignature(row))
+      .sort()
+      .join('||')
+  }
+
+  private getRowSignature(row: any): string {
+    const normalized: Record<string, string> = {}
+    const keys = Object.keys(row || {}).sort()
+
+    keys.forEach((key) => {
+      normalized[key] = (row?.[key] ?? '').toString()
+    })
+
+    return JSON.stringify(normalized)
   }
 
 }

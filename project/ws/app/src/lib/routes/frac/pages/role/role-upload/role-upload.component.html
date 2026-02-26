@@ -6,7 +6,7 @@
     <span class="home-label">Home</span>
   </button>
 
-  <button class="save-btn" (click)="onSaveClicked()" [disabled]="!isEditing || !hasTableData() || isUpdating">
+  <button class="save-btn" (click)="onSaveClicked()" [disabled]="!isEditing || !hasTableData() || isUpdating || !hasPendingTableChanges()">
     <span style="color: white;">{{ isUpdating ? 'Saving...' : 'Save' }}</span>
   </button>
 </div>
@@ -43,7 +43,7 @@
       </div>
 
       <!-- Language Dropdown -->
-      <div class="language-dropdown" [class.disabled]="isFilterControlsDisabled()" (click)="toggleDropdown()">
+      <div class="language-dropdown" [class.disabled]="isLanguageDropdownDisabled()" (click)="toggleDropdown()">
         <div class="dropdown-main">
           <div class="label-container">
             <div class="label">Language</div>
@@ -54,7 +54,7 @@
           </div>
         </div>
 
-        <div class="dropdown-list" *ngIf="isOpen && !isFilterControlsDisabled()" (click)="$event.stopPropagation()">
+        <div class="dropdown-list" *ngIf="isOpen && !isLanguageDropdownDisabled()" (click)="$event.stopPropagation()">
           <div class="dropdown-item" *ngFor="let lang of languages" (click)="selectLanguage(lang, $event)">
             {{ lang }}
           </div>
@@ -103,6 +103,17 @@
   </div>
 
   <div class="table-section">
+    <div class="table-empty-state" *ngIf="shouldShowTableEmptyState()">
+      <div class="table-empty-state-card">
+        <div class="empty-state-icon" aria-hidden="true">
+          <mat-icon>{{ activeEmptyStateConfig.icon }}</mat-icon>
+        </div>
+        <p class="empty-state-title">{{ activeEmptyStateConfig.title }}</p>
+        <p class="empty-state-message">{{ activeEmptyStateConfig.message }}</p>
+        <p class="empty-state-suggestion">{{ activeEmptyStateConfig.suggestion }}</p>
+      </div>
+    </div>
+
     <!-- Role Table Component: Reusing upload-activity-list-table as generic table -->
     <app-upload-activity-list-table [columns]="tableConfig.columns" [data]="tableConfig.data" [showCheckbox]="true"
       [enableSorting]="true" [enablePagination]="false" [gridStyle]="'both'" [isEditing]="isEditing"

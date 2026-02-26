@@ -67,7 +67,7 @@ export class TableTransformUtil {
       { key: 'name', label: 'Label' },
       { key: 'description', label: 'Description' },
       { key: 'type', label: 'Type' },
-      { key: 'status', label: 'Status' },
+      { key: 'area', label: 'Area' },
     ]
 
     // Determine max level count dynamically
@@ -109,8 +109,8 @@ export class TableTransformUtil {
         type: entity.type ?? '',
         name: entity.name ?? '',
         description: entity.description ?? '',
-        status: entity.status ?? '',
-      };
+        area: entity.area ?? '',
+      }
 
       if (Array.isArray(entity.children) && entity.children.length) {
         entity.children.forEach((child: any) => {

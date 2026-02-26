@@ -52,6 +52,7 @@
   <div class="content-layout">
     <div class="activities-panel">
       <app-activity-mapping-list [activities]="filteredActivities" [isLoading]="isActivitiesLoading"
+        [searchResetKey]="searchResetKey"
         [selectedActivityCode]="selectedActivity?.code || null"
         (searchChange)="onActivitySearch($event)"
         (activitySelected)="onActivitySelected($event)" (toggle)="expand($event)">
@@ -60,6 +61,7 @@
 
     <div class="competency-panel">
       <app-competency-mapping-table [competencies]="competencies" [selectedActivity]="selectedActivity"
+        [searchResetKey]="searchResetKey"
         [selectedMap]="selectedMap" [isLoading]="isActivityMappingLoading || isCompetenciesLoading"
         (checked)="onCheck($event)" (searchChange)="onCompetencySearch($event)"
         (addCompetency)="onAddCompetencyToActivity()">

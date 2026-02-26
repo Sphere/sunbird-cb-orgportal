@@ -6,13 +6,14 @@ import {
   ElementRef,
   QueryList,
   OnChanges,
+  SimpleChanges,
   AfterViewInit,
   EventEmitter,
   Output,
 } from '@angular/core'
 import { MatTableDataSource } from '@angular/material/table'
 import { MatPaginator } from '@angular/material/paginator'
-import { MatSort } from '@angular/material/sort'
+import { MatSort, Sort } from '@angular/material/sort'
 import { SelectionModel } from '@angular/cdk/collections'
 
 /** Column configuration for Activity table */
@@ -86,15 +87,32 @@ export class UploadActivityListTableComponent implements OnChanges, AfterViewIni
     // { key: 'status', label: 'Status' },
   ]
 
-  @ViewChild(MatPaginator) paginator!: MatPaginator
-  @ViewChild(MatSort) sort!: MatSort
+  private paginator: MatPaginator | null = null
+  private sort: MatSort | null = null
+
+  @ViewChild(MatPaginator)
+  set matPaginator(paginator: MatPaginator | undefined) {
+    this.paginator = paginator ?? null
+    this.attachTableControllers()
+  }
+
+  @ViewChild(MatSort)
+  set matSort(sort: MatSort | undefined) {
+    this.sort = sort ?? null
+    this.attachTableControllers()
+  }
+
   @ViewChildren('headerCell', { read: ElementRef }) headerCells!: QueryList<ElementRef<HTMLElement>>
 
   loadingColumnWidths: number[] = []
 
   // ============= LIFECYCLE HOOKS =============
 
-  ngOnChanges(): void {
+  constructor() {
+    this.configureDataSource()
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
     this.activeColumns = this.columns && this.columns.length > 0 ? this.columns : this.defaultColumns
 
     // Update displayed columns based on checkbox visibility
@@ -102,20 +120,22 @@ export class UploadActivityListTableComponent implements OnChanges, AfterViewIni
       ? ['select', ...this.activeColumns.map(c => c.key)]
       : this.activeColumns.map(c => c.key)
 
-    // Update data source
-    this.dataSource = new MatTableDataSource(this.data)
+    // Update data source while preserving existing sort/paginator bindings
+    this.dataSource.data = [...(this.data || [])]
+    this.attachTableControllers()
     this.emptyRows = this.computeEmptyRows()
     this.fillerRows = this.computeEmptyRowsForData()
+    if (changes['data'] || changes['columns']) {
+      this.selection.clear()
+      this.selectionChange.emit([])
+    }
     this.scheduleLoadingWidthSync()
   }
 
   ngAfterViewInit() {
     // Attach paginator and sorter after view initialization
     setTimeout(() => {
-      if (this.enablePagination && this.paginator)
-        this.dataSource.paginator = this.paginator
-      if (this.enableSorting && this.sort)
-        this.dataSource.sort = this.sort
+      this.attachTableControllers()
       this.syncLoadingColumnWidths()
     })
 
@@ -187,6 +207,65 @@ export class UploadActivityListTableComponent implements OnChanges, AfterViewIni
 
   private scheduleLoadingWidthSync(): void {
     setTimeout(() => this.syncLoadingColumnWidths())
+  }
+
+  private configureDataSource(): void {
+    this.dataSource.sortingDataAccessor = (item: any, property: string): string => {
+      return this.normalizeSortValue(item?.[property])
+    }
+
+    this.dataSource.sortData = (data: any[], sort: Sort): any[] => {
+      if (!sort.active || sort.direction === '') {
+        return data.slice()
+      }
+
+      const isAscending = sort.direction === 'asc'
+      return data.slice().sort((left: any, right: any) => {
+        const leftValue = this.normalizeSortValue(left?.[sort.active])
+        const rightValue = this.normalizeSortValue(right?.[sort.active])
+        const comparison = this.compareSortValues(leftValue, rightValue)
+        return isAscending ? comparison : -comparison
+      })
+    }
+
+    this.attachTableControllers()
+  }
+
+  private attachTableControllers(): void {
+    this.dataSource.paginator = this.enablePagination ? this.paginator : null
+    this.dataSource.sort = this.enableSorting ? this.sort : null
+    this.applyDefaultSort()
+  }
+
+  private applyDefaultSort(): void {
+    if (!this.enableSorting || !this.sort || this.sort.direction) {
+      return
+    }
+
+    const defaultSortKey = this.resolveDefaultSortKey()
+    if (!defaultSortKey) {
+      return
+    }
+
+    this.sort.active = defaultSortKey
+    this.sort.direction = 'asc'
+    this.sort.sortChange.emit({ active: defaultSortKey, direction: 'asc' })
+  }
+
+  private resolveDefaultSortKey(): string | null {
+    if (this.activeColumns.some(column => column.key === 'code')) {
+      return 'code'
+    }
+
+    return this.activeColumns[0]?.key || null
+  }
+
+  private normalizeSortValue(value: unknown): string {
+    return (value ?? '').toString().trim()
+  }
+
+  private compareSortValues(left: string, right: string): number {
+    return left.localeCompare(right, undefined, { numeric: true, sensitivity: 'base' })
   }
 
   private syncLoadingColumnWidths(): void {

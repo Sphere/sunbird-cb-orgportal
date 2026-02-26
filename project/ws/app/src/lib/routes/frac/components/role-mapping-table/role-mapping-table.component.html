@@ -58,8 +58,12 @@
       </div>
 
       <div *ngIf="!isLoading && filteredPositions.length === 0" class="no-data">
-        <div class="no-data-text">
-          <span>{{ emptyStateMessage }}</span>
+        <div class="empty-state-card">
+          <div class="icon-shell">
+            <mat-icon class="empty-state-icon">{{ emptyStateIcon }}</mat-icon>
+          </div>
+          <div class="empty-state-title">{{ emptyStateTitle }}</div>
+          <div class="empty-state-message">{{ emptyStateMessage }}</div>
         </div>
       </div>
 

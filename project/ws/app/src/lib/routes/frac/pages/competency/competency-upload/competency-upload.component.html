@@ -6,7 +6,8 @@
   </button>
 
   <!-- Save Button - Disabled when no data -->
-  <button class="save-btn" (click)="onSaveClicked()" [disabled]="!isEditing || !hasTableData() || isUpdating">
+  <button class="save-btn" (click)="onSaveClicked()"
+    [disabled]="!isEditing || !hasTableData() || isUpdating || !hasPendingTableChanges()">
     <span style="color: white;">{{ isUpdating ? 'Saving...' : 'Save' }}</span>
   </button>
 </div>
@@ -33,15 +34,13 @@
 
       <div class="search-box" [class.disabled]="isFilterControlsDisabled()">
         <input matInput type="text" placeholder="Search by name, code" [(ngModel)]="searchTerm"
-          [disabled]="isFilterControlsDisabled()"
-          (input)="onSearchTermChange()" (keydown.enter)="onSearchEnter()" />
-        <button mat-icon-button matSuffix class="icon-btn" (click)="onSearch()"
-          [disabled]="isFilterControlsDisabled()">
+          [disabled]="isFilterControlsDisabled()" (input)="onSearchTermChange()" (keydown.enter)="onSearchEnter()" />
+        <button mat-icon-button matSuffix class="icon-btn" (click)="onSearch()" [disabled]="isFilterControlsDisabled()">
           <mat-icon>search</mat-icon>
         </button>
       </div>
 
-      <div class="language-dropdown" [class.disabled]="isFilterControlsDisabled()" (click)="toggleDropdown()">
+      <div class="language-dropdown" [class.disabled]="isLanguageDropdownDisabled()" (click)="toggleDropdown()">
         <div class="dropdown-main">
           <div class="label-container">
             <div class="label">Language</div>
@@ -52,7 +51,7 @@
           </div>
         </div>
 
-        <div class="dropdown-list" *ngIf="isOpen && !isFilterControlsDisabled()" (click)="$event.stopPropagation()">
+        <div class="dropdown-list" *ngIf="isOpen && !isLanguageDropdownDisabled()" (click)="$event.stopPropagation()">
           <div class="dropdown-item" *ngFor="let lang of languages" (click)="selectLanguage(lang, $event)">
             {{ lang }}
           </div>
@@ -103,6 +102,17 @@
   </div>
 
   <div class="table-section">
+    <div class="table-empty-state" *ngIf="shouldShowTableEmptyState()">
+      <div class="table-empty-state-card">
+        <div class="empty-state-icon" aria-hidden="true">
+          <mat-icon>{{ activeEmptyStateConfig.icon }}</mat-icon>
+        </div>
+        <p class="empty-state-title">{{ activeEmptyStateConfig.title }}</p>
+        <p class="empty-state-message">{{ activeEmptyStateConfig.message }}</p>
+        <p class="empty-state-suggestion">{{ activeEmptyStateConfig.suggestion }}</p>
+      </div>
+    </div>
+
     <!-- ✅ Reusable Table -->
     <app-upload-competency-list-table [columns]="tableConfig.columns" [data]="tableConfig.data" [showCheckbox]="true"
       [enableSorting]="true" [enablePagination]="false" [gridStyle]="'both'" [isEditing]="isEditing"

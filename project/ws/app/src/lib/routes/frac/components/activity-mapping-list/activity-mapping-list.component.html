@@ -73,7 +73,13 @@
 
       <!-- Empty state -->
       <div *ngIf="!isLoading && filteredActivities.length === 0" class="no-data">
-        Use the search bar to find the activity to map.
+        <div class="empty-state-card">
+          <div class="icon-shell">
+            <mat-icon class="empty-state-icon">manage_search</mat-icon>
+          </div>
+          <div class="empty-state-title">No activity found</div>
+          <div class="empty-state-message">Use the search bar to find the activity to map.</div>
+        </div>
       </div>
 
     </div>

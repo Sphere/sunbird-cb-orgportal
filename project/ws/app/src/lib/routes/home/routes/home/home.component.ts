@@ -147,7 +147,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
         },
         enabled: true,
         routerLink: '/app/home/frac/dashboard',
-        requiredRoles: ['admin', 'mdo_admin', 'wat_member']
+        requiredRoles: ['admin', 'mdo_admin', 'wat_member', "FRAC_ADMIN"]
       }
 
       menus.push(fracMenu)

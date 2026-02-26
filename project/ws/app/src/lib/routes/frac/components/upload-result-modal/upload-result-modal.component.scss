@@ -3,18 +3,23 @@
   max-width: 440px;
   background: #ffffff;
   border: 1px solid #e2e8f0;
-  border-radius: 14px;
+  border-radius: 14.7px;
   font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   box-shadow: 0 14px 36px rgba(15, 23, 42, 0.2);
   overflow: hidden;
 }
 
+:host ::ng-deep .upload-result-dialog .mat-mdc-dialog-surface {
+  border-radius: 14.7px;
+  overflow: hidden;
+}
+
 .modal-status {
   position: relative;
-  padding: 18px 20px 14px;
+  padding: 32px 32px 24px;
   text-align: center;
-  background: linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
-  border-bottom: 1px solid #eef3f8;
+  background: #ffffff;
+  border-bottom: 1px dashed #cbd5e1;
 }
 
 .close-btn {
@@ -93,26 +98,31 @@
 }
 
 .modal-content {
-  padding: 14px 16px 0;
+  padding: 24px 24px 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .summary-badge {
-  display: inline-flex;
+  display: flex;
+  width: max-content;
+  align-self: center;
   align-items: center;
-  gap: 6px;
-  padding: 6px 10px;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
   margin-bottom: 12px;
   background: #f3f8fd;
   border: 1px solid #d9e9f8;
-  border-radius: 999px;
+  border-radius: 99px;
   color: #1c5d95;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 500;
 
   .badge-icon {
-    width: 16px;
-    height: 16px;
-    font-size: 16px;
+    width: 18px;
+    height: 18px;
+    font-size: 18px;
   }
 }
 
@@ -272,16 +282,16 @@
 }
 
 .modal-footer {
-  padding: 14px 16px 16px;
+  padding: 16px 24px 28px;
   display: flex;
   justify-content: center;
 }
 
 .primary-btn {
-  min-width: 128px;
-  height: 38px;
+  width: 200px;
+  height: 44px;
   border-radius: 8px !important;
-  font-size: 14px !important;
+  font-size: 16px !important;
   font-weight: 600 !important;
   text-transform: none !important;
   box-shadow: none !important;

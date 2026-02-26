@@ -80,6 +80,7 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
 
   positionSearchTerm = ''
   roleSearchTerm = ''
+  searchResetKey = 0
 
   private positionSearch$ = new Subject<string>()
   private roleSearch$ = new Subject<string>()
@@ -87,9 +88,11 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
   private readonly positionRoleMappingCache = new Map<string, PositionRoleDetail[]>()
   private readonly positionDraftStore = new Map<string, PositionRoleDetail[]>()
   private activePositionRoleMappingRequestKey: string | null = null
+  private readonly positionBaseLanguage = 'English'
 
   ngOnInit(): void {
     this.setupSearchStreams()
+    this.resetInitialView()
   }
 
   ngOnDestroy(): void {
@@ -115,13 +118,40 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
       .subscribe(keyword => this.fetchRoles(keyword))
   }
 
+  private resetInitialView(): void {
+    this.searchResetKey += 1
+    this.positionSearchTerm = ''
+    this.roleSearchTerm = ''
+    this.hasUnsavedChanges = false
+    this.isPositionsLoading = false
+    this.isRolesLoading = false
+    this.isPositionRoleMappingLoading = false
+    this.activePositionRoleMappingRequestKey = null
+
+    this.positionsData = []
+    this.positions = []
+    this.filteredPositions = []
+    this.rolesData = []
+    this.roles = []
+    this.filteredRoles = []
+
+    this.selectedPosition = null
+    this.expandedPosition = null
+    this.selectedRoleMap = {}
+    this.selectedRoleSummary = []
+    this.updatedPositions = []
+
+    this.positionRoleMappingCache.clear()
+    this.positionDraftStore.clear()
+  }
+
   // ---------------------------------------------------------------------------
   // API search
   // ---------------------------------------------------------------------------
 
   private fetchPositions(keyword: string): void {
     this.isPositionsLoading = true
-    this.fracApiService.searchEntities('position', keyword, this.selectedLanguage).subscribe({
+    this.fracApiService.searchEntities('position', keyword, this.positionBaseLanguage).subscribe({
       next: (res) => {
         this.isPositionsLoading = false
         const apiEntity = this.extractEntityList(res)
@@ -208,16 +238,21 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
   selectLanguage(lang: string, event: MouseEvent): void {
     event.stopPropagation()
     if (!this.languages.includes(lang)) return
+    if (this.selectedLanguage === lang) {
+      this.isOpen = false
+      return
+    }
+
+    const hadUnsavedChanges = this.hasUnsavedChanges || this.positionDraftStore.size > 0
     this.selectedLanguage = lang
     this.isOpen = false
-    this.activePositionRoleMappingRequestKey = null
+    this.resetInitialView()
 
-    this.positionSearch$.next(this.positionSearchTerm)
-    this.roleSearch$.next(this.roleSearchTerm)
-
-    if (this.selectedPosition?.code) {
-      this.loadPositionRoleMappings(this.selectedPosition)
-    }
+    this.snackbar.warning(
+      hadUnsavedChanges
+        ? 'Language changed. Unsaved mapping changes were reset. Please search again.'
+        : 'Language changed. Please search again to load data.',
+    )
   }
 
   // ---------------------------------------------------------------------------
@@ -269,7 +304,7 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
 
     this.activePositionRoleMappingRequestKey = requestKey
 
-    this.fracApiService.searchEntityMapping('position', position.code, this.selectedLanguage)
+    this.fracApiService.searchEntityMapping('position', position.code, this.positionBaseLanguage)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (res) => {
@@ -415,12 +450,16 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
     // Rebuild summarised selection
     this.buildSelectedRoleSummary()
 
+    const previousSignature = this.getPositionRoleDetailsSignature(this.selectedPosition.roleDetails || [])
+
     this.removeDeselectedRoles()
     this.updateOrInsertRoles()
     this.refreshPositionsState()
-    this.hasUnsavedChanges = true
+    const currentSignature = this.getPositionRoleDetailsSignature(this.selectedPosition.roleDetails || [])
+    const hasChanges = previousSignature !== currentSignature
+    this.hasUnsavedChanges = this.hasUnsavedChanges || hasChanges
 
-    this.snackbar.success('Position–role mapping updated successfully.')
+    this.snackbar.success('Position–Role linked successfully. Please tap Save to apply changes.')
   }
 
   private removeDeselectedRoles(): void {
@@ -588,6 +627,13 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
         code: detail.code,
         label: detail.label || '',
       }))
+  }
+
+  private getPositionRoleDetailsSignature(details: PositionRoleDetail[]): string {
+    return this.cloneRoleDetails(details)
+      .sort((left, right) => left.code.localeCompare(right.code, undefined, { numeric: true, sensitivity: 'base' }))
+      .map((detail) => `${detail.code}|${detail.label}`)
+      .join('||')
   }
 
   private getHydratedPositionRoleDetails(positionCode: string): PositionRoleDetail[] | null {
