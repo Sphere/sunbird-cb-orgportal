@@ -79,6 +79,14 @@ export class FracDashboardComponent {
         { label: 'Manage', icon: 'manage', redirectLink: this.routes.roleManage || FRAC_ROUTES.roleManage },
       ],
     },
+    // {
+    //   title: 'Upload Positions',
+    //   description: 'Add and manage organizational positions.',
+    //   actions: [
+    //     { label: 'Upload', icon: 'upload', redirectLink: this.routes.positionUpload || FRAC_ROUTES.positionUpload },
+    //     { label: 'Manage', icon: 'manage', redirectLink: this.routes.positionManage || FRAC_ROUTES.positionManage },
+    //   ],
+    // },
     {
       title: 'Map Activities to Competencies',
       description: 'Link activities with the relevant competencies to build skill structures.',

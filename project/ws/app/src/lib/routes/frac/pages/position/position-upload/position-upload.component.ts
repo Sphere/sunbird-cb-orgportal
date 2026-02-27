@@ -30,11 +30,11 @@ interface UploadEmptyStateConfig {
 }
 
 @Component({
-  selector: 'ws-app-activity-upload',
-  templateUrl: './activity-upload.component.html',
-  styleUrls: ['./activity-upload.component.scss']
+  selector: 'ws-app-position-upload',
+  templateUrl: './position-upload.component.html',
+  styleUrls: ['./position-upload.component.scss']
 })
-export class ActivityUploadComponent implements OnInit, OnDestroy {
+export class PositionUploadComponent implements OnInit, OnDestroy {
 
   constructor(
     private dialog: MatDialog,
@@ -50,8 +50,16 @@ export class ActivityUploadComponent implements OnInit, OnDestroy {
 
   // ============= ROUTE STATE =============
 
-  /** Route mode: 'upload' or 'manage' */
-  routeMode: UploadRouteMode = 'upload'
+  /**
+   * Route mode:
+   * - 'card'   → card grid (sidebar / no query param)
+   * - 'manage' → role-like table manage (?mode=manage)
+   * - 'upload' → upload flow (?mode=upload)
+   */
+  routeMode: UploadRouteMode | 'card' = 'card'
+
+  /** Shows search & language on card grid only when accessed via explicit ?mode=manage from dashboard card */
+  showManageSearch = false
 
   // ============= TABLE STATE =============
 
@@ -87,22 +95,27 @@ export class ActivityUploadComponent implements OnInit, OnDestroy {
   readonly uploadEmptyStateConfig: UploadEmptyStateConfig = {
     icon: 'upload_file',
     title: 'No file uploaded yet',
-    message: 'Upload your activity file to preview the records.',
+    message: 'Upload your position file to preview the records.',
     suggestion: 'Choose a language and download the appropriate sample template.',
   }
   readonly noResultEmptyStateConfig: UploadEmptyStateConfig = {
     icon: 'search_off',
     title: 'No results found',
-    message: 'No activity records match the selected filters.',
+    message: 'No position records match the selected filters.',
     suggestion: 'Try a different search keyword or language.',
   }
 
+  /** Shimmer placeholder cards shown while card grid is loading. Count is config-driven. */
+  readonly shimmerCardCount = 8
+  readonly shimmerCards = Array.from({ length: this.shimmerCardCount })
+
+
   // ============= LOADING & API RESPONSE =============
   uploadProgress = 0
-  isUploading = false  // ✅ Track loading state for local spinner
+  isUploading = false
   isSearching = false
   isUpdating = false
-  apiResponse: any = null  // Store actual API response
+  apiResponse: any = null
 
   // ============= INTERNAL STATE =============
 
@@ -114,9 +127,6 @@ export class ActivityUploadComponent implements OnInit, OnDestroy {
 
   // ============= LIFECYCLE =============
 
-  /**
-   * Runs once when the page loads. Sets up search listeners and checks the URL to see if we are in upload or manage mode.
-   */
   ngOnInit(): void {
     this.uploadOrchestrator.bindSearchTriggerStream(
       this.searchTrigger$,
@@ -124,17 +134,26 @@ export class ActivityUploadComponent implements OnInit, OnDestroy {
       (keyword, language) => this.fetchEntitiesForTable(keyword, language),
     )
 
-    // Load route mode and initialize table
     this.activatedRoute.queryParams.subscribe(queryParams => {
-      this.routeMode = this.uploadOrchestrator.resolveRouteMode(queryParams['mode'])
+      const rawMode = queryParams['mode']
+      if (rawMode === 'upload') {
+        // Upload flow
+        this.routeMode = 'upload'
+        this.showManageSearch = false
+      } else if (rawMode === 'manage') {
+        // Explicit ?mode=manage -> role-like table manage
+        this.routeMode = 'manage'
+        this.showManageSearch = false
+      } else {
+        // No query param -> sidebar/home layout -> card grid
+        this.routeMode = 'card'
+        this.showManageSearch = false
+      }
       this.updateButtonText()
       this.loadTableDataBasedOnMode()
     })
   }
 
-  /**
-   * Cleans up memory and active background tasks when the user leaves this page.
-   */
   ngOnDestroy(): void {
     this.searchSubscription?.unsubscribe()
     this.destroy$.next()
@@ -143,12 +162,10 @@ export class ActivityUploadComponent implements OnInit, OnDestroy {
 
   // ============= TABLE INITIALIZATION =============
 
-  /** Load table data based on route mode */
   loadTableDataBasedOnMode(): void {
-    if (this.routeMode === 'manage') {
+    if (this.routeMode === 'card' || this.routeMode === 'manage') {
       this.triggerSearch('init')
     } else {
-      // Upload mode: show empty table
       this.tableConfig = { columns: [], data: [] }
       this.originalRowData = []
       this.selectedRows = []
@@ -160,30 +177,24 @@ export class ActivityUploadComponent implements OnInit, OnDestroy {
 
   // ============= BUTTON & UI STATE =============
 
-  /** Update upload button text based on route mode */
   updateButtonText(): void {
-    this.uploadButtonText = this.uploadOrchestrator.resolveUploadButtonText(this.routeMode)
+    const mode = this.routeMode === 'card' ? 'manage' : this.routeMode
+    this.uploadButtonText = this.uploadOrchestrator.resolveUploadButtonText(mode)
   }
 
-  /** Check if table has data */
   hasTableData(): boolean {
     return this.tableConfig.data && this.tableConfig.data.length > 0
   }
 
-  /**
-   * Checks if the user has made any edits or removed rows that need to be saved.
-   */
   hasPendingTableChanges(): boolean {
     if (this.routeMode !== 'manage') {
       return false
     }
-
     return this.uploadOrchestrator.computeTableSignature(this.tableConfig.data as Array<Record<string, unknown>>) !== this.baselineTableSignature
   }
 
   // ============= SEARCH & FILTER =============
 
-  /** Trigger search on input change (debounced) */
   onSearchTermChange(): void {
     if (this.isFilterControlsDisabled()) {
       return
@@ -191,7 +202,6 @@ export class ActivityUploadComponent implements OnInit, OnDestroy {
     this.triggerSearch('typing')
   }
 
-  /** Execute search API call */
   onSearch(): void {
     if (this.isFilterControlsDisabled()) {
       return
@@ -199,9 +209,6 @@ export class ActivityUploadComponent implements OnInit, OnDestroy {
     this.triggerSearch('icon')
   }
 
-  /**
-   * Triggered when the user hits the Enter key in the search box. Searches immediately.
-   */
   onSearchEnter(): void {
     if (this.isFilterControlsDisabled()) {
       return
@@ -209,22 +216,16 @@ export class ActivityUploadComponent implements OnInit, OnDestroy {
     this.triggerSearch('enter')
   }
 
-  /**
-   * Fires a search event to fetch data from the server, either from user typing, clicking search, or changing the language.
-   */
   private triggerSearch(source: UploadSearchSource): void {
     this.searchTrigger$.next(this.uploadOrchestrator.buildSearchPayload(this.searchTerm, this.selectedLanguage, source))
   }
 
-  /**
-   * Calls the backend API to fetch the list of items (competencies, roles, etc.) and displays them in the table.
-   */
   private fetchEntitiesForTable(keyword: string, language: string = this.selectedLanguage): void {
     this.searchSubscription?.unsubscribe()
     this.isSearching = true
 
     this.searchSubscription = this.fracApiService
-      .searchEntities('activity', keyword, language)
+      .searchEntities('position', keyword, language)
       .subscribe({
         next: (res) => {
           this.isSearching = false
@@ -240,16 +241,13 @@ export class ActivityUploadComponent implements OnInit, OnDestroy {
         },
         error: (err) => {
           this.isSearching = false
-          fracLogger.error('Activity search failed', err)
+          fracLogger.error('Position search failed', err)
         }
       })
   }
 
-
-
   // ============= LANGUAGE DROPDOWN =============
 
-  /** Toggle language dropdown visibility */
   toggleDropdown(): void {
     if (this.isLanguageDropdownDisabled()) {
       this.isOpen = false
@@ -258,7 +256,6 @@ export class ActivityUploadComponent implements OnInit, OnDestroy {
     this.isOpen = !this.isOpen
   }
 
-  /** Select language; in upload mode this only affects sample download language */
   selectLanguage(lang: string, event: MouseEvent): void {
     if (this.isLanguageDropdownDisabled()) {
       event.stopPropagation()
@@ -268,21 +265,19 @@ export class ActivityUploadComponent implements OnInit, OnDestroy {
     this.selectedLanguage = lang
     this.isOpen = false
 
-    if (this.routeMode === 'manage') {
+    if (this.routeMode === 'card' || this.routeMode === 'manage') {
       this.triggerSearch('language')
     }
   }
 
   // ============= TABLE SELECTION =============
 
-  /** Update selected rows from table */
   onSelectionChange(selected: any[]): void {
     this.selectedRows = selected
   }
 
   // ============= TABLE ACTIONS: EDIT =============
 
-  /** Enable edit mode for selected rows */
   onEditClicked(): void {
     if (this.selectedRows.length === 0) {
       fracLogger.warn('Edit action ignored because no row is selected.')
@@ -291,7 +286,6 @@ export class ActivityUploadComponent implements OnInit, OnDestroy {
     this.isEditing = true
   }
 
-  /** Save edited rows */
   onSaveClicked(): void {
     if (!this.selectedRows.length) {
       return
@@ -308,7 +302,7 @@ export class ActivityUploadComponent implements OnInit, OnDestroy {
     }
 
     const payloads = changedRows
-      .map(row => this.buildActivityUpdatePayload(row))
+      .map(row => this.buildPositionUpdatePayload(row))
       .filter(Boolean) as any[]
 
     if (!payloads.length) {
@@ -326,7 +320,7 @@ export class ActivityUploadComponent implements OnInit, OnDestroy {
         const successData: UploadResultData = {
           type: 'success',
           title: 'Update Successful',
-          message: `${changedRows.length} activity ${changedRows.length === 1 ? 'record' : 'records'} updated successfully.`,
+          message: `${changedRows.length} position ${changedRows.length === 1 ? 'record' : 'records'} updated successfully.`,
           count: changedRows.length,
         }
         this.captureBaselineTableState()
@@ -342,7 +336,7 @@ export class ActivityUploadComponent implements OnInit, OnDestroy {
             err?.error?.message ||
             err?.statusText ||
             err?.message ||
-            'Failed to update activity.',
+            'Failed to update position.',
           errorDetails: err?.status ? `HTTP Status: ${err.status}` : undefined,
         }
         this.showResultModal(failureData, false)
@@ -350,7 +344,7 @@ export class ActivityUploadComponent implements OnInit, OnDestroy {
     })
   }
 
-  private buildActivityUpdatePayload(row: any): any | null {
+  private buildPositionUpdatePayload(row: any): any | null {
     if (!row?.code) {
       return null
     }
@@ -359,7 +353,7 @@ export class ActivityUploadComponent implements OnInit, OnDestroy {
     const languageCode = original?.languageCode || this.getLanguageCode(this.selectedLanguage)
 
     return {
-      entityType: 'Activity',
+      entityType: 'Position',
       id: original?.id || row?.id || '',
       code: original?.code || row?.code || '',
       languageCode,
@@ -373,7 +367,6 @@ export class ActivityUploadComponent implements OnInit, OnDestroy {
 
   // ============= TABLE ACTIONS: REMOVE =============
 
-  /** Remove selected rows from table */
   onRemoveClicked(): void {
     if (this.selectedRows.length === 0) {
       fracLogger.warn('Remove action ignored because no row is selected.')
@@ -389,20 +382,18 @@ export class ActivityUploadComponent implements OnInit, OnDestroy {
 
   // ============= FILE OPERATIONS =============
 
-  /** Download CSV template for bulk upload */
   onDownloadTemplate(): void {
     const languageCode = this.getLanguageCode(this.selectedLanguage)
-    const fileUrl = getFracSampleTemplateUrl('activity', languageCode)
+    const fileUrl = getFracSampleTemplateUrl('position', languageCode)
 
     const link = document.createElement('a')
     link.href = fileUrl
-    link.download = fileUrl.split('/').pop() || 'sample_activity_en_list.csv'
+    link.download = fileUrl.split('/').pop() || 'sample_position_en_list.csv'
     link.click()
   }
 
-  /** Open upload dialog popup */
   openUploadPopup(): void {
-    const config = buildFracUploadPopupConfig('activity', this.languages, this.selectedLanguage)
+    const config = buildFracUploadPopupConfig('position', this.languages, this.selectedLanguage)
 
     const dialogRef = this.dialog.open(FracUploadPopupComponent, {
       width: FRAC_DIALOG_SIZES.uploadPopup,
@@ -417,87 +408,49 @@ export class ActivityUploadComponent implements OnInit, OnDestroy {
     })
   }
 
-  /** Upload file to API */
   uploadFile(file: File, language: string = this.selectedLanguage): void {
     this.selectedLanguage = language
-    fracLogger.debug('Starting activity upload', {
-      name: file.name,
-      size: file.size,
-      type: file.type,
-      lastModified: new Date(file.lastModified)
-    })
-
-    // ✅ Prevent multiple uploads - check if already uploading
     if (this.isUploading) {
-      fracLogger.warn('Upload request ignored because another upload is already running.')
       return
     }
 
-    // ✅ Show local loader
     this.isUploading = true
 
-    // Use actual upload method
     this.fracApiService.uploadFile(file, language).subscribe({
       next: (res) => {
-        fracLogger.debug('Activity upload completed', res)
-
-        // ✅ Hide local loader
         this.isUploading = false
-
-        // ✅ Store API response globally
         this.apiResponse = res
 
         const normalizedResponse = FracResponseParserUtil.parseApiResponse(res)
         const resultObject = (normalizedResponse?.result || {}) as Record<string, unknown>
-        const uploadedCodes = FracResponseParserUtil.getSuccessCodes(res, 'activity')
-        if (FracResponseParserUtil.isUploadSuccessful(res, 'activity')) {
+        const uploadedCodes = FracResponseParserUtil.getSuccessCodes(res, 'position')
+        if (FracResponseParserUtil.isUploadSuccessful(res, 'position')) {
           const uploadedCount = uploadedCodes.length || Number(resultObject.count || 0) || 1
           const successData: UploadResultData = {
             type: 'success',
             title: 'Upload Successful',
-            message: 'Your activity data has been uploaded successfully.',
+            message: 'Your position data has been uploaded successfully.',
             count: uploadedCount
           }
-          this.showResultModal(successData, false, false, FRAC_ROUTES.activityManage)
+          this.showResultModal(successData, false, false, FRAC_ROUTES.positionManageTable)
         } else {
-          this.showResultModal(this.createUploadFailureModalData(res), false)
+          this.showResultModal(this.handleFailure(res), false)
         }
       },
       error: (err) => {
-        fracLogger.error('Activity upload failed', {
-          status: err.status,
-          statusText: err.statusText,
-          message: err.message,
-          error: err.error,
-          url: err.url
-        })
-
-        // ✅ Hide local loader on error
         this.isUploading = false
-
-        // ✅ Handle error and show modal
         void this.handleUploadError(err)
       },
     })
   }
 
-  /**
-   * Reads a failed upload response and builds the title and message for the error popup.
-   */
-  private createUploadFailureModalData(response: any): UploadResultData {
+  private handleFailure(response: any): UploadResultData {
     const normalizedResponse = FracResponseParserUtil.parseApiResponse(response)
     const apiMessage = FracResponseParserUtil.getRawMessage(normalizedResponse)
-    const responseCode =
-      normalizedResponse?.responseCode ||
-      normalizedResponse?.code ||
-      normalizedResponse?.status
-    const paramsStatus =
-      normalizedResponse?.params?.status ||
-      normalizedResponse?.statusText
+    const responseCode = normalizedResponse?.responseCode || normalizedResponse?.code || normalizedResponse?.status
+    const paramsStatus = normalizedResponse?.params?.status || normalizedResponse?.statusText
     const affectedCodes = FracResponseParserUtil.getAffectedCodes(normalizedResponse)
-    const affectedCodesDetails = affectedCodes.length
-      ? `Affected Codes: ${affectedCodes.join(', ')}`
-      : undefined
+    const affectedCodesDetails = affectedCodes.length ? `Affected Codes: ${affectedCodes.join(', ')}` : undefined
 
     const message = FracResponseParserUtil.isUsefulMessage(apiMessage)
       ? apiMessage!.trim()
@@ -512,13 +465,10 @@ export class ActivityUploadComponent implements OnInit, OnDestroy {
     }
   }
 
-
-
   private async readUploadError(err: any): Promise<any> {
     return FracResponseParserUtil.readErrorPayload(err)
   }
 
-  /** Handle upload error with appropriate message and show modal */
   private async handleUploadError(err: any): Promise<void> {
     const resolvedPayload = await this.readUploadError(err)
 
@@ -528,7 +478,7 @@ export class ActivityUploadComponent implements OnInit, OnDestroy {
       resolvedPayload?.result ||
       resolvedPayload?.message
     ) {
-      this.showResultModal(this.createUploadFailureModalData(resolvedPayload), false)
+      this.showResultModal(this.handleFailure(resolvedPayload), false)
       return
     }
 
@@ -542,7 +492,6 @@ export class ActivityUploadComponent implements OnInit, OnDestroy {
     this.showResultModal(fallbackData, false)
   }
 
-  /** Show result modal (success or error) */
   private showResultModal(
     data: UploadResultData,
     refreshOnClose = false,
@@ -574,16 +523,13 @@ export class ActivityUploadComponent implements OnInit, OnDestroy {
     })
   }
 
-  /**
-   * Handles the user clicking the Home or Back button. Warns them if they have unsaved changes before leaving.
-   */
   onHomeClick(): void {
     if (this.isUpdating) {
       return
     }
 
     if (!this.hasPendingTableChanges()) {
-      this.router.navigateByUrl(FRAC_ROUTES.homeDashboard)
+      this.router.navigateByUrl(FRAC_ROUTES.positionManage)
       return
     }
 
@@ -604,61 +550,81 @@ export class ActivityUploadComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe((action: 'continue' | 'cancel' | undefined) => {
         if (action === 'continue') {
-          this.router.navigateByUrl(FRAC_ROUTES.homeDashboard)
+          this.router.navigateByUrl(FRAC_ROUTES.positionManage)
         }
       })
   }
 
-  /**
-   * Checks if the search and language filters should be greyed out (disabled) during uploads or saves.
-   */
   isFilterControlsDisabled(): boolean {
     return this.isUploading || this.routeMode === 'upload'
   }
 
-  /**
-   * Checks if the language dropdown should be greyed out. It is disabled while saving or if there are unsaved changes.
-   */
   isLanguageDropdownDisabled(): boolean {
     return this.isUploading
   }
 
   get activeEmptyStateConfig(): UploadEmptyStateConfig {
-    return this.routeMode === 'manage' ? this.noResultEmptyStateConfig : this.uploadEmptyStateConfig
+    return (this.routeMode === 'card' || this.routeMode === 'manage')
+      ? this.noResultEmptyStateConfig
+      : this.uploadEmptyStateConfig
   }
 
-  /**
-   * Decides whether to show the "No Data" or "No Results" message instead of the table.
-   */
   shouldShowTableEmptyState(): boolean {
     if (this.isUploading || this.isSearching || this.hasTableData()) {
       return false
     }
-
     return this.routeMode === 'upload' || this.routeMode === 'manage'
   }
 
-  /**
-   * Compares a table row against its original state to see if the user made any edits.
-   */
   private isRowChanged(row: any): boolean {
     const code = (row?.code ?? '').toString().trim()
     if (!code) {
       return true
     }
-
     const baselineRowSignature = this.baselineRowSignatureByCode.get(code)
     const currentSignature = this.uploadOrchestrator.getRowSignature(row)
     return baselineRowSignature !== currentSignature
   }
 
-  /**
-   * Saves a snapshot of the table data so we can detect future edits.
-   */
   private captureBaselineTableState(): void {
     const baseline = this.uploadOrchestrator.captureBaselineState(this.tableConfig.data as Array<Record<string, unknown>>)
     this.baselineTableSignature = baseline.tableSignature
     this.baselineRowSignatureByCode = baseline.rowSignatureByCode
+  }
+
+  // ============= MANAGE MODE NAVIGATION =============
+
+  /**
+   * Navigates from manage card view back to upload mode.
+   */
+  goToUploadMode(): void {
+    this.router.navigateByUrl(FRAC_ROUTES.positionUpload)
+  }
+
+  /**
+   * Navigates to the role-like table manage view as a standalone page.
+   */
+  navigateToListManage(): void {
+    this.router.navigateByUrl('/app/frac/position?mode=manage')
+  }
+
+  /**
+   * Navigates to the role-position mapping page for the selected position.
+   * @param position The position card that was clicked.
+   */
+  onViewEdit(position: Record<string, unknown>): void {
+    const code = position?.['code'] as string | undefined
+    const queryParams = code ? { positionCode: code } : {}
+    this.router.navigate([FRAC_ROUTES.mapRolePosition], { queryParams })
+  }
+
+  /**
+   * Removes a single position card from the grid by filtering it out of searchResults.
+   * Does not call the API — removal is local until a save is triggered.
+   * @param position The position card to remove.
+   */
+  onCardRemove(position: Record<string, unknown>): void {
+    this.searchResults = this.searchResults.filter(p => p !== position)
   }
 
 }

@@ -30,6 +30,9 @@ import { CompetencyUploadComponent } from './pages/competency/competency-upload/
 // --- Activity Pages ---
 import { ActivityUploadComponent } from './pages/activity/activity-upload/activity-upload.component'
 
+// --- Position Pages ---
+import { PositionUploadComponent } from './pages/position/position-upload/position-upload.component'
+
 // --- Shared Components ---
 import { FracUploadPopupComponent } from './components/frac-upload/frac-upload-popup.component'
 import { FracTableComponent } from './components/frac-table/frac-table.component'
@@ -92,6 +95,7 @@ import { UnsavedChangesModalComponent } from './components/unsaved-changes-modal
     UploadResultModalComponent,
     MappingRequiredModalComponent,
     UnsavedChangesModalComponent,
+    PositionUploadComponent,
   ],
   imports: [
     CommonModule,

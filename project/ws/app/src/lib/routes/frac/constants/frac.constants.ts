@@ -7,6 +7,9 @@ export const FRAC_ROUTES = {
   activityManage: '/app/frac/activity?mode=manage',
   roleUpload: '/app/frac/role?mode=upload',
   roleManage: '/app/frac/role?mode=manage',
+  positionUpload: '/app/frac/position?mode=upload',
+  positionManage: '/app/home/frac/position',
+  positionManageTable: '/app/frac/position?mode=manage',
   mapActivity: '/app/frac/map-activity',
   mapRole: '/app/frac/map-role',
   mapRolePosition: '/app/frac/map-role-position',
@@ -48,6 +51,10 @@ export const FRAC_SAMPLE_TEMPLATE_URLS = {
   role: {
     hi: 'https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/files/sample_role_hi_list.csv',
     en: 'https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/files/sample_role_en_list.csv',
+  },
+  position: {
+    hi: 'https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/files/sample_position_hi_list.csv',
+    en: 'https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/files/sample_position_en_list.csv',
   },
 } as const
 

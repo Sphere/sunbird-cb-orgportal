@@ -10,6 +10,7 @@ import { MapActivityCompetenciesComponent } from './pages/activity/map-activity-
 import { MapRoleActivitiesComponent } from './pages/map-role-activities/map-role-activities.component'
 import { RoleUploadComponent } from './pages/role/role-upload/role-upload.component'
 import { MapRolePositionComponent } from './pages/map-role-position/map-role-position.component'
+import { PositionUploadComponent } from './pages/position/position-upload/position-upload.component'
 
 const routes: Routes = [
   {
@@ -36,6 +37,10 @@ const routes: Routes = [
       {
         path: 'role',
         component: RoleUploadComponent, // ✅ with optional query param mode
+      },
+      {
+        path: 'position',
+        component: PositionUploadComponent, // ✅ with optional query param mode
       },
       {
         path: 'map-activity',

@@ -18,11 +18,11 @@
     <button class="back-button" type="button" aria-label="Back to home" (click)="onHomeClick()">
       <img src="{{ uiConfig.icons.back }}" alt="back" class="back-icon" />
     </button>
-    <h2>{{ uiConfig.labels.uploadCompetency }}</h2>
+    <h2>{{ routeMode === 'manage' ? uiConfig.labels.manageCompetency : uiConfig.labels.uploadCompetency }}</h2>
   </div>
 
   <div class="sub-header">
-    <span>{{ uiConfig.labels.uploadCompetencySub }}</span>
+    <span>{{ routeMode === 'manage' ? uiConfig.labels.manageCompetencySub : uiConfig.labels.uploadCompetencySub }}</span>
 
   </div>
 

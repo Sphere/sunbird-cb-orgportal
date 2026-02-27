@@ -486,11 +486,7 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
    */
   private createUploadFailureModalData(response: any): UploadResultData {
     const normalizedResponse = FracResponseParserUtil.parseApiResponse(response)
-    const apiMessage =
-      (normalizedResponse?.params?.errmsg as string | undefined) ||
-      normalizedResponse?.errmsg ||
-      normalizedResponse?.message ||
-      normalizedResponse?.error_description
+    const apiMessage = FracResponseParserUtil.getRawMessage(normalizedResponse)
     const responseCode =
       normalizedResponse?.responseCode ||
       normalizedResponse?.code ||
@@ -505,7 +501,7 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
 
     const message = FracResponseParserUtil.isUsefulMessage(apiMessage)
       ? apiMessage!.trim()
-      : (affectedCodes.length ? 'Duplicate entry found.' : 'Upload failed. Please verify your file and try again.')
+      : (affectedCodes.length ? 'Multiple occurrences or duplicates found.' : 'Upload failed. Please verify your file and try again.')
 
     return {
       type: 'error',

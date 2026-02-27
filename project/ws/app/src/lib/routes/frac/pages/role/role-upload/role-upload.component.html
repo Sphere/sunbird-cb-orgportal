@@ -18,12 +18,12 @@
     <button class="back-button" type="button" aria-label="Back to home" (click)="onHomeClick()">
       <img src="{{ uiConfig.icons.back }}" alt="back" class="back-icon" />
     </button>
-    <h2>{{ uiConfig.labels.uploadRole }}</h2>
+    <h2>{{ routeMode === 'manage' ? uiConfig.labels.manageRole : uiConfig.labels.uploadRole }}</h2>
   </div>
 
   <!-- Sub Header -->
   <div class="sub-header">
-    <span>Upload role file (CSV or JSON)</span>
+    <span>{{ routeMode === 'manage' ? uiConfig.labels.manageRoleSub : uiConfig.labels.uploadRoleSub }}</span>
   </div>
 
   <!-- Toolbar: Search, Language, Buttons -->

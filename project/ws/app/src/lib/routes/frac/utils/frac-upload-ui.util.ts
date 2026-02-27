@@ -2,7 +2,7 @@ import { FracEntityType } from '../models/frac-api.models'
 import { UploadPopupConfig } from '../models/upload-popup-config.model'
 import { FRAC_SAMPLE_TEMPLATE_URLS } from '../constants/frac.constants'
 
-type UploadTemplateEntity = Extract<FracEntityType, 'competency' | 'activity' | 'role'>
+type UploadTemplateEntity = Extract<FracEntityType, 'competency' | 'activity' | 'role' | 'position'>
 
 /**
  * Builds the upload popup config used by upload pages.
@@ -24,6 +24,10 @@ export function buildFracUploadPopupConfig(
     },
     role: {
       title: 'Upload Roles Data',
+      subText: 'Supported file format: CSV or JSON',
+    },
+    position: {
+      title: 'Upload Positions Data',
       subText: 'Supported file format: CSV or JSON',
     },
   }

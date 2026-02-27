@@ -111,7 +111,7 @@
 // Main content area with header, toolbar, and table
 
 .upload-container {
-  padding: 0px 48px 24px 48px;
+  padding: 48px 48px 24px 48px;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -135,7 +135,7 @@
     h2 {
       font-family: Roboto;
       font-weight: 600;
-      font-size: 28px;
+      font-size: 32px;
       margin: 0;
       color: #000000;
     }
@@ -181,7 +181,7 @@
     align-items: center;
 
     span {
-      font-size: 16px;
+      font-size: 20px;
       font-family: Roboto, sans-serif;
       font-weight: 400;
       color: #000000;
@@ -436,7 +436,6 @@
     filter: grayscale(100%) brightness(1.2) !important;
   }
 
-  // Primary Button: Upload File (Blue filled)
   &.primary {
     background-color: #1c5d95 !important;
     color: #fff !important;
@@ -453,7 +452,6 @@
     }
   }
 
-  // Secondary Button: Download Sample (Outlined)
   &.secondary {
     color: #1c5d95 !important;
     border: 1px solid #1c5d95 !important;
@@ -471,7 +469,6 @@
     }
   }
 
-  // Icon Button: Edit and Remove (With icon and text)
   &.icon {
     padding: 6px 16px !important;
 
@@ -588,33 +585,7 @@
   line-height: 1.4;
 }
 
-.table-loading-overlay {
-  position: absolute;
-  inset: 0;
-  z-index: 50;
-  background: rgba(255, 255, 255, 0.65);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding-bottom: 5%;
-  box-sizing: border-box;
-}
-
-.table-loader-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-
-  p {
-    margin: 0;
-    color: #1c5d95;
-    font-size: 14px;
-    font-weight: 500;
-  }
-}
-
-// ✅ Loading Overlay Styles
+// Loading Overlay
 .loading-overlay {
   position: absolute;
   top: 0;
@@ -660,3 +631,207 @@
 .upload-container {
   position: relative;
 }
+
+// ============= MANAGE MODE — CARD GRID ONLY =============
+
+.manage-header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0 0 0;
+
+  .manage-header-text {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .manage-title {
+    color: #000;
+    font-size: 28px;
+    font-family: Roboto, sans-serif;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .manage-subtext {
+    color: #6b7280;
+    font-size: 16px;
+    font-family: Roboto, sans-serif;
+    font-weight: 400;
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  .manage-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+}
+
+.manage-list-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: white;
+  border: 1px solid #1C5D95;
+  border-radius: 50px;
+  color: #1C5D95;
+  font-size: 14px;
+  font-family: Roboto, sans-serif;
+  font-weight: 400;
+  padding: 6px 18px;
+  cursor: pointer;
+  white-space: nowrap;
+
+  .action-btn-icon {
+    width: 18px;
+    height: 18px;
+    // Keep original icon color for white background button
+  }
+
+  &:hover { background: #e9f3fb; }
+}
+
+.upload-position-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #1C5D95;
+  border-radius: 50px;
+  color: white;
+  font-size: 14px;
+  font-family: Roboto, sans-serif;
+  font-weight: 400;
+  padding: 6px 20px;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+
+  .action-btn-icon {
+    width: 18px;
+    height: 18px;
+    filter: brightness(0) invert(1); // Make icon white for blue background
+  }
+
+  &:hover { background: #14446c; }
+}
+
+.manage-toolbar { margin-top: 16px; }
+
+// Inline spinner for card grid — replaces dark overlay which glitches in home layout
+.manage-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 48px 0;
+}
+
+.manage-empty-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 64px 0;
+  width: 100%;
+}
+
+// ============= POSITION CARDS GRID =============
+
+.position-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.position-card {
+  padding: 14px 16px 12px;
+  background: white;
+  box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.18);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 12px;
+  transition: box-shadow 0.2s ease;
+
+  &:hover { box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.12); }
+
+  .position-card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .pos-title {
+    color: #111;
+    font-size: 14px;
+    font-family: Roboto, sans-serif;
+    font-weight: 500;
+    margin: 0;
+    word-wrap: break-word;
+    line-height: 1.4;
+  }
+
+  .position-card-actions {
+    display: flex;
+    align-items: center;
+    padding-top: 10px;
+    border-top: 1px solid #f0f0f0;
+  }
+
+  .card-action-link {
+    font-size: 12px;
+    font-family: Roboto, sans-serif;
+    font-weight: 400;
+    text-decoration: none;
+    cursor: pointer;
+
+    &.view-link {
+      color: #14446C;
+      &:hover { text-decoration: underline; }
+    }
+  }
+}
+
+
+// ============= SHIMMER ANIMATION =============
+
+@keyframes shimmer-sweep {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+.shimmer-card {
+  // Inherits .position-card layout — same size, same shape
+  pointer-events: none;
+}
+
+.shimmer-line {
+  border-radius: 4px;
+  background: linear-gradient(90deg, #e8e8e8 25%, #f5f5f5 50%, #e8e8e8 75%);
+  background-size: 800px 100%;
+  animation: shimmer-sweep 1.4s infinite linear;
+}
+
+.shimmer-title {
+  height: 16px;
+  width: 70%;
+  margin-bottom: 10px;
+}
+
+.shimmer-stat {
+  height: 12px;
+  width: 85%;
+  margin-bottom: 6px;
+}
+
+.shimmer-action {
+  height: 12px;
+  width: 40%;
+  margin-top: 6px;
+}
+

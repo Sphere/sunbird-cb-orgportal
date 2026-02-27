@@ -32,11 +32,15 @@ export class FracResponseParserUtil {
     }
 
     if (typeof response === 'string') {
-      try {
-        return JSON.parse(response) as Record<string, unknown>
-      } catch {
-        return { params: { errmsg: response } }
+      const trimmed = response.trim()
+      if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+        try {
+          return JSON.parse(trimmed) as Record<string, unknown>
+        } catch {
+          // Fallback below
+        }
       }
+      return { params: { errmsg: response } }
     }
 
     if (Array.isArray(response)) {
@@ -48,10 +52,13 @@ export class FracResponseParserUtil {
     }
 
     const normalized = response as Record<string, unknown>
+
+    // 🎯 If it already looks like a valid FRAC payload, return it directly.
     if (this.looksLikeUploadPayload(normalized)) {
       return normalized
     }
 
+    // 🔍 Otherwise, look deeper into common wrapper keys.
     const nestedCandidates = [
       normalized.error,
       normalized.body,
@@ -63,12 +70,13 @@ export class FracResponseParserUtil {
     ]
 
     for (const candidate of nestedCandidates) {
-      if (!candidate) {
+      if (!candidate || typeof candidate !== 'object') {
         continue
       }
 
       const normalizedCandidate = this.parseApiResponse(candidate)
-      if (normalizedCandidate && this.looksLikeUploadPayload(normalizedCandidate)) {
+      // If we found something that looks like an upload payload OR just has a message, take it.
+      if (normalizedCandidate && (this.looksLikeUploadPayload(normalizedCandidate) || this.getRawMessage(normalizedCandidate))) {
         return normalizedCandidate
       }
     }
@@ -80,28 +88,37 @@ export class FracResponseParserUtil {
    * Extracts a safe upload error payload from HttpClient error objects.
    */
   static async readErrorPayload(err: unknown): Promise<ParsedFracPayload> {
+    // 1️⃣ Try parsing the error object directly (handles objects containing .error/.body)
     const normalizedDirect = this.parseApiResponse(err)
     if (normalizedDirect && this.looksLikeUploadPayload(normalizedDirect)) {
       return normalizedDirect
     }
 
+    // 2️⃣ Try reading from the .error property explicitly if it's a string/blob/object
     const rawError = (err as { error?: unknown } | undefined)?.error
     if (rawError instanceof Blob) {
       try {
         const text = await rawError.text()
         const normalizedFromBlob = this.parseApiResponse(text)
-        if (normalizedFromBlob && this.looksLikeUploadPayload(normalizedFromBlob)) {
+        if (normalizedFromBlob) {
           return normalizedFromBlob
         }
       } catch {
-        // Keep the fallback below.
+        // Fallback
       }
     }
 
     if (typeof rawError === 'string') {
       const normalizedFromString = this.parseApiResponse(rawError)
-      if (normalizedFromString && this.looksLikeUploadPayload(normalizedFromString)) {
+      if (normalizedFromString) {
         return normalizedFromString
+      }
+    }
+
+    if (rawError && typeof rawError === 'object') {
+      const normalizedFromObj = this.parseApiResponse(rawError)
+      if (normalizedFromObj) {
+        return normalizedFromObj
       }
     }
 
@@ -128,7 +145,26 @@ export class FracResponseParserUtil {
       normalized === 'error' ||
       normalized === 'failed' ||
       normalized === 'bad request' ||
-      normalized === 'request failed'
+      normalized === 'request failed' ||
+      normalized === 'internal server error' ||
+      normalized === 'service unavailable'
+    )
+  }
+
+  /**
+   * Extracts the rawest form of an error message from a normalized payload.
+   */
+  static getRawMessage(payload: ParsedFracPayload): string | undefined {
+    if (!payload) {
+      return undefined
+    }
+
+    return (
+      (payload.params?.errmsg as string | undefined) ||
+      payload.errmsg ||
+      payload.message ||
+      payload.error_description ||
+      (payload.params?.status as string | undefined)
     )
   }
 
@@ -137,8 +173,12 @@ export class FracResponseParserUtil {
    */
   static isUploadSuccessful(response: unknown, expectedEntityType?: string): boolean {
     const normalizedResponse = this.parseApiResponse(response)
-    const responseCode = (normalizedResponse?.responseCode || '').toString().toLowerCase()
-    const paramsStatus = ((normalizedResponse?.params as Record<string, unknown> | undefined)?.status || '').toString().toLowerCase()
+    if (!normalizedResponse) {
+      return false
+    }
+
+    const responseCode = (normalizedResponse.responseCode || '').toString().toLowerCase()
+    const paramsStatus = ((normalizedResponse.params as Record<string, unknown> | undefined)?.status || '').toString().toLowerCase()
 
     const hasSuccessStatus =
       responseCode === 'ok' ||
@@ -151,7 +191,12 @@ export class FracResponseParserUtil {
       paramsStatus === 'created' ||
       paramsStatus === '201 created'
 
-    return hasSuccessStatus && this.getSuccessCodes(normalizedResponse, expectedEntityType).length > 0
+    if (hasSuccessStatus) {
+      return true
+    }
+
+    // Also check if we have success codes even without explicit success status
+    return this.getSuccessCodes(normalizedResponse, expectedEntityType).length > 0
   }
 
   /**
@@ -192,10 +237,13 @@ export class FracResponseParserUtil {
     }
 
     const resultValue = normalizedResponse?.result
-    const entries = Array.isArray(resultValue) ? resultValue : []
-    return entries
-      .map((item) => ((item as Record<string, unknown>)?.code ?? '').toString().trim())
-      .filter(Boolean)
+    if (Array.isArray(resultValue)) {
+      return resultValue
+        .map((item) => ((item as Record<string, unknown>)?.code ?? '').toString().trim())
+        .filter(Boolean)
+    }
+
+    return []
   }
 
   /**
@@ -275,7 +323,10 @@ export class FracResponseParserUtil {
     return details
   }
 
-  private static looksLikeUploadPayload(payload: Record<string, unknown>): boolean {
+  static looksLikeUploadPayload(payload: Record<string, unknown>): boolean {
+    if (!payload || typeof payload !== 'object') {
+      return false
+    }
     const resultObject = (payload.result || {}) as Record<string, unknown>
     return (
       Boolean((payload.params as Record<string, unknown> | undefined)?.errmsg) ||

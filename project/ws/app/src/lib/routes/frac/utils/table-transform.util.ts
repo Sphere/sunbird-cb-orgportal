@@ -28,6 +28,7 @@ export class TableTransformUtil {
     this.registerHandler('entity', this.createEntityTableConfig.bind(this))
     this.registerHandler('activity', this.createActivityTableConfig.bind(this))
     this.registerHandler('role', this.createRoleTableConfig.bind(this))
+    this.registerHandler('position', this.createPositionTableConfig.bind(this))
   }
 
   /**
@@ -158,6 +159,19 @@ export class TableTransformUtil {
   }
 
   private createRoleTableConfig(entities: FracApiEntity[]): ITableConfig {
+    return {
+      columns: [
+        { key: 'code', label: 'Code' },
+        { key: 'name', label: 'Name' },
+      ],
+      data: entities.map((entity) => ({
+        code: entity.code ?? entity.additionalProperties?.Code ?? '',
+        name: entity.name ?? '',
+      })),
+    }
+  }
+
+  private createPositionTableConfig(entities: FracApiEntity[]): ITableConfig {
     return {
       columns: [
         { key: 'code', label: 'Code' },
