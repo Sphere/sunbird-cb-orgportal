@@ -5,7 +5,8 @@
     <div class="title-bar">Available Competencies</div>
 
     <div class="button-group">
-      <button mat-stroked-button class="app-btn secondary" [disabled]="isAddDisabled()" (click)="onAddCompetency()">
+      <button *ngIf="!isReadOnly" mat-stroked-button class="app-btn secondary" [disabled]="isAddDisabled()"
+        (click)="onAddCompetency()">
         Add Competency
       </button>
     </div>
@@ -18,7 +19,12 @@
 
         <!-- Header Columns -->
         <div class="header-bar grid-row">
-          <div class="cell label-cell">{{ headerConfig.codeLabel }}</div>
+          <div class="cell label-cell" style="cursor: pointer; display: flex; align-items: center;"
+            (click)="toggleSort()">
+            {{ headerConfig.codeLabel }}
+            <mat-icon style="font-size: 16px; margin-left: 4px;"
+              *ngIf="sortDirection">{{ sortDirection === 'asc' ? 'arrow_downward' : 'arrow_upward' }}</mat-icon>
+          </div>
 
           <div class="cell level-cell" *ngFor="let lvl of headerConfig.levels">
             {{ lvl }}
@@ -30,7 +36,7 @@
           <div class="search-cell"></div>
           <div class="search-box">
             <input [placeholder]="headerConfig.searchPlaceholder" [(ngModel)]="searchTerm"
-              [disabled]="!selectedActivity" (input)="onSearchChange()" />
+              [disabled]="!selectedActivity || isReadOnly" (input)="onSearchChange()" />
             <mat-icon>search</mat-icon>
           </div>
         </div>
@@ -58,7 +64,7 @@
 
               <!-- Dynamic Level Checkboxes -->
               <div class="cell checkbox-cell" *ngFor="let lvl of displayLevels">
-                <mat-checkbox [checked]="isChecked(c.code, c.code + '_' + lvl)"
+                <mat-checkbox [checked]="isChecked(c.code, c.code + '_' + lvl)" [disabled]="isReadOnly"
                   (change)="checkChange(c.code, c.code + '_' + lvl, $event.checked)">
                 </mat-checkbox>
               </div>

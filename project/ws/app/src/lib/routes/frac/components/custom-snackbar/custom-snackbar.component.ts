@@ -1,4 +1,5 @@
 import { Component } from '@angular/core'
+import { FRAC_SNACKBAR_DURATION_MS } from '../../constants/frac.constants'
 
 @Component({
   selector: 'app-custom-snackbar',
@@ -10,7 +11,10 @@ export class CustomSnackbarComponent {
   type: 'success' | 'error' | 'warning' = 'success';
   visible = false;
 
-  show(message: string, type: 'success' | 'error' | 'warning', duration = 3000) {
+  /**
+   * Displays the notification or snackbar message to the user.
+   */
+  show(message: string, type: 'success' | 'error' | 'warning', duration = FRAC_SNACKBAR_DURATION_MS) {
     this.message = message
     this.type = type
     this.visible = true

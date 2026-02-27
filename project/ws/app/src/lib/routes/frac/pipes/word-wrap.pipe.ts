@@ -1,10 +1,11 @@
 import { Pipe, PipeTransform } from '@angular/core'
+import { FRAC_WORD_WRAP_LIMIT } from '../constants/frac.constants'
 
 @Pipe({
   name: 'wordWrap'
 })
 export class WordWrapPipe implements PipeTransform {
-  transform(value: string, charLimit: number = 40): string {
+  transform(value: string, charLimit: number = FRAC_WORD_WRAP_LIMIT): string {
     if (!value) return ''
 
     const text = String(value).trim()

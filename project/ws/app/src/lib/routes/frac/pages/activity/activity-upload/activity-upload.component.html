@@ -1,13 +1,13 @@
 <!-- Top Navigation Bar -->
 <div class="header-container">
   <button class="home-chip" type="button" aria-label="Go to FRAC dashboard" (click)="onHomeClick()">
-    <img src="https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/icons/home-frac.svg" alt="home"
-      class="home-icon" />
-    <span class="home-label">Home</span>
+    <img src="{{ uiConfig.icons.home }}" alt="home" class="home-icon" />
+    <span class="home-label">{{ uiConfig.labels.home }}</span>
   </button>
 
-  <button class="save-btn" (click)="onSaveClicked()" [disabled]="!isEditing || !hasTableData() || isUpdating || !hasPendingTableChanges()">
-    <span style="color: white;">{{ isUpdating ? 'Saving...' : 'Save' }}</span>
+  <button class="save-btn" (click)="onSaveClicked()" *ngIf="routeMode === 'manage'"
+    [disabled]="!isEditing || !hasTableData() || isUpdating || !hasPendingTableChanges()">
+    <span style="color: white;">{{ isUpdating ? uiConfig.labels.saving : uiConfig.labels.save }}</span>
   </button>
 </div>
 
@@ -16,10 +16,9 @@
   <!-- Page Header -->
   <div class="header">
     <button class="back-button" type="button" aria-label="Back to home" (click)="onHomeClick()">
-      <img src="https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/icons/frac-left-arrow.svg" alt="back"
-        class="back-icon" />
+      <img src="{{ uiConfig.icons.back }}" alt="back" class="back-icon" />
     </button>
-    <h2>Upload Activity</h2>
+    <h2>{{ uiConfig.labels.uploadActivity }}</h2>
   </div>
 
   <!-- Sub Header -->
@@ -32,21 +31,20 @@
     <!-- Left Tools: Search & Language Filter -->
     <div class="left-tools">
       <!-- Search Box -->
-      <div class="search-box" [class.disabled]="isFilterControlsDisabled()">
-        <input matInput type="text" placeholder="Search by name, code" [(ngModel)]="searchTerm"
-          [disabled]="isFilterControlsDisabled()"
-          (input)="onSearchTermChange()" (keydown.enter)="onSearchEnter()" />
-        <button mat-icon-button matSuffix class="icon-btn" (click)="onSearch()"
-          [disabled]="isFilterControlsDisabled()">
+      <div class="search-box" [class.disabled]="isFilterControlsDisabled()" *ngIf="routeMode === 'manage'">
+        <input matInput type="text" [placeholder]="uiConfig.labels.searchPlaceholder" [(ngModel)]="searchTerm"
+          [disabled]="isFilterControlsDisabled()" (input)="onSearchTermChange()" (keydown.enter)="onSearchEnter()" />
+        <button mat-icon-button matSuffix class="icon-btn" (click)="onSearch()" [disabled]="isFilterControlsDisabled()">
           <mat-icon>search</mat-icon>
         </button>
       </div>
 
       <!-- Language Dropdown -->
-      <div class="language-dropdown" [class.disabled]="isLanguageDropdownDisabled()" (click)="toggleDropdown()">
+      <div class="language-dropdown" [class.disabled]="isLanguageDropdownDisabled()" (click)="toggleDropdown()"
+        *ngIf="routeMode === 'manage'">
         <div class="dropdown-main">
           <div class="label-container">
-            <div class="label">Language</div>
+            <div class="label">{{ uiConfig.labels.language }}</div>
             <div class="selected">{{ selectedLanguage }}</div>
           </div>
           <div class="icon">
@@ -67,27 +65,27 @@
       <div class="button-group">
         <!-- Remove Button -->
         <button mat-stroked-button class="app-btn icon red" (click)="onRemoveClicked()"
-          [disabled]="!selectedRows.length || !hasTableData()">
-          <img src="https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/icons/delete_red_icon.svg" alt="delete"
-            class="btn-icon" />
-          Remove
+          [disabled]="!selectedRows.length || !hasTableData()" *ngIf="routeMode === 'manage'">
+          <img src="{{ uiConfig.icons.remove }}" alt="delete" class="btn-icon" />
+          {{ uiConfig.labels.remove }}
         </button>
 
         <!-- Edit Button -->
         <button mat-stroked-button class="app-btn icon blue" (click)="onEditClicked()"
-          [disabled]="!selectedRows.length || !hasTableData()">
-          <img src="https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/icons/edit_blue_icon.svg" alt="edit"
-            class="btn-icon" />
-          Edit
+          [disabled]="!selectedRows.length || !hasTableData()" *ngIf="routeMode === 'manage'">
+          <img src="{{ uiConfig.icons.edit }}" alt="edit" class="btn-icon" />
+          {{ uiConfig.labels.edit }}
         </button>
 
         <!-- Download Template Button -->
-        <button mat-stroked-button class="app-btn secondary" (click)="onDownloadTemplate()">
-          Download sample
+        <button mat-stroked-button class="app-btn secondary" (click)="onDownloadTemplate()"
+          *ngIf="routeMode !== 'manage'">
+          {{ uiConfig.labels.downloadSample }}
         </button>
 
         <!-- Upload File Button -->
-        <button type="button" (click)="openUploadPopup()" mat-button class="app-btn primary">
+        <button type="button" (click)="openUploadPopup()" mat-button class="app-btn primary"
+          *ngIf="routeMode !== 'manage'">
           {{ uploadButtonText }}
         </button>
       </div>
@@ -99,10 +97,11 @@
     <div class="spinner-container">
       <div class="custom-loader">
         <mat-icon class="loader-icon">cloud_upload</mat-icon>
-        <mat-spinner [diameter]="50" [strokeWidth]="4" class="loader-spinner"></mat-spinner>
+        <mat-spinner [diameter]="uploadPageSpinner.diameter" [strokeWidth]="uploadPageSpinner.strokeWidth"
+          class="loader-spinner"></mat-spinner>
       </div>
-      <p class="loading-text">Uploading and processing your file...</p>
-      <p class="loading-subtext">Please wait...</p>
+      <p class="loading-text">{{ uiConfig.labels.uploadLoaderContent }}</p>
+      <p class="loading-subtext">{{ uiConfig.labels.uploadLoaderSubtext }}</p>
     </div>
   </div>
 
@@ -121,8 +120,7 @@
     <!-- Activity Table Component -->
     <app-upload-activity-list-table [columns]="tableConfig.columns" [data]="tableConfig.data" [showCheckbox]="true"
       [enableSorting]="true" [enablePagination]="false" [gridStyle]="'both'" [isEditing]="isEditing"
-      [isLoading]="isSearching && routeMode === 'manage'"
-      (selectionChange)="onSelectionChange($event)">
+      [isLoading]="isSearching && routeMode === 'manage'" (selectionChange)="onSelectionChange($event)">
     </app-upload-activity-list-table>
   </div>
 </div>

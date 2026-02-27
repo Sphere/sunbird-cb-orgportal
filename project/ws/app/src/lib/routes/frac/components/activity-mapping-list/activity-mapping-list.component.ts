@@ -1,4 +1,5 @@
 import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges } from '@angular/core'
+import { FracActivityMappingItem, FracMappingDetail } from '../../models/frac-mapping.models'
 
 @Component({
   selector: 'app-activity-mapping-list',
@@ -8,7 +9,7 @@ import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChange
 export class ActivityMappingListComponent implements OnInit, OnChanges {
 
   /* INPUT: List of activities */
-  @Input() activities: any[] = [];
+  @Input() activities: FracActivityMappingItem[] = [];
   @Input() isLoading = false;
   @Input() selectedActivityCode: string | null = null;
   @Input() searchResetKey = 0;
@@ -17,21 +18,37 @@ export class ActivityMappingListComponent implements OnInit, OnChanges {
   @Output() searchChange = new EventEmitter<string>();
 
   /* OUTPUT: Notify parent when user selects an activity */
-  @Output() activitySelected = new EventEmitter<any>();
+  @Output() activitySelected = new EventEmitter<FracActivityMappingItem>();
 
   searchTerm = '';
-  filteredActivities: any[] = [];
-  expanded: any = null;
+  filteredActivities: FracActivityMappingItem[] = [];
+  expanded: FracActivityMappingItem | null = null;
 
+  /**
+   * Runs when the component is first initialized on the screen.
+   */
   ngOnInit() {
     this.filteredActivities = [...this.activities]
+    this.applySort()
   }
 
+  /**
+   * Triggered whenever Angular detects a change to one of the input properties.
+   */
   ngOnChanges(changes: SimpleChanges) {
     this.filteredActivities = [...this.activities]
+    this.applySort()
     if (changes['searchResetKey'] && !changes['searchResetKey'].firstChange) {
       this.searchTerm = ''
     }
+  }
+
+  private applySort(): void {
+    this.filteredActivities.sort((a, b) => {
+      const aStr = (a.code || '').toLowerCase()
+      const bStr = (b.code || '').toLowerCase()
+      return aStr.localeCompare(bStr, undefined, { numeric: true, sensitivity: 'base' })
+    })
   }
 
   /** Emit search keyword to parent */
@@ -40,24 +57,33 @@ export class ActivityMappingListComponent implements OnInit, OnChanges {
   }
 
   /** Expand/collapse a card */
-  expand(item: any) {
+  expand(item: FracActivityMappingItem): void {
     this.expanded = this.expanded === item ? null : item
   }
 
+  onHeaderClick(item: FracActivityMappingItem, event: MouseEvent): void {
+    event.stopPropagation()
+    if (this.selectedActivityCode !== item.code) {
+      this.activitySelected.emit(item)
+    } else {
+      this.expand(item)
+    }
+  }
+
   /** User clicked an activity */
-  activitySelectedHandler(a: any) {
+  activitySelectedHandler(a: FracActivityMappingItem): void {
     this.activitySelected.emit(a)
   }
 
-  trackByCode(index: number, item: any): string {
+  trackByCode(index: number, item: FracActivityMappingItem): string {
     return item?.code || `${index}`
   }
 
   /** Check if activity has any valid competency levels */
-  hasValidLevels(activity: any): boolean {
+  hasValidLevels(activity: FracActivityMappingItem): boolean {
     if (!activity?.competencyDetails?.length) return false
 
-    return activity.competencyDetails.some((c: any) =>
+    return activity.competencyDetails.some((c: FracMappingDetail) =>
       c.levels && c.levels.trim() !== ''
     )
   }

@@ -11,12 +11,9 @@ import { MatTableDataSource } from '@angular/material/table'
 import { MatPaginator } from '@angular/material/paginator'
 import { MatSort } from '@angular/material/sort'
 import { SelectionModel } from '@angular/cdk/collections'
-
-export interface TableColumn {
-  key: string
-  label: string
-  width?: string
-}
+import { FRAC_DEFAULT_PAGE_SIZE_OPTIONS, FRAC_TABLE_LAYOUT, FRAC_WORD_WRAP_LIMIT } from '../../constants/frac.constants'
+import { FracTableColumn, FracTableRow } from '../../models/frac-table.models'
+export type TableColumn = FracTableColumn
 
 type GridStyle = 'horizontal' | 'vertical' | 'both' | 'none'
 
@@ -26,11 +23,13 @@ type GridStyle = 'horizontal' | 'vertical' | 'both' | 'none'
   styleUrls: ['./frac-table.component.scss'],
 })
 export class FracTableComponent implements OnChanges, AfterViewInit {
+  readonly wordWrapLimit = FRAC_WORD_WRAP_LIMIT
+
   /** Columns config */
   @Input() columns: TableColumn[] = []
 
   /** Data to display */
-  @Input() data: any[] = []
+  @Input() data: FracTableRow[] = []
 
   /** Max height for scrollable table */
   @Input() maxHeight: string = '400px'
@@ -45,19 +44,19 @@ export class FracTableComponent implements OnChanges, AfterViewInit {
   @Input() enablePagination = true
 
   /** Page size options */
-  @Input() pageSizeOptions: number[] = [5, 10, 20]
+  @Input() pageSizeOptions: number[] = [...FRAC_DEFAULT_PAGE_SIZE_OPTIONS]
 
   /** Configurable grid line style: horizontal | vertical | both | none */
   @Input() gridStyle: GridStyle = 'horizontal'
 
   @Input() isEditing = false;
-  @Output() selectionChange = new EventEmitter<any[]>();
+  @Output() selectionChange = new EventEmitter<FracTableRow[]>()
 
   /** Table data source */
-  dataSource = new MatTableDataSource<any>([])
+  dataSource = new MatTableDataSource<FracTableRow>([])
 
   /** Selection model */
-  selection = new SelectionModel<any>(true, [])
+  selection = new SelectionModel<FracTableRow>(true, [])
 
   /** Column keys */
   displayedColumns: string[] = []
@@ -65,6 +64,9 @@ export class FracTableComponent implements OnChanges, AfterViewInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator
   @ViewChild(MatSort) sort!: MatSort
 
+  /**
+   * Triggered whenever Angular detects a change to one of the input properties.
+   */
   ngOnChanges(): void {
     this.displayedColumns = this.showCheckbox
       ? ['select', ...this.columns.map(c => c.key)]
@@ -73,6 +75,9 @@ export class FracTableComponent implements OnChanges, AfterViewInit {
     this.dataSource = new MatTableDataSource(this.data)
   }
 
+  /**
+   * Runs after the components views and child views are fully loaded.
+   */
   ngAfterViewInit() {
     setTimeout(() => {
       if (this.enablePagination && this.paginator)
@@ -90,13 +95,16 @@ export class FracTableComponent implements OnChanges, AfterViewInit {
     return numSelected === numRows
   }
 
+  /**
+   * Checks all rows if none are checked, or unchecks all rows if some or all are checked.
+   */
   masterToggle() {
     this.isAllSelected()
       ? this.selection.clear()
       : this.dataSource.data.forEach(row => this.selection.select(row))
   }
 
-  checkboxLabel(row?: any): string {
+  checkboxLabel(row?: FracTableRow): string {
     if (!row) return `${this.isAllSelected() ? 'deselect' : 'select'} all`
     return `${this.selection.isSelected(row) ? 'deselect' : 'select'} row`
   }
@@ -106,26 +114,26 @@ export class FracTableComponent implements OnChanges, AfterViewInit {
     this.dataSource.filter = value.trim().toLowerCase()
   }
 
-  onRowSelect(row: any) {
+  onRowSelect(row: FracTableRow) {
     this.selection.toggle(row)
     this.selectionChange.emit(this.selection.selected)
   }
 
   /** Generate empty rows to fill container height (40px per row) */
-  getEmptyRows(): any[] {
-    const rowHeight = 40
-    const headerHeight = 40
-    const containerHeight = 529
+  getEmptyRows(): Array<null> {
+    const rowHeight = FRAC_TABLE_LAYOUT.rowHeightPx
+    const headerHeight = FRAC_TABLE_LAYOUT.headerHeightPx
+    const containerHeight = FRAC_TABLE_LAYOUT.containerHeightPx
     const availableHeight = containerHeight - headerHeight
     const numEmptyRows = Math.ceil(availableHeight / rowHeight)
     return new Array(numEmptyRows).fill(null)
   }
 
   /** Generate empty rows to fill remaining space when data exists */
-  getEmptyRowsForData(): any[] {
-    const rowHeight = 40
-    const headerHeight = 40
-    const containerHeight = 529
+  getEmptyRowsForData(): Array<null> {
+    const rowHeight = FRAC_TABLE_LAYOUT.rowHeightPx
+    const headerHeight = FRAC_TABLE_LAYOUT.headerHeightPx
+    const containerHeight = FRAC_TABLE_LAYOUT.containerHeightPx
     const dataRowsHeight = this.data.length * rowHeight
     const availableHeight = containerHeight - headerHeight - dataRowsHeight
     const numEmptyRows = Math.ceil(availableHeight / rowHeight)

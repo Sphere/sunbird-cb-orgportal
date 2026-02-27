@@ -44,14 +44,28 @@
       </div>
     </div>
 
-    <div *ngIf="detailLines.length && (!isSuccess() || !hasMappingDetails)" class="details-container">
+    <div *ngIf="(detailLines.length || resultErrorLines.length) && (!isSuccess() || !hasMappingDetails)"
+      class="details-container">
       <div class="details-header">
         <mat-icon>info</mat-icon>
         <span>Details</span>
       </div>
-      <ul class="details-list">
+
+      <ul class="details-list" *ngIf="detailLines.length">
         <li *ngFor="let detail of detailLines">{{ detail }}</li>
       </ul>
+
+      <div class="result-details" *ngIf="resultErrorLines.length">
+        <div class="result-item" *ngFor="let item of resultErrorLines">
+          <div class="result-key">
+            <span>{{ formatResultKey(item.key) }}</span>
+            <span class="value-count">({{ item.values.length }})</span>
+          </div>
+          <div class="result-value-list">
+            <span class="result-chip" *ngFor="let val of item.values">{{ val }}</span>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 

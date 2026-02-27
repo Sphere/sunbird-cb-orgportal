@@ -1,13 +1,14 @@
 import { Component, Inject } from '@angular/core'
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog'
 
-export interface MissingActivityMappingItem {
+export interface MissingMappingItem {
   code: string
   label: string
 }
 
 export interface MappingRequiredModalData {
-  activities: MissingActivityMappingItem[]
+  items: MissingMappingItem[]
+  type?: 'activity' | 'role'
 }
 
 @Component({
@@ -21,10 +22,16 @@ export class MappingRequiredModalComponent {
     @Inject(MAT_DIALOG_DATA) public data: MappingRequiredModalData,
   ) { }
 
+  /**
+   * Closes the dialog and returns to the current screen.
+   */
   onBack(): void {
     this.dialogRef.close('back')
   }
 
+  /**
+   * Closes the dialog and asks the caller to navigate to mapping page.
+   */
   onMapNow(): void {
     this.dialogRef.close('map-now')
   }

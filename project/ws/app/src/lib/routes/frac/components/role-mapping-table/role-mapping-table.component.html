@@ -4,8 +4,9 @@
     <div class="title-bar">Available Roles</div>
 
     <div class="button-group">
-      <button mat-stroked-button class="app-btn secondary" [disabled]="isAddDisabled()" (click)="onAddPosition()">
-        Add roles
+      <button *ngIf="!isReadOnly" mat-stroked-button class="app-btn secondary" [disabled]="isAddDisabled()"
+        (click)="onAddPosition()">
+        Add Role
       </button>
     </div>
   </div>
@@ -13,7 +14,11 @@
   <div class="position-wrapper">
     <div class="header-strip">
       <div class="check-header"></div>
-      <div class="code-label">Code &amp; Label</div>
+      <div class="code-label" style="cursor: pointer; display: flex; align-items: center;" (click)="toggleSort()">
+        Code &amp; Name
+        <mat-icon style="font-size: 16px; margin-left: 4px;"
+          *ngIf="sortDirection">{{ sortDirection === 'asc' ? 'arrow_downward' : 'arrow_upward' }}</mat-icon>
+      </div>
     </div>
 
     <div class="scroll-area">
@@ -22,8 +27,8 @@
       <div class="search-row">
         <div class="search-cell">
           <div class="search-box">
-            <input placeholder="Search by name, code" [(ngModel)]="searchTerm"
-              [disabled]="!selectedRole" (input)="onSearchChange()" />
+            <input placeholder="Search by name, code" [(ngModel)]="searchTerm" [disabled]="!selectedRole || isReadOnly"
+              (input)="onSearchChange()" />
             <mat-icon>search</mat-icon>
           </div>
         </div>
@@ -47,7 +52,8 @@
         <ng-container *ngIf="!isLoading">
           <div class="position-row" *ngFor="let p of filteredPositions">
             <div class="check-cell">
-              <mat-checkbox [checked]="isChecked(p.code)" (change)="onCheckboxChange(p.code, $event.checked)">
+              <mat-checkbox [checked]="isChecked(p.code)" [disabled]="isReadOnly"
+                (change)="onCheckboxChange(p.code, $event.checked)">
               </mat-checkbox>
             </div>
             <div class="text-cell">

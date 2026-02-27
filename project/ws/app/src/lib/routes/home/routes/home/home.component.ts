@@ -71,7 +71,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
           if (leftData.widgetData && Array.isArray(leftData.widgetData.menus)) {
             // Only keep menus that contain "certificate_manager" in requiredRoles
             // Insert the new menu object
-            this.insertFracMenuIfNotExists(leftData.widgetData.menus)
+            // this.insertFracMenuIfNotExists(leftData.widgetData.menus)
             leftData.widgetData.menus = leftData.widgetData.menus.filter((menu: { requiredRoles: any[] }) => {
               console.log('Menu Roles:', menu.requiredRoles, this.myRoles)
               if (this.myRoles.has('certificate_manager')) {
@@ -133,25 +133,25 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
    * @returns void
    * @private
    */
-  private insertFracMenuIfNotExists(menus: any[]): void {
-    const fracMenuExists = menus.some(menu => menu.key === 'Frac')
-    if (!fracMenuExists) {
-      const fracMenu = {
-        name: 'FRAC',
-        key: 'Frac',
-        fragment: false,
-        render: true,
-        badges: {
-          enabled: false,
-          uri: ''
-        },
-        enabled: true,
-        routerLink: '/app/home/frac/dashboard',
-        requiredRoles: ['admin', 'mdo_admin', 'wat_member', "FRAC_ADMIN"]
-      }
+  // private insertFracMenuIfNotExists(menus: any[]): void {
+  //   const fracMenuExists = menus.some(menu => menu.key === 'Frac')
+  //   if (!fracMenuExists) {
+  //     const fracMenu = {
+  //       name: 'Frac',
+  //       key: 'Frac',
+  //       fragment: false,
+  //       render: true,
+  //       badges: {
+  //         enabled: false,
+  //         uri: ''
+  //       },
+  //       enabled: true,
+  //       routerLink: '/app/home/frac/dashboard',
+  //       requiredRoles: ['admin', 'mdo_admin', "FRAC_ADMIN"]
+  //     }
 
-      menus.push(fracMenu)
-    }
-  }
+  //     menus.push(fracMenu)
+  //   }
+  // }
 
 }

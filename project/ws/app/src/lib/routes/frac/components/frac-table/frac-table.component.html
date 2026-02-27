@@ -25,7 +25,7 @@
 
         <!-- View mode: displays cell content with text wrapping -->
         <ng-template #viewMode>
-          <div class="cell-content" [innerHTML]="element[col.key] | wordWrap:40"></div>
+          <div class="cell-content" [innerHTML]="element[col.key] | wordWrap:wordWrapLimit"></div>
         </ng-template>
       </td>
     </ng-container>

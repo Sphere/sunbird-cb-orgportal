@@ -23,17 +23,17 @@
   <div class="upload-box" *ngIf="!selectedFile" (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)"
     (drop)="onFileDrop($event)" [class.drag-over]="isDragOver">
     <div class="file-icon">
-      <img src="https://aastar-assets.s3.ap-south-1.amazonaws.com/icons/upload_docs_icon.svg" alt="Upload docs"
+      <img [src]="uiConfig.icons.uploadDocs" alt="Upload docs"
         class="file-icon-img" />
     </div>
 
     <div class="upload-text">
-      Drag and drop a file here
+      {{ config.fileSection?.dragText || 'Drag and drop a file here' }}
     </div>
     <div class="or-text">(or)</div>
 
     <button mat-stroked-button class="upload-btn" (click)="fileInput.click()">
-      Upload File
+      {{ config.fileSection?.uploadButton || 'Upload File' }}
     </button>
 
     <input type="file" hidden #fileInput [accept]="allowedTypes" (change)="onFileSelected($event)" />
@@ -73,7 +73,7 @@
 
     <div class="dropdown-wrapper" (click)="toggleDropdown()">
       <div class="dropdown-selected">
-        {{ selectedLanguage || 'Language' }}
+        {{ selectedLanguage || config.dropdown?.placeholder || 'Language' }}
       </div>
       <div class="dropdown-icon" [class.open]="isDropdownOpen"></div>
     </div>

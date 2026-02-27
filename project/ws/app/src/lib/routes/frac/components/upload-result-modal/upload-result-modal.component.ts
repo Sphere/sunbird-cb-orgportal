@@ -7,6 +7,7 @@ export interface UploadResultData {
   message: string
   count?: number
   errorDetails?: string
+  resultDetails?: { key: string; values: any[] }[]
 }
 
 interface MappingGroup {
@@ -38,6 +39,18 @@ export class UploadResultModalComponent {
       .split('\n')
       .map(line => line.trim())
       .filter(Boolean)
+  }
+
+  get resultErrorLines(): { key: string; values: any[] }[] {
+    return this.data.resultDetails || []
+  }
+
+  formatResultKey(key: string): string {
+    return key
+      .replace(/_/g, ' ')
+      .replace(/([A-Z])/g, ' $1')
+      .replace(/^./, str => str.toUpperCase())
+      .trim()
   }
 
   get mappingGroups(): MappingGroup[] {
@@ -79,6 +92,9 @@ export class UploadResultModalComponent {
     return this.mappingGroups.length
   }
 
+  /**
+   * Closes the modal window.
+   */
   onClose(): void {
     this.dialogRef.close()
   }

@@ -1,7 +1,21 @@
 import { Component } from '@angular/core'
-import { TableColumn } from '../../components/frac-table/frac-table.component'
 import { Router } from '@angular/router'
+import { ConfigurationsService } from '@sunbird-cb/utils'
+import { TableColumn } from '../../components/frac-table/frac-table.component'
+import { FRAC_DASHBOARD_ICON_URLS, FracDashboardIcon, FRAC_ROUTES } from '../../constants/frac.constants'
+import { resolveFracClientConfig } from '../../utils/frac-client-config.util'
 
+type DashboardAction = {
+  label: string
+  icon: FracDashboardIcon
+  redirectLink: string
+}
+
+type DashboardCard = {
+  title: string
+  description: string
+  actions: DashboardAction[]
+}
 
 @Component({
   selector: 'app-frac-dashboard',
@@ -10,86 +24,94 @@ import { Router } from '@angular/router'
   standalone: false
 })
 export class FracDashboardComponent {
-  constructor(private router: Router) { }
-  /** Columns for recent activity table */
-  recentActivityColumns: TableColumn[] = [
+  constructor(
+    private router: Router,
+    private configSvc: ConfigurationsService,
+  ) { }
+
+  private readonly fracClientConfig = resolveFracClientConfig(this.configSvc?.instanceConfig)
+  private readonly routes = this.fracClientConfig.routes
+  private readonly dashboardIconUrls = this.fracClientConfig.dashboardIconUrls
+
+  /** Columns shown in the "Recent Activity" table section. */
+  readonly recentActivityColumns: TableColumn[] = [
     { key: 'activity', label: 'Activity', width: '40%' },
     { key: 'details', label: 'Details', width: '40%' },
     { key: 'updated', label: 'Last Updated', width: '20%' },
+  ]
 
-  ];
-
-  /** Hardcoded data for now (later from service) */
-  recentActivities = [
+  /** Demo activity data until backend integration is connected. */
+  readonly recentActivities = [
     { activity: 'Uploaded Competencies', details: '5 new competencies added', updated: 'Oct 28, 2025' },
     { activity: 'Mapped Activities', details: '2 activities linked to roles', updated: 'Oct 27, 2025' },
     { activity: 'Added Role', details: 'New Admin role created', updated: 'Oct 26, 2025' },
     { activity: 'Uploaded Competencies', details: '5 new competencies added', updated: 'Oct 28, 2025' },
     { activity: 'Mapped Activities', details: '2 activities linked to roles', updated: 'Oct 27, 2025' },
-    { activity: 'Added Role', details: 'New Admin role created', updated: 'Oct 26, 2025' }, { activity: 'Uploaded Competencies', details: '5 new competencies added', updated: 'Oct 28, 2025' },
+    { activity: 'Added Role', details: 'New Admin role created', updated: 'Oct 26, 2025' },
+    { activity: 'Uploaded Competencies', details: '5 new competencies added', updated: 'Oct 28, 2025' },
     { activity: 'Mapped Activities', details: '2 activities linked to roles', updated: 'Oct 27, 2025' },
     { activity: 'Added Role', details: 'New Admin role created', updated: 'Oct 26, 2025' },
-  ];
+  ]
 
-  /** Dashboard action cards */
-  actionCards = [
+  /** Cards and actions displayed on FRAC dashboard. */
+  readonly actionCards: DashboardCard[] = [
     {
       title: 'Upload Competency',
       description: 'Add new competencies with code, name, description, area, and multilingual support.',
-      actions: [{ label: 'Upload', icon: 'upload', redirectLink: '/app/frac/competency?mode=upload' }, { label: 'Manage', icon: 'manage', redirectLink: '/app/frac/competency?mode=manage' }],
+      actions: [
+        { label: 'Upload', icon: 'upload', redirectLink: this.routes.competencyUpload || FRAC_ROUTES.competencyUpload },
+        { label: 'Manage', icon: 'manage', redirectLink: this.routes.competencyManage || FRAC_ROUTES.competencyManage },
+      ],
     },
     {
       title: 'Upload Activities',
       description: 'Upload activities that represent tasks to be mapped with competencies and roles.',
-      actions: [{ label: 'Upload', icon: 'upload', redirectLink: '/app/frac/activity?mode=upload' }, { label: 'Manage', icon: 'manage', redirectLink: '/app/frac/activity?mode=manage' }],
+      actions: [
+        { label: 'Upload', icon: 'upload', redirectLink: this.routes.activityUpload || FRAC_ROUTES.activityUpload },
+        { label: 'Manage', icon: 'manage', redirectLink: this.routes.activityManage || FRAC_ROUTES.activityManage },
+      ],
     },
     {
       title: 'Upload Roles',
       description: 'Add roles that define responsibilities in your organization.',
-      actions: [{ label: 'Upload', icon: 'upload', redirectLink: '/app/frac/role?mode=upload' }, { label: 'Manage', icon: 'manage', redirectLink: '/app/frac/role?mode=manage' }],
+      actions: [
+        { label: 'Upload', icon: 'upload', redirectLink: this.routes.roleUpload || FRAC_ROUTES.roleUpload },
+        { label: 'Manage', icon: 'manage', redirectLink: this.routes.roleManage || FRAC_ROUTES.roleManage },
+      ],
     },
     {
       title: 'Map Activities to Competencies',
       description: 'Link activities with the relevant competencies to build skill structures.',
-      actions: [{ label: 'Map now', redirectLink: '/app/frac/map-activity', icon: 'map' }],
+      actions: [{ label: 'Map now', redirectLink: this.routes.mapActivity || FRAC_ROUTES.mapActivity, icon: 'map' as FracDashboardIcon }],
     },
-
     {
       title: 'Map Roles to Activities',
       description: 'Assign activities to roles to define what each role is responsible for.',
-      actions: [{ label: 'Map now', redirectLink: '/app/frac/map-role', icon: 'map' }],
+      actions: [{ label: 'Map now', redirectLink: this.routes.mapRole || FRAC_ROUTES.mapRole, icon: 'map' as FracDashboardIcon }],
     },
+    ...(this.fracClientConfig.featureFlags.enableRolePositionMapping
+      ? [{
+        title: 'Map Roles to Positions',
+        description: 'Connect roles to existing organizational positions.',
+        actions: [{ label: 'Map now', redirectLink: this.routes.mapRolePosition || FRAC_ROUTES.mapRolePosition, icon: 'map' as FracDashboardIcon }],
+      }]
+      : []),
+  ]
 
-    {
-      title: 'Map Roles to Positions',
-      description: 'Connect roles to existing organizational positions.',
-      actions: [{ label: 'Map now', redirectLink: '/app/frac/map-role-position', icon: 'map' }],
-    },
-  ];
   /**
-   * Handle button click and navigate to the provided URL
-   * @param redirectLink - The URL to navigate to
+   * Navigates to the target page when a dashboard button is clicked.
    */
   onBtnClick(redirectLink: string | undefined): void {
     if (!redirectLink) {
-      console.warn('No redirect link provided')
       return
     }
     this.router.navigateByUrl(redirectLink)
-    console.log('Button clicked')
   }
 
   /**
-   * Map action icons to SVG URLs from S3
-   * @param iconName - The icon name to map
-   * @returns The S3 URL for the icon
+   * Returns the configured icon URL for the given action type.
    */
   getIconUrl(iconName: string): string {
-    const iconMap: { [key: string]: string } = {
-      'upload': 'https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/icons/frac_upload_icon.svg',
-      'manage': 'https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/icons/frac_manage_icon.svg',
-      'map': 'https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/icons/map_icon.svg',
-    }
-    return iconMap[iconName] || ''
+    return this.dashboardIconUrls[iconName as FracDashboardIcon] || FRAC_DASHBOARD_ICON_URLS[iconName as FracDashboardIcon] || ''
   }
 }

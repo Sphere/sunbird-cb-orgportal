@@ -1,14 +1,13 @@
 <div class="header-container">
   <button class="home-chip" type="button" aria-label="Go to FRAC dashboard" (click)="onHomeClick()">
-    <img src="https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/icons/home-frac.svg" alt="home"
-      class="home-icon" />
-    <span class="home-label">Home</span>
+    <img src="{{ uiConfig.icons.home }}" alt="home" class="home-icon" />
+    <span class="home-label">{{ uiConfig.labels.home }}</span>
   </button>
 
   <!-- Save Button - Disabled when no data -->
-  <button class="save-btn" (click)="onSaveClicked()"
+  <button class="save-btn" (click)="onSaveClicked()" *ngIf="routeMode === 'manage'"
     [disabled]="!isEditing || !hasTableData() || isUpdating || !hasPendingTableChanges()">
-    <span style="color: white;">{{ isUpdating ? 'Saving...' : 'Save' }}</span>
+    <span style="color: white;">{{ isUpdating ? uiConfig.labels.saving : uiConfig.labels.save }}</span>
   </button>
 </div>
 
@@ -17,14 +16,13 @@
 
   <div class="header">
     <button class="back-button" type="button" aria-label="Back to home" (click)="onHomeClick()">
-      <img src="https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/icons/frac-left-arrow.svg" alt="back"
-        class="back-icon" />
+      <img src="{{ uiConfig.icons.back }}" alt="back" class="back-icon" />
     </button>
-    <h2>Upload Competency</h2>
+    <h2>{{ uiConfig.labels.uploadCompetency }}</h2>
   </div>
 
   <div class="sub-header">
-    <span>Upload Competency File (CSV or XLSX)</span>
+    <span>{{ uiConfig.labels.uploadCompetencySub }}</span>
 
   </div>
 
@@ -32,18 +30,19 @@
     <div class="left-tools">
 
 
-      <div class="search-box" [class.disabled]="isFilterControlsDisabled()">
-        <input matInput type="text" placeholder="Search by name, code" [(ngModel)]="searchTerm"
+      <div class="search-box" [class.disabled]="isFilterControlsDisabled()" *ngIf="routeMode === 'manage'">
+        <input matInput type="text" [placeholder]="uiConfig.labels.searchPlaceholder" [(ngModel)]="searchTerm"
           [disabled]="isFilterControlsDisabled()" (input)="onSearchTermChange()" (keydown.enter)="onSearchEnter()" />
         <button mat-icon-button matSuffix class="icon-btn" (click)="onSearch()" [disabled]="isFilterControlsDisabled()">
           <mat-icon>search</mat-icon>
         </button>
       </div>
 
-      <div class="language-dropdown" [class.disabled]="isLanguageDropdownDisabled()" (click)="toggleDropdown()">
+      <div class="language-dropdown" [class.disabled]="isLanguageDropdownDisabled()" (click)="toggleDropdown()"
+        *ngIf="routeMode === 'manage'">
         <div class="dropdown-main">
           <div class="label-container">
-            <div class="label">Language</div>
+            <div class="label">{{ uiConfig.labels.language }}</div>
             <div class="selected">{{ selectedLanguage }}</div>
           </div>
           <div class="icon">
@@ -63,25 +62,25 @@
       <div class="button-group">
         <!-- Remove Button (Red Outline + Icon) - Disabled when no data -->
         <button mat-stroked-button class="app-btn icon red" (click)="onRemoveClicked()"
-          [disabled]="!selectedRows.length || !hasTableData()">
-          <img src="https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/icons/delete_red_icon.svg" alt="delete"
-            class="btn-icon" />
-          Remove
+          [disabled]="!selectedRows.length || !hasTableData()" *ngIf="routeMode === 'manage'">
+          <img src="{{ uiConfig.icons.remove }}" alt="delete" class="btn-icon" />
+          {{ uiConfig.labels.remove }}
         </button>
         <!-- Edit Button (Blue Outline + Icon) - Disabled when no data -->
         <button mat-stroked-button class="app-btn icon blue" (click)="onEditClicked()"
-          [disabled]="!selectedRows.length || !hasTableData()">
-          <img src="https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/icons/edit_blue_icon.svg" alt="edit"
-            class="btn-icon" />
-          Edit
+          [disabled]="!selectedRows.length || !hasTableData()" *ngIf="routeMode === 'manage'">
+          <img src="{{ uiConfig.icons.edit }}" alt="edit" class="btn-icon" />
+          {{ uiConfig.labels.edit }}
         </button>
 
         <!-- Secondary Button -->
-        <button mat-stroked-button class="app-btn secondary" (click)="onDownloadTemplate()">
-          Download sample
+        <button mat-stroked-button class="app-btn secondary" (click)="onDownloadTemplate()"
+          *ngIf="routeMode !== 'manage'">
+          {{ uiConfig.labels.downloadSample }}
         </button>
         <!-- Primary Button -->
-        <button type="button" (click)="openUploadPopup()" mat-button class="app-btn primary">
+        <button type="button" (click)="openUploadPopup()" mat-button class="app-btn primary"
+          *ngIf="routeMode !== 'manage'">
           {{ uploadButtonText }}
         </button>
       </div>
@@ -96,8 +95,8 @@
           <mat-icon>cloud_upload</mat-icon>
         </div>
       </div>
-      <p class="loading-text">Uploading and processing your file...</p>
-      <p class="loading-subtext">Please wait...</p>
+      <p class="loading-text">{{ uiConfig.labels.uploadLoaderContent }}</p>
+      <p class="loading-subtext">{{ uiConfig.labels.uploadLoaderSubtext }}</p>
     </div>
   </div>
 

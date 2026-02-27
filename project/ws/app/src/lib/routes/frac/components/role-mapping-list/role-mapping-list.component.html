@@ -31,8 +31,7 @@
 
       <ng-container *ngIf="!isLoading">
         <div class="role-item" *ngFor="let r of filteredRoles; trackBy: trackByCode"
-          [class.selected]="selectedRoleCode === r.code"
-          (click)="roleSelectedHandler(r)">
+          [class.selected]="selectedRoleCode === r.code" (click)="roleSelectedHandler(r)">
           <div class="expanded-card">
 
             <div class="header-row" (click)="onHeaderClick(r, $event)">

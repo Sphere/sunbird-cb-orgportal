@@ -1,11 +1,17 @@
 <div class="header-container">
   <button class="home-chip" type="button" aria-label="Go to FRAC dashboard" (click)="onHomeClick()">
-    <img src="https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/icons/home-frac.svg" alt="home"
-      class="home-icon" />
-    <span class="home-label">Home</span>
+    <img [src]="uiConfig.icons.home" alt="home" class="home-icon" />
+    <span class="home-label">{{ uiConfig.labels.home }}</span>
   </button>
 
-  <button mat-stroked-button class="save-btn" type="button" (click)="onSaveClicked()" [disabled]="!isEditing || isSaving || isValidatingActivityMappings"
+  <div class="view-only-banner" *ngIf="selectedLanguage !== 'English'">
+    <mat-icon>info</mat-icon>
+    <span>You are currently viewing mappings for <strong>{{ selectedLanguage }}</strong>. To make changes or add new
+      mappings, please switch to English.</span>
+  </div>
+
+  <button [style.visibility]="selectedLanguage === 'English' ? 'visible' : 'hidden'" mat-stroked-button class="save-btn"
+    type="button" (click)="onSaveClicked()" [disabled]="!isEditing || isSaving || isValidatingActivityMappings"
     aria-label="Save role mappings">
     {{ isSaving ? 'Saving...' : (isValidatingActivityMappings ? 'Validating...' : 'Save') }}
   </button>
@@ -14,15 +20,14 @@
 <div class="upload-container">
   <div class="loading-overlay" *ngIf="isSaving">
     <div class="spinner-container">
-      <mat-spinner [diameter]="42" [strokeWidth]="4"></mat-spinner>
+      <mat-spinner [diameter]="mapPageSpinner.diameter" [strokeWidth]="mapPageSpinner.strokeWidth"></mat-spinner>
       <p class="loading-text">Saving role to activity mappings...</p>
     </div>
   </div>
 
   <div class="header">
-    <button class="back-button" routerLink="/app/home/frac/dashboard" type="button" aria-label="Back to home">
-      <img src="https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/icons/frac-left-arrow.svg" alt="back"
-        class="back-icon" />
+    <button class="back-button" [routerLink]="routes.homeDashboard" type="button" aria-label="Back to home">
+      <img [src]="uiConfig.icons.back" alt="back" class="back-icon" />
     </button>
     <h2>Map Roles</h2>
   </div>
@@ -54,13 +59,13 @@
     <div class="section-title right">Available Activities</div>
   </div> -->
 
+
+
   <div class="content-layout">
     <!-- LEFT – ROLES PANEL -->
     <div class="roles-panel">
-      <app-role-mapping-list [roles]="filteredRoles" [isLoading]="isRolesLoading"
-        [searchResetKey]="searchResetKey"
-        [selectedRoleCode]="selectedRole?.code || null"
-        (searchChange)="onRoleSearch($event)"
+      <app-role-mapping-list [roles]="filteredRoles" [isLoading]="isRolesLoading" [searchResetKey]="searchResetKey"
+        [selectedRoleCode]="selectedRole?.code || null" (searchChange)="onRoleSearch($event)"
         (roleSelected)="onRoleSelected($event)" (toggle)="onRoleToggleExpand($event)">
       </app-role-mapping-list>
     </div>
@@ -68,10 +73,9 @@
     <!-- RIGHT – ACTIVITIES PANEL -->
     <div class="activities-panel">
       <app-activity-mapping-table [activities]="filteredActivities" [selectedRole]="selectedRole"
-        [searchResetKey]="searchResetKey"
-        [selectedActivityMap]="selectedActivityMap" [isLoading]="isRoleMappingLoading || isActivitiesLoading"
-        [isActionLoading]="isValidatingActivityMappings"
-        (searchChange)="onActivitySearch($event)"
+        [searchResetKey]="searchResetKey" [selectedActivityMap]="selectedActivityMap"
+        [isLoading]="isRoleMappingLoading || isActivitiesLoading" [isActionLoading]="isValidatingActivityMappings"
+        [isReadOnly]="selectedLanguage !== 'English'" (searchChange)="onActivitySearch($event)"
         (activityCheckChange)="onActivityCheckChanged($event)" (addActivity)="onAddActivityToRole()">
       </app-activity-mapping-table>
     </div>

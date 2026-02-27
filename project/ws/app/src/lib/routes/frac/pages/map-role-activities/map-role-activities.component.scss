@@ -16,6 +16,7 @@
       font-weight: 600;
       font-size: 32px;
       margin: 0;
+      color: #000;
     }
   }
 
@@ -167,7 +168,10 @@
   display: flex;
   background-color: #f3f8fd;
   justify-content: space-between;
+  align-items: center;
   padding: 8px 48px;
+  min-height: 56px;
+  position: relative; // Added for absolute centering of child
 }
 
 .home-chip {
@@ -247,6 +251,36 @@
   gap: 24px;
   width: 100%;
   padding-bottom: 36px;
+}
+
+.view-only-banner {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background-color: #f3f8fd;
+  border: 1px solid #1c5d95;
+  border-radius: 99px;
+  padding: 6px 20px;
+  color: #1c5d95;
+  font-size: 14px;
+  font-family: Roboto, sans-serif;
+  white-space: nowrap;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: #1c5d95;
+  }
+
+  strong {
+    font-weight: 500;
+    color: #1c5d95;
+  }
 }
 
 .roles-panel {

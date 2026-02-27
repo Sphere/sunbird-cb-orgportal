@@ -10,6 +10,7 @@ export interface UploadPopupConfig {
 
   dropdown?: {
     label?: string
+    placeholder?: string
     options?: string[]
     defaultValue?: string
   }
@@ -22,6 +23,12 @@ export interface UploadPopupConfig {
   additionalContent?: {
     show?: boolean
     html?: string // optional: parent can pass custom HTML block
+  }
+
+  validationMessages?: {
+    invalidFileTypePrefix?: string
+    fileRequired?: string
+    languageRequired?: string
   }
 }
 

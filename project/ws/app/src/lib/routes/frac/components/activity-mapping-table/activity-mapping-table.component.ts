@@ -1,4 +1,5 @@
 import { Component, Input, Output, EventEmitter, OnChanges, OnInit, SimpleChanges } from '@angular/core'
+import { FracActivityMappingItem, FracRoleMappingItem, FracSelectionMap } from '../../models/frac-mapping.models'
 
 @Component({
   selector: 'app-activity-mapping-table',
@@ -7,29 +8,54 @@ import { Component, Input, Output, EventEmitter, OnChanges, OnInit, SimpleChange
 })
 export class ActivityMappingTableComponent implements OnInit, OnChanges {
 
-  @Input() activities: any[] = []
-  @Input() selectedRole: any = null
-  @Input() selectedActivityMap: { [code: string]: boolean } = {}
+  @Input() activities: FracActivityMappingItem[] = []
+  @Input() selectedRole: FracRoleMappingItem | null = null
+  @Input() selectedActivityMap: FracSelectionMap = {}
   @Input() isLoading = false
   @Input() isActionLoading = false
   @Input() searchResetKey = 0
+  @Input() isReadOnly = false
 
   @Output() searchChange = new EventEmitter<string>()
   @Output() activityCheckChange = new EventEmitter<{ code: string; checked: boolean }>()
   @Output() addActivity = new EventEmitter<void>()
 
   searchTerm = ''
-  filteredActivities: any[] = []
+  filteredActivities: FracActivityMappingItem[] = []
+  sortDirection: 'asc' | 'desc' | '' = 'asc'
 
+  /**
+   * Runs when the component is first initialized on the screen.
+   */
   ngOnInit(): void {
     this.filteredActivities = [...this.activities]
+    this.applySort()
   }
 
+  /**
+   * Triggered whenever Angular detects a change to one of the input properties.
+   */
   ngOnChanges(changes: SimpleChanges): void {
     this.filteredActivities = [...this.activities]
+    this.applySort()
     if (changes['searchResetKey'] && !changes['searchResetKey'].firstChange) {
       this.searchTerm = ''
     }
+  }
+
+  toggleSort(): void {
+    this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc'
+    this.applySort()
+  }
+
+  applySort(): void {
+    if (!this.sortDirection) return
+    this.filteredActivities.sort((a, b) => {
+      const aStr = (a.code || '').toLowerCase()
+      const bStr = (b.code || '').toLowerCase()
+      const modifier = this.sortDirection === 'desc' ? -1 : 1
+      return aStr.localeCompare(bStr, undefined, { numeric: true, sensitivity: 'base' }) * modifier
+    })
   }
 
   onSearchChange(): void {

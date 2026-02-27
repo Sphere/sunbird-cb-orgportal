@@ -1,4 +1,11 @@
 import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges } from '@angular/core'
+import {
+  Activity,
+  Competency,
+  CompetencyCheckChangeEvent,
+  SelectedCompetencySummary,
+  SelectedMap,
+} from '../../models/activity-competency.models'
 
 @Component({
   selector: 'app-competency-mapping-table',
@@ -10,42 +17,67 @@ export class CompetencyMappingTableComponent implements OnInit, OnChanges {
   /* ---------------------------
      Input data from parent
   --------------------------- */
-  @Input() competencies: any[] = [];
-  @Input() selectedMap: any = {};
+  @Input() competencies: Competency[] = [];
+  @Input() selectedMap: SelectedMap = {};
 
   @Input() headerConfig = {
-    codeLabel: 'Code & Label',
+    codeLabel: 'Code & Name',
     levels: ['Level 1', 'Level 2', 'Level 3', 'Level 4', 'Level 5'],
-    searchPlaceholder: 'Search Competency'
+    searchPlaceholder: 'Search by name,code'
   };
 
   @Input() levels: string[] = ['L1', 'L2', 'L3', 'L4', 'L5'];
-  @Input() selectedActivity: any = null;
+  @Input() selectedActivity: Activity | null = null;
   @Input() isLoading = false;
   @Input() searchResetKey = 0;
+  @Input() isReadOnly = false;
 
   /* ---------------------------
      Output events to parent
   --------------------------- */
-  @Output() checked = new EventEmitter<any>();
+  @Output() checked = new EventEmitter<CompetencyCheckChangeEvent>();
   @Output() searchChange = new EventEmitter<string>();
-  @Output() addCompetency = new EventEmitter<any>();
+  @Output() addCompetency = new EventEmitter<SelectedCompetencySummary[]>();
 
   searchTerm = '';
-  filteredCompetencies: any[] = [];
+  filteredCompetencies: Competency[] = [];
   displayLevels: string[] = ['L1', 'L2', 'L3', 'L4', 'L5'];
+  sortDirection: 'asc' | 'desc' | '' = 'asc';
 
+  /**
+   * Runs when the component is first initialized on the screen.
+   */
   ngOnInit() {
     this.filteredCompetencies = [...this.competencies]
     this.syncDisplayLevels()
+    this.applySort()
   }
 
+  /**
+   * Triggered whenever Angular detects a change to one of the input properties.
+   */
   ngOnChanges(changes: SimpleChanges) {
     this.filteredCompetencies = [...this.competencies]
     this.syncDisplayLevels()
+    this.applySort()
     if (changes['searchResetKey'] && !changes['searchResetKey'].firstChange) {
       this.searchTerm = ''
     }
+  }
+
+  toggleSort(): void {
+    this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc'
+    this.applySort()
+  }
+
+  applySort(): void {
+    if (!this.sortDirection) return
+    this.filteredCompetencies.sort((a, b) => {
+      const aStr = (a.code || '').toLowerCase()
+      const bStr = (b.code || '').toLowerCase()
+      const modifier = this.sortDirection === 'desc' ? -1 : 1
+      return aStr.localeCompare(bStr, undefined, { numeric: true, sensitivity: 'base' }) * modifier
+    })
   }
 
   private syncDisplayLevels(): void {
@@ -78,14 +110,14 @@ export class CompetencyMappingTableComponent implements OnInit, OnChanges {
     return this.selectedMap[code]?.includes(levelCode)
   }
 
-  checkChange(code: string, levelCode: string, checked: boolean) {
+  checkChange(code: string, levelCode: string, checked: boolean): void {
     this.checked.emit({ code, level: levelCode, checked })
   }
 
   /* --------------------------------
      Build selected competency list
   -------------------------------- */
-  buildSelectedCompetencies() {
+  buildSelectedCompetencies(): SelectedCompetencySummary[] {
     return Object.keys(this.selectedMap).map(code => {
       const comp = this.competencies.find(c => c.code === code)
 
@@ -115,13 +147,11 @@ export class CompetencyMappingTableComponent implements OnInit, OnChanges {
 
     // Extract selected levels from selectedMap
     const hasSelectedLevels =
-      Object.values(this.selectedMap || {}).some(
-        (levels: any) => levels.length > 0
-      )
+      Object.values(this.selectedMap || {}).some((levels) => levels.length > 0)
 
     // Check whether previously activity had competencies
     const hadPreviousCompetencies =
-      this.selectedActivity?.competencyDetails?.length > 0
+      (this.selectedActivity?.competencyDetails?.length || 0) > 0
 
     // Allowed case: user clearing all mappings
     // const userIsClearingAll = !hasSelectedLevels && hadPreviousCompetencies

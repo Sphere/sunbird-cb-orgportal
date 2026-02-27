@@ -3,12 +3,15 @@ import { MatDialog } from '@angular/material/dialog'
 import { Router } from '@angular/router'
 import { forkJoin, of, Subject } from 'rxjs'
 import { catchError, debounceTime, distinctUntilChanged, map, takeUntil } from 'rxjs/operators'
-import { MappingRequiredModalComponent, MissingActivityMappingItem } from '../../components/mapping-required-modal/mapping-required-modal.component'
+import { MappingRequiredModalComponent, MissingMappingItem } from '../../components/mapping-required-modal/mapping-required-modal.component'
 import { UnsavedChangesModalComponent } from '../../components/unsaved-changes-modal/unsaved-changes-modal.component'
 import { UploadResultData, UploadResultModalComponent } from '../../components/upload-result-modal/upload-result-modal.component'
 import { CustomSnackbarService } from '../../services/custom-snackbar.service'
 import { FracApiService } from '../../services/frac-api.service'
-import { transformRoles, transformActivities } from '../../utils/common.util'
+import { transformRoles, transformActivities, extractEntityList, makeMappingKey, getCodeFromKey } from '../../utils/common.util'
+import { fracLogger } from '../../utils/frac-logger.util'
+import { FRAC_UI_CONFIG } from '../../models/ui.config.model'
+import { FRAC_DEBOUNCE_MS, FRAC_DIALOG_SIZES, FRAC_LANGUAGES, FRAC_MAP_PAGE_SPINNER, FRAC_ROUTES } from '../../constants/frac.constants'
 
 interface RoleActivityDetail {
   code: string
@@ -32,7 +35,22 @@ interface RoleActivityApiRequestItem {
   parentEntityCode: string
   childEntityType: 'Activity'
   childEntityCode: string
-  competencies: any[]
+  competencies: Array<number | string | Record<string, unknown>>
+}
+
+interface MappingHierarchyNode {
+  entityType?: string
+  entityCode?: string
+  entityName?: string
+  competencies?: Array<number | string | { levelNumber?: number; level?: number | string; levelId?: number }>
+}
+
+interface MappingSearchResultItem {
+  childHierarchy?: MappingHierarchyNode[]
+}
+
+interface MappingSearchResponseShape {
+  result?: MappingSearchResultItem[]
 }
 
 @Component({
@@ -50,7 +68,11 @@ export class MapRoleActivitiesComponent implements OnInit, OnDestroy {
   ) { }
 
   // language
-  readonly languages = ['English', 'Hindi', 'Kannada', 'Tamil']
+  readonly uiConfig = FRAC_UI_CONFIG
+  readonly routes = FRAC_ROUTES
+  readonly mapPageSpinner = FRAC_MAP_PAGE_SPINNER
+
+  readonly languages: string[] = [...FRAC_LANGUAGES]
   selectedLanguage = 'English'
   isOpen = false
   isEditing = true
@@ -91,20 +113,30 @@ export class MapRoleActivitiesComponent implements OnInit, OnDestroy {
   private readonly roleDraftStore = new Map<string, RoleActivityDetail[]>()
   private activeRoleMappingRequestKey: string | null = null
 
+  /**
+   * Runs once when the page loads. Sets up search listeners and checks the URL to see if we are in upload or manage mode.
+   */
   ngOnInit(): void {
     this.setupSearchStreams()
     this.resetInitialView()
+    this.fetchRoles('')
   }
 
+  /**
+   * Cleans up memory and active background tasks when the user leaves this page.
+   */
   ngOnDestroy(): void {
     this.destroy$.next()
     this.destroy$.complete()
   }
 
+  /**
+   * Initializes the search bars to wait 500ms after the user stops typing before making a backend request.
+   */
   private setupSearchStreams(): void {
     this.roleSearch$
       .pipe(
-        debounceTime(500),
+        debounceTime(FRAC_DEBOUNCE_MS.searchInput),
         distinctUntilChanged(),
         takeUntil(this.destroy$),
       )
@@ -112,13 +144,16 @@ export class MapRoleActivitiesComponent implements OnInit, OnDestroy {
 
     this.activitySearch$
       .pipe(
-        debounceTime(500),
+        debounceTime(FRAC_DEBOUNCE_MS.searchInput),
         distinctUntilChanged(),
         takeUntil(this.destroy$),
       )
       .subscribe(keyword => this.fetchActivities(keyword))
   }
 
+  /**
+   * Resets all component variables back to their blank, starting state.
+   */
   private resetInitialView(): void {
     this.searchResetKey += 1
     this.roleSearchTerm = ''
@@ -151,12 +186,15 @@ export class MapRoleActivitiesComponent implements OnInit, OnDestroy {
   // API search
   // ---------------------------------------------------------------------------
 
+  /**
+   * Fetches the list of roles from the backend based on the search keyword.
+   */
   private fetchRoles(keyword: string): void {
     this.isRolesLoading = true
     this.fracApiService.searchEntities('role', keyword, this.selectedLanguage).subscribe({
       next: (res) => {
         this.isRolesLoading = false
-        const apiEntity = this.extractEntityList(res)
+        const apiEntity = extractEntityList(res)
         const transformed = transformRoles(apiEntity)
         const hydrated = transformed.map((role) => {
           const details = this.getHydratedRoleActivityDetails(role.code)
@@ -185,7 +223,7 @@ export class MapRoleActivitiesComponent implements OnInit, OnDestroy {
       },
       error: (e) => {
         this.isRolesLoading = false
-        console.error('Failed to load roles', e)
+        fracLogger.error('Failed to load roles', e)
         this.rolesData = []
         this.roles = []
         this.filteredRoles = []
@@ -193,12 +231,15 @@ export class MapRoleActivitiesComponent implements OnInit, OnDestroy {
     })
   }
 
+  /**
+   * Fetches the list of activities from the backend using the search keyword.
+   */
   private fetchActivities(keyword: string): void {
     this.isActivitiesLoading = true
     this.fracApiService.searchEntities('activity', keyword, this.selectedLanguage).subscribe({
       next: (res) => {
         this.isActivitiesLoading = false
-        const apiEntity = this.extractEntityList(res)
+        const apiEntity = extractEntityList(res)
         const transformed = transformActivities(apiEntity) as ActivityItem[]
 
         this.activitiesData = transformed
@@ -209,7 +250,7 @@ export class MapRoleActivitiesComponent implements OnInit, OnDestroy {
       },
       error: (e) => {
         this.isActivitiesLoading = false
-        console.error('Failed to load activities', e)
+        fracLogger.error('Failed to load activities', e)
         this.activitiesData = []
         this.activities = []
         this.filteredActivities = []
@@ -217,26 +258,20 @@ export class MapRoleActivitiesComponent implements OnInit, OnDestroy {
     })
   }
 
-  private extractEntityList(response: any): any[] {
-    if (!response) return []
-    if (Array.isArray(response)) return response
-
-    const entityList =
-      response?.result?.entity ||
-      response?.result?.data?.entity ||
-      response?.data?.entity ||
-      response?.entity
-
-    return Array.isArray(entityList) ? entityList : []
-  }
 
   // ---------------------------------------------------------------------------
   // Language dropdown
   // ---------------------------------------------------------------------------
+  /**
+   * Opens or closes the language selection dropdown menu.
+   */
   toggleDropdown(): void {
     this.isOpen = !this.isOpen
   }
 
+  /**
+   * Changes the selected language and fetches new data for that language if in manage mode.
+   */
   selectLanguage(lang: string, event: MouseEvent): void {
     event.stopPropagation()
     if (!this.languages.includes(lang)) return
@@ -245,16 +280,10 @@ export class MapRoleActivitiesComponent implements OnInit, OnDestroy {
       return
     }
 
-    const hadUnsavedChanges = this.hasUnsavedChanges || this.roleDraftStore.size > 0
     this.selectedLanguage = lang
     this.isOpen = false
     this.resetInitialView()
-
-    this.snackbar.warning(
-      hadUnsavedChanges
-        ? 'Language changed. Unsaved mapping changes were reset. Please search again.'
-        : 'Language changed. Please search again to load data.',
-    )
+    this.fetchRoles('')
   }
 
   // ---------------------------------------------------------------------------
@@ -265,17 +294,28 @@ export class MapRoleActivitiesComponent implements OnInit, OnDestroy {
     this.roleSearch$.next(this.roleSearchTerm)
   }
 
+  /**
+   * Sets a role card as the active focus in the UI.
+   */
   onRoleSelected(role: RoleItem): void {
     this.selectedRole = role
     this.selectedActivityMap = {}
     this.selectedActivitySummary = []
+    this.activitySearchTerm = ''
+    this.searchResetKey += 1
     this.loadRoleActivityMappings(role)
   }
 
+  /**
+   * Toggles a role card open or closed, triggering a fetch for its children if opening.
+   */
   onRoleToggleExpand(role: RoleItem): void {
     this.expandedRole = this.expandedRole === role ? null : role
   }
 
+  /**
+   * Triggers a backend request to find mapped activities when a user expands a role card.
+   */
   private loadRoleActivityMappings(role: RoleItem): void {
     const requestKey = this.buildRoleMappingKey(role.code)
     this.isRoleMappingLoading = true
@@ -326,7 +366,7 @@ export class MapRoleActivitiesComponent implements OnInit, OnDestroy {
             return
           }
           this.isRoleMappingLoading = false
-          console.error('Failed to load role mappings', err)
+          fracLogger.error('Failed to load role mappings', err)
           this.selectedActivityMap = {}
           this.selectedActivitySummary = []
           this.snackbar.error('Unable to fetch existing role mappings.')
@@ -334,14 +374,19 @@ export class MapRoleActivitiesComponent implements OnInit, OnDestroy {
       })
   }
 
-  private extractMappedActivities(response: any): RoleActivityDetail[] {
-    const result = Array.isArray(response?.result) ? response.result : []
+  /**
+   * Reads the complex API mapping response to build a simple list of connected activities.
+   */
+  private extractMappedActivities(response: unknown): RoleActivityDetail[] {
+    const result = Array.isArray((response as MappingSearchResponseShape)?.result)
+      ? (response as MappingSearchResponseShape).result || []
+      : []
     const first = result[0] || {}
     const childHierarchy = Array.isArray(first?.childHierarchy) ? first.childHierarchy : []
 
     return childHierarchy
-      .filter((child: any) => (child?.entityType || '').toLowerCase() === 'activity')
-      .map((child: any) => ({
+      .filter((child: MappingHierarchyNode) => (child?.entityType || '').toLowerCase() === 'activity')
+      .map((child: MappingHierarchyNode) => ({
         code: (child?.entityCode || '').trim(),
         label: child?.entityName || '',
       }))
@@ -498,7 +543,7 @@ export class MapRoleActivitiesComponent implements OnInit, OnDestroy {
         },
         error: (err) => {
           this.isValidatingActivityMappings = false
-          console.error('Failed to validate activity competency mappings', err)
+          fracLogger.error('Failed to validate activity competency mappings', err)
           this.snackbar.error('Unable to validate activity competency mappings. Please try again.')
         },
       })
@@ -527,19 +572,21 @@ export class MapRoleActivitiesComponent implements OnInit, OnDestroy {
     )
   }
 
-  private hasMappedCompetencyLevels(response: any): boolean {
-    const result = Array.isArray(response?.result) ? response.result : []
+  private hasMappedCompetencyLevels(response: unknown): boolean {
+    const result = Array.isArray((response as MappingSearchResponseShape)?.result)
+      ? (response as MappingSearchResponseShape).result || []
+      : []
     const first = result[0] || {}
     const childHierarchy = Array.isArray(first?.childHierarchy) ? first.childHierarchy : []
 
-    return childHierarchy.some((child: any) => {
+    return childHierarchy.some((child: MappingHierarchyNode) => {
       const isCompetency = (child?.entityType || '').toLowerCase() === 'competency'
       if (!isCompetency) {
         return false
       }
 
       const levels = Array.isArray(child?.competencies) ? child.competencies : []
-      return levels.some((level: any) => {
+      return levels.some((level: number | string | { levelNumber?: number; level?: number | string; levelId?: number }) => {
         if (typeof level === 'number') {
           return Number.isFinite(level) && level > 0
         }
@@ -548,20 +595,21 @@ export class MapRoleActivitiesComponent implements OnInit, OnDestroy {
           return Number.isFinite(parsed) && parsed > 0
         }
 
-        const parsed = Number(level?.levelNumber ?? level?.level ?? level?.levelId)
+        const parsed = Number(level.levelNumber ?? level.level ?? level.levelId)
         return Number.isFinite(parsed) && parsed > 0
       })
     })
   }
 
-  private openMappingRequiredModal(missingActivities: MissingActivityMappingItem[]): void {
+  private openMappingRequiredModal(missingActivities: MissingMappingItem[]): void {
     const dialogRef = this.dialog.open(MappingRequiredModalComponent, {
-      width: '425px',
+      width: FRAC_DIALOG_SIZES.mappingRequired,
       maxWidth: '92vw',
       disableClose: true,
       panelClass: 'mapping-required-dialog',
       data: {
-        activities: missingActivities,
+        items: missingActivities,
+        type: 'activity',
       },
     })
 
@@ -569,7 +617,7 @@ export class MapRoleActivitiesComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe((action: 'back' | 'map-now' | undefined) => {
         if (action === 'map-now') {
-          this.router.navigateByUrl('/app/frac/map-activity')
+          this.router.navigateByUrl(FRAC_ROUTES.mapActivity)
         }
       })
   }
@@ -621,6 +669,9 @@ export class MapRoleActivitiesComponent implements OnInit, OnDestroy {
   // ---------------------------------------------------------------------------
   // Save
   // ---------------------------------------------------------------------------
+  /**
+   * Takes all the edited rows and sends them to the server to be updated.
+   */
   onSaveClicked(): void {
     this.syncCurrentSelectedRoleSelection()
     const payload = this.buildPayload()
@@ -660,7 +711,7 @@ export class MapRoleActivitiesComponent implements OnInit, OnDestroy {
         },
         error: (err) => {
           this.isValidatingActivityMappings = false
-          console.error('Failed to validate activities before save', err)
+          fracLogger.error('Failed to validate activities before save', err)
           this.snackbar.error('Unable to validate activity competency mappings. Please try again.')
         },
       })
@@ -753,7 +804,7 @@ export class MapRoleActivitiesComponent implements OnInit, OnDestroy {
     const mappedPairs = new Set<string>()
 
     for (const [key, activityDetails] of this.roleDraftStore.entries()) {
-      const roleCode = this.extractEntityCodeFromMappingKey(key)
+      const roleCode = getCodeFromKey(key)
       if (!roleCode) continue
 
       for (const activityDetail of activityDetails) {
@@ -779,6 +830,9 @@ export class MapRoleActivitiesComponent implements OnInit, OnDestroy {
     return payload
   }
 
+  /**
+   * Updates the visual selection state (checkboxes) for the currently open role card based on what is stored in memory.
+   */
   private syncCurrentSelectedRoleSelection(): void {
     if (!this.selectedRole) return
 
@@ -792,20 +846,17 @@ export class MapRoleActivitiesComponent implements OnInit, OnDestroy {
     this.refreshRolesState()
   }
 
+  /**
+   * Creates a unique text code to look up a role in the temporary storage.
+   */
   private buildRoleMappingKey(roleCode: string): string {
-    return `${this.selectedLanguage.trim().toLowerCase()}::${(roleCode || '').trim()}`
+    return makeMappingKey(this.selectedLanguage, roleCode)
   }
 
-  private extractEntityCodeFromMappingKey(key: string): string {
-    const separator = '::'
-    const separatorIndex = key.indexOf(separator)
-    if (separatorIndex === -1) {
-      return key
-    }
 
-    return key.slice(separatorIndex + separator.length)
-  }
-
+  /**
+   * Creates a deep copy of the activity details so we can compare changes without modifying the original data.
+   */
   private cloneActivityDetails(details: RoleActivityDetail[]): RoleActivityDetail[] {
     return (details || [])
       .filter((detail) => !!detail?.code)
@@ -815,6 +866,9 @@ export class MapRoleActivitiesComponent implements OnInit, OnDestroy {
       }))
   }
 
+  /**
+   * Creates a unique string from all mapped activities to detect if the user made any edits.
+   */
   private getRoleActivityDetailsSignature(details: RoleActivityDetail[]): string {
     return this.cloneActivityDetails(details)
       .sort((left, right) => left.code.localeCompare(right.code, undefined, { numeric: true, sensitivity: 'base' }))
@@ -855,6 +909,9 @@ export class MapRoleActivitiesComponent implements OnInit, OnDestroy {
     this.filteredRoles = this.filteredRoles.map(roleUpdater)
   }
 
+  /**
+   * Saves the current mapping selections for a specific role into the temporary draft memory.
+   */
   private setRoleDraft(roleCode: string, details: RoleActivityDetail[]): void {
     const key = this.buildRoleMappingKey(roleCode)
     const normalizedDetails = this.cloneActivityDetails(details)
@@ -869,11 +926,14 @@ export class MapRoleActivitiesComponent implements OnInit, OnDestroy {
     this.syncUpdatedRolesFromDraftStore()
   }
 
+  /**
+   * Loops through memory to ensure any roles edited on previous pages still show their updated mapped counts.
+   */
   private syncUpdatedRolesFromDraftStore(): void {
     const roleMap = new Map<string, RoleActivityDetail[]>()
 
     for (const [key, details] of this.roleDraftStore.entries()) {
-      const roleCode = this.extractEntityCodeFromMappingKey(key)
+      const roleCode = getCodeFromKey(key)
       if (!roleCode || !details.length) continue
       roleMap.set(roleCode, this.cloneActivityDetails(details))
     }
@@ -892,12 +952,14 @@ export class MapRoleActivitiesComponent implements OnInit, OnDestroy {
     })
   }
 
-  private extractMappedPairs(response: any, fallbackPayload: RoleActivityApiRequestItem[]): string[] {
-    const resultArray = Array.isArray(response?.result) ? response.result : []
+  private extractMappedPairs(response: unknown, fallbackPayload: RoleActivityApiRequestItem[]): string[] {
+    const resultArray = Array.isArray((response as { result?: Array<Partial<RoleActivityApiRequestItem>> })?.result)
+      ? (response as { result?: Array<Partial<RoleActivityApiRequestItem>> }).result || []
+      : []
     const source = resultArray.length ? resultArray : fallbackPayload
 
     return source
-      .map((item: any) => {
+      .map((item) => {
         const parentCode = item?.parentEntityCode || ''
         const childCode = item?.childEntityCode || ''
         return `${parentCode} <=> ${childCode}`
@@ -905,9 +967,12 @@ export class MapRoleActivitiesComponent implements OnInit, OnDestroy {
       .filter(Boolean)
   }
 
+  /**
+   * Opens a popup dialog to show the user if their action (upload, save) was successful or failed.
+   */
   private showResultModal(data: UploadResultData, redirectOnClose = false): void {
     const dialogRef = this.dialog.open(UploadResultModalComponent, {
-      width: '440px',
+      width: FRAC_DIALOG_SIZES.mapResult,
       disableClose: true,
       panelClass: 'upload-result-dialog',
       data,
@@ -917,23 +982,26 @@ export class MapRoleActivitiesComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
         if (redirectOnClose && data.type === 'success') {
-          this.router.navigateByUrl('/app/home/frac/dashboard')
+          this.router.navigateByUrl(FRAC_ROUTES.homeDashboard)
         }
       })
   }
 
+  /**
+   * Handles the user clicking the Home or Back button. Warns them if they have unsaved changes before leaving.
+   */
   onHomeClick(): void {
     if (this.isSaving || this.isValidatingActivityMappings) {
       return
     }
 
     if (!this.hasUnsavedChanges) {
-      this.router.navigateByUrl('/app/home/frac/dashboard')
+      this.router.navigateByUrl(FRAC_ROUTES.homeDashboard)
       return
     }
 
     const dialogRef = this.dialog.open(UnsavedChangesModalComponent, {
-      width: '363px',
+      width: FRAC_DIALOG_SIZES.unsavedChanges,
       maxWidth: '92vw',
       disableClose: true,
       panelClass: 'unsaved-changes-dialog',
@@ -949,7 +1017,7 @@ export class MapRoleActivitiesComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe((action: 'continue' | 'cancel' | undefined) => {
         if (action === 'continue') {
-          this.router.navigateByUrl('/app/home/frac/dashboard')
+          this.router.navigateByUrl(FRAC_ROUTES.homeDashboard)
         }
       })
   }

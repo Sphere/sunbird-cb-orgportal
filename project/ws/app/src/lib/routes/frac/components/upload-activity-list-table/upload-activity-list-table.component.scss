@@ -27,7 +27,13 @@
 
     th, td {
       padding: 8px 12px;
+      font-family: Roboto, sans-serif;
+      font-weight: 400;
+      font-style: normal;
       font-size: 14px;
+      line-height: 1.4;
+      letter-spacing: 0%;
+      color: black;
       text-align: left;
       vertical-align: middle;
       height: 40px;
@@ -35,7 +41,7 @@
 
     th {
       background-color: #dfedf9;
-      font-weight: 600;
+      font-weight: 400;
       position: sticky;
       top: 0;
       z-index: 2;

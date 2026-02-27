@@ -15,13 +15,11 @@ import { MatTableDataSource } from '@angular/material/table'
 import { MatPaginator } from '@angular/material/paginator'
 import { MatSort, Sort } from '@angular/material/sort'
 import { SelectionModel } from '@angular/cdk/collections'
+import { FRAC_DEFAULT_PAGE_SIZE_OPTIONS, FRAC_TABLE_LAYOUT } from '../../constants/frac.constants'
+import { FracTableCellValue, FracTableColumn, FracTableRow } from '../../models/frac-table.models'
 
 /** Column configuration for Activity table */
-export interface ActivityTableColumn {
-  key: string        // Column data key (e.g., 'code', 'name')
-  label: string      // Column header label
-  width?: string     // Fixed column width (e.g., '100px', '300px')
-}
+export type ActivityTableColumn = FracTableColumn
 
 /** Grid line style options: horizontal, vertical, both, or none */
 type GridStyle = 'horizontal' | 'vertical' | 'both' | 'none'
@@ -38,7 +36,7 @@ export class UploadActivityListTableComponent implements OnChanges, AfterViewIni
   @Input() columns: ActivityTableColumn[] = []
 
   /** Table data to display */
-  @Input() data: any[] = []
+  @Input() data: FracTableRow[] = []
   @Input() isLoading = false
 
   /** Show/hide checkbox selection column */
@@ -51,7 +49,7 @@ export class UploadActivityListTableComponent implements OnChanges, AfterViewIni
   @Input() enablePagination = false
 
   /** Pagination page size options */
-  @Input() pageSizeOptions: number[] = [5, 10, 20]
+  @Input() pageSizeOptions: number[] = [...FRAC_DEFAULT_PAGE_SIZE_OPTIONS]
 
   /** Grid border style: 'horizontal' | 'vertical' | 'both' | 'none' */
   @Input() gridStyle: GridStyle = 'both'
@@ -62,26 +60,26 @@ export class UploadActivityListTableComponent implements OnChanges, AfterViewIni
   // ============= OUTPUTS =============
 
   /** Emits array of selected rows when selection changes */
-  @Output() selectionChange = new EventEmitter<any[]>()
+  @Output() selectionChange = new EventEmitter<FracTableRow[]>()
 
   // ============= PROPERTIES =============
 
   /** Material table data source */
-  dataSource = new MatTableDataSource<any>([])
+  dataSource = new MatTableDataSource<FracTableRow>([])
 
   /** CDK selection model for checkboxes */
-  selection = new SelectionModel<any>(true, [])
+  selection = new SelectionModel<FracTableRow>(true, [])
 
   /** Dynamic column keys for table rendering */
   displayedColumns: string[] = []
   activeColumns: ActivityTableColumn[] = []
-  emptyRows: any[] = []
-  fillerRows: any[] = []
+  emptyRows: Array<null> = []
+  fillerRows: Array<null> = []
 
   /** Default columns to show when no column config is provided */
   defaultColumns: ActivityTableColumn[] = [
     { key: 'code', label: 'Code' },
-    { key: 'name', label: 'Label' },
+    { key: 'name', label: 'Name' },
     // { key: 'description', label: 'Description' },
     // { key: 'type', label: 'Type' },
     // { key: 'status', label: 'Status' },
@@ -108,10 +106,16 @@ export class UploadActivityListTableComponent implements OnChanges, AfterViewIni
 
   // ============= LIFECYCLE HOOKS =============
 
+  /**
+   * Initializes sorting and pagination wiring for the table data source.
+   */
   constructor() {
     this.configureDataSource()
   }
 
+  /**
+   * Triggered whenever Angular detects a change to one of the input properties.
+   */
   ngOnChanges(changes: SimpleChanges): void {
     this.activeColumns = this.columns && this.columns.length > 0 ? this.columns : this.defaultColumns
 
@@ -132,6 +136,9 @@ export class UploadActivityListTableComponent implements OnChanges, AfterViewIni
     this.scheduleLoadingWidthSync()
   }
 
+  /**
+   * Runs after the components views and child views are fully loaded.
+   */
   ngAfterViewInit() {
     // Attach paginator and sorter after view initialization
     setTimeout(() => {
@@ -142,6 +149,9 @@ export class UploadActivityListTableComponent implements OnChanges, AfterViewIni
     this.headerCells?.changes.subscribe(() => this.syncLoadingColumnWidths())
   }
 
+  /**
+   * Returns the measured header width used by loading skeleton cells.
+   */
   getLoadingCellWidth(index: number): number | null {
     const width = this.loadingColumnWidths[index]
     return width && width > 0 ? width : null
@@ -165,7 +175,7 @@ export class UploadActivityListTableComponent implements OnChanges, AfterViewIni
   }
 
   /** Get checkbox aria-label text */
-  checkboxLabel(row?: any): string {
+  checkboxLabel(row?: FracTableRow): string {
     if (!row) return `${this.isAllSelected() ? 'deselect' : 'select'} all`
     return `${this.selection.isSelected(row) ? 'deselect' : 'select'} row`
   }
@@ -173,11 +183,14 @@ export class UploadActivityListTableComponent implements OnChanges, AfterViewIni
   // ============= ROW SELECTION =============
 
   /** Toggle row selection and emit change event */
-  onRowSelect(row: any) {
+  onRowSelect(row: FracTableRow) {
     this.selection.toggle(row)
     this.selectionChange.emit(this.selection.selected)
   }
 
+  /**
+   * Returns true when a column is the code column.
+   */
   isCodeField(columnKey: string): boolean {
     return (columnKey || '').toLowerCase() === 'code'
   }
@@ -185,42 +198,48 @@ export class UploadActivityListTableComponent implements OnChanges, AfterViewIni
   // ============= EMPTY STATE =============
 
   /** Generate empty rows to fill container height (40px per row) */
-  private computeEmptyRows(): any[] {
-    const rowHeight = 40
-    const headerHeight = 40
-    const containerHeight = 529
+  private computeEmptyRows(): Array<null> {
+    const rowHeight = FRAC_TABLE_LAYOUT.rowHeightPx
+    const headerHeight = FRAC_TABLE_LAYOUT.headerHeightPx
+    const containerHeight = FRAC_TABLE_LAYOUT.containerHeightPx
     const availableHeight = containerHeight - headerHeight
     const numEmptyRows = Math.ceil(availableHeight / rowHeight)
     return new Array(numEmptyRows).fill(null)
   }
 
   /** Generate empty rows to fill remaining space when data exists */
-  private computeEmptyRowsForData(): any[] {
-    const rowHeight = 40
-    const headerHeight = 40
-    const containerHeight = 529
+  private computeEmptyRowsForData(): Array<null> {
+    const rowHeight = FRAC_TABLE_LAYOUT.rowHeightPx
+    const headerHeight = FRAC_TABLE_LAYOUT.headerHeightPx
+    const containerHeight = FRAC_TABLE_LAYOUT.containerHeightPx
     const dataRowsHeight = this.data.length * rowHeight
     const availableHeight = containerHeight - headerHeight - dataRowsHeight
     const numEmptyRows = Math.ceil(availableHeight / rowHeight)
     return numEmptyRows > 0 ? new Array(numEmptyRows).fill(null) : []
   }
 
+  /**
+   * Schedules width sync after DOM updates.
+   */
   private scheduleLoadingWidthSync(): void {
     setTimeout(() => this.syncLoadingColumnWidths())
   }
 
+  /**
+   * Configures sorting behavior and attaches table controllers.
+   */
   private configureDataSource(): void {
-    this.dataSource.sortingDataAccessor = (item: any, property: string): string => {
+    this.dataSource.sortingDataAccessor = (item: FracTableRow, property: string): string => {
       return this.normalizeSortValue(item?.[property])
     }
 
-    this.dataSource.sortData = (data: any[], sort: Sort): any[] => {
+    this.dataSource.sortData = (data: FracTableRow[], sort: Sort): FracTableRow[] => {
       if (!sort.active || sort.direction === '') {
         return data.slice()
       }
 
       const isAscending = sort.direction === 'asc'
-      return data.slice().sort((left: any, right: any) => {
+      return data.slice().sort((left: FracTableRow, right: FracTableRow) => {
         const leftValue = this.normalizeSortValue(left?.[sort.active])
         const rightValue = this.normalizeSortValue(right?.[sort.active])
         const comparison = this.compareSortValues(leftValue, rightValue)
@@ -231,12 +250,18 @@ export class UploadActivityListTableComponent implements OnChanges, AfterViewIni
     this.attachTableControllers()
   }
 
+  /**
+   * Binds paginator and sort instances to current table source.
+   */
   private attachTableControllers(): void {
     this.dataSource.paginator = this.enablePagination ? this.paginator : null
     this.dataSource.sort = this.enableSorting ? this.sort : null
     this.applyDefaultSort()
   }
 
+  /**
+   * Applies default sort on code column when no sort is active.
+   */
   private applyDefaultSort(): void {
     if (!this.enableSorting || !this.sort || this.sort.direction) {
       return
@@ -252,6 +277,9 @@ export class UploadActivityListTableComponent implements OnChanges, AfterViewIni
     this.sort.sortChange.emit({ active: defaultSortKey, direction: 'asc' })
   }
 
+  /**
+   * Picks default sort key from active columns.
+   */
   private resolveDefaultSortKey(): string | null {
     if (this.activeColumns.some(column => column.key === 'code')) {
       return 'code'
@@ -260,14 +288,23 @@ export class UploadActivityListTableComponent implements OnChanges, AfterViewIni
     return this.activeColumns[0]?.key || null
   }
 
-  private normalizeSortValue(value: unknown): string {
+  /**
+   * Normalizes a cell value into a trimmed string for consistent sorting.
+   */
+  private normalizeSortValue(value: FracTableCellValue): string {
     return (value ?? '').toString().trim()
   }
 
+  /**
+   * Compares two strings with locale and numeric sorting.
+   */
   private compareSortValues(left: string, right: string): number {
     return left.localeCompare(right, undefined, { numeric: true, sensitivity: 'base' })
   }
 
+  /**
+   * Measures header widths and stores them for loading row alignment.
+   */
   private syncLoadingColumnWidths(): void {
     if (!this.headerCells || !this.headerCells.length) {
       return

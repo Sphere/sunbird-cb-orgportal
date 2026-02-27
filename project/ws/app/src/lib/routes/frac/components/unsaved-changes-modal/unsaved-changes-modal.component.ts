@@ -23,6 +23,9 @@ export class UnsavedChangesModalComponent {
     this.dialogRef.close('continue')
   }
 
+  /**
+   * Closes the popup dialog without saving any changes.
+   */
   onCancel(): void {
     this.dialogRef.close('cancel')
   }

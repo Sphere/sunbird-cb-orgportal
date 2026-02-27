@@ -30,12 +30,15 @@
       z-index: 10;
     }
 
-    // Header cells
     th {
       background-color: #dfedf9;
-      color: #333;
-      font-weight: 600;
-      font-size: 13px;
+      color: black;
+      font-family: Roboto, sans-serif;
+      font-weight: 400;
+      font-style: normal;
+      font-size: 14px;
+      line-height: 1.4;
+      letter-spacing: 0%;
       padding: 12px 16px;
       height: 40px;
       text-align: left;
@@ -51,11 +54,16 @@
       text-align: center;
     }
 
-    // Data cells
     td {
       padding: 12px 16px;
       height: 40px;
-      font-size: 13px;
+      font-family: Roboto, sans-serif;
+      font-weight: 400;
+      font-style: normal;
+      font-size: 14px;
+      line-height: 1.4;
+      letter-spacing: 0%;
+      color: black;
       text-align: left;
       vertical-align: middle;
       border: none;
@@ -197,9 +205,13 @@
 
         th {
           background-color: #dfedf9;
-          color: #333;
-          font-weight: 600;
-          font-size: 13px;
+          color: black;
+          font-family: Roboto, sans-serif;
+          font-weight: 400;
+          font-style: normal;
+          font-size: 14px;
+          line-height: 1.4;
+          letter-spacing: 0%;
           padding: 12px 16px;
           height: 40px;
           text-align: left;

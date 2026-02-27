@@ -3,61 +3,66 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http'
 import { Observable } from 'rxjs'
 import { map } from 'rxjs/operators'
 import { ConfigurationsService } from '@sunbird-cb/utils'
-
-const API_END_POINTS = {
-  UPDATE_ENTITY: '/apis/proxies/v8/entity/v1/update',
-  UPLOAD_ENTITY: '/apis/proxies/v8/entity/v1/upload',
-  SEARCH_ENTITY: '/apis/proxies/v8/entity/v1/search',
-  MAP_ENTITY: '/apis/proxies/v8/entity/v1/mapping',
-  SEARCH_MAPPING: '/apis/proxies/v8/entity/v1/mapping/search',
-}
+import {
+  FracEntityType,
+  FracMapEntityRequest,
+  FracMapEntityResponse,
+  FracMappingSearchRequest,
+  FracMappingSearchResponse,
+  FracSearchRequest,
+  FracSearchResponse,
+  FracUpdateEntityPayload,
+  FracUpdateEntityResponse,
+  FracUploadApiResponse,
+} from '../models/frac-api.models'
+import { resolveFracClientConfig } from '../utils/frac-client-config.util'
 
 
 @Injectable({ providedIn: 'root' })
 export class FracApiService {
-  private readonly headers = new HttpHeaders({ 'Content-Type': 'application/json' });
-  // private httpClientNoInterceptors: HttpClient
+  private readonly headers = new HttpHeaders({ 'Content-Type': 'application/json' })
 
   constructor(
     private http: HttpClient,
     private configSvc: ConfigurationsService,
-  ) {
-    // Create HttpClient without interceptors for direct API calls
-    // this.httpClientNoInterceptors = new HttpClient(httpBackend)
+  ) { }
+
+  private get apiEndpoints() {
+    return resolveFracClientConfig(this.configSvc?.instanceConfig).api.endpoints
   }
 
-  /** ✅ Update entity API */
-  updateEntity(payload: any, userId?: string): Observable<any> {
+  /**
+   * Updates one FRAC entity record.
+   */
+  updateEntity(payload: FracUpdateEntityPayload, userId?: string): Observable<FracUpdateEntityResponse> {
     const params = new HttpParams().set('userId', userId || this.getLoggedInUserIdentifier())
-    return this.http.put(API_END_POINTS.UPDATE_ENTITY, payload, { headers: this.headers, params })
+    return this.http.put<FracUpdateEntityResponse>(this.apiEndpoints.updateEntity, payload, { headers: this.headers, params })
   }
 
-  /** ✅ Entity mapping API */
-  mapEntity(payload: any): Observable<any> {
-    return this.http.post(API_END_POINTS.MAP_ENTITY, payload, { headers: this.headers })
+  /**
+   * Saves mapping between parent and child entities.
+   */
+  mapEntity(payload: FracMapEntityRequest): Observable<FracMapEntityResponse> {
+    return this.http.post<FracMapEntityResponse>(this.apiEndpoints.mapEntity, payload, { headers: this.headers })
   }
 
-  /** ✅ Mapping search API */
-  searchEntityMapping(entityType: string, entityCode: string, language: string = 'English'): Observable<any> {
-    const body = {
+  /**
+   * Searches saved mapping by entity type + code + language.
+   */
+  searchEntityMapping(entityType: FracEntityType | string, entityCode: string, language: string = 'English'): Observable<FracMappingSearchResponse> {
+    const body: FracMappingSearchRequest = {
       entityType: this.mapEntityType(entityType),
       entityCode: (entityCode || '').trim(),
       entityLanguage: this.mapLanguageToCode(language),
     }
 
-    return this.http.post(API_END_POINTS.SEARCH_MAPPING, body, { headers: this.headers })
+    return this.http.post<FracMappingSearchResponse>(this.apiEndpoints.searchMapping, body, { headers: this.headers })
   }
 
-  /** ✅ Upload file API */
-  uploadFile(file: File, language: string = 'English'): Observable<any> {
-    console.log('📤 FracApiService.uploadFile called with:', {
-      fileName: file.name,
-      fileSize: file.size,
-      fileType: file.type,
-      lastModified: new Date(file.lastModified),
-      language,
-    })
-
+  /**
+   * Uploads FRAC sheet and parses text responses into JSON when possible.
+   */
+  uploadFile(file: File, language: string = 'English'): Observable<FracUploadApiResponse> {
     const formData = new FormData()
     formData.append('entitySheet', file)
 
@@ -65,29 +70,23 @@ export class FracApiService {
       .set('language', this.mapLanguageToCode(language))
       .set('userId', this.getLoggedInUserIdentifier())
 
-    console.log('📦 FormData created with entries:')
-    formData.forEach((value, key) => {
-      console.log(`  ${key}:`, value)
-    })
-
-    // ✅ Use responseType 'text' and parse explicitly to avoid losing API error payload shape.
-    return this.http.post(API_END_POINTS.UPLOAD_ENTITY, formData, {
+    return this.http.post(this.apiEndpoints.uploadEntity, formData, {
       params,
       observe: 'response',
       responseType: 'text',
     }).pipe(
-      map((response: any) => {
+      map((response) => {
         const responseBody = response?.body
         if (typeof responseBody !== 'string') {
-          return responseBody ?? response
+          return (responseBody ?? '') as FracUploadApiResponse
         }
 
         try {
-          return JSON.parse(responseBody)
+          return JSON.parse(responseBody) as FracUploadApiResponse
         } catch {
-          return responseBody
+          return responseBody as FracUploadApiResponse
         }
-      })
+      }),
     )
   }
 
@@ -104,13 +103,16 @@ export class FracApiService {
   }
 
   private getLoggedInUserIdentifier(): string {
-    const userProfile: any = this.configSvc?.userProfile || {}
-    return userProfile.userName || userProfile.userId || userProfile.wid || 'unknown-user'
+    const userProfile = (this.configSvc?.userProfile || {}) as Record<string, unknown>
+    return (userProfile.userName as string) || (userProfile.userId as string) || (userProfile.wid as string) || 'unknown-user'
   }
 
-  searchEntities(type: string, keyword: string = '', language: string = 'English'): Observable<any> {
+  /**
+   * Searches FRAC entities by type and keyword.
+   */
+  searchEntities(type: FracEntityType | string, keyword: string = '', language: string = 'English'): Observable<FracSearchResponse> {
     const query = keyword.trim()
-    const body = {
+    const body: FracSearchRequest = {
       entityType: this.mapEntityType(type),
       language: this.mapLanguageToCode(language),
       query,
@@ -118,10 +120,10 @@ export class FracApiService {
       field: ['code', 'name'],
     }
 
-    return this.http.post(API_END_POINTS.SEARCH_ENTITY, body)
+    return this.http.post<FracSearchResponse>(this.apiEndpoints.searchEntity, body, { headers: this.headers })
   }
 
-  private mapEntityType(type: string): string {
+  private mapEntityType(type: FracEntityType | string): string {
     const normalized = (type || '').trim().toLowerCase()
     const typeMap: Record<string, string> = {
       competency: 'Competency',

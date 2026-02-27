@@ -16,7 +16,7 @@
       <div class="search-row">
         <div class="shadow-wrapper">
           <div class="search-box">
-            <input placeholder="Search Activity" [(ngModel)]="searchTerm" (input)="onSearchChange()" />
+            <input placeholder="Search by name,code" [(ngModel)]="searchTerm" (input)="onSearchChange()" />
             <mat-icon>search</mat-icon>
           </div>
         </div>
@@ -34,12 +34,11 @@
 
       <ng-container *ngIf="!isLoading">
         <div class="activity-item" *ngFor="let a of filteredActivities; trackBy: trackByCode"
-          [class.selected]="selectedActivityCode === a.code"
-          (click)="activitySelectedHandler(a)">
+          [class.selected]="selectedActivityCode === a.code" (click)="activitySelectedHandler(a)">
           <div class="expanded-card">
 
             <!-- Row header -->
-            <div class="header-row" (click)="expand(a)">
+            <div class="header-row" (click)="onHeaderClick(a, $event)">
               <div class="exp-code">{{ a.code }}</div>
               <div class="exp-title">{{ a.title }}</div>
 

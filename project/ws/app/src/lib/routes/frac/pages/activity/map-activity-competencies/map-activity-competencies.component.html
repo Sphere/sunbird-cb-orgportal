@@ -1,12 +1,17 @@
 <div class="header-container">
   <button class="home-chip" type="button" aria-label="Go to FRAC dashboard" (click)="onHomeClick()">
-    <img src="https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/icons/home-frac.svg" alt="home"
-      class="home-icon" />
-    <span class="home-label">Home</span>
+    <img [src]="uiConfig.icons.home" alt="home" class="home-icon" />
+    <span class="home-label">{{ uiConfig.labels.home }}</span>
   </button>
 
-  <button mat-stroked-button class="save-btn" type="button" (click)="onSaveClicked()" [disabled]="!isEditing || isSaving"
-    aria-label="Save mappings">
+  <div class="view-only-banner" *ngIf="selectedLanguage !== 'English'">
+    <mat-icon>info</mat-icon>
+    <span>You are currently viewing mappings for <strong>{{ selectedLanguage }}</strong>. To make changes or add new
+      mappings, please switch to English.</span>
+  </div>
+
+  <button [style.visibility]="selectedLanguage === 'English' ? 'visible' : 'hidden'" mat-stroked-button class="save-btn"
+    type="button" (click)="onSaveClicked()" [disabled]="!isEditing || isSaving" aria-label="Save mappings">
     {{ isSaving ? 'Saving...' : 'Save' }}
   </button>
 </div>
@@ -14,15 +19,14 @@
 <div class="upload-container">
   <div class="loading-overlay" *ngIf="isSaving">
     <div class="spinner-container">
-      <mat-spinner [diameter]="42" [strokeWidth]="4"></mat-spinner>
+      <mat-spinner [diameter]="mapPageSpinner.diameter" [strokeWidth]="mapPageSpinner.strokeWidth"></mat-spinner>
       <p class="loading-text">Saving activity to competency mappings...</p>
     </div>
   </div>
 
   <div class="header">
-    <button class="back-button" routerLink="/app/home/frac/dashboard" type="button" aria-label="Back to home">
-      <img src="https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/icons/frac-left-arrow.svg" alt="back"
-        class="back-icon" />
+    <button class="back-button" [routerLink]="routes.homeDashboard" type="button" aria-label="Back to home">
+      <img [src]="uiConfig.icons.back" alt="back" class="back-icon" />
     </button>
     <h2>Map activities</h2>
   </div>
@@ -49,20 +53,21 @@
     </div>
   </div>
 
+
+
   <div class="content-layout">
     <div class="activities-panel">
       <app-activity-mapping-list [activities]="filteredActivities" [isLoading]="isActivitiesLoading"
-        [searchResetKey]="searchResetKey"
-        [selectedActivityCode]="selectedActivity?.code || null"
-        (searchChange)="onActivitySearch($event)"
-        (activitySelected)="onActivitySelected($event)" (toggle)="expand($event)">
+        [searchResetKey]="searchResetKey" [selectedActivityCode]="selectedActivity?.code || null"
+        (searchChange)="onActivitySearch($event)" (activitySelected)="onActivitySelected($event)"
+        (toggle)="expand($event)">
       </app-activity-mapping-list>
     </div>
 
     <div class="competency-panel">
       <app-competency-mapping-table [competencies]="competencies" [selectedActivity]="selectedActivity"
-        [searchResetKey]="searchResetKey"
-        [selectedMap]="selectedMap" [isLoading]="isActivityMappingLoading || isCompetenciesLoading"
+        [searchResetKey]="searchResetKey" [selectedMap]="selectedMap"
+        [isLoading]="isActivityMappingLoading || isCompetenciesLoading" [isReadOnly]="selectedLanguage !== 'English'"
         (checked)="onCheck($event)" (searchChange)="onCompetencySearch($event)"
         (addCompetency)="onAddCompetencyToActivity()">
       </app-competency-mapping-table>

@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core'
+import { FracApiEntity, FracSearchResponse } from '../models/frac-api.models'
 
 /** Represents a column in the dynamic table configuration. */
 export interface ITableColumn {
@@ -9,21 +10,20 @@ export interface ITableColumn {
 /** Represents the table structure containing columns and data. */
 export interface ITableConfig {
   columns: ITableColumn[]
-  data: Record<string, any>[]
+  data: Record<string, unknown>[]
 }
 
 /** Type signature for handler functions that generate table configs for specific entity types. */
-export type TableHandler = (entities: any[]) => ITableConfig
+export type TableHandler = (entities: FracApiEntity[]) => ITableConfig
 
 @Injectable({
   providedIn: 'root',
 })
 export class TableTransformUtil {
   /** Registry for all supported entity-type handlers. */
-  private readonly tableHandlers: Record<string, TableHandler> = {};
+  private readonly tableHandlers: Record<string, TableHandler> = {}
 
   constructor() {
-    // Register built-in handlers
     this.registerHandler('competency', this.createCompetencyTableConfig.bind(this))
     this.registerHandler('entity', this.createEntityTableConfig.bind(this))
     this.registerHandler('activity', this.createActivityTableConfig.bind(this))
@@ -31,10 +31,9 @@ export class TableTransformUtil {
   }
 
   /**
-   * Public entry point: transforms API response into table configuration.
-   * Automatically detects and delegates to a registered handler.
+   * Transforms API response into table configuration.
    */
-  public transformResponseToTableConfig(response: any): ITableConfig {
+  public transformResponseToTableConfig(response: FracSearchResponse | FracApiEntity[] | null | undefined): ITableConfig {
     const entities = this.extractEntityList(response)
     if (!entities.length) {
       return this.createEmptyTableConfig()
@@ -47,34 +46,26 @@ export class TableTransformUtil {
   }
 
   /**
-   * Registers a new table handler for a given entity type.
-   * Keeps architecture open for future extensions (role, domain, etc.)
+   * Registers a table transformer handler for an entity type.
    */
   public registerHandler(type: string, handler: TableHandler): void {
     this.tableHandlers[type.toLowerCase()] = handler
   }
 
-  // ===================================================================
-  // HANDLERS
-  // ===================================================================
-
-  /**
-   * Handles 'competency' type entities with dynamic level columns.
-   */
-  private createCompetencyTableConfig(entities: any[]): ITableConfig {
+  private createCompetencyTableConfig(entities: FracApiEntity[]): ITableConfig {
     const baseColumns: ITableColumn[] = [
       { key: 'code', label: 'Code' },
-      { key: 'name', label: 'Label' },
+      { key: 'name', label: 'Name' },
       { key: 'description', label: 'Description' },
       { key: 'type', label: 'Type' },
       { key: 'area', label: 'Area' },
     ]
 
-    // Determine max level count dynamically
     let maxLevelCount = 0
     entities.forEach((entity) => {
-      const childCount = entity.children?.length || 0
+      const childCount = Array.isArray(entity.children) ? entity.children.length : 0
       const levelsCount = Array.isArray(entity.levels) ? entity.levels.length : 0
+
       if (childCount > maxLevelCount) {
         maxLevelCount = childCount
       }
@@ -90,21 +81,17 @@ export class TableTransformUtil {
       }
     })
 
-    // Generate level columns
     const levelColumns: ITableColumn[] = []
     Array.from({ length: maxLevelCount }).forEach((_, index) => {
       const level = index + 1
       levelColumns.push(
         { key: `level_L${level}_label`, label: `Level ${level} Label` },
-        { key: `level_L${level}_description`, label: `Level ${level} Description` }
+        { key: `level_L${level}_description`, label: `Level ${level} Description` },
       )
     })
 
-    const columns = [...baseColumns, ...levelColumns]
-
-    const data: Record<string, any>[] = []
-    entities.forEach((entity) => {
-      const row: Record<string, any> = {
+    const data: Record<string, unknown>[] = entities.map((entity) => {
+      const row: Record<string, unknown> = {
         code: entity.code ?? '',
         type: entity.type ?? '',
         name: entity.name ?? '',
@@ -113,91 +100,80 @@ export class TableTransformUtil {
       }
 
       if (Array.isArray(entity.children) && entity.children.length) {
-        entity.children.forEach((child: any) => {
-          const levelKey = child.level || `L${child.levelId}`
+        entity.children.forEach((child) => {
+          const levelKey = (child.level || `L${child.levelId || ''}`).toString()
           row[`level_${levelKey}_label`] = child.name ?? ''
           row[`level_${levelKey}_description`] = child.description ?? ''
         })
       } else if (Array.isArray(entity.levels) && entity.levels.length) {
-        entity.levels.forEach((level: any) => {
-          const levelNumber = level?.levelNumber ?? level?.level ?? level?.levelId
-          const numericLevel = Number(levelNumber)
-          if (!Number.isFinite(numericLevel) || numericLevel <= 0) {
+        entity.levels.forEach((level) => {
+          const levelNumber = Number(level?.levelNumber ?? level?.level ?? level?.levelId)
+          if (!Number.isFinite(levelNumber) || levelNumber <= 0) {
             return
           }
 
-          row[`level_L${numericLevel}_label`] = level?.levelName ?? level?.name ?? ''
-          row[`level_L${numericLevel}_description`] = level?.levelDescription ?? level?.description ?? ''
+          row[`level_L${levelNumber}_label`] = level?.levelName ?? level?.name ?? ''
+          row[`level_L${levelNumber}_description`] = level?.levelDescription ?? level?.description ?? ''
         })
       } else {
         for (let level = 1; level <= maxLevelCount; level += 1) {
-          row[`level_L${level}_label`] = entity[`competencyLevel${level}Name`] ?? ''
-          row[`level_L${level}_description`] = entity[`competencyLevel${level}Description`] ?? ''
+          row[`level_L${level}_label`] = (entity as Record<string, unknown>)[`competencyLevel${level}Name`] ?? ''
+          row[`level_L${level}_description`] = (entity as Record<string, unknown>)[`competencyLevel${level}Description`] ?? ''
         }
       }
 
-      data.push(row)
+      return row
     })
 
-    return { columns, data }
+    return {
+      columns: [...baseColumns, ...levelColumns],
+      data,
+    }
   }
 
-  /**
-   * Handles 'entity' type — shows only Code and Label.
-   */
-  private createEntityTableConfig(entities: any[]): ITableConfig {
-    const columns: ITableColumn[] = [
-      { key: 'code', label: 'Code' },
-      { key: 'name', label: 'Label' },
-    ]
-
-    const data = entities.map((entity) => ({
-      code: entity.code ?? '',
-      name: entity.name ?? '',
-    }))
-
-    return { columns, data }
+  private createEntityTableConfig(entities: FracApiEntity[]): ITableConfig {
+    return {
+      columns: [
+        { key: 'code', label: 'Code' },
+        { key: 'name', label: 'Name' },
+      ],
+      data: entities.map((entity) => ({
+        code: entity.code ?? '',
+        name: entity.name ?? '',
+      })),
+    }
   }
 
-  /**
-   * Handles 'activity' type entities — shows Code and Label only.
-   */
-  private createActivityTableConfig(entities: any[]): ITableConfig {
-    const columns: ITableColumn[] = [
-      { key: 'code', label: 'Code' },
-      { key: 'name', label: 'Name' },
-    ]
-
-    const data = entities.map((entity) => ({
-      code: entity.code ?? entity.additionalProperties?.Code ?? '',
-      name: entity.name ?? '',
-    }))
-
-    return { columns, data }
+  private createActivityTableConfig(entities: FracApiEntity[]): ITableConfig {
+    return {
+      columns: [
+        { key: 'code', label: 'Code' },
+        { key: 'name', label: 'Name' },
+      ],
+      data: entities.map((entity) => ({
+        code: entity.code ?? entity.additionalProperties?.Code ?? '',
+        name: entity.name ?? '',
+      })),
+    }
   }
 
-  /**
-   * Handles 'role' type entities — shows Code and Name only.
-   */
-  private createRoleTableConfig(entities: any[]): ITableConfig {
-    const columns: ITableColumn[] = [
-      { key: 'code', label: 'Code' },
-      { key: 'name', label: 'Name' },
-    ]
-
-    const data = entities.map((entity) => ({
-      code: entity.code ?? entity.additionalProperties?.Code ?? '',
-      name: entity.name ?? '',
-    }))
-
-    return { columns, data }
+  private createRoleTableConfig(entities: FracApiEntity[]): ITableConfig {
+    return {
+      columns: [
+        { key: 'code', label: 'Code' },
+        { key: 'name', label: 'Name' },
+      ],
+      data: entities.map((entity) => ({
+        code: entity.code ?? entity.additionalProperties?.Code ?? '',
+        name: entity.name ?? '',
+      })),
+    }
   }
 
-  /**
-   * Default fallback handler for unknown response types.
-   */
-  private createGenericTableConfig(dataArray: any[]): ITableConfig {
-    if (!dataArray.length) return this.createEmptyTableConfig()
+  private createGenericTableConfig(dataArray: Record<string, unknown>[]): ITableConfig {
+    if (!dataArray.length) {
+      return this.createEmptyTableConfig()
+    }
 
     const firstRow = dataArray[0]
     const columns: ITableColumn[] = Object.keys(firstRow).map((key) => ({
@@ -208,13 +184,10 @@ export class TableTransformUtil {
     return { columns, data: dataArray }
   }
 
-  // ===================================================================
-  // UTILITIES
-  // ===================================================================
-
-  /** Extracts entity list from multiple API response structures. */
-  private extractEntityList(response: any): any[] {
-    if (!response) return []
+  private extractEntityList(response: FracSearchResponse | FracApiEntity[] | null | undefined): FracApiEntity[] {
+    if (!response) {
+      return []
+    }
 
     if (Array.isArray(response)) {
       return response
@@ -225,10 +198,11 @@ export class TableTransformUtil {
       response?.result?.data?.entity ||
       response?.data?.entity ||
       response?.entity
+
     return Array.isArray(entityList) ? entityList : []
   }
 
-  private detectEntityType(entities: any[]): string {
+  private detectEntityType(entities: FracApiEntity[]): string {
     return (
       entities[0]?.entityType?.toLowerCase() ||
       entities[0]?.type?.toLowerCase() ||
@@ -236,7 +210,7 @@ export class TableTransformUtil {
     )
   }
 
-  private extractCompetencyLevelCount(entity: any): number {
+  private extractCompetencyLevelCount(entity: FracApiEntity): number {
     const keys = Object.keys(entity || {})
     const levelKeys = keys
       .map((key) => key.match(/^competencyLevel(\d+)(Name|Description)$/)?.[1])
@@ -249,15 +223,13 @@ export class TableTransformUtil {
     return Math.max(...levelKeys.map(level => Number(level)))
   }
 
-  /** Converts object keys into user-friendly labels. */
   private formatKeyLabel(key: string): string {
     return key
       .replace(/_/g, ' ')
       .replace(/([a-z])([A-Z])/g, '$1 $2')
-      .replace(/\b\w/g, (char) => char.toUpperCase())
+      .replace(/\b\w/g, char => char.toUpperCase())
   }
 
-  /** Returns an empty table configuration object. */
   private createEmptyTableConfig(): ITableConfig {
     return { columns: [], data: [] }
   }

@@ -1,13 +1,17 @@
 import { Component, OnDestroy, OnInit } from '@angular/core'
 import { MatDialog } from '@angular/material/dialog'
 import { Router } from '@angular/router'
-import { Subject } from 'rxjs'
-import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators'
+import { forkJoin, of, Subject } from 'rxjs'
+import { catchError, debounceTime, distinctUntilChanged, map, takeUntil } from 'rxjs/operators'
+import { MappingRequiredModalComponent, MissingMappingItem } from '../../components/mapping-required-modal/mapping-required-modal.component'
 import { UploadResultData, UploadResultModalComponent } from '../../components/upload-result-modal/upload-result-modal.component'
 import { UnsavedChangesModalComponent } from '../../components/unsaved-changes-modal/unsaved-changes-modal.component'
 import { CustomSnackbarService } from '../../services/custom-snackbar.service'
 import { FracApiService } from '../../services/frac-api.service'
-import { transformRoles, transformPositions } from '../../utils/common.util'
+import { transformRoles, transformPositions, extractEntityList, makeMappingKey, getCodeFromKey } from '../../utils/common.util'
+import { fracLogger } from '../../utils/frac-logger.util'
+import { FRAC_UI_CONFIG } from '../../models/ui.config.model'
+import { FRAC_DEBOUNCE_MS, FRAC_DIALOG_SIZES, FRAC_LANGUAGES, FRAC_MAP_PAGE_SPINNER, FRAC_ROUTES } from '../../constants/frac.constants'
 
 interface PositionRoleDetail {
   code: string
@@ -31,7 +35,21 @@ interface PositionRoleApiRequestItem {
   parentEntityCode: string
   childEntityType: 'Role'
   childEntityCode: string
-  competencies: any[]
+  competencies: Array<number | string | Record<string, unknown>>
+}
+
+interface PositionMappingHierarchyNode {
+  entityType?: string
+  entityCode?: string
+  entityName?: string
+}
+
+interface PositionMappingSearchResultItem {
+  childHierarchy?: PositionMappingHierarchyNode[]
+}
+
+interface PositionMappingSearchResponseShape {
+  result?: PositionMappingSearchResultItem[]
 }
 
 @Component({
@@ -49,7 +67,11 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
   ) { }
 
   // language
-  readonly languages = ['English', 'Hindi', 'Kannada', 'Tamil']
+  readonly uiConfig = FRAC_UI_CONFIG
+  readonly routes = FRAC_ROUTES
+  readonly mapPageSpinner = FRAC_MAP_PAGE_SPINNER
+
+  readonly languages: string[] = [...FRAC_LANGUAGES]
   selectedLanguage = 'English'
   isOpen = false
   isEditing = true
@@ -57,6 +79,7 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
   isPositionsLoading = false
   isRolesLoading = false
   isPositionRoleMappingLoading = false
+  isValidatingRoleMappings = false
   hasUnsavedChanges = false
 
   // left – positions
@@ -88,22 +111,32 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
   private readonly positionRoleMappingCache = new Map<string, PositionRoleDetail[]>()
   private readonly positionDraftStore = new Map<string, PositionRoleDetail[]>()
   private activePositionRoleMappingRequestKey: string | null = null
-  private readonly positionBaseLanguage = 'English'
+  private readonly positionBaseLanguage = FRAC_LANGUAGES[0]
 
+  /**
+   * Runs once when the page loads. Sets up search listeners and checks the URL to see if we are in upload or manage mode.
+   */
   ngOnInit(): void {
     this.setupSearchStreams()
     this.resetInitialView()
+    this.fetchPositions('')
   }
 
+  /**
+   * Cleans up memory and active background tasks when the user leaves this page.
+   */
   ngOnDestroy(): void {
     this.destroy$.next()
     this.destroy$.complete()
   }
 
+  /**
+   * Initializes the search bars to wait 500ms after the user stops typing before making a backend request.
+   */
   private setupSearchStreams(): void {
     this.positionSearch$
       .pipe(
-        debounceTime(500),
+        debounceTime(FRAC_DEBOUNCE_MS.searchInput),
         distinctUntilChanged(),
         takeUntil(this.destroy$),
       )
@@ -111,13 +144,16 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
 
     this.roleSearch$
       .pipe(
-        debounceTime(500),
+        debounceTime(FRAC_DEBOUNCE_MS.searchInput),
         distinctUntilChanged(),
         takeUntil(this.destroy$),
       )
       .subscribe(keyword => this.fetchRoles(keyword))
   }
 
+  /**
+   * Resets all component variables back to their blank, starting state.
+   */
   private resetInitialView(): void {
     this.searchResetKey += 1
     this.positionSearchTerm = ''
@@ -126,6 +162,7 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
     this.isPositionsLoading = false
     this.isRolesLoading = false
     this.isPositionRoleMappingLoading = false
+    this.isValidatingRoleMappings = false
     this.activePositionRoleMappingRequestKey = null
 
     this.positionsData = []
@@ -149,12 +186,15 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
   // API search
   // ---------------------------------------------------------------------------
 
+  /**
+   * Fetches the list of positions from the backend based on the search keyword.
+   */
   private fetchPositions(keyword: string): void {
     this.isPositionsLoading = true
     this.fracApiService.searchEntities('position', keyword, this.positionBaseLanguage).subscribe({
       next: (res) => {
         this.isPositionsLoading = false
-        const apiEntity = this.extractEntityList(res)
+        const apiEntity = extractEntityList(res)
         const transformed = transformPositions(apiEntity) as PositionItem[]
         const hydrated = transformed.map((position) => {
           const details = this.getHydratedPositionRoleDetails(position.code)
@@ -183,7 +223,7 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
       },
       error: (e) => {
         this.isPositionsLoading = false
-        console.error('Failed to load positions', e)
+        fracLogger.error('Failed to load positions', e)
         this.positionsData = []
         this.positions = []
         this.filteredPositions = []
@@ -191,12 +231,15 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
     })
   }
 
+  /**
+   * Fetches the list of roles from the backend based on the search keyword.
+   */
   private fetchRoles(keyword: string): void {
     this.isRolesLoading = true
     this.fracApiService.searchEntities('role', keyword, this.selectedLanguage).subscribe({
       next: (res) => {
         this.isRolesLoading = false
-        const apiEntity = this.extractEntityList(res)
+        const apiEntity = extractEntityList(res)
         const transformed = transformRoles(apiEntity) as RoleItem[]
 
         this.rolesData = transformed
@@ -207,7 +250,7 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
       },
       error: (e) => {
         this.isRolesLoading = false
-        console.error('Failed to load roles', e)
+        fracLogger.error('Failed to load roles', e)
         this.rolesData = []
         this.roles = []
         this.filteredRoles = []
@@ -215,26 +258,20 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
     })
   }
 
-  private extractEntityList(response: any): any[] {
-    if (!response) return []
-    if (Array.isArray(response)) return response
-
-    const entityList =
-      response?.result?.entity ||
-      response?.result?.data?.entity ||
-      response?.data?.entity ||
-      response?.entity
-
-    return Array.isArray(entityList) ? entityList : []
-  }
 
   // ---------------------------------------------------------------------------
   // Language dropdown
   // ---------------------------------------------------------------------------
+  /**
+   * Opens or closes the language selection dropdown menu.
+   */
   toggleDropdown(): void {
     this.isOpen = !this.isOpen
   }
 
+  /**
+   * Changes the selected language and fetches new data for that language if in manage mode.
+   */
   selectLanguage(lang: string, event: MouseEvent): void {
     event.stopPropagation()
     if (!this.languages.includes(lang)) return
@@ -243,16 +280,10 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
       return
     }
 
-    const hadUnsavedChanges = this.hasUnsavedChanges || this.positionDraftStore.size > 0
     this.selectedLanguage = lang
     this.isOpen = false
     this.resetInitialView()
-
-    this.snackbar.warning(
-      hadUnsavedChanges
-        ? 'Language changed. Unsaved mapping changes were reset. Please search again.'
-        : 'Language changed. Please search again to load data.',
-    )
+    this.fetchPositions('')
   }
 
   // ---------------------------------------------------------------------------
@@ -263,22 +294,36 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
     this.positionSearch$.next(this.positionSearchTerm)
   }
 
+  /**
+   * Fires an immediate search request when the user presses Enter in the position search box.
+   */
   onPositionSearchSubmit(keyword: string): void {
     this.positionSearchTerm = keyword.trim()
     this.fetchPositions(this.positionSearchTerm)
   }
 
+  /**
+   * Sets a position card as the active focus in the UI.
+   */
   onPositionSelected(position: PositionItem): void {
     this.selectedPosition = position
     this.selectedRoleMap = {}
     this.selectedRoleSummary = []
+    this.roleSearchTerm = ''
+    this.searchResetKey += 1
     this.loadPositionRoleMappings(position)
   }
 
+  /**
+   * Toggles a position card open or closed, triggering a fetch for its children if opening.
+   */
   onPositionToggleExpand(position: PositionItem): void {
     this.expandedPosition = this.expandedPosition === position ? null : position
   }
 
+  /**
+   * Triggers a backend request to find mapped roles when a user expands a position card.
+   */
   private loadPositionRoleMappings(position: PositionItem): void {
     const requestKey = this.buildPositionMappingKey(position.code)
     this.isPositionRoleMappingLoading = true
@@ -329,7 +374,7 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
             return
           }
           this.isPositionRoleMappingLoading = false
-          console.error('Failed to load position mappings', err)
+          fracLogger.error('Failed to load position mappings', err)
           this.selectedRoleMap = {}
           this.selectedRoleSummary = []
           this.snackbar.error('Unable to fetch existing position mappings.')
@@ -337,20 +382,28 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
       })
   }
 
-  private extractMappedRoles(response: any): PositionRoleDetail[] {
-    const result = Array.isArray(response?.result) ? response.result : []
+  /**
+   * Reads the complex API mapping response to build a simple list of connected roles.
+   */
+  private extractMappedRoles(response: unknown): PositionRoleDetail[] {
+    const result = Array.isArray((response as PositionMappingSearchResponseShape)?.result)
+      ? (response as PositionMappingSearchResponseShape).result || []
+      : []
     const first = result[0] || {}
     const childHierarchy = Array.isArray(first?.childHierarchy) ? first.childHierarchy : []
 
     return childHierarchy
-      .filter((child: any) => (child?.entityType || '').toLowerCase() === 'role')
-      .map((child: any) => ({
+      .filter((child: PositionMappingHierarchyNode) => (child?.entityType || '').toLowerCase() === 'role')
+      .map((child: PositionMappingHierarchyNode) => ({
         code: (child?.entityCode || '').trim(),
         label: child?.entityName || '',
       }))
       .filter((item: PositionRoleDetail) => !!item.code)
   }
 
+  /**
+   * Attaches the fetched role connections to the position card so it can display the "Mapped: X" badge.
+   */
   private applyMappedRolesToPosition(position: PositionItem, mappedRoles: PositionRoleDetail[]): void {
     const roleDetails: PositionRoleDetail[] = mappedRoles.map((mapped) => ({
       code: mapped.code,
@@ -450,16 +503,121 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
     // Rebuild summarised selection
     this.buildSelectedRoleSummary()
 
+    // Validate selected roles before assigning them to position.
+    this.validateAndApplyPositionRoleMappings()
+  }
+
+  private validateAndApplyPositionRoleMappings(): void {
+    if (!this.selectedPosition) {
+      return
+    }
+    if (this.isValidatingRoleMappings) {
+      return
+    }
+
     const previousSignature = this.getPositionRoleDetailsSignature(this.selectedPosition.roleDetails || [])
+    const selectedRoles = [...this.selectedRoleSummary]
 
-    this.removeDeselectedRoles()
-    this.updateOrInsertRoles()
-    this.refreshPositionsState()
-    const currentSignature = this.getPositionRoleDetailsSignature(this.selectedPosition.roleDetails || [])
-    const hasChanges = previousSignature !== currentSignature
-    this.hasUnsavedChanges = this.hasUnsavedChanges || hasChanges
+    if (!selectedRoles.length) {
+      this.removeDeselectedRoles()
+      this.updateOrInsertRoles()
+      this.refreshPositionsState()
+      const currentSignature = this.getPositionRoleDetailsSignature(this.selectedPosition.roleDetails || [])
+      const hasChanges = previousSignature !== currentSignature
+      this.hasUnsavedChanges = this.hasUnsavedChanges || hasChanges
+      this.snackbar.success('Position–Role linked successfully. Please tap Save to apply changes.')
+      return
+    }
 
-    this.snackbar.success('Position–Role linked successfully. Please tap Save to apply changes.')
+    this.isValidatingRoleMappings = true
+    this.findRolesMissingActivityMapping(selectedRoles)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (missingRoles) => {
+          this.isValidatingRoleMappings = false
+          if (missingRoles.length) {
+            this.snackbar.warning('Some selected roles are missing activity mapping.')
+            this.openMappingRequiredModal(missingRoles)
+            return
+          }
+
+          this.removeDeselectedRoles()
+          this.updateOrInsertRoles()
+          this.refreshPositionsState()
+          const currentSignature = this.getPositionRoleDetailsSignature(this.selectedPosition?.roleDetails || [])
+          const hasChanges = previousSignature !== currentSignature
+          this.hasUnsavedChanges = this.hasUnsavedChanges || hasChanges
+          this.snackbar.success('Position–Role linked successfully. Please tap Save to apply changes.')
+        },
+        error: (err) => {
+          this.isValidatingRoleMappings = false
+          fracLogger.error('Failed to validate role activity mappings', err)
+          this.snackbar.error('Unable to validate role activity mappings. Please try again.')
+        },
+      })
+  }
+
+  private findRolesMissingActivityMapping(roles: PositionRoleDetail[]) {
+    const requests = roles.map((role) =>
+      this.fracApiService.searchEntityMapping('role', role.code, this.selectedLanguage).pipe(
+        map((res) => ({
+          role,
+          isMapped: this.hasMappedActivityLevels(res),
+        })),
+        catchError(() => of({ role, isMapped: false })),
+      ),
+    )
+
+    return forkJoin(requests).pipe(
+      map((results) =>
+        results
+          .filter(result => !result.isMapped)
+          .map(result => ({
+            code: result.role.code,
+            label: result.role.label || 'Role name not available',
+          })),
+      ),
+    )
+  }
+
+  private hasMappedActivityLevels(response: unknown): boolean {
+    const result = Array.isArray((response as PositionMappingSearchResponseShape)?.result)
+      ? (response as PositionMappingSearchResponseShape).result || []
+      : []
+    const first = result[0] || {}
+    const childHierarchy = Array.isArray(first?.childHierarchy) ? first.childHierarchy : []
+
+    return childHierarchy.some((child: PositionMappingHierarchyNode) => {
+      const isActivity = (child?.entityType || '').toLowerCase() === 'activity'
+      if (!isActivity) {
+        return false
+      }
+
+      // If it exists in the array as an activity, it operates as mapped for a role.
+      // Roles only need to be mapped to an activity, not to specific levels.
+      return true
+    })
+  }
+
+  private openMappingRequiredModal(missingRoles: MissingMappingItem[]): void {
+    const dialogRef = this.dialog.open(MappingRequiredModalComponent, {
+      width: FRAC_DIALOG_SIZES.mappingRequired,
+      maxWidth: '92vw',
+      disableClose: true,
+      panelClass: 'mapping-required-dialog',
+      data: {
+        items: missingRoles,
+        type: 'role',
+      },
+    })
+
+    dialogRef.afterClosed()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((action: 'back' | 'map-now' | undefined) => {
+        if (action === 'map-now') {
+          this.router.navigateByUrl(FRAC_ROUTES.mapRole)
+        }
+      })
   }
 
   private removeDeselectedRoles(): void {
@@ -509,6 +667,9 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
   // ---------------------------------------------------------------------------
   // Save
   // ---------------------------------------------------------------------------
+  /**
+   * Takes all the edited rows and sends them to the server to be updated.
+   */
   onSaveClicked(): void {
     this.syncCurrentSelectedPositionSelection()
     const payload = this.buildPayload()
@@ -518,10 +679,84 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
       return
     }
 
-    if (this.isSaving) {
+    if (this.isSaving || this.isValidatingRoleMappings) {
       return
     }
 
+    this.validateSaveRoles(payload)
+  }
+
+  private validateSaveRoles(payload: PositionRoleApiRequestItem[]): void {
+    const uniqueRoles = this.extractUniqueRolesFromPayload(payload)
+    if (!uniqueRoles.length) {
+      this.persistPositionRoleMappings(payload)
+      return
+    }
+
+    this.isValidatingRoleMappings = true
+    this.findRolesMissingActivityMapping(uniqueRoles)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (missingRoles) => {
+          this.isValidatingRoleMappings = false
+          if (missingRoles.length) {
+            this.snackbar.warning('Some selected roles are missing activity mapping.')
+            this.openMappingRequiredModal(missingRoles)
+            return
+          }
+
+          this.persistPositionRoleMappings(payload)
+        },
+        error: (err) => {
+          this.isValidatingRoleMappings = false
+          fracLogger.error('Failed to validate roles before save', err)
+          this.snackbar.error('Unable to validate role activity mappings. Please try again.')
+        },
+      })
+  }
+
+  private extractUniqueRolesFromPayload(payload: PositionRoleApiRequestItem[]): PositionRoleDetail[] {
+    const uniqueRoles = new Map<string, PositionRoleDetail>()
+
+    payload.forEach((item) => {
+      const roleCode = (item?.childEntityCode || '').trim()
+      if (!roleCode || uniqueRoles.has(roleCode)) {
+        return
+      }
+
+      uniqueRoles.set(roleCode, {
+        code: roleCode,
+        label: this.getRoleLabelForValidation(roleCode),
+      })
+    })
+
+    return Array.from(uniqueRoles.values())
+  }
+
+  private getRoleLabelForValidation(roleCode: string): string {
+    const role =
+      this.rolesData.find(item => item.code === roleCode) ||
+      this.roles.find(item => item.code === roleCode) ||
+      this.filteredRoles.find(item => item.code === roleCode)
+
+    if (role?.title) {
+      return role.title
+    }
+
+    const positionCollections = [this.positionsData, this.positions, this.filteredPositions]
+    for (const collection of positionCollections) {
+      for (const position of collection) {
+        const mappedRole = position?.roleDetails?.find(detail => detail.code === roleCode)
+        if (mappedRole?.label) {
+          return mappedRole.label
+        }
+      }
+    }
+
+    return 'Role name not available'
+  }
+
+  private persistPositionRoleMappings(payload: PositionRoleApiRequestItem[]): void {
     this.isSaving = true
 
     this.fracApiService.mapEntity(payload).subscribe({
@@ -567,7 +802,7 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
     const mappedPairs = new Set<string>()
 
     for (const [key, roleDetails] of this.positionDraftStore.entries()) {
-      const positionCode = this.extractEntityCodeFromMappingKey(key)
+      const positionCode = getCodeFromKey(key)
       if (!positionCode) continue
 
       for (const roleDetail of roleDetails) {
@@ -593,6 +828,9 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
     return payload
   }
 
+  /**
+   * Updates the visual selection state (checkboxes) for the currently open position card based on what is stored in memory.
+   */
   private syncCurrentSelectedPositionSelection(): void {
     if (!this.selectedPosition) return
 
@@ -606,20 +844,17 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
     this.refreshPositionsState()
   }
 
+  /**
+   * Creates a unique text code to look up a position in the temporary storage.
+   */
   private buildPositionMappingKey(positionCode: string): string {
-    return `${this.selectedLanguage.trim().toLowerCase()}::${(positionCode || '').trim()}`
+    return makeMappingKey(this.selectedLanguage, positionCode)
   }
 
-  private extractEntityCodeFromMappingKey(key: string): string {
-    const separator = '::'
-    const separatorIndex = key.indexOf(separator)
-    if (separatorIndex === -1) {
-      return key
-    }
 
-    return key.slice(separatorIndex + separator.length)
-  }
-
+  /**
+   * Creates a deep copy of the role mapping details to safely test for unsaved changes.
+   */
   private cloneRoleDetails(details: PositionRoleDetail[]): PositionRoleDetail[] {
     return (details || [])
       .filter((detail) => !!detail?.code)
@@ -629,6 +864,9 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
       }))
   }
 
+  /**
+   * Creates a unique string from all mapped roles to detect if the user made any edits.
+   */
   private getPositionRoleDetailsSignature(details: PositionRoleDetail[]): string {
     return this.cloneRoleDetails(details)
       .sort((left, right) => left.code.localeCompare(right.code, undefined, { numeric: true, sensitivity: 'base' }))
@@ -669,6 +907,9 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
     this.filteredPositions = this.filteredPositions.map(positionUpdater)
   }
 
+  /**
+   * Saves the current mapping selections for a specific position into the temporary draft memory.
+   */
   private setPositionDraft(positionCode: string, details: PositionRoleDetail[]): void {
     const key = this.buildPositionMappingKey(positionCode)
     const normalizedDetails = this.cloneRoleDetails(details)
@@ -683,11 +924,14 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
     this.syncUpdatedPositionsFromDraftStore()
   }
 
+  /**
+   * Loops through memory to ensure any positions edited on previous pages still show their updated mapped counts.
+   */
   private syncUpdatedPositionsFromDraftStore(): void {
     const positionMap = new Map<string, PositionRoleDetail[]>()
 
     for (const [key, details] of this.positionDraftStore.entries()) {
-      const positionCode = this.extractEntityCodeFromMappingKey(key)
+      const positionCode = getCodeFromKey(key)
       if (!positionCode || !details.length) continue
       positionMap.set(positionCode, this.cloneRoleDetails(details))
     }
@@ -706,12 +950,14 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
     })
   }
 
-  private extractMappedPairs(response: any, fallbackPayload: PositionRoleApiRequestItem[]): string[] {
-    const resultArray = Array.isArray(response?.result) ? response.result : []
+  private extractMappedPairs(response: unknown, fallbackPayload: PositionRoleApiRequestItem[]): string[] {
+    const resultArray = Array.isArray((response as { result?: Array<Partial<PositionRoleApiRequestItem>> })?.result)
+      ? (response as { result?: Array<Partial<PositionRoleApiRequestItem>> }).result || []
+      : []
     const source = resultArray.length ? resultArray : fallbackPayload
 
     return source
-      .map((item: any) => {
+      .map((item) => {
         const parentCode = item?.parentEntityCode || ''
         const childCode = item?.childEntityCode || ''
         return `${parentCode} <=> ${childCode}`
@@ -719,9 +965,12 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
       .filter(Boolean)
   }
 
+  /**
+   * Opens a popup dialog to show the user if their action (upload, save) was successful or failed.
+   */
   private showResultModal(data: UploadResultData, redirectOnClose = false): void {
     const dialogRef = this.dialog.open(UploadResultModalComponent, {
-      width: '440px',
+      width: FRAC_DIALOG_SIZES.mapResult,
       disableClose: true,
       panelClass: 'upload-result-dialog',
       data,
@@ -731,23 +980,26 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
         if (redirectOnClose && data.type === 'success') {
-          this.router.navigateByUrl('/app/home/frac/dashboard')
+          this.router.navigateByUrl(FRAC_ROUTES.homeDashboard)
         }
       })
   }
 
+  /**
+   * Handles the user clicking the Home or Back button. Warns them if they have unsaved changes before leaving.
+   */
   onHomeClick(): void {
     if (this.isSaving) {
       return
     }
 
     if (!this.hasUnsavedChanges) {
-      this.router.navigateByUrl('/app/home/frac/dashboard')
+      this.router.navigateByUrl(FRAC_ROUTES.homeDashboard)
       return
     }
 
     const dialogRef = this.dialog.open(UnsavedChangesModalComponent, {
-      width: '363px',
+      width: FRAC_DIALOG_SIZES.unsavedChanges,
       maxWidth: '92vw',
       disableClose: true,
       panelClass: 'unsaved-changes-dialog',
@@ -763,7 +1015,7 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe((action: 'continue' | 'cancel' | undefined) => {
         if (action === 'continue') {
-          this.router.navigateByUrl('/app/home/frac/dashboard')
+          this.router.navigateByUrl(FRAC_ROUTES.homeDashboard)
         }
       })
   }

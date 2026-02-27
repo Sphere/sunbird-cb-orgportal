@@ -2,21 +2,25 @@ import { Component, OnInit, OnDestroy } from '@angular/core'
 import { MatDialog } from '@angular/material/dialog'
 import { ActivatedRoute, Router } from '@angular/router'
 import { FracUploadPopupComponent } from '../../../components/frac-upload/frac-upload-popup.component'
-import { UploadPopupConfig, UploadPopupResult } from '../../../models/upload-popup-config.model'
+import { UploadPopupResult } from '../../../models/upload-popup-config.model'
 import { UploadResultModalComponent, UploadResultData } from '../../../components/upload-result-modal/upload-result-modal.component'
 import { UnsavedChangesModalComponent } from '../../../components/unsaved-changes-modal/unsaved-changes-modal.component'
 import { ITableConfig, TableTransformUtil } from '../../../utils/table-transform.util'
+import { FracResponseParserUtil } from '../../../utils/frac-response-parser.util'
+import { extractEntityList, sortEntitiesForDisplay, getLanguageCode } from '../../../utils/common.util'
+import { fracLogger } from '../../../utils/frac-logger.util'
 import { FracApiService } from '../../../services/frac-api.service'
-import { forkJoin, merge, Subject, Subscription } from 'rxjs'
-import { debounceTime, distinctUntilChanged, filter, takeUntil } from 'rxjs/operators'
-
-type SearchSource = 'typing' | 'icon' | 'enter' | 'language' | 'init'
-
-interface SearchTriggerPayload {
-  keyword: string
-  language: string
-  source: SearchSource
-}
+import {
+  FracEntityUploadOrchestratorService,
+  UploadRouteMode,
+  UploadSearchSource,
+  UploadSearchTriggerPayload,
+} from '../../../services/frac-entity-upload-orchestrator.service'
+import { forkJoin, Subject, Subscription } from 'rxjs'
+import { takeUntil } from 'rxjs/operators'
+import { FRAC_UI_CONFIG } from '../../../models/ui.config.model'
+import { FRAC_DIALOG_SIZES, FRAC_ROUTES, FRAC_UPLOAD_PAGE_SPINNER } from '../../../constants/frac.constants'
+import { buildFracUploadPopupConfig, getFracSampleTemplateUrl } from '../../../utils/frac-upload-ui.util'
 
 interface UploadEmptyStateConfig {
   icon: string
@@ -38,12 +42,16 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
     private tableTransformUtil: TableTransformUtil,
     private activatedRoute: ActivatedRoute,
     private router: Router,
+    private uploadOrchestrator: FracEntityUploadOrchestratorService,
   ) { }
+
+  // ============= UI CONFIG =============
+  uiConfig = FRAC_UI_CONFIG
 
   // ============= ROUTE STATE =============
 
   /** Route mode: 'upload' or 'manage' */
-  routeMode: string = 'upload'
+  routeMode: UploadRouteMode = 'upload'
 
   // ============= TABLE STATE =============
 
@@ -72,8 +80,9 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
   searchResults: any[] = []
 
   /** Language selection */
-  selectedLanguage = 'English'
-  languages = ['English', 'Hindi', 'Kannada', 'Tamil']
+  selectedLanguage = this.uploadOrchestrator.languages[0]
+  languages = this.uploadOrchestrator.languages
+  readonly uploadPageSpinner = FRAC_UPLOAD_PAGE_SPINNER
   isOpen = false
   readonly uploadEmptyStateConfig: UploadEmptyStateConfig = {
     icon: 'upload_file',
@@ -97,7 +106,7 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
 
   // ============= INTERNAL STATE =============
 
-  private searchTrigger$ = new Subject<SearchTriggerPayload>()
+  private searchTrigger$ = new Subject<UploadSearchTriggerPayload>()
   private searchSubscription: Subscription | null = null
   private destroy$ = new Subject<void>()
   private baselineTableSignature = ''
@@ -105,31 +114,27 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
 
   // ============= LIFECYCLE =============
 
+  /**
+   * Runs once when the page loads. Sets up search listeners and checks the URL to see if we are in upload or manage mode.
+   */
   ngOnInit(): void {
-    const debouncedTypingSearch$ = this.searchTrigger$.pipe(
-      filter(payload => payload.source === 'typing'),
-      debounceTime(500),
-      distinctUntilChanged((previous, current) =>
-        previous.keyword === current.keyword && previous.language === current.language
-      )
+    this.uploadOrchestrator.bindSearchTriggerStream(
+      this.searchTrigger$,
+      this.destroy$,
+      (keyword, language) => this.fetchEntitiesForTable(keyword, language),
     )
-
-    const immediateSearch$ = this.searchTrigger$.pipe(
-      filter(payload => payload.source !== 'typing')
-    )
-
-    merge(debouncedTypingSearch$, immediateSearch$)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(payload => this.fetchEntitiesForTable(payload.keyword, payload.language))
 
     // Load route mode and initialize table
     this.activatedRoute.queryParams.subscribe(queryParams => {
-      this.routeMode = queryParams['mode'] || 'upload'
+      this.routeMode = this.uploadOrchestrator.resolveRouteMode(queryParams['mode'])
       this.updateButtonText()
       this.loadTableDataBasedOnMode()
     })
   }
 
+  /**
+   * Cleans up memory and active background tasks when the user leaves this page.
+   */
   ngOnDestroy(): void {
     this.searchSubscription?.unsubscribe()
     this.destroy$.next()
@@ -157,7 +162,7 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
 
   /** Update upload button text based on route mode */
   updateButtonText(): void {
-    this.uploadButtonText = this.routeMode === 'manage' ? 'Change File' : 'Upload File'
+    this.uploadButtonText = this.uploadOrchestrator.resolveUploadButtonText(this.routeMode)
   }
 
   /** Check if table has data */
@@ -165,12 +170,15 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
     return this.tableConfig.data && this.tableConfig.data.length > 0
   }
 
+  /**
+   * Checks if the user has made any edits or removed rows that need to be saved.
+   */
   hasPendingTableChanges(): boolean {
     if (this.routeMode !== 'manage') {
       return false
     }
 
-    return this.computeTableSignature(this.tableConfig.data) !== this.baselineTableSignature
+    return this.uploadOrchestrator.computeTableSignature(this.tableConfig.data as Array<Record<string, unknown>>) !== this.baselineTableSignature
   }
 
   // ============= SEARCH & FILTER =============
@@ -191,6 +199,9 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
     this.triggerSearch('icon')
   }
 
+  /**
+   * Triggered when the user hits the Enter key in the search box. Searches immediately.
+   */
   onSearchEnter(): void {
     if (this.isFilterControlsDisabled()) {
       return
@@ -198,15 +209,16 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
     this.triggerSearch('enter')
   }
 
-  private triggerSearch(source: SearchSource): void {
-    const payload: SearchTriggerPayload = {
-      keyword: this.searchTerm.trim(),
-      language: this.selectedLanguage,
-      source,
-    }
-    this.searchTrigger$.next(payload)
+  /**
+   * Fires a search event to fetch data from the server, either from user typing, clicking search, or changing the language.
+   */
+  private triggerSearch(source: UploadSearchSource): void {
+    this.searchTrigger$.next(this.uploadOrchestrator.buildSearchPayload(this.searchTerm, this.selectedLanguage, source))
   }
 
+  /**
+   * Calls the backend API to fetch the list of items (competencies, roles, etc.) and displays them in the table.
+   */
   private fetchEntitiesForTable(keyword: string, language: string = this.selectedLanguage): void {
     this.searchSubscription?.unsubscribe()
     this.isSearching = true
@@ -216,8 +228,8 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (res) => {
           this.isSearching = false
-          const entityList = this.extractEntityList(res)
-          const sortedEntityList = this.sortEntitiesForDisplay(entityList)
+          const entityList = extractEntityList(res)
+          const sortedEntityList = sortEntitiesForDisplay(entityList)
           this.searchResults = sortedEntityList
           this.originalRowData = sortedEntityList
           this.tableConfig = this.tableTransformUtil.transformResponseToTableConfig(sortedEntityList)
@@ -228,46 +240,12 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
         },
         error: (err) => {
           this.isSearching = false
-          console.error('Search failed:', err)
+          fracLogger.error('Role search failed', err)
         }
       })
   }
 
-  private extractEntityList(response: any): any[] {
-    if (!response) return []
-    if (Array.isArray(response)) return response
 
-    const entityList =
-      response?.result?.entity ||
-      response?.result?.data?.entity ||
-      response?.data?.entity ||
-      response?.entity
-
-    return Array.isArray(entityList) ? entityList : []
-  }
-
-  private sortEntitiesForDisplay(entities: any[]): any[] {
-    return [...(entities || [])].sort((left: any, right: any) => {
-      const leftCode = this.normalizeSortValue(left?.code || left?.additionalProperties?.Code)
-      const rightCode = this.normalizeSortValue(right?.code || right?.additionalProperties?.Code)
-      const codeComparison = this.compareSortValues(leftCode, rightCode)
-      if (codeComparison !== 0) {
-        return codeComparison
-      }
-
-      const leftName = this.normalizeSortValue(left?.name || left?.title)
-      const rightName = this.normalizeSortValue(right?.name || right?.title)
-      return this.compareSortValues(leftName, rightName)
-    })
-  }
-
-  private normalizeSortValue(value: unknown): string {
-    return (value ?? '').toString().trim()
-  }
-
-  private compareSortValues(left: string, right: string): number {
-    return left.localeCompare(right, undefined, { numeric: true, sensitivity: 'base' })
-  }
 
   // ============= LANGUAGE DROPDOWN =============
 
@@ -307,7 +285,7 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
   /** Enable edit mode for selected rows */
   onEditClicked(): void {
     if (this.selectedRows.length === 0) {
-      console.warn('Please select at least one row to edit.')
+      fracLogger.warn('Edit action ignored because no row is selected.')
       return
     }
     this.isEditing = true
@@ -325,7 +303,7 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
 
     const changedRows = this.selectedRows.filter(row => this.isRowChanged(row))
     if (!changedRows.length) {
-      console.warn('No changes detected to save.')
+      fracLogger.warn('Save action ignored because no table changes were detected.')
       return
     }
 
@@ -390,15 +368,7 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
   }
 
   private getLanguageCode(language: string): string {
-    const normalized = (language || '').trim().toLowerCase()
-    const languageMap: Record<string, string> = {
-      english: 'en',
-      hindi: 'hi',
-      kannada: 'kn',
-      tamil: 'ta',
-    }
-
-    return languageMap[normalized] || 'en'
+    return getLanguageCode(language)
   }
 
   // ============= TABLE ACTIONS: REMOVE =============
@@ -406,7 +376,7 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
   /** Remove selected rows from table */
   onRemoveClicked(): void {
     if (this.selectedRows.length === 0) {
-      console.warn('Please select at least one row to remove.')
+      fracLogger.warn('Remove action ignored because no row is selected.')
       return
     }
 
@@ -422,9 +392,7 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
   /** Download CSV template for bulk upload */
   onDownloadTemplate(): void {
     const languageCode = this.getLanguageCode(this.selectedLanguage)
-    const fileUrl = languageCode === 'hi'
-      ? 'https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/files/sample_role_hi_list.csv'
-      : 'https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/files/sample_role_en_list.csv'
+    const fileUrl = getFracSampleTemplateUrl('role', languageCode)
 
     const link = document.createElement('a')
     link.href = fileUrl
@@ -434,26 +402,10 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
 
   /** Open upload dialog popup */
   openUploadPopup(): void {
-    const config: UploadPopupConfig = {
-      title: 'Upload Roles Data',
-      subText: 'Supported file format: CSV or JSON',
-      fileSection: {
-        dragText: 'Drag & drop a file here',
-        uploadButton: 'Upload File',
-      },
-      dropdown: {
-        label: 'Select Language',
-        options: ['English', 'Hindi', 'Kannada', 'Tamil'],
-        defaultValue: this.selectedLanguage,
-      },
-      actions: {
-        secondary: { label: 'Cancel' },
-        primary: { label: 'Confirm & Upload', disabled: false },
-      },
-    }
+    const config = buildFracUploadPopupConfig('role', this.languages, this.selectedLanguage)
 
     const dialogRef = this.dialog.open(FracUploadPopupComponent, {
-      width: '450px',
+      width: FRAC_DIALOG_SIZES.uploadPopup,
       disableClose: true,
       data: config,
     })
@@ -468,7 +420,7 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
   /** Upload file to API */
   uploadFile(file: File, language: string = this.selectedLanguage): void {
     this.selectedLanguage = language
-    console.log('⏳ Uploading role file:', {
+    fracLogger.debug('Starting role upload', {
       name: file.name,
       size: file.size,
       type: file.type,
@@ -477,7 +429,7 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
 
     // ✅ Prevent multiple uploads - check if already uploading
     if (this.isUploading) {
-      console.warn('⚠️ Upload already in progress, ignoring duplicate request')
+      fracLogger.warn('Upload request ignored because another upload is already running.')
       return
     }
 
@@ -487,7 +439,7 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
     // Use actual upload method
     this.fracApiService.uploadFile(file, language).subscribe({
       next: (res) => {
-        console.log('✅ Upload successful:', res)
+        fracLogger.debug('Role upload completed', res)
 
         // ✅ Hide local loader
         this.isUploading = false
@@ -495,22 +447,24 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
         // ✅ Store API response globally
         this.apiResponse = res
 
-        const uploadedCodes = this.getUploadedEntityCodes(res, 'role')
-        if (this.isValidUploadSuccessResponse(res, 'role')) {
-          const uploadedCount = uploadedCodes.length || res?.result?.count || 1
+        const normalizedResponse = FracResponseParserUtil.parseApiResponse(res)
+        const resultObject = (normalizedResponse?.result || {}) as Record<string, unknown>
+        const uploadedCodes = FracResponseParserUtil.getSuccessCodes(res, 'role')
+        if (FracResponseParserUtil.isUploadSuccessful(res, 'role')) {
+          const uploadedCount = uploadedCodes.length || Number(resultObject.count || 0) || 1
           const successData: UploadResultData = {
             type: 'success',
             title: 'Upload Successful',
             message: 'Your role data has been uploaded successfully.',
             count: uploadedCount
           }
-          this.showResultModal(successData, false, false, '/app/frac/role?mode=manage')
+          this.showResultModal(successData, false, false, FRAC_ROUTES.roleManage)
         } else {
           this.showResultModal(this.createUploadFailureModalData(res), false)
         }
       },
       error: (err) => {
-        console.error('❌ Upload failed:', {
+        fracLogger.error('Role upload failed', {
           status: err.status,
           statusText: err.statusText,
           message: err.message,
@@ -527,88 +481,11 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
     })
   }
 
-  private isValidUploadSuccessResponse(response: any, expectedEntityType: string): boolean {
-    const normalizedResponse = this.normalizeUploadResponse(response)
-    const responseCode = (normalizedResponse?.responseCode || '').toString().toLowerCase()
-    const paramsStatus = (normalizedResponse?.params?.status || '').toString().toLowerCase()
-
-    const hasSuccessStatus =
-      responseCode === 'ok' ||
-      responseCode === '200 ok' ||
-      responseCode === 'created' ||
-      responseCode === '201 created' ||
-      paramsStatus === 'success' ||
-      paramsStatus === 'ok' ||
-      paramsStatus === '200 ok' ||
-      paramsStatus === 'created' ||
-      paramsStatus === '201 created'
-
-    return hasSuccessStatus && this.getUploadedEntityCodes(normalizedResponse, expectedEntityType).length > 0
-  }
-
-  private extractAffectedCodes(response: any): string[] {
-    const normalizedResponse = this.normalizeUploadResponse(response)
-    const uploadedCodes = this.getUploadedEntityCodes(normalizedResponse)
-    if (uploadedCodes.length) {
-      return uploadedCodes
-    }
-
-    const entries = Array.isArray(normalizedResponse?.result) ? normalizedResponse.result : []
-    return entries
-      .map((item: any) => item?.code)
-      .filter((code: any) => Boolean(code))
-  }
-
-  private getUploadedEntityCodes(response: any, expectedEntityType?: string): string[] {
-    const normalizedResponse = this.normalizeUploadResponse(response)
-    const entityBlocks = this.getUploadEntityBlocks(normalizedResponse)
-    const expectedType = (expectedEntityType || '').toLowerCase()
-    const collectedCodes: string[] = []
-
-    entityBlocks.forEach((item: any) => {
-      const entityType = (item?.entityType || '').toString().toLowerCase()
-      if (expectedType && entityType !== expectedType) {
-        return
-      }
-
-      const entityCodes = Array.isArray(item?.entityCode) ? item.entityCode : []
-      entityCodes.forEach((code: any) => {
-        const normalizedCode = (code ?? '').toString().trim()
-        if (normalizedCode) {
-          collectedCodes.push(normalizedCode)
-        }
-      })
-    })
-
-    return collectedCodes
-  }
-
-  private getUploadEntityBlocks(response: any): any[] {
-    const legacyEntityType = response?.result?.entityType
-    const legacyEntityCodes = Array.isArray(response?.result?.entityCode) ? response.result.entityCode : []
-    const entityList = Array.isArray(response?.result?.entity) ? response.result.entity : []
-    const blocks: any[] = [...entityList]
-
-    if (legacyEntityType || legacyEntityCodes.length) {
-      blocks.push({
-        entityType: legacyEntityType,
-        entityCode: legacyEntityCodes,
-      })
-    }
-
-    return blocks
-  }
-
-  private isMeaningfulApiMessage(message: string | undefined): boolean {
-    const normalized = (message || '').trim().toLowerCase()
-    if (!normalized) {
-      return false
-    }
-    return normalized !== 'error' && normalized !== 'failed'
-  }
-
+  /**
+   * Reads a failed upload response and builds the title and message for the error popup.
+   */
   private createUploadFailureModalData(response: any): UploadResultData {
-    const normalizedResponse = this.normalizeUploadResponse(response)
+    const normalizedResponse = FracResponseParserUtil.parseApiResponse(response)
     const apiMessage =
       (normalizedResponse?.params?.errmsg as string | undefined) ||
       normalizedResponse?.errmsg ||
@@ -621,12 +498,12 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
     const paramsStatus =
       normalizedResponse?.params?.status ||
       normalizedResponse?.statusText
-    const affectedCodes = this.extractAffectedCodes(normalizedResponse)
+    const affectedCodes = FracResponseParserUtil.getAffectedCodes(normalizedResponse)
     const affectedCodesDetails = affectedCodes.length
       ? `Affected Codes: ${affectedCodes.join(', ')}`
       : undefined
 
-    const message = this.isMeaningfulApiMessage(apiMessage)
+    const message = FracResponseParserUtil.isUsefulMessage(apiMessage)
       ? apiMessage!.trim()
       : (affectedCodes.length ? 'Duplicate entry found.' : 'Upload failed. Please verify your file and try again.')
 
@@ -634,141 +511,18 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
       type: 'error',
       title: 'Upload Failed',
       message,
-      errorDetails: this.buildErrorDetails(responseCode, paramsStatus, affectedCodesDetails),
+      errorDetails: FracResponseParserUtil.formatErrorDetails(responseCode, paramsStatus, affectedCodesDetails),
+      resultDetails: FracResponseParserUtil.getStructuredErrorDetails(response)
     }
   }
 
-  private buildErrorDetails(responseCode: unknown, paramsStatus: unknown, affectedCodesDetails?: string): string | undefined {
-    const uniqueDetails: string[] = []
-    const seen = new Set<string>()
-
-    const appendIfUnique = (value: unknown): void => {
-      const detail = (value ?? '').toString().trim()
-      if (!detail) {
-        return
-      }
-
-      const normalized = detail.toLowerCase()
-      if (seen.has(normalized)) {
-        return
-      }
-
-      seen.add(normalized)
-      uniqueDetails.push(detail)
-    }
-
-    appendIfUnique(responseCode)
-    appendIfUnique(paramsStatus)
-    appendIfUnique(affectedCodesDetails)
-
-    return uniqueDetails.length ? uniqueDetails.join('\n') : undefined
-  }
-
-  private normalizeUploadResponse(response: any): any {
-    if (!response) {
-      return null
-    }
-
-    if (typeof response === 'string') {
-      try {
-        return JSON.parse(response)
-      } catch {
-        return { params: { errmsg: response } }
-      }
-    }
-
-    if (Array.isArray(response)) {
-      return { result: response }
-    }
-
-    if (typeof response !== 'object') {
-      return { params: { errmsg: String(response) } }
-    }
-
-    const looksLikeUploadPayload =
-      Boolean(response?.params?.errmsg) ||
-      Boolean(response?.responseCode) ||
-      Boolean(response?.result?.entityCode) ||
-      Array.isArray(response?.result?.entity) ||
-      Array.isArray(response?.result)
-
-    if (looksLikeUploadPayload) {
-      return response
-    }
-
-    const nestedCandidates = [
-      response.error,
-      response.body,
-      response.data,
-      response.response,
-      response.rejection,
-      response.payload,
-      response.text,
-    ]
-
-    for (const candidate of nestedCandidates) {
-      if (!candidate) continue
-      const normalizedCandidate = this.normalizeUploadResponse(candidate)
-      if (
-        normalizedCandidate?.params?.errmsg ||
-        normalizedCandidate?.responseCode ||
-        normalizedCandidate?.result?.entityCode ||
-        Array.isArray(normalizedCandidate?.result?.entity) ||
-        Array.isArray(normalizedCandidate?.result)
-      ) {
-        return normalizedCandidate
-      }
-    }
-
-    return response
-  }
-
-  private async resolveUploadErrorPayload(err: any): Promise<any> {
-    const normalizedDirect = this.normalizeUploadResponse(err)
-    if (
-      normalizedDirect?.params?.errmsg ||
-      normalizedDirect?.responseCode ||
-      normalizedDirect?.result ||
-      normalizedDirect?.message
-    ) {
-      return normalizedDirect
-    }
-
-    const rawError = err?.error
-
-    if (rawError instanceof Blob) {
-      try {
-        const text = await rawError.text()
-        const normalizedFromBlob = this.normalizeUploadResponse(text)
-        if (
-          normalizedFromBlob?.params?.errmsg ||
-          normalizedFromBlob?.responseCode ||
-          normalizedFromBlob?.result
-        ) {
-          return normalizedFromBlob
-        }
-      } catch {
-        // Fall back below.
-      }
-    }
-
-    if (typeof rawError === 'string') {
-      const normalizedFromString = this.normalizeUploadResponse(rawError)
-      if (
-        normalizedFromString?.params?.errmsg ||
-        normalizedFromString?.responseCode ||
-        normalizedFromString?.result
-      ) {
-        return normalizedFromString
-      }
-    }
-
-    return normalizedDirect
+  private async readUploadError(err: any): Promise<any> {
+    return FracResponseParserUtil.readErrorPayload(err)
   }
 
   /** Handle upload error with appropriate message and show modal */
   private async handleUploadError(err: any): Promise<void> {
-    const resolvedPayload = await this.resolveUploadErrorPayload(err)
+    const resolvedPayload = await this.readUploadError(err)
 
     if (
       resolvedPayload?.params?.errmsg ||
@@ -798,7 +552,7 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
     redirectToUrl?: string,
   ): void {
     const dialogRef = this.dialog.open(UploadResultModalComponent, {
-      width: '400px',
+      width: FRAC_DIALOG_SIZES.uploadResult,
       disableClose: true,
       panelClass: 'upload-result-dialog',
       data: data
@@ -811,7 +565,7 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
       }
 
       if (redirectOnClose && data.type === 'success') {
-        this.router.navigateByUrl('/app/home/frac/dashboard')
+        this.router.navigateByUrl(FRAC_ROUTES.homeDashboard)
         return
       }
 
@@ -822,18 +576,21 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
     })
   }
 
+  /**
+   * Handles the user clicking the Home or Back button. Warns them if they have unsaved changes before leaving.
+   */
   onHomeClick(): void {
     if (this.isUpdating) {
       return
     }
 
     if (!this.hasPendingTableChanges()) {
-      this.router.navigateByUrl('/app/home/frac/dashboard')
+      this.router.navigateByUrl(FRAC_ROUTES.homeDashboard)
       return
     }
 
     const dialogRef = this.dialog.open(UnsavedChangesModalComponent, {
-      width: '363px',
+      width: FRAC_DIALOG_SIZES.unsavedChanges,
       maxWidth: '92vw',
       disableClose: true,
       panelClass: 'unsaved-changes-dialog',
@@ -849,15 +606,21 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe((action: 'continue' | 'cancel' | undefined) => {
         if (action === 'continue') {
-          this.router.navigateByUrl('/app/home/frac/dashboard')
+          this.router.navigateByUrl(FRAC_ROUTES.homeDashboard)
         }
       })
   }
 
+  /**
+   * Checks if the search and language filters should be greyed out (disabled) during uploads or saves.
+   */
   isFilterControlsDisabled(): boolean {
     return this.isUploading || this.routeMode === 'upload'
   }
 
+  /**
+   * Checks if the language dropdown should be greyed out. It is disabled while saving or if there are unsaved changes.
+   */
   isLanguageDropdownDisabled(): boolean {
     return this.isUploading
   }
@@ -866,6 +629,9 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
     return this.routeMode === 'manage' ? this.noResultEmptyStateConfig : this.uploadEmptyStateConfig
   }
 
+  /**
+   * Decides whether to show the "No Data" or "No Results" message instead of the table.
+   */
   shouldShowTableEmptyState(): boolean {
     if (this.isUploading || this.isSearching || this.hasTableData()) {
       return false
@@ -874,6 +640,9 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
     return this.routeMode === 'upload' || this.routeMode === 'manage'
   }
 
+  /**
+   * Compares a table row against its original state to see if the user made any edits.
+   */
   private isRowChanged(row: any): boolean {
     const code = (row?.code ?? '').toString().trim()
     if (!code) {
@@ -881,40 +650,17 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
     }
 
     const baselineRowSignature = this.baselineRowSignatureByCode.get(code)
-    const currentSignature = this.getRowSignature(row)
+    const currentSignature = this.uploadOrchestrator.getRowSignature(row)
     return baselineRowSignature !== currentSignature
   }
 
+  /**
+   * Saves a snapshot of the table data so we can detect future edits.
+   */
   private captureBaselineTableState(): void {
-    const rows = this.tableConfig?.data || []
-    this.baselineTableSignature = this.computeTableSignature(rows)
-    this.baselineRowSignatureByCode = new Map<string, string>()
-
-    rows.forEach((row) => {
-      const code = (row?.code ?? '').toString().trim()
-      if (!code) {
-        return
-      }
-      this.baselineRowSignatureByCode.set(code, this.getRowSignature(row))
-    })
-  }
-
-  private computeTableSignature(rows: any[]): string {
-    return (rows || [])
-      .map((row) => this.getRowSignature(row))
-      .sort()
-      .join('||')
-  }
-
-  private getRowSignature(row: any): string {
-    const normalized: Record<string, string> = {}
-    const keys = Object.keys(row || {}).sort()
-
-    keys.forEach((key) => {
-      normalized[key] = (row?.[key] ?? '').toString()
-    })
-
-    return JSON.stringify(normalized)
+    const baseline = this.uploadOrchestrator.captureBaselineState(this.tableConfig.data as Array<Record<string, unknown>>)
+    this.baselineTableSignature = baseline.tableSignature
+    this.baselineRowSignatureByCode = baseline.rowSignatureByCode
   }
 
 }

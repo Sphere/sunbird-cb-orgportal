@@ -2,21 +2,25 @@ import { Component } from '@angular/core'
 import { MatDialog } from '@angular/material/dialog'
 import { ActivatedRoute, Router } from '@angular/router'
 import { FracUploadPopupComponent } from '../../../components/frac-upload/frac-upload-popup.component'
-import { UploadPopupConfig, UploadPopupResult } from '../../../models/upload-popup-config.model'
+import { UploadPopupResult } from '../../../models/upload-popup-config.model'
 import { UploadResultModalComponent, UploadResultData } from '../../../components/upload-result-modal/upload-result-modal.component'
 import { UnsavedChangesModalComponent } from '../../../components/unsaved-changes-modal/unsaved-changes-modal.component'
 import { ITableConfig, TableTransformUtil } from '../../../utils/table-transform.util'
+import { FracResponseParserUtil } from '../../../utils/frac-response-parser.util'
+import { extractEntityList, sortEntitiesForDisplay, getLanguageCode } from '../../../utils/common.util'
+import { fracLogger } from '../../../utils/frac-logger.util'
 import { FracApiService } from '../../../services/frac-api.service'
-import { forkJoin, merge, Subject, Subscription } from 'rxjs'
-import { debounceTime, distinctUntilChanged, filter, takeUntil } from 'rxjs/operators'
-
-type SearchSource = 'typing' | 'icon' | 'enter' | 'language' | 'init'
-
-interface SearchTriggerPayload {
-  keyword: string
-  language: string
-  source: SearchSource
-}
+import {
+  FracEntityUploadOrchestratorService,
+  UploadRouteMode,
+  UploadSearchSource,
+  UploadSearchTriggerPayload,
+} from '../../../services/frac-entity-upload-orchestrator.service'
+import { forkJoin, Subject, Subscription } from 'rxjs'
+import { takeUntil } from 'rxjs/operators'
+import { FRAC_UI_CONFIG } from '../../../models/ui.config.model'
+import { FRAC_DIALOG_SIZES, FRAC_ROUTES } from '../../../constants/frac.constants'
+import { buildFracUploadPopupConfig, getFracSampleTemplateUrl } from '../../../utils/frac-upload-ui.util'
 
 interface UploadEmptyStateConfig {
   icon: string
@@ -37,18 +41,22 @@ export class CompetencyUploadComponent {
     private tableTransformUtil: TableTransformUtil,
     private activatedRoute: ActivatedRoute,
     private router: Router,
+    private uploadOrchestrator: FracEntityUploadOrchestratorService,
   ) { }
+
+  // ============= UI CONFIG =============
+  uiConfig = FRAC_UI_CONFIG
 
   // ============= STATE VARIABLES =============
   originalRowData: any[] = [];
   removedData: any[] = [];
-  private searchTrigger$ = new Subject<SearchTriggerPayload>();
+  private searchTrigger$ = new Subject<UploadSearchTriggerPayload>();
   private destroy$ = new Subject<void>();
   private searchSubscription: Subscription | null = null;
   private baselineTableSignature = '';
   private baselineRowSignatureByCode = new Map<string, string>();
   searchResults: any[] = [];
-  routeMode: string = 'upload';
+  routeMode: UploadRouteMode = 'upload';
   uploadButtonText: string = 'Upload File';
 
 
@@ -60,10 +68,10 @@ export class CompetencyUploadComponent {
   apiResponse: any = null  // Store actual API response instead of hardcoded data
   // ============= TABLE CONFIGURATION =============
   tableConfig: ITableConfig = { columns: [], data: [] }
-  selectedLanguage = 'English'
+  selectedLanguage = this.uploadOrchestrator.languages[0]
   searchTerm = ''
   isOpen = false
-  languages = ['English', 'Hindi', 'Kannada', 'Tamil']
+  languages = this.uploadOrchestrator.languages
   readonly uploadEmptyStateConfig: UploadEmptyStateConfig = {
     icon: 'upload_file',
     title: 'No file uploaded yet',
@@ -77,28 +85,19 @@ export class CompetencyUploadComponent {
     suggestion: 'Try a different search keyword or language.',
   }
 
+  /**
+   * Runs once when the page loads. Sets up search listeners and checks the URL to see if we are in upload or manage mode.
+   */
   ngOnInit() {
-    const debouncedTypingSearch$ = this.searchTrigger$.pipe(
-      filter(payload => payload.source === 'typing'),
-      debounceTime(500),
-      distinctUntilChanged((previous, current) =>
-        previous.keyword === current.keyword && previous.language === current.language
-      )
+    this.uploadOrchestrator.bindSearchTriggerStream(
+      this.searchTrigger$,
+      this.destroy$,
+      (keyword, language) => this.fetchEntitiesForTable(keyword, language),
     )
-
-    const immediateSearch$ = this.searchTrigger$.pipe(
-      filter(payload => payload.source !== 'typing')
-    )
-
-    merge(debouncedTypingSearch$, immediateSearch$)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(payload => this.fetchEntitiesForTable(payload.keyword, payload.language))
 
     // Detect route mode from query params and update button text
     this.activatedRoute.queryParams.subscribe(queryParams => {
-      console.log('Query params received:', queryParams)
-      this.routeMode = queryParams['mode'] || 'upload' // Default to 'upload'
-      console.log('Route mode set to:', this.routeMode)
+      this.routeMode = this.uploadOrchestrator.resolveRouteMode(queryParams['mode'])
       this.updateButtonText()
       this.loadTableDataBasedOnMode()
     })
@@ -106,13 +105,7 @@ export class CompetencyUploadComponent {
 
   /** Update button text based on route mode */
   updateButtonText(): void {
-    console.log('updateButtonText called with routeMode:', this.routeMode)
-    if (this.routeMode === 'manage') {
-      this.uploadButtonText = 'Change File'
-    } else {
-      this.uploadButtonText = 'Upload File'
-    }
-    console.log('Button text set to:', this.uploadButtonText)
+    this.uploadButtonText = this.uploadOrchestrator.resolveUploadButtonText(this.routeMode)
   }
 
   /** Load table data based on route mode */
@@ -128,7 +121,6 @@ export class CompetencyUploadComponent {
       this.removedData = []
       this.isEditing = false
       this.captureBaselineTableState()
-      console.log('Upload mode - Table cleared, ready for file upload')
     }
   }
   /** 🔹 Called when user types */
@@ -147,6 +139,9 @@ export class CompetencyUploadComponent {
     this.triggerSearch('icon')
   }
 
+  /**
+   * Triggered when the user hits the Enter key in the search box. Searches immediately.
+   */
   onSearchEnter(): void {
     if (this.isFilterControlsDisabled()) {
       return
@@ -154,15 +149,16 @@ export class CompetencyUploadComponent {
     this.triggerSearch('enter')
   }
 
-  private triggerSearch(source: SearchSource): void {
-    const payload: SearchTriggerPayload = {
-      keyword: this.searchTerm.trim(),
-      language: this.selectedLanguage,
-      source,
-    }
-    this.searchTrigger$.next(payload)
+  /**
+   * Fires a search event to fetch data from the server, either from user typing, clicking search, or changing the language.
+   */
+  private triggerSearch(source: UploadSearchSource): void {
+    this.searchTrigger$.next(this.uploadOrchestrator.buildSearchPayload(this.searchTerm, this.selectedLanguage, source))
   }
 
+  /**
+   * Calls the backend API to fetch the list of items (competencies, roles, etc.) and displays them in the table.
+   */
   private fetchEntitiesForTable(keyword: string, language: string = this.selectedLanguage): void {
     this.searchSubscription?.unsubscribe()
     this.isSearching = true
@@ -172,8 +168,8 @@ export class CompetencyUploadComponent {
       .subscribe({
         next: (res) => {
           this.isSearching = false
-          const entityList = this.extractEntityList(res)
-          const sortedEntityList = this.sortEntitiesForDisplay(entityList)
+          const entityList = extractEntityList(res)
+          const sortedEntityList = sortEntitiesForDisplay(entityList)
           this.searchResults = sortedEntityList
           this.originalRowData = sortedEntityList
           this.tableConfig = this.tableTransformUtil.transformResponseToTableConfig(sortedEntityList)
@@ -182,142 +178,22 @@ export class CompetencyUploadComponent {
           this.removedData = []
           this.isEditing = false
           this.captureBaselineTableState()
-          console.log('Competency table data loaded:', this.tableConfig.data.length)
+          fracLogger.debug('Competency table data loaded', { count: this.tableConfig.data.length })
         },
         error: (err) => {
           this.isSearching = false
-          console.error('❌ Search failed:', err)
+          fracLogger.error('Competency search failed', err)
         }
       })
   }
 
-  private extractEntityList(response: any): any[] {
-    if (!response) return []
-    if (Array.isArray(response)) return response
 
-    const entityList =
-      response?.result?.entity ||
-      response?.result?.data?.entity ||
-      response?.data?.entity ||
-      response?.entity
 
-    return Array.isArray(entityList) ? entityList : []
-  }
-
-  private sortEntitiesForDisplay(entities: any[]): any[] {
-    return [...(entities || [])].sort((left: any, right: any) => {
-      const leftCode = this.normalizeSortValue(left?.code || left?.additionalProperties?.Code)
-      const rightCode = this.normalizeSortValue(right?.code || right?.additionalProperties?.Code)
-      const codeComparison = this.compareSortValues(leftCode, rightCode)
-      if (codeComparison !== 0) {
-        return codeComparison
-      }
-
-      const leftName = this.normalizeSortValue(left?.name || left?.title)
-      const rightName = this.normalizeSortValue(right?.name || right?.title)
-      return this.compareSortValues(leftName, rightName)
-    })
-  }
-
-  private normalizeSortValue(value: unknown): string {
-    return (value ?? '').toString().trim()
-  }
-
-  private compareSortValues(left: string, right: string): number {
-    return left.localeCompare(right, undefined, { numeric: true, sensitivity: 'base' })
-  }
-
-  private isValidUploadSuccessResponse(response: any): boolean {
-    const normalizedResponse = this.normalizeUploadResponse(response)
-    const responseCode = (normalizedResponse?.responseCode || '').toString().toLowerCase()
-    const paramsStatus = (normalizedResponse?.params?.status || '').toString().toLowerCase()
-    const hasSuccessStatus =
-      responseCode === 'ok' ||
-      responseCode === '200 ok' ||
-      responseCode === 'created' ||
-      responseCode === '201 created' ||
-      paramsStatus === 'success' ||
-      paramsStatus === 'ok' ||
-      paramsStatus === '200 ok' ||
-      paramsStatus === 'created' ||
-      paramsStatus === '201 created'
-
-    return hasSuccessStatus && this.getUploadedEntityCodes(normalizedResponse, 'competency').length > 0
-  }
-
-  private extractAffectedCodes(response: any): string[] {
-    const normalizedResponse = this.normalizeUploadResponse(response)
-    const uploadedCodes = this.getUploadedEntityCodes(normalizedResponse)
-    if (uploadedCodes.length) {
-      return uploadedCodes
-    }
-
-    const entries = Array.isArray(normalizedResponse?.result) ? normalizedResponse.result : []
-    return entries
-      .map((item: any) => item?.code)
-      .filter((code: any) => Boolean(code))
-  }
-
-  private getUploadedEntityCodes(response: any, expectedEntityType?: string): string[] {
-    const normalizedResponse = this.normalizeUploadResponse(response)
-    const entityBlocks = this.getUploadEntityBlocks(normalizedResponse)
-    const expectedType = (expectedEntityType || '').toLowerCase()
-    const collectedCodes: string[] = []
-
-    entityBlocks.forEach((item: any) => {
-      const entityType = (item?.entityType || '').toString().toLowerCase()
-      if (expectedType && entityType !== expectedType) {
-        return
-      }
-
-      const entityCodes = Array.isArray(item?.entityCode) ? item.entityCode : []
-      entityCodes.forEach((code: any) => {
-        const normalizedCode = (code ?? '').toString().trim()
-        if (normalizedCode) {
-          collectedCodes.push(normalizedCode)
-        }
-      })
-    })
-
-    return collectedCodes
-  }
-
-  private getUploadEntityBlocks(response: any): any[] {
-    const legacyEntityType = response?.result?.entityType
-    const legacyEntityCodes = Array.isArray(response?.result?.entityCode) ? response.result.entityCode : []
-    const entityList = Array.isArray(response?.result?.entity) ? response.result.entity : []
-    const blocks: any[] = [...entityList]
-
-    if (legacyEntityType || legacyEntityCodes.length) {
-      blocks.push({
-        entityType: legacyEntityType,
-        entityCode: legacyEntityCodes,
-      })
-    }
-
-    return blocks
-  }
-
-  private isMeaningfulApiMessage(message: string | undefined): boolean {
-    const normalized = (message || '').trim().toLowerCase()
-    if (!normalized) {
-      return false
-    }
-    return !this.isGenericFailureText(normalized)
-  }
-
-  private isGenericFailureText(text: string): boolean {
-    const normalized = (text || '').trim().toLowerCase()
-    return (
-      normalized === 'error' ||
-      normalized === 'failed' ||
-      normalized === 'bad request' ||
-      normalized === 'request failed'
-    )
-  }
-
+  /**
+   * Reads a failed upload response and builds the title and message for the error popup.
+   */
   private createUploadFailureModalData(response: any): UploadResultData {
-    const normalizedResponse = this.normalizeUploadResponse(response)
+    const normalizedResponse = FracResponseParserUtil.parseApiResponse(response)
     const apiMessage =
       (normalizedResponse?.params?.errmsg as string | undefined) ||
       normalizedResponse?.errmsg ||
@@ -330,12 +206,12 @@ export class CompetencyUploadComponent {
     const paramsStatus =
       normalizedResponse?.params?.status ||
       normalizedResponse?.statusText
-    const affectedCodes = this.extractAffectedCodes(normalizedResponse)
+    const affectedCodes = FracResponseParserUtil.getAffectedCodes(normalizedResponse)
     const affectedCodesDetails = affectedCodes.length
       ? `Affected Codes: ${affectedCodes.join(', ')}`
       : undefined
 
-    const message = this.isMeaningfulApiMessage(apiMessage)
+    const message = FracResponseParserUtil.isUsefulMessage(apiMessage)
       ? apiMessage!.trim()
       : (affectedCodes.length ? 'Duplicate entry found.' : 'Upload failed. Please verify your file and try again.')
 
@@ -343,146 +219,20 @@ export class CompetencyUploadComponent {
       type: 'error',
       title: 'Upload Failed',
       message,
-      errorDetails: this.buildErrorDetails(responseCode, paramsStatus, affectedCodesDetails),
+      errorDetails: FracResponseParserUtil.formatErrorDetails(responseCode, paramsStatus, affectedCodesDetails),
+      resultDetails: FracResponseParserUtil.getStructuredErrorDetails(response)
     }
   }
 
-  private buildErrorDetails(responseCode: unknown, paramsStatus: unknown, affectedCodesDetails?: string): string | undefined {
-    const uniqueDetails: string[] = []
-    const seen = new Set<string>()
 
-    const appendIfUnique = (value: unknown): void => {
-      const detail = (value ?? '').toString().trim()
-      if (!detail) {
-        return
-      }
 
-      const normalized = detail.toLowerCase()
-      if (this.isGenericFailureText(normalized)) {
-        return
-      }
-
-      if (seen.has(normalized)) {
-        return
-      }
-
-      seen.add(normalized)
-      uniqueDetails.push(detail)
-    }
-
-    appendIfUnique(responseCode)
-    appendIfUnique(paramsStatus)
-    appendIfUnique(affectedCodesDetails)
-
-    return uniqueDetails.length ? uniqueDetails.join('\n') : undefined
+  private async readUploadError(err: any): Promise<any> {
+    return FracResponseParserUtil.readErrorPayload(err)
   }
 
-  private normalizeUploadResponse(response: any): any {
-    if (!response) {
-      return null
-    }
-
-    // Sometimes backend JSON arrives as string in error body.
-    if (typeof response === 'string') {
-      try {
-        return JSON.parse(response)
-      } catch {
-        return { params: { errmsg: response } }
-      }
-    }
-
-    if (Array.isArray(response)) {
-      return { result: response }
-    }
-
-    if (typeof response !== 'object') {
-      return { params: { errmsg: String(response) } }
-    }
-
-    const looksLikeUploadPayload =
-      Boolean(response?.params?.errmsg) ||
-      Boolean(response?.responseCode) ||
-      Boolean(response?.result?.entityCode) ||
-      Array.isArray(response?.result?.entity) ||
-      Array.isArray(response?.result)
-
-    if (looksLikeUploadPayload) {
-      return response
-    }
-
-    const nestedCandidates = [
-      response.error,
-      response.body,
-      response.data,
-      response.response,
-      response.rejection,
-      response.payload,
-      response.text,
-    ]
-
-    for (const candidate of nestedCandidates) {
-      if (!candidate) continue
-      const normalizedCandidate = this.normalizeUploadResponse(candidate)
-      if (
-        normalizedCandidate?.params?.errmsg ||
-        normalizedCandidate?.responseCode ||
-        normalizedCandidate?.result?.entityCode ||
-        Array.isArray(normalizedCandidate?.result?.entity) ||
-        Array.isArray(normalizedCandidate?.result)
-      ) {
-        return normalizedCandidate
-      }
-    }
-
-    return response
-  }
-
-  private async resolveUploadErrorPayload(err: any): Promise<any> {
-    // 1) Fast path: normal object / nested object parsing
-    const normalizedDirect = this.normalizeUploadResponse(err)
-    if (
-      normalizedDirect?.params?.errmsg ||
-      normalizedDirect?.responseCode ||
-      normalizedDirect?.result
-    ) {
-      return normalizedDirect
-    }
-
-    const rawError = err?.error
-
-    // 2) Blob payload (common when backend sends JSON with non-json content-type)
-    if (rawError instanceof Blob) {
-      try {
-        const text = await rawError.text()
-        const normalizedFromBlob = this.normalizeUploadResponse(text)
-        if (
-          normalizedFromBlob?.params?.errmsg ||
-          normalizedFromBlob?.responseCode ||
-          normalizedFromBlob?.result
-        ) {
-          return normalizedFromBlob
-        }
-      } catch {
-        // Fall back below.
-      }
-    }
-
-    // 3) String body fallback
-    if (typeof rawError === 'string') {
-      const normalizedFromString = this.normalizeUploadResponse(rawError)
-      if (
-        normalizedFromString?.params?.errmsg ||
-        normalizedFromString?.responseCode ||
-        normalizedFromString?.result
-      ) {
-        return normalizedFromString
-      }
-    }
-
-    // 4) Keep best effort normalized object for fallback modal message
-    return normalizedDirect
-  }
-
+  /**
+   * Cleans up memory and active background tasks when the user leaves this page.
+   */
   ngOnDestroy(): void {
     this.searchSubscription?.unsubscribe()
     this.destroy$.next()
@@ -514,40 +264,27 @@ export class CompetencyUploadComponent {
   }
 
   onUploadFile() {
-    console.log('Upload File clicked')
+    fracLogger.debug('Upload file action clicked')
     this.openUploadPopup()
   }
   onDownload() {
-    console.log('Download sample clicked')
+    fracLogger.debug('Download sample action clicked')
   }
   onEdit() {
-    console.log('Edit clicked')
+    fracLogger.debug('Edit action clicked')
   }
   onRemove() {
-    console.log('Remove clicked')
+    fracLogger.debug('Remove action clicked')
   }
 
+  /**
+   * Opens the dialog popup where the user can select and upload a CSV or Excel file.
+   */
   openUploadPopup() {
-    const config: UploadPopupConfig = {
-      title: 'Upload Competency Data',
-      subText: 'Supported file formats: CSV or XLSX',
-      fileSection: {
-        dragText: 'Drag & drop a file here',
-        uploadButton: 'Upload File',
-      },
-      dropdown: {
-        label: 'Select Language',
-        options: ['English', 'Hindi', 'Kannada', 'Tamil'],
-        defaultValue: '',
-      },
-      actions: {
-        secondary: { label: 'Cancel' },
-        primary: { label: 'Confirm & Upload', disabled: false },
-      },
-    }
+    const config = buildFracUploadPopupConfig('competency', this.languages, '')
 
     const dialogRef = this.dialog.open(FracUploadPopupComponent, {
-      width: '450px',
+      width: FRAC_DIALOG_SIZES.uploadPopup,
       disableClose: true,
       data: config,
     })
@@ -555,10 +292,10 @@ export class CompetencyUploadComponent {
     dialogRef.afterClosed().subscribe((result: UploadPopupResult | undefined) => {
       if (result?.action === 'upload' && result?.file) {
         if (!result.language) {
-          console.warn('⚠️ Upload blocked: language was not selected in popup.')
+          fracLogger.warn('Upload blocked because language was not selected in popup.')
           return
         }
-        console.log('📤 File received from popup:', result.file)
+        fracLogger.debug('Upload file selected from popup', { name: result.file.name, size: result.file.size })
         this.uploadFile(result.file, result.language)
       }
     })
@@ -569,6 +306,9 @@ export class CompetencyUploadComponent {
   editRows: any[] = []
   editedData: any[] = []
 
+  /**
+   * Triggered when the user checks or unchecks rows in the table. Keeps track of which rows are selected.
+   */
   onSelectionChange(selected: any[]) {
     this.selectedRows = selected
     if (!this.isEditing) {
@@ -582,22 +322,28 @@ export class CompetencyUploadComponent {
     }
   }
 
+  /**
+   * Turns on "edit mode" for the currently selected rows, allowing the user to modify their values directly in the table.
+   */
   onEditClicked() {
     if (this.selectedRows.length === 0) {
-      console.warn('⚠️ Please select at least one row to edit.')
+      fracLogger.warn('Edit action ignored because no row is selected.')
       return
     }
 
     this.editRows = [...this.selectedRows]
     this.isEditing = true
-    console.log('✏️ Edit mode enabled for rows:', this.editRows)
+    fracLogger.debug('Edit mode enabled for selected rows', { count: this.editRows.length })
   }
 
 
+  /**
+   * Takes all the edited rows and sends them to the server to be updated.
+   */
   onSaveClicked(): void {
     const rowsToUpdate = this.editRows.length ? this.editRows : this.selectedRows
     if (rowsToUpdate.length === 0) {
-      console.warn('⚠️ No editable rows found to save.')
+      fracLogger.warn('Save action ignored because no editable rows were found.')
       return
     }
 
@@ -607,7 +353,7 @@ export class CompetencyUploadComponent {
 
     const changedRows = rowsToUpdate.filter(row => this.isRowChanged(row))
     if (!changedRows.length) {
-      console.warn('⚠️ No changes detected to save.')
+      fracLogger.warn('Save action ignored because no table changes were detected.')
       return
     }
 
@@ -616,7 +362,7 @@ export class CompetencyUploadComponent {
       .filter(Boolean) as any[]
 
     if (!payloads.length) {
-      console.warn('⚠️ No valid payload generated for selected rows.')
+      fracLogger.warn('Save action ignored because update payload could not be generated.')
       return
     }
 
@@ -640,7 +386,7 @@ export class CompetencyUploadComponent {
       },
       error: (err) => {
         this.isUpdating = false
-        console.error('❌ Update Failed:', err)
+        fracLogger.error('Competency update failed', err)
 
         const failureData: UploadResultData = {
           type: 'error',
@@ -681,6 +427,9 @@ export class CompetencyUploadComponent {
     }
   }
 
+  /**
+   * Reads the level columns (Level 1, Level 2, etc.) from a table row and formats them into an array for the API.
+   */
   private extractCompetencyLevelsFromRow(row: any): any[] {
     const levelMap: Record<number, { levelNumber: number; levelName: string; levelDescription: string }> = {}
 
@@ -718,20 +467,15 @@ export class CompetencyUploadComponent {
   }
 
   private getLanguageCode(language: string): string {
-    const normalized = (language || '').trim().toLowerCase()
-    const languageMap: Record<string, string> = {
-      english: 'en',
-      hindi: 'hi',
-      kannada: 'kn',
-      tamil: 'ta',
-    }
-
-    return languageMap[normalized] || 'en'
+    return getLanguageCode(language)
   }
 
+  /**
+   * Removes the selected rows from the table view, marking them as deleted so the Save button becomes active.
+   */
   onRemoveClicked() {
     if (this.selectedRows.length === 0) {
-      console.warn('⚠️ Please select at least one row to remove.')
+      fracLogger.warn('Remove action ignored because no row is selected.')
       return
     }
     this.removedData = [...this.selectedRows]
@@ -741,27 +485,27 @@ export class CompetencyUploadComponent {
     this.selectedRows = []
     this.editRows = []
     this.isEditing = false
-    console.log('🗑️ Removed Rows:', this.removedData)
-    console.log('📋 Remaining Data:', this.tableConfig.data)
+    fracLogger.debug('Rows removed from competency table', { removed: this.removedData.length, remaining: this.tableConfig.data.length })
   }
+  /**
+   * Downloads the blank sample CSV file that users can fill out to upload new data.
+   */
   onDownloadTemplate() {
     const languageCode = this.getLanguageCode(this.selectedLanguage)
-    const fileUrl = languageCode === 'hi'
-      ? 'https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/files/sample_competency_hi_list.csv'
-      : 'https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/files/sample_competency_en_list.csv'
+    const fileUrl = getFracSampleTemplateUrl('competency', languageCode)
 
     const link = document.createElement('a')
     link.href = fileUrl
     link.download = fileUrl.split('/').pop() || 'sample_competency_en_list.csv'
     link.click()
 
-    console.log('📥 Template downloaded from:', fileUrl)
+    fracLogger.debug('Competency template download triggered', { fileUrl })
   }
 
   /** Handles actual API upload with modal result display */
   uploadFile(file: File, language: string = this.selectedLanguage) {
     this.selectedLanguage = language
-    console.log('⏳ Starting file upload:', {
+    fracLogger.debug('Starting competency upload', {
       name: file.name,
       size: file.size,
       type: file.type,
@@ -770,7 +514,7 @@ export class CompetencyUploadComponent {
 
     // ✅ Prevent multiple uploads - check if already uploading
     if (this.isUploading) {
-      console.warn('⚠️ Upload already in progress, ignoring duplicate request')
+      fracLogger.warn('Upload request ignored because another upload is already running.')
       return
     }
 
@@ -780,7 +524,7 @@ export class CompetencyUploadComponent {
     // Use actual upload method
     this.fracApiService.uploadFile(file, language).subscribe({
       next: (res) => {
-        console.log('✅ Upload successful:', res)
+        fracLogger.debug('Competency upload completed', res)
 
         // ✅ Hide local loader
         this.isUploading = false
@@ -789,9 +533,11 @@ export class CompetencyUploadComponent {
         this.apiResponse = res
 
         // ✅ Validate new upload response contract
-        const uploadedCodes = this.getUploadedEntityCodes(res, 'competency')
-        if (this.isValidUploadSuccessResponse(res)) {
-          const uploadedCount = uploadedCodes.length || res?.result?.count || 0
+        const normalizedResponse = FracResponseParserUtil.parseApiResponse(res)
+        const resultObject = (normalizedResponse?.result || {}) as Record<string, unknown>
+        const uploadedCodes = FracResponseParserUtil.getSuccessCodes(res, 'competency')
+        if (FracResponseParserUtil.isUploadSuccessful(res, 'competency')) {
+          const uploadedCount = uploadedCodes.length || Number(resultObject.count || 0) || 0
 
           this.selectedRows = []
           this.editRows = []
@@ -803,14 +549,14 @@ export class CompetencyUploadComponent {
             message: 'Your competency data has been uploaded successfully.',
             count: uploadedCount || 1
           }
-          this.showResultModal(successData, false, '/app/frac/competency?mode=manage')
+          this.showResultModal(successData, false, FRAC_ROUTES.competencyManage)
         } else {
-          console.warn('⚠️ Upload API returned failure payload:', res)
+          fracLogger.warn('Upload API returned a failure payload', res)
           this.showResultModal(this.createUploadFailureModalData(res), false)
         }
       },
       error: (err) => {
-        console.error('❌ Upload failed:', {
+        fracLogger.error('Competency upload failed', {
           status: err.status,
           statusText: err.statusText,
           message: err.message,
@@ -831,7 +577,7 @@ export class CompetencyUploadComponent {
 
   /** Handle upload error with appropriate message and show modal */
   private async handleUploadError(err: any): Promise<void> {
-    const resolvedPayload = await this.resolveUploadErrorPayload(err)
+    const resolvedPayload = await this.readUploadError(err)
 
     if (
       resolvedPayload?.params?.errmsg ||
@@ -856,7 +602,7 @@ export class CompetencyUploadComponent {
   /** Show result modal (success or error) */
   private showResultModal(data: UploadResultData, refreshOnClose = false, redirectToUrl?: string): void {
     const dialogRef = this.dialog.open(UploadResultModalComponent, {
-      width: '400px',
+      width: FRAC_DIALOG_SIZES.uploadResult,
       disableClose: true,
       panelClass: 'upload-result-dialog',
       data: data
@@ -876,18 +622,21 @@ export class CompetencyUploadComponent {
     })
   }
 
+  /**
+   * Handles the user clicking the Home or Back button. Warns them if they have unsaved changes before leaving.
+   */
   onHomeClick(): void {
     if (this.isUpdating) {
       return
     }
 
     if (!this.hasPendingTableChanges()) {
-      this.router.navigateByUrl('/app/home/frac/dashboard')
+      this.router.navigateByUrl(FRAC_ROUTES.homeDashboard)
       return
     }
 
     const dialogRef = this.dialog.open(UnsavedChangesModalComponent, {
-      width: '363px',
+      width: FRAC_DIALOG_SIZES.unsavedChanges,
       maxWidth: '92vw',
       disableClose: true,
       panelClass: 'unsaved-changes-dialog',
@@ -903,7 +652,7 @@ export class CompetencyUploadComponent {
       .pipe(takeUntil(this.destroy$))
       .subscribe((action: 'continue' | 'cancel' | undefined) => {
         if (action === 'continue') {
-          this.router.navigateByUrl('/app/home/frac/dashboard')
+          this.router.navigateByUrl(FRAC_ROUTES.homeDashboard)
         }
       })
   }
@@ -916,10 +665,16 @@ export class CompetencyUploadComponent {
     return this.tableConfig.data && this.tableConfig.data.length > 0
   }
 
+  /**
+   * Checks if the search and language filters should be greyed out (disabled) during uploads or saves.
+   */
   isFilterControlsDisabled(): boolean {
     return this.isUploading || this.routeMode === 'upload'
   }
 
+  /**
+   * Checks if the language dropdown should be greyed out. It is disabled while saving or if there are unsaved changes.
+   */
   isLanguageDropdownDisabled(): boolean {
     return this.isUploading
   }
@@ -928,6 +683,9 @@ export class CompetencyUploadComponent {
     return this.routeMode === 'manage' ? this.noResultEmptyStateConfig : this.uploadEmptyStateConfig
   }
 
+  /**
+   * Decides whether to show the "No Data" or "No Results" message instead of the table.
+   */
   shouldShowTableEmptyState(): boolean {
     if (this.isUploading || this.isSearching || this.hasTableData()) {
       return false
@@ -936,14 +694,20 @@ export class CompetencyUploadComponent {
     return this.routeMode === 'upload' || this.routeMode === 'manage'
   }
 
+  /**
+   * Checks if the user has made any edits or removed rows that need to be saved.
+   */
   hasPendingTableChanges(): boolean {
     if (this.routeMode !== 'manage') {
       return false
     }
 
-    return this.computeTableSignature(this.tableConfig.data) !== this.baselineTableSignature
+    return this.uploadOrchestrator.computeTableSignature(this.tableConfig.data as Array<Record<string, unknown>>) !== this.baselineTableSignature
   }
 
+  /**
+   * Compares a table row against its original state to see if the user made any edits.
+   */
   private isRowChanged(row: any): boolean {
     const code = (row?.code ?? '').toString().trim()
     if (!code) {
@@ -951,40 +715,17 @@ export class CompetencyUploadComponent {
     }
 
     const baselineRowSignature = this.baselineRowSignatureByCode.get(code)
-    const currentSignature = this.getRowSignature(row)
+    const currentSignature = this.uploadOrchestrator.getRowSignature(row)
     return baselineRowSignature !== currentSignature
   }
 
+  /**
+   * Saves a snapshot of the table data so we can detect future edits.
+   */
   private captureBaselineTableState(): void {
-    const rows = this.tableConfig?.data || []
-    this.baselineTableSignature = this.computeTableSignature(rows)
-    this.baselineRowSignatureByCode = new Map<string, string>()
-
-    rows.forEach((row) => {
-      const code = (row?.code ?? '').toString().trim()
-      if (!code) {
-        return
-      }
-      this.baselineRowSignatureByCode.set(code, this.getRowSignature(row))
-    })
-  }
-
-  private computeTableSignature(rows: any[]): string {
-    return (rows || [])
-      .map((row) => this.getRowSignature(row))
-      .sort()
-      .join('||')
-  }
-
-  private getRowSignature(row: any): string {
-    const normalized: Record<string, string> = {}
-    const keys = Object.keys(row || {}).sort()
-
-    keys.forEach((key) => {
-      normalized[key] = (row?.[key] ?? '').toString()
-    })
-
-    return JSON.stringify(normalized)
+    const baseline = this.uploadOrchestrator.captureBaselineState(this.tableConfig.data as Array<Record<string, unknown>>)
+    this.baselineTableSignature = baseline.tableSignature
+    this.baselineRowSignatureByCode = baseline.rowSignatureByCode
   }
 
 }
