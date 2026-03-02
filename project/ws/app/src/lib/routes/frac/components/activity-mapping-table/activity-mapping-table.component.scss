@@ -33,6 +33,17 @@
   text-transform: none;
   cursor: pointer;
 
+  &.primary {
+    background: #1c5d95 !important;
+    color: #fff !important;
+    border: 1px solid #1c5d95 !important;
+    box-shadow: none !important;
+
+    &:hover {
+      background: #174e80 !important;
+    }
+  }
+
   &.secondary {
     background: #fff;
     color: #1c5d95;

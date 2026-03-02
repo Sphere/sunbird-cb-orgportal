@@ -4,9 +4,9 @@
     <div class="title-bar">Available Roles</div>
 
     <div class="button-group">
-      <button *ngIf="!isReadOnly" mat-stroked-button class="app-btn secondary" [disabled]="isAddDisabled()"
+      <button *ngIf="!isReadOnly" mat-raised-button class="app-btn primary" [disabled]="isAddDisabled()"
         (click)="onAddPosition()">
-        Add Role
+        {{ isSaving ? 'Saving...' : 'Add Role' }}
       </button>
     </div>
   </div>

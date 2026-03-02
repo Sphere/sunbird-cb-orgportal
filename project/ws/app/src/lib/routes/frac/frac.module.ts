@@ -59,6 +59,7 @@ import { PositionMappingListComponent } from './components/position-mapping-list
 import { UploadResultModalComponent } from './components/upload-result-modal/upload-result-modal.component'
 import { MappingRequiredModalComponent } from './components/mapping-required-modal/mapping-required-modal.component'
 import { UnsavedChangesModalComponent } from './components/unsaved-changes-modal/unsaved-changes-modal.component'
+import { HierarchyChipDetailsModalComponent } from './components/hierarchy-chip-details-modal/hierarchy-chip-details-modal.component'
 
 
 @NgModule({
@@ -95,6 +96,7 @@ import { UnsavedChangesModalComponent } from './components/unsaved-changes-modal
     UploadResultModalComponent,
     MappingRequiredModalComponent,
     UnsavedChangesModalComponent,
+    HierarchyChipDetailsModalComponent,
     PositionUploadComponent,
   ],
   imports: [

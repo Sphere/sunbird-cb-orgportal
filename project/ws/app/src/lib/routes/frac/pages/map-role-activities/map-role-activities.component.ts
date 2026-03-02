@@ -5,7 +5,7 @@ import { forkJoin, of, Subject } from 'rxjs'
 import { catchError, debounceTime, distinctUntilChanged, map, takeUntil } from 'rxjs/operators'
 import { MappingRequiredModalComponent, MissingMappingItem } from '../../components/mapping-required-modal/mapping-required-modal.component'
 import { UnsavedChangesModalComponent } from '../../components/unsaved-changes-modal/unsaved-changes-modal.component'
-import { UploadResultData, UploadResultModalComponent } from '../../components/upload-result-modal/upload-result-modal.component'
+import { MappingModalLabels, UploadResultData, UploadResultModalComponent } from '../../components/upload-result-modal/upload-result-modal.component'
 import { CustomSnackbarService } from '../../services/custom-snackbar.service'
 import { FracApiService } from '../../services/frac-api.service'
 import { transformRoles, transformActivities, extractEntityList, makeMappingKey, getCodeFromKey } from '../../utils/common.util'
@@ -33,9 +33,9 @@ interface ActivityItem {
 interface RoleActivityApiRequestItem {
   parentEntityType: 'Role'
   parentEntityCode: string
-  childEntityType: 'Activity'
-  childEntityCode: string
-  competencies: Array<number | string | Record<string, unknown>>
+  childEntityType?: 'Activity'
+  childEntityCode?: string
+  competencies?: Array<number | string | Record<string, unknown>>
 }
 
 interface MappingHierarchyNode {
@@ -111,6 +111,7 @@ export class MapRoleActivitiesComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>()
   private readonly roleMappingCache = new Map<string, RoleActivityDetail[]>()
   private readonly roleDraftStore = new Map<string, RoleActivityDetail[]>()
+  private readonly clearedRoleDraftKeys = new Set<string>()
   private activeRoleMappingRequestKey: string | null = null
 
   /**
@@ -180,6 +181,7 @@ export class MapRoleActivitiesComponent implements OnInit, OnDestroy {
 
     this.roleMappingCache.clear()
     this.roleDraftStore.clear()
+    this.clearedRoleDraftKeys.clear()
   }
 
   // ---------------------------------------------------------------------------
@@ -493,6 +495,12 @@ export class MapRoleActivitiesComponent implements OnInit, OnDestroy {
       this.selectedRole.activityDetails = []
     }
 
+    // Detect no-change: compare current selection with the last saved/loaded cache
+    if (this.isSelectionUnchangedFromCache()) {
+      this.snackbar.warning('No changes detected. Please update your selection before saving.')
+      return
+    }
+
     // Rebuild summarised selection
     this.buildSelectedActivitySummary()
 
@@ -508,16 +516,19 @@ export class MapRoleActivitiesComponent implements OnInit, OnDestroy {
       return
     }
 
-    const previousSignature = this.getRoleActivityDetailsSignature(this.selectedRole.activityDetails || [])
+
     const selectedActivities = [...this.selectedActivitySummary]
     if (!selectedActivities.length) {
       this.removeDeselectedActivities()
       this.updateOrInsertActivities()
       this.refreshRolesState()
-      const currentSignature = this.getRoleActivityDetailsSignature(this.selectedRole.activityDetails || [])
-      const hasChanges = previousSignature !== currentSignature
-      this.hasUnsavedChanges = this.hasUnsavedChanges || hasChanges
-      this.snackbar.success('Role–Activity linked successfully. Please tap Save to apply changes.')
+      this.hasUnsavedChanges = false
+      const payload = this.buildPayload()
+      if (payload.length) {
+        this.persistRoleActivityMappings(payload)
+      } else {
+        this.snackbar.success('Role–Activity selection updated.')
+      }
       return
     }
 
@@ -536,10 +547,13 @@ export class MapRoleActivitiesComponent implements OnInit, OnDestroy {
           this.removeDeselectedActivities()
           this.updateOrInsertActivities()
           this.refreshRolesState()
-          const currentSignature = this.getRoleActivityDetailsSignature(this.selectedRole?.activityDetails || [])
-          const hasChanges = previousSignature !== currentSignature
-          this.hasUnsavedChanges = this.hasUnsavedChanges || hasChanges
-          this.snackbar.success('Role–Activity linked successfully. Please tap Save to apply changes.')
+          this.hasUnsavedChanges = false
+          const payload = this.buildPayload()
+          if (payload.length) {
+            this.persistRoleActivityMappings(payload)
+          } else {
+            this.snackbar.success('Role–Activity selection updated.')
+          }
         },
         error: (err) => {
           this.isValidatingActivityMappings = false
@@ -667,115 +681,38 @@ export class MapRoleActivitiesComponent implements OnInit, OnDestroy {
   }
 
   // ---------------------------------------------------------------------------
-  // Save
+  // Persist
   // ---------------------------------------------------------------------------
-  /**
-   * Takes all the edited rows and sends them to the server to be updated.
-   */
-  onSaveClicked(): void {
-    this.syncCurrentSelectedRoleSelection()
-    const payload = this.buildPayload()
-
-    if (!payload.length) {
-      this.snackbar.warning('Nothing to save !!')
-      return
-    }
-
-    if (this.isSaving || this.isValidatingActivityMappings) {
-      return
-    }
-
-    this.validateSaveActivities(payload)
-  }
-
-  private validateSaveActivities(payload: RoleActivityApiRequestItem[]): void {
-    const uniqueActivities = this.extractUniqueActivitiesFromPayload(payload)
-    if (!uniqueActivities.length) {
-      this.persistRoleActivityMappings(payload)
-      return
-    }
-
-    this.isValidatingActivityMappings = true
-    this.findActivitiesMissingCompetencyMapping(uniqueActivities)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (missingActivities) => {
-          this.isValidatingActivityMappings = false
-          if (missingActivities.length) {
-            this.snackbar.warning('Some selected activities are missing competency mapping.')
-            this.openMappingRequiredModal(missingActivities)
-            return
-          }
-
-          this.persistRoleActivityMappings(payload)
-        },
-        error: (err) => {
-          this.isValidatingActivityMappings = false
-          fracLogger.error('Failed to validate activities before save', err)
-          this.snackbar.error('Unable to validate activity competency mappings. Please try again.')
-        },
-      })
-  }
-
-  private extractUniqueActivitiesFromPayload(payload: RoleActivityApiRequestItem[]): RoleActivityDetail[] {
-    const uniqueActivities = new Map<string, RoleActivityDetail>()
-
-    payload.forEach((item) => {
-      const activityCode = (item?.childEntityCode || '').trim()
-      if (!activityCode || uniqueActivities.has(activityCode)) {
-        return
-      }
-
-      uniqueActivities.set(activityCode, {
-        code: activityCode,
-        label: this.getActivityLabelForValidation(activityCode),
-      })
-    })
-
-    return Array.from(uniqueActivities.values())
-  }
-
-  private getActivityLabelForValidation(activityCode: string): string {
-    const activity =
-      this.activitiesData.find(item => item.code === activityCode) ||
-      this.activities.find(item => item.code === activityCode) ||
-      this.filteredActivities.find(item => item.code === activityCode)
-
-    if (activity?.title) {
-      return activity.title
-    }
-
-    const roleCollections = [this.rolesData, this.roles, this.filteredRoles]
-    for (const collection of roleCollections) {
-      for (const role of collection) {
-        const mappedActivity = role?.activityDetails?.find(detail => detail.code === activityCode)
-        if (mappedActivity?.label) {
-          return mappedActivity.label
-        }
-      }
-    }
-
-    return 'Activity name not available'
-  }
 
   private persistRoleActivityMappings(payload: RoleActivityApiRequestItem[]): void {
     this.isSaving = true
 
     this.fracApiService.mapEntity(payload).subscribe({
-      next: (res) => {
+      next: () => {
         this.isSaving = false
         this.hasUnsavedChanges = false
         this.roleDraftStore.clear()
+        this.clearedRoleDraftKeys.clear()
         this.syncUpdatedRolesFromDraftStore()
 
-        const mappedPairs = this.extractMappedPairs(res, payload)
+        const roleCode = this.selectedRole?.code || ''
+        const mappedActivities = (this.selectedRole?.activityDetails || [])
+        const detailLines = mappedActivities.map(a => `${roleCode} <=> ${a.code}`).join('\n')
+
+        const mappingLabels: MappingModalLabels = {
+          sectionTitle: 'Role–Activity Mappings',
+          parentCountLabel: 'roles',
+          parentLabel: 'Role',
+          childrenLabel: 'Activities',
+        }
         const successData: UploadResultData = {
           type: 'success',
           title: 'Mapping Saved',
-          message: 'Role to activity mappings saved successfully.',
-          errorDetails: mappedPairs.join('\n'),
+          message: 'Role to activity mappings were saved successfully.',
+          errorDetails: detailLines || undefined,
+          mappingLabels,
         }
-        this.showResultModal(successData, true)
+        this.showResultModal(successData)
       },
       error: (err) => {
         this.isSaving = false
@@ -802,6 +739,7 @@ export class MapRoleActivitiesComponent implements OnInit, OnDestroy {
   private buildPayload(): RoleActivityApiRequestItem[] {
     const payload: RoleActivityApiRequestItem[] = []
     const mappedPairs = new Set<string>()
+    const parentsWithMappings = new Set<string>()
 
     for (const [key, activityDetails] of this.roleDraftStore.entries()) {
       const roleCode = getCodeFromKey(key)
@@ -816,6 +754,7 @@ export class MapRoleActivitiesComponent implements OnInit, OnDestroy {
           continue
         }
         mappedPairs.add(pairKey)
+        parentsWithMappings.add(roleCode)
 
         payload.push({
           parentEntityType: 'Role',
@@ -827,30 +766,50 @@ export class MapRoleActivitiesComponent implements OnInit, OnDestroy {
       }
     }
 
+    for (const key of this.clearedRoleDraftKeys.values()) {
+      const roleCode = getCodeFromKey(key)
+      if (!roleCode || parentsWithMappings.has(roleCode)) {
+        continue
+      }
+
+      payload.push({
+        parentEntityType: 'Role',
+        parentEntityCode: roleCode,
+      })
+    }
+
     return payload
   }
 
-  /**
-   * Updates the visual selection state (checkboxes) for the currently open role card based on what is stored in memory.
-   */
-  private syncCurrentSelectedRoleSelection(): void {
-    if (!this.selectedRole) return
 
-    if (!this.selectedRole.activityDetails) {
-      this.selectedRole.activityDetails = []
-    }
-
-    this.buildSelectedActivitySummary()
-    this.removeDeselectedActivities()
-    this.updateOrInsertActivities()
-    this.refreshRolesState()
-  }
 
   /**
    * Creates a unique text code to look up a role in the temporary storage.
    */
   private buildRoleMappingKey(roleCode: string): string {
     return makeMappingKey(this.selectedLanguage, roleCode)
+  }
+
+  /**
+   * Returns true if the current checkbox selection exactly matches the last saved/loaded cache state.
+   * Used to skip the API call when the user has not made any actual changes.
+   */
+  private isSelectionUnchangedFromCache(): boolean {
+    if (!this.selectedRole) return false
+
+    const key = this.buildRoleMappingKey(this.selectedRole.code)
+    const cachedCodes = new Set<string>(
+      (this.roleMappingCache.get(key) || []).map(d => d.code),
+    )
+    const currentCodes = new Set<string>(
+      Object.keys(this.selectedActivityMap).filter(code => this.selectedActivityMap[code]),
+    )
+
+    if (cachedCodes.size !== currentCodes.size) return false
+    for (const code of cachedCodes) {
+      if (!currentCodes.has(code)) return false
+    }
+    return true
   }
 
 
@@ -866,15 +825,7 @@ export class MapRoleActivitiesComponent implements OnInit, OnDestroy {
       }))
   }
 
-  /**
-   * Creates a unique string from all mapped activities to detect if the user made any edits.
-   */
-  private getRoleActivityDetailsSignature(details: RoleActivityDetail[]): string {
-    return this.cloneActivityDetails(details)
-      .sort((left, right) => left.code.localeCompare(right.code, undefined, { numeric: true, sensitivity: 'base' }))
-      .map((detail) => `${detail.code}|${detail.label}`)
-      .join('||')
-  }
+
 
   private getHydratedRoleActivityDetails(roleCode: string): RoleActivityDetail[] | null {
     const key = this.buildRoleMappingKey(roleCode)
@@ -918,8 +869,10 @@ export class MapRoleActivitiesComponent implements OnInit, OnDestroy {
 
     if (normalizedDetails.length) {
       this.roleDraftStore.set(key, normalizedDetails)
+      this.clearedRoleDraftKeys.delete(key)
     } else {
       this.roleDraftStore.delete(key)
+      this.clearedRoleDraftKeys.add(key)
     }
 
     this.roleMappingCache.set(key, normalizedDetails)
@@ -950,21 +903,6 @@ export class MapRoleActivitiesComponent implements OnInit, OnDestroy {
         activityDetails,
       }
     })
-  }
-
-  private extractMappedPairs(response: unknown, fallbackPayload: RoleActivityApiRequestItem[]): string[] {
-    const resultArray = Array.isArray((response as { result?: Array<Partial<RoleActivityApiRequestItem>> })?.result)
-      ? (response as { result?: Array<Partial<RoleActivityApiRequestItem>> }).result || []
-      : []
-    const source = resultArray.length ? resultArray : fallbackPayload
-
-    return source
-      .map((item) => {
-        const parentCode = item?.parentEntityCode || ''
-        const childCode = item?.childEntityCode || ''
-        return `${parentCode} <=> ${childCode}`
-      })
-      .filter(Boolean)
   }
 
   /**

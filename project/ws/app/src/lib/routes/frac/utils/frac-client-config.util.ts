@@ -36,7 +36,7 @@ export interface FracClientConfigOverride {
     strokeWidth?: number
   }
   api?: {
-    endpoints?: Partial<Record<'updateEntity' | 'uploadEntity' | 'searchEntity' | 'mapEntity' | 'searchMapping', string>>
+    endpoints?: Partial<Record<'updateEntity' | 'uploadEntity' | 'searchEntity' | 'mapEntity' | 'searchMapping' | 'hierarchy', string>>
     uploadEntityUrl?: string
   }
   uploadEntityUrl?: string
@@ -77,6 +77,7 @@ export interface FracResolvedClientConfig {
       searchEntity: string
       mapEntity: string
       searchMapping: string
+      hierarchy: string
     }
     uploadEntityUrl: string
   }
@@ -95,6 +96,7 @@ const FRAC_DEFAULT_API_ENDPOINTS = {
   searchEntity: '/apis/proxies/v8/entity/v1/search',
   mapEntity: '/apis/proxies/v8/entity/v1/mapping',
   searchMapping: '/apis/proxies/v8/entity/v1/mapping/search',
+  hierarchy: '/apis/proxies/v8/entity/v1/hierarchy',
 } as const
 
 function safeNumber(value: unknown, fallback: number): number {

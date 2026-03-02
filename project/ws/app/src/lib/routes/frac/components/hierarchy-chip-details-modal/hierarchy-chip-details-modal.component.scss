@@ -1,0 +1,93 @@
+.hierarchy-chip-details-modal {
+  width: 100%;
+  max-width: 560px;
+  min-height: 240px;
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 16px;
+  box-sizing: border-box;
+  font-family: Roboto, sans-serif;
+}
+
+:host ::ng-deep .hierarchy-chip-details-dialog .mat-mdc-dialog-surface {
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.title {
+  margin: 0;
+  color: #111;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.close-btn {
+  border: none;
+  background: transparent;
+  width: 30px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #52606d;
+
+  &:hover {
+    background: #f1f5f9;
+  }
+}
+
+.modal-body {
+  border: 1px solid #dde6ef;
+  border-radius: 10px;
+  padding: 10px 12px;
+  max-height: 360px;
+  overflow-y: auto;
+  background: #f9fbfd;
+}
+
+.entity-line {
+  color: #111;
+  font-size: 14px;
+  line-height: 1.5;
+  padding: 8px 0;
+  border-bottom: 1px solid #ecf1f6;
+  word-break: break-word;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.empty-state {
+  border: 1px dashed #c8d7e6;
+  border-radius: 10px;
+  color: #4b5a68;
+  font-size: 14px;
+  text-align: center;
+  padding: 24px 12px;
+  background: #f9fbfd;
+}
+
+.modal-footer {
+  margin-top: 14px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.ok-btn {
+  min-width: 96px;
+  border-radius: 999px !important;
+  text-transform: none !important;
+  background: #1c5d95 !important;
+  color: #fff !important;
+}

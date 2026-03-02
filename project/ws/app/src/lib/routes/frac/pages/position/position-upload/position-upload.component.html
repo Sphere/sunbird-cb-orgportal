@@ -1,8 +1,8 @@
 <!-- Top Navigation Bar (hidden on home layout card grid which has its own nav) -->
 <div class="header-container" *ngIf="routeMode !== 'card'">
-  <button class="home-chip" type="button" [attr.aria-label]="uiConfig.labels.home" (click)="onHomeClick()">
-    <img [src]="uiConfig.icons.home" alt="home" class="home-icon" />
-    <span class="home-label">{{ uiConfig.labels.home }}</span>
+  <button class="back-nav-btn" type="button" (click)="onHomeClick()" aria-label="Back to home">
+    <mat-icon>arrow_back</mat-icon>
+    <span>Back</span>
   </button>
 
   <!-- Save shown only in table-manage mode -->
@@ -18,9 +18,6 @@
   <!-- ===== UPLOAD MODE ===== -->
   <ng-container *ngIf="routeMode === 'upload'">
     <div class="header">
-      <button class="back-button" type="button" [attr.aria-label]="uiConfig.labels.home" (click)="onHomeClick()">
-        <img [src]="uiConfig.icons.back" alt="back" class="back-icon" />
-      </button>
       <h2>{{ uiConfig.labels.uploadPosition }}</h2>
     </div>
 
@@ -44,8 +41,7 @@
 
     <div class="loading-overlay" *ngIf="isUploading" [class.show]="isUploading">
       <div class="spinner-container">
-        <mat-spinner [diameter]="uploadPageSpinner.diameter"
-          [strokeWidth]="uploadPageSpinner.strokeWidth"></mat-spinner>
+        <mat-spinner [diameter]="uploadPageSpinner.diameter" [strokeWidth]="uploadPageSpinner.strokeWidth"></mat-spinner>
         <p class="loading-text">{{ uiConfig.labels.uploadLoaderContent }}</p>
       </div>
     </div>
@@ -62,8 +58,8 @@
         </div>
       </div>
       <app-upload-activity-list-table [columns]="tableConfig.columns" [data]="tableConfig.data" [showCheckbox]="true"
-        [enableSorting]="true" [enablePagination]="false" [gridStyle]="'both'" [isEditing]="isEditing"
-        [isLoading]="false" (selectionChange)="onSelectionChange($event)">
+        [enableSorting]="true" [enablePagination]="false" [gridStyle]="'both'" [isEditing]="isEditing" [isLoading]="false"
+        (selectionChange)="onSelectionChange($event)">
       </app-upload-activity-list-table>
     </div>
   </ng-container>
@@ -73,7 +69,10 @@
     <div class="manage-header">
       <div class="manage-header-text">
         <h2 class="manage-title">{{ uiConfig.labels.managePosition }}</h2>
-        <p class="manage-subtext">{{ uiConfig.labels.managePositionSub }}</p>
+        <p class="manage-subtext">
+          Positions with their assigned roles and mapped details.<br />
+          You can view, edit, or update mappings anytime.
+        </p>
       </div>
       <div class="manage-header-actions">
         <button type="button" class="upload-position-btn" (click)="goToUploadMode()">
@@ -113,11 +112,40 @@
       <div class="position-card" *ngFor="let pos of searchResults">
         <div class="position-card-body">
           <h3 class="pos-title">{{ pos.name || pos.code }}</h3>
+          <div class="position-meta-lines">
+            <div class="meta-line-row">
+              <div class="meta-line-text">
+                No of Roles:
+                <button type="button" class="count-value-btn" (click)="onCountChipClick(pos, 'role')"
+                  [disabled]="!getPositionHierarchyCounts(pos).role">
+                  {{ getPositionHierarchyCounts(pos).role }}
+                </button>
+              </div>
+            </div>
+            <div class="meta-line-row">
+              <div class="meta-line-text">
+                No of Activities:
+                <button type="button" class="count-value-btn" (click)="onCountChipClick(pos, 'activity')"
+                  [disabled]="!getPositionHierarchyCounts(pos).activity">
+                  {{ getPositionHierarchyCounts(pos).activity }}
+                </button>
+              </div>
+            </div>
+            <div class="meta-line-row">
+              <div class="meta-line-text">
+                No of Competencies:
+                <button type="button" class="count-value-btn" (click)="onCountChipClick(pos, 'competency')"
+                  [disabled]="!getPositionHierarchyCounts(pos).competency">
+                  {{ getPositionHierarchyCounts(pos).competency }}
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
         <div class="position-card-actions">
-          <a href="javascript:void(0)" class="card-action-link view-link" (click)="onViewEdit(pos)">
+          <button type="button" class="card-action-label" (click)="onViewEdit(pos)">
             {{ uiConfig.labels.viewEdit }}
-          </a>
+          </button>
         </div>
       </div>
     </div>
@@ -126,9 +154,6 @@
   <!-- ===== MANAGE MODE — role-like table (?mode=manage) ===== -->
   <ng-container *ngIf="routeMode === 'manage'">
     <div class="header">
-      <button class="back-button" type="button" [attr.aria-label]="uiConfig.labels.home" (click)="onHomeClick()">
-        <img [src]="uiConfig.icons.back" alt="back" class="back-icon" />
-      </button>
       <h2>{{ uiConfig.labels.managePosition }}</h2>
     </div>
 
@@ -141,8 +166,7 @@
         <div class="search-box" [class.disabled]="isFilterControlsDisabled()">
           <input matInput type="text" [placeholder]="uiConfig.labels.searchPlaceholder" [(ngModel)]="searchTerm"
             [disabled]="isFilterControlsDisabled()" (input)="onSearchTermChange()" (keydown.enter)="onSearchEnter()" />
-          <button mat-icon-button matSuffix class="icon-btn" (click)="onSearch()"
-            [disabled]="isFilterControlsDisabled()">
+          <button mat-icon-button matSuffix class="icon-btn" (click)="onSearch()" [disabled]="isFilterControlsDisabled()">
             <mat-icon>search</mat-icon>
           </button>
         </div>

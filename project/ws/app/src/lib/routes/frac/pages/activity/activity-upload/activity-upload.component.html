@@ -1,8 +1,8 @@
 <!-- Top Navigation Bar -->
 <div class="header-container">
-  <button class="home-chip" type="button" aria-label="Go to FRAC dashboard" (click)="onHomeClick()">
-    <img src="{{ uiConfig.icons.home }}" alt="home" class="home-icon" />
-    <span class="home-label">{{ uiConfig.labels.home }}</span>
+  <button class="back-nav-btn" type="button" (click)="onHomeClick()" aria-label="Back to home">
+    <mat-icon>arrow_back</mat-icon>
+    <span>Back</span>
   </button>
 
   <button class="save-btn" (click)="onSaveClicked()" *ngIf="routeMode === 'manage'"
@@ -13,11 +13,7 @@
 
 <!-- Main Content -->
 <div class="upload-container">
-  <!-- Page Header -->
   <div class="header">
-    <button class="back-button" type="button" aria-label="Back to home" (click)="onHomeClick()">
-      <img src="{{ uiConfig.icons.back }}" alt="back" class="back-icon" />
-    </button>
     <h2>{{ routeMode === 'manage' ? uiConfig.labels.manageActivity : uiConfig.labels.uploadActivity }}</h2>
   </div>
 
@@ -123,4 +119,3 @@
       [isLoading]="isSearching && routeMode === 'manage'" (selectionChange)="onSelectionChange($event)">
     </app-upload-activity-list-table>
   </div>
-</div>

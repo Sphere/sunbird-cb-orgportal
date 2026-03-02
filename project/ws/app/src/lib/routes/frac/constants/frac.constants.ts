@@ -8,8 +8,8 @@ export const FRAC_ROUTES = {
   roleUpload: '/app/frac/role?mode=upload',
   roleManage: '/app/frac/role?mode=manage',
   positionUpload: '/app/frac/position?mode=upload',
-  positionManage: '/app/home/frac/position',
-  positionManageTable: '/app/frac/position?mode=manage',
+  positionManage: '/app/frac/position?mode=manage',
+  positionCardGrid: '/app/home/frac/position',
   mapActivity: '/app/frac/map-activity',
   mapRole: '/app/frac/map-role',
   mapRolePosition: '/app/frac/map-role-position',
@@ -28,6 +28,7 @@ export const FRAC_DIALOG_SIZES = {
   mapResult: '440px',
   unsavedChanges: '363px',
   mappingRequired: '425px',
+  hierarchyChipDetails: '560px',
 } as const
 
 export const FRAC_SNACKBAR_DURATION_MS = 3000

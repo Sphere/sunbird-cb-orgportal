@@ -61,6 +61,7 @@ export class FracResponseParserUtil {
     // 🔍 Otherwise, look deeper into common wrapper keys.
     const nestedCandidates = [
       normalized.error,
+      normalized.result,
       normalized.body,
       normalized.data,
       normalized.response,
@@ -70,7 +71,7 @@ export class FracResponseParserUtil {
     ]
 
     for (const candidate of nestedCandidates) {
-      if (!candidate || typeof candidate !== 'object') {
+      if (candidate === null || candidate === undefined) {
         continue
       }
 

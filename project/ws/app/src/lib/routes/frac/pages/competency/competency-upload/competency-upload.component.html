@@ -1,7 +1,7 @@
 <div class="header-container">
-  <button class="home-chip" type="button" aria-label="Go to FRAC dashboard" (click)="onHomeClick()">
-    <img src="{{ uiConfig.icons.home }}" alt="home" class="home-icon" />
-    <span class="home-label">{{ uiConfig.labels.home }}</span>
+  <button class="back-nav-btn" type="button" (click)="onHomeClick()" aria-label="Back to home">
+    <mat-icon>arrow_back</mat-icon>
+    <span>Back</span>
   </button>
 
   <!-- Save Button - Disabled when no data -->
@@ -15,20 +15,15 @@
 <div class="upload-container">
 
   <div class="header">
-    <button class="back-button" type="button" aria-label="Back to home" (click)="onHomeClick()">
-      <img src="{{ uiConfig.icons.back }}" alt="back" class="back-icon" />
-    </button>
     <h2>{{ routeMode === 'manage' ? uiConfig.labels.manageCompetency : uiConfig.labels.uploadCompetency }}</h2>
   </div>
 
   <div class="sub-header">
     <span>{{ routeMode === 'manage' ? uiConfig.labels.manageCompetencySub : uiConfig.labels.uploadCompetencySub }}</span>
-
   </div>
 
   <div class="toolbar">
     <div class="left-tools">
-
 
       <div class="search-box" [class.disabled]="isFilterControlsDisabled()" *ngIf="routeMode === 'manage'">
         <input matInput type="text" [placeholder]="uiConfig.labels.searchPlaceholder" [(ngModel)]="searchTerm"
@@ -87,7 +82,7 @@
     </div>
   </div>
 
-  <!-- ✅ Loading Overlay with Custom Spinner -->
+  <!-- Loading Overlay with Custom Spinner -->
   <div class="loading-overlay" *ngIf="isUploading" [class.show]="isUploading">
     <div class="upload-loader-card">
       <div class="upload-loader-illustration">
@@ -112,11 +107,12 @@
       </div>
     </div>
 
-    <!-- ✅ Reusable Table -->
+    <!-- Reusable Table -->
     <app-upload-competency-list-table [columns]="tableConfig.columns" [data]="tableConfig.data" [showCheckbox]="true"
       [enableSorting]="true" [enablePagination]="false" [gridStyle]="'both'" [isEditing]="isEditing"
       [editRows]="editRows" [isLoading]="isSearching && routeMode === 'manage'"
       (selectionChange)="onSelectionChange($event)">
     </app-upload-competency-list-table>
   </div>
+
 </div>

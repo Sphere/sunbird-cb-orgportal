@@ -23,8 +23,7 @@
   <div class="upload-box" *ngIf="!selectedFile" (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)"
     (drop)="onFileDrop($event)" [class.drag-over]="isDragOver">
     <div class="file-icon">
-      <img [src]="uiConfig.icons.uploadDocs" alt="Upload docs"
-        class="file-icon-img" />
+      <img [src]="uiConfig.icons.uploadDocs" alt="Upload docs" class="file-icon-img" />
     </div>
 
     <div class="upload-text">
@@ -68,22 +67,6 @@
   </div>
 
 
-  <div class="custom-dropdown" *ngIf="config.dropdown" #dropdownContainer>
-    <label class="dropdown-label">{{ config.dropdown.label }} <span class="required-asterisk">*</span></label>
-
-    <div class="dropdown-wrapper" (click)="toggleDropdown()">
-      <div class="dropdown-selected">
-        {{ selectedLanguage || config.dropdown?.placeholder || 'Language' }}
-      </div>
-      <div class="dropdown-icon" [class.open]="isDropdownOpen"></div>
-    </div>
-
-    <div class="dropdown-options" *ngIf="isDropdownOpen">
-      <div class="dropdown-option" *ngFor="let option of config.dropdown.options" (click)="selectLanguage(option)">
-        {{ option }}
-      </div>
-    </div>
-  </div>
 
 
   <!-- Actions -->
@@ -96,8 +79,7 @@
       (click)="onConfirmUpload()">
       {{ config.actions?.primary?.label || 'Confirm & Upload' }}
     </button> -->
-    <button mat-stroked-button class="upload-btn" [disabled]="!selectedFile || !selectedLanguage"
-      (click)="onConfirmUpload()">
+    <button mat-stroked-button class="upload-btn" [disabled]="!selectedFile" (click)="onConfirmUpload()">
       {{ config.actions?.primary?.label || 'Confirm & Upload' }}
     </button>
   </div>

@@ -17,16 +17,16 @@ import { fracLogger } from '../../../utils/frac-logger.util'
 import { CustomSnackbarService } from '../../../services/custom-snackbar.service'
 import { FracApiService } from '../../../services/frac-api.service'
 import { UnsavedChangesModalComponent } from '../../../components/unsaved-changes-modal/unsaved-changes-modal.component'
-import { UploadResultData, UploadResultModalComponent } from '../../../components/upload-result-modal/upload-result-modal.component'
+import { MappingModalLabels, UploadResultData, UploadResultModalComponent } from '../../../components/upload-result-modal/upload-result-modal.component'
 import { FRAC_UI_CONFIG } from '../../../models/ui.config.model'
 import { FRAC_DEBOUNCE_MS, FRAC_DIALOG_SIZES, FRAC_LANGUAGES, FRAC_MAP_PAGE_SPINNER, FRAC_ROUTES } from '../../../constants/frac.constants'
 
 interface ActivityCompetencyApiRequestItem {
   parentEntityType: 'Activity'
   parentEntityCode: string
-  childEntityType: 'Competency'
-  childEntityCode: string
-  competencies: number[]
+  childEntityType?: 'Competency'
+  childEntityCode?: string
+  competencies?: number[]
 }
 
 interface ActivityMappingHierarchyNode {
@@ -98,6 +98,7 @@ export class MapActivityCompetenciesComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>()
   private readonly activityMappingCache = new Map<string, ActivityCompetencyDetail[]>()
   private readonly activityDraftStore = new Map<string, ActivityCompetencyDetail[]>()
+  private readonly clearedActivityDraftKeys = new Set<string>()
   private readonly activityMappedCompetenciesCache = new Map<string, Competency[]>()
   private activeMappingRequestKey: string | null = null
 
@@ -170,6 +171,7 @@ export class MapActivityCompetenciesComponent implements OnInit, OnDestroy {
     this.activeMappingRequestKey = null
     this.activityMappingCache.clear()
     this.activityDraftStore.clear()
+    this.clearedActivityDraftKeys.clear()
     this.activityMappedCompetenciesCache.clear()
   }
 
@@ -378,6 +380,68 @@ export class MapActivityCompetenciesComponent implements OnInit, OnDestroy {
    */
   private buildMappingCacheKey(activityCode: string): string {
     return makeMappingKey(this.selectedLanguage, activityCode)
+  }
+
+  /**
+   * Returns true if the current level selections exactly match the last saved/loaded cache state.
+   * Used to skip the API call when the user has not made any actual changes.
+   *
+   * The cache stores levels as a formatted string like "L1,L2,L3" or "L1-L5".
+   * The selectedMap stores levels as composite keys like "C1_L1" (code_level).
+   * Both sides are normalized to plain sorted level labels (e.g. ["L1","L2"]) before comparing.
+   */
+  private isSelectionUnchangedFromCache(): boolean {
+    if (!this.selectedActivity) return false
+
+    const key = this.buildMappingCacheKey(this.selectedActivity.code)
+    const cached = this.activityMappingCache.get(key) || []
+
+    // Build sorted signature from cache — parse "L1,L2,L3" or "L1-L5" to sorted level labels
+    const cachedSignature = cached
+      .map(d => {
+        const levels = this.parseLevelsString(d.levels || '')
+        return `${d.code}:${levels.sort().join(',')}`
+      })
+      .sort()
+      .join('|')
+
+    // Build sorted signature from current selectedMap — strip the "CODE_" prefix from each level key
+    const currentSignature = Object.entries(this.selectedMap)
+      .filter(([, levels]) => levels.length > 0)
+      .map(([code, levels]) => {
+        const plainLevels = levels.map(lv => {
+          const underscoreIdx = lv.lastIndexOf('_')
+          return underscoreIdx >= 0 ? lv.slice(underscoreIdx + 1) : lv
+        })
+        return `${code}:${plainLevels.sort().join(',')}`
+      })
+      .sort()
+      .join('|')
+
+    return cachedSignature === currentSignature
+  }
+
+  /**
+   * Parses a levels string from the cache into a flat array of level labels.
+   * Handles comma-separated ("L1,L2,L3") and range formats ("L1-L5").
+   * Returns empty array for blank/undefined input.
+   */
+  private parseLevelsString(levels: string): string[] {
+    if (!levels.trim()) return []
+
+    if (levels.includes('-')) {
+      const [start, end] = levels.split('-')
+      const startNum = parseInt(start.replace('L', ''), 10)
+      const endNum = parseInt(end.replace('L', ''), 10)
+      if (isNaN(startNum) || isNaN(endNum)) return []
+      const result: string[] = []
+      for (let i = startNum; i <= endNum; i++) {
+        result.push(`L${i}`)
+      }
+      return result
+    }
+
+    return levels.split(',').map(l => l.trim()).filter(Boolean)
   }
 
   /**
@@ -650,15 +714,64 @@ export class MapActivityCompetenciesComponent implements OnInit, OnDestroy {
       return
     }
 
-    const previousSignature = this.getActivityCompetencyDetailsSignature(this.selectedActivity.competencyDetails || [])
+    // Detect no-change: compare current selection with the last saved/loaded cache
+    if (this.isSelectionUnchangedFromCache()) {
+      this.snackbar.warning('No changes detected. Please update your selection before saving.')
+      return
+    }
 
     this.removeDeselected()
     this.updateOrInsertSelected()
     this.refreshActivitiesState()
-    const currentSignature = this.getActivityCompetencyDetailsSignature(this.selectedActivity.competencyDetails || [])
-    const hasChanges = previousSignature !== currentSignature
-    this.hasUnsavedChanges = this.hasUnsavedChanges || hasChanges
-    this.snackbar.success('Activity–Competency linked successfully. Please tap Save to apply changes.')
+
+    const payload = this.buildPayload()
+    if (payload.length) {
+      this.isSaving = true
+      this.fracApiService.mapEntity(payload).subscribe({
+        next: () => {
+          this.isSaving = false
+          this.hasUnsavedChanges = false
+          this.activityDraftStore.clear()
+          this.clearedActivityDraftKeys.clear()
+          this.syncUpdatedActivitiesFromDraftStore()
+
+          const activityCode = this.selectedActivity?.code || ''
+          const mappedCompetencies = (this.selectedActivity?.competencyDetails || [])
+          // Each line: activityCode <=> C1 [L1,L2,L3]  — rendered as pills in the modal card
+          const detailLines = mappedCompetencies.map(c =>
+            `${activityCode} <=> ${c.levels ? `${c.code} [${c.levels}]` : c.code}`,
+          ).join('\n')
+
+          const mappingLabels: MappingModalLabels = {
+            sectionTitle: 'Activity–Competency Mappings',
+            parentCountLabel: 'activities',
+            parentLabel: 'Activity',
+            childrenLabel: 'Competencies',
+          }
+          const successData: UploadResultData = {
+            type: 'success',
+            title: 'Mapping Saved',
+            message: 'Activity to competency mappings were saved successfully.',
+            errorDetails: detailLines || undefined,
+            mappingLabels,
+          }
+          this.showResultModal(successData)
+        },
+        error: (err) => {
+          this.isSaving = false
+          const failureData: UploadResultData = {
+            type: 'error',
+            title: 'Mapping Failed',
+            message: err?.error?.params?.errmsg || err?.error?.message || err?.statusText || err?.message || 'Failed to save activity to competency mapping.',
+            errorDetails: err?.status ? `HTTP Status: ${err.status}` : undefined,
+          }
+          this.showResultModal(failureData)
+        },
+      })
+    } else {
+      this.snackbar.success('Activity–Competency selection updated.')
+    }
+    return
   }
 
   private removeDeselected(): void {
@@ -725,67 +838,12 @@ export class MapActivityCompetenciesComponent implements OnInit, OnDestroy {
   }
 
   // ---------------------------------------------------------------------------
-  // Save
+  // Persist
   // ---------------------------------------------------------------------------
-
-  /**
-   * Takes all the edited rows and sends them to the server to be updated.
-   */
-  onSaveClicked(): void {
-    this.syncCurrentSelectedActivitySelection()
-    const payload = this.buildPayload()
-
-    if (!payload.length) {
-      this.snackbar.warning('Nothing to save !!')
-      return
-    }
-
-    if (this.isSaving) {
-      return
-    }
-
-    this.isSaving = true
-
-    this.fracApiService.mapEntity(payload).subscribe({
-      next: (res) => {
-        this.isSaving = false
-        this.hasUnsavedChanges = false
-        this.activityDraftStore.clear()
-        this.syncUpdatedActivitiesFromDraftStore()
-
-        const mappedPairs = this.extractMappedPairs(res, payload)
-        const successData: UploadResultData = {
-          type: 'success',
-          title: 'Mapping Saved',
-          message: 'Activity to competency mappings were saved successfully.',
-          errorDetails: mappedPairs.join('\n'),
-        }
-        this.showResultModal(successData, true)
-      },
-      error: (err) => {
-        this.isSaving = false
-
-        const errorMessage =
-          err?.error?.params?.errmsg ||
-          err?.error?.message ||
-          err?.statusText ||
-          err?.message ||
-          'Failed to save activity to competency mapping.'
-
-        const failureData: UploadResultData = {
-          type: 'error',
-          title: 'Mapping Failed',
-          message: errorMessage,
-          errorDetails: err?.status ? `HTTP Status: ${err.status}` : undefined,
-        }
-
-        this.showResultModal(failureData)
-      },
-    })
-  }
 
   private buildPayload(): ActivityCompetencyApiRequestItem[] {
     const payloadByPair = new Map<string, ActivityCompetencyApiRequestItem>()
+    const parentsWithMappings = new Set<string>()
 
     for (const [key, competencyDetails] of this.activityDraftStore.entries()) {
       const activityCode = getCodeFromKey(key)
@@ -794,6 +852,7 @@ export class MapActivityCompetenciesComponent implements OnInit, OnDestroy {
       for (const detail of competencyDetails) {
         const competencyCode = (detail?.code || '').trim()
         if (!competencyCode) continue
+        parentsWithMappings.add(activityCode)
 
         payloadByPair.set(`${activityCode}::${competencyCode}`, {
           parentEntityType: 'Activity',
@@ -803,6 +862,18 @@ export class MapActivityCompetenciesComponent implements OnInit, OnDestroy {
           competencies: this.extractCompetencyLevels(detail.levels),
         })
       }
+    }
+
+    for (const key of this.clearedActivityDraftKeys.values()) {
+      const activityCode = getCodeFromKey(key)
+      if (!activityCode || parentsWithMappings.has(activityCode)) {
+        continue
+      }
+
+      payloadByPair.set(`${activityCode}::(cleared)`, {
+        parentEntityType: 'Activity',
+        parentEntityCode: activityCode,
+      })
     }
 
     return Array.from(payloadByPair.values())
@@ -833,27 +904,13 @@ export class MapActivityCompetenciesComponent implements OnInit, OnDestroy {
       .sort((a, b) => a - b)
   }
 
-  /**
-   * Updates the visual selection state (checkboxes) for the currently open activity card based on what is stored in memory.
-   */
-  private syncCurrentSelectedActivitySelection(): void {
-    if (!this.selectedActivity) return
 
-    if (!this.selectedActivity.competencyDetails) {
-      this.selectedActivity.competencyDetails = []
-    }
-
-    this.transformSelectedCompetencies()
-    this.removeDeselected()
-    this.updateOrInsertSelected()
-    this.refreshActivitiesState()
-  }
 
   /**
    * Checks if a specific activity holds any unsaved changes stored in the draft cache.
    */
   private hasActivityMappings(key: string): boolean {
-    return this.activityDraftStore.has(key) || this.activityMappingCache.has(key)
+    return this.activityDraftStore.has(key) || this.activityMappingCache.has(key) || this.clearedActivityDraftKeys.has(key)
   }
 
   /**
@@ -869,20 +926,7 @@ export class MapActivityCompetenciesComponent implements OnInit, OnDestroy {
       }))
   }
 
-  /**
-   * Creates a unique string from all competency levels to detect if the user made any edits.
-   */
-  private getActivityCompetencyDetailsSignature(details: ActivityCompetencyDetail[]): string {
-    return this.cloneActivityDetails(details)
-      .map((detail) => ({
-        code: detail.code,
-        label: detail.label || '',
-        levels: this.extractCompetencyLevels(detail.levels || '').join(','),
-      }))
-      .sort((left, right) => left.code.localeCompare(right.code, undefined, { numeric: true, sensitivity: 'base' }))
-      .map((detail) => `${detail.code}|${detail.label}|${detail.levels}`)
-      .join('||')
-  }
+
 
 
   private getHydratedActivityCompetencyDetails(activityCode: string): ActivityCompetencyDetail[] | null {
@@ -909,8 +953,10 @@ export class MapActivityCompetenciesComponent implements OnInit, OnDestroy {
 
     if (normalizedDetails.length) {
       this.activityDraftStore.set(key, normalizedDetails)
+      this.clearedActivityDraftKeys.delete(key)
     } else {
       this.activityDraftStore.delete(key)
+      this.clearedActivityDraftKeys.add(key)
     }
 
     this.activityMappingCache.set(key, normalizedDetails)
@@ -941,23 +987,6 @@ export class MapActivityCompetenciesComponent implements OnInit, OnDestroy {
         competencyDetails,
       }
     })
-  }
-
-  private extractMappedPairs(response: unknown, fallbackPayload: ActivityCompetencyApiRequestItem[]): string[] {
-    const resultArray = Array.isArray((response as { result?: Array<Partial<ActivityCompetencyApiRequestItem>> })?.result)
-      ? (response as { result?: Array<Partial<ActivityCompetencyApiRequestItem>> }).result || []
-      : []
-    const source = resultArray.length ? resultArray : fallbackPayload
-
-    return source
-      .map((item) => {
-        const parentCode = item?.parentEntityCode || ''
-        const childCode = item?.childEntityCode || ''
-        const competencies = Array.isArray(item?.competencies) ? item.competencies : []
-        const levelsText = competencies.length ? ` [L${competencies.join(',L')}]` : ''
-        return `${parentCode} <=> ${childCode}${levelsText}`
-      })
-      .filter(Boolean)
   }
 
   /**

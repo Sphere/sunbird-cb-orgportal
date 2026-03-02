@@ -20,22 +20,23 @@
       <div class="mapping-header">
         <div class="mapping-title">
           <mat-icon>link</mat-icon>
-          <span>Role-Activity Mappings</span>
+          <span>{{ modalLabels.sectionTitle }}</span>
         </div>
-        <div class="mapping-badge">{{ mappedRoleCount }} roles | {{ mappingPairCount }} mappings</div>
+        <div class="mapping-badge">{{ mappedRoleCount }} {{ modalLabels.parentCountLabel }} | {{ mappingPairCount }}
+          mappings</div>
       </div>
 
       <div class="mapping-content">
         <div class="mapping-item" *ngFor="let group of mappingGroups">
           <div class="role-section">
-            <div class="role-label">Role</div>
+            <div class="role-label">{{ modalLabels.parentLabel }}</div>
             <div class="role-name">{{ group.parent }}</div>
           </div>
           <div class="arrow-section">
             <mat-icon>arrow_forward</mat-icon>
           </div>
           <div class="activities-section">
-            <div class="activities-label">Activities ({{ group.children.length }})</div>
+            <div class="activities-label">{{ modalLabels.childrenLabel }} ({{ group.children.length }})</div>
             <div class="activities-list">
               <span class="activity-chip" *ngFor="let child of group.children">{{ child }}</span>
             </div>

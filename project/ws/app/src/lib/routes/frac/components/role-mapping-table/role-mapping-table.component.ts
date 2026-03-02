@@ -14,6 +14,7 @@ export class RoleMappingTableComponent implements OnInit, OnChanges {
   @Input() isLoading = false
   @Input() searchResetKey = 0
   @Input() isReadOnly = false
+  @Input() isSaving = false
 
   @Output() searchChange = new EventEmitter<string>()
   @Output() positionCheckChange = new EventEmitter<{ code: string; checked: boolean }>()
@@ -81,6 +82,7 @@ export class RoleMappingTableComponent implements OnInit, OnChanges {
 
   isAddDisabled(): boolean {
     if (!this.selectedRole) return true
+    if (this.isSaving) return true
 
     const hasSelected = Object.values(this.selectedPositionMap || {}).some(v => v)
     const hadPrevious = !!this.selectedRole?.roleDetails?.length

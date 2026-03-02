@@ -52,7 +52,6 @@ export function buildFracUploadPopupConfig(
     validationMessages: {
       invalidFileTypePrefix: 'Invalid file type. Allowed:',
       fileRequired: 'Please select a file first.',
-      languageRequired: 'Please select language.',
     },
   }
 }

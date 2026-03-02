@@ -1,6 +1,17 @@
 import { Component, Inject } from '@angular/core'
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog'
 
+export interface MappingModalLabels {
+  /** e.g. 'Position–Role Mappings' */
+  sectionTitle: string
+  /** e.g. 'positions' — used in the count badge */
+  parentCountLabel: string
+  /** e.g. 'Position' — shown above the parent code */
+  parentLabel: string
+  /** e.g. 'Roles' — shown as the children section header */
+  childrenLabel: string
+}
+
 export interface UploadResultData {
   type: 'success' | 'error'
   title: string
@@ -8,6 +19,8 @@ export interface UploadResultData {
   count?: number
   errorDetails?: string
   resultDetails?: { key: string; values: any[] }[]
+  /** Optional: configures labels inside the mapping summary card */
+  mappingLabels?: MappingModalLabels
 }
 
 interface MappingGroup {
@@ -90,6 +103,15 @@ export class UploadResultModalComponent {
 
   get mappedRoleCount(): number {
     return this.mappingGroups.length
+  }
+
+  get modalLabels(): MappingModalLabels {
+    return this.data.mappingLabels || {
+      sectionTitle: 'Mappings',
+      parentCountLabel: 'items',
+      parentLabel: 'Item',
+      childrenLabel: 'Mapped',
+    }
   }
 
   /**

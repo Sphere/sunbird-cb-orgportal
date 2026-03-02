@@ -4,7 +4,7 @@ import { Router } from '@angular/router'
 import { forkJoin, of, Subject } from 'rxjs'
 import { catchError, debounceTime, distinctUntilChanged, map, takeUntil } from 'rxjs/operators'
 import { MappingRequiredModalComponent, MissingMappingItem } from '../../components/mapping-required-modal/mapping-required-modal.component'
-import { UploadResultData, UploadResultModalComponent } from '../../components/upload-result-modal/upload-result-modal.component'
+import { MappingModalLabels, UploadResultData, UploadResultModalComponent } from '../../components/upload-result-modal/upload-result-modal.component'
 import { UnsavedChangesModalComponent } from '../../components/unsaved-changes-modal/unsaved-changes-modal.component'
 import { CustomSnackbarService } from '../../services/custom-snackbar.service'
 import { FracApiService } from '../../services/frac-api.service'
@@ -33,9 +33,9 @@ interface RoleItem {
 interface PositionRoleApiRequestItem {
   parentEntityType: 'Position'
   parentEntityCode: string
-  childEntityType: 'Role'
-  childEntityCode: string
-  competencies: Array<number | string | Record<string, unknown>>
+  childEntityType?: 'Role'
+  childEntityCode?: string
+  competencies?: Array<number | string | Record<string, unknown>>
 }
 
 interface PositionMappingHierarchyNode {
@@ -110,6 +110,7 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>()
   private readonly positionRoleMappingCache = new Map<string, PositionRoleDetail[]>()
   private readonly positionDraftStore = new Map<string, PositionRoleDetail[]>()
+  private readonly clearedPositionDraftKeys = new Set<string>()
   private activePositionRoleMappingRequestKey: string | null = null
   private readonly positionBaseLanguage = FRAC_LANGUAGES[0]
 
@@ -180,6 +181,7 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
 
     this.positionRoleMappingCache.clear()
     this.positionDraftStore.clear()
+    this.clearedPositionDraftKeys.clear()
   }
 
   // ---------------------------------------------------------------------------
@@ -349,7 +351,7 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
 
     this.activePositionRoleMappingRequestKey = requestKey
 
-    this.fracApiService.searchEntityMapping('position', position.code, this.positionBaseLanguage)
+    this.fracApiService.searchEntityMapping('position', position.code, this.selectedLanguage)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (res) => {
@@ -500,6 +502,12 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
       this.selectedPosition.roleDetails = []
     }
 
+    // Detect no-change: compare current selection with the last saved/loaded cache
+    if (this.isSelectionUnchangedFromCache()) {
+      this.snackbar.warning('No changes detected. Please update your selection before saving.')
+      return
+    }
+
     // Rebuild summarised selection
     this.buildSelectedRoleSummary()
 
@@ -515,26 +523,30 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
       return
     }
 
-    const previousSignature = this.getPositionRoleDetailsSignature(this.selectedPosition.roleDetails || [])
     const selectedRoles = [...this.selectedRoleSummary]
 
     if (!selectedRoles.length) {
       this.removeDeselectedRoles()
       this.updateOrInsertRoles()
       this.refreshPositionsState()
-      const currentSignature = this.getPositionRoleDetailsSignature(this.selectedPosition.roleDetails || [])
-      const hasChanges = previousSignature !== currentSignature
-      this.hasUnsavedChanges = this.hasUnsavedChanges || hasChanges
-      this.snackbar.success('Position–Role linked successfully. Please tap Save to apply changes.')
+      this.hasUnsavedChanges = false
+      const payload = this.buildPayload()
+      if (payload.length) {
+        this.persistPositionRoleMappings(payload)
+      } else {
+        this.snackbar.success('Position–Role selection updated.')
+      }
       return
     }
 
     this.isValidatingRoleMappings = true
+    this.isSaving = true
     this.findRolesMissingActivityMapping(selectedRoles)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (missingRoles) => {
           this.isValidatingRoleMappings = false
+          this.isSaving = false
           if (missingRoles.length) {
             this.snackbar.warning('Some selected roles are missing activity mapping.')
             this.openMappingRequiredModal(missingRoles)
@@ -544,10 +556,13 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
           this.removeDeselectedRoles()
           this.updateOrInsertRoles()
           this.refreshPositionsState()
-          const currentSignature = this.getPositionRoleDetailsSignature(this.selectedPosition?.roleDetails || [])
-          const hasChanges = previousSignature !== currentSignature
-          this.hasUnsavedChanges = this.hasUnsavedChanges || hasChanges
-          this.snackbar.success('Position–Role linked successfully. Please tap Save to apply changes.')
+          this.hasUnsavedChanges = false
+          const payload = this.buildPayload()
+          if (payload.length) {
+            this.persistPositionRoleMappings(payload)
+          } else {
+            this.snackbar.success('Position–Role selection updated.')
+          }
         },
         error: (err) => {
           this.isValidatingRoleMappings = false
@@ -665,115 +680,38 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
   }
 
   // ---------------------------------------------------------------------------
-  // Save
+  // Persist
   // ---------------------------------------------------------------------------
-  /**
-   * Takes all the edited rows and sends them to the server to be updated.
-   */
-  onSaveClicked(): void {
-    this.syncCurrentSelectedPositionSelection()
-    const payload = this.buildPayload()
-
-    if (!payload.length) {
-      this.snackbar.warning('Nothing to save !!')
-      return
-    }
-
-    if (this.isSaving || this.isValidatingRoleMappings) {
-      return
-    }
-
-    this.validateSaveRoles(payload)
-  }
-
-  private validateSaveRoles(payload: PositionRoleApiRequestItem[]): void {
-    const uniqueRoles = this.extractUniqueRolesFromPayload(payload)
-    if (!uniqueRoles.length) {
-      this.persistPositionRoleMappings(payload)
-      return
-    }
-
-    this.isValidatingRoleMappings = true
-    this.findRolesMissingActivityMapping(uniqueRoles)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (missingRoles) => {
-          this.isValidatingRoleMappings = false
-          if (missingRoles.length) {
-            this.snackbar.warning('Some selected roles are missing activity mapping.')
-            this.openMappingRequiredModal(missingRoles)
-            return
-          }
-
-          this.persistPositionRoleMappings(payload)
-        },
-        error: (err) => {
-          this.isValidatingRoleMappings = false
-          fracLogger.error('Failed to validate roles before save', err)
-          this.snackbar.error('Unable to validate role activity mappings. Please try again.')
-        },
-      })
-  }
-
-  private extractUniqueRolesFromPayload(payload: PositionRoleApiRequestItem[]): PositionRoleDetail[] {
-    const uniqueRoles = new Map<string, PositionRoleDetail>()
-
-    payload.forEach((item) => {
-      const roleCode = (item?.childEntityCode || '').trim()
-      if (!roleCode || uniqueRoles.has(roleCode)) {
-        return
-      }
-
-      uniqueRoles.set(roleCode, {
-        code: roleCode,
-        label: this.getRoleLabelForValidation(roleCode),
-      })
-    })
-
-    return Array.from(uniqueRoles.values())
-  }
-
-  private getRoleLabelForValidation(roleCode: string): string {
-    const role =
-      this.rolesData.find(item => item.code === roleCode) ||
-      this.roles.find(item => item.code === roleCode) ||
-      this.filteredRoles.find(item => item.code === roleCode)
-
-    if (role?.title) {
-      return role.title
-    }
-
-    const positionCollections = [this.positionsData, this.positions, this.filteredPositions]
-    for (const collection of positionCollections) {
-      for (const position of collection) {
-        const mappedRole = position?.roleDetails?.find(detail => detail.code === roleCode)
-        if (mappedRole?.label) {
-          return mappedRole.label
-        }
-      }
-    }
-
-    return 'Role name not available'
-  }
 
   private persistPositionRoleMappings(payload: PositionRoleApiRequestItem[]): void {
     this.isSaving = true
 
     this.fracApiService.mapEntity(payload).subscribe({
-      next: (res) => {
+      next: () => {
         this.isSaving = false
         this.hasUnsavedChanges = false
         this.positionDraftStore.clear()
+        this.clearedPositionDraftKeys.clear()
         this.syncUpdatedPositionsFromDraftStore()
 
-        const mappedPairs = this.extractMappedPairs(res, payload)
+        const positionCode = this.selectedPosition?.code || ''
+        const mappedRoles = (this.selectedPosition?.roleDetails || [])
+        const detailLines = mappedRoles.map(r => `${positionCode} <=> ${r.code}`).join('\n')
+
+        const mappingLabels: MappingModalLabels = {
+          sectionTitle: 'Position–Role Mappings',
+          parentCountLabel: 'positions',
+          parentLabel: 'Position',
+          childrenLabel: 'Roles',
+        }
         const successData: UploadResultData = {
           type: 'success',
           title: 'Mapping Saved',
           message: 'Position to role mappings were saved successfully.',
-          errorDetails: mappedPairs.join('\n'),
+          errorDetails: detailLines || undefined,
+          mappingLabels,
         }
-        this.showResultModal(successData, true)
+        this.showResultModal(successData)
       },
       error: (err) => {
         this.isSaving = false
@@ -800,6 +738,7 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
   private buildPayload(): PositionRoleApiRequestItem[] {
     const payload: PositionRoleApiRequestItem[] = []
     const mappedPairs = new Set<string>()
+    const parentsWithMappings = new Set<string>()
 
     for (const [key, roleDetails] of this.positionDraftStore.entries()) {
       const positionCode = getCodeFromKey(key)
@@ -814,6 +753,7 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
           continue
         }
         mappedPairs.add(pairKey)
+        parentsWithMappings.add(positionCode)
 
         payload.push({
           parentEntityType: 'Position',
@@ -825,24 +765,22 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
       }
     }
 
+    for (const key of this.clearedPositionDraftKeys.values()) {
+      const positionCode = getCodeFromKey(key)
+      if (!positionCode || parentsWithMappings.has(positionCode)) {
+        continue
+      }
+
+      payload.push({
+        parentEntityType: 'Position',
+        parentEntityCode: positionCode,
+      })
+    }
+
     return payload
   }
 
-  /**
-   * Updates the visual selection state (checkboxes) for the currently open position card based on what is stored in memory.
-   */
-  private syncCurrentSelectedPositionSelection(): void {
-    if (!this.selectedPosition) return
 
-    if (!this.selectedPosition.roleDetails) {
-      this.selectedPosition.roleDetails = []
-    }
-
-    this.buildSelectedRoleSummary()
-    this.removeDeselectedRoles()
-    this.updateOrInsertRoles()
-    this.refreshPositionsState()
-  }
 
   /**
    * Creates a unique text code to look up a position in the temporary storage.
@@ -851,6 +789,27 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
     return makeMappingKey(this.selectedLanguage, positionCode)
   }
 
+  /**
+   * Returns true if the current checkbox selection exactly matches the last saved/loaded cache state.
+   * Used to skip the API call when the user has not made any actual changes.
+   */
+  private isSelectionUnchangedFromCache(): boolean {
+    if (!this.selectedPosition) return false
+
+    const key = this.buildPositionMappingKey(this.selectedPosition.code)
+    const cachedCodes = new Set<string>(
+      (this.positionRoleMappingCache.get(key) || []).map(d => d.code),
+    )
+    const currentCodes = new Set<string>(
+      Object.keys(this.selectedRoleMap).filter(code => this.selectedRoleMap[code]),
+    )
+
+    if (cachedCodes.size !== currentCodes.size) return false
+    for (const code of cachedCodes) {
+      if (!currentCodes.has(code)) return false
+    }
+    return true
+  }
 
   /**
    * Creates a deep copy of the role mapping details to safely test for unsaved changes.
@@ -862,16 +821,6 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
         code: detail.code,
         label: detail.label || '',
       }))
-  }
-
-  /**
-   * Creates a unique string from all mapped roles to detect if the user made any edits.
-   */
-  private getPositionRoleDetailsSignature(details: PositionRoleDetail[]): string {
-    return this.cloneRoleDetails(details)
-      .sort((left, right) => left.code.localeCompare(right.code, undefined, { numeric: true, sensitivity: 'base' }))
-      .map((detail) => `${detail.code}|${detail.label}`)
-      .join('||')
   }
 
   private getHydratedPositionRoleDetails(positionCode: string): PositionRoleDetail[] | null {
@@ -916,8 +865,10 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
 
     if (normalizedDetails.length) {
       this.positionDraftStore.set(key, normalizedDetails)
+      this.clearedPositionDraftKeys.delete(key)
     } else {
       this.positionDraftStore.delete(key)
+      this.clearedPositionDraftKeys.add(key)
     }
 
     this.positionRoleMappingCache.set(key, normalizedDetails)
@@ -948,21 +899,6 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
         roleDetails,
       }
     })
-  }
-
-  private extractMappedPairs(response: unknown, fallbackPayload: PositionRoleApiRequestItem[]): string[] {
-    const resultArray = Array.isArray((response as { result?: Array<Partial<PositionRoleApiRequestItem>> })?.result)
-      ? (response as { result?: Array<Partial<PositionRoleApiRequestItem>> }).result || []
-      : []
-    const source = resultArray.length ? resultArray : fallbackPayload
-
-    return source
-      .map((item) => {
-        const parentCode = item?.parentEntityCode || ''
-        const childCode = item?.childEntityCode || ''
-        return `${parentCode} <=> ${childCode}`
-      })
-      .filter(Boolean)
   }
 
   /**

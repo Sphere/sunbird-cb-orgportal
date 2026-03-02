@@ -16,17 +16,40 @@ import {
   UploadSearchSource,
   UploadSearchTriggerPayload,
 } from '../../../services/frac-entity-upload-orchestrator.service'
-import { forkJoin, Subject, Subscription } from 'rxjs'
-import { takeUntil } from 'rxjs/operators'
+import { forkJoin, of, Subject, Subscription } from 'rxjs'
+import { catchError, map, takeUntil } from 'rxjs/operators'
 import { FRAC_UI_CONFIG } from '../../../models/ui.config.model'
 import { FRAC_DIALOG_SIZES, FRAC_ROUTES, FRAC_UPLOAD_PAGE_SPINNER } from '../../../constants/frac.constants'
 import { buildFracUploadPopupConfig, getFracSampleTemplateUrl } from '../../../utils/frac-upload-ui.util'
+import { FracHierarchyNode, FracHierarchyResponse } from '../../../models/frac-api.models'
+import {
+  HierarchyChipDetailsModalComponent,
+  HierarchyChipType,
+  HierarchyDetailItem,
+} from '../../../components/hierarchy-chip-details-modal/hierarchy-chip-details-modal.component'
 
 interface UploadEmptyStateConfig {
   icon: string
   title: string
   message: string
   suggestion: string
+}
+
+interface PositionHierarchyCounts {
+  role: number
+  activity: number
+  competency: number
+}
+
+interface PositionHierarchyDetails {
+  role: HierarchyDetailItem[]
+  activity: HierarchyDetailItem[]
+  competency: HierarchyDetailItem[]
+}
+
+interface PositionHierarchyAggregate {
+  counts: PositionHierarchyCounts
+  details: PositionHierarchyDetails
 }
 
 @Component({
@@ -108,6 +131,10 @@ export class PositionUploadComponent implements OnInit, OnDestroy {
   /** Shimmer placeholder cards shown while card grid is loading. Count is config-driven. */
   readonly shimmerCardCount = 8
   readonly shimmerCards = Array.from({ length: this.shimmerCardCount })
+  readonly defaultHierarchyCounts: PositionHierarchyCounts = { role: 0, activity: 0, competency: 0 }
+  readonly defaultHierarchyDetails: PositionHierarchyDetails = { role: [], activity: [], competency: [] }
+  positionHierarchyCountMap: Record<string, PositionHierarchyCounts> = {}
+  positionHierarchyDetailMap: Record<string, PositionHierarchyDetails> = {}
 
 
   // ============= LOADING & API RESPONSE =============
@@ -124,6 +151,8 @@ export class PositionUploadComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>()
   private baselineTableSignature = ''
   private baselineRowSignatureByCode = new Map<string, string>()
+  private hierarchyAggregateCache = new Map<string, PositionHierarchyAggregate>()
+  private hierarchyRequestToken = 0
 
   // ============= LIFECYCLE =============
 
@@ -237,13 +266,223 @@ export class PositionUploadComponent implements OnInit, OnDestroy {
           this.selectedRows = []
           this.removedData = []
           this.isEditing = false
+          this.loadHierarchyCountsForCardPositions(sortedEntityList, language)
           this.captureBaselineTableState()
         },
         error: (err) => {
           this.isSearching = false
+          this.positionHierarchyCountMap = {}
+          this.positionHierarchyDetailMap = {}
           fracLogger.error('Position search failed', err)
         }
       })
+  }
+
+  private loadHierarchyCountsForCardPositions(positions: any[], language: string): void {
+    if (this.routeMode !== 'card') {
+      this.positionHierarchyCountMap = {}
+      this.positionHierarchyDetailMap = {}
+      return
+    }
+
+    const validPositions = (positions || []).filter((pos) => !!this.normalizeEntityCode(pos?.code))
+    if (!validPositions.length) {
+      this.positionHierarchyCountMap = {}
+      this.positionHierarchyDetailMap = {}
+      return
+    }
+
+    const requestToken = ++this.hierarchyRequestToken
+    const requests = validPositions.map((position) => {
+      const code = this.normalizeEntityCode(position?.code)
+      const cacheKey = this.getHierarchyCacheKey(code, language)
+      const cachedAggregate = this.hierarchyAggregateCache.get(cacheKey)
+
+      if (cachedAggregate) {
+        return of({ code, aggregate: cachedAggregate })
+      }
+
+      return this.fracApiService.searchEntityHierarchy('position', code, language).pipe(
+        map((response) => {
+          const aggregate = this.extractHierarchyAggregateFromResponse(response)
+          this.hierarchyAggregateCache.set(cacheKey, aggregate)
+          return { code, aggregate }
+        }),
+        catchError(() => of({
+          code,
+          aggregate: { counts: this.defaultHierarchyCounts, details: this.defaultHierarchyDetails },
+        })),
+      )
+    })
+
+    forkJoin(requests).subscribe((results) => {
+      if (requestToken !== this.hierarchyRequestToken) {
+        return
+      }
+
+      const nextMap: Record<string, PositionHierarchyCounts> = {}
+      const nextDetailsMap: Record<string, PositionHierarchyDetails> = {}
+      results.forEach((item) => {
+        nextMap[item.code] = item.aggregate.counts
+        nextDetailsMap[item.code] = item.aggregate.details
+      })
+      this.positionHierarchyCountMap = nextMap
+      this.positionHierarchyDetailMap = nextDetailsMap
+    })
+  }
+
+  getPositionHierarchyCounts(position: Record<string, unknown>): PositionHierarchyCounts {
+    const code = this.normalizeEntityCode(position?.['code'])
+    return this.positionHierarchyCountMap[code] || this.defaultHierarchyCounts
+  }
+
+  private getPositionHierarchyDetails(position: Record<string, unknown>): PositionHierarchyDetails {
+    const code = this.normalizeEntityCode(position?.['code'])
+    return this.positionHierarchyDetailMap[code] || this.defaultHierarchyDetails
+  }
+
+  onCountChipClick(position: Record<string, unknown>, chipType: HierarchyChipType): void {
+    const details = this.getPositionHierarchyDetails(position)[chipType] || []
+
+    this.dialog.open(HierarchyChipDetailsModalComponent, {
+      width: FRAC_DIALOG_SIZES.hierarchyChipDetails,
+      disableClose: false,
+      panelClass: 'hierarchy-chip-details-dialog',
+      data: {
+        chipType,
+        items: details,
+      },
+    })
+  }
+
+  private extractHierarchyAggregateFromResponse(response: FracHierarchyResponse | null | undefined): PositionHierarchyAggregate {
+    const resultNode = response?.result
+    const roots = Array.isArray(resultNode) ? resultNode : resultNode ? [resultNode] : []
+    const roleMap = new Map<string, HierarchyDetailItem>()
+    const activityMap = new Map<string, HierarchyDetailItem>()
+    const competencyMap = new Map<string, HierarchyDetailItem>()
+
+    const visitNode = (node: FracHierarchyNode | null | undefined): void => {
+      if (!node) {
+        return
+      }
+
+      const entityType = (node.entityType || '').toString().trim().toUpperCase()
+      const code = this.normalizeEntityCode(node.entityCode)
+      const name = (node.entityName || node.entityDescription || '').toString().trim()
+
+      if (entityType === 'ROLE') {
+        this.upsertHierarchyItem(roleMap, code, name)
+      } else if (entityType === 'ACTIVITY') {
+        this.upsertHierarchyItem(activityMap, code, name)
+      } else if (entityType === 'COMPETENCY') {
+        const levels = this.extractCompetencyLevels(node.competencies)
+        this.upsertHierarchyItem(competencyMap, code, name, levels)
+      }
+
+      const children = Array.isArray(node.children)
+        ? node.children
+        : Array.isArray(node.childHierarchy) ? node.childHierarchy : []
+      children.forEach((child) => visitNode(child))
+    }
+
+    roots.forEach((root) => visitNode(root))
+    const details: PositionHierarchyDetails = {
+      role: this.getSortedHierarchyItems(roleMap),
+      activity: this.getSortedHierarchyItems(activityMap),
+      competency: this.getSortedHierarchyItems(competencyMap),
+    }
+
+    return {
+      counts: {
+        role: details.role.length,
+        activity: details.activity.length,
+        competency: details.competency.length,
+      },
+      details,
+    }
+  }
+
+  private upsertHierarchyItem(
+    store: Map<string, HierarchyDetailItem>,
+    code: string,
+    name: string,
+    levels: string[] = [],
+  ): void {
+    if (!code) {
+      return
+    }
+
+    const existing = store.get(code)
+    if (!existing) {
+      store.set(code, {
+        entityCode: code,
+        entityName: name || '-',
+        levels: levels.length ? [...levels] : undefined,
+      })
+      return
+    }
+
+    if (!existing.entityName || existing.entityName === '-') {
+      existing.entityName = name || existing.entityName
+    }
+
+    if (levels.length) {
+      const merged = new Set<string>([...(existing.levels || []), ...levels])
+      existing.levels = this.sortLevels([...merged])
+    }
+  }
+
+  private getSortedHierarchyItems(store: Map<string, HierarchyDetailItem>): HierarchyDetailItem[] {
+    return [...store.values()].sort((a, b) =>
+      (a.entityCode || '').localeCompare((b.entityCode || ''), undefined, { numeric: true, sensitivity: 'base' }),
+    )
+  }
+
+  private extractCompetencyLevels(competencies: unknown): string[] {
+    if (!Array.isArray(competencies)) {
+      return []
+    }
+
+    const levelSet = new Set<string>()
+    competencies.forEach((entry) => {
+      if (entry && typeof entry === 'object') {
+        const obj = entry as Record<string, unknown>
+        const levelNumber = Number(obj.levelNumber)
+        if (Number.isFinite(levelNumber) && levelNumber > 0) {
+          levelSet.add(`L${levelNumber}`)
+          return
+        }
+
+        const rawLevel = (obj.level || '').toString().trim()
+        if (!rawLevel) {
+          return
+        }
+        const normalizedLevel = rawLevel.toUpperCase().startsWith('L') ? rawLevel.toUpperCase() : `L${rawLevel}`
+        levelSet.add(normalizedLevel)
+      }
+    })
+
+    return this.sortLevels([...levelSet])
+  }
+
+  private sortLevels(levels: string[]): string[] {
+    return levels.sort((a, b) => {
+      const aNum = Number((a || '').replace(/[^0-9]/g, ''))
+      const bNum = Number((b || '').replace(/[^0-9]/g, ''))
+      if (Number.isFinite(aNum) && Number.isFinite(bNum) && aNum !== bNum) {
+        return aNum - bNum
+      }
+      return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' })
+    })
+  }
+
+  private getHierarchyCacheKey(code: string, language: string): string {
+    return `${code}|${this.getLanguageCode(language)}`
+  }
+
+  private normalizeEntityCode(code: unknown): string {
+    return (code || '').toString().trim().toUpperCase()
   }
 
   // ============= LANGUAGE DROPDOWN =============
@@ -432,7 +671,7 @@ export class PositionUploadComponent implements OnInit, OnDestroy {
             message: 'Your position data has been uploaded successfully.',
             count: uploadedCount
           }
-          this.showResultModal(successData, false, false, FRAC_ROUTES.positionManageTable)
+          this.showResultModal(successData, false, false, FRAC_ROUTES.positionManage)
         } else {
           this.showResultModal(this.handleFailure(res), false)
         }
@@ -529,7 +768,7 @@ export class PositionUploadComponent implements OnInit, OnDestroy {
     }
 
     if (!this.hasPendingTableChanges()) {
-      this.router.navigateByUrl(FRAC_ROUTES.positionManage)
+      this.router.navigateByUrl(FRAC_ROUTES.positionCardGrid)
       return
     }
 
@@ -550,7 +789,7 @@ export class PositionUploadComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe((action: 'continue' | 'cancel' | undefined) => {
         if (action === 'continue') {
-          this.router.navigateByUrl(FRAC_ROUTES.positionManage)
+          this.router.navigateByUrl(FRAC_ROUTES.positionCardGrid)
         }
       })
   }
@@ -605,7 +844,7 @@ export class PositionUploadComponent implements OnInit, OnDestroy {
    * Navigates to the role-like table manage view as a standalone page.
    */
   navigateToListManage(): void {
-    this.router.navigateByUrl('/app/frac/position?mode=manage')
+    this.router.navigateByUrl(FRAC_ROUTES.positionManage)
   }
 
   /**

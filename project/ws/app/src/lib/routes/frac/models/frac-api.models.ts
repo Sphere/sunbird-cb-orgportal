@@ -88,8 +88,8 @@ export interface FracUpdateEntityResponse {
 export interface FracMapEntityRequestItem {
   parentEntityType: string
   parentEntityCode: string
-  childEntityType: string
-  childEntityCode: string
+  childEntityType?: string
+  childEntityCode?: string
   competencies?: Array<number | string | Record<string, unknown>>
 }
 
@@ -112,6 +112,25 @@ export interface FracMappingSearchResponse {
   responseCode?: string
   params?: FracApiParams
   result?: FracEntityChild[]
+  [key: string]: unknown
+}
+
+export interface FracHierarchyNode {
+  entityType?: string
+  entityCode?: string
+  entityName?: string
+  entityDescription?: string
+  language?: string
+  competencies?: Array<FracEntityChild | number | string | Record<string, unknown>> | null
+  children?: FracHierarchyNode[] | null
+  childHierarchy?: FracHierarchyNode[] | null
+  [key: string]: unknown
+}
+
+export interface FracHierarchyResponse {
+  responseCode?: string
+  params?: FracApiParams
+  result?: FracHierarchyNode | FracHierarchyNode[]
   [key: string]: unknown
 }
 

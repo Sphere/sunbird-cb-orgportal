@@ -15,6 +15,7 @@ export class ActivityMappingTableComponent implements OnInit, OnChanges {
   @Input() isActionLoading = false
   @Input() searchResetKey = 0
   @Input() isReadOnly = false
+  @Input() isSaving = false
 
   @Output() searchChange = new EventEmitter<string>()
   @Output() activityCheckChange = new EventEmitter<{ code: string; checked: boolean }>()
@@ -78,7 +79,7 @@ export class ActivityMappingTableComponent implements OnInit, OnChanges {
   }
 
   isAddDisabled(): boolean {
-    if (this.isLoading || this.isActionLoading) return true
+    if (this.isLoading || this.isActionLoading || this.isSaving) return true
     if (!this.selectedRole) return true
 
     const hasSelected = Object.values(this.selectedActivityMap || {}).some(v => v)

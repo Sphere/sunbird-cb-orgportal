@@ -109,10 +109,7 @@ export class FracUploadPopupComponent implements OnInit {
       alert(this.config?.validationMessages?.fileRequired || 'Please select a file first.')
       return
     }
-    if (!this.selectedLanguage) {
-      alert(this.config?.validationMessages?.languageRequired || 'Please select language.')
-      return
-    }
+
 
     this.dialogRef.close({
       action: 'upload',

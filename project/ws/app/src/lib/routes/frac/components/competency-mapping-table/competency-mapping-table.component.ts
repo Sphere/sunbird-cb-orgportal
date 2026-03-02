@@ -31,6 +31,7 @@ export class CompetencyMappingTableComponent implements OnInit, OnChanges {
   @Input() isLoading = false;
   @Input() searchResetKey = 0;
   @Input() isReadOnly = false;
+  @Input() isSaving = false;
 
   /* ---------------------------
      Output events to parent
@@ -142,24 +143,16 @@ export class CompetencyMappingTableComponent implements OnInit, OnChanges {
   }
 
   isAddDisabled(): boolean {
-    // No activity selected
     if (!this.selectedActivity) return true
+    if (this.isSaving) return true
 
-    // Extract selected levels from selectedMap
     const hasSelectedLevels =
       Object.values(this.selectedMap || {}).some((levels) => levels.length > 0)
-
-    // Check whether previously activity had competencies
     const hadPreviousCompetencies =
       (this.selectedActivity?.competencyDetails?.length || 0) > 0
 
-    // Allowed case: user clearing all mappings
-    // const userIsClearingAll = !hasSelectedLevels && hadPreviousCompetencies
-
-    // Disable only when no levels selected AND no previous mapping
     if (!hasSelectedLevels && !hadPreviousCompetencies) return true
-
-    return false // Enable otherwise
+    return false
   }
 
   get emptyStateTitle(): string {

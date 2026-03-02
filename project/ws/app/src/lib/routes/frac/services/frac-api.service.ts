@@ -7,6 +7,7 @@ import {
   FracEntityType,
   FracMapEntityRequest,
   FracMapEntityResponse,
+  FracHierarchyResponse,
   FracMappingSearchRequest,
   FracMappingSearchResponse,
   FracSearchRequest,
@@ -57,6 +58,19 @@ export class FracApiService {
     }
 
     return this.http.post<FracMappingSearchResponse>(this.apiEndpoints.searchMapping, body, { headers: this.headers })
+  }
+
+  /**
+   * Fetches full hierarchy for an entity (position -> role -> activity -> competency).
+   */
+  searchEntityHierarchy(entityType: FracEntityType | string, entityCode: string, language: string = 'English'): Observable<FracHierarchyResponse> {
+    const body: FracMappingSearchRequest = {
+      entityType: this.mapEntityType(entityType),
+      entityCode: (entityCode || '').trim(),
+      entityLanguage: this.mapLanguageToCode(language),
+    }
+
+    return this.http.post<FracHierarchyResponse>(this.apiEndpoints.hierarchy, body, { headers: this.headers })
   }
 
   /**

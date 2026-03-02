@@ -277,7 +277,7 @@ export class CompetencyUploadComponent {
    * Opens the dialog popup where the user can select and upload a CSV or Excel file.
    */
   openUploadPopup() {
-    const config = buildFracUploadPopupConfig('competency', this.languages, '')
+    const config = buildFracUploadPopupConfig('competency', this.languages, this.selectedLanguage)
 
     const dialogRef = this.dialog.open(FracUploadPopupComponent, {
       width: FRAC_DIALOG_SIZES.uploadPopup,
@@ -287,12 +287,8 @@ export class CompetencyUploadComponent {
 
     dialogRef.afterClosed().subscribe((result: UploadPopupResult | undefined) => {
       if (result?.action === 'upload' && result?.file) {
-        if (!result.language) {
-          fracLogger.warn('Upload blocked because language was not selected in popup.')
-          return
-        }
         fracLogger.debug('Upload file selected from popup', { name: result.file.name, size: result.file.size })
-        this.uploadFile(result.file, result.language)
+        this.uploadFile(result.file, result.language || this.selectedLanguage)
       }
     })
   }
