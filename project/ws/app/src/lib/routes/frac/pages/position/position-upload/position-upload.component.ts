@@ -27,6 +27,11 @@ import {
   HierarchyChipType,
   HierarchyDetailItem,
 } from '../../../components/hierarchy-chip-details-modal/hierarchy-chip-details-modal.component'
+import {
+  PositionHierarchyViewModalComponent,
+  PositionHierarchyViewModalData,
+} from '../../../components/position-hierarchy-view-modal/position-hierarchy-view-modal.component'
+import { buildPositionMappingTree } from '../../../utils/common.util'
 
 interface UploadEmptyStateConfig {
   icon: string
@@ -129,7 +134,7 @@ export class PositionUploadComponent implements OnInit, OnDestroy {
   }
 
   /** Shimmer placeholder cards shown while card grid is loading. Count is config-driven. */
-  readonly shimmerCardCount = 8
+  readonly shimmerCardCount = 15
   readonly shimmerCards = Array.from({ length: this.shimmerCardCount })
   readonly defaultHierarchyCounts: PositionHierarchyCounts = { role: 0, activity: 0, competency: 0 }
   readonly defaultHierarchyDetails: PositionHierarchyDetails = { role: [], activity: [], competency: [] }
@@ -152,6 +157,7 @@ export class PositionUploadComponent implements OnInit, OnDestroy {
   private baselineTableSignature = ''
   private baselineRowSignatureByCode = new Map<string, string>()
   private hierarchyAggregateCache = new Map<string, PositionHierarchyAggregate>()
+  private hierarchyRawResponseCache = new Map<string, import('../../../models/frac-api.models').FracHierarchyResponse>()
   private hierarchyRequestToken = 0
 
   // ============= LIFECYCLE =============
@@ -306,6 +312,7 @@ export class PositionUploadComponent implements OnInit, OnDestroy {
         map((response) => {
           const aggregate = this.extractHierarchyAggregateFromResponse(response)
           this.hierarchyAggregateCache.set(cacheKey, aggregate)
+          this.hierarchyRawResponseCache.set(cacheKey, response)
           return { code, aggregate }
         }),
         catchError(() => of({
@@ -848,9 +855,69 @@ export class PositionUploadComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Navigates to the role-position mapping page for the selected position.
-   * @param position The position card that was clicked.
+   * Opens the hierarchy view dialog for a position card.
+   * Reuses the cached raw hierarchy response if available; otherwise fetches from the API.
+   * Side effects: opens MatDialog with the full mapping tree.
+   * @param position The position card clicked by the user.
    */
+  onViewPosition(position: Record<string, unknown>): void {
+    const code = this.normalizeEntityCode(position?.['code'])
+    const positionName = (position?.['name'] || position?.['code'] || '').toString()
+    const language = this.selectedLanguage
+    const cacheKey = this.getHierarchyCacheKey(code, language)
+    const rawCached = this.hierarchyRawResponseCache.get(cacheKey)
+
+    if (rawCached) {
+      this.openPositionHierarchyDialogFromResponse(positionName, code, rawCached)
+      return
+    }
+
+    this.fracApiService.searchEntityHierarchy('position', code, language)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (response) => {
+          const aggregate = this.extractHierarchyAggregateFromResponse(response)
+          this.hierarchyAggregateCache.set(cacheKey, aggregate)
+          this.hierarchyRawResponseCache.set(cacheKey, response)
+          this.openPositionHierarchyDialogFromResponse(positionName, code, response)
+        },
+        error: () => {
+          this.openPositionHierarchyDialogFromResponse(positionName, code, { result: [] })
+        },
+      })
+  }
+
+  /**
+   * Opens PositionHierarchyViewModalComponent using the raw hierarchy API response.
+   * @param positionName Display name shown in the dialog header.
+   * @param positionCode Entity code for navigation on Edit.
+   * @param response Raw FracHierarchyResponse to parse into the tree.
+   * Side effects: opens MatDialog.
+   */
+  private openPositionHierarchyDialogFromResponse(
+    positionName: string,
+    positionCode: string,
+    response: import('../../../models/frac-api.models').FracHierarchyResponse,
+  ): void {
+    const roles = buildPositionMappingTree(response)
+
+    const dialogData: PositionHierarchyViewModalData = {
+      positionName,
+      positionCode,
+      roles,
+      language: this.selectedLanguage,
+    }
+
+    this.dialog.open(PositionHierarchyViewModalComponent, {
+      width: FRAC_DIALOG_SIZES.positionHierarchyView,
+      maxWidth: '96vw',
+      maxHeight: '90vh',
+      disableClose: false,
+      panelClass: 'position-hierarchy-view-dialog',
+      data: dialogData,
+    })
+  }
+
   onViewEdit(position: Record<string, unknown>): void {
     const code = position?.['code'] as string | undefined
     const queryParams = code ? { positionCode: code } : {}

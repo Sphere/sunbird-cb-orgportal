@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core'
 import { MatDialog } from '@angular/material/dialog'
-import { Router } from '@angular/router'
+import { ActivatedRoute, Router } from '@angular/router'
 import { forkJoin, of, Subject } from 'rxjs'
 import { catchError, debounceTime, distinctUntilChanged, map, takeUntil } from 'rxjs/operators'
 import { MappingRequiredModalComponent, MissingMappingItem } from '../../components/mapping-required-modal/mapping-required-modal.component'
@@ -63,6 +63,7 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
     private snackbar: CustomSnackbarService,
     private fracApiService: FracApiService,
     private dialog: MatDialog,
+    private activatedRoute: ActivatedRoute,
     private router: Router,
   ) { }
 
@@ -113,6 +114,9 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
   private readonly clearedPositionDraftKeys = new Set<string>()
   private activePositionRoleMappingRequestKey: string | null = null
   private readonly positionBaseLanguage = FRAC_LANGUAGES[0]
+  private routePositionCode: string | null = null
+  private hasAutoSelectedRoutePosition = false
+  private hasTriggeredRoutePositionSearch = false
 
   /**
    * Runs once when the page loads. Sets up search listeners and checks the URL to see if we are in upload or manage mode.
@@ -120,6 +124,14 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.setupSearchStreams()
     this.resetInitialView()
+
+    this.activatedRoute.queryParams
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((queryParams) => {
+        const positionCode = (queryParams?.positionCode || '').toString().trim()
+        this.routePositionCode = positionCode || null
+      })
+
     this.fetchPositions('')
   }
 
@@ -182,6 +194,9 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
     this.positionRoleMappingCache.clear()
     this.positionDraftStore.clear()
     this.clearedPositionDraftKeys.clear()
+
+    this.hasAutoSelectedRoutePosition = false
+    this.hasTriggeredRoutePositionSearch = false
   }
 
   // ---------------------------------------------------------------------------
@@ -207,6 +222,8 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
         this.positions = [...hydrated]
         this.filteredPositions = [...hydrated]
 
+        this.applyRoutePositionSelection(hydrated, keyword)
+
         if (this.selectedPosition) {
           const hasSearchKeyword = !!keyword.trim()
           const matched = hydrated.find(p => p.code === this.selectedPosition!.code)
@@ -231,6 +248,35 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
         this.filteredPositions = []
       },
     })
+  }
+
+  private applyRoutePositionSelection(positions: PositionItem[], keyword: string): void {
+    if (this.hasAutoSelectedRoutePosition) {
+      return
+    }
+
+    const routeCode = (this.routePositionCode || '').trim()
+    if (!routeCode) {
+      return
+    }
+
+    if (this.selectedPosition?.code) {
+      this.hasAutoSelectedRoutePosition = true
+      return
+    }
+
+    const match = positions.find(position => position.code === routeCode)
+    if (match) {
+      this.hasAutoSelectedRoutePosition = true
+      this.onPositionSelected(match)
+      return
+    }
+
+    const isInitialLoad = !keyword.trim()
+    if (isInitialLoad && !this.hasTriggeredRoutePositionSearch) {
+      this.hasTriggeredRoutePositionSearch = true
+      this.fetchPositions(routeCode)
+    }
   }
 
   /**

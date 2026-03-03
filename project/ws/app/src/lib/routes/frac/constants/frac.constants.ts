@@ -29,7 +29,9 @@ export const FRAC_DIALOG_SIZES = {
   unsavedChanges: '363px',
   mappingRequired: '425px',
   hierarchyChipDetails: '560px',
+  positionHierarchyView: '860px',
 } as const
+
 
 export const FRAC_SNACKBAR_DURATION_MS = 3000
 export const FRAC_WORD_WRAP_LIMIT = 40

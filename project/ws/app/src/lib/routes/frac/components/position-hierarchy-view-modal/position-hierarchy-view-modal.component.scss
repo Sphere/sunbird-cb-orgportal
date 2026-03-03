@@ -1,0 +1,427 @@
+.phv-modal {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  max-height: 85vh;
+  min-width: 300px;
+  font-family: 'Inter', 'Roboto', sans-serif;
+}
+
+// Dialog panel — rounded corners matching other FRAC modals
+:host ::ng-deep .mat-dialog-container,
+:host ::ng-deep .mdc-dialog__surface {
+  border-radius: 14px !important;
+  overflow: hidden;
+}
+
+// ---------------------------------------------------------------------------
+// Header
+// ---------------------------------------------------------------------------
+
+.phv-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 12px;
+  gap: 12px;
+}
+
+.phv-header-left {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+}
+
+.phv-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a1a2e;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.phv-title-icon {
+  color: #5c6bc0;
+  font-size: 22px;
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+}
+
+.phv-header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.phv-close-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  border-radius: 50%;
+  cursor: pointer;
+  color: #666;
+  transition: background 0.15s;
+
+  &:hover {
+    background: #f0f0f0;
+    color: #333;
+  }
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Summary stat pills
+// ---------------------------------------------------------------------------
+
+.phv-summary-bar {
+  display: flex;
+  gap: 10px;
+  padding: 10px 24px 16px;
+  flex-wrap: wrap;
+}
+
+.phv-stat-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
+.phv-stat-icon {
+  font-size: 15px;
+  width: 15px;
+  height: 15px;
+}
+
+.phv-stat-role {
+  background: #e8eaf6;
+  color: #3949ab;
+}
+
+.phv-stat-activity {
+  background: #fff3e0;
+  color: #e65100;
+}
+
+.phv-stat-competency {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+// ---------------------------------------------------------------------------
+// Tree container
+// ---------------------------------------------------------------------------
+
+.phv-tree {
+  overflow-y: auto;
+  padding: 16px 24px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+  min-height: 0;
+}
+
+// ---------------------------------------------------------------------------
+// Role row
+// ---------------------------------------------------------------------------
+
+.phv-role-block {
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.phv-role-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  background: #fff;
+  border-left: 4px solid #5c6bc0;
+  cursor: pointer;
+  transition: background 0.15s;
+  gap: 12px;
+
+  &:hover {
+    background: #f5f6fd;
+  }
+
+  &.phv-role-row--expanded {
+    background: #f0f2fb;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Activity row
+// ---------------------------------------------------------------------------
+
+.phv-activities {
+  background: #fafafa;
+  border-left: 4px solid #5c6bc0;
+}
+
+.phv-activity-block {
+  border-top: 1px solid #ebebeb;
+}
+
+.phv-activity-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px 12px 28px;
+  background: #fff;
+  border-left: 4px solid #ff8f00;
+  cursor: pointer;
+  transition: background 0.15s;
+  gap: 12px;
+
+  &:hover {
+    background: #fff8f0;
+  }
+
+  &.phv-activity-row--expanded {
+    background: #fff3e0;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Shared row layout
+// ---------------------------------------------------------------------------
+
+.phv-row-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+
+.phv-row-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.phv-row-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #2d2d2d;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.phv-code-label {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: #f0f0f0;
+  color: #555;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: monospace;
+  letter-spacing: 0.3px;
+}
+
+.phv-activity-count,
+.phv-competency-count {
+  font-size: 12px;
+  color: #888;
+}
+
+.phv-chevron {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  color: #888;
+  transition: transform 0.2s;
+}
+
+// ---------------------------------------------------------------------------
+// Type badge chips
+// ---------------------------------------------------------------------------
+
+.phv-type-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+}
+
+.phv-badge-role {
+  background: #e8eaf6;
+  color: #3949ab;
+}
+
+.phv-badge-activity {
+  background: #fff3e0;
+  color: #e65100;
+}
+
+// ---------------------------------------------------------------------------
+// Competency list — table-aligned rows
+// ---------------------------------------------------------------------------
+
+.phv-competencies {
+  padding: 8px 16px 12px 32px;
+  background: #f8f8f8;
+  border-top: 1px solid #ebebeb;
+}
+
+.phv-competency-chips {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+// Each competency is a horizontal row: [code pill] | name | [level badge]
+.phv-competency-chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px;
+  background: #fff;
+  border: 1px solid #e8eaf0;
+  border-radius: 8px;
+  font-size: 12.5px;
+  transition: background 0.12s;
+
+  &:hover {
+    background: #f3f4fb;
+  }
+}
+
+.phv-comp-code-pill {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: #e8eaf6;
+  color: #3949ab;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: monospace;
+  letter-spacing: 0.3px;
+}
+
+.phv-comp-name {
+  flex: 1;
+  font-weight: 500;
+  color: #1f2937;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.phv-level-range {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 9px;
+  background: #1C5D95;
+  color: #fff;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+
+.phv-no-level {
+  font-size: 11px;
+  color: #bbb;
+  font-style: italic;
+  flex-shrink: 0;
+}
+
+// Keep old class for possible future use — hidden now
+.phv-comp-code,
+.phv-level-badge {
+  display: none;
+}
+
+// ---------------------------------------------------------------------------
+// Empty / no-child states
+// ---------------------------------------------------------------------------
+
+.phv-no-child {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px 10px 44px;
+  font-size: 12.5px;
+  color: #aaa;
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+  }
+}
+
+.phv-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  text-align: center;
+}
+
+.phv-empty-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  color: #d0d0d0;
+  margin-bottom: 16px;
+}
+
+.phv-empty-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #555;
+  margin: 0 0 6px;
+}
+
+.phv-empty-sub {
+  font-size: 13px;
+  color: #999;
+  margin: 0;
+}

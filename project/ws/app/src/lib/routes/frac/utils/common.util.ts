@@ -1,4 +1,145 @@
-import { FracApiEntity, FracSearchResponse } from '../models/frac-api.models'
+import { FracApiEntity, FracHierarchyNode, FracHierarchyResponse, FracSearchResponse } from '../models/frac-api.models'
+
+// ---------------------------------------------------------------------------
+// Position Hierarchy Tree — shared model
+// ---------------------------------------------------------------------------
+
+export interface MappedCompetency {
+  code: string
+  name: string
+  levels: string[]
+}
+
+export interface MappedActivity {
+  code: string
+  name: string
+  competencies: MappedCompetency[]
+}
+
+export interface MappedRole {
+  code: string
+  name: string
+  activities: MappedActivity[]
+}
+
+/**
+ * Converts a FracHierarchyResponse into a nested MappedRole tree.
+ * Walks Position → Role → Activity → Competency hierarchy.
+ * @param response Raw hierarchy API response for a position.
+ * @returns Ordered list of roles, each with their activities and competencies.
+ */
+export function buildPositionMappingTree(response: FracHierarchyResponse | null | undefined): MappedRole[] {
+  const resultNode = response?.result
+  const roots: FracHierarchyNode[] = Array.isArray(resultNode)
+    ? resultNode
+    : resultNode ? [resultNode] : []
+
+  const roleMap = new Map<string, MappedRole>()
+
+  const normalizeCode = (code: unknown): string => (code || '').toString().trim().toUpperCase()
+  const normalizeName = (node: FracHierarchyNode): string =>
+    ((node.entityName || node.entityDescription || '') as string).toString().trim()
+
+  const visitNode = (node: FracHierarchyNode, parentRole: MappedRole | null, parentActivity: MappedActivity | null): void => {
+    if (!node) {
+      return
+    }
+
+    const entityType = (node.entityType || '').toString().trim().toUpperCase()
+    const code = normalizeCode(node.entityCode)
+    const name = normalizeName(node)
+
+    let currentRole = parentRole
+    let currentActivity = parentActivity
+
+    if (entityType === 'ROLE') {
+      if (!roleMap.has(code)) {
+        roleMap.set(code, { code, name: name || code, activities: [] })
+      }
+      currentRole = roleMap.get(code)!
+      currentActivity = null
+    } else if (entityType === 'ACTIVITY' && currentRole) {
+      let activity = currentRole.activities.find(a => a.code === code)
+      if (!activity) {
+        activity = { code, name: name || code, competencies: [] }
+        currentRole.activities.push(activity)
+      }
+      currentActivity = activity
+    } else if (entityType === 'COMPETENCY' && currentActivity) {
+      let competency = currentActivity.competencies.find(c => c.code === code)
+      if (!competency) {
+        competency = { code, name: name || code, levels: [] }
+        currentActivity.competencies.push(competency)
+      }
+      const levels = extractLevelsFromNode(node)
+      levels.forEach(level => {
+        if (!competency!.levels.includes(level)) {
+          competency!.levels.push(level)
+        }
+      })
+      sortLevels(competency.levels)
+    }
+
+    const children: FracHierarchyNode[] = Array.isArray(node.children)
+      ? (node.children as FracHierarchyNode[])
+      : Array.isArray(node.childHierarchy) ? (node.childHierarchy as FracHierarchyNode[]) : []
+
+    children.forEach(child => visitNode(child, currentRole, currentActivity))
+  }
+
+  roots.forEach(root => visitNode(root, null, null))
+  return [...roleMap.values()]
+}
+
+/**
+ * Extracts level labels (e.g. 'L1', 'L2') from a competency hierarchy node.
+ * @param node A FRAC hierarchy node for a competency.
+ * @returns Array of level strings like ['L1', 'L2'].
+ */
+function extractLevelsFromNode(node: FracHierarchyNode): string[] {
+  if (!Array.isArray(node.competencies)) {
+    return []
+  }
+
+  const levelSet = new Set<string>()
+  node.competencies.forEach((entry) => {
+    if (!entry || typeof entry !== 'object') {
+      return
+    }
+
+    const obj = entry as Record<string, unknown>
+    const levelNumber = Number(obj.levelNumber)
+    if (Number.isFinite(levelNumber) && levelNumber > 0) {
+      levelSet.add(`L${levelNumber}`)
+      return
+    }
+
+    const rawLevel = (obj.level || '').toString().trim()
+    if (rawLevel) {
+      const normalizedLevel = rawLevel.toUpperCase().startsWith('L') ? rawLevel.toUpperCase() : `L${rawLevel}`
+      levelSet.add(normalizedLevel)
+    }
+  })
+
+  return [...levelSet]
+}
+
+/**
+ * Sorts level strings numerically in place (L1, L2, L3...).
+ * @param levels Array of level strings to sort.
+ */
+function sortLevels(levels: string[]): void {
+  levels.sort((a, b) => {
+    const aNum = Number(a.replace(/[^0-9]/g, ''))
+    const bNum = Number(b.replace(/[^0-9]/g, ''))
+    if (Number.isFinite(aNum) && Number.isFinite(bNum) && aNum !== bNum) {
+      return aNum - bNum
+    }
+    return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' })
+  })
+}
+
+
 
 export type FlatEntityRow = Record<string, unknown>
 

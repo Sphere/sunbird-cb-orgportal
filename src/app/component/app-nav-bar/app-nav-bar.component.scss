@@ -31,22 +31,26 @@
 
 .logo-dim {
   min-width: 70px;
-  max-width: 174px;
+  max-width: 180px;
   /* margin-right: 10rem; */
   margin-top: auto;
   margin-bottom: auto;
-  width: 174px;
+  width: 180px;
   margin-right: 2rem;
 }
 
 .app-logo {
-  max-width: 100px;
-  max-height: 30px;
-  min-width: 30px;
-  padding: 8px 0 0 8px;
+  max-width: 160px;
+  max-height: 48px;
+  min-width: 40px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  padding: 4px 0 4px 8px;
 
   @include breakpoint-xs {
-    max-width: 80px;
+    max-width: 120px;
+    max-height: 40px;
   }
 }
 

@@ -41,7 +41,8 @@
 
     <div class="loading-overlay" *ngIf="isUploading" [class.show]="isUploading">
       <div class="spinner-container">
-        <mat-spinner [diameter]="uploadPageSpinner.diameter" [strokeWidth]="uploadPageSpinner.strokeWidth"></mat-spinner>
+        <mat-spinner [diameter]="uploadPageSpinner.diameter"
+          [strokeWidth]="uploadPageSpinner.strokeWidth"></mat-spinner>
         <p class="loading-text">{{ uiConfig.labels.uploadLoaderContent }}</p>
       </div>
     </div>
@@ -58,8 +59,8 @@
         </div>
       </div>
       <app-upload-activity-list-table [columns]="tableConfig.columns" [data]="tableConfig.data" [showCheckbox]="true"
-        [enableSorting]="true" [enablePagination]="false" [gridStyle]="'both'" [isEditing]="isEditing" [isLoading]="false"
-        (selectionChange)="onSelectionChange($event)">
+        [enableSorting]="true" [enablePagination]="false" [gridStyle]="'both'" [isEditing]="isEditing"
+        [isLoading]="false" (selectionChange)="onSelectionChange($event)">
       </app-upload-activity-list-table>
     </div>
   </ng-container>
@@ -86,12 +87,26 @@
       </div>
     </div>
 
-    <!-- Square card shimmer grid — shown while loading -->
+    <!-- Card shimmer grid — shown while loading -->
     <div class="position-cards-grid" *ngIf="isSearching" aria-hidden="true">
       <div class="position-card shimmer-card" *ngFor="let _ of shimmerCards">
-        <div class="shimmer-line shimmer-title"></div>
-        <div class="shimmer-line shimmer-stat"></div>
-        <div class="shimmer-line shimmer-action"></div>
+        <!-- accent bar -->
+        <div class="shimmer-accent"></div>
+        <!-- card body -->
+        <div class="shimmer-card-body">
+          <div class="shimmer-line shimmer-title"></div>
+          <div class="shimmer-line shimmer-title shimmer-title-short"></div>
+          <div class="shimmer-stat-row">
+            <div class="shimmer-badge"></div>
+            <div class="shimmer-badge"></div>
+            <div class="shimmer-badge"></div>
+          </div>
+        </div>
+        <!-- action row -->
+        <div class="shimmer-actions">
+          <div class="shimmer-btn"></div>
+          <div class="shimmer-btn shimmer-btn-sm"></div>
+        </div>
       </div>
     </div>
 
@@ -110,45 +125,49 @@
     <!-- Card grid -->
     <div class="position-cards-grid" *ngIf="!isSearching && searchResults?.length">
       <div class="position-card" *ngFor="let pos of searchResults">
+
+        <!-- Card top accent bar -->
+        <div class="position-card-accent"></div>
+
         <div class="position-card-body">
-          <h3 class="pos-title">{{ pos.name || pos.code }}</h3>
-          <div class="position-meta-lines">
-            <div class="meta-line-row">
-              <div class="meta-line-text">
-                No of Roles:
-                <button type="button" class="count-value-btn" (click)="onCountChipClick(pos, 'role')"
-                  [disabled]="!getPositionHierarchyCounts(pos).role">
-                  {{ getPositionHierarchyCounts(pos).role }}
-                </button>
-              </div>
+          <!-- Position name -->
+          <h3 class="pos-title" [title]="pos.name || pos.code">{{ pos.name || pos.code }}</h3>
+
+          <!-- Stat badges row -->
+          <div class="position-stat-row">
+            <div class="position-stat-badge">
+              <mat-icon class="stat-badge-icon stat-icon-role">work_outline</mat-icon>
+              <span class="stat-badge-count">{{ getPositionHierarchyCounts(pos).role }}</span>
+              <span class="stat-badge-label">Roles</span>
             </div>
-            <div class="meta-line-row">
-              <div class="meta-line-text">
-                No of Activities:
-                <button type="button" class="count-value-btn" (click)="onCountChipClick(pos, 'activity')"
-                  [disabled]="!getPositionHierarchyCounts(pos).activity">
-                  {{ getPositionHierarchyCounts(pos).activity }}
-                </button>
-              </div>
+            <div class="position-stat-badge">
+              <mat-icon class="stat-badge-icon stat-icon-activity">task_alt</mat-icon>
+              <span class="stat-badge-count">{{ getPositionHierarchyCounts(pos).activity }}</span>
+              <span class="stat-badge-label">Activities</span>
             </div>
-            <div class="meta-line-row">
-              <div class="meta-line-text">
-                No of Competencies:
-                <button type="button" class="count-value-btn" (click)="onCountChipClick(pos, 'competency')"
-                  [disabled]="!getPositionHierarchyCounts(pos).competency">
-                  {{ getPositionHierarchyCounts(pos).competency }}
-                </button>
-              </div>
+            <div class="position-stat-badge">
+              <mat-icon class="stat-badge-icon stat-icon-competency">psychology</mat-icon>
+              <span class="stat-badge-count">{{ getPositionHierarchyCounts(pos).competency }}</span>
+              <span class="stat-badge-label">Competencies</span>
             </div>
           </div>
         </div>
+
+        <!-- Actions -->
         <div class="position-card-actions">
-          <button type="button" class="card-action-label" (click)="onViewEdit(pos)">
-            {{ uiConfig.labels.viewEdit }}
+          <button type="button" class="card-action-btn card-action-view" (click)="onViewPosition(pos)">
+            <mat-icon class="card-action-icon">visibility</mat-icon>
+            View
+          </button>
+          <button type="button" class="card-action-btn card-action-edit" (click)="onViewEdit(pos)">
+            <mat-icon class="card-action-icon">edit</mat-icon>
+            Edit
           </button>
         </div>
+
       </div>
     </div>
+
   </ng-container>
 
   <!-- ===== MANAGE MODE — role-like table (?mode=manage) ===== -->
@@ -166,7 +185,8 @@
         <div class="search-box" [class.disabled]="isFilterControlsDisabled()">
           <input matInput type="text" [placeholder]="uiConfig.labels.searchPlaceholder" [(ngModel)]="searchTerm"
             [disabled]="isFilterControlsDisabled()" (input)="onSearchTermChange()" (keydown.enter)="onSearchEnter()" />
-          <button mat-icon-button matSuffix class="icon-btn" (click)="onSearch()" [disabled]="isFilterControlsDisabled()">
+          <button mat-icon-button matSuffix class="icon-btn" (click)="onSearch()"
+            [disabled]="isFilterControlsDisabled()">
             <mat-icon>search</mat-icon>
           </button>
         </div>
