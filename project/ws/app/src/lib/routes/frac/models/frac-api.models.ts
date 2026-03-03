@@ -77,6 +77,7 @@ export interface FracSearchResponse {
 }
 
 export type FracUpdateEntityPayload = Record<string, unknown>
+export type FracUpdateEntityRequest = FracUpdateEntityPayload[]
 
 export interface FracUpdateEntityResponse {
   responseCode?: string

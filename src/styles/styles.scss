@@ -731,3 +731,24 @@ h3.shepherd-title {
   overflow: hidden !important;
   padding: 0 !important;
 }
+
+/* FRAC position hierarchy view popup: enforce stable width, centered layout, and clean surface */
+.cdk-overlay-pane.position-hierarchy-view-dialog,
+.position-hierarchy-view-dialog.cdk-overlay-pane {
+  width: min(860px, 96vw) !important;
+  max-width: 96vw !important;
+}
+
+.cdk-overlay-pane.position-hierarchy-view-dialog .mat-mdc-dialog-container,
+.position-hierarchy-view-dialog .mat-mdc-dialog-container {
+  padding: 0 !important;
+}
+
+.cdk-overlay-pane.position-hierarchy-view-dialog .mat-mdc-dialog-surface,
+.cdk-overlay-pane.position-hierarchy-view-dialog .mdc-dialog__surface,
+.position-hierarchy-view-dialog .mat-mdc-dialog-surface,
+.position-hierarchy-view-dialog .mdc-dialog__surface {
+  border-radius: 24px !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+}

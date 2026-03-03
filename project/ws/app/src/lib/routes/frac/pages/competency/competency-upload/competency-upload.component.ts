@@ -16,7 +16,7 @@ import {
   UploadSearchSource,
   UploadSearchTriggerPayload,
 } from '../../../services/frac-entity-upload-orchestrator.service'
-import { forkJoin, Subject, Subscription } from 'rxjs'
+import { Subject, Subscription } from 'rxjs'
 import { takeUntil } from 'rxjs/operators'
 import { FRAC_UI_CONFIG } from '../../../models/ui.config.model'
 import { FRAC_DIALOG_SIZES, FRAC_ROUTES } from '../../../constants/frac.constants'
@@ -360,7 +360,7 @@ export class CompetencyUploadComponent {
 
     this.isUpdating = true
 
-    forkJoin(payloads.map(payload => this.fracApiService.updateEntity(payload))).subscribe({
+    this.fracApiService.updateEntity(payloads).subscribe({
       next: () => {
         this.isUpdating = false
         this.isEditing = false

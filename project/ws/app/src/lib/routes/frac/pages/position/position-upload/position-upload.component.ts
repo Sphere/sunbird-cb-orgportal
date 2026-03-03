@@ -557,7 +557,7 @@ export class PositionUploadComponent implements OnInit, OnDestroy {
 
     this.isUpdating = true
 
-    forkJoin(payloads.map(payload => this.fracApiService.updateEntity(payload))).subscribe({
+    this.fracApiService.updateEntity(payloads).subscribe({
       next: () => {
         this.isUpdating = false
         this.isEditing = false

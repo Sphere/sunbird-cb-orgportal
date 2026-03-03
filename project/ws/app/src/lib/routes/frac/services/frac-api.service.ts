@@ -12,6 +12,7 @@ import {
   FracMappingSearchResponse,
   FracSearchRequest,
   FracSearchResponse,
+  FracUpdateEntityRequest,
   FracUpdateEntityPayload,
   FracUpdateEntityResponse,
   FracUploadApiResponse,
@@ -33,11 +34,12 @@ export class FracApiService {
   }
 
   /**
-   * Updates one FRAC entity record.
+   * Updates FRAC entity records in batch.
    */
-  updateEntity(payload: FracUpdateEntityPayload, userId?: string): Observable<FracUpdateEntityResponse> {
+  updateEntity(payload: FracUpdateEntityPayload | FracUpdateEntityRequest, userId?: string): Observable<FracUpdateEntityResponse> {
     const params = new HttpParams().set('userId', userId || this.getLoggedInUserIdentifier())
-    return this.http.put<FracUpdateEntityResponse>(this.apiEndpoints.updateEntity, payload, { headers: this.headers, params })
+    const requestBody: FracUpdateEntityRequest = Array.isArray(payload) ? payload : [payload]
+    return this.http.put<FracUpdateEntityResponse>(this.apiEndpoints.updateEntity, requestBody, { headers: this.headers, params })
   }
 
   /**
