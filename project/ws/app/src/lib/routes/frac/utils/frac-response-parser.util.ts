@@ -173,16 +173,44 @@ export class FracResponseParserUtil {
    */
   static getRawMessage(payload: ParsedFracPayload): string | undefined {
     if (!payload) {
+      console.warn('[FracResponseParser] getRawMessage: payload is null/undefined')
       return undefined
     }
 
-    return (
-      (payload.params?.errmsg as string | undefined) ||
-      payload.errmsg ||
-      payload.message ||
-      payload.error_description ||
-      (payload.params?.status as string | undefined)
-    )
+    console.log('[FracResponseParser] getRawMessage input:', payload)
+
+    // Extract from params.errmsg first (most specific)
+    const paramsErrmsg = payload.params?.errmsg
+    if (paramsErrmsg && typeof paramsErrmsg === 'string' && paramsErrmsg.trim()) {
+      console.log('[FracResponseParser] Found params.errmsg:', paramsErrmsg)
+      return paramsErrmsg.trim()
+    }
+
+    // Fallback to other fields
+    if (payload.errmsg && typeof payload.errmsg === 'string' && payload.errmsg.trim()) {
+      console.log('[FracResponseParser] Found errmsg:', payload.errmsg)
+      return payload.errmsg.trim()
+    }
+
+    if (payload.message && typeof payload.message === 'string' && payload.message.trim()) {
+      console.log('[FracResponseParser] Found message:', payload.message)
+      return payload.message.trim()
+    }
+
+    if (payload.error_description && typeof payload.error_description === 'string' && payload.error_description.trim()) {
+      console.log('[FracResponseParser] Found error_description:', payload.error_description)
+      return payload.error_description.trim()
+    }
+
+    // Last resort: params.status
+    const paramsStatus = payload.params?.status
+    if (paramsStatus && typeof paramsStatus === 'string' && paramsStatus.trim()) {
+      console.log('[FracResponseParser] Found params.status:', paramsStatus)
+      return paramsStatus.trim()
+    }
+
+    console.warn('[FracResponseParser] No message found in payload')
+    return undefined
   }
 
   /**

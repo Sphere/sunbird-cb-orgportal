@@ -15,20 +15,26 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  min-width: 300px;
+  min-width: 860px;
   max-width: 100%;
   height: min(88vh, calc(100vh - 44px));
   max-height: min(88vh, calc(100vh - 44px));
   font-family: 'Inter', 'Roboto', sans-serif;
   box-sizing: border-box;
   background: linear-gradient(180deg, #f9fcff 0%, #f3f8fd 100%);
+  margin: 0 auto;
 }
 
-// Dialog panel — rounded corners matching other FRAC modals
+// Dialog panel — rounded corners matching other FRAC modals, centered
 :host ::ng-deep .mat-dialog-container,
 :host ::ng-deep .mdc-dialog__surface {
   border-radius: 14px !important;
   overflow: hidden;
+  margin: 0 auto !important;
+}
+
+:host ::ng-deep .mat-mdc-dialog-container {
+  --mdc-dialog-container-shape: 14px;
 }
 
 // ---------------------------------------------------------------------------
@@ -458,6 +464,7 @@
   .phv-modal {
     height: min(90vh, calc(100vh - 24px));
     max-height: min(90vh, calc(100vh - 24px));
+    min-width: 300px;
   }
 
   .phv-header {

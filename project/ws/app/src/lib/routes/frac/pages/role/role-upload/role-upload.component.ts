@@ -577,9 +577,15 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
       ? `Affected Codes: ${affectedCodes.join(', ')}`
       : undefined
 
-    const message = FracResponseParserUtil.isUsefulMessage(apiMessage)
-      ? apiMessage!.trim()
-      : (affectedCodes.length ? 'Multiple occurrences or duplicates found.' : 'Upload failed. Please verify your file and try again.')
+    // FIXED: Always prefer actual API message if it exists and is useful
+    let message: string
+    if (apiMessage && FracResponseParserUtil.isUsefulMessage(apiMessage)) {
+      message = apiMessage.trim()
+    } else if (affectedCodes.length) {
+      message = 'Multiple occurrences or duplicates found.'
+    } else {
+      message = 'Upload failed. Please verify your file and try again.'
+    }
 
     return {
       type: 'error',
