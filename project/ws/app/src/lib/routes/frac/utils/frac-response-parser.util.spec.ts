@@ -62,6 +62,15 @@ describe('FracResponseParserUtil', () => {
     expect(FracResponseParserUtil.getAffectedCodes(parsed)).toEqual(['C1', 'C2'])
   })
 
+  it('should accept any non-empty message as useful including generic words', () => {
+    expect(FracResponseParserUtil.isUsefulMessage('error')).toBeTrue()
+    expect(FracResponseParserUtil.isUsefulMessage('failed')).toBeTrue()
+    expect(FracResponseParserUtil.isUsefulMessage('bad request')).toBeTrue()
+    expect(FracResponseParserUtil.isUsefulMessage('')).toBeFalse()
+    expect(FracResponseParserUtil.isUsefulMessage('   ')).toBeFalse()
+    expect(FracResponseParserUtil.isUsefulMessage(undefined)).toBeFalse()
+  })
+
   it('should collect success and affected codes', () => {
     const payload = {
       responseCode: 'OK',

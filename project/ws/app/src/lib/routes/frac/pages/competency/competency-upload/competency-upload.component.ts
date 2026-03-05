@@ -196,15 +196,6 @@ export class CompetencyUploadComponent {
   private createUploadFailureModalData(response: any): UploadResultData {
     const normalizedResponse = FracResponseParserUtil.parseApiResponse(response)
     const apiMessage = FracResponseParserUtil.getRawMessage(normalizedResponse)
-    
-    // DEBUG: Log to console to see what we're getting
-    console.log('=== UPLOAD FAILURE DEBUG ===');
-    console.log('Raw response:', response);
-    console.log('Normalized response:', normalizedResponse);
-    console.log('API Message extracted:', apiMessage);
-    console.log('Is useful message:', FracResponseParserUtil.isUsefulMessage(apiMessage));
-    console.log('===========================');
-    
     const responseCode =
       normalizedResponse?.responseCode ||
       normalizedResponse?.code ||
@@ -217,9 +208,9 @@ export class CompetencyUploadComponent {
       ? `Affected Codes: ${affectedCodes.join(', ')}`
       : undefined
 
-    // FIXED: Always prefer actual API message if it exists and is useful
+    // FIXED: Always prefer actual API message if it exists
     let message: string
-    if (apiMessage && FracResponseParserUtil.isUsefulMessage(apiMessage)) {
+    if (apiMessage && apiMessage.trim()) {
       message = apiMessage.trim()
     } else if (affectedCodes.length) {
       message = 'Multiple occurrences or duplicates found.'

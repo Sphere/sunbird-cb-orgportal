@@ -143,14 +143,13 @@ export class FracResponseParserUtil {
   }
 
   /**
-   * Returns true when message text is useful for end users.
+   * Returns true when message text exists and is not empty.
+   * Note: We no longer filter "generic" words like "error" or "failed"
+   * because the API may return these as actual meaningful error messages.
    */
   static isUsefulMessage(message: string | undefined): boolean {
-    const normalized = (message || '').trim().toLowerCase()
-    if (!normalized) {
-      return false
-    }
-    return !this.isVagueErrorText(normalized)
+    const normalized = (message || '').trim()
+    return normalized.length > 0
   }
 
   /**

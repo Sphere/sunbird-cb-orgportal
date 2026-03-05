@@ -776,9 +776,9 @@ export class PositionUploadComponent implements OnInit, OnDestroy {
     const affectedCodes = FracResponseParserUtil.getAffectedCodes(normalizedResponse)
     const affectedCodesDetails = affectedCodes.length ? `Affected Codes: ${affectedCodes.join(', ')}` : undefined
 
-    // FIXED: Always prefer actual API message if it exists and is useful
+    // FIXED: Always prefer actual API message if it exists
     let message: string
-    if (apiMessage && FracResponseParserUtil.isUsefulMessage(apiMessage)) {
+    if (apiMessage && apiMessage.trim()) {
       message = apiMessage.trim()
     } else if (affectedCodes.length) {
       message = 'Multiple occurrences or duplicates found.'

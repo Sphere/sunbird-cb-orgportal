@@ -999,7 +999,7 @@ export class MapActivityCompetenciesComponent implements OnInit, OnDestroy {
     return {
       type: 'error',
       title: 'Mapping Failed',
-      message: FracResponseParserUtil.isUsefulMessage(rawMessage) ? rawMessage!.trim() : fallbackMessage,
+      message: rawMessage && rawMessage.trim() ? rawMessage.trim() : fallbackMessage,
       errorDetails: FracResponseParserUtil.formatErrorDetails(responseCode, paramsStatus, httpStatus),
       resultDetails: FracResponseParserUtil.getStructuredErrorDetails(normalizedPayload),
     }
