@@ -114,6 +114,11 @@
 }
 
 .search-row {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: #fff;
+  border-bottom: 1px solid #dbdbdb;
   display: grid;
   grid-template-columns: 40px 1fr;
   align-items: center;
@@ -125,7 +130,8 @@
 .search-row::before {
   content: '';
   border-right: 1px solid #dbdbdb;
-  height: 100%;
+  height: auto;
+  align-self: stretch;
   display: block;
 }
 
@@ -157,7 +163,7 @@
 }
 
 .rows-wrapper {
-  border-top: 1px solid #dbdbdb;
+  border-top: none;
   margin-top: 0;
 }
 

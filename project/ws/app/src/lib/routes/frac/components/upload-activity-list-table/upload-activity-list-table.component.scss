@@ -62,6 +62,14 @@
     }
   }
 
+  .mat-mdc-header-row,
+  .mat-header-row {
+    position: sticky;
+    top: 0;
+    z-index: 4;
+    background: #dfedf9;
+  }
+
   // ============= GRID LINE STYLES =============
   // Apply borders based on gridStyle input
 

@@ -20,6 +20,7 @@ import { UnsavedChangesModalComponent } from '../../../components/unsaved-change
 import { MappingModalLabels, UploadResultData, UploadResultModalComponent } from '../../../components/upload-result-modal/upload-result-modal.component'
 import { FRAC_UI_CONFIG } from '../../../models/ui.config.model'
 import { FRAC_DEBOUNCE_MS, FRAC_DIALOG_SIZES, FRAC_LANGUAGES, FRAC_MAP_PAGE_SPINNER, FRAC_ROUTES } from '../../../constants/frac.constants'
+import { FracResponseParserUtil } from '../../../utils/frac-response-parser.util'
 
 interface ActivityCompetencyApiRequestItem {
   parentEntityType: 'Activity'
@@ -757,14 +758,12 @@ export class MapActivityCompetenciesComponent implements OnInit, OnDestroy {
           }
           this.showResultModal(successData)
         },
-        error: (err) => {
+        error: async (err) => {
           this.isSaving = false
-          const failureData: UploadResultData = {
-            type: 'error',
-            title: 'Mapping Failed',
-            message: err?.error?.params?.errmsg || err?.error?.message || err?.statusText || err?.message || 'Failed to save activity to competency mapping.',
-            errorDetails: err?.status ? `HTTP Status: ${err.status}` : undefined,
-          }
+          const failureData = await this.buildMappingFailureModalData(
+            err,
+            'Failed to save activity to competency mapping.',
+          )
           this.showResultModal(failureData)
         },
       })
@@ -987,6 +986,23 @@ export class MapActivityCompetenciesComponent implements OnInit, OnDestroy {
         competencyDetails,
       }
     })
+  }
+
+  private async buildMappingFailureModalData(err: any, fallbackMessage: string): Promise<UploadResultData> {
+    const resolvedPayload = await FracResponseParserUtil.readErrorPayload(err)
+    const normalizedPayload = FracResponseParserUtil.parseApiResponse(resolvedPayload)
+    const rawMessage = FracResponseParserUtil.getRawMessage(normalizedPayload)
+    const responseCode = normalizedPayload?.responseCode || normalizedPayload?.code
+    const paramsStatus = normalizedPayload?.params?.status || normalizedPayload?.statusText
+    const httpStatus = err?.status ? `HTTP Status: ${err.status}` : undefined
+
+    return {
+      type: 'error',
+      title: 'Mapping Failed',
+      message: FracResponseParserUtil.isUsefulMessage(rawMessage) ? rawMessage!.trim() : fallbackMessage,
+      errorDetails: FracResponseParserUtil.formatErrorDetails(responseCode, paramsStatus, httpStatus),
+      resultDetails: FracResponseParserUtil.getStructuredErrorDetails(normalizedPayload),
+    }
   }
 
   /**

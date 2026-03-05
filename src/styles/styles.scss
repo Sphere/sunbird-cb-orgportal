@@ -735,8 +735,15 @@ h3.shepherd-title {
 /* FRAC position hierarchy view popup: enforce stable width, centered layout, and clean surface */
 .cdk-overlay-pane.position-hierarchy-view-dialog,
 .position-hierarchy-view-dialog.cdk-overlay-pane {
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  right: auto !important;
+  margin: 0 !important;
+  transform: translate(-50%, -50%) !important;
   width: min(860px, 96vw) !important;
   max-width: 96vw !important;
+  max-height: 90vh !important;
 }
 
 .cdk-overlay-pane.position-hierarchy-view-dialog .mat-mdc-dialog-container,

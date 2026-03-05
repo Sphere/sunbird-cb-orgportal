@@ -22,6 +22,22 @@ type ParsedFracPayload = {
  * All methods are pure functions and do not mutate component state.
  */
 export class FracResponseParserUtil {
+  /**
+   * Resolves upload API payload from string/blob/object into a normalized shape.
+   * Useful when proxies return JSON bodies as Blob/text even on non-success business responses.
+   */
+  static async resolveApiPayload(response: unknown): Promise<ParsedFracPayload> {
+    if (response instanceof Blob) {
+      try {
+        const text = await response.text()
+        return this.parseApiResponse(text)
+      } catch {
+        return this.parseApiResponse(response)
+      }
+    }
+
+    return this.parseApiResponse(response)
+  }
 
   /**
    * Normalizes API payload into a readable object.

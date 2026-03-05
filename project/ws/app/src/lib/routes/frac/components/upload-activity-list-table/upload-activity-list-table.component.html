@@ -41,7 +41,7 @@
     </ng-container>
 
     <!-- Table header row -->
-    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
 
     <!-- Table data rows -->
     <tr mat-row *matRowDef="let row; columns: displayedColumns" class="data-row"></tr>

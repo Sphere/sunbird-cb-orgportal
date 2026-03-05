@@ -65,6 +65,7 @@ export class CompetencyUploadComponent {
   isUploading = false  // ✅ Track loading state for local spinner
   isSearching = false
   isUpdating = false
+  isDeleting = false
   apiResponse: any = null  // Store actual API response instead of hardcoded data
   // ============= TABLE CONFIGURATION =============
   tableConfig: ITableConfig = { columns: [], data: [] }
@@ -470,14 +471,89 @@ export class CompetencyUploadComponent {
       fracLogger.warn('Remove action ignored because no row is selected.')
       return
     }
-    this.removedData = [...this.selectedRows]
-    this.tableConfig.data = this.tableConfig.data.filter(
-      row => !this.selectedRows.includes(row)
-    )
-    this.selectedRows = []
-    this.editRows = []
-    this.isEditing = false
-    fracLogger.debug('Rows removed from competency table', { removed: this.removedData.length, remaining: this.tableConfig.data.length })
+
+    if (this.isDeleting) {
+      return
+    }
+
+    const selectedCodes = this.selectedRows
+      .map(row => (row?.code ?? '').toString().trim().toUpperCase())
+      .filter(Boolean)
+
+    const confirmationDialogRef = this.dialog.open(UnsavedChangesModalComponent, {
+      width: FRAC_DIALOG_SIZES.unsavedChanges,
+      maxWidth: '92vw',
+      disableClose: true,
+      panelClass: 'unsaved-changes-dialog',
+      data: {
+        title: 'Confirm Delete',
+        message: `Are you sure you want to delete these rows: ${selectedCodes.join(', ')}?`,
+        continueLabel: 'Delete',
+        cancelLabel: 'Cancel',
+      },
+    })
+
+    confirmationDialogRef.afterClosed().pipe(takeUntil(this.destroy$)).subscribe((action: 'continue' | 'cancel' | undefined) => {
+      if (action !== 'continue') {
+        return
+      }
+
+      const deletePayload = this.selectedRows
+        .map(row => this.buildDeletePayload(row))
+        .filter(Boolean) as any[]
+
+      if (!deletePayload.length) {
+        fracLogger.warn('Remove action ignored because delete payload could not be generated.')
+        return
+      }
+
+      this.isDeleting = true
+      this.fracApiService.deleteEntity(deletePayload).subscribe({
+        next: () => {
+          this.isDeleting = false
+          this.removedData = []
+          this.selectedRows = []
+          this.editRows = []
+          this.isEditing = false
+
+          this.showResultModal({
+            type: 'success',
+            title: 'Delete Successful',
+            message: `${deletePayload.length} competency ${deletePayload.length === 1 ? 'record' : 'records'} deleted successfully.`,
+            count: deletePayload.length,
+          }, true)
+        },
+        error: (err) => {
+          this.isDeleting = false
+          fracLogger.error('Competency delete failed', err)
+          this.showResultModal({
+            type: 'error',
+            title: 'Delete Failed',
+            message:
+              err?.error?.params?.errmsg ||
+              err?.error?.message ||
+              err?.statusText ||
+              err?.message ||
+              'Failed to delete competency.',
+            errorDetails: err?.status ? `HTTP Status: ${err.status}` : undefined,
+          }, false)
+        },
+      })
+    })
+  }
+
+  private buildDeletePayload(row: any): any | null {
+    const code = (row?.code ?? '').toString().trim()
+    if (!code) {
+      return null
+    }
+
+    return {
+      entityCode: code,
+      entityType: 'Competency',
+      language: this.getLanguageCode(this.selectedLanguage),
+      purgeAllLanguage: false,
+    }
   }
   /**
    * Downloads the blank sample CSV file that users can fill out to upload new data.
@@ -515,20 +591,17 @@ export class CompetencyUploadComponent {
 
     // Use actual upload method
     this.fracApiService.uploadFile(file, language).subscribe({
-      next: (res) => {
+      next: async (res) => {
         fracLogger.debug('Competency upload completed', res)
 
-        // ✅ Hide local loader
         this.isUploading = false
+        const parsedRes = await FracResponseParserUtil.resolveApiPayload(res)
+        this.apiResponse = parsedRes
 
-        // ✅ Store API response in global variable
-        this.apiResponse = res
-
-        // ✅ Validate new upload response contract
-        const normalizedResponse = FracResponseParserUtil.parseApiResponse(res)
+        const normalizedResponse = FracResponseParserUtil.parseApiResponse(parsedRes)
         const resultObject = (normalizedResponse?.result || {}) as Record<string, unknown>
-        const uploadedCodes = FracResponseParserUtil.getSuccessCodes(res, 'competency')
-        if (FracResponseParserUtil.isUploadSuccessful(res, 'competency')) {
+        const uploadedCodes = FracResponseParserUtil.getSuccessCodes(parsedRes, 'competency')
+        if (FracResponseParserUtil.isUploadSuccessful(parsedRes, 'competency')) {
           const uploadedCount = uploadedCodes.length || Number(resultObject.count || 0) || 0
 
           this.selectedRows = []
@@ -543,8 +616,8 @@ export class CompetencyUploadComponent {
           }
           this.showResultModal(successData, false, FRAC_ROUTES.competencyManage)
         } else {
-          fracLogger.warn('Upload API returned a failure payload', res)
-          this.showResultModal(this.createUploadFailureModalData(res), false)
+          fracLogger.warn('Upload API returned a failure payload', parsedRes)
+          this.showResultModal(this.createUploadFailureModalData(parsedRes), false)
         }
       },
       error: (err) => {
@@ -558,10 +631,7 @@ export class CompetencyUploadComponent {
           keys: err ? Object.keys(err) : [],
         })
 
-        // ✅ Hide local loader on error
         this.isUploading = false
-
-        // ✅ Handle error and show modal
         void this.handleUploadError(err)
       },
     })

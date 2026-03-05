@@ -10,7 +10,23 @@
       mappings, please switch to English.</span>
   </div>
 
-  <div class="header-tools-placeholder"></div>
+  <div class="header-tools">
+    <div class="language-dropdown header-language-dropdown" (click)="toggleDropdown()" role="button" tabindex="0">
+      <div class="dropdown-main">
+        <div class="label-container">
+          <div class="label">Language</div>
+          <div class="selected">{{ selectedLanguage }}</div>
+        </div>
+        <mat-icon>{{ isOpen ? 'expand_less' : 'expand_more' }}</mat-icon>
+      </div>
+
+      <div class="dropdown-list" *ngIf="isOpen" (click)="$event.stopPropagation()">
+        <div *ngFor="let lang of languages" class="dropdown-item" (click)="selectLanguage(lang, $event)">
+          {{ lang }}
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <div class="upload-container">
@@ -28,26 +44,6 @@
   <div class="sub-header">
     <span>Link each activity to one or more competency levels.</span>
   </div>
-
-  <div class="left-tools">
-    <div class="language-dropdown" (click)="toggleDropdown()" role="button" tabindex="0">
-      <div class="dropdown-main">
-        <div class="label-container">
-          <div class="label">Language</div>
-          <div class="selected">{{ selectedLanguage }}</div>
-        </div>
-        <mat-icon>{{ isOpen ? 'expand_less' : 'expand_more' }}</mat-icon>
-      </div>
-
-      <div class="dropdown-list" *ngIf="isOpen" (click)="$event.stopPropagation()">
-        <div *ngFor="let lang of languages" class="dropdown-item" (click)="selectLanguage(lang, $event)">
-          {{ lang }}
-        </div>
-      </div>
-    </div>
-  </div>
-
-
 
   <div class="content-layout">
     <div class="activities-panel">

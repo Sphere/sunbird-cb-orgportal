@@ -86,6 +86,22 @@ export interface FracUpdateEntityResponse {
   [key: string]: unknown
 }
 
+export interface FracDeleteEntityRequestItem {
+  entityCode: string
+  entityType: string
+  language: string
+  purgeAllLanguage?: boolean | null
+}
+
+export type FracDeleteEntityRequest = FracDeleteEntityRequestItem[]
+
+export interface FracDeleteEntityResponse {
+  responseCode?: string
+  params?: FracApiParams
+  result?: unknown
+  [key: string]: unknown
+}
+
 export interface FracMapEntityRequestItem {
   parentEntityType: string
   parentEntityCode: string

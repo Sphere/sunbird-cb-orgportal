@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common'
 import { NgModule } from '@angular/core'
 import { RouterModule } from '@angular/router'
+import { HTTP_INTERCEPTORS } from '@angular/common/http'
 
 // ✅ Material Modules (Angular 16 compatible — NO legacy imports)
 import { MatButtonModule } from '@angular/material/button'
@@ -61,6 +62,7 @@ import { MappingRequiredModalComponent } from './components/mapping-required-mod
 import { UnsavedChangesModalComponent } from './components/unsaved-changes-modal/unsaved-changes-modal.component'
 import { HierarchyChipDetailsModalComponent } from './components/hierarchy-chip-details-modal/hierarchy-chip-details-modal.component'
 import { PositionHierarchyViewModalComponent } from './components/position-hierarchy-view-modal/position-hierarchy-view-modal.component'
+import { FracApiErrorNormalizerInterceptor } from './interceptors/frac-api-error-normalizer.interceptor'
 
 
 @NgModule({
@@ -129,7 +131,12 @@ import { PositionHierarchyViewModalComponent } from './components/position-hiera
     WordWrapPipe,
   ],
   providers: [
-    CustomSnackbarService
+    CustomSnackbarService,
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: FracApiErrorNormalizerInterceptor,
+      multi: true,
+    },
   ]
 })
 export class FracModule { }

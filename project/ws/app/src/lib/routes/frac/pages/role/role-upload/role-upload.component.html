@@ -90,9 +90,17 @@
 
   <!-- ✅ Loading Overlay with Spinner -->
   <div class="loading-overlay" *ngIf="isUploading" [class.show]="isUploading">
-    <div class="spinner-container">
-      <mat-spinner [diameter]="uploadPageSpinner.diameter" [strokeWidth]="uploadPageSpinner.strokeWidth"></mat-spinner>
+    <div class="upload-loader-card" role="status" aria-live="polite">
+      <div class="upload-loader-illustration">
+        <div class="upload-loader-orbit"></div>
+        <div class="upload-loader-badge">
+          <mat-icon>cloud_upload</mat-icon>
+        </div>
+      </div>
       <p class="loading-text">{{ uiConfig.labels.uploadLoaderContent }}</p>
+      <p class="loading-subtext">{{ uiConfig.labels.uploadLoaderSubtext }}</p>
+      <div class="loading-progress" aria-hidden="true"><span></span></div>
+      <p class="loading-hint">Please keep this window open.</p>
     </div>
   </div>
 

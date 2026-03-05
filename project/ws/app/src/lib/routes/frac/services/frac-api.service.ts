@@ -4,6 +4,8 @@ import { Observable } from 'rxjs'
 import { map } from 'rxjs/operators'
 import { ConfigurationsService } from '@sunbird-cb/utils'
 import {
+  FracDeleteEntityRequest,
+  FracDeleteEntityResponse,
   FracEntityType,
   FracMapEntityRequest,
   FracMapEntityResponse,
@@ -40,6 +42,16 @@ export class FracApiService {
     const params = new HttpParams().set('userId', userId || this.getLoggedInUserIdentifier())
     const requestBody: FracUpdateEntityRequest = Array.isArray(payload) ? payload : [payload]
     return this.http.put<FracUpdateEntityResponse>(this.apiEndpoints.updateEntity, requestBody, { headers: this.headers, params })
+  }
+
+  /**
+   * Deletes FRAC entity records in batch.
+   */
+  deleteEntity(payload: FracDeleteEntityRequest): Observable<FracDeleteEntityResponse> {
+    return this.http.request<FracDeleteEntityResponse>('DELETE', this.apiEndpoints.deleteEntity, {
+      headers: this.headers,
+      body: payload,
+    })
   }
 
   /**

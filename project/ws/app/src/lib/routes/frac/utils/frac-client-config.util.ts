@@ -36,7 +36,7 @@ export interface FracClientConfigOverride {
     strokeWidth?: number
   }
   api?: {
-    endpoints?: Partial<Record<'updateEntity' | 'uploadEntity' | 'searchEntity' | 'mapEntity' | 'searchMapping' | 'hierarchy', string>>
+    endpoints?: Partial<Record<'updateEntity' | 'deleteEntity' | 'uploadEntity' | 'searchEntity' | 'mapEntity' | 'searchMapping' | 'hierarchy', string>>
     uploadEntityUrl?: string
   }
   uploadEntityUrl?: string
@@ -73,6 +73,7 @@ export interface FracResolvedClientConfig {
   api: {
     endpoints: {
       updateEntity: string
+      deleteEntity: string
       uploadEntity: string
       searchEntity: string
       mapEntity: string
@@ -92,6 +93,7 @@ interface FracRootInstanceConfig {
 
 const FRAC_DEFAULT_API_ENDPOINTS = {
   updateEntity: '/apis/proxies/v8/entity/v1/update',
+  deleteEntity: '/apis/proxies/v8/entity/v1/delete',
   uploadEntity: '/apis/proxies/v8/entity/v1/upload',
   searchEntity: '/apis/proxies/v8/entity/v1/search',
   mapEntity: '/apis/proxies/v8/entity/v1/mapping',

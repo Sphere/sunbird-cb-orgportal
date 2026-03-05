@@ -102,6 +102,7 @@ export class ActivityUploadComponent implements OnInit, OnDestroy {
   isUploading = false  // ✅ Track loading state for local spinner
   isSearching = false
   isUpdating = false
+  isDeleting = false
   apiResponse: any = null  // Store actual API response
 
   // ============= INTERNAL STATE =============
@@ -380,11 +381,87 @@ export class ActivityUploadComponent implements OnInit, OnDestroy {
       return
     }
 
-    this.removedData = [...this.selectedRows]
-    this.tableConfig.data = this.tableConfig.data.filter(
-      row => !this.selectedRows.includes(row)
-    )
-    this.selectedRows = []
+    if (this.isDeleting) {
+      return
+    }
+
+    const selectedCodes = this.selectedRows
+      .map(row => (row?.code ?? '').toString().trim().toUpperCase())
+      .filter(Boolean)
+
+    const confirmationDialogRef = this.dialog.open(UnsavedChangesModalComponent, {
+      width: FRAC_DIALOG_SIZES.unsavedChanges,
+      maxWidth: '92vw',
+      disableClose: true,
+      panelClass: 'unsaved-changes-dialog',
+      data: {
+        title: 'Confirm Delete',
+        message: `Are you sure you want to delete these rows: ${selectedCodes.join(', ')}?`,
+        continueLabel: 'Delete',
+        cancelLabel: 'Cancel',
+      },
+    })
+
+    confirmationDialogRef.afterClosed().pipe(takeUntil(this.destroy$)).subscribe((action: 'continue' | 'cancel' | undefined) => {
+      if (action !== 'continue') {
+        return
+      }
+
+      const deletePayload = this.selectedRows
+        .map(row => this.buildDeletePayload(row))
+        .filter(Boolean) as any[]
+
+      if (!deletePayload.length) {
+        fracLogger.warn('Remove action ignored because delete payload could not be generated.')
+        return
+      }
+
+      this.isDeleting = true
+      this.fracApiService.deleteEntity(deletePayload).subscribe({
+        next: () => {
+          this.isDeleting = false
+          this.removedData = []
+          this.selectedRows = []
+          this.isEditing = false
+
+          this.showResultModal({
+            type: 'success',
+            title: 'Delete Successful',
+            message: `${deletePayload.length} activity ${deletePayload.length === 1 ? 'record' : 'records'} deleted successfully.`,
+            count: deletePayload.length,
+          }, true)
+        },
+        error: (err) => {
+          this.isDeleting = false
+          fracLogger.error('Activity delete failed', err)
+          this.showResultModal({
+            type: 'error',
+            title: 'Delete Failed',
+            message:
+              err?.error?.params?.errmsg ||
+              err?.error?.message ||
+              err?.statusText ||
+              err?.message ||
+              'Failed to delete activity.',
+            errorDetails: err?.status ? `HTTP Status: ${err.status}` : undefined,
+          }, false)
+        },
+      })
+    })
+  }
+
+  private buildDeletePayload(row: any): any | null {
+    const code = (row?.code ?? '').toString().trim()
+    if (!code) {
+      return null
+    }
+
+    return {
+      entityCode: code,
+      entityType: 'Activity',
+      language: this.getLanguageCode(this.selectedLanguage),
+      purgeAllLanguage: false,
+    }
   }
 
   // ============= FILE OPERATIONS =============
@@ -438,19 +515,20 @@ export class ActivityUploadComponent implements OnInit, OnDestroy {
 
     // Use actual upload method
     this.fracApiService.uploadFile(file, language).subscribe({
-      next: (res) => {
+      next: async (res) => {
         fracLogger.debug('Activity upload completed', res)
 
         // ✅ Hide local loader
         this.isUploading = false
 
+        const resolvedResponse = await FracResponseParserUtil.resolveApiPayload(res)
         // ✅ Store API response globally
-        this.apiResponse = res
+        this.apiResponse = resolvedResponse
 
-        const normalizedResponse = FracResponseParserUtil.parseApiResponse(res)
+        const normalizedResponse = FracResponseParserUtil.parseApiResponse(resolvedResponse)
         const resultObject = (normalizedResponse?.result || {}) as Record<string, unknown>
-        const uploadedCodes = FracResponseParserUtil.getSuccessCodes(res, 'activity')
-        if (FracResponseParserUtil.isUploadSuccessful(res, 'activity')) {
+        const uploadedCodes = FracResponseParserUtil.getSuccessCodes(resolvedResponse, 'activity')
+        if (FracResponseParserUtil.isUploadSuccessful(resolvedResponse, 'activity')) {
           const uploadedCount = uploadedCodes.length || Number(resultObject.count || 0) || 1
           const successData: UploadResultData = {
             type: 'success',
@@ -460,7 +538,7 @@ export class ActivityUploadComponent implements OnInit, OnDestroy {
           }
           this.showResultModal(successData, false, false, FRAC_ROUTES.activityManage)
         } else {
-          this.showResultModal(this.createUploadFailureModalData(res), false)
+          this.showResultModal(this.createUploadFailureModalData(resolvedResponse), false)
         }
       },
       error: (err) => {
