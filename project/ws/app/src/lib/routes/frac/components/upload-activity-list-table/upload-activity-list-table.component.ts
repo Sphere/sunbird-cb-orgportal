@@ -104,12 +104,15 @@ export class UploadActivityListTableComponent implements OnChanges, AfterViewIni
 
   loadingColumnWidths: number[] = []
 
+  /** Placeholder rows passed to the table when isLoading is true. The table renders them as shimmer cells. */
+  readonly shimmerRows: Record<string, unknown>[] = Array.from({ length: 15 }, () => ({}))
+
   // ============= LIFECYCLE HOOKS =============
 
   /**
    * Initializes sorting and pagination wiring for the table data source.
    */
-  constructor() {
+  constructor(private readonly hostEl: ElementRef<HTMLElement>) {
     this.configureDataSource()
   }
 
@@ -144,9 +147,13 @@ export class UploadActivityListTableComponent implements OnChanges, AfterViewIni
     setTimeout(() => {
       this.attachTableControllers()
       this.syncLoadingColumnWidths()
+      this.syncHeaderHeight()
     })
 
-    this.headerCells?.changes.subscribe(() => this.syncLoadingColumnWidths())
+    this.headerCells?.changes.subscribe(() => {
+      this.syncLoadingColumnWidths()
+      this.syncHeaderHeight()
+    })
   }
 
   /**
@@ -222,7 +229,30 @@ export class UploadActivityListTableComponent implements OnChanges, AfterViewIni
    * Schedules width sync after DOM updates.
    */
   private scheduleLoadingWidthSync(): void {
-    setTimeout(() => this.syncLoadingColumnWidths())
+    setTimeout(() => {
+      this.syncLoadingColumnWidths()
+      this.syncHeaderHeight()
+    })
+  }
+
+  /**
+   * Measures the real rendered height of the Material table header row
+   * and writes it to the --table-header-height CSS variable on the host.
+   * This prevents any gap between the sticky header and the shimmer overlay.
+   */
+  private syncHeaderHeight(): void {
+    const headerRow = this.hostEl.nativeElement.querySelector<HTMLElement>(
+      '.mat-mdc-header-row, .mat-header-row'
+    )
+    if (!headerRow) {
+      return
+    }
+    const height = headerRow.getBoundingClientRect().height
+    if (height > 0) {
+      this.hostEl.nativeElement
+        .querySelector<HTMLElement>('.activity-table-container')
+        ?.style.setProperty('--table-header-height', `${Math.round(height)}px`)
+    }
   }
 
   /**

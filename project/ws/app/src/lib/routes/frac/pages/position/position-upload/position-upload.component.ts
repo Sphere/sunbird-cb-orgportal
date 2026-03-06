@@ -7,6 +7,11 @@ import { UploadResultModalComponent, UploadResultData } from '../../../component
 import { UnsavedChangesModalComponent } from '../../../components/unsaved-changes-modal/unsaved-changes-modal.component'
 import { ITableConfig, TableTransformUtil } from '../../../utils/table-transform.util'
 import { FracResponseParserUtil } from '../../../utils/frac-response-parser.util'
+import { FracUploadHelper } from '../../../utils/frac-upload-helper'
+import { FracPayloadBuilder } from '../../../utils/frac-payload-builder.util'
+import { FracPositionHierarchyHelper, PositionHierarchyAggregate, PositionHierarchyCounts, PositionHierarchyDetails } from '../../../utils/frac-position-hierarchy.helper'
+import { FracEditTracker } from '../../../utils/frac-edit-tracker.util'
+import { FracUploadRow } from '../../../models/frac-table.models'
 import { extractEntityList, sortEntitiesForDisplay, getLanguageCode } from '../../../utils/common.util'
 import { fracLogger } from '../../../utils/frac-logger.util'
 import { FracApiService } from '../../../services/frac-api.service'
@@ -21,11 +26,9 @@ import { catchError, map, takeUntil } from 'rxjs/operators'
 import { FRAC_UI_CONFIG } from '../../../models/ui.config.model'
 import { FRAC_DIALOG_SIZES, FRAC_ROUTES, FRAC_UPLOAD_PAGE_SPINNER } from '../../../constants/frac.constants'
 import { buildFracUploadPopupConfig, getFracSampleTemplateUrl } from '../../../utils/frac-upload-ui.util'
-import { FracHierarchyNode, FracHierarchyResponse } from '../../../models/frac-api.models'
 import {
   HierarchyChipDetailsModalComponent,
   HierarchyChipType,
-  HierarchyDetailItem,
 } from '../../../components/hierarchy-chip-details-modal/hierarchy-chip-details-modal.component'
 import {
   PositionHierarchyViewModalComponent,
@@ -40,22 +43,7 @@ interface UploadEmptyStateConfig {
   suggestion: string
 }
 
-interface PositionHierarchyCounts {
-  role: number
-  activity: number
-  competency: number
-}
 
-interface PositionHierarchyDetails {
-  role: HierarchyDetailItem[]
-  activity: HierarchyDetailItem[]
-  competency: HierarchyDetailItem[]
-}
-
-interface PositionHierarchyAggregate {
-  counts: PositionHierarchyCounts
-  details: PositionHierarchyDetails
-}
 
 @Component({
   selector: 'ws-app-position-upload',
@@ -64,6 +52,7 @@ interface PositionHierarchyAggregate {
 })
 export class PositionUploadComponent implements OnInit, OnDestroy {
 
+  private editTracker: FracEditTracker
   constructor(
     private dialog: MatDialog,
     private fracApiService: FracApiService,
@@ -71,7 +60,9 @@ export class PositionUploadComponent implements OnInit, OnDestroy {
     private activatedRoute: ActivatedRoute,
     private router: Router,
     private uploadOrchestrator: FracEntityUploadOrchestratorService,
-  ) { }
+  ) {
+    this.editTracker = new FracEditTracker(this.uploadOrchestrator)
+  }
 
   // ============= UI CONFIG =============
   uiConfig = FRAC_UI_CONFIG
@@ -92,16 +83,16 @@ export class PositionUploadComponent implements OnInit, OnDestroy {
   // ============= TABLE STATE =============
 
   /** Original table data for comparison */
-  originalRowData: any[] = []
+  originalRowData: FracUploadRow[] = []
 
   /** Data removed via UI */
-  removedData: any[] = []
+  removedData: FracUploadRow[] = []
 
   /** Table configuration with columns and data */
   tableConfig: ITableConfig = { columns: [], data: [] }
 
   /** Rows selected in table */
-  selectedRows: any[] = []
+  selectedRows: FracUploadRow[] = []
 
   // ============= UI STATE =============
 
@@ -113,7 +104,7 @@ export class PositionUploadComponent implements OnInit, OnDestroy {
 
   /** Search and filter */
   searchTerm = ''
-  searchResults: any[] = []
+  searchResults: FracUploadRow[] = []
 
   /** Language selection */
   selectedLanguage = this.uploadOrchestrator.languages[0]
@@ -134,7 +125,7 @@ export class PositionUploadComponent implements OnInit, OnDestroy {
   }
 
   /** Shimmer placeholder cards shown while card grid is loading. Count is config-driven. */
-  readonly shimmerCardCount = 15
+  readonly shimmerCardCount = 16
   readonly shimmerCards = Array.from({ length: this.shimmerCardCount })
   readonly defaultHierarchyCounts: PositionHierarchyCounts = { role: 0, activity: 0, competency: 0 }
   readonly defaultHierarchyDetails: PositionHierarchyDetails = { role: [], activity: [], competency: [] }
@@ -155,8 +146,6 @@ export class PositionUploadComponent implements OnInit, OnDestroy {
   private searchTrigger$ = new Subject<UploadSearchTriggerPayload>()
   private searchSubscription: Subscription | null = null
   private destroy$ = new Subject<void>()
-  private baselineTableSignature = ''
-  private baselineRowSignatureByCode = new Map<string, string>()
   private hierarchyAggregateCache = new Map<string, PositionHierarchyAggregate>()
   private hierarchyRawResponseCache = new Map<string, import('../../../models/frac-api.models').FracHierarchyResponse>()
   private hierarchyRequestToken = 0
@@ -207,7 +196,7 @@ export class PositionUploadComponent implements OnInit, OnDestroy {
       this.selectedRows = []
       this.removedData = []
       this.isEditing = false
-      this.captureBaselineTableState()
+      this.editTracker.captureBaseline(this.tableConfig.data as unknown as FracUploadRow[])
     }
   }
 
@@ -223,10 +212,7 @@ export class PositionUploadComponent implements OnInit, OnDestroy {
   }
 
   hasPendingTableChanges(): boolean {
-    if (this.routeMode !== 'manage') {
-      return false
-    }
-    return this.uploadOrchestrator.computeTableSignature(this.tableConfig.data as Array<Record<string, unknown>>) !== this.baselineTableSignature
+    return this.editTracker.hasChanges(this.tableConfig.data as unknown as FracUploadRow[])
   }
 
   // ============= SEARCH & FILTER =============
@@ -266,7 +252,7 @@ export class PositionUploadComponent implements OnInit, OnDestroy {
         next: (res) => {
           this.isSearching = false
           const entityList = extractEntityList(res)
-          const sortedEntityList = sortEntitiesForDisplay(entityList)
+          const sortedEntityList = sortEntitiesForDisplay(entityList) as unknown as FracUploadRow[]
           this.searchResults = sortedEntityList
           this.originalRowData = sortedEntityList
           this.tableConfig = this.tableTransformUtil.transformResponseToTableConfig(sortedEntityList)
@@ -274,7 +260,7 @@ export class PositionUploadComponent implements OnInit, OnDestroy {
           this.removedData = []
           this.isEditing = false
           this.loadHierarchyCountsForCardPositions(sortedEntityList, language)
-          this.captureBaselineTableState()
+          this.editTracker.captureBaseline(this.tableConfig.data as unknown as FracUploadRow[])
         },
         error: (err) => {
           this.isSearching = false
@@ -285,14 +271,14 @@ export class PositionUploadComponent implements OnInit, OnDestroy {
       })
   }
 
-  private loadHierarchyCountsForCardPositions(positions: any[], language: string): void {
+  private loadHierarchyCountsForCardPositions(positions: FracUploadRow[], language: string): void {
     if (this.routeMode !== 'card') {
       this.positionHierarchyCountMap = {}
       this.positionHierarchyDetailMap = {}
       return
     }
 
-    const validPositions = (positions || []).filter((pos) => !!this.normalizeEntityCode(pos?.code))
+    const validPositions = (positions || []).filter((pos) => !!FracPositionHierarchyHelper.normalizeCode(pos?.code))
     if (!validPositions.length) {
       this.positionHierarchyCountMap = {}
       this.positionHierarchyDetailMap = {}
@@ -301,7 +287,7 @@ export class PositionUploadComponent implements OnInit, OnDestroy {
 
     const requestToken = ++this.hierarchyRequestToken
     const requests = validPositions.map((position) => {
-      const code = this.normalizeEntityCode(position?.code)
+      const code = FracPositionHierarchyHelper.normalizeCode(position?.code)
       const cacheKey = this.getHierarchyCacheKey(code, language)
       const cachedAggregate = this.hierarchyAggregateCache.get(cacheKey)
 
@@ -311,7 +297,7 @@ export class PositionUploadComponent implements OnInit, OnDestroy {
 
       return this.fracApiService.searchEntityHierarchy('position', code, language).pipe(
         map((response) => {
-          const aggregate = this.extractHierarchyAggregateFromResponse(response)
+          const aggregate = FracPositionHierarchyHelper.extractAggregateFromResponse(response)
           this.hierarchyAggregateCache.set(cacheKey, aggregate)
           this.hierarchyRawResponseCache.set(cacheKey, response)
           return { code, aggregate }
@@ -340,12 +326,12 @@ export class PositionUploadComponent implements OnInit, OnDestroy {
   }
 
   getPositionHierarchyCounts(position: Record<string, unknown>): PositionHierarchyCounts {
-    const code = this.normalizeEntityCode(position?.['code'])
+    const code = FracPositionHierarchyHelper.normalizeCode(position?.['code'])
     return this.positionHierarchyCountMap[code] || this.defaultHierarchyCounts
   }
 
   private getPositionHierarchyDetails(position: Record<string, unknown>): PositionHierarchyDetails {
-    const code = this.normalizeEntityCode(position?.['code'])
+    const code = FracPositionHierarchyHelper.normalizeCode(position?.['code'])
     return this.positionHierarchyDetailMap[code] || this.defaultHierarchyDetails
   }
 
@@ -363,135 +349,7 @@ export class PositionUploadComponent implements OnInit, OnDestroy {
     })
   }
 
-  private extractHierarchyAggregateFromResponse(response: FracHierarchyResponse | null | undefined): PositionHierarchyAggregate {
-    const resultNode = response?.result
-    const roots = Array.isArray(resultNode) ? resultNode : resultNode ? [resultNode] : []
-    const roleMap = new Map<string, HierarchyDetailItem>()
-    const activityMap = new Map<string, HierarchyDetailItem>()
-    const competencyMap = new Map<string, HierarchyDetailItem>()
 
-    const visitNode = (node: FracHierarchyNode | null | undefined): void => {
-      if (!node) {
-        return
-      }
-
-      const entityType = (node.entityType || '').toString().trim().toUpperCase()
-      const code = this.normalizeEntityCode(node.entityCode)
-      const name = (node.entityName || node.entityDescription || '').toString().trim()
-
-      if (entityType === 'ROLE') {
-        this.upsertHierarchyItem(roleMap, code, name)
-      } else if (entityType === 'ACTIVITY') {
-        this.upsertHierarchyItem(activityMap, code, name)
-      } else if (entityType === 'COMPETENCY') {
-        const levels = this.extractCompetencyLevels(node.competencies)
-        this.upsertHierarchyItem(competencyMap, code, name, levels)
-      }
-
-      const children = Array.isArray(node.children)
-        ? node.children
-        : Array.isArray(node.childHierarchy) ? node.childHierarchy : []
-      children.forEach((child) => visitNode(child))
-    }
-
-    roots.forEach((root) => visitNode(root))
-    const details: PositionHierarchyDetails = {
-      role: this.getSortedHierarchyItems(roleMap),
-      activity: this.getSortedHierarchyItems(activityMap),
-      competency: this.getSortedHierarchyItems(competencyMap),
-    }
-
-    return {
-      counts: {
-        role: details.role.length,
-        activity: details.activity.length,
-        competency: details.competency.length,
-      },
-      details,
-    }
-  }
-
-  private upsertHierarchyItem(
-    store: Map<string, HierarchyDetailItem>,
-    code: string,
-    name: string,
-    levels: string[] = [],
-  ): void {
-    if (!code) {
-      return
-    }
-
-    const existing = store.get(code)
-    if (!existing) {
-      store.set(code, {
-        entityCode: code,
-        entityName: name || '-',
-        levels: levels.length ? [...levels] : undefined,
-      })
-      return
-    }
-
-    if (!existing.entityName || existing.entityName === '-') {
-      existing.entityName = name || existing.entityName
-    }
-
-    if (levels.length) {
-      const merged = new Set<string>([...(existing.levels || []), ...levels])
-      existing.levels = this.sortLevels([...merged])
-    }
-  }
-
-  private getSortedHierarchyItems(store: Map<string, HierarchyDetailItem>): HierarchyDetailItem[] {
-    return [...store.values()].sort((a, b) =>
-      (a.entityCode || '').localeCompare((b.entityCode || ''), undefined, { numeric: true, sensitivity: 'base' }),
-    )
-  }
-
-  private extractCompetencyLevels(competencies: unknown): string[] {
-    if (!Array.isArray(competencies)) {
-      return []
-    }
-
-    const levelSet = new Set<string>()
-    competencies.forEach((entry) => {
-      if (entry && typeof entry === 'object') {
-        const obj = entry as Record<string, unknown>
-        const levelNumber = Number(obj.levelNumber)
-        if (Number.isFinite(levelNumber) && levelNumber > 0) {
-          levelSet.add(`L${levelNumber}`)
-          return
-        }
-
-        const rawLevel = (obj.level || '').toString().trim()
-        if (!rawLevel) {
-          return
-        }
-        const normalizedLevel = rawLevel.toUpperCase().startsWith('L') ? rawLevel.toUpperCase() : `L${rawLevel}`
-        levelSet.add(normalizedLevel)
-      }
-    })
-
-    return this.sortLevels([...levelSet])
-  }
-
-  private sortLevels(levels: string[]): string[] {
-    return levels.sort((a, b) => {
-      const aNum = Number((a || '').replace(/[^0-9]/g, ''))
-      const bNum = Number((b || '').replace(/[^0-9]/g, ''))
-      if (Number.isFinite(aNum) && Number.isFinite(bNum) && aNum !== bNum) {
-        return aNum - bNum
-      }
-      return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' })
-    })
-  }
-
-  private getHierarchyCacheKey(code: string, language: string): string {
-    return `${code}|${this.getLanguageCode(language)}`
-  }
-
-  private normalizeEntityCode(code: unknown): string {
-    return (code || '').toString().trim().toUpperCase()
-  }
 
   // ============= LANGUAGE DROPDOWN =============
 
@@ -519,7 +377,8 @@ export class PositionUploadComponent implements OnInit, OnDestroy {
 
   // ============= TABLE SELECTION =============
 
-  onSelectionChange(selected: any[]): void {
+  /** Update selected rows from table */
+  onSelectionChange(selected: FracUploadRow[]): void {
     this.selectedRows = selected
   }
 
@@ -542,17 +401,17 @@ export class PositionUploadComponent implements OnInit, OnDestroy {
       return
     }
 
-    const changedRows = this.selectedRows.filter(row => this.isRowChanged(row))
-    if (!changedRows.length) {
-      fracLogger.warn('Save action ignored because no table changes were detected.')
-      return
-    }
-
-    const payloads = changedRows
-      .map(row => this.buildPositionUpdatePayload(row))
+    const rowsToUpdate = this.selectedRows.map(row => ({ ...row }))
+    const payloads = this.editTracker.getChangedRows(rowsToUpdate)
+      .map(row => {
+        const original = this.originalRowData.find(item => item?.code === row.code) || {}
+        const languageCode = original?.languageCode || this.getLanguageCode(this.selectedLanguage)
+        return FracPayloadBuilder.buildGenericUpdate('Position', row, original, languageCode)
+      })
       .filter(Boolean) as any[]
 
     if (!payloads.length) {
+      fracLogger.warn('Save action ignored because no table changes were detected.')
       return
     }
 
@@ -567,10 +426,10 @@ export class PositionUploadComponent implements OnInit, OnDestroy {
         const successData: UploadResultData = {
           type: 'success',
           title: 'Update Successful',
-          message: `${changedRows.length} position ${changedRows.length === 1 ? 'record' : 'records'} updated successfully.`,
-          count: changedRows.length,
+          message: `${payloads.length} position ${payloads.length === 1 ? 'record' : 'records'} updated successfully.`,
+          count: payloads.length,
         }
-        this.captureBaselineTableState()
+        this.editTracker.captureBaseline(this.tableConfig.data as unknown as FracUploadRow[])
         this.showResultModal(successData, true)
       },
       error: (err) => {
@@ -591,22 +450,7 @@ export class PositionUploadComponent implements OnInit, OnDestroy {
     })
   }
 
-  private buildPositionUpdatePayload(row: any): any | null {
-    if (!row?.code) {
-      return null
-    }
 
-    const original = this.originalRowData.find(item => item?.code === row.code) || {}
-    const languageCode = original?.languageCode || this.getLanguageCode(this.selectedLanguage)
-
-    return {
-      entityType: 'Position',
-      id: original?.id || row?.id || '',
-      code: original?.code || row?.code || '',
-      languageCode,
-      name: row?.name ?? original?.name ?? '',
-    }
-  }
 
   private getLanguageCode(language: string): string {
     return getLanguageCode(language)
@@ -647,7 +491,7 @@ export class PositionUploadComponent implements OnInit, OnDestroy {
       }
 
       const deletePayload = this.selectedRows
-        .map(row => this.buildDeletePayload(row))
+        .map(row => FracPayloadBuilder.buildDelete('Position', row, this.getLanguageCode(this.selectedLanguage)))
         .filter(Boolean) as any[]
 
       if (!deletePayload.length) {
@@ -659,9 +503,22 @@ export class PositionUploadComponent implements OnInit, OnDestroy {
       this.fracApiService.deleteEntity(deletePayload).subscribe({
         next: () => {
           this.isDeleting = false
+          const deletedCodes = new Set(
+            this.selectedRows.map(row => (row?.code ?? '').toString().trim()),
+          )
           this.removedData = []
           this.selectedRows = []
           this.isEditing = false
+          if (deletedCodes.size) {
+            const nextData = (this.tableConfig.data || []).filter(row =>
+              !deletedCodes.has((row?.code ?? '').toString().trim()),
+            )
+            this.tableConfig = { ...this.tableConfig, data: nextData }
+            this.originalRowData = (this.originalRowData || []).filter(row =>
+              !deletedCodes.has((row?.code ?? '').toString().trim()),
+            )
+            this.editTracker.captureBaseline(nextData as unknown as FracUploadRow[])
+          }
 
           this.showResultModal({
             type: 'success',
@@ -689,19 +546,7 @@ export class PositionUploadComponent implements OnInit, OnDestroy {
     })
   }
 
-  private buildDeletePayload(row: any): any | null {
-    const code = (row?.code ?? '').toString().trim()
-    if (!code) {
-      return null
-    }
 
-    return {
-      entityCode: code,
-      entityType: 'Position',
-      language: this.getLanguageCode(this.selectedLanguage),
-      purgeAllLanguage: false,
-    }
-  }
 
   // ============= FILE OPERATIONS =============
 
@@ -721,6 +566,7 @@ export class PositionUploadComponent implements OnInit, OnDestroy {
     const dialogRef = this.dialog.open(FracUploadPopupComponent, {
       width: FRAC_DIALOG_SIZES.uploadPopup,
       disableClose: true,
+      panelClass: 'frac-upload-popup-dialog',
       data: config,
     })
 
@@ -758,7 +604,7 @@ export class PositionUploadComponent implements OnInit, OnDestroy {
           }
           this.showResultModal(successData, false, false, FRAC_ROUTES.positionManage)
         } else {
-          this.showResultModal(this.handleFailure(resolvedResponse), false)
+          this.showResultModal(FracUploadHelper.createFailureModalData(resolvedResponse), false)
         }
       },
       error: (err) => {
@@ -768,58 +614,9 @@ export class PositionUploadComponent implements OnInit, OnDestroy {
     })
   }
 
-  private handleFailure(response: any): UploadResultData {
-    const normalizedResponse = FracResponseParserUtil.parseApiResponse(response)
-    const apiMessage = FracResponseParserUtil.getRawMessage(normalizedResponse)
-    const responseCode = normalizedResponse?.responseCode || normalizedResponse?.code || normalizedResponse?.status
-    const paramsStatus = normalizedResponse?.params?.status || normalizedResponse?.statusText
-    const affectedCodes = FracResponseParserUtil.getAffectedCodes(normalizedResponse)
-    const affectedCodesDetails = affectedCodes.length ? `Affected Codes: ${affectedCodes.join(', ')}` : undefined
-
-    // FIXED: Always prefer actual API message if it exists
-    let message: string
-    if (apiMessage && apiMessage.trim()) {
-      message = apiMessage.trim()
-    } else if (affectedCodes.length) {
-      message = 'Multiple occurrences or duplicates found.'
-    } else {
-      message = 'Upload failed. Please verify your file and try again.'
-    }
-
-    return {
-      type: 'error',
-      title: 'Upload Failed',
-      message,
-      errorDetails: FracResponseParserUtil.formatErrorDetails(responseCode, paramsStatus, affectedCodesDetails),
-      resultDetails: FracResponseParserUtil.getStructuredErrorDetails(response)
-    }
-  }
-
-  private async readUploadError(err: any): Promise<any> {
-    return FracResponseParserUtil.readErrorPayload(err)
-  }
-
-  private async handleUploadError(err: any): Promise<void> {
-    const resolvedPayload = await this.readUploadError(err)
-
-    if (
-      resolvedPayload?.params?.errmsg ||
-      resolvedPayload?.responseCode ||
-      resolvedPayload?.result ||
-      resolvedPayload?.message
-    ) {
-      this.showResultModal(this.handleFailure(resolvedPayload), false)
-      return
-    }
-
-    const fallbackData: UploadResultData = {
-      type: 'error',
-      title: 'Upload Failed',
-      message: err?.statusText || err?.message || 'An unexpected error occurred while uploading your file.',
-      errorDetails: err?.status ? `HTTP Status: ${err.status}` : undefined
-    }
-
-    this.showResultModal(fallbackData, false)
+  private async handleUploadError(err: unknown): Promise<void> {
+    const modalData = await FracUploadHelper.resolveErrorToModalData(err)
+    this.showResultModal(modalData, false)
   }
 
   private showResultModal(
@@ -906,22 +703,6 @@ export class PositionUploadComponent implements OnInit, OnDestroy {
     return this.routeMode === 'upload' || this.routeMode === 'manage'
   }
 
-  private isRowChanged(row: any): boolean {
-    const code = (row?.code ?? '').toString().trim()
-    if (!code) {
-      return true
-    }
-    const baselineRowSignature = this.baselineRowSignatureByCode.get(code)
-    const currentSignature = this.uploadOrchestrator.getRowSignature(row)
-    return baselineRowSignature !== currentSignature
-  }
-
-  private captureBaselineTableState(): void {
-    const baseline = this.uploadOrchestrator.captureBaselineState(this.tableConfig.data as Array<Record<string, unknown>>)
-    this.baselineTableSignature = baseline.tableSignature
-    this.baselineRowSignatureByCode = baseline.rowSignatureByCode
-  }
-
   // ============= MANAGE MODE NAVIGATION =============
 
   /**
@@ -944,8 +725,8 @@ export class PositionUploadComponent implements OnInit, OnDestroy {
    * Side effects: opens MatDialog with the full mapping tree.
    * @param position The position card clicked by the user.
    */
-  onViewPosition(position: Record<string, unknown>): void {
-    const code = this.normalizeEntityCode(position?.['code'])
+  onViewPosition(position: FracUploadRow): void {
+    const code = FracPositionHierarchyHelper.normalizeCode(position?.['code'])
     const positionName = (position?.['name'] || position?.['code'] || '').toString()
     const language = this.selectedLanguage
     const cacheKey = this.getHierarchyCacheKey(code, language)
@@ -960,15 +741,19 @@ export class PositionUploadComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response) => {
-          const aggregate = this.extractHierarchyAggregateFromResponse(response)
+          const aggregate = FracPositionHierarchyHelper.extractAggregateFromResponse(response)
           this.hierarchyAggregateCache.set(cacheKey, aggregate)
           this.hierarchyRawResponseCache.set(cacheKey, response)
           this.openPositionHierarchyDialogFromResponse(positionName, code, response)
         },
         error: () => {
-          this.openPositionHierarchyDialogFromResponse(positionName, code, { result: [] })
+          this.openPositionHierarchyDialogFromResponse(positionName, code, { result: [] } as any)
         },
       })
+  }
+
+  private getHierarchyCacheKey(code: string, language: string): string {
+    return `${code}|${this.getLanguageCode(language)}`
   }
 
   /**
@@ -993,7 +778,7 @@ export class PositionUploadComponent implements OnInit, OnDestroy {
     }
 
     this.dialog.open(PositionHierarchyViewModalComponent, {
-      width: FRAC_DIALOG_SIZES.positionHierarchyView,
+      width: '860px',
       maxWidth: '96vw',
       maxHeight: '90vh',
       disableClose: false,

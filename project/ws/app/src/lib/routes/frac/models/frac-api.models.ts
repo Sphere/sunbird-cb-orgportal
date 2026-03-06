@@ -53,7 +53,7 @@ export interface FracSearchRequest {
   entityType: string
   language: string
   query: string
-  strict: 'false'
+  strict: string
   field: string[]
 }
 

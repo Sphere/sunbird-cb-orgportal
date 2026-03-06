@@ -6,6 +6,7 @@
     <div class="button-group">
       <button *ngIf="!isReadOnly" mat-raised-button class="app-btn primary" [disabled]="isAddDisabled()"
         (click)="onAddPosition()">
+        <mat-spinner *ngIf="isSaving" class="btn-spinner" [diameter]="16" [strokeWidth]="2"></mat-spinner>
         {{ isSaving ? 'Saving...' : 'Add Role' }}
       </button>
     </div>

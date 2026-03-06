@@ -7,6 +7,7 @@
 
   <button class="save-btn" (click)="onSaveClicked()" *ngIf="routeMode === 'manage'"
     [disabled]="!isEditing || !hasTableData() || isUpdating || !hasPendingTableChanges()">
+    <mat-spinner *ngIf="isUpdating" class="btn-spinner" [diameter]="16" [strokeWidth]="2"></mat-spinner>
     <span style="color: white;">{{ isUpdating ? uiConfig.labels.saving : uiConfig.labels.save }}</span>
   </button>
 </div>
@@ -61,7 +62,8 @@
       <div class="button-group">
         <!-- Remove Button -->
         <button mat-stroked-button class="app-btn icon red" (click)="onRemoveClicked()"
-          [disabled]="!selectedRows.length || !hasTableData()" *ngIf="routeMode === 'manage'">
+          [disabled]="!selectedRows.length || !hasTableData() || isDeleting" *ngIf="routeMode === 'manage'">
+          <mat-spinner *ngIf="isDeleting" class="btn-spinner" [diameter]="16" [strokeWidth]="2"></mat-spinner>
           <img src="{{ uiConfig.icons.remove }}" alt="delete" class="btn-icon" />
           {{ uiConfig.labels.remove }}
         </button>
@@ -119,6 +121,7 @@
     <!-- Activity Table Component -->
     <app-upload-activity-list-table [columns]="tableConfig.columns" [data]="tableConfig.data" [showCheckbox]="true"
       [enableSorting]="true" [enablePagination]="false" [gridStyle]="'both'" [isEditing]="isEditing"
-      [isLoading]="isSearching && routeMode === 'manage'" (selectionChange)="onSelectionChange($event)">
+      [isLoading]="(isSearching || isDeleting) && routeMode === 'manage'" (selectionChange)="onSelectionChange($event)">
     </app-upload-activity-list-table>
   </div>
+</div>

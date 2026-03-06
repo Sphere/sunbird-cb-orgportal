@@ -7,6 +7,7 @@
   <!-- Save Button - Disabled when no data -->
   <button class="save-btn" (click)="onSaveClicked()" *ngIf="routeMode === 'manage'"
     [disabled]="!isEditing || !hasTableData() || isUpdating || !hasPendingTableChanges()">
+    <mat-spinner *ngIf="isUpdating" class="btn-spinner" [diameter]="16" [strokeWidth]="2"></mat-spinner>
     <span style="color: white;">{{ isUpdating ? uiConfig.labels.saving : uiConfig.labels.save }}</span>
   </button>
 </div>
@@ -57,7 +58,8 @@
       <div class="button-group">
         <!-- Remove Button (Red Outline + Icon) - Disabled when no data -->
         <button mat-stroked-button class="app-btn icon red" (click)="onRemoveClicked()"
-          [disabled]="!selectedRows.length || !hasTableData()" *ngIf="routeMode === 'manage'">
+          [disabled]="!selectedRows.length || !hasTableData() || isDeleting" *ngIf="routeMode === 'manage'">
+          <mat-spinner *ngIf="isDeleting" class="btn-spinner" [diameter]="16" [strokeWidth]="2"></mat-spinner>
           <img src="{{ uiConfig.icons.remove }}" alt="delete" class="btn-icon" />
           {{ uiConfig.labels.remove }}
         </button>
@@ -113,7 +115,7 @@
     <!-- Reusable Table -->
     <app-upload-competency-list-table [columns]="tableConfig.columns" [data]="tableConfig.data" [showCheckbox]="true"
       [enableSorting]="true" [enablePagination]="false" [gridStyle]="'both'" [isEditing]="isEditing"
-      [editRows]="editRows" [isLoading]="isSearching && routeMode === 'manage'"
+      [editRows]="editRows" [isLoading]="(isSearching || isDeleting) && routeMode === 'manage'"
       (selectionChange)="onSelectionChange($event)">
     </app-upload-competency-list-table>
   </div>

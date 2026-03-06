@@ -92,6 +92,16 @@
   }
 }
 
+.btn-spinner {
+  margin-right: 6px;
+}
+
+.app-btn.icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
 :host ::ng-deep .unsaved-changes-dialog .mat-mdc-dialog-surface {
   padding: 0;
   border-radius: 12.6px;
@@ -112,7 +122,7 @@
   app-upload-activity-list-table {
     display: flex;
     width: 100%;
-    height: 529px;
+    height: 600px;
   }
 
   // ============= HEADER SECTION =============
@@ -838,11 +848,26 @@
 
 // ============= POSITION CARDS GRID =============
 
+.position-cards-scroll-container {
+  max-height: calc(100vh - 220px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 8px;
+  margin-top: 20px;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: #c1c1c1;
+    border-radius: 4px;
+  }
+}
+
 .position-cards-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 16px;
-  margin-top: 20px;
 }
 
 // ============= POSITION CARD =============
@@ -881,9 +906,9 @@
 
   .pos-title {
     color: #111827;
-    font-family: Roboto, sans-serif;
-    font-weight: 600;
-    font-size: 14px;
+    font-family: 'Inter', Roboto, sans-serif;
+    font-weight: 500;
+    font-size: 19px;
     line-height: 1.4;
     margin: 0;
     overflow: hidden;
@@ -903,29 +928,29 @@
   .position-stat-badge {
     display: inline-flex;
     align-items: center;
-    gap: 3px;
-    padding: 3px 8px 3px 6px;
+    gap: 5px;
+    padding: 4px 10px 4px 8px;
     border-radius: 20px;
     background: #f3f6fc;
     border: 1px solid #dce4f0;
-    font-size: 11px;
-    font-family: Roboto, sans-serif;
+    font-size: 14px;
+    font-family: 'Inter', Roboto, sans-serif;
 
     .stat-badge-count {
-      font-weight: 700;
+      font-weight: 600;
       color: #111827;
-      font-size: 12px;
+      font-size: 15px;
     }
 
     .stat-badge-label {
       font-weight: 400;
-      color: #6b7280;
+      color: #617287; // slightly softer gray
     }
 
     .stat-badge-icon {
-      font-size: 13px;
-      width: 13px;
-      height: 13px;
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
     }
 
     &:first-child {
@@ -952,11 +977,11 @@
   .card-action-btn {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
-    padding: 5px 12px;
+    gap: 6px;
+    padding: 6px 14px;
     border-radius: 20px;
-    font-family: Roboto, sans-serif;
-    font-size: 12px;
+    font-family: 'Inter', Roboto, sans-serif;
+    font-size: 14px;
     font-weight: 500;
     cursor: pointer;
     transition: background 0.15s, color 0.15s, border-color 0.15s;
@@ -964,9 +989,9 @@
     white-space: nowrap;
 
     .card-action-icon {
-      font-size: 14px;
-      width: 14px;
-      height: 14px;
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
     }
 
     &.card-action-view {

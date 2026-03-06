@@ -1,103 +1,64 @@
 <div class="upload-competency-list-table-container" [ngClass]="gridStyle">
   <div class="table-pane">
-    <table mat-table [dataSource]="dataSource" matSort matSortActive="code" matSortDirection="asc" matSortDisableClear
-      class="data-table">
-      <!-- Checkbox column: 50px fixed width -->
+    <table mat-table [dataSource]="isLoading ? shimmerRows : dataSource" matSort matSortActive="code"
+      matSortDirection="asc" matSortDisableClear class="data-table">
+
+      <!-- Checkbox column -->
       <ng-container matColumnDef="select" *ngIf="showCheckbox">
         <th mat-header-cell *matHeaderCellDef #headerCell></th>
+        <!-- Real data row cell -->
         <td mat-cell *matCellDef="let row">
-          <mat-checkbox (click)="$event.stopPropagation()" (change)="onRowSelect(row)" (keydown)="onRowSelect(row)"
-            [checked]="selection.isSelected(row)" [aria-label]="checkboxLabel(row)">
-          </mat-checkbox>
+          <ng-container *ngIf="!isLoading">
+            <mat-checkbox (click)="$event.stopPropagation()" (change)="onRowSelect(row)" (keydown)="onRowSelect(row)"
+              [checked]="selection.isSelected(row)" [aria-label]="checkboxLabel(row)">
+            </mat-checkbox>
+          </ng-container>
+          <!-- Shimmer cell -->
+          <div *ngIf="isLoading" class="shimmer-box checkbox"></div>
         </td>
       </ng-container>
 
-      <!-- Dynamic columns - use active columns (default or provided) -->
+      <!-- Dynamic data columns -->
       <ng-container *ngFor="let col of activeColumns" [matColumnDef]="col.key">
         <th mat-header-cell *matHeaderCellDef #headerCell mat-sort-header>
           {{ col.label }}
         </th>
         <td mat-cell *matCellDef="let element">
-          <ng-container *ngIf="isRowInEditMode(element); else viewMode">
-            <div class="cell-edit-wrapper" [class.long-field]="isTextAreaField(col.key)">
-              <textarea *ngIf="isTextAreaField(col.key); else shortInput" [(ngModel)]="element[col.key]"
-                [class.tall-description]="isTallDescriptionField(col.key)" class="editable-textarea" rows="2"
-                [attr.placeholder]="'Enter ' + col.label.toLowerCase()" [attr.aria-label]="col.label"></textarea>
-              <ng-template #shortInput>
-                <input [(ngModel)]="element[col.key]" class="editable-input" [readonly]="isCodeField(col.key)"
-                  [class.readonly-input]="isCodeField(col.key)" />
-              </ng-template>
-            </div>
-          </ng-container>
+          <!-- Shimmer mode -->
+          <div *ngIf="isLoading" class="shimmer-box text"
+            [class.shimmer-short]="col.key === 'code' || col.key === 'type' || col.key === 'area'"></div>
 
-          <ng-template #viewMode>
-            <div class="cell-content">{{ element[col.key] }}</div>
-          </ng-template>
+          <!-- Real data mode -->
+          <ng-container *ngIf="!isLoading">
+            <ng-container *ngIf="isRowInEditMode(element); else viewMode">
+              <div class="cell-edit-wrapper" [class.long-field]="isTextAreaField(col.key)">
+                <textarea *ngIf="isTextAreaField(col.key); else shortInput" [(ngModel)]="element[col.key]"
+                  [class.tall-description]="isTallDescriptionField(col.key)" class="editable-textarea" rows="2"
+                  [attr.placeholder]="'Enter ' + col.label.toLowerCase()" [attr.aria-label]="col.label"></textarea>
+                <ng-template #shortInput>
+                  <input [(ngModel)]="element[col.key]" class="editable-input" [readonly]="isCodeField(col.key)"
+                    [class.readonly-input]="isCodeField(col.key)" />
+                </ng-template>
+              </div>
+            </ng-container>
+            <ng-template #viewMode>
+              <div class="cell-content">{{ element[col.key] }}</div>
+            </ng-template>
+          </ng-container>
         </td>
       </ng-container>
 
       <!-- Table header row -->
       <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
 
-      <!-- Table data rows -->
-      <tr mat-row *matRowDef="let row; columns: displayedColumns" class="data-row"
-        [class.editing-row]="isRowInEditMode(row)">
+      <!-- Data / shimmer rows -->
+      <tr mat-row *matRowDef="let row; columns: displayedColumns" [class.data-row]="!isLoading"
+        [class.shimmer-row]="isLoading" [class.editing-row]="!isLoading && isRowInEditMode(row)">
       </tr>
     </table>
-
-    <div class="rows-loading-overlay" *ngIf="isLoading">
-      <div class="rows-loading-row" *ngFor="let _ of [1, 2, 3, 4, 5, 6, 7, 8]">
-        <div class="rows-loading-cell checkbox-cell" *ngIf="showCheckbox"
-          [style.width.px]="getLoadingCellWidth(0) || null" [style.flex]="getLoadingCellWidth(0) ? '0 0 auto' : null">
-          <div class="shimmer-box checkbox"></div>
-        </div>
-        <div class="rows-loading-cell" *ngFor="let col of activeColumns; let colIndex = index"
-          [class.code-cell]="col.key === 'code'" [class.short-cell]="col.key === 'type' || col.key === 'area'"
-          [style.width.px]="getLoadingCellWidth(colIndex + (showCheckbox ? 1 : 0)) || null"
-          [style.flex]="getLoadingCellWidth(colIndex + (showCheckbox ? 1 : 0)) ? '0 0 auto' : null">
-          <div class="shimmer-box text"></div>
-        </div>
-      </div>
-    </div>
 
     <!-- Pagination footer (optional) -->
     <mat-paginator *ngIf="enablePagination" [pageSizeOptions]="pageSizeOptions" showFirstLastButtons>
     </mat-paginator>
   </div>
-
-  <!-- Empty state: Grid rows with column headers -->
-  <!-- <div class="table-filler" *ngIf="dataSource.data.length === 0">
-    <table class="empty-table">
-      <thead class="sr-only">
-        <tr>
-          <th *ngIf="showCheckbox"></th>
-          <th *ngFor="let col of activeColumns"></th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr class="empty-row" *ngFor="let i of emptyRows">
-          <td *ngIf="showCheckbox"></td>
-          <td *ngFor="let col of activeColumns"></td>
-        </tr>
-      </tbody>
-    </table>
-  </div> -->
-
-  <!-- Filler rows when data exists -->
-  <!-- <div class="table-filler" *ngIf="dataSource.data.length > 0">
-    <table class="filler-table">
-      <thead class="sr-only">
-        <tr>
-          <th *ngIf="showCheckbox"></th>
-          <th *ngFor="let col of activeColumns"></th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr class="filler-row" *ngFor="let i of fillerRows">
-          <td *ngIf="showCheckbox"></td>
-          <td *ngFor="let col of activeColumns"></td>
-        </tr>
-      </tbody>
-    </table>
-  </div> -->
 </div>

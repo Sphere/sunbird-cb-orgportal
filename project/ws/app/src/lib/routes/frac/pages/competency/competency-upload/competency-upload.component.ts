@@ -7,6 +7,10 @@ import { UploadResultModalComponent, UploadResultData } from '../../../component
 import { UnsavedChangesModalComponent } from '../../../components/unsaved-changes-modal/unsaved-changes-modal.component'
 import { ITableConfig, TableTransformUtil } from '../../../utils/table-transform.util'
 import { FracResponseParserUtil } from '../../../utils/frac-response-parser.util'
+import { FracUploadHelper } from '../../../utils/frac-upload-helper'
+import { FracPayloadBuilder } from '../../../utils/frac-payload-builder.util'
+import { FracEditTracker } from '../../../utils/frac-edit-tracker.util'
+import { FracUploadRow } from '../../../models/frac-table.models'
 import { extractEntityList, sortEntitiesForDisplay, getLanguageCode } from '../../../utils/common.util'
 import { fracLogger } from '../../../utils/frac-logger.util'
 import { FracApiService } from '../../../services/frac-api.service'
@@ -35,6 +39,7 @@ interface UploadEmptyStateConfig {
   styleUrls: ['./competency-upload.component.scss']
 })
 export class CompetencyUploadComponent {
+  private editTracker: FracEditTracker
   constructor(
     private dialog: MatDialog,
     private fracApiService: FracApiService,
@@ -42,20 +47,24 @@ export class CompetencyUploadComponent {
     private activatedRoute: ActivatedRoute,
     private router: Router,
     private uploadOrchestrator: FracEntityUploadOrchestratorService,
-  ) { }
+  ) {
+    this.editTracker = new FracEditTracker(this.uploadOrchestrator)
+  }
 
   // ============= UI CONFIG =============
   uiConfig = FRAC_UI_CONFIG
 
   // ============= STATE VARIABLES =============
-  originalRowData: any[] = [];
-  removedData: any[] = [];
+  originalRowData: FracUploadRow[] = [];
+  removedData: FracUploadRow[] = [];
   private searchTrigger$ = new Subject<UploadSearchTriggerPayload>();
   private destroy$ = new Subject<void>();
   private searchSubscription: Subscription | null = null;
-  private baselineTableSignature = '';
-  private baselineRowSignatureByCode = new Map<string, string>();
-  searchResults: any[] = [];
+  searchResults: FracUploadRow[] = [];
+  selectedRows: FracUploadRow[] = []
+  editRows: FracUploadRow[] = []
+  editedData: FracUploadRow[] = []
+  isEditing = false
   routeMode: UploadRouteMode = 'upload';
   uploadButtonText: string = 'Upload File';
 
@@ -121,7 +130,7 @@ export class CompetencyUploadComponent {
       this.editRows = []
       this.removedData = []
       this.isEditing = false
-      this.captureBaselineTableState()
+      this.editTracker.captureBaseline(this.tableConfig.data as unknown as FracUploadRow[])
     }
   }
   /** 🔹 Called when user types */
@@ -170,7 +179,7 @@ export class CompetencyUploadComponent {
         next: (res) => {
           this.isSearching = false
           const entityList = extractEntityList(res)
-          const sortedEntityList = sortEntitiesForDisplay(entityList)
+          const sortedEntityList = sortEntitiesForDisplay(entityList) as FracUploadRow[]
           this.searchResults = sortedEntityList
           this.originalRowData = sortedEntityList
           this.tableConfig = this.tableTransformUtil.transformResponseToTableConfig(sortedEntityList)
@@ -178,7 +187,7 @@ export class CompetencyUploadComponent {
           this.editRows = []
           this.removedData = []
           this.isEditing = false
-          this.captureBaselineTableState()
+          this.editTracker.captureBaseline(this.tableConfig.data as unknown as FracUploadRow[])
           fracLogger.debug('Competency table data loaded', { count: this.tableConfig.data.length })
         },
         error: (err) => {
@@ -189,49 +198,6 @@ export class CompetencyUploadComponent {
   }
 
 
-
-  /**
-   * Reads a failed upload response and builds the title and message for the error popup.
-   */
-  private createUploadFailureModalData(response: any): UploadResultData {
-    const normalizedResponse = FracResponseParserUtil.parseApiResponse(response)
-    const apiMessage = FracResponseParserUtil.getRawMessage(normalizedResponse)
-    const responseCode =
-      normalizedResponse?.responseCode ||
-      normalizedResponse?.code ||
-      normalizedResponse?.status
-    const paramsStatus =
-      normalizedResponse?.params?.status ||
-      normalizedResponse?.statusText
-    const affectedCodes = FracResponseParserUtil.getAffectedCodes(normalizedResponse)
-    const affectedCodesDetails = affectedCodes.length
-      ? `Affected Codes: ${affectedCodes.join(', ')}`
-      : undefined
-
-    // FIXED: Always prefer actual API message if it exists
-    let message: string
-    if (apiMessage && apiMessage.trim()) {
-      message = apiMessage.trim()
-    } else if (affectedCodes.length) {
-      message = 'Multiple occurrences or duplicates found.'
-    } else {
-      message = 'Upload failed. Please verify your file and try again.'
-    }
-
-    return {
-      type: 'error',
-      title: 'Upload Failed',
-      message,
-      errorDetails: FracResponseParserUtil.formatErrorDetails(responseCode, paramsStatus, affectedCodesDetails),
-      resultDetails: FracResponseParserUtil.getStructuredErrorDetails(response)
-    }
-  }
-
-
-
-  private async readUploadError(err: any): Promise<any> {
-    return FracResponseParserUtil.readErrorPayload(err)
-  }
 
   /**
    * Cleans up memory and active background tasks when the user leaves this page.
@@ -289,6 +255,7 @@ export class CompetencyUploadComponent {
     const dialogRef = this.dialog.open(FracUploadPopupComponent, {
       width: FRAC_DIALOG_SIZES.uploadPopup,
       disableClose: true,
+      panelClass: 'frac-upload-popup-dialog',
       data: config,
     })
 
@@ -300,15 +267,7 @@ export class CompetencyUploadComponent {
     })
   }
 
-  isEditing = false
-  selectedRows: any[] = []
-  editRows: any[] = []
-  editedData: any[] = []
-
-  /**
-   * Triggered when the user checks or unchecks rows in the table. Keeps track of which rows are selected.
-   */
-  onSelectionChange(selected: any[]) {
+  onSelectionChange(selected: FracUploadRow[]) {
     this.selectedRows = selected
     if (!this.isEditing) {
       return
@@ -350,14 +309,18 @@ export class CompetencyUploadComponent {
       return
     }
 
-    const changedRows = rowsToUpdate.filter(row => this.isRowChanged(row))
+    const changedRows = this.editTracker.getChangedRows(rowsToUpdate)
     if (!changedRows.length) {
       fracLogger.warn('Save action ignored because no table changes were detected.')
       return
     }
 
     const payloads = changedRows
-      .map(row => this.buildCompetencyUpdatePayload(row))
+      .map(row => {
+        const original = (this.originalRowData.find(item => item?.code === row.code) || {}) as FracUploadRow
+        const languageCode = original?.languageCode || this.getLanguageCode(this.selectedLanguage)
+        return FracPayloadBuilder.buildCompetencyUpdate(row, original, languageCode)
+      })
       .filter(Boolean) as any[]
 
     if (!payloads.length) {
@@ -380,7 +343,7 @@ export class CompetencyUploadComponent {
           message: `${changedRows.length} competency ${changedRows.length === 1 ? 'record' : 'records'} updated successfully.`,
           count: changedRows.length,
         }
-        this.captureBaselineTableState()
+        this.editTracker.captureBaseline(this.tableConfig.data as unknown as FracUploadRow[])
         this.showResultModal(successData, true)
       },
       error: (err) => {
@@ -401,68 +364,6 @@ export class CompetencyUploadComponent {
         this.showResultModal(failureData, false)
       },
     })
-  }
-
-  private buildCompetencyUpdatePayload(row: any): any | null {
-    if (!row?.code) {
-      return null
-    }
-
-    const original = this.originalRowData.find(item => item?.code === row.code) || {}
-    const languageCode = original?.languageCode || this.getLanguageCode(this.selectedLanguage)
-
-    const competencyLevels = this.extractCompetencyLevelsFromRow(row)
-
-    return {
-      entityType: 'Competency',
-      code: row.code,
-      languageCode,
-      name: row.name ?? original?.name ?? '',
-      description: row.description ?? original?.description ?? '',
-      status: original?.status ?? 'Active',
-      area: row.area ?? original?.area ?? '',
-      type: row.type ?? original?.type ?? '',
-      competencyLevels,
-    }
-  }
-
-  /**
-   * Reads the level columns (Level 1, Level 2, etc.) from a table row and formats them into an array for the API.
-   */
-  private extractCompetencyLevelsFromRow(row: any): any[] {
-    const levelMap: Record<number, { levelNumber: number; levelName: string; levelDescription: string }> = {}
-
-    Object.keys(row || {}).forEach((key) => {
-      const match = key.match(/^level_L(\d+)_(label|description)$/)
-      if (!match) {
-        return
-      }
-
-      const levelNumber = Number(match[1])
-      const fieldType = match[2]
-      if (!Number.isFinite(levelNumber) || levelNumber <= 0) {
-        return
-      }
-
-      if (!levelMap[levelNumber]) {
-        levelMap[levelNumber] = {
-          levelNumber,
-          levelName: '',
-          levelDescription: '',
-        }
-      }
-
-      const value = (row[key] ?? '').toString().trim()
-      if (fieldType === 'label') {
-        levelMap[levelNumber].levelName = value
-      } else {
-        levelMap[levelNumber].levelDescription = value
-      }
-    })
-
-    return Object.values(levelMap)
-      .filter(level => level.levelName || level.levelDescription)
-      .sort((a, b) => a.levelNumber - b.levelNumber)
   }
 
   private getLanguageCode(language: string): string {
@@ -505,7 +406,7 @@ export class CompetencyUploadComponent {
       }
 
       const deletePayload = this.selectedRows
-        .map(row => this.buildDeletePayload(row))
+        .map(row => FracPayloadBuilder.buildDelete('Competency', row, this.getLanguageCode(this.selectedLanguage)))
         .filter(Boolean) as any[]
 
       if (!deletePayload.length) {
@@ -517,10 +418,23 @@ export class CompetencyUploadComponent {
       this.fracApiService.deleteEntity(deletePayload).subscribe({
         next: () => {
           this.isDeleting = false
+          const deletedCodes = new Set(
+            this.selectedRows.map(row => (row?.code ?? '').toString().trim()),
+          )
           this.removedData = []
           this.selectedRows = []
           this.editRows = []
           this.isEditing = false
+          if (deletedCodes.size) {
+            const nextData = (this.tableConfig.data || []).filter(row =>
+              !deletedCodes.has((row?.code ?? '').toString().trim()),
+            )
+            this.tableConfig = { ...this.tableConfig, data: nextData }
+            this.originalRowData = (this.originalRowData || []).filter(row =>
+              !deletedCodes.has((row?.code ?? '').toString().trim()),
+            )
+            this.editTracker.captureBaseline(nextData as unknown as FracUploadRow[])
+          }
 
           this.showResultModal({
             type: 'success',
@@ -548,19 +462,7 @@ export class CompetencyUploadComponent {
     })
   }
 
-  private buildDeletePayload(row: any): any | null {
-    const code = (row?.code ?? '').toString().trim()
-    if (!code) {
-      return null
-    }
 
-    return {
-      entityCode: code,
-      entityType: 'Competency',
-      language: this.getLanguageCode(this.selectedLanguage),
-      purgeAllLanguage: false,
-    }
-  }
   /**
    * Downloads the blank sample CSV file that users can fill out to upload new data.
    */
@@ -623,7 +525,7 @@ export class CompetencyUploadComponent {
           this.showResultModal(successData, false, FRAC_ROUTES.competencyManage)
         } else {
           fracLogger.warn('Upload API returned a failure payload', parsedRes)
-          this.showResultModal(this.createUploadFailureModalData(parsedRes), false)
+          this.showResultModal(FracUploadHelper.createFailureModalData(parsedRes), false)
         }
       },
       error: (err) => {
@@ -644,27 +546,9 @@ export class CompetencyUploadComponent {
   }
 
   /** Handle upload error with appropriate message and show modal */
-  private async handleUploadError(err: any): Promise<void> {
-    const resolvedPayload = await this.readUploadError(err)
-
-    if (
-      resolvedPayload?.params?.errmsg ||
-      resolvedPayload?.responseCode ||
-      resolvedPayload?.result ||
-      resolvedPayload?.message
-    ) {
-      this.showResultModal(this.createUploadFailureModalData(resolvedPayload), false)
-      return
-    }
-
-    const fallbackData: UploadResultData = {
-      type: 'error',
-      title: 'Upload Failed',
-      message: err?.statusText || err?.message || 'An unexpected error occurred while uploading your file.',
-      errorDetails: err?.status ? `HTTP Status: ${err.status}` : undefined,
-    }
-
-    this.showResultModal(fallbackData, false)
+  private async handleUploadError(err: unknown): Promise<void> {
+    const modalData = await FracUploadHelper.resolveErrorToModalData(err)
+    this.showResultModal(modalData, false)
   }
 
   /** Show result modal (success or error) */
@@ -762,38 +646,8 @@ export class CompetencyUploadComponent {
     return this.routeMode === 'upload' || this.routeMode === 'manage'
   }
 
-  /**
-   * Checks if the user has made any edits or removed rows that need to be saved.
-   */
   hasPendingTableChanges(): boolean {
-    if (this.routeMode !== 'manage') {
-      return false
-    }
-
-    return this.uploadOrchestrator.computeTableSignature(this.tableConfig.data as Array<Record<string, unknown>>) !== this.baselineTableSignature
-  }
-
-  /**
-   * Compares a table row against its original state to see if the user made any edits.
-   */
-  private isRowChanged(row: any): boolean {
-    const code = (row?.code ?? '').toString().trim()
-    if (!code) {
-      return true
-    }
-
-    const baselineRowSignature = this.baselineRowSignatureByCode.get(code)
-    const currentSignature = this.uploadOrchestrator.getRowSignature(row)
-    return baselineRowSignature !== currentSignature
-  }
-
-  /**
-   * Saves a snapshot of the table data so we can detect future edits.
-   */
-  private captureBaselineTableState(): void {
-    const baseline = this.uploadOrchestrator.captureBaselineState(this.tableConfig.data as Array<Record<string, unknown>>)
-    this.baselineTableSignature = baseline.tableSignature
-    this.baselineRowSignatureByCode = baseline.rowSignatureByCode
+    return this.editTracker.hasChanges(this.tableConfig.data as unknown as FracUploadRow[])
   }
 
 }

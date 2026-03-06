@@ -29,6 +29,8 @@ export class PositionHierarchyViewModalComponent {
   /** Tracks which activity codes are expanded, keyed by roleCode::activityCode. */
   expandedActivities = new Set<string>()
 
+  private readonly collator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' })
+
   constructor(
     private dialogRef: MatDialogRef<PositionHierarchyViewModalComponent>,
     @Inject(MAT_DIALOG_DATA) public data: PositionHierarchyViewModalData,
@@ -36,7 +38,8 @@ export class PositionHierarchyViewModalComponent {
   ) { }
 
   get roles(): MappedRole[] {
-    return this.data.roles || []
+    const roles = this.data.roles || []
+    return [...roles].sort((a, b) => this.compareEntities(a.code, a.name, b.code, b.name))
   }
 
   get totalRoles(): number {
@@ -140,7 +143,24 @@ export class PositionHierarchyViewModalComponent {
    * @param role The role to get activities for.
    */
   getActivities(role: MappedRole): MappedActivity[] {
-    return role.activities || []
+    const activities = role.activities || []
+    return [...activities].sort((a, b) => this.compareEntities(a.code, a.name, b.code, b.name))
+  }
+
+  /**
+   * Returns all competencies for a given activity, sorted by code then name.
+   */
+  getCompetencies(activity: MappedActivity): MappedCompetency[] {
+    const competencies = activity.competencies || []
+    return [...competencies].sort((a, b) => this.compareEntities(a.code, a.name, b.code, b.name))
+  }
+
+  private compareEntities(aCode: string, aName: string | undefined, bCode: string, bName: string | undefined): number {
+    const codeCompare = this.collator.compare(aCode || '', bCode || '')
+    if (codeCompare !== 0) {
+      return codeCompare
+    }
+    return this.collator.compare(aName || '', bName || '')
   }
 
   /**

@@ -8,6 +8,7 @@
   <!-- Save shown only in table-manage mode -->
   <button class="save-btn" (click)="onSaveClicked()" *ngIf="routeMode === 'manage'"
     [disabled]="!isEditing || !hasTableData() || isUpdating || !hasPendingTableChanges()">
+    <mat-spinner *ngIf="isUpdating" class="btn-spinner" [diameter]="16" [strokeWidth]="2"></mat-spinner>
     <span>{{ isUpdating ? uiConfig.labels.saving : uiConfig.labels.save }}</span>
   </button>
 </div>
@@ -94,87 +95,88 @@
       </div>
     </div>
 
-    <!-- Card shimmer grid — shown while loading -->
-    <div class="position-cards-grid" *ngIf="isSearching" aria-hidden="true">
-      <div class="position-card shimmer-card" *ngFor="let _ of shimmerCards">
-        <!-- accent bar -->
-        <div class="shimmer-accent"></div>
-        <!-- card body -->
-        <div class="shimmer-card-body">
-          <div class="shimmer-line shimmer-title"></div>
-          <div class="shimmer-line shimmer-title shimmer-title-short"></div>
-          <div class="shimmer-stat-row">
-            <div class="shimmer-badge"></div>
-            <div class="shimmer-badge"></div>
-            <div class="shimmer-badge"></div>
-          </div>
-        </div>
-        <!-- action row -->
-        <div class="shimmer-actions">
-          <div class="shimmer-btn"></div>
-          <div class="shimmer-btn shimmer-btn-sm"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Empty state -->
-    <div class="manage-empty-state" *ngIf="!isSearching && !searchResults?.length">
-      <div class="table-empty-state-card">
-        <div class="empty-state-icon" aria-hidden="true">
-          <mat-icon>upload_file</mat-icon>
-        </div>
-        <p class="empty-state-title">{{ uiConfig.labels.noPositionsFound }}</p>
-        <p class="empty-state-message">{{ uiConfig.labels.noPositionsFoundMsg }}</p>
-        <p class="empty-state-suggestion">{{ uiConfig.labels.noPositionsFoundSuggestion }}</p>
-      </div>
-    </div>
-
-    <!-- Card grid -->
-    <div class="position-cards-grid" *ngIf="!isSearching && searchResults?.length">
-      <div class="position-card" *ngFor="let pos of searchResults">
-
-        <!-- Card top accent bar -->
-        <div class="position-card-accent"></div>
-
-        <div class="position-card-body">
-          <!-- Position name -->
-          <h3 class="pos-title" [title]="pos.name || pos.code">{{ pos.name || pos.code }}</h3>
-
-          <!-- Stat badges row -->
-          <div class="position-stat-row">
-            <div class="position-stat-badge">
-              <mat-icon class="stat-badge-icon stat-icon-role">work_outline</mat-icon>
-              <span class="stat-badge-count">{{ getPositionHierarchyCounts(pos).role }}</span>
-              <span class="stat-badge-label">Roles</span>
-            </div>
-            <div class="position-stat-badge">
-              <mat-icon class="stat-badge-icon stat-icon-activity">task_alt</mat-icon>
-              <span class="stat-badge-count">{{ getPositionHierarchyCounts(pos).activity }}</span>
-              <span class="stat-badge-label">Activities</span>
-            </div>
-            <div class="position-stat-badge">
-              <mat-icon class="stat-badge-icon stat-icon-competency">psychology</mat-icon>
-              <span class="stat-badge-count">{{ getPositionHierarchyCounts(pos).competency }}</span>
-              <span class="stat-badge-label">Competencies</span>
+    <div class="position-cards-scroll-container">
+      <!-- Card shimmer grid — shown while loading -->
+      <div class="position-cards-grid" *ngIf="isSearching" aria-hidden="true">
+        <div class="position-card shimmer-card" *ngFor="let _ of shimmerCards">
+          <!-- accent bar -->
+          <div class="shimmer-accent"></div>
+          <!-- card body -->
+          <div class="shimmer-card-body">
+            <div class="shimmer-line shimmer-title"></div>
+            <div class="shimmer-line shimmer-title shimmer-title-short"></div>
+            <div class="shimmer-stat-row">
+              <div class="shimmer-badge"></div>
+              <div class="shimmer-badge"></div>
+              <div class="shimmer-badge"></div>
             </div>
           </div>
+          <!-- action row -->
+          <div class="shimmer-actions">
+            <div class="shimmer-btn"></div>
+            <div class="shimmer-btn shimmer-btn-sm"></div>
+          </div>
         </div>
+      </div>
 
-        <!-- Actions -->
-        <div class="position-card-actions">
-          <button type="button" class="card-action-btn card-action-view" (click)="onViewPosition(pos)">
-            <mat-icon class="card-action-icon">visibility</mat-icon>
-            View
-          </button>
-          <button type="button" class="card-action-btn card-action-edit" (click)="onViewEdit(pos)">
-            <mat-icon class="card-action-icon">edit</mat-icon>
-            Edit
-          </button>
+      <!-- Empty state -->
+      <div class="manage-empty-state" *ngIf="!isSearching && !searchResults?.length">
+        <div class="table-empty-state-card">
+          <div class="empty-state-icon" aria-hidden="true">
+            <mat-icon>upload_file</mat-icon>
+          </div>
+          <p class="empty-state-title">{{ uiConfig.labels.noPositionsFound }}</p>
+          <p class="empty-state-message">{{ uiConfig.labels.noPositionsFoundMsg }}</p>
+          <p class="empty-state-suggestion">{{ uiConfig.labels.noPositionsFoundSuggestion }}</p>
         </div>
+      </div>
 
+      <!-- Card grid -->
+      <div class="position-cards-grid" *ngIf="!isSearching && searchResults?.length">
+        <div class="position-card" *ngFor="let pos of searchResults">
+
+          <!-- Card top accent bar -->
+          <div class="position-card-accent"></div>
+
+          <div class="position-card-body">
+            <!-- Position name -->
+            <h3 class="pos-title" [title]="pos.name || pos.code">{{ pos.name || pos.code }}</h3>
+
+            <!-- Stat badges row -->
+            <div class="position-stat-row">
+              <div class="position-stat-badge">
+                <mat-icon class="stat-badge-icon stat-icon-role">work_outline</mat-icon>
+                <span class="stat-badge-count">{{ getPositionHierarchyCounts(pos).role }}</span>
+                <span class="stat-badge-label">Roles</span>
+              </div>
+              <div class="position-stat-badge">
+                <mat-icon class="stat-badge-icon stat-icon-activity">task_alt</mat-icon>
+                <span class="stat-badge-count">{{ getPositionHierarchyCounts(pos).activity }}</span>
+                <span class="stat-badge-label">Activities</span>
+              </div>
+              <div class="position-stat-badge">
+                <mat-icon class="stat-badge-icon stat-icon-competency">psychology</mat-icon>
+                <span class="stat-badge-count">{{ getPositionHierarchyCounts(pos).competency }}</span>
+                <span class="stat-badge-label">Competencies</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="position-card-actions">
+            <button type="button" class="card-action-btn card-action-view" (click)="onViewPosition(pos)">
+              <mat-icon class="card-action-icon">visibility</mat-icon>
+              View
+            </button>
+            <button type="button" class="card-action-btn card-action-edit" (click)="onViewEdit(pos)">
+              <mat-icon class="card-action-icon">edit</mat-icon>
+              Edit
+            </button>
+          </div>
+
+        </div>
       </div>
     </div>
-
   </ng-container>
 
   <!-- ===== MANAGE MODE — role-like table (?mode=manage) ===== -->
@@ -219,7 +221,8 @@
       <div class="right-tools">
         <div class="button-group">
           <button mat-stroked-button class="app-btn icon red" (click)="onRemoveClicked()"
-            [disabled]="!selectedRows.length || !hasTableData()">
+            [disabled]="!selectedRows.length || !hasTableData() || isDeleting">
+            <mat-spinner *ngIf="isDeleting" class="btn-spinner" [diameter]="16" [strokeWidth]="2"></mat-spinner>
             <img [src]="uiConfig.icons.remove" alt="delete" class="btn-icon" />
             {{ uiConfig.labels.remove }}
           </button>
@@ -245,7 +248,7 @@
       </div>
       <app-upload-activity-list-table [columns]="tableConfig.columns" [data]="tableConfig.data" [showCheckbox]="true"
         [enableSorting]="true" [enablePagination]="false" [gridStyle]="'both'" [isEditing]="isEditing"
-        [isLoading]="isSearching" (selectionChange)="onSelectionChange($event)">
+        [isLoading]="isSearching || isDeleting" (selectionChange)="onSelectionChange($event)">
       </app-upload-activity-list-table>
     </div>
   </ng-container>

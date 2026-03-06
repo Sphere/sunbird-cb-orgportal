@@ -23,7 +23,7 @@ export const FRAC_DEBOUNCE_MS = {
 } as const
 
 export const FRAC_DIALOG_SIZES = {
-  uploadPopup: '450px',
+  uploadPopup: '425px',
   uploadResult: '400px',
   mapResult: '440px',
   unsavedChanges: '363px',
@@ -45,15 +45,15 @@ export const FRAC_DASHBOARD_ICON_URLS: Record<FracDashboardIcon, string> = {
 export const FRAC_SAMPLE_TEMPLATE_URLS = {
   competency: {
     hi: 'https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/files/sample_competency_hi_list.csv',
-    en: 'https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/files/sample_competency_en_list.csv',
+    en: 'https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/files/sample_competency_en_hi_list.csv',
   },
   activity: {
     hi: 'https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/files/sample_activity_hi_list.csv',
-    en: 'https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/files/sample_activity_en_list.csv',
+    en: 'https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/files/sample_activity_en_hi_list.csv',
   },
   role: {
     hi: 'https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/files/sample_role_hi_list.csv',
-    en: 'https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/files/sample_role_en_list.csv',
+    en: 'https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/files/sample_role_en_hi_list.csv',
   },
   position: {
     hi: 'https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/files/sample_position_hi_list.csv',
@@ -66,7 +66,7 @@ export const FRAC_DEFAULT_PAGE_SIZE_OPTIONS = [5, 10, 20] as const
 export const FRAC_TABLE_LAYOUT = {
   rowHeightPx: 40,
   headerHeightPx: 40,
-  containerHeightPx: 529,
+  containerHeightPx: 600,
 } as const
 
 export const FRAC_MAP_PAGE_SPINNER = {

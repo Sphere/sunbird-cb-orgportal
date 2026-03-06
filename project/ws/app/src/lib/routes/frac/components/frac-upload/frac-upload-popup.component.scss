@@ -1,28 +1,43 @@
 // ============= MATERIAL DIALOG CONTAINER STYLING =============
 
 
-::ng-deep {
-  // Style the dialog container (wrapper)
-  .mat-mdc-dialog-container {
+::ng-deep .frac-upload-popup-dialog .mat-mdc-dialog-container {
+  border-radius: 30px !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+  max-width: 425px !important;
+  background: transparent !important;
+  box-shadow: none !important;
+
+  // Ensure the dialog surface (inner) also has rounded corners
+  .mdc-dialog__surface {
     border-radius: 30px !important;
-    overflow: visible !important;
+    max-width: 425px !important;
+    overflow: hidden !important;
     padding: 0 !important;
-    max-width: 425px !important;
-
-    // Ensure the dialog surface (inner) also has rounded corners
-    .mdc-dialog__surface {
-      border-radius: 30px !important;
-      max-width: 425px !important;
-      overflow: visible !important;
-    }
+    background: #ffffff !important;
+    box-shadow: 0 16px 40px rgba(12, 30, 64, 0.18) !important;
   }
+}
 
-  // Apply to all dialog overlays
-  .mdc-dialog {
-    border-radius: 30px !important;
-    max-width: 425px !important;
-    overflow: visible !important;
-  }
+::ng-deep .frac-upload-popup-dialog .mdc-dialog {
+  border-radius: 30px !important;
+  max-width: 425px !important;
+  overflow: visible !important;
+  background: transparent !important;
+}
+
+::ng-deep .frac-upload-popup-dialog .mdc-dialog__container {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+::ng-deep .frac-upload-popup-dialog .mat-mdc-dialog-surface {
+  background: #ffffff !important;
+  box-shadow: 0 16px 40px rgba(12, 30, 64, 0.18) !important;
+  padding: 0 !important;
+  border-radius: 30px !important;
+  overflow: hidden !important;
 }
 
 .upload-popup-container {
@@ -30,14 +45,15 @@
   flex-direction: column;
   gap: 16px;
   padding: 24px;
-  border-radius: 30px;
-  background: #fff;
-  box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.15);
+  border-radius: inherit;
+  background: transparent;
+  box-shadow: none;
   font-family: 'Roboto', sans-serif;
-  max-width: 425px;
+  width: 100%;
   overflow: visible;
   position: relative;
   z-index: 1;
+  box-sizing: border-box;
 }
 
 // ============= TITLE =============
@@ -207,8 +223,8 @@
   width: 100%;
   height: 174px;
   background: #fff;
-  box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.15);
-  border-radius: 6px;
+  border: 2px solid #0096ff;
+  border-radius: 8px;
   position: relative;
   display: flex;
   justify-content: center;
@@ -395,12 +411,12 @@
 
 
 .file-selected-box {
-  width: 377px;
+  width: 100%;
   height: 174px;
   margin: 0 auto;
   background: #fff;
-  box-shadow: 0 0 4px rgba(0, 0, 0, 0.15);
-  border-radius: 6px;
+  border: 2px solid #0096ff;
+  border-radius: 8px;
   position: relative;
   display: flex;
   justify-content: center;

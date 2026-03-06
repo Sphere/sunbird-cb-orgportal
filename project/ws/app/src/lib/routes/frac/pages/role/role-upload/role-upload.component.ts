@@ -7,6 +7,10 @@ import { UploadResultModalComponent, UploadResultData } from '../../../component
 import { UnsavedChangesModalComponent } from '../../../components/unsaved-changes-modal/unsaved-changes-modal.component'
 import { ITableConfig, TableTransformUtil } from '../../../utils/table-transform.util'
 import { FracResponseParserUtil } from '../../../utils/frac-response-parser.util'
+import { FracUploadHelper } from '../../../utils/frac-upload-helper'
+import { FracPayloadBuilder } from '../../../utils/frac-payload-builder.util'
+import { FracEditTracker } from '../../../utils/frac-edit-tracker.util'
+import { FracUploadRow } from '../../../models/frac-table.models'
 import { extractEntityList, sortEntitiesForDisplay, getLanguageCode } from '../../../utils/common.util'
 import { fracLogger } from '../../../utils/frac-logger.util'
 import { FracApiService } from '../../../services/frac-api.service'
@@ -36,6 +40,7 @@ interface UploadEmptyStateConfig {
 })
 export class RoleUploadComponent implements OnInit, OnDestroy {
 
+  private editTracker: FracEditTracker
   constructor(
     private dialog: MatDialog,
     private fracApiService: FracApiService,
@@ -43,7 +48,9 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
     private activatedRoute: ActivatedRoute,
     private router: Router,
     private uploadOrchestrator: FracEntityUploadOrchestratorService,
-  ) { }
+  ) {
+    this.editTracker = new FracEditTracker(this.uploadOrchestrator)
+  }
 
   // ============= UI CONFIG =============
   uiConfig = FRAC_UI_CONFIG
@@ -56,16 +63,16 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
   // ============= TABLE STATE =============
 
   /** Original table data for comparison */
-  originalRowData: any[] = []
+  originalRowData: FracUploadRow[] = []
 
   /** Data removed via UI */
-  removedData: any[] = []
+  removedData: FracUploadRow[] = []
 
   /** Table configuration with columns and data */
   tableConfig: ITableConfig = { columns: [], data: [] }
 
   /** Rows selected in table */
-  selectedRows: any[] = []
+  selectedRows: FracUploadRow[] = []
 
   // ============= UI STATE =============
 
@@ -77,7 +84,7 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
 
   /** Search and filter */
   searchTerm = ''
-  searchResults: any[] = []
+  searchResults: FracUploadRow[] = []
 
   /** Language selection */
   selectedLanguage = this.uploadOrchestrator.languages[0]
@@ -110,8 +117,6 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
   private searchTrigger$ = new Subject<UploadSearchTriggerPayload>()
   private searchSubscription: Subscription | null = null
   private destroy$ = new Subject<void>()
-  private baselineTableSignature = ''
-  private baselineRowSignatureByCode = new Map<string, string>()
 
   // ============= LIFECYCLE =============
 
@@ -155,7 +160,7 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
       this.selectedRows = []
       this.removedData = []
       this.isEditing = false
-      this.captureBaselineTableState()
+      this.editTracker.captureBaseline(this.tableConfig.data as unknown as FracUploadRow[])
     }
   }
 
@@ -179,7 +184,7 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
       return false
     }
 
-    return this.uploadOrchestrator.computeTableSignature(this.tableConfig.data as Array<Record<string, unknown>>) !== this.baselineTableSignature
+    return this.editTracker.hasChanges(this.tableConfig.data as unknown as FracUploadRow[])
   }
 
   // ============= SEARCH & FILTER =============
@@ -230,14 +235,14 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
         next: (res) => {
           this.isSearching = false
           const entityList = extractEntityList(res)
-          const sortedEntityList = sortEntitiesForDisplay(entityList)
+          const sortedEntityList = sortEntitiesForDisplay(entityList) as FracUploadRow[]
           this.searchResults = sortedEntityList
           this.originalRowData = sortedEntityList
           this.tableConfig = this.tableTransformUtil.transformResponseToTableConfig(sortedEntityList)
           this.selectedRows = []
           this.removedData = []
           this.isEditing = false
-          this.captureBaselineTableState()
+          this.editTracker.captureBaseline(this.tableConfig.data as unknown as FracUploadRow[])
         },
         error: (err) => {
           this.isSearching = false
@@ -277,7 +282,7 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
   // ============= TABLE SELECTION =============
 
   /** Update selected rows from table */
-  onSelectionChange(selected: any[]): void {
+  onSelectionChange(selected: FracUploadRow[]): void {
     this.selectedRows = selected
   }
 
@@ -302,14 +307,19 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
       return
     }
 
-    const changedRows = this.selectedRows.filter(row => this.isRowChanged(row))
+    const rowsToUpdate = this.selectedRows.map(row => ({ ...row }))
+    const changedRows = this.editTracker.getChangedRows(rowsToUpdate)
     if (!changedRows.length) {
       fracLogger.warn('Save action ignored because no table changes were detected.')
       return
     }
 
     const payloads = changedRows
-      .map(row => this.buildRoleUpdatePayload(row))
+      .map(row => {
+        const original = (this.originalRowData.find(item => item?.code === row.code) || {}) as FracUploadRow
+        const languageCode = original?.languageCode || this.getLanguageCode(this.selectedLanguage)
+        return FracPayloadBuilder.buildGenericUpdate('Role', row, original, languageCode)
+      })
       .filter(Boolean) as any[]
 
     if (!payloads.length) {
@@ -330,7 +340,7 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
           message: `${changedRows.length} role ${changedRows.length === 1 ? 'record' : 'records'} updated successfully.`,
           count: changedRows.length,
         }
-        this.captureBaselineTableState()
+        this.editTracker.captureBaseline(this.tableConfig.data as unknown as FracUploadRow[])
         this.showResultModal(successData, true)
       },
       error: (err) => {
@@ -351,22 +361,7 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
     })
   }
 
-  private buildRoleUpdatePayload(row: any): any | null {
-    if (!row?.code) {
-      return null
-    }
 
-    const original = this.originalRowData.find(item => item?.code === row.code) || {}
-    const languageCode = original?.languageCode || this.getLanguageCode(this.selectedLanguage)
-
-    return {
-      entityType: 'Role',
-      id: original?.id || row?.id || '',
-      code: original?.code || row?.code || '',
-      languageCode,
-      name: row?.name ?? original?.name ?? '',
-    }
-  }
 
   private getLanguageCode(language: string): string {
     return getLanguageCode(language)
@@ -408,7 +403,7 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
       }
 
       const deletePayload = this.selectedRows
-        .map(row => this.buildDeletePayload(row))
+        .map(row => FracPayloadBuilder.buildDelete('Role', row, this.getLanguageCode(this.selectedLanguage)))
         .filter(Boolean) as any[]
 
       if (!deletePayload.length) {
@@ -420,9 +415,22 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
       this.fracApiService.deleteEntity(deletePayload).subscribe({
         next: () => {
           this.isDeleting = false
+          const deletedCodes = new Set(
+            this.selectedRows.map(row => (row?.code ?? '').toString().trim()),
+          )
           this.removedData = []
           this.selectedRows = []
           this.isEditing = false
+          if (deletedCodes.size) {
+            const nextData = (this.tableConfig.data || []).filter(row =>
+              !deletedCodes.has((row?.code ?? '').toString().trim()),
+            )
+            this.tableConfig = { ...this.tableConfig, data: nextData }
+            this.originalRowData = (this.originalRowData || []).filter(row =>
+              !deletedCodes.has((row?.code ?? '').toString().trim()),
+            )
+            this.editTracker.captureBaseline(nextData as unknown as FracUploadRow[])
+          }
 
           this.showResultModal({
             type: 'success',
@@ -450,19 +458,7 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
     })
   }
 
-  private buildDeletePayload(row: any): any | null {
-    const code = (row?.code ?? '').toString().trim()
-    if (!code) {
-      return null
-    }
 
-    return {
-      entityCode: code,
-      entityType: 'Role',
-      language: this.getLanguageCode(this.selectedLanguage),
-      purgeAllLanguage: false,
-    }
-  }
 
   // ============= FILE OPERATIONS =============
 
@@ -484,6 +480,7 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
     const dialogRef = this.dialog.open(FracUploadPopupComponent, {
       width: FRAC_DIALOG_SIZES.uploadPopup,
       disableClose: true,
+      panelClass: 'frac-upload-popup-dialog',
       data: config,
     })
 
@@ -538,7 +535,7 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
           }
           this.showResultModal(successData, false, false, FRAC_ROUTES.roleManage)
         } else {
-          this.showResultModal(this.createUploadFailureModalData(resolvedResponse), false)
+          this.showResultModal(FracUploadHelper.createFailureModalData(resolvedResponse), false)
         }
       },
       error: (err) => {
@@ -559,69 +556,10 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
     })
   }
 
-  /**
-   * Reads a failed upload response and builds the title and message for the error popup.
-   */
-  private createUploadFailureModalData(response: any): UploadResultData {
-    const normalizedResponse = FracResponseParserUtil.parseApiResponse(response)
-    const apiMessage = FracResponseParserUtil.getRawMessage(normalizedResponse)
-    const responseCode =
-      normalizedResponse?.responseCode ||
-      normalizedResponse?.code ||
-      normalizedResponse?.status
-    const paramsStatus =
-      normalizedResponse?.params?.status ||
-      normalizedResponse?.statusText
-    const affectedCodes = FracResponseParserUtil.getAffectedCodes(normalizedResponse)
-    const affectedCodesDetails = affectedCodes.length
-      ? `Affected Codes: ${affectedCodes.join(', ')}`
-      : undefined
-
-    // FIXED: Always prefer actual API message if it exists
-    let message: string
-    if (apiMessage && apiMessage.trim()) {
-      message = apiMessage.trim()
-    } else if (affectedCodes.length) {
-      message = 'Multiple occurrences or duplicates found.'
-    } else {
-      message = 'Upload failed. Please verify your file and try again.'
-    }
-
-    return {
-      type: 'error',
-      title: 'Upload Failed',
-      message,
-      errorDetails: FracResponseParserUtil.formatErrorDetails(responseCode, paramsStatus, affectedCodesDetails),
-      resultDetails: FracResponseParserUtil.getStructuredErrorDetails(response)
-    }
-  }
-
-  private async readUploadError(err: any): Promise<any> {
-    return FracResponseParserUtil.readErrorPayload(err)
-  }
-
   /** Handle upload error with appropriate message and show modal */
-  private async handleUploadError(err: any): Promise<void> {
-    const resolvedPayload = await this.readUploadError(err)
-
-    if (
-      resolvedPayload?.params?.errmsg ||
-      resolvedPayload?.responseCode ||
-      resolvedPayload?.result ||
-      resolvedPayload?.message
-    ) {
-      this.showResultModal(this.createUploadFailureModalData(resolvedPayload), false)
-      return
-    }
-
-    const fallbackData: UploadResultData = {
-      type: 'error',
-      title: 'Upload Failed',
-      message: err?.statusText || err?.message || 'An unexpected error occurred while uploading your file.',
-      errorDetails: err?.status ? `HTTP Status: ${err.status}` : undefined
-    }
-
-    this.showResultModal(fallbackData, false)
+  private async handleUploadError(err: unknown): Promise<void> {
+    const modalData = await FracUploadHelper.resolveErrorToModalData(err)
+    this.showResultModal(modalData, false)
   }
 
   /** Show result modal (success or error) */
@@ -720,27 +658,6 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
     return this.routeMode === 'upload' || this.routeMode === 'manage'
   }
 
-  /**
-   * Compares a table row against its original state to see if the user made any edits.
-   */
-  private isRowChanged(row: any): boolean {
-    const code = (row?.code ?? '').toString().trim()
-    if (!code) {
-      return true
-    }
 
-    const baselineRowSignature = this.baselineRowSignatureByCode.get(code)
-    const currentSignature = this.uploadOrchestrator.getRowSignature(row)
-    return baselineRowSignature !== currentSignature
-  }
-
-  /**
-   * Saves a snapshot of the table data so we can detect future edits.
-   */
-  private captureBaselineTableState(): void {
-    const baseline = this.uploadOrchestrator.captureBaselineState(this.tableConfig.data as Array<Record<string, unknown>>)
-    this.baselineTableSignature = baseline.tableSignature
-    this.baselineRowSignatureByCode = baseline.rowSignatureByCode
-  }
 
 }

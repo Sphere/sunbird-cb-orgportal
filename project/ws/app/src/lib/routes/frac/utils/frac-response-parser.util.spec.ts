@@ -58,17 +58,17 @@ describe('FracResponseParserUtil', () => {
 
     const parsed = FracResponseParserUtil.parseApiResponse(payload)
     expect(FracResponseParserUtil.getRawMessage(parsed)).toBe('Duplicate entry found')
-    expect(FracResponseParserUtil.isUsefulMessage(FracResponseParserUtil.getRawMessage(parsed))).toBeTrue()
+    expect(FracResponseParserUtil.isUsefulMessage(FracResponseParserUtil.getRawMessage(parsed))).toBe(true)
     expect(FracResponseParserUtil.getAffectedCodes(parsed)).toEqual(['C1', 'C2'])
   })
 
   it('should accept any non-empty message as useful including generic words', () => {
-    expect(FracResponseParserUtil.isUsefulMessage('error')).toBeTrue()
-    expect(FracResponseParserUtil.isUsefulMessage('failed')).toBeTrue()
-    expect(FracResponseParserUtil.isUsefulMessage('bad request')).toBeTrue()
-    expect(FracResponseParserUtil.isUsefulMessage('')).toBeFalse()
-    expect(FracResponseParserUtil.isUsefulMessage('   ')).toBeFalse()
-    expect(FracResponseParserUtil.isUsefulMessage(undefined)).toBeFalse()
+    expect(FracResponseParserUtil.isUsefulMessage('error')).toBe(true)
+    expect(FracResponseParserUtil.isUsefulMessage('failed')).toBe(true)
+    expect(FracResponseParserUtil.isUsefulMessage('bad request')).toBe(true)
+    expect(FracResponseParserUtil.isUsefulMessage('')).toBe(false)
+    expect(FracResponseParserUtil.isUsefulMessage('   ')).toBe(false)
+    expect(FracResponseParserUtil.isUsefulMessage(undefined)).toBe(false)
   })
 
   it('should collect success and affected codes', () => {

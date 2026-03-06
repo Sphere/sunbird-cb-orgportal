@@ -7,7 +7,7 @@
   app-upload-competency-list-table {
     display: block;
     width: 100%;
-    height: 529px;
+    height: 600px;
   }
 
   .header {
@@ -171,6 +171,16 @@
   &:hover:disabled {
     background: #BFBFBF !important;
   }
+}
+
+.btn-spinner {
+  margin-right: 6px;
+}
+
+.app-btn.icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
 :host ::ng-deep .unsaved-changes-dialog .mat-mdc-dialog-surface {
