@@ -45,7 +45,7 @@
 
             <!-- mapped activities under role -->
             <div *ngIf="expandedRoleCode === r.code && r.activityDetails?.length" class="activity-section">
-              <div class="activity-row" *ngFor="let a of r.activityDetails">
+              <div class="activity-row" *ngFor="let a of getSortedActivities(r)">
                 <div class="pill">
                   <div class="activity-label">{{ a.code }} - {{ a.label }}</div>
                 </div>

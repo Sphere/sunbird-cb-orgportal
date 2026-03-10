@@ -47,12 +47,12 @@ export class PositionHierarchyViewModalComponent {
   }
 
   get totalActivities(): number {
-    return this.roles.reduce((sum, role) => sum + role.activities.length, 0)
+    return this.roles.reduce((sum, role) => sum + (role.activities || []).length, 0)
   }
 
   get totalCompetencies(): number {
     return this.roles.reduce((sum, role) =>
-      sum + role.activities.reduce((s, act) => s + act.competencies.length, 0), 0)
+      sum + (role.activities || []).reduce((s, act) => s + (act.competencies || []).length, 0), 0)
   }
 
   get hasMapping(): boolean {

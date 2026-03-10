@@ -33,6 +33,11 @@ export class FracPositionHierarchyHelper {
     const activityMap = new Map<string, HierarchyDetailItem>()
     const competencyMap = new Map<string, HierarchyDetailItem>()
 
+    // We track raw totals to match the "non-unique" visual representation in the modal
+    let totalRoles = 0
+    let totalActivities = 0
+    let totalCompetencies = 0
+
     const visitNode = (node: FracHierarchyNode | null | undefined): void => {
       if (!node) {
         return
@@ -43,10 +48,13 @@ export class FracPositionHierarchyHelper {
       const name = (node.entityName || node.entityDescription || '').toString().trim()
 
       if (entityType === 'ROLE') {
+        totalRoles++
         this.upsertItem(roleMap, code, name)
       } else if (entityType === 'ACTIVITY') {
+        totalActivities++
         this.upsertItem(activityMap, code, name)
       } else if (entityType === 'COMPETENCY') {
+        totalCompetencies++
         const levels = this.extractCompetencyLevels(node.competencies)
         this.upsertItem(competencyMap, code, name, levels)
       }
@@ -66,9 +74,9 @@ export class FracPositionHierarchyHelper {
 
     return {
       counts: {
-        role: details.role.length,
-        activity: details.activity.length,
-        competency: details.competency.length,
+        role: totalRoles,
+        activity: totalActivities,
+        competency: totalCompetencies,
       },
       details,
     }

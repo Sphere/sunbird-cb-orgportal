@@ -338,6 +338,11 @@
   color: #c85e0a;
 }
 
+.phv-badge-competency {
+  background: var(--phv-competency-soft);
+  color: var(--phv-competency);
+}
+
 // ---------------------------------------------------------------------------
 // Competency list — table-aligned rows
 // ---------------------------------------------------------------------------
@@ -357,7 +362,7 @@
 // Each competency is a horizontal row: [code pill] | name | [level badge]
 .phv-competency-chip {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 10px;
   padding: 8px 10px;
   background: #ffffff;

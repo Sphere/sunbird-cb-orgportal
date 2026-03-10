@@ -46,7 +46,7 @@
 
             <!-- mapped positions under role -->
             <div *ngIf="expandedPositionCode === r.code && r.roleDetails?.length" class="position-section">
-              <div class="position-row" *ngFor="let p of r.roleDetails">
+              <div class="position-row" *ngFor="let p of getSortedRoles(r)">
                 <div class="pill">
                   <div class="position-label">{{ p.code }} - {{ p.label }}</div>
                 </div>

@@ -104,6 +104,7 @@
             <!-- Competency chips — aligned table rows: [code] name [levels] -->
             <div class="phv-competency-chips" *ngIf="activity.competencies.length">
               <div class="phv-competency-chip" *ngFor="let comp of getCompetencies(activity)">
+                <span class="phv-type-badge phv-badge-competency">Competency</span>
                 <span class="phv-comp-code-pill">{{ comp.code }}</span>
                 <span class="phv-comp-name" [title]="comp.name">{{ comp.name || comp.code }}</span>
                 <span class="phv-level-range" *ngIf="getLevels(comp).length">{{ formatLevelRange(comp) }}</span>

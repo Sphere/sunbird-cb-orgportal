@@ -50,7 +50,7 @@
 
             <!-- Expanded competency list -->
             <div *ngIf="expanded === a && hasValidLevels(a)" class="competency-section">
-              <div class="competency-row" *ngFor="let c of a.competencyDetails">
+              <div class="competency-row" *ngFor="let c of getSortedCompetencies(a)">
 
                 <!-- Show row only if levels are present -->
                 <ng-container *ngIf="c.levels?.trim()">

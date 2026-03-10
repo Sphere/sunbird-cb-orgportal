@@ -7,6 +7,7 @@ import { FracRoleMappingItem } from '../../models/frac-mapping.models'
   styleUrls: ['./role-mapping-list.component.scss']
 })
 export class RoleMappingListComponent implements OnInit, OnChanges {
+  private readonly collator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' })
 
   @Input() roles: FracRoleMappingItem[] = []
   @Input() isLoading = false
@@ -42,9 +43,7 @@ export class RoleMappingListComponent implements OnInit, OnChanges {
 
   private applySort(): void {
     this.filteredRoles.sort((a, b) => {
-      const aStr = (a.code || '').toLowerCase()
-      const bStr = (b.code || '').toLowerCase()
-      return aStr.localeCompare(bStr, undefined, { numeric: true, sensitivity: 'base' })
+      return this.compareEntities(a.code, a.title, b.code, b.title)
     })
   }
 
@@ -74,5 +73,18 @@ export class RoleMappingListComponent implements OnInit, OnChanges {
 
   trackByCode(index: number, item: FracRoleMappingItem): string {
     return item?.code || `${index}`
+  }
+
+  getSortedActivities(role: FracRoleMappingItem): FracRoleMappingItem['activityDetails'] {
+    const details = role?.activityDetails || []
+    return [...details].sort((a, b) => this.compareEntities(a.code, a.label, b.code, b.label))
+  }
+
+  private compareEntities(aCode?: string, aLabel?: string, bCode?: string, bLabel?: string): number {
+    const codeCompare = this.collator.compare(aCode || '', bCode || '')
+    if (codeCompare !== 0) {
+      return codeCompare
+    }
+    return this.collator.compare(aLabel || '', bLabel || '')
   }
 }

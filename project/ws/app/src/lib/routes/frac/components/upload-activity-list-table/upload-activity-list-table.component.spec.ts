@@ -6,9 +6,9 @@ describe('UploadActivityListTableComponent', () => {
   let component: UploadActivityListTableComponent
   let fixture: ComponentFixture<UploadActivityListTableComponent>
 
-  beforeEach(async) {
+  beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [UploadActivityListTableComponent]
+      declarations: [UploadActivityListTableComponent],
     })
       .compileComponents()
 
@@ -17,7 +17,7 @@ describe('UploadActivityListTableComponent', () => {
     fixture.detectChanges()
   })
 
-it('should create', () => {
-  expect(component).toBeTruthy()
-});
-});
+  it('should create', () => {
+    expect(component).toBeTruthy()
+  })
+})
