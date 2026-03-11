@@ -1,6 +1,6 @@
 import { FracEntityType } from '../models/frac-api.models'
 import { UploadPopupConfig } from '../models/upload-popup-config.model'
-import { FRAC_SAMPLE_TEMPLATE_URLS } from '../constants/frac.constants'
+import { FracLanguage, FRAC_SAMPLE_TEMPLATE_URLS } from '../constants/frac.constants'
 
 type UploadTemplateEntity = Extract<FracEntityType, 'competency' | 'activity' | 'role' | 'position'>
 
@@ -10,8 +10,8 @@ type UploadTemplateEntity = Extract<FracEntityType, 'competency' | 'activity' | 
  */
 export function buildFracUploadPopupConfig(
   entity: UploadTemplateEntity,
-  languages: readonly string[],
-  defaultLanguage: string,
+  languages: readonly FracLanguage[],
+  defaultLanguageKey: string,
 ): UploadPopupConfig {
   const configByEntity: Record<UploadTemplateEntity, { title: string; subText: string }> = {
     competency: {
@@ -42,8 +42,8 @@ export function buildFracUploadPopupConfig(
     dropdown: {
       label: 'Select Language',
       placeholder: 'Language',
-      options: [...languages],
-      defaultValue: defaultLanguage,
+      options: languages.map(l => l.key),
+      defaultValue: defaultLanguageKey,
     },
     actions: {
       secondary: { label: 'Cancel' },
@@ -57,11 +57,11 @@ export function buildFracUploadPopupConfig(
 }
 
 /**
- * Returns sample template URL for the selected entity and language.
- * FRAC currently supports hi and en templates; non-hi falls back to en.
+ * Returns the sample template URL for the given entity and language key.
+ * Falls back to 'en' if no URL is configured for the requested key.
+ * Adding a new language only requires adding its URL to FRAC_SAMPLE_TEMPLATE_URLS.
  */
-export function getFracSampleTemplateUrl(entity: UploadTemplateEntity, languageCode: string): string {
-  const normalizedLanguage = (languageCode || '').toLowerCase()
-  const templateLanguage = normalizedLanguage === 'hi' ? 'hi' : 'en'
-  return FRAC_SAMPLE_TEMPLATE_URLS[entity][templateLanguage]
+export function getFracSampleTemplateUrl(entity: UploadTemplateEntity, languageKey: string): string {
+  const templates = FRAC_SAMPLE_TEMPLATE_URLS[entity] as Record<string, string>
+  return templates[(languageKey || '').toLowerCase()] || templates['en'] || ''
 }

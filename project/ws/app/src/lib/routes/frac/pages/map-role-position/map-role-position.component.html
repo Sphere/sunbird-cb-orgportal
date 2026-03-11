@@ -4,9 +4,9 @@
     <span>Back</span>
   </button>
 
-  <div class="view-only-banner" *ngIf="selectedLanguage !== 'English'">
+  <div class="view-only-banner" *ngIf="selectedLanguage !== 'en'">
     <mat-icon>info</mat-icon>
-    <span>You are currently viewing mappings for <strong>{{ selectedLanguage }}</strong>. To make changes or add new
+    <span>You are currently viewing mappings for <strong>{{ getLangLabel(selectedLanguage) }}</strong>. To make changes or add new
       mappings, please switch to English.</span>
   </div>
 
@@ -15,14 +15,14 @@
       <div class="dropdown-main">
         <div class="label-container">
           <div class="label">Language</div>
-          <div class="selected">{{ selectedLanguage }}</div>
+          <div class="selected">{{ getLangLabel(selectedLanguage) }}</div>
         </div>
         <mat-icon>{{ isOpen ? 'expand_less' : 'expand_more' }}</mat-icon>
       </div>
 
       <div class="dropdown-list" *ngIf="isOpen" (click)="$event.stopPropagation()">
         <div *ngFor="let lang of languages" class="dropdown-item" (click)="selectLanguage(lang, $event)">
-          {{ lang }}
+          {{ lang.label }}
         </div>
       </div>
     </div>
@@ -59,7 +59,7 @@
     <div class="positions-panel">
       <app-role-mapping-table [positions]="filteredRoles" [selectedRole]="selectedPosition"
         [searchResetKey]="searchResetKey" [selectedPositionMap]="selectedRoleMap"
-        [isLoading]="isRolesLoading || isPositionRoleMappingLoading" [isReadOnly]="selectedLanguage !== 'English'"
+        [isLoading]="isRolesLoading || isPositionRoleMappingLoading" [isReadOnly]="!isEditing"
         [isSaving]="isSaving" (searchChange)="onRoleSearch($event)" (positionCheckChange)="onRoleCheckChanged($event)"
         (addPosition)="onAddRoleToPosition()">
       </app-role-mapping-table>

@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core'
 import { Subject, merge } from 'rxjs'
 import { debounceTime, distinctUntilChanged, filter, takeUntil } from 'rxjs/operators'
 import { ConfigurationsService } from '@sunbird-cb/utils'
-import { FRAC_DEBOUNCE_MS, FRAC_LANGUAGES } from '../constants/frac.constants'
+import { FRAC_DEBOUNCE_MS, FracLanguage, FRAC_LANGUAGES } from '../constants/frac.constants'
 import { resolveFracClientConfig } from '../utils/frac-client-config.util'
 
 export type UploadRouteMode = 'upload' | 'manage'
@@ -26,8 +26,13 @@ export class FracEntityUploadOrchestratorService {
   /**
    * Returns client-aware languages from config with FRAC defaults as fallback.
    */
-  get languages(): readonly string[] {
+  get languages(): readonly FracLanguage[] {
     return resolveFracClientConfig(this.configSvc?.instanceConfig).languages || FRAC_LANGUAGES
+  }
+
+  /** Returns the display label for a given language key (e.g. 'en' → 'English'). */
+  getLabelForKey(key: string): string {
+    return this.languages.find(l => l.key === key)?.label || key
   }
 
   /**

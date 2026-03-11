@@ -16,7 +16,23 @@ export const FRAC_ROUTES = {
   homeDashboard: '/app/home/frac/dashboard',
 } as const
 
-export const FRAC_LANGUAGES = ['English', 'Hindi', 'Kannada', 'Tamil'] as const
+export interface FracLanguage {
+  /** Display name shown in the dropdown (e.g. 'English', 'Hindi', 'Marathi') */
+  label: string
+  /** API language code used in all requests and file templates (e.g. 'en', 'hi', 'mr') */
+  key: string
+}
+
+/**
+ * Master language list. To add a new language:
+ *   1. Append { label: 'Marathi', key: 'mr' } here.
+ *   2. Add the template URL for each entity in FRAC_SAMPLE_TEMPLATE_URLS below.
+ * No other code changes are needed.
+ */
+export const FRAC_LANGUAGES: readonly FracLanguage[] = [
+  { label: 'English', key: 'en' },
+  { label: 'Hindi', key: 'hi' },
+] as const
 
 export const FRAC_DEBOUNCE_MS = {
   searchInput: 500,

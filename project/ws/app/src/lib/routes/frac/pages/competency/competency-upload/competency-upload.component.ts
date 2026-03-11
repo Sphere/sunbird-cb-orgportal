@@ -11,7 +11,7 @@ import { FracUploadHelper } from '../../../utils/frac-upload-helper'
 import { FracPayloadBuilder } from '../../../utils/frac-payload-builder.util'
 import { FracEditTracker } from '../../../utils/frac-edit-tracker.util'
 import { FracUploadRow } from '../../../models/frac-table.models'
-import { extractEntityList, sortEntitiesForDisplay, getLanguageCode } from '../../../utils/common.util'
+import { extractEntityList, sortEntitiesForDisplay } from '../../../utils/common.util'
 import { fracLogger } from '../../../utils/frac-logger.util'
 import { FracApiService } from '../../../services/frac-api.service'
 import {
@@ -78,7 +78,7 @@ export class CompetencyUploadComponent {
   apiResponse: any = null  // Store actual API response instead of hardcoded data
   // ============= TABLE CONFIGURATION =============
   tableConfig: ITableConfig = { columns: [], data: [] }
-  selectedLanguage = this.uploadOrchestrator.languages[0]
+  selectedLanguage = this.uploadOrchestrator.languages[0]?.key || 'en'
   searchTerm = ''
   isOpen = false
   languages = this.uploadOrchestrator.languages
@@ -218,13 +218,13 @@ export class CompetencyUploadComponent {
   }
 
   /** 🔹 On language selection — in upload mode this only affects sample download language */
-  selectLanguage(lang: string, event: MouseEvent): void {
+  selectLanguage(lang: { key: string }, event: MouseEvent): void {
     if (this.isLanguageDropdownDisabled()) {
       event.stopPropagation()
       return
     }
     event.stopPropagation()
-    this.selectedLanguage = lang
+    this.selectedLanguage = lang.key
     this.isOpen = false
 
     if (this.routeMode === 'manage') {
@@ -318,7 +318,7 @@ export class CompetencyUploadComponent {
     const payloads = changedRows
       .map(row => {
         const original = (this.originalRowData.find(item => item?.code === row.code) || {}) as FracUploadRow
-        const languageCode = original?.languageCode || this.getLanguageCode(this.selectedLanguage)
+        const languageCode = original?.languageCode || this.selectedLanguage
         return FracPayloadBuilder.buildCompetencyUpdate(row, original, languageCode)
       })
       .filter(Boolean) as any[]
@@ -366,9 +366,6 @@ export class CompetencyUploadComponent {
     })
   }
 
-  private getLanguageCode(language: string): string {
-    return getLanguageCode(language)
-  }
 
   /**
    * Removes the selected rows from the table view, marking them as deleted so the Save button becomes active.
@@ -406,7 +403,7 @@ export class CompetencyUploadComponent {
       }
 
       const deletePayload = this.selectedRows
-        .map(row => FracPayloadBuilder.buildDelete('Competency', row, this.getLanguageCode(this.selectedLanguage)))
+        .map(row => FracPayloadBuilder.buildDelete('Competency', row, this.selectedLanguage))
         .filter(Boolean) as any[]
 
       if (!deletePayload.length) {
@@ -467,8 +464,7 @@ export class CompetencyUploadComponent {
    * Downloads the blank sample CSV file that users can fill out to upload new data.
    */
   onDownloadTemplate() {
-    const languageCode = this.getLanguageCode(this.selectedLanguage)
-    const fileUrl = getFracSampleTemplateUrl('competency', languageCode)
+    const fileUrl = getFracSampleTemplateUrl('competency', this.selectedLanguage)
 
     const link = document.createElement('a')
     link.href = fileUrl

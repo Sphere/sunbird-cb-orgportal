@@ -73,10 +73,10 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
   readonly routes = FRAC_ROUTES
   readonly mapPageSpinner = FRAC_MAP_PAGE_SPINNER
 
-  readonly languages: string[] = [...FRAC_LANGUAGES]
-  selectedLanguage = 'English'
+  readonly languages = FRAC_LANGUAGES
+  selectedLanguage = FRAC_LANGUAGES[0]?.key || 'en'
   isOpen = false
-  isEditing = true
+  get isEditing(): boolean { return this.selectedLanguage === 'en' }
   isSaving = false
   isPositionsLoading = false
   isRolesLoading = false
@@ -114,7 +114,7 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
   private readonly positionDraftStore = new Map<string, PositionRoleDetail[]>()
   private readonly clearedPositionDraftKeys = new Set<string>()
   private activePositionRoleMappingRequestKey: string | null = null
-  private readonly positionBaseLanguage = FRAC_LANGUAGES[0]
+  private readonly positionBaseLanguage = FRAC_LANGUAGES[0]?.key || 'en'
   private routePositionCode: string | null = null
   private hasAutoSelectedRoutePosition = false
   private hasTriggeredRoutePositionSearch = false
@@ -321,15 +321,19 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
   /**
    * Changes the selected language and fetches new data for that language if in manage mode.
    */
-  selectLanguage(lang: string, event: MouseEvent): void {
+  getLangLabel(key: string): string {
+    return this.languages.find(l => l.key === key)?.label || key
+  }
+
+  selectLanguage(lang: { key: string }, event: MouseEvent): void {
     event.stopPropagation()
-    if (!this.languages.includes(lang)) return
-    if (this.selectedLanguage === lang) {
+    if (!this.languages.some(l => l.key === lang.key)) return
+    if (this.selectedLanguage === lang.key) {
       this.isOpen = false
       return
     }
 
-    this.selectedLanguage = lang
+    this.selectedLanguage = lang.key
     this.isOpen = false
     this.resetInitialView()
     this.fetchPositions('')

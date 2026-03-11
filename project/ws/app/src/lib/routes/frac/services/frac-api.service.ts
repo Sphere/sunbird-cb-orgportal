@@ -127,7 +127,8 @@ export class FracApiService {
       tamil: 'ta',
     }
 
-    return languageMap[lang] || ''
+    // If already a code (e.g. 'en', 'hi', 'mr'), pass through; otherwise map from label
+    return languageMap[lang] || lang
   }
 
   private getLoggedInUserIdentifier(): string {

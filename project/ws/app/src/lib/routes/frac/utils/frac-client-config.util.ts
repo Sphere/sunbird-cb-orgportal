@@ -2,6 +2,7 @@ import {
   FRAC_DASHBOARD_ICON_URLS,
   FRAC_DEBOUNCE_MS,
   FRAC_DIALOG_SIZES,
+  FracLanguage,
   FRAC_LANGUAGES,
   FRAC_LEGACY_UPLOAD_ENTITY_URL,
   FRAC_MAP_PAGE_SPINNER,
@@ -19,7 +20,7 @@ export interface FracClientConfigOverride {
   routes?: Record<string, string>
   dashboardIconUrls?: Record<string, string>
   sampleTemplateUrls?: Record<string, unknown>
-  languages?: string[]
+  languages?: FracLanguage[]
   dialogSizes?: Record<string, string>
   debounceMs?: {
     searchInput?: number
@@ -55,7 +56,7 @@ export interface FracResolvedClientConfig {
   routes: Record<string, string>
   dashboardIconUrls: Record<string, string>
   sampleTemplateUrls: typeof FRAC_SAMPLE_TEMPLATE_URLS
-  languages: readonly string[]
+  languages: readonly FracLanguage[]
   dialogSizes: Record<string, string>
   debounceMs: {
     searchInput: number
@@ -145,7 +146,7 @@ function resolveSampleTemplateUrls(override: FracClientConfigOverride): FracReso
   } as typeof FRAC_SAMPLE_TEMPLATE_URLS
 }
 
-function resolveLanguages(override: FracClientConfigOverride): readonly string[] {
+function resolveLanguages(override: FracClientConfigOverride): readonly FracLanguage[] {
   return Array.isArray(override.languages) && override.languages.length
     ? override.languages
     : FRAC_LANGUAGES

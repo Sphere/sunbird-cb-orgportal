@@ -39,7 +39,7 @@
         <div class="dropdown-main">
           <div class="label-container">
             <div class="label">{{ uiConfig.labels.language }}</div>
-            <div class="selected">{{ selectedLanguage }}</div>
+            <div class="selected">{{ uploadOrchestrator.getLabelForKey(selectedLanguage) }}</div>
           </div>
           <div class="icon">
             <mat-icon>{{ isOpen ? 'expand_less' : 'expand_more' }}</mat-icon>
@@ -48,7 +48,7 @@
 
         <div class="dropdown-list" *ngIf="isOpen && !isLanguageDropdownDisabled()" (click)="$event.stopPropagation()">
           <div class="dropdown-item" *ngFor="let lang of languages" (click)="selectLanguage(lang, $event)">
-            {{ lang }}
+            {{ lang.label }}
           </div>
         </div>
       </div>

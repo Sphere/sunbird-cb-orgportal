@@ -11,7 +11,7 @@ import { FracUploadHelper } from '../../../utils/frac-upload-helper'
 import { FracPayloadBuilder } from '../../../utils/frac-payload-builder.util'
 import { FracEditTracker } from '../../../utils/frac-edit-tracker.util'
 import { FracUploadRow } from '../../../models/frac-table.models'
-import { extractEntityList, sortEntitiesForDisplay, getLanguageCode } from '../../../utils/common.util'
+import { extractEntityList, sortEntitiesForDisplay } from '../../../utils/common.util'
 import { fracLogger } from '../../../utils/frac-logger.util'
 import { FracApiService } from '../../../services/frac-api.service'
 import {
@@ -87,7 +87,7 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
   searchResults: FracUploadRow[] = []
 
   /** Language selection */
-  selectedLanguage = this.uploadOrchestrator.languages[0]
+  selectedLanguage = this.uploadOrchestrator.languages[0]?.key || 'en'
   languages = this.uploadOrchestrator.languages
   readonly uploadPageSpinner = FRAC_UPLOAD_PAGE_SPINNER
   isOpen = false
@@ -265,13 +265,13 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
   }
 
   /** Select language; in upload mode this only affects sample download language */
-  selectLanguage(lang: string, event: MouseEvent): void {
+  selectLanguage(lang: { key: string }, event: MouseEvent): void {
     if (this.isLanguageDropdownDisabled()) {
       event.stopPropagation()
       return
     }
     event.stopPropagation()
-    this.selectedLanguage = lang
+    this.selectedLanguage = lang.key
     this.isOpen = false
 
     if (this.routeMode === 'manage') {
@@ -317,7 +317,7 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
     const payloads = changedRows
       .map(row => {
         const original = (this.originalRowData.find(item => item?.code === row.code) || {}) as FracUploadRow
-        const languageCode = original?.languageCode || this.getLanguageCode(this.selectedLanguage)
+        const languageCode = original?.languageCode || this.selectedLanguage
         return FracPayloadBuilder.buildGenericUpdate('Role', row, original, languageCode)
       })
       .filter(Boolean) as any[]
@@ -363,9 +363,6 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
 
 
 
-  private getLanguageCode(language: string): string {
-    return getLanguageCode(language)
-  }
 
   // ============= TABLE ACTIONS: REMOVE =============
 
@@ -403,7 +400,7 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
       }
 
       const deletePayload = this.selectedRows
-        .map(row => FracPayloadBuilder.buildDelete('Role', row, this.getLanguageCode(this.selectedLanguage)))
+        .map(row => FracPayloadBuilder.buildDelete('Role', row, this.selectedLanguage))
         .filter(Boolean) as any[]
 
       if (!deletePayload.length) {
@@ -464,8 +461,7 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
 
   /** Download CSV template for bulk upload */
   onDownloadTemplate(): void {
-    const languageCode = this.getLanguageCode(this.selectedLanguage)
-    const fileUrl = getFracSampleTemplateUrl('role', languageCode)
+    const fileUrl = getFracSampleTemplateUrl('role', this.selectedLanguage)
 
     const link = document.createElement('a')
     link.href = fileUrl

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core'
+import { Component, OnInit, OnDestroy, HostListener } from '@angular/core'
 import { MatDialog } from '@angular/material/dialog'
 import { ActivatedRoute, Router } from '@angular/router'
 import { FracUploadPopupComponent } from '../../../components/frac-upload/frac-upload-popup.component'
@@ -12,7 +12,7 @@ import { FracPayloadBuilder } from '../../../utils/frac-payload-builder.util'
 import { FracPositionHierarchyHelper, PositionHierarchyAggregate, PositionHierarchyCounts, PositionHierarchyDetails } from '../../../utils/frac-position-hierarchy.helper'
 import { FracEditTracker } from '../../../utils/frac-edit-tracker.util'
 import { FracUploadRow } from '../../../models/frac-table.models'
-import { extractEntityList, sortEntitiesForDisplay, getLanguageCode } from '../../../utils/common.util'
+import { extractEntityList, sortEntitiesForDisplay } from '../../../utils/common.util'
 import { fracLogger } from '../../../utils/frac-logger.util'
 import { FracApiService } from '../../../services/frac-api.service'
 import {
@@ -21,8 +21,8 @@ import {
   UploadSearchSource,
   UploadSearchTriggerPayload,
 } from '../../../services/frac-entity-upload-orchestrator.service'
-import { forkJoin, of, Subject, Subscription } from 'rxjs'
-import { catchError, map, takeUntil } from 'rxjs/operators'
+import { Observable, from, of, Subject, Subscription } from 'rxjs'
+import { catchError, finalize, map, mergeMap, shareReplay, takeUntil } from 'rxjs/operators'
 import { FRAC_UI_CONFIG } from '../../../models/ui.config.model'
 import { FRAC_DIALOG_SIZES, FRAC_ROUTES, FRAC_UPLOAD_PAGE_SPINNER } from '../../../constants/frac.constants'
 import { buildFracUploadPopupConfig, getFracSampleTemplateUrl } from '../../../utils/frac-upload-ui.util'
@@ -107,7 +107,7 @@ export class PositionUploadComponent implements OnInit, OnDestroy {
   searchResults: FracUploadRow[] = []
 
   /** Language selection */
-  selectedLanguage = this.uploadOrchestrator.languages[0]
+  selectedLanguage = this.resolveDefaultLanguage()
   languages = this.uploadOrchestrator.languages
   readonly uploadPageSpinner = FRAC_UPLOAD_PAGE_SPINNER
   isOpen = false
@@ -131,6 +131,7 @@ export class PositionUploadComponent implements OnInit, OnDestroy {
   readonly defaultHierarchyDetails: PositionHierarchyDetails = { role: [], activity: [], competency: [] }
   positionHierarchyCountMap: Record<string, PositionHierarchyCounts> = {}
   positionHierarchyDetailMap: Record<string, PositionHierarchyDetails> = {}
+  positionCountLoadingSet = new Set<string>()
 
 
   // ============= LOADING & API RESPONSE =============
@@ -146,9 +147,18 @@ export class PositionUploadComponent implements OnInit, OnDestroy {
   private searchTrigger$ = new Subject<UploadSearchTriggerPayload>()
   private searchSubscription: Subscription | null = null
   private destroy$ = new Subject<void>()
+  private hierarchyLoadSubscription: Subscription | null = null
   private hierarchyAggregateCache = new Map<string, PositionHierarchyAggregate>()
   private hierarchyRawResponseCache = new Map<string, import('../../../models/frac-api.models').FracHierarchyResponse>()
+  private hierarchyInFlightRequestMap = new Map<
+    string,
+    Observable<{
+      aggregate: PositionHierarchyAggregate
+      response: import('../../../models/frac-api.models').FracHierarchyResponse
+    }>
+  >()
   private hierarchyRequestToken = 0
+  private readonly hierarchyRequestConcurrency = 4
 
   // ============= LIFECYCLE =============
 
@@ -181,6 +191,7 @@ export class PositionUploadComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.searchSubscription?.unsubscribe()
+    this.hierarchyLoadSubscription?.unsubscribe()
     this.destroy$.next()
     this.destroy$.complete()
   }
@@ -266,6 +277,7 @@ export class PositionUploadComponent implements OnInit, OnDestroy {
           this.isSearching = false
           this.positionHierarchyCountMap = {}
           this.positionHierarchyDetailMap = {}
+          this.positionCountLoadingSet = new Set<string>()
           fracLogger.error('Position search failed', err)
         }
       })
@@ -273,6 +285,7 @@ export class PositionUploadComponent implements OnInit, OnDestroy {
 
   private loadHierarchyCountsForCardPositions(positions: FracUploadRow[], language: string): void {
     if (this.routeMode !== 'card') {
+      this.hierarchyLoadSubscription?.unsubscribe()
       this.positionHierarchyCountMap = {}
       this.positionHierarchyDetailMap = {}
       return
@@ -280,54 +293,78 @@ export class PositionUploadComponent implements OnInit, OnDestroy {
 
     const validPositions = (positions || []).filter((pos) => !!FracPositionHierarchyHelper.normalizeCode(pos?.code))
     if (!validPositions.length) {
+      this.hierarchyLoadSubscription?.unsubscribe()
       this.positionHierarchyCountMap = {}
       this.positionHierarchyDetailMap = {}
+      this.positionCountLoadingSet = new Set<string>()
       return
     }
 
     const requestToken = ++this.hierarchyRequestToken
-    const requests = validPositions.map((position) => {
-      const code = FracPositionHierarchyHelper.normalizeCode(position?.code)
+    const uniqueCodes = Array.from(new Set(validPositions.map((position) =>
+      FracPositionHierarchyHelper.normalizeCode(position?.code),
+    )))
+
+    const nextMap: Record<string, PositionHierarchyCounts> = {}
+    const nextDetailsMap: Record<string, PositionHierarchyDetails> = {}
+    const codesToRefresh: string[] = [...uniqueCodes]
+    const loadingCodes = new Set<string>()
+
+    uniqueCodes.forEach((code) => {
       const cacheKey = this.getHierarchyCacheKey(code, language)
       const cachedAggregate = this.hierarchyAggregateCache.get(cacheKey)
 
       if (cachedAggregate) {
-        return of({ code, aggregate: cachedAggregate })
+        nextMap[code] = cachedAggregate.counts
+        nextDetailsMap[code] = cachedAggregate.details
+      } else {
+        nextMap[code] = this.defaultHierarchyCounts
+        nextDetailsMap[code] = this.defaultHierarchyDetails
+        loadingCodes.add(code)
       }
-
-      return this.fracApiService.searchEntityHierarchy('position', code, language).pipe(
-        map((response) => {
-          const aggregate = FracPositionHierarchyHelper.extractAggregateFromResponse(response)
-          this.hierarchyAggregateCache.set(cacheKey, aggregate)
-          this.hierarchyRawResponseCache.set(cacheKey, response)
-          return { code, aggregate }
-        }),
-        catchError(() => of({
-          code,
-          aggregate: { counts: this.defaultHierarchyCounts, details: this.defaultHierarchyDetails },
-        })),
-      )
     })
 
-    forkJoin(requests).subscribe((results) => {
+    this.positionHierarchyCountMap = nextMap
+    this.positionHierarchyDetailMap = nextDetailsMap
+    this.positionCountLoadingSet = loadingCodes
+
+    if (!codesToRefresh.length) {
+      return
+    }
+
+    this.hierarchyLoadSubscription?.unsubscribe()
+    this.hierarchyLoadSubscription = from(codesToRefresh).pipe(
+      mergeMap(
+        (code) => this.fetchHierarchyAggregate(code, language, true).pipe(
+          map((result) => ({ code, aggregate: result.aggregate })),
+        ),
+        this.hierarchyRequestConcurrency,
+      ),
+    ).subscribe(({ code, aggregate }) => {
       if (requestToken !== this.hierarchyRequestToken) {
         return
       }
 
-      const nextMap: Record<string, PositionHierarchyCounts> = {}
-      const nextDetailsMap: Record<string, PositionHierarchyDetails> = {}
-      results.forEach((item) => {
-        nextMap[item.code] = item.aggregate.counts
-        nextDetailsMap[item.code] = item.aggregate.details
-      })
-      this.positionHierarchyCountMap = nextMap
-      this.positionHierarchyDetailMap = nextDetailsMap
+      this.positionCountLoadingSet.delete(code)
+      this.positionHierarchyCountMap = {
+        ...this.positionHierarchyCountMap,
+        [code]: aggregate.counts,
+      }
+      this.positionHierarchyDetailMap = {
+        ...this.positionHierarchyDetailMap,
+        [code]: aggregate.details,
+      }
     })
   }
 
   getPositionHierarchyCounts(position: Record<string, unknown>): PositionHierarchyCounts {
     const code = FracPositionHierarchyHelper.normalizeCode(position?.['code'])
     return this.positionHierarchyCountMap[code] || this.defaultHierarchyCounts
+  }
+
+  isCountLoading(position: Record<string, unknown>): boolean {
+    const code = FracPositionHierarchyHelper.normalizeCode(position?.['code'])
+    return this.positionCountLoadingSet.has(code)
   }
 
   private getPositionHierarchyDetails(position: Record<string, unknown>): PositionHierarchyDetails {
@@ -353,6 +390,12 @@ export class PositionUploadComponent implements OnInit, OnDestroy {
 
   // ============= LANGUAGE DROPDOWN =============
 
+  private resolveDefaultLanguage(): string {
+    return this.uploadOrchestrator.languages.find(l => l.key === 'en')?.key
+      || this.uploadOrchestrator.languages[0]?.key
+      || 'en'
+  }
+
   toggleDropdown(): void {
     if (this.isLanguageDropdownDisabled()) {
       this.isOpen = false
@@ -361,18 +404,32 @@ export class PositionUploadComponent implements OnInit, OnDestroy {
     this.isOpen = !this.isOpen
   }
 
-  selectLanguage(lang: string, event: MouseEvent): void {
+  selectLanguage(lang: { key: string }, event: MouseEvent): void {
     if (this.isLanguageDropdownDisabled()) {
       event.stopPropagation()
       return
     }
     event.stopPropagation()
-    this.selectedLanguage = lang
+    this.selectedLanguage = lang.key
     this.isOpen = false
 
     if (this.routeMode === 'card' || this.routeMode === 'manage') {
       this.triggerSearch('language')
     }
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    if (!this.isOpen) {
+      return
+    }
+
+    const target = event.target as HTMLElement | null
+    if (target?.closest('.language-dropdown')) {
+      return
+    }
+
+    this.isOpen = false
   }
 
   // ============= TABLE SELECTION =============
@@ -405,7 +462,7 @@ export class PositionUploadComponent implements OnInit, OnDestroy {
     const payloads = this.editTracker.getChangedRows(rowsToUpdate)
       .map(row => {
         const original = this.originalRowData.find(item => item?.code === row.code) || {}
-        const languageCode = original?.languageCode || this.getLanguageCode(this.selectedLanguage)
+        const languageCode = original?.languageCode || this.selectedLanguage
         return FracPayloadBuilder.buildGenericUpdate('Position', row, original, languageCode)
       })
       .filter(Boolean) as any[]
@@ -452,9 +509,6 @@ export class PositionUploadComponent implements OnInit, OnDestroy {
 
 
 
-  private getLanguageCode(language: string): string {
-    return getLanguageCode(language)
-  }
 
   // ============= TABLE ACTIONS: REMOVE =============
 
@@ -491,7 +545,7 @@ export class PositionUploadComponent implements OnInit, OnDestroy {
       }
 
       const deletePayload = this.selectedRows
-        .map(row => FracPayloadBuilder.buildDelete('Position', row, this.getLanguageCode(this.selectedLanguage)))
+        .map(row => FracPayloadBuilder.buildDelete('Position', row, this.selectedLanguage))
         .filter(Boolean) as any[]
 
       if (!deletePayload.length) {
@@ -551,8 +605,7 @@ export class PositionUploadComponent implements OnInit, OnDestroy {
   // ============= FILE OPERATIONS =============
 
   onDownloadTemplate(): void {
-    const languageCode = this.getLanguageCode(this.selectedLanguage)
-    const fileUrl = getFracSampleTemplateUrl('position', languageCode)
+    const fileUrl = getFracSampleTemplateUrl('position', this.selectedLanguage)
 
     const link = document.createElement('a')
     link.href = fileUrl
@@ -732,28 +785,66 @@ export class PositionUploadComponent implements OnInit, OnDestroy {
     const cacheKey = this.getHierarchyCacheKey(code, language)
     const rawCached = this.hierarchyRawResponseCache.get(cacheKey)
 
-    if (rawCached) {
-      this.openPositionHierarchyDialogFromResponse(positionName, code, rawCached)
-      return
-    }
-
-    this.fracApiService.searchEntityHierarchy('position', code, language)
+    this.fetchHierarchyAggregate(code, language, true)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (response) => {
-          const aggregate = FracPositionHierarchyHelper.extractAggregateFromResponse(response)
-          this.hierarchyAggregateCache.set(cacheKey, aggregate)
-          this.hierarchyRawResponseCache.set(cacheKey, response)
+        next: ({ response }) => {
           this.openPositionHierarchyDialogFromResponse(positionName, code, response)
         },
         error: () => {
+          if (rawCached) {
+            this.openPositionHierarchyDialogFromResponse(positionName, code, rawCached)
+            return
+          }
           this.openPositionHierarchyDialogFromResponse(positionName, code, { result: [] } as any)
         },
       })
   }
 
   private getHierarchyCacheKey(code: string, language: string): string {
-    return `${code}|${this.getLanguageCode(language)}`
+    return `${code}|${language}`
+  }
+
+  private fetchHierarchyAggregate(
+    code: string,
+    language: string,
+    forceRefresh = false,
+  ): Observable<{
+    aggregate: PositionHierarchyAggregate
+    response: import('../../../models/frac-api.models').FracHierarchyResponse
+  }> {
+    const cacheKey = this.getHierarchyCacheKey(code, language)
+    const cachedAggregate = this.hierarchyAggregateCache.get(cacheKey)
+    const cachedResponse = this.hierarchyRawResponseCache.get(cacheKey)
+
+    if (!forceRefresh && cachedAggregate && cachedResponse) {
+      return of({ aggregate: cachedAggregate, response: cachedResponse })
+    }
+
+    const inFlightRequest = this.hierarchyInFlightRequestMap.get(cacheKey)
+    if (inFlightRequest) {
+      return inFlightRequest
+    }
+
+    const request$ = this.fracApiService.searchEntityHierarchy('position', code, language).pipe(
+      map((response) => {
+        const aggregate = FracPositionHierarchyHelper.extractAggregateFromResponse(response)
+        this.hierarchyAggregateCache.set(cacheKey, aggregate)
+        this.hierarchyRawResponseCache.set(cacheKey, response)
+        return { aggregate, response }
+      }),
+      catchError(() => of({
+        aggregate: { counts: this.defaultHierarchyCounts, details: this.defaultHierarchyDetails },
+        response: { result: [] } as import('../../../models/frac-api.models').FracHierarchyResponse,
+      })),
+      finalize(() => {
+        this.hierarchyInFlightRequestMap.delete(cacheKey)
+      }),
+      shareReplay(1),
+    )
+
+    this.hierarchyInFlightRequestMap.set(cacheKey, request$)
+    return request$
   }
 
   /**

@@ -84,14 +84,34 @@
         </p>
       </div>
       <div class="manage-header-actions">
-        <button type="button" class="upload-position-btn" (click)="goToUploadMode()">
-          <img [src]="uiConfig.icons.upload" alt="upload" class="action-btn-icon" />
-          {{ uiConfig.labels.uploadPositionBtn }}
-        </button>
-        <button type="button" class="manage-list-btn" (click)="navigateToListManage()">
-          <img [src]="uiConfig.icons.manage" alt="manage" class="action-btn-icon" />
-          {{ uiConfig.labels.managePositionBtn }}
-        </button>
+        <div class="language-dropdown manage-language-dropdown" [class.disabled]="isLanguageDropdownDisabled()"
+          (click)="toggleDropdown()">
+          <div class="dropdown-main">
+            <div class="label-container">
+              <div class="label">{{ uiConfig.labels.language }}</div>
+              <div class="selected">{{ uploadOrchestrator.getLabelForKey(selectedLanguage) }}</div>
+            </div>
+            <div class="icon">
+              <mat-icon>{{ isOpen ? 'expand_less' : 'expand_more' }}</mat-icon>
+            </div>
+          </div>
+          <div class="dropdown-list" *ngIf="isOpen && !isLanguageDropdownDisabled()" (click)="$event.stopPropagation()">
+            <div class="dropdown-item" *ngFor="let lang of languages" (click)="selectLanguage(lang, $event)">
+              {{ lang.label }}
+            </div>
+          </div>
+        </div>
+
+        <div class="manage-header-buttons">
+          <button type="button" class="upload-position-btn" (click)="goToUploadMode()">
+            <img [src]="uiConfig.icons.upload" alt="upload" class="action-btn-icon" />
+            {{ uiConfig.labels.uploadPositionBtn }}
+          </button>
+          <button type="button" class="manage-list-btn" (click)="navigateToListManage()">
+            <img [src]="uiConfig.icons.manage" alt="manage" class="action-btn-icon" />
+            {{ uiConfig.labels.managePositionBtn }}
+          </button>
+        </div>
       </div>
     </div>
 
@@ -144,21 +164,28 @@
 
             <!-- Stat badges row -->
             <div class="position-stat-row">
-              <div class="position-stat-badge">
-                <mat-icon class="stat-badge-icon stat-icon-role">work_outline</mat-icon>
-                <span class="stat-badge-count">{{ getPositionHierarchyCounts(pos).role }}</span>
-                <span class="stat-badge-label">Roles</span>
-              </div>
-              <div class="position-stat-badge">
-                <mat-icon class="stat-badge-icon stat-icon-activity">task_alt</mat-icon>
-                <span class="stat-badge-count">{{ getPositionHierarchyCounts(pos).activity }}</span>
-                <span class="stat-badge-label">Activities</span>
-              </div>
-              <div class="position-stat-badge">
-                <mat-icon class="stat-badge-icon stat-icon-competency">psychology</mat-icon>
-                <span class="stat-badge-count">{{ getPositionHierarchyCounts(pos).competency }}</span>
-                <span class="stat-badge-label">Competencies</span>
-              </div>
+              <ng-container *ngIf="isCountLoading(pos); else countsLoaded">
+                <div class="shimmer-badge shimmer-badge-wide"></div>
+                <div class="shimmer-badge shimmer-badge-wide"></div>
+                <div class="shimmer-badge shimmer-badge-wide"></div>
+              </ng-container>
+              <ng-template #countsLoaded>
+                <div class="position-stat-badge">
+                  <mat-icon class="stat-badge-icon stat-icon-role">work_outline</mat-icon>
+                  <span class="stat-badge-count">{{ getPositionHierarchyCounts(pos).role }}</span>
+                  <span class="stat-badge-label">Roles</span>
+                </div>
+                <div class="position-stat-badge">
+                  <mat-icon class="stat-badge-icon stat-icon-activity">task_alt</mat-icon>
+                  <span class="stat-badge-count">{{ getPositionHierarchyCounts(pos).activity }}</span>
+                  <span class="stat-badge-label">Activities</span>
+                </div>
+                <div class="position-stat-badge">
+                  <mat-icon class="stat-badge-icon stat-icon-competency">psychology</mat-icon>
+                  <span class="stat-badge-count">{{ getPositionHierarchyCounts(pos).competency }}</span>
+                  <span class="stat-badge-label">Competencies</span>
+                </div>
+              </ng-template>
             </div>
           </div>
 
@@ -204,7 +231,7 @@
           <div class="dropdown-main">
             <div class="label-container">
               <div class="label">{{ uiConfig.labels.language }}</div>
-              <div class="selected">{{ selectedLanguage }}</div>
+              <div class="selected">{{ uploadOrchestrator.getLabelForKey(selectedLanguage) }}</div>
             </div>
             <div class="icon">
               <mat-icon>{{ isOpen ? 'expand_less' : 'expand_more' }}</mat-icon>
@@ -212,7 +239,7 @@
           </div>
           <div class="dropdown-list" *ngIf="isOpen && !isLanguageDropdownDisabled()" (click)="$event.stopPropagation()">
             <div class="dropdown-item" *ngFor="let lang of languages" (click)="selectLanguage(lang, $event)">
-              {{ lang }}
+              {{ lang.label }}
             </div>
           </div>
         </div>
