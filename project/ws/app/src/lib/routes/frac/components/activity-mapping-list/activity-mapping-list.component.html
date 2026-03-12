@@ -1,0 +1,86 @@
+<div class="activity-mapping-list">
+
+  <!-- Header -->
+  <div class="toolbar">
+    <div class="title-header">List of Activities</div>
+  </div>
+
+  <div class="activity-container">
+
+    <!-- Top title bar -->
+    <div class="title-bar">Activities</div>
+
+    <div class="scroll-area">
+
+      <!-- Search bar -->
+      <div class="search-row">
+        <div class="shadow-wrapper">
+          <div class="search-box">
+            <input placeholder="Search by name,code" [(ngModel)]="searchTerm" (input)="onSearchChange()" />
+            <mat-icon>search</mat-icon>
+          </div>
+        </div>
+      </div>
+
+      <!-- Activity List -->
+      <ng-container *ngIf="isLoading">
+        <div class="activity-item shimmer-item" *ngFor="let _ of [1, 2, 3, 4]">
+          <div class="expanded-card">
+            <div class="shimmer-line code"></div>
+            <div class="shimmer-line title"></div>
+          </div>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="!isLoading">
+        <div class="activity-item" *ngFor="let a of filteredActivities; trackBy: trackByCode"
+          [class.selected]="selectedActivityCode === a.code" (click)="activitySelectedHandler(a)">
+          <div class="expanded-card">
+
+            <!-- Row header -->
+            <div class="header-row" (click)="onHeaderClick(a, $event)">
+              <div class="exp-code">{{ a.code }}</div>
+              <div class="exp-title">{{ a.title }}</div>
+
+              <!-- Expand arrow (show only when levels are valid) -->
+              <mat-icon *ngIf="a.competencyDetails?.length > 0 && hasValidLevels(a)" class="arrow">
+                {{ expanded === a ? 'expand_less' : 'expand_more' }}
+              </mat-icon>
+            </div>
+
+            <!-- Expanded competency list -->
+            <div *ngIf="expanded === a && hasValidLevels(a)" class="competency-section">
+              <div class="competency-row" *ngFor="let c of getSortedCompetencies(a)">
+
+                <!-- Show row only if levels are present -->
+                <ng-container *ngIf="c.levels?.trim()">
+                  <div class="rect-lg">
+                    <div class="label">{{ c.code }} - {{ c.label }}</div>
+                  </div>
+
+                  <div class="rect-sm">
+                    <div class="level">{{ c.levels }}</div>
+                  </div>
+                </ng-container>
+
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- Empty state -->
+      <div *ngIf="!isLoading && filteredActivities.length === 0" class="no-data">
+        <div class="empty-state-card">
+          <div class="icon-shell">
+            <mat-icon class="empty-state-icon">manage_search</mat-icon>
+          </div>
+          <div class="empty-state-title">No activity found</div>
+          <div class="empty-state-message">Use the search bar to find the activity to map.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

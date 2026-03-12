@@ -1,0 +1,64 @@
+<div class="upload-competency-list-table-container" [ngClass]="gridStyle">
+  <div class="table-pane">
+    <table mat-table [dataSource]="isLoading ? shimmerRows : dataSource" matSort matSortActive="code"
+      matSortDirection="asc" matSortDisableClear class="data-table">
+
+      <!-- Checkbox column -->
+      <ng-container matColumnDef="select" *ngIf="showCheckbox">
+        <th mat-header-cell *matHeaderCellDef #headerCell></th>
+        <!-- Real data row cell -->
+        <td mat-cell *matCellDef="let row">
+          <ng-container *ngIf="!isLoading">
+            <mat-checkbox (click)="$event.stopPropagation()" (change)="onRowSelect(row)" (keydown)="onRowSelect(row)"
+              [checked]="selection.isSelected(row)" [aria-label]="checkboxLabel(row)">
+            </mat-checkbox>
+          </ng-container>
+          <!-- Shimmer cell -->
+          <div *ngIf="isLoading" class="shimmer-box checkbox"></div>
+        </td>
+      </ng-container>
+
+      <!-- Dynamic data columns -->
+      <ng-container *ngFor="let col of activeColumns" [matColumnDef]="col.key">
+        <th mat-header-cell *matHeaderCellDef #headerCell mat-sort-header>
+          {{ col.label }}
+        </th>
+        <td mat-cell *matCellDef="let element">
+          <!-- Shimmer mode -->
+          <div *ngIf="isLoading" class="shimmer-box text"
+            [class.shimmer-short]="col.key === 'code' || col.key === 'type' || col.key === 'area'"></div>
+
+          <!-- Real data mode -->
+          <ng-container *ngIf="!isLoading">
+            <ng-container *ngIf="isRowInEditMode(element); else viewMode">
+              <div class="cell-edit-wrapper" [class.long-field]="isTextAreaField(col.key)">
+                <textarea *ngIf="isTextAreaField(col.key); else shortInput" [(ngModel)]="element[col.key]"
+                  [class.tall-description]="isTallDescriptionField(col.key)" class="editable-textarea" rows="2"
+                  [attr.placeholder]="'Enter ' + col.label.toLowerCase()" [attr.aria-label]="col.label"></textarea>
+                <ng-template #shortInput>
+                  <input [(ngModel)]="element[col.key]" class="editable-input" [readonly]="isCodeField(col.key)"
+                    [class.readonly-input]="isCodeField(col.key)" />
+                </ng-template>
+              </div>
+            </ng-container>
+            <ng-template #viewMode>
+              <div class="cell-content">{{ element[col.key] }}</div>
+            </ng-template>
+          </ng-container>
+        </td>
+      </ng-container>
+
+      <!-- Table header row -->
+      <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+
+      <!-- Data / shimmer rows -->
+      <tr mat-row *matRowDef="let row; columns: displayedColumns" [class.data-row]="!isLoading"
+        [class.shimmer-row]="isLoading" [class.editing-row]="!isLoading && isRowInEditMode(row)">
+      </tr>
+    </table>
+
+    <!-- Pagination footer (optional) -->
+    <mat-paginator *ngIf="enablePagination" [pageSizeOptions]="pageSizeOptions" showFirstLastButtons>
+    </mat-paginator>
+  </div>
+</div>

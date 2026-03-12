@@ -2,13 +2,15 @@
 // `ng build --prod` replaces `environment.ts` with `environment.prod.ts`.
 // The list of file replacements can be found in `angular.json`.
 
+import { readPortalRoles } from './env.util'
+
 export const environment: IEnvironment = {
   production: false,
   // sitePath: 'aastrika-sb-cbp.idc.tarento.com',
   sitePath: (window as { [key: string]: any })['env']['sitePath'] || '',
   karmYogiPath: (window as { [key: string]: any })['env']['karmYogiPath'] || '',
   cbpPath: (window as { [key: string]: any })['env']['cbpPath'] || '',
-  portalRoles: (((window as { [key: string]: any })['env']['portalRoles'] || '').split(',')) || [],
+  portalRoles: readPortalRoles(),
 }
 interface IEnvironment {
   production: boolean

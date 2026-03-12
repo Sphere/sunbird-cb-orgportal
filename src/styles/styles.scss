@@ -861,3 +861,65 @@ h3.shepherd-title {
     }
   }
 }
+/* FRAC upload result popup: enforce radius on Material dialog surface */
+.cdk-overlay-pane.upload-result-dialog .mat-mdc-dialog-container,
+.upload-result-dialog .mat-mdc-dialog-container {
+  padding: 0 !important;
+  --mdc-dialog-container-shape: 18px !important;
+}
+
+.cdk-overlay-pane.upload-result-dialog .mat-mdc-dialog-surface,
+.cdk-overlay-pane.upload-result-dialog .mdc-dialog__surface,
+.upload-result-dialog .mat-mdc-dialog-surface,
+.upload-result-dialog .mdc-dialog__surface {
+  border-radius: 18px !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+}
+
+/* FRAC unsaved changes popup: enforce larger radius on Material dialog surface */
+.cdk-overlay-pane.unsaved-changes-dialog .mat-mdc-dialog-container,
+.unsaved-changes-dialog .mat-mdc-dialog-container {
+  padding: 0 !important;
+  --mdc-dialog-container-shape: 24px !important;
+}
+
+.cdk-overlay-pane.unsaved-changes-dialog .mat-mdc-dialog-surface,
+.cdk-overlay-pane.unsaved-changes-dialog .mdc-dialog__surface,
+.unsaved-changes-dialog .mat-mdc-dialog-surface,
+.unsaved-changes-dialog .mdc-dialog__surface {
+  border-radius: 24px !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+}
+
+/* FRAC mapping required popup: enforce larger radius on Material dialog surface */
+.cdk-overlay-pane.mapping-required-dialog .mat-mdc-dialog-container,
+.mapping-required-dialog .mat-mdc-dialog-container {
+  padding: 0 !important;
+  --mdc-dialog-container-shape: 24px !important;
+}
+
+.cdk-overlay-pane.mapping-required-dialog .mat-mdc-dialog-surface,
+.cdk-overlay-pane.mapping-required-dialog .mdc-dialog__surface,
+.mapping-required-dialog .mat-mdc-dialog-surface,
+.mapping-required-dialog .mdc-dialog__surface {
+  border-radius: 24px !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+}
+
+/* FRAC position hierarchy view popup: clean surface */
+.cdk-overlay-pane.position-hierarchy-view-dialog .mat-mdc-dialog-container,
+.position-hierarchy-view-dialog .mat-mdc-dialog-container {
+  padding: 0 !important;
+}
+
+.cdk-overlay-pane.position-hierarchy-view-dialog .mat-mdc-dialog-surface,
+.cdk-overlay-pane.position-hierarchy-view-dialog .mdc-dialog__surface,
+.position-hierarchy-view-dialog .mat-mdc-dialog-surface,
+.position-hierarchy-view-dialog .mdc-dialog__surface {
+  border-radius: 24px !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+}

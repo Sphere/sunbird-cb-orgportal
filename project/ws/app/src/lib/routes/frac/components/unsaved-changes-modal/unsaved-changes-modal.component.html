@@ -1,0 +1,15 @@
+<div class="unsaved-modal">
+  <h2 class="title">{{ data.title || 'You Have Unsaved Changes' }}</h2>
+  <p class="message">
+    {{ data.message || 'You are about to return to the home screen. Any unsaved changes will be lost.' }}
+  </p>
+
+  <div class="actions">
+    <button type="button" mat-flat-button class="continue-btn" (click)="onContinue()">
+      {{ data.continueLabel || 'Continue' }}
+    </button>
+    <button type="button" mat-stroked-button class="cancel-btn" (click)="onCancel()">
+      {{ data.cancelLabel || 'Cancel' }}
+    </button>
+  </div>
+</div>

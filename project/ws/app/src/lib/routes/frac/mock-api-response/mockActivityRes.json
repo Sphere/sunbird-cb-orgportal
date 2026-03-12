@@ -1,0 +1,64 @@
+{
+  "id": "api.entity.upload",
+  "ver": "v1",
+  "ts": "2025-11-13T05:17:40.743803Z",
+  "params": {
+    "resmsgid": "483aa1d6-99bf-4c8d-bc0c-8b205bb79497",
+    "msgid": "17353d57-c191-4f07-b220-dc69eebfd61d",
+    "status": "SUCCESS",
+    "err": null,
+    "errmsg": null
+  },
+  "responseCode": "OK",
+  "result": {
+    "count": 1,
+    "data": {
+      "entity": [
+        {
+          "id": 305,
+          "type": "activity",
+          "name": "Verify maternal and child death and ensure reporting (MCDR)",
+          "description": "",
+          "additionalProperties": {
+            "Code": "A405"
+          },
+          "status": "Active",
+          "source": null,
+          "level": "A405",
+          "levelId": 0,
+          "createdDate": "2025-10-07T00:00:00.000+00:00",
+          "createdBy": "admin",
+          "updatedDate": "2025-10-07T00:00:00.000+00:00",
+          "updatedBy": "reviewer",
+          "reviewedDate": "2025-10-07T00:00:00.000+00:00",
+          "reviewedBy": "2025-10-07 00:00:00",
+          "translation": null,
+          "code": "A405",
+          "children": null
+        },
+        {
+          "id": 306,
+          "type": "activity",
+          "name": "PPPDD Verify maternal and child death and ensure reporting (MCDR)",
+          "description": "",
+          "additionalProperties": {
+            "Code": "A505"
+          },
+          "status": "Active",
+          "source": null,
+          "level": "A505",
+          "levelId": 0,
+          "createdDate": "2025-10-07T00:00:00.000+00:00",
+          "createdBy": "admin",
+          "updatedDate": "2025-10-07T00:00:00.000+00:00",
+          "updatedBy": "reviewer",
+          "reviewedDate": "2025-10-07T00:00:00.000+00:00",
+          "reviewedBy": "2025-10-07 00:00:00",
+          "translation": null,
+          "code": "A505",
+          "children": null
+        }
+      ]
+    }
+  }
+}

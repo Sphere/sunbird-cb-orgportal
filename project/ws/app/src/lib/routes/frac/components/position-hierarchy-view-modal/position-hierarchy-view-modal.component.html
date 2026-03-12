@@ -1,0 +1,122 @@
+<div class="phv-modal">
+
+  <!-- Header -->
+  <div class="phv-header">
+    <div class="phv-header-left">
+      <h2 class="phv-title">
+        <mat-icon class="phv-title-icon">account_tree</mat-icon>
+        {{ data.positionName || data.positionCode }}
+      </h2>
+    </div>
+    <div class="phv-header-right">
+      <button type="button" class="phv-close-btn" (click)="onClose()" aria-label="Close">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <!-- Summary Stat Pills -->
+  <div class="phv-summary-bar">
+    <span class="phv-stat-pill phv-stat-role">
+      <mat-icon class="phv-stat-icon">work_outline</mat-icon>
+      {{ totalRoles }} {{ totalRoles === 1 ? 'Role' : 'Roles' }}
+    </span>
+    <span class="phv-stat-pill phv-stat-activity">
+      <mat-icon class="phv-stat-icon">task_alt</mat-icon>
+      {{ totalActivities }} {{ totalActivities === 1 ? 'Activity' : 'Activities' }}
+    </span>
+    <span class="phv-stat-pill phv-stat-competency">
+      <mat-icon class="phv-stat-icon">psychology</mat-icon>
+      {{ totalCompetencies }} {{ totalCompetencies === 1 ? 'Competency' : 'Competencies' }}
+    </span>
+  </div>
+
+  <!-- Divider -->
+  <mat-divider></mat-divider>
+
+  <!-- Empty State -->
+  <div class="phv-empty-state" *ngIf="!hasMapping">
+    <mat-icon class="phv-empty-icon">link_off</mat-icon>
+    <p class="phv-empty-title">No mapping found for this position.</p>
+    <p class="phv-empty-sub">Click <strong>Edit Mapping</strong> to add roles to this position.</p>
+  </div>
+
+  <!-- Tree -->
+  <div class="phv-tree" *ngIf="hasMapping">
+    <!-- Role Row -->
+    <div class="phv-role-block" *ngFor="let role of roles">
+      <div class="phv-role-row" (click)="toggleRole(role.code)"
+        [class.phv-role-row--expanded]="isRoleExpanded(role.code)">
+        <div class="phv-row-left">
+          <span class="phv-type-badge phv-badge-role">Role</span>
+          <span class="phv-code-label">{{ role.code }}</span>
+          <span class="phv-row-name">{{ role.name }}</span>
+        </div>
+        <div class="phv-row-right">
+          <span class="phv-activity-count" *ngIf="getActivities(role).length">
+            {{ getActivities(role).length }}
+            {{ getActivities(role).length === 1 ? 'activity' : 'activities' }}
+          </span>
+          <mat-icon class="phv-chevron">
+            {{ isRoleExpanded(role.code) ? 'expand_less' : 'expand_more' }}
+          </mat-icon>
+        </div>
+      </div>
+
+      <!-- Activities under Role -->
+      <div class="phv-activities" *ngIf="isRoleExpanded(role.code)">
+
+        <!-- No activities state -->
+        <div class="phv-no-child" *ngIf="!getActivities(role).length">
+          <mat-icon>info_outline</mat-icon>
+          No activities mapped to this role yet.
+        </div>
+
+        <!-- Activity Row -->
+        <div class="phv-activity-block" *ngFor="let activity of getActivities(role)">
+          <div class="phv-activity-row" (click)="toggleActivity(role.code, activity.code)"
+            [class.phv-activity-row--expanded]="isActivityExpanded(role.code, activity.code)">
+            <div class="phv-row-left">
+              <span class="phv-type-badge phv-badge-activity">Activity</span>
+              <span class="phv-code-label">{{ activity.code }}</span>
+              <span class="phv-row-name">{{ activity.name }}</span>
+            </div>
+            <div class="phv-row-right">
+              <span class="phv-competency-count" *ngIf="activity.competencies.length">
+                {{ activity.competencies.length }}
+                {{ activity.competencies.length === 1 ? 'competency' : 'competencies' }}
+              </span>
+              <mat-icon class="phv-chevron">
+                {{ isActivityExpanded(role.code, activity.code) ? 'expand_less' : 'expand_more' }}
+              </mat-icon>
+            </div>
+          </div>
+
+          <!-- Competencies under Activity -->
+          <div class="phv-competencies" *ngIf="isActivityExpanded(role.code, activity.code)">
+
+            <!-- No competencies state -->
+            <div class="phv-no-child" *ngIf="!activity.competencies.length">
+              <mat-icon>info_outline</mat-icon>
+              No competencies mapped to this activity yet.
+            </div>
+
+            <!-- Competency chips — aligned table rows: [code] name [levels] -->
+            <div class="phv-competency-chips" *ngIf="activity.competencies.length">
+              <div class="phv-competency-chip" *ngFor="let comp of getCompetencies(activity)">
+                <span class="phv-type-badge phv-badge-competency">Competency</span>
+                <span class="phv-comp-code-pill">{{ comp.code }}</span>
+                <span class="phv-comp-name" [title]="comp.name">{{ comp.name || comp.code }}</span>
+                <span class="phv-level-range" *ngIf="getLevels(comp).length">{{ formatLevelRange(comp) }}</span>
+                <span class="phv-no-level" *ngIf="!getLevels(comp).length">—</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>

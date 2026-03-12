@@ -19,7 +19,7 @@
 }
 
 .left-nav {
-  min-width: 240px;
+  min-width: 288px;
   // max-width: 240px;
 
   // ::ng-deep.mat-drawer-inner-container {
@@ -90,4 +90,16 @@
   left: 0;
   right: 0;
   min-height: calc(100vh - 164px);
+}
+
+/* Sidebar org logo should render without bootstrap frame/rounding */
+.left-nav .img,
+.left-nav img,
+.left-nav .img-thumbnail,
+.left-nav .img.rounded {
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  background: transparent !important;
 }

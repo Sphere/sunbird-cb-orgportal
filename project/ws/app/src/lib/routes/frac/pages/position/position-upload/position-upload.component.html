@@ -1,0 +1,283 @@
+<!-- Top Navigation Bar (hidden on home layout card grid which has its own nav) -->
+<div class="header-container" *ngIf="routeMode !== 'card'">
+  <button class="back-nav-btn" type="button" (click)="onHomeClick()" aria-label="Back to home">
+    <mat-icon>arrow_back</mat-icon>
+    <span>Back</span>
+  </button>
+
+  <!-- Save shown only in table-manage mode -->
+  <button class="save-btn" (click)="onSaveClicked()" *ngIf="routeMode === 'manage'"
+    [disabled]="!isEditing || !hasTableData() || isUpdating || !hasPendingTableChanges()">
+    <mat-spinner *ngIf="isUpdating" class="btn-spinner" [diameter]="16" [strokeWidth]="2"></mat-spinner>
+    <span>{{ isUpdating ? uiConfig.labels.saving : uiConfig.labels.save }}</span>
+  </button>
+</div>
+
+<!-- Main Content -->
+<div class="upload-container">
+
+  <!-- ===== UPLOAD MODE ===== -->
+  <ng-container *ngIf="routeMode === 'upload'">
+    <div class="header">
+      <h2>{{ uiConfig.labels.uploadPosition }}</h2>
+    </div>
+
+    <div class="sub-header">
+      <span>{{ uiConfig.labels.uploadPositionSub }}</span>
+    </div>
+
+    <div class="toolbar">
+      <div class="left-tools"></div>
+      <div class="right-tools">
+        <div class="button-group">
+          <button mat-stroked-button class="app-btn secondary" (click)="onDownloadTemplate()">
+            {{ uiConfig.labels.downloadSample }}
+          </button>
+          <button type="button" (click)="openUploadPopup()" mat-button class="app-btn primary">
+            {{ uploadButtonText }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="loading-overlay" *ngIf="isUploading" [class.show]="isUploading">
+      <div class="upload-loader-card" role="status" aria-live="polite">
+        <div class="upload-loader-illustration">
+          <div class="upload-loader-orbit"></div>
+          <div class="upload-loader-badge">
+            <mat-icon>cloud_upload</mat-icon>
+          </div>
+        </div>
+        <p class="loading-text">{{ uiConfig.labels.uploadLoaderContent }}</p>
+        <p class="loading-subtext">{{ uiConfig.labels.uploadLoaderSubtext }}</p>
+        <div class="loading-progress" aria-hidden="true"><span></span></div>
+        <p class="loading-hint">Please keep this window open.</p>
+      </div>
+    </div>
+
+    <div class="table-section">
+      <div class="table-empty-state" *ngIf="shouldShowTableEmptyState()">
+        <div class="table-empty-state-card">
+          <div class="empty-state-icon" aria-hidden="true">
+            <mat-icon>{{ activeEmptyStateConfig.icon }}</mat-icon>
+          </div>
+          <p class="empty-state-title">{{ activeEmptyStateConfig.title }}</p>
+          <p class="empty-state-message">{{ activeEmptyStateConfig.message }}</p>
+          <p class="empty-state-suggestion">{{ activeEmptyStateConfig.suggestion }}</p>
+        </div>
+      </div>
+      <app-upload-activity-list-table [columns]="tableConfig.columns" [data]="tableConfig.data" [showCheckbox]="true"
+        [enableSorting]="true" [enablePagination]="false" [gridStyle]="'both'" [isEditing]="isEditing"
+        [isLoading]="false" (selectionChange)="onSelectionChange($event)">
+      </app-upload-activity-list-table>
+    </div>
+  </ng-container>
+
+  <!-- ===== CARD MODE — card grid (sidebar, no mode param) ===== -->
+  <ng-container *ngIf="routeMode === 'card'">
+    <div class="manage-header">
+      <div class="manage-header-text">
+        <h2 class="manage-title">{{ uiConfig.labels.managePosition }}</h2>
+        <p class="manage-subtext">
+          Positions with their assigned roles and mapped details.<br />
+          You can view, edit, or update mappings anytime.
+        </p>
+      </div>
+      <div class="manage-header-actions">
+        <div class="language-dropdown manage-language-dropdown" [class.disabled]="isLanguageDropdownDisabled()"
+          (click)="toggleDropdown()">
+          <div class="dropdown-main">
+            <div class="label-container">
+              <div class="label">{{ uiConfig.labels.language }}</div>
+              <div class="selected">{{ uploadOrchestrator.getLabelForKey(selectedLanguage) }}</div>
+            </div>
+            <div class="icon">
+              <mat-icon>{{ isOpen ? 'expand_less' : 'expand_more' }}</mat-icon>
+            </div>
+          </div>
+          <div class="dropdown-list" *ngIf="isOpen && !isLanguageDropdownDisabled()" (click)="$event.stopPropagation()">
+            <div class="dropdown-item" *ngFor="let lang of languages" (click)="selectLanguage(lang, $event)">
+              {{ lang.label }}
+            </div>
+          </div>
+        </div>
+
+        <div class="manage-header-buttons">
+          <button type="button" class="upload-position-btn" (click)="goToUploadMode()">
+            <img [src]="uiConfig.icons.upload" alt="upload" class="action-btn-icon" />
+            {{ uiConfig.labels.uploadPositionBtn }}
+          </button>
+          <button type="button" class="manage-list-btn" (click)="navigateToListManage()">
+            <img [src]="uiConfig.icons.manage" alt="manage" class="action-btn-icon" />
+            {{ uiConfig.labels.managePositionBtn }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="position-cards-scroll-container">
+      <!-- Card shimmer grid — shown while loading -->
+      <div class="position-cards-grid" *ngIf="isSearching" aria-hidden="true">
+        <div class="position-card shimmer-card" *ngFor="let _ of shimmerCards">
+          <!-- accent bar -->
+          <div class="shimmer-accent"></div>
+          <!-- card body -->
+          <div class="shimmer-card-body">
+            <div class="shimmer-line shimmer-title"></div>
+            <div class="shimmer-line shimmer-title shimmer-title-short"></div>
+            <div class="shimmer-stat-row">
+              <div class="shimmer-badge"></div>
+              <div class="shimmer-badge"></div>
+              <div class="shimmer-badge"></div>
+            </div>
+          </div>
+          <!-- action row -->
+          <div class="shimmer-actions">
+            <div class="shimmer-btn"></div>
+            <div class="shimmer-btn shimmer-btn-sm"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty state -->
+      <div class="manage-empty-state" *ngIf="!isSearching && !searchResults?.length">
+        <div class="table-empty-state-card">
+          <div class="empty-state-icon" aria-hidden="true">
+            <mat-icon>upload_file</mat-icon>
+          </div>
+          <p class="empty-state-title">{{ uiConfig.labels.noPositionsFound }}</p>
+          <p class="empty-state-message">{{ uiConfig.labels.noPositionsFoundMsg }}</p>
+          <p class="empty-state-suggestion">{{ uiConfig.labels.noPositionsFoundSuggestion }}</p>
+        </div>
+      </div>
+
+      <!-- Card grid -->
+      <div class="position-cards-grid" *ngIf="!isSearching && searchResults?.length">
+        <div class="position-card" *ngFor="let pos of searchResults">
+
+          <!-- Card top accent bar -->
+          <div class="position-card-accent"></div>
+
+          <div class="position-card-body">
+            <!-- Position name -->
+            <h3 class="pos-title" [title]="pos.name || pos.code">{{ pos.name || pos.code }}</h3>
+
+            <!-- Stat badges row -->
+            <div class="position-stat-row">
+              <ng-container *ngIf="isCountLoading(pos); else countsLoaded">
+                <div class="shimmer-badge shimmer-badge-wide"></div>
+                <div class="shimmer-badge shimmer-badge-wide"></div>
+                <div class="shimmer-badge shimmer-badge-wide"></div>
+              </ng-container>
+              <ng-template #countsLoaded>
+                <div class="position-stat-badge">
+                  <mat-icon class="stat-badge-icon stat-icon-role">work_outline</mat-icon>
+                  <span class="stat-badge-count">{{ getPositionHierarchyCounts(pos).role }}</span>
+                  <span class="stat-badge-label">Roles</span>
+                </div>
+                <div class="position-stat-badge">
+                  <mat-icon class="stat-badge-icon stat-icon-activity">task_alt</mat-icon>
+                  <span class="stat-badge-count">{{ getPositionHierarchyCounts(pos).activity }}</span>
+                  <span class="stat-badge-label">Activities</span>
+                </div>
+                <div class="position-stat-badge">
+                  <mat-icon class="stat-badge-icon stat-icon-competency">psychology</mat-icon>
+                  <span class="stat-badge-count">{{ getPositionHierarchyCounts(pos).competency }}</span>
+                  <span class="stat-badge-label">Competencies</span>
+                </div>
+              </ng-template>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="position-card-actions">
+            <button type="button" class="card-action-btn card-action-view" (click)="onViewPosition(pos)">
+              <mat-icon class="card-action-icon">visibility</mat-icon>
+              View
+            </button>
+            <button type="button" class="card-action-btn card-action-edit" (click)="onViewEdit(pos)">
+              <mat-icon class="card-action-icon">edit</mat-icon>
+              Edit
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- ===== MANAGE MODE — role-like table (?mode=manage) ===== -->
+  <ng-container *ngIf="routeMode === 'manage'">
+    <div class="header">
+      <h2>{{ uiConfig.labels.managePosition }}</h2>
+    </div>
+
+    <div class="sub-header">
+      <span>{{ uiConfig.labels.managePositionSub }}</span>
+    </div>
+
+    <div class="toolbar">
+      <div class="left-tools">
+        <div class="search-box" [class.disabled]="isFilterControlsDisabled()">
+          <input matInput type="text" [placeholder]="uiConfig.labels.searchPlaceholder" [(ngModel)]="searchTerm"
+            [disabled]="isFilterControlsDisabled()" (input)="onSearchTermChange()" (keydown.enter)="onSearchEnter()" />
+          <button mat-icon-button matSuffix class="icon-btn" (click)="onSearch()"
+            [disabled]="isFilterControlsDisabled()">
+            <mat-icon>search</mat-icon>
+          </button>
+        </div>
+
+        <div class="language-dropdown" [class.disabled]="isLanguageDropdownDisabled()" (click)="toggleDropdown()">
+          <div class="dropdown-main">
+            <div class="label-container">
+              <div class="label">{{ uiConfig.labels.language }}</div>
+              <div class="selected">{{ uploadOrchestrator.getLabelForKey(selectedLanguage) }}</div>
+            </div>
+            <div class="icon">
+              <mat-icon>{{ isOpen ? 'expand_less' : 'expand_more' }}</mat-icon>
+            </div>
+          </div>
+          <div class="dropdown-list" *ngIf="isOpen && !isLanguageDropdownDisabled()" (click)="$event.stopPropagation()">
+            <div class="dropdown-item" *ngFor="let lang of languages" (click)="selectLanguage(lang, $event)">
+              {{ lang.label }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="right-tools">
+        <div class="button-group">
+          <button mat-stroked-button class="app-btn icon red" (click)="onRemoveClicked()"
+            [disabled]="!selectedRows.length || !hasTableData() || isDeleting">
+            <mat-spinner *ngIf="isDeleting" class="btn-spinner" [diameter]="16" [strokeWidth]="2"></mat-spinner>
+            <img [src]="uiConfig.icons.remove" alt="delete" class="btn-icon" />
+            {{ uiConfig.labels.remove }}
+          </button>
+          <button mat-stroked-button class="app-btn icon blue" (click)="onEditClicked()"
+            [disabled]="!selectedRows.length || !hasTableData()">
+            <img [src]="uiConfig.icons.edit" alt="edit" class="btn-icon" />
+            {{ uiConfig.labels.edit }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-section">
+      <div class="table-empty-state" *ngIf="shouldShowTableEmptyState()">
+        <div class="table-empty-state-card">
+          <div class="empty-state-icon" aria-hidden="true">
+            <mat-icon>{{ activeEmptyStateConfig.icon }}</mat-icon>
+          </div>
+          <p class="empty-state-title">{{ activeEmptyStateConfig.title }}</p>
+          <p class="empty-state-message">{{ activeEmptyStateConfig.message }}</p>
+          <p class="empty-state-suggestion">{{ activeEmptyStateConfig.suggestion }}</p>
+        </div>
+      </div>
+      <app-upload-activity-list-table [columns]="tableConfig.columns" [data]="tableConfig.data" [showCheckbox]="true"
+        [enableSorting]="true" [enablePagination]="false" [gridStyle]="'both'" [isEditing]="isEditing"
+        [isLoading]="isSearching || isDeleting" (selectionChange)="onSelectionChange($event)">
+      </app-upload-activity-list-table>
+    </div>
+  </ng-container>
+
+</div>

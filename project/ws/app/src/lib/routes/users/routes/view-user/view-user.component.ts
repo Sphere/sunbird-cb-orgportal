@@ -576,7 +576,7 @@ export class ViewUserComponent implements OnInit, AfterViewInit {
     )
   }
   changeToDefaultImg($event: any) {
-    $event.target.src = '/assets/instances/eagle/app_logos/default.png'
+    $event.target.src = 'https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/icons/aastrika_menu_logo.svg'
   }
 
   resetRoles() {

@@ -1,0 +1,91 @@
+<div class="competency-mapping-table">
+
+  <!-- Header -->
+  <div class="toolbar">
+    <div class="title-bar">Available Competencies</div>
+
+    <div class="button-group">
+      <button *ngIf="!isReadOnly" mat-raised-button class="app-btn primary" [disabled]="isAddDisabled()"
+        (click)="onAddCompetency()">
+        {{ isSaving ? 'Saving...' : 'Add Competency' }}
+      </button>
+    </div>
+  </div>
+
+  <div class="competency-wrapper">
+
+    <div class="horizontal-scroll">
+      <div class="grid-container">
+
+        <!-- Header Columns -->
+        <div class="header-bar grid-row">
+          <div class="cell label-cell" style="cursor: pointer; display: flex; align-items: center;"
+            (click)="toggleSort()">
+            {{ headerConfig.codeLabel }}
+            <mat-icon style="font-size: 16px; margin-left: 4px;"
+              *ngIf="sortDirection">{{ sortDirection === 'asc' ? 'arrow_downward' : 'arrow_upward' }}</mat-icon>
+          </div>
+
+          <div class="cell level-cell" *ngFor="let lvl of headerConfig.levels">
+            {{ lvl }}
+          </div>
+        </div>
+
+        <!-- Search bar -->
+        <div class="search-row">
+          <div class="search-cell"></div>
+          <div class="search-box">
+            <input [placeholder]="headerConfig.searchPlaceholder" [(ngModel)]="searchTerm"
+              [disabled]="!selectedActivity || isReadOnly" (input)="onSearchChange()" />
+            <mat-icon>search</mat-icon>
+          </div>
+        </div>
+
+        <!-- Data Rows -->
+        <div class="table-area">
+          <ng-container *ngIf="isLoading">
+            <div class="grid-row data-row shimmer-row" *ngFor="let _ of [1, 2, 3, 4]">
+              <div class="cell label-cell">
+                <div class="shimmer-box text"></div>
+              </div>
+              <div class="cell checkbox-cell" *ngFor="let __ of displayLevels">
+                <div class="shimmer-box checkbox"></div>
+              </div>
+            </div>
+          </ng-container>
+
+          <ng-container *ngIf="!isLoading">
+            <div class="grid-row data-row" *ngFor="let c of filteredCompetencies">
+
+              <!-- Code + Label -->
+              <div class="cell label-cell">
+                <div class="text">{{ c.code }} - {{ c.label }}</div>
+              </div>
+
+              <!-- Dynamic Level Checkboxes -->
+              <div class="cell checkbox-cell" *ngFor="let lvl of displayLevels">
+                <mat-checkbox [checked]="isChecked(c.code, c.code + '_' + lvl)" [disabled]="isReadOnly"
+                  (change)="checkChange(c.code, c.code + '_' + lvl, $event.checked)">
+                </mat-checkbox>
+              </div>
+
+            </div>
+          </ng-container>
+        </div>
+
+        <!-- No Data -->
+        <div *ngIf="!isLoading && filteredCompetencies.length === 0" class="no-data">
+          <div class="empty-state-card">
+            <div class="icon-shell">
+              <mat-icon class="empty-state-icon">{{ selectedActivity ? 'playlist_add_check' : 'touch_app' }}</mat-icon>
+            </div>
+            <div class="empty-state-title">{{ emptyStateTitle }}</div>
+            <div class="empty-state-message">{{ emptyStateMessage }}</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
