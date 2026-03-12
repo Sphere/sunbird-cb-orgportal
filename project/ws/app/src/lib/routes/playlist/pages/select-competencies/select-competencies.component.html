@@ -4,7 +4,7 @@
         <div class="tabs">
             <!-- <button class="tab-button active">Select Competencies</button> -->
         </div>
-        <button class="next-btn" [disabled]="!hasSelection" (click)="onAssignCourses()">
+        <button class="next-btn" [disabled]="selection.selected.length === 0" (click)="onAssignCourses()">
             Assign courses
         </button>
     </div>
@@ -24,7 +24,8 @@
     <!-- Search -->
     <div class="search-container">
         <div class="custom-search-field">
-            <input type="text" placeholder="Search by name, code" [(ngModel)]="searchTerm" (input)="onSearch()">
+            <input type="text" placeholder="Search by name, code" [value]="searchTerm()"
+                (input)="searchTerm.set($any($event.target).value); onSearch()">
             <span class="search-icon">
                 <svg width="21" height="21" viewBox="0 0 21 21" fill="none">
                     <circle cx="9" cy="9" r="7" stroke="#272727" stroke-width="2" />
@@ -35,13 +36,13 @@
     </div>
 
     <!-- Loading -->
-    <div *ngIf="loading" class="loading-container">
+    <div *ngIf="loading()" class="loading-container">
         <div class="spinner"></div>
         <p class="loading-text">Loading competencies...</p>
     </div>
 
     <!-- Table -->
-    <div *ngIf="!loading" class="table-container">
+    <div *ngIf="!loading()" class="table-container">
         <div class="table-scroll-wrapper">
             <table class="custom-table">
                 <thead>

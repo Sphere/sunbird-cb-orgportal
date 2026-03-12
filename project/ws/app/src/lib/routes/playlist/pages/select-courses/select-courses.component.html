@@ -26,7 +26,8 @@
     <!-- Search Bar -->
     <div class="search-container">
         <div class="custom-search-field">
-            <input type="text" placeholder="Search by name, source" [(ngModel)]="searchTerm" (input)="onSearch()">
+            <input type="text" placeholder="Search by name, source" [value]="searchTerm()"
+                (input)="searchTerm.set($any($event.target).value); onSearch()">
             <span class="search-icon">
                 <svg width="21" height="21" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <circle cx="9" cy="9" r="7" stroke="#272727" stroke-width="2" />
@@ -37,13 +38,13 @@
     </div>
 
     <!-- Loading Indicator - Shows spinner in place of table -->
-    <div *ngIf="loading" class="loading-container">
+    <div *ngIf="loading()" class="loading-container">
         <div class="spinner"></div>
         <p class="loading-text">Loading courses...</p>
     </div>
 
     <!-- Course Table (Pure HTML) -->
-    <div *ngIf="!loading" class="table-container">
+    <div *ngIf="!loading()" class="table-container">
         <!-- Scrollable table area (560px max) -->
         <div class="table-scroll-wrapper">
             <table class="custom-table">

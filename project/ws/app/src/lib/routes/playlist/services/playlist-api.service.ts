@@ -4,10 +4,42 @@ import { Observable, throwError } from 'rxjs'
 import { map, tap, catchError } from 'rxjs/operators'
 import {
     Playlist,
+    PlaylistCompetencyPayload,
     PlaylistFilters,
+    PlaylistPayload,
     PlaylistSearchRequest,
     PlaylistSearchResponse,
 } from '../models/playlist.model'
+
+// ---------------------------------------------------------------------------
+// Internal API response shapes — used only within this service
+// ---------------------------------------------------------------------------
+
+interface OrgApiItem {
+    id: string
+    orgName?: string
+    channel?: string
+}
+
+interface OrgSearchApiResponse {
+    result: { response: { content: OrgApiItem[] } }
+}
+
+interface EntityApiItem {
+    name?: string
+}
+
+interface EntitySearchApiResponse {
+    result: { entity: EntityApiItem[] }
+}
+
+/** Minimal shape returned by playlist create / update endpoints */
+interface PlaylistMutationResponse {
+    responseCode: string
+    result?: Record<string, unknown>
+}
+
+// ---------------------------------------------------------------------------
 
 /**
  * Different types of playlists we support.
@@ -37,7 +69,8 @@ export const PLAYLIST_IDS = {
 })
 export class PlaylistApiService {
     private readonly API_BASE = '/apis/protected/v8/playlist'
-    private readonly ORG_API = '/apis/proxies/v8/org/v1'
+    private readonly ORG_API = '/api/proxies/v8/org/v1'
+    private readonly ENTITY_API = '/apis/proxies/v8/entity/v1'
 
     constructor(private http: HttpClient) { }
 
@@ -61,16 +94,54 @@ export class PlaylistApiService {
         }
 
         return this.http
-            .post<any>(`${this.ORG_API}/search`, payload)
+            .post<OrgSearchApiResponse>(`${this.ORG_API}/search`, payload)
             .pipe(
                 map(response => {
-                    const organizations = response?.result?.response?.content || []
-                    return organizations.map((org: any) => ({
+                    const organizations: OrgApiItem[] = response?.result?.response?.content || []
+                    return organizations.map(org => ({
                         value: org.id,
                         label: org.orgName || org.channel || 'Unknown Organization'
                     }))
                 })
             )
+    }
+
+    /**
+     * Fetches positions from entity search API.
+     * Uses position name for both value and label.
+     */
+    searchPositions(language: string = 'en'): Observable<{ value: string, label: string }[]> {
+        const payload = {
+            entityType: 'Position',
+            language,
+            query: '',
+            strict: 'false',
+            field: ['code', 'name'],
+        }
+
+        return this.http.post<EntitySearchApiResponse>(`${this.ENTITY_API}/search`, payload).pipe(
+            map(response => {
+                const entities: EntityApiItem[] = response?.result?.entity || []
+                const seen = new Set<string>()
+
+                return entities
+                    .map((item: EntityApiItem) => String(item?.name || '').trim())
+                    .filter((name: string) => !!name)
+                    .filter((name: string) => {
+                        const normalized = name.toLowerCase()
+                        if (seen.has(normalized)) {
+                            return false
+                        }
+                        seen.add(normalized)
+                        return true
+                    })
+                    .sort((a: string, b: string) => a.localeCompare(b))
+                    .map((name: string) => ({
+                        value: name,
+                        label: name,
+                    }))
+            })
+        )
     }
 
 
@@ -164,12 +235,12 @@ export class PlaylistApiService {
      * Extracts complete competency information from a playlist.
      * This is used when editing an existing playlist - we need to show what was already selected.
      */
-    extractCompetencyData(playlists: Playlist[]): any[] {
+    extractCompetencyData(playlists: Playlist[]): PlaylistCompetencyPayload[] {
         if (!playlists || playlists.length === 0) {
             return []
         }
 
-        const competencies: any[] = []
+        const competencies: PlaylistCompetencyPayload[] = []
 
         playlists.forEach(playlist => {
             if (playlist?.dataSource?.type === 'competency' && Array.isArray(playlist?.dataSource?.payload)) {
@@ -196,8 +267,8 @@ export class PlaylistApiService {
      * Builds the scope object for the API request.
      * We only include fields that actually have values, and make sure state/district are arrays.
      */
-    private buildScope(data: { orgId: string, role: string[], state?: string[], district?: string[], language: string }): any {
-        const scope: any = {}
+    private buildScope(data: { orgId: string, role: string[], state?: string[], district?: string[], language: string }): Record<string, unknown> {
+        const scope: Record<string, unknown> = {}
 
         Object.entries(data).forEach(([key, value]) => {
             if (value !== undefined && value !== null) {
@@ -250,15 +321,15 @@ export class PlaylistApiService {
      * This is called when we don't find an existing playlist for the given filters.
      * 
      * @param filters Who this playlist is for (organization, role, etc.)
-     * @param courseIds The courses or competencies to include
+     * @param payloadItems The courses or competencies to include
      * @param playlistType What kind of playlist we're creating
      * @returns API response
      */
     createPlaylist(
         filters: PlaylistFilters,
-        courseIds: string[],
+        payloadItems: PlaylistPayload,
         playlistType: PlaylistType = PlaylistType.COURSE
-    ): Observable<any> {
+    ): Observable<PlaylistMutationResponse> {
         // Use configured playlistId for new playlists
         const playlistId = PLAYLIST_IDS[playlistType]
 
@@ -266,11 +337,11 @@ export class PlaylistApiService {
         const dataSource = playlistType === PlaylistType.COMPETENCY
             ? {
                 type: 'competency',
-                payload: courseIds  // For competency, this should be the competency objects array
+                payload: payloadItems  // For competency, this should be the competency objects array
             }
             : {
                 type: 'static',
-                payload: courseIds
+                payload: payloadItems
             }
 
         const payload = {
@@ -289,7 +360,7 @@ export class PlaylistApiService {
             },
         }
 
-        return this.http.post<any>(`${this.API_BASE}/create`, payload).pipe(
+        return this.http.post<PlaylistMutationResponse>(`${this.API_BASE}/create`, payload).pipe(
             tap(response => {
                 if (response?.responseCode !== 'OK' && response?.responseCode !== 'SUCCESS') {
                     throw response
@@ -306,19 +377,24 @@ export class PlaylistApiService {
      * 
      * @param existingPlaylist The playlist we're updating
      * @param filters Updated filter values (roles might be merged)
-     * @param courseIds The new list of courses/competencies
+     * @param payloadItems The new list of courses/competencies
      * @returns API response
      */
-    updatePlaylist(existingPlaylist: Playlist, filters: PlaylistFilters, courseIds: string[], isCompetency: boolean = false): Observable<any> {
+    updatePlaylist(
+        existingPlaylist: Playlist,
+        filters: PlaylistFilters,
+        payloadItems: PlaylistPayload,
+        isCompetency: boolean = false
+    ): Observable<PlaylistMutationResponse> {
         // Build dataSource based on existing playlist type
         const dataSource = isCompetency || existingPlaylist.dataSource?.type === 'competency'
             ? {
                 type: 'competency',
-                payload: courseIds  // For competency, this is the competency objects array
+                payload: payloadItems  // For competency, this is the competency objects array
             }
             : {
                 type: 'static',
-                payload: courseIds
+                payload: payloadItems
             }
 
         const payload = {
@@ -338,7 +414,7 @@ export class PlaylistApiService {
             },
         }
 
-        return this.http.put<any>(`${this.API_BASE}/update`, payload).pipe(
+        return this.http.put<PlaylistMutationResponse>(`${this.API_BASE}/update`, payload).pipe(
             tap(response => {
                 if (response?.responseCode !== 'OK' && response?.responseCode !== 'SUCCESS') {
                     throw response
@@ -353,23 +429,22 @@ export class PlaylistApiService {
      * This is the main method you'll call. It figures out whether to create or update automatically.
      * 
      * @param filters Who this playlist is for
-     * @param courseIds What content to include
+     * @param payloadItems What content to include
      * @param existingPlaylist If we found an existing playlist, pass it here
      * @param playlistType What kind of playlist this is
      * @returns API response
      */
     savePlaylist(
         filters: PlaylistFilters,
-        courseIds: string[],
+        payloadItems: PlaylistPayload,
         existingPlaylist?: Playlist,
         playlistType: PlaylistType = PlaylistType.COURSE
-    ): Observable<any> {
+    ): Observable<PlaylistMutationResponse> {
         const isCompetency = playlistType === PlaylistType.COMPETENCY
         if (existingPlaylist) {
-            return this.updatePlaylist(existingPlaylist, filters, courseIds, isCompetency)
+            return this.updatePlaylist(existingPlaylist, filters, payloadItems, isCompetency)
         } else {
-            return this.createPlaylist(filters, courseIds, playlistType)
+            return this.createPlaylist(filters, payloadItems, playlistType)
         }
     }
 }
-

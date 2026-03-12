@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http'
 import { Injectable } from '@angular/core'
 import { Observable } from 'rxjs'
-import { map } from 'rxjs/operators'
+import { map, take } from 'rxjs/operators'
 import {
     Course,
     CourseSearchRequest,
@@ -19,7 +19,7 @@ import { getLevelCount } from '../config/competency.config'
     providedIn: 'root',
 })
 export class CourseApiService {
-    private readonly API_BASE = `/api/proxies/v8/sunbirdigot/search`
+    private readonly API_BASE = `/apis/proxies/v8/sunbirdigot/search`
 
     constructor(private http: HttpClient) { }
 
@@ -251,7 +251,7 @@ export class CourseApiService {
      * This is useful for caching purposes and large-scale selection screens.
      */
     async loadAllCourses(language: string): Promise<Course[]> {
-        const result = await this.searchCourses(language, 9999, 0).toPromise()
+        const result = await this.searchCourses(language, 9999, 0).pipe(take(1)).toPromise()
 
         if (!result || !result.courses) {
             return []

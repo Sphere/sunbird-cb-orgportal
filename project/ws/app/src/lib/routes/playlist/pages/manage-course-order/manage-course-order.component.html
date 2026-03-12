@@ -3,8 +3,8 @@
     <div class="top-bar">
         <div class="breadcrumb">Select Competencies</div>
         <button mat-raised-button class="save-btn-top" [disabled]="!isSaveEnabled()" (click)="onSave()">
-            <span *ngIf="!saving">Save</span>
-            <span *ngIf="saving">Saving...</span>
+            <span *ngIf="!saving()">Save</span>
+            <span *ngIf="saving()">Saving...</span>
         </button>
     </div>
 
@@ -28,7 +28,8 @@
         <!-- Search Field (Inside Card) -->
         <div class="search-container">
             <mat-form-field appearance="outline" class="search-field">
-                <input matInput placeholder="Search by name, source" [(ngModel)]="searchTerm" (input)="onSearch()">
+                <input matInput placeholder="Search by name, source" [value]="searchTerm()"
+                    (input)="searchTerm.set($any($event.target).value); onSearch()">
                 <mat-icon matSuffix>search</mat-icon>
             </mat-form-field>
         </div>
@@ -57,9 +58,9 @@
             </div>
 
             <!-- Empty State -->
-            <div *ngIf="filteredCourses.length === 0 && searchTerm" class="empty-state">
+            <div *ngIf="filteredCourses.length === 0 && searchTerm()" class="empty-state">
                 <p>No courses match your search</p>
-                <button mat-stroked-button (click)="searchTerm=''; onSearch()">Clear Search</button>
+                <button mat-stroked-button (click)="searchTerm.set(''); onSearch()">Clear Search</button>
             </div>
         </div>
     </div>

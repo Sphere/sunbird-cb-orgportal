@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core'
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core'
+import { CommonModule } from '@angular/common'
 import { Router } from '@angular/router'
 import { PlaylistStateService } from '../../services/playlist-state.service'
 import { PlaylistFilters } from '../../models/playlist.model'
@@ -7,6 +8,9 @@ import { PlaylistFilters } from '../../models/playlist.model'
     selector: 'app-playlist-summary',
     templateUrl: './playlist-summary.component.html',
     styleUrls: ['./playlist-summary.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: true,
+    imports: [CommonModule],
 })
 export class PlaylistSummaryComponent implements OnInit {
     filters: PlaylistFilters | null = null

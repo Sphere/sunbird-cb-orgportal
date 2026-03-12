@@ -1,7 +1,16 @@
-import { Component, OnInit } from '@angular/core'
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core'
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
+import { CommonModule } from '@angular/common'
+import { FormsModule } from '@angular/forms'
 import { Router } from '@angular/router'
-import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
+import { take } from 'rxjs/operators'
+import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop'
+import { MatDialog, MatDialogModule } from '@angular/material/dialog'
+import { MatButtonModule } from '@angular/material/button'
+import { MatFormFieldModule } from '@angular/material/form-field'
+import { MatSelectModule } from '@angular/material/select'
+import { MatOptionModule } from '@angular/material/core'
+import { MatIconModule } from '@angular/material/icon'
 import { PlaylistStateService } from '../../services/playlist-state.service'
 import { PlaylistApiService, PlaylistType } from '../../services/playlist-api.service'
 import { CourseApiService } from '../../services/course-api.service'
@@ -25,6 +34,9 @@ import { getLevelNumbers } from '../../config/competency.config'
     selector: 'app-manage-competency-order',
     templateUrl: './manage-competency-order.component.html',
     styleUrls: ['./manage-competency-order.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: true,
+    imports: [CommonModule, FormsModule, DragDropModule, MatDialogModule, MatButtonModule, MatFormFieldModule, MatSelectModule, MatOptionModule, MatIconModule],
 })
 export class ManageCompetencyOrderComponent implements OnInit {
     competencies: SelectableCompetency[] = []
@@ -32,15 +44,21 @@ export class ManageCompetencyOrderComponent implements OnInit {
     selectedCompetency: SelectableCompetency | null = null
 
     courses: Course[] = []
-    loadingCourses = false
-    searchTerm = ''
-    saving = false
-    autoSaving = false
+
+    readonly loadingCourses = signal(false)
+    readonly searchTerm = signal('')
+    readonly saving = signal(false)
+    readonly autoSaving = signal(false)
+    readonly allCompetenciesComplete = computed(() =>
+        this.competencies.length > 0 && this.competencies.every(c => this.isCompetencyComplete(c))
+    )
 
     // Cache for competency-specific courses: Map<competencyId, Course[]>
     private competencyCoursesCache = new Map<string, Course[]>()
     // Filtered courses per level for current competency: Map<level, Course[]>
     levelFilteredCourses = new Map<number, Course[]>()
+
+    private readonly destroyRef = inject(DestroyRef)
 
     constructor(
         private router: Router,
@@ -138,10 +156,10 @@ export class ManageCompetencyOrderComponent implements OnInit {
         const filters = this.state.getFilters()
         const language = filters?.language || 'en'
 
-        this.loadingCourses = true
+        this.loadingCourses.set(true)
 
         try {
-            const response = await this.courseApi.searchCoursesByCompetency(competency.id, language).toPromise()
+            const response = await this.courseApi.searchCoursesByCompetency(competency.id, language).pipe(take(1)).toPromise()
             const courses = response?.courses || []
 
             // Update main courses list for selection lookup
@@ -156,7 +174,7 @@ export class ManageCompetencyOrderComponent implements OnInit {
             console.error('Failed to load competency courses:', error)
             this.levelFilteredCourses.clear()
         } finally {
-            this.loadingCourses = false
+            this.loadingCourses.set(false)
         }
     }
 
@@ -201,13 +219,13 @@ export class ManageCompetencyOrderComponent implements OnInit {
     /** Handles when users drag and drop to reorder competencies */
     onDrop(event: CdkDragDrop<SelectableCompetency[]>): void {
         // Don't allow reordering while auto-saving
-        if (this.autoSaving) {
+        if (this.autoSaving()) {
             return
         }
 
         moveItemInArray(this.competencies, event.previousIndex, event.currentIndex)
         this.updateOrderNumbers()
-        this.filteredCompetencies = this.searchTerm ? this.filteredCompetencies : [...this.competencies]
+        this.filteredCompetencies = this.searchTerm() ? this.filteredCompetencies : [...this.competencies]
 
         // Update state service with new order
         this.state.setSelectedCompetencies(this.competencies)
@@ -238,7 +256,7 @@ export class ManageCompetencyOrderComponent implements OnInit {
             return
         }
 
-        const term = (this.searchTerm || '').toLowerCase().trim()
+        const term = this.searchTerm().toLowerCase().trim()
         this.filteredCompetencies = term
             ? this.competencies.filter(c =>
                 c?.name?.toLowerCase().includes(term) ||
@@ -325,15 +343,6 @@ export class ManageCompetencyOrderComponent implements OnInit {
         return competency.coursesAssigned === true
     }
 
-    /** 
-     * Determines if the entire playlist is valid for final saving.
-     * For a master competency playlist, every selected competency must have its course assignments finalized.
-     */
-    get allCompetenciesComplete(): boolean {
-        if (!this.competencies || this.competencies.length === 0) return false
-        return this.competencies.every(c => this.isCompetencyComplete(c))
-    }
-
     /** Takes the user back to the competency selection page */
     onBack(): void {
         this.router.navigate(['/app/playlist/select-competencies'])
@@ -371,7 +380,7 @@ export class ManageCompetencyOrderComponent implements OnInit {
                 data: dialogData
             })
 
-            const confirmed = await dialogRef.afterClosed().toPromise()
+            const confirmed = await dialogRef.afterClosed().pipe(take(1)).toPromise()
 
             if (!confirmed) {
                 return // User cancelled
@@ -379,7 +388,7 @@ export class ManageCompetencyOrderComponent implements OnInit {
         }
 
         // Proceed with save
-        this.saving = true
+        this.saving.set(true)
 
         // Build competency payload
         const authToken = 'system'
@@ -397,9 +406,10 @@ export class ManageCompetencyOrderComponent implements OnInit {
         const filtersWithMergedRoles = { ...filters, role: mergedRoles }
 
         this.playlistApi.savePlaylist(filtersWithMergedRoles, competencyPayload, existingPlaylist, PlaylistType.COMPETENCY)
+            .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe({
                 next: () => {
-                    this.saving = false
+                    this.saving.set(false)
                     this.showSuccess(
                         'Competency Updated',
                         'Learners will now see the updated competencies and assigned courses on their home screen.'
@@ -407,7 +417,7 @@ export class ManageCompetencyOrderComponent implements OnInit {
                 },
                 error: (error: Error) => {
                     console.error('Failed to save playlist:', error)
-                    this.saving = false
+                    this.saving.set(false)
                     this.showError('Failed to save playlist. Please try again.')
                 }
             })
@@ -417,6 +427,7 @@ export class ManageCompetencyOrderComponent implements OnInit {
     private showSuccess(title: string, message: string): void {
         this.dialog.open(SuccessDialogComponent, { data: { title, message } })
             .afterClosed()
+            .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe(() => this.router.navigate(['/app/home/playlist/summary']))
     }
 
@@ -433,7 +444,7 @@ export class ManageCompetencyOrderComponent implements OnInit {
      */
     private autoSaveOrder(): void {
         // Don't auto-save if not all competencies are complete
-        if (!this.allCompetenciesComplete) {
+        if (!this.allCompetenciesComplete()) {
 
             return
         }
@@ -446,7 +457,7 @@ export class ManageCompetencyOrderComponent implements OnInit {
             return
         }
 
-        this.autoSaving = true
+        this.autoSaving.set(true)
 
 
         const authToken = 'system'
@@ -462,15 +473,15 @@ export class ManageCompetencyOrderComponent implements OnInit {
             competencyPayload,
             existingPlaylist || undefined,
             PlaylistType.COMPETENCY
-        ).subscribe({
+        ).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
             next: () => {
-                this.autoSaving = false
+                this.autoSaving.set(false)
 
                 // Optional: Show subtle toast notification
             },
             error: (error: Error) => {
                 console.error('Auto-save failed:', error)
-                this.autoSaving = false
+                this.autoSaving.set(false)
                 this.showError('Failed to save competency order. Please try again.')
             }
         })

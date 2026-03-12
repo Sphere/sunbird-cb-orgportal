@@ -1,34 +1,46 @@
-import { Component, OnInit, ViewEncapsulation } from '@angular/core'
-import { FormBuilder, FormGroup, Validators } from '@angular/forms'
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, signal, ViewEncapsulation } from '@angular/core'
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
+import { FormControl, FormGroup, NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms'
 import { Router } from '@angular/router'
+import { take } from 'rxjs/operators'
+import { CommonModule } from '@angular/common'
+import { MatFormFieldModule } from '@angular/material/form-field'
+import { MatSelectModule } from '@angular/material/select'
+import { MatOptionModule } from '@angular/material/core'
 import { PlaylistApiService, PlaylistType } from '../../services/playlist-api.service'
 import { PlaylistStateService } from '../../services/playlist-state.service'
 import { PlaylistFilters } from '../../models/playlist.model'
 
+type FilterForm = {
+    orgId: FormControl<string>
+    role: FormControl<string[]>
+    district: FormControl<string>
+    block: FormControl<string>
+    language: FormControl<string>
+}
 
 @Component({
     selector: 'app-playlist-filters',
     templateUrl: './playlist-filters.component.html',
     styleUrls: ['./playlist-filters.component.scss'],
     encapsulation: ViewEncapsulation.None,
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: true,
+    imports: [CommonModule, ReactiveFormsModule, MatFormFieldModule, MatSelectModule, MatOptionModule],
 })
 export class PlaylistFiltersComponent implements OnInit {
-    filterForm!: FormGroup
-    loading = false
-    errorMessage = ''
+    filterForm!: FormGroup<FilterForm>
+    readonly loading = signal(false)
+    readonly errorMessage = signal('')
 
     /** Dropdown options - Organizations loaded from API */
     organizations: { value: string, label: string }[] = []
     filteredOrganizations: { value: string, label: string }[] = []
-    loadingOrganizations = false
+    readonly loadingOrganizations = signal(false)
+    readonly loadingPositions = signal(false)
     orgSearchTerm = ''
 
-    positions = [
-        { value: 'ANM', label: 'ANM' },
-        { value: 'MPW', label: 'MPW' },
-        { value: 'NURSE', label: 'Nurse' },
-        { value: 'MEDICAL OFFICER-UP', label: 'Medical Officer - UP' },
-    ]
+    positions: { value: string, label: string }[] = []
 
     districts = []
 
@@ -41,8 +53,10 @@ export class PlaylistFiltersComponent implements OnInit {
         { value: 'tn', label: 'Tamil' },
     ]
 
+    private readonly destroyRef = inject(DestroyRef)
+
     constructor(
-        private fb: FormBuilder,
+        private fb: NonNullableFormBuilder,
         private router: Router,
         private playlistApi: PlaylistApiService,
         private state: PlaylistStateService
@@ -55,6 +69,7 @@ export class PlaylistFiltersComponent implements OnInit {
     ngOnInit(): void {
         this.initForm()
         this.loadOrganizations()
+        this.loadPositions()
         this.loadPreviousFilters()
     }
 
@@ -63,17 +78,36 @@ export class PlaylistFiltersComponent implements OnInit {
      * These organizations populate the primary selection dropdown.
      */
     private loadOrganizations(): void {
-        this.loadingOrganizations = true
-        this.playlistApi.searchOrganizations().subscribe({
+        this.loadingOrganizations.set(true)
+        this.playlistApi.searchOrganizations().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
             next: (orgs) => {
                 this.organizations = orgs
                 this.filteredOrganizations = [...orgs]
-                this.loadingOrganizations = false
+                this.loadingOrganizations.set(false)
             },
             error: (err) => {
                 console.error('Failed to load organizations:', err)
-                this.loadingOrganizations = false
+                this.loadingOrganizations.set(false)
             }
+        })
+    }
+
+    /**
+     * Fetches the list of positions from the entity API.
+     * Position name is used as both key and display label.
+     */
+    private loadPositions(): void {
+        this.loadingPositions.set(true)
+        this.playlistApi.searchPositions().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+            next: (positions) => {
+                this.positions = positions
+                this.loadingPositions.set(false)
+            },
+            error: (err) => {
+                console.error('Failed to load positions:', err)
+                this.positions = []
+                this.loadingPositions.set(false)
+            },
         })
     }
 
@@ -96,12 +130,12 @@ export class PlaylistFiltersComponent implements OnInit {
      * Initialize reactive form with validation
      */
     private initForm(): void {
-        this.filterForm = this.fb.group({
-            orgId: ['', Validators.required],
-            role: [[], Validators.required],
-            district: [''],
-            block: [''],
-            language: ['', Validators.required],
+        this.filterForm = this.fb.group<FilterForm>({
+            orgId: this.fb.control('', Validators.required),
+            role: this.fb.control<string[]>([], Validators.required),
+            district: this.fb.control(''),
+            block: this.fb.control(''),
+            language: this.fb.control('', Validators.required),
         })
     }
 
@@ -111,7 +145,12 @@ export class PlaylistFiltersComponent implements OnInit {
     private loadPreviousFilters(): void {
         const previousFilters = this.state.getFilters()
         if (previousFilters) {
-            this.filterForm.patchValue(previousFilters)
+            this.filterForm.patchValue({
+                orgId: previousFilters.orgId,
+                role: previousFilters.role,
+                district: previousFilters.district?.[0] ?? '',
+                language: previousFilters.language,
+            })
         }
     }
 
@@ -125,19 +164,20 @@ export class PlaylistFiltersComponent implements OnInit {
             return
         }
 
-        const filters: PlaylistFilters = this.filterForm.value
-
-        // Ensure role is an array
-        if (!Array.isArray(filters.role)) {
-            filters.role = [filters.role]
+        const rawValue = this.filterForm.getRawValue()
+        const filters: PlaylistFilters = {
+            orgId: rawValue.orgId,
+            role: rawValue.role,
+            district: rawValue.district ? [rawValue.district] : undefined,
+            language: rawValue.language,
         }
 
         // Add org name for display purposes
         const selectedOrg = this.organizations.find(org => org.value === filters.orgId)
         filters.orgName = selectedOrg?.label || filters.orgId
 
-        this.loading = true
-        this.errorMessage = ''
+        this.loading.set(true)
+        this.errorMessage.set('')
 
         try {
             // Clear course cache to ensure fresh data is fetched with new filters
@@ -148,8 +188,8 @@ export class PlaylistFiltersComponent implements OnInit {
 
             // Search for both Course and Competency playlists in parallel
             const [coursePlaylists, competencyPlaylists] = await Promise.all([
-                this.playlistApi.searchPlaylist(filters, PlaylistType.COURSE).toPromise(),
-                this.playlistApi.searchPlaylist(filters, PlaylistType.COMPETENCY).toPromise()
+                this.playlistApi.searchPlaylist(filters, PlaylistType.COURSE).pipe(take(1)).toPromise(),
+                this.playlistApi.searchPlaylist(filters, PlaylistType.COMPETENCY).pipe(take(1)).toPromise(),
             ])
 
             // Store Course playlist data
@@ -168,9 +208,9 @@ export class PlaylistFiltersComponent implements OnInit {
             this.router.navigate(['/app/home/playlist/summary'])
         } catch (error) {
             console.error('Error searching playlist:', error)
-            this.errorMessage = 'Failed to load playlist data. Please try again.'
+            this.errorMessage.set('Failed to load playlist data. Please try again.')
         } finally {
-            this.loading = false
+            this.loading.set(false)
         }
     }
 
@@ -182,5 +222,17 @@ export class PlaylistFiltersComponent implements OnInit {
     hasError(fieldName: string): boolean {
         const field = this.filterForm.get(fieldName)
         return !!(field && field.invalid && (field.dirty || field.touched))
+    }
+
+    onOrgDropdownToggle(isOpen: boolean): void {
+        if (!isOpen) {
+            return
+        }
+
+        // Focus search box when overlay is mounted.
+        setTimeout(() => {
+            const input = document.querySelector('.cdk-overlay-pane .org-dropdown .org-search-input') as HTMLInputElement | null
+            input?.focus()
+        }, 50)
     }
 }

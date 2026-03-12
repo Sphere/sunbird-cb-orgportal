@@ -58,12 +58,44 @@ export interface PlaylistSearchRequest {
 }
 
 /**
+ * Competency level shape used inside competency playlist payload.
+ */
+export interface PlaylistCompetencyLevelPayload {
+    level: number | string
+    name?: string
+    description?: string
+    courseId?: string
+}
+
+/**
+ * Competency item shape used in competency playlist payload.
+ * Additional fields are allowed because backend payload can include audit metadata.
+ */
+export interface PlaylistCompetencyPayload {
+    id: number | string
+    code?: string
+    name?: string
+    description?: string
+    type?: string
+    levels?: PlaylistCompetencyLevelPayload[]
+    index?: number
+    [key: string]: unknown
+}
+
+/**
+ * Payload accepted by playlist create/update APIs.
+ * - Course playlist: array of course identifiers
+ * - Competency playlist: array of competency objects
+ */
+export type PlaylistPayload = string[] | PlaylistCompetencyPayload[]
+
+/**
  * Data source within a playlist
  * 'static' for course management, 'competency' for competency management
  */
 export interface PlaylistDataSource {
     type: 'static' | 'dynamic' | 'competency'
-    payload: any[]  // Array of course do_ids or competency objects
+    payload: any[]  // Runtime response can vary; service methods use PlaylistPayload for request typing
 }
 
 

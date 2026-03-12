@@ -2,9 +2,9 @@
     <!-- Breadcrumb Top Bar -->
     <div class="top-bar">
         <!-- <div class="breadcrumb">Select Competencies</div> -->
-        <button class="save-btn-top" [disabled]="!allCompetenciesComplete || saving" (click)="onSave()">
-            <span *ngIf="!saving">Save</span>
-            <span *ngIf="saving">Saving...</span>
+        <button class="save-btn-top" [disabled]="!allCompetenciesComplete() || saving()" (click)="onSave()">
+            <span *ngIf="!saving()">Save</span>
+            <span *ngIf="saving()">Saving...</span>
         </button>
     </div>
 
@@ -38,7 +38,8 @@
             <!-- Search Field -->
             <div class="search-container">
                 <mat-form-field appearance="outline" class="search-field">
-                    <input matInput placeholder="Search by name, code" [(ngModel)]="searchTerm" (input)="onSearch()">
+                    <input matInput placeholder="Search by name, code" [value]="searchTerm()"
+                        (input)="searchTerm.set($any($event.target).value); onSearch()">
                     <mat-icon matSuffix>search</mat-icon>
                 </mat-form-field>
             </div>
@@ -75,9 +76,9 @@
                 </div>
 
                 <!-- Empty State -->
-                <div *ngIf="filteredCompetencies.length === 0 && searchTerm" class="empty-state">
+                <div *ngIf="filteredCompetencies.length === 0 && searchTerm()" class="empty-state">
                     <p>No competencies match your search</p>
-                    <button mat-stroked-button (click)="searchTerm=''; onSearch()">Clear Search</button>
+                    <button mat-stroked-button (click)="searchTerm.set(''); onSearch()">Clear Search</button>
                 </div>
             </div>
         </div>
@@ -99,13 +100,13 @@
                         <div class="level-label">Level {{ level.level }}</div>
                         <div class="level-dropdown">
                             <!-- Shimmer Loader -->
-                            <div *ngIf="loadingCourses" class="shimmer-row"></div>
+                            <div *ngIf="loadingCourses()" class="shimmer-row"></div>
 
                             <!-- Course Dropdown -->
-                            <mat-form-field *ngIf="!loadingCourses" appearance="outline" class="dropdown-field">
+                            <mat-form-field *ngIf="!loadingCourses()" appearance="outline" class="dropdown-field">
                                 <mat-select [(ngModel)]="level.courseId" placeholder="Search or select Course"
                                     (selectionChange)="onCourseSelect(level, $event.value)">
-                                    <mat-option *ngIf="!loadingCourses && getCoursesForLevel(level.level).length === 0"
+                                    <mat-option *ngIf="!loadingCourses() && getCoursesForLevel(level.level).length === 0"
                                         disabled>No courses
                                         available for this level</mat-option>
                                     <mat-option *ngFor="let course of getCoursesForLevel(level.level)"

@@ -1,5 +1,6 @@
-import { Component, Inject } from '@angular/core'
-import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog'
+import { ChangeDetectionStrategy, Component, Inject } from '@angular/core'
+import { MatDialogRef, MatDialogModule, MAT_DIALOG_DATA } from '@angular/material/dialog'
+import { MatButtonModule } from '@angular/material/button'
 
 /** Dialog data interface */
 export interface SuccessDialogData {
@@ -14,7 +15,10 @@ export interface SuccessDialogData {
 @Component({
     selector: 'app-success-dialog',
     templateUrl: './success-dialog.component.html',
-    styleUrls: ['./success-dialog.component.scss']
+    styleUrls: ['./success-dialog.component.scss'],
+    standalone: true,
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    imports: [MatDialogModule, MatButtonModule],
 })
 export class SuccessDialogComponent {
     title: string

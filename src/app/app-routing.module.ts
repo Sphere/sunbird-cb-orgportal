@@ -101,7 +101,7 @@ const routes: Routes = [
   },
   {
     path: 'app/playlist',
-    loadChildren: () => import('./routes/route-playlist-standalone.module').then(u => u.RoutePlaylistStandaloneModule),
+    loadChildren: () => import('@ws/app/src/lib/routes/playlist/playlist.routes').then(u => u.STANDALONE_PLAYLIST_ROUTES),
     canActivate: [GeneralGuard],
   },
   {

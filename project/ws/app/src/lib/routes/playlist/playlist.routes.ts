@@ -1,5 +1,4 @@
-import { NgModule } from '@angular/core'
-import { RouterModule, Routes } from '@angular/router'
+import { Routes } from '@angular/router'
 import { PlaylistFiltersComponent } from './pages/playlist-filters/playlist-filters.component'
 import { PlaylistSummaryComponent } from './pages/playlist-summary/playlist-summary.component'
 import { SelectCoursesComponent } from './pages/select-courses/select-courses.component'
@@ -47,9 +46,3 @@ export const STANDALONE_PLAYLIST_ROUTES: Routes = [
         component: ManageCompetencyOrderComponent,
     },
 ]
-
-@NgModule({
-    imports: [RouterModule.forChild(HOME_PLAYLIST_ROUTES)],
-    exports: [RouterModule],
-})
-export class PlaylistRoutingModule { }

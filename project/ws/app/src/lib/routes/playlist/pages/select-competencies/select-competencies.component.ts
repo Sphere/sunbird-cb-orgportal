@@ -1,6 +1,8 @@
-import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core'
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, signal, ViewChild, AfterViewInit } from '@angular/core'
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
+import { CommonModule } from '@angular/common'
 import { Router } from '@angular/router'
-import { MatLegacyPaginator as MatPaginator } from '@angular/material/legacy-paginator'
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator'
 import { SelectionModel } from '@angular/cdk/collections'
 import { CompetencyApiService } from '../../services/competency-api.service'
 import { PlaylistStateService } from '../../services/playlist-state.service'
@@ -15,6 +17,9 @@ import { getLevelNumbers } from '../../config/competency.config'
     selector: 'app-select-competencies',
     templateUrl: './select-competencies.component.html',
     styleUrls: ['./select-competencies.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: true,
+    imports: [CommonModule, MatPaginatorModule],
 })
 export class SelectCompetenciesComponent implements OnInit, AfterViewInit {
     @ViewChild(MatPaginator, { static: false }) paginator!: MatPaginator
@@ -26,12 +31,15 @@ export class SelectCompetenciesComponent implements OnInit, AfterViewInit {
     filteredCompetencies: SelectableCompetency[] = []
     existingCompetencyIds: string[] = []
 
-    searchTerm = ''
-    loading = false
     totalCompetencies = 0
     pageSize = 20
     currentPage = 0
     private paginatorSubscriptionSetup = false
+
+    readonly loading = signal(false)
+    readonly searchTerm = signal('')
+
+    private readonly destroyRef = inject(DestroyRef)
 
     constructor(
         private router: Router,
@@ -58,7 +66,7 @@ export class SelectCompetenciesComponent implements OnInit, AfterViewInit {
             return
         }
 
-        this.paginator.page.subscribe(pageEvent => {
+        this.paginator.page.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(pageEvent => {
             this.currentPage = pageEvent.pageIndex
             this.pageSize = pageEvent.pageSize
             this.applyPagination()
@@ -75,7 +83,7 @@ export class SelectCompetenciesComponent implements OnInit, AfterViewInit {
             return
         }
 
-        this.loading = true
+        this.loading.set(true)
         const language = filters.language || 'en'
 
         const cached = this.state.getCachedCompetencies(language)
@@ -85,7 +93,7 @@ export class SelectCompetenciesComponent implements OnInit, AfterViewInit {
             return
         }
 
-        this.competencyApi.getCompetencyListByLanguage(language).subscribe({
+        this.competencyApi.getCompetencyListByLanguage(language).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
             next: (data) => {
                 this.state.setCachedCompetencies(data, language)
                 this.processCompetencies(data)
@@ -93,7 +101,7 @@ export class SelectCompetenciesComponent implements OnInit, AfterViewInit {
             },
             error: (err) => {
                 console.error('Error loading competencies:', err)
-                this.loading = false
+                this.loading.set(false)
             }
         })
     }
@@ -122,6 +130,8 @@ export class SelectCompetenciesComponent implements OnInit, AfterViewInit {
                     : getLevelNumbers().map(level => ({ level }))
             } as SelectableCompetency
         })
+
+        this.allCompetencies.sort((a, b) => this.compareCompetencies(a, b))
     }
 
     /**
@@ -144,7 +154,7 @@ export class SelectCompetenciesComponent implements OnInit, AfterViewInit {
             }
         }, 0)
 
-        this.loading = false
+        this.loading.set(false)
     }
 
     /** Handles pagination */
@@ -206,10 +216,10 @@ export class SelectCompetenciesComponent implements OnInit, AfterViewInit {
     onSearch(): void {
         this.currentPage = 0
 
-        if (this.searchTerm.trim() === '') {
+        if (this.searchTerm().trim() === '') {
             this.searchResultCompetencies = [...this.allCompetencies]
         } else {
-            const term = this.searchTerm.toLowerCase()
+            const term = this.searchTerm().toLowerCase()
             this.searchResultCompetencies = this.allCompetencies.filter(c =>
                 c.name?.toLowerCase().includes(term) ||
                 c.code?.toLowerCase().includes(term)
@@ -265,6 +275,9 @@ export class SelectCompetenciesComponent implements OnInit, AfterViewInit {
             }
         })
 
+        userSelected.sort((a, b) => this.compareCompetencies(a, b))
+        unselected.sort((a, b) => this.compareCompetencies(a, b))
+
         this.searchResultCompetencies = [
             ...defaultPreselected,
             ...userSelected,
@@ -272,9 +285,18 @@ export class SelectCompetenciesComponent implements OnInit, AfterViewInit {
         ]
     }
 
-    /** Returns true if at least one competency is selected */
-    get hasSelection(): boolean {
-        return this.selection.selected.length > 0
+    /** Natural ascending sort (A-Z, numeric-aware 0-9). */
+    private compareCompetencies(a: SelectableCompetency, b: SelectableCompetency): number {
+        const nameA = (a?.name || '').trim()
+        const nameB = (b?.name || '').trim()
+        const nameSort = nameA.localeCompare(nameB, undefined, { numeric: true, sensitivity: 'base' })
+        if (nameSort !== 0) {
+            return nameSort
+        }
+
+        const codeA = (a?.code || '').trim()
+        const codeB = (b?.code || '').trim()
+        return codeA.localeCompare(codeB, undefined, { numeric: true, sensitivity: 'base' })
     }
 
     /**

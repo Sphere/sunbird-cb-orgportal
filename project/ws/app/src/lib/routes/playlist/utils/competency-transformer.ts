@@ -95,6 +95,12 @@ export interface CourseLanguageMapping {
 }
 
 /**
+ * A single entry in the playlist competency payload array.
+ * Key is the lowercase code (e.g. "c97"), value is the full competency object.
+ */
+export type CompetencyPayloadItem = Record<string, PlaylistCompetency>
+
+/**
  * Competency Transformer Class
  * Handles all transformations from raw API data to playlist format
  */
@@ -119,9 +125,9 @@ export class CompetencyTransformer {
     static transformToPlaylistFormat(
         rawEntity: RawCompetencyEntity,
         language: string = 'en',
-        existingCompetency?: any,
+        existingCompetency?: PlaylistCompetency,
         authToken: string = 'system'
-    ): { [key: string]: PlaylistCompetency } {
+    ): CompetencyPayloadItem {
 
 
 
@@ -233,7 +239,7 @@ export class CompetencyTransformer {
     private static transformLevels(
         rawLevels: RawCompetencyLevel[],
         language: string,
-        existingCompetency?: any
+        existingCompetency?: PlaylistCompetency
     ): PlaylistCompetencyLevel[] {
 
 
@@ -291,7 +297,7 @@ export class CompetencyTransformer {
      * @param levelNumber - Level number to find
      * @returns Existing level or undefined
      */
-    private static findExistingLevel(existingCompetency: any, levelNumber: string): PlaylistCompetencyLevel | undefined {
+    private static findExistingLevel(existingCompetency: PlaylistCompetency | undefined, levelNumber: string): PlaylistCompetencyLevel | undefined {
         if (!existingCompetency?.additionalProperties?.competencyLevelDescription) {
             return undefined
         }
@@ -385,15 +391,15 @@ export class CompetencyTransformer {
     static buildPlaylistPayload(
         rawEntities: RawCompetencyEntity[],
         language: string = 'en',
-        existingPayload?: any[],
+        existingPayload?: CompetencyPayloadItem[],
         authToken: string = 'system'
-    ): any[] {
+    ): CompetencyPayloadItem[] {
 
 
 
         return rawEntities.map((rawEntity) => {
             // Find existing competency by ID
-            const existingCompetency = existingPayload?.find((item: any) => {
+            const existingCompetency = existingPayload?.find((item: CompetencyPayloadItem) => {
                 const keys = Object.keys(item)
                 if (keys.length > 0) {
                     const comp = item[keys[0]]
@@ -508,7 +514,7 @@ export class CompetencyTransformer {
                 const existing = merged[existingIndex]
 
                 // Preserve ALL existing fields
-                const mergedLevel: any = { ...existing }
+                const mergedLevel: PlaylistCompetencyLevel = { ...existing }
 
                 // Update only for the selected language
                 if (language === 'en') {
@@ -616,11 +622,11 @@ export class CompetencyTransformer {
      * ```
      */
     static updatePayloadNonDestructive(
-        existingPayload: any[],
-        updates: any[],
+        existingPayload: CompetencyPayloadItem[],
+        updates: CompetencyPayloadItem[],
         language: string,
         authToken: string = 'system'
-    ): any[] {
+    ): CompetencyPayloadItem[] {
 
 
 
@@ -629,7 +635,7 @@ export class CompetencyTransformer {
         }
 
         // Create a map of existing competencies by ID
-        const existingMap = new Map<number, any>()
+        const existingMap = new Map<number, { key: string; data: PlaylistCompetency; item: CompetencyPayloadItem }>()
         existingPayload.forEach(item => {
             const key = Object.keys(item)[0]
             const comp = item[key]
@@ -638,7 +644,7 @@ export class CompetencyTransformer {
             }
         })
 
-        const result: any[] = []
+        const result: CompetencyPayloadItem[] = []
         const processedIds = new Set<number>()
 
         // Process updates in the new order
@@ -707,7 +713,7 @@ export class CompetencyTransformer {
 
 
         // Start with existing data
-        const merged: any = { ...existing }
+        const merged = { ...existing } as PlaylistCompetency & Record<string, unknown>
 
         // Update timestamp and user
         merged.updatedDate = new Date().toISOString()
@@ -784,7 +790,7 @@ export class CompetencyTransformer {
      * // Result: { c3: { id: 101, ... } } (all data preserved)
      * ```
      */
-    static changeCompetencyPosition(competencyItem: any, newCode: string): any {
+    static changeCompetencyPosition(competencyItem: CompetencyPayloadItem, newCode: string): CompetencyPayloadItem {
         const oldKey = Object.keys(competencyItem)[0]
         const competency = competencyItem[oldKey]
         const newKey = newCode.toLowerCase()

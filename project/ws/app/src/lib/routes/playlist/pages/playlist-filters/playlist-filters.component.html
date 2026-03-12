@@ -17,59 +17,75 @@
             <!-- Row 1: Organization & Position -->
             <div class="form-row">
                 <!-- Organization Dropdown with Search -->
-                <mat-form-field class="custom-mat-select" appearance="outline">
-                    <mat-label>Organisation</mat-label>
-                    <mat-select formControlName="orgId" required panelClass="playlist-dropdown org-dropdown"
-                        disableOptionCentering>
-                        <!-- Search Input -->
-                        <mat-option class="search-option" disabled>
-                            <input class="org-search-input" type="text" placeholder="Search Organisation..."
-                                [(ngModel)]="orgSearchTerm" [ngModelOptions]="{standalone: true}"
-                                (input)="filterOrganizations()" (keydown)="$event.stopPropagation()">
-                        </mat-option>
+                <div class="field-shell with-inner-label required-field" [class.field-error]="hasError('orgId')">
+                    <div class="inner-label">Organisation</div>
+                    <mat-form-field class="custom-mat-select" appearance="outline" hideRequiredMarker>
+                        <mat-select formControlName="orgId" placeholder="Select Organisation"
+                            panelClass="playlist-dropdown org-dropdown" panelWidth="300px" disableOptionCentering
+                            (openedChange)="onOrgDropdownToggle($event)">
+                            <!-- Search Input -->
+                            <mat-option class="search-option" disabled>
+                                <input class="org-search-input" type="text" placeholder="Search Organisation..."
+                                    [value]="orgSearchTerm"
+                                    (input)="orgSearchTerm = $any($event.target).value; filterOrganizations()"
+                                    (click)="$event.stopPropagation()"
+                                    (mousedown)="$event.stopPropagation()"
+                                    (keydown)="$event.stopPropagation()"
+                                    (keyup)="$event.stopPropagation()">
+                            </mat-option>
 
-                        <mat-option *ngIf="loadingOrganizations" disabled>Loading...</mat-option>
-                        <mat-option *ngIf="!loadingOrganizations && filteredOrganizations.length === 0" disabled>
-                            No Organisation found
-                        </mat-option>
-                        <mat-option *ngFor="let org of filteredOrganizations" [value]="org.value">
-                            {{ org.label }}
-                        </mat-option>
-                    </mat-select>
-                </mat-form-field>
+                            <mat-option *ngIf="loadingOrganizations()" disabled>Loading...</mat-option>
+                            <mat-option *ngIf="!loadingOrganizations() && filteredOrganizations.length === 0" disabled>
+                                No Organisation found
+                            </mat-option>
+                            <mat-option *ngFor="let org of filteredOrganizations" [value]="org.value">
+                                {{ org.label }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
 
                 <!-- Position Multi-Select -->
-                <mat-form-field class="custom-mat-select" appearance="outline">
-                    <mat-label>Position</mat-label>
-                    <mat-select formControlName="role" multiple required panelClass="playlist-dropdown">
-                        <mat-option *ngFor="let position of positions" [value]="position.value">
-                            {{ position.label }}
-                        </mat-option>
-                    </mat-select>
-                </mat-form-field>
+                <div class="field-shell with-inner-label required-field" [class.field-error]="hasError('role')">
+                    <div class="inner-label">Position</div>
+                    <mat-form-field class="custom-mat-select" appearance="outline" hideRequiredMarker>
+                        <mat-select formControlName="role" multiple placeholder="Select Position"
+                            panelClass="playlist-dropdown">
+                            <mat-option *ngIf="loadingPositions()" disabled>Loading...</mat-option>
+                            <mat-option *ngIf="!loadingPositions() && positions.length === 0" disabled>
+                                No Position found
+                            </mat-option>
+                            <mat-option *ngFor="let position of positions" [value]="position.value">
+                                {{ position.label }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
             </div>
 
             <!-- Row 2: District & Block -->
             <div class="form-row">
                 <!-- District Dropdown -->
-                <mat-form-field class="custom-mat-select" appearance="outline">
-                    <mat-label>District</mat-label>
-                    <mat-select formControlName="district" panelClass="playlist-dropdown">
-                        <mat-option *ngFor="let district of districts" [value]="district.value">
-                            {{ district.label }}
-                        </mat-option>
-                    </mat-select>
-                </mat-form-field>
+                <div class="field-shell">
+                    <mat-form-field class="custom-mat-select" appearance="outline">
+                        <mat-select formControlName="district" placeholder="District" panelClass="playlist-dropdown">
+                            <mat-option *ngFor="let district of districts" [value]="district.value">
+                                {{ district.label }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
 
                 <!-- Block Dropdown -->
-                <mat-form-field class="custom-mat-select" appearance="outline">
-                    <mat-label>Block</mat-label>
-                    <mat-select formControlName="block" panelClass="playlist-dropdown">
-                        <mat-option *ngFor="let block of blocks" [value]="block.value">
-                            {{ block.label }}
-                        </mat-option>
-                    </mat-select>
-                </mat-form-field>
+                <div class="field-shell">
+                    <mat-form-field class="custom-mat-select" appearance="outline">
+                        <mat-select formControlName="block" placeholder="Block" panelClass="playlist-dropdown">
+                            <mat-option *ngFor="let block of blocks" [value]="block.value">
+                                {{ block.label }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
             </div>
         </div>
 
@@ -82,25 +98,27 @@
 
             <div class="form-row">
                 <!-- Language Dropdown (Full Width) -->
-                <mat-form-field class="custom-mat-select custom-mat-select-full" appearance="outline">
-                    <mat-label>Language</mat-label>
-                    <mat-select formControlName="language" required panelClass="playlist-dropdown">
-                        <mat-option *ngFor="let lang of languages" [value]="lang.value">
-                            {{ lang.label }}
-                        </mat-option>
-                    </mat-select>
-                </mat-form-field>
+                <div class="field-shell field-shell-full with-inner-label required-field" [class.field-error]="hasError('language')">
+                    <div class="inner-label">Language</div>
+                    <mat-form-field class="custom-mat-select custom-mat-select-full" appearance="outline" hideRequiredMarker>
+                        <mat-select formControlName="language" placeholder="Select Language" panelClass="playlist-dropdown">
+                            <mat-option *ngFor="let lang of languages" [value]="lang.value">
+                                {{ lang.label }}
+                            </mat-option>
+                        </mat-select>
+                    </mat-form-field>
+                </div>
             </div>
         </div>
 
         <!-- Continue Button -->
-        <button type="button" class="continue-btn" [disabled]="filterForm.invalid || loading" (click)="onContinue()">
-            {{ loading ? 'Loading...' : 'Continue' }}
+        <button type="button" class="continue-btn" [disabled]="filterForm.invalid || loading()" (click)="onContinue()">
+            {{ loading() ? 'Loading...' : 'Continue' }}
         </button>
 
         <!-- Error Message -->
-        <div *ngIf="errorMessage" class="error-message">
-            <span>⚠️ {{ errorMessage }}</span>
+        <div *ngIf="errorMessage()" class="error-message">
+            <span>⚠️ {{ errorMessage() }}</span>
         </div>
     </form>
 </div>

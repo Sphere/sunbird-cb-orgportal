@@ -1,7 +1,9 @@
-import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core'
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, signal, ViewChild, AfterViewInit } from '@angular/core'
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
+import { CommonModule } from '@angular/common'
 import { Router } from '@angular/router'
-import { MatLegacyPaginator as MatPaginator } from '@angular/material/legacy-paginator'
-import { MatLegacyTableDataSource as MatTableDataSource } from '@angular/material/legacy-table'
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator'
+import { MatTableDataSource } from '@angular/material/table'
 import { SelectionModel } from '@angular/cdk/collections'
 import { CourseApiService } from '../../services/course-api.service'
 import { PlaylistStateService } from '../../services/playlist-state.service'
@@ -15,6 +17,9 @@ import { Course, SelectableCourse } from '../../models/course.model'
     selector: 'app-select-courses',
     templateUrl: './select-courses.component.html',
     styleUrls: ['./select-courses.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: true,
+    imports: [CommonModule, MatPaginatorModule],
 })
 export class SelectCoursesComponent implements OnInit, AfterViewInit {
     @ViewChild(MatPaginator, { static: false }) paginator!: MatPaginator
@@ -27,12 +32,14 @@ export class SelectCoursesComponent implements OnInit, AfterViewInit {
     searchResultCourses: SelectableCourse[] = []
     filteredCourses: SelectableCourse[] = []
     existingCourseIds: string[] = []
-    searchTerm = ''
-    loading = false
     totalCourses = 0
     pageSize = 20
     currentPage = 0
     private paginatorSubscriptionSetup = false
+
+    readonly loading = signal(false)
+    readonly searchTerm = signal('')
+    private readonly destroyRef = inject(DestroyRef)
 
     constructor(
         private router: Router,
@@ -59,7 +66,7 @@ export class SelectCoursesComponent implements OnInit, AfterViewInit {
             return
         }
 
-        this.paginator.page.subscribe(pageEvent => {
+        this.paginator.page.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(pageEvent => {
             this.currentPage = pageEvent.pageIndex
             this.pageSize = pageEvent.pageSize
             this.applyPagination()
@@ -81,7 +88,7 @@ export class SelectCoursesComponent implements OnInit, AfterViewInit {
             return
         }
 
-        this.loading = true
+        this.loading.set(true)
 
         try {
             const cached = this.state.getCachedCourses(filters.language)
@@ -116,11 +123,11 @@ export class SelectCoursesComponent implements OnInit, AfterViewInit {
         } catch (error) {
             console.error('Error loading courses:', error)
         } finally {
-            this.loading = false
+            this.loading.set(false)
         }
     }
 
-    /** 
+    /**
      * Applies pagination to the current search results.
      * Updates the data source to reflect only the courses visible on the current page.
      */
@@ -132,7 +139,7 @@ export class SelectCoursesComponent implements OnInit, AfterViewInit {
         this.dataSource.data = this.filteredCourses
     }
 
-    /** 
+    /**
      * Transforms a raw Course object into a SelectableCourse.
      * Checks against the existing playlist to mark items as pre-selected.
      */
@@ -196,12 +203,12 @@ export class SelectCoursesComponent implements OnInit, AfterViewInit {
     onSearch(): void {
         this.currentPage = 0
 
-        if (this.searchTerm.trim() === '') {
+        if (this.searchTerm().trim() === '') {
             // Search cleared - restore all courses
             this.searchResultCourses = [...this.allCourses]
         } else {
             // Filter courses based on search term
-            this.searchResultCourses = this.courseApi.filterCourses(this.allCourses, this.searchTerm)
+            this.searchResultCourses = this.courseApi.filterCourses(this.allCourses, this.searchTerm())
         }
 
         // Apply sorting to keep selected courses at top
@@ -244,7 +251,7 @@ export class SelectCoursesComponent implements OnInit, AfterViewInit {
         }, 0)
     }
 
-    /** 
+    /**
      * Sorts the course list to maintain a logical hierarchy:
      * 1. Mandatory/Existing courses from the database.
      * 2. New selections made during the current session.
@@ -275,7 +282,7 @@ export class SelectCoursesComponent implements OnInit, AfterViewInit {
         ]
     }
 
-    /** 
+    /**
      * Checks if every course on the current page is currently selected.
      * Used to drive the state of the master "select all" checkbox.
      */
@@ -285,7 +292,7 @@ export class SelectCoursesComponent implements OnInit, AfterViewInit {
         return numSelected === numRows
     }
 
-    /** 
+    /**
      * Selects or deselects all courses on the current page in a single action.
      */
     masterToggle(): void {
@@ -309,7 +316,7 @@ export class SelectCoursesComponent implements OnInit, AfterViewInit {
         this.router.navigate(['/app/home/playlist/summary'])
     }
 
-    /** 
+    /**
      * Finalizes selections and proceeds to the course ordering screen.
      */
     onNext(): void {
@@ -321,7 +328,6 @@ export class SelectCoursesComponent implements OnInit, AfterViewInit {
         // Tab click handler (for future use)
     }
 
-    /** Returns true if at least one course is selected */
     isNextEnabled(): boolean {
         return this.selection.selected.length > 0
     }

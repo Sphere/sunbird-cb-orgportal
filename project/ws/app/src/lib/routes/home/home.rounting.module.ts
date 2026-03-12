@@ -113,7 +113,7 @@ const routes: Routes = [
       },
       {
         path: 'playlist',
-        loadChildren: () => import('../playlist/playlist.module').then(m => m.PlaylistModule),
+        loadChildren: () => import('../playlist/playlist.routes').then(m => m.HOME_PLAYLIST_ROUTES),
       },
     ],
   },

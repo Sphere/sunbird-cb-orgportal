@@ -1,14 +1,33 @@
 import { HttpClient } from '@angular/common/http'
 import { Injectable } from '@angular/core'
-import { Observable, of } from 'rxjs'
+import { Observable } from 'rxjs'
 import { map } from 'rxjs/operators'
 import { Competency } from '../models/competency.model'
-import { MOCK_COMPETENCY_LIST_RESPONSE } from './competency-mock-data'
-import { RawCompetencyEntity } from '../utils/competency-transformer'
+import { RawCompetencyEntity, RawCompetencyLevel } from '../utils/competency-transformer'
+
+// ---------------------------------------------------------------------------
+// Internal API response shapes — used only within this service
+// ---------------------------------------------------------------------------
+
+interface EntitySearchApiResponse {
+    result: { entity: any[] }
+}
+
+interface CompetencySearchPayload {
+    request: {
+        entity: {
+            type: string
+            limit: number
+            query?: { name: string }
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
 
 /**
  * Service for retrieving competency data.
- * Currently serves as a wrapper for both legacy entity search and modern mock-based retrieval.
+ * Fetches competency data from entity search APIs and normalizes response shapes.
  */
 @Injectable({
     providedIn: 'root',
@@ -20,17 +39,25 @@ export class CompetencyApiService {
 
     /**
      * Retrieves the master list of competencies filtered by language.
-     * Note: This currently pulls from a static mock source while global API integration is pending.
+     * Uses entity search API and normalizes response to RawCompetencyEntity format.
      */
-    getCompetencyListByLanguage(_language: string = 'en'): Observable<RawCompetencyEntity[]> {
-        // We are using mock data temporarily until the API is ready.
-        const mockEntities = MOCK_COMPETENCY_LIST_RESPONSE.result.data.entity as RawCompetencyEntity[]
+    getCompetencyListByLanguage(language: string = 'en'): Observable<RawCompetencyEntity[]> {
+        const payload = {
+            entityType: 'Competency',
+            language,
+            query: '',
+            strict: 'false',
+            field: ['code', 'name'],
+        }
 
-        // In a real API scenario, filtering would happen on the server.
-        // For now, we return the mock data directly.
-        return of(mockEntities)
-
-
+        return this.http
+            .post<EntitySearchApiResponse>(`${this.API_BASE}/search`, payload)
+            .pipe(
+                map(response => {
+                    const entities: any[] = response?.result?.entity || []
+                    return entities.map((entity: any) => this.mapEntitySearchResponse(entity, language))
+                })
+            )
     }
 
     /**
@@ -38,7 +65,7 @@ export class CompetencyApiService {
      * Provides backward compatibility for older competency structures.
      */
     searchCompetencies(query?: string, limit: number = 100): Observable<Competency[]> {
-        const payload: any = {
+        const payload: CompetencySearchPayload = {
             request: {
                 entity: {
                     type: 'competency',
@@ -52,10 +79,10 @@ export class CompetencyApiService {
         }
 
         return this.http
-            .post<any>(`${this.API_BASE}/search`, payload)
+            .post<EntitySearchApiResponse>(`${this.API_BASE}/search`, payload)
             .pipe(
                 map(response => {
-                    const entities = response?.result?.entity || []
+                    const entities: any[] = response?.result?.entity || []
                     return entities.map((entity: any) => this.mapToCompetency(entity))
                 })
             )
@@ -109,5 +136,47 @@ export class CompetencyApiService {
             levels
         }
     }
-}
 
+    /**
+     * Normalizes v8 entity search response to the existing RawCompetencyEntity contract.
+     * Keeps downstream transformer and UI code unchanged.
+     */
+    private mapEntitySearchResponse(entity: any, language: string): RawCompetencyEntity {
+        const entityLanguage = String(entity?.languageCode || language)
+        const rawLevels = Array.isArray(entity?.levels) ? entity.levels : []
+        const children: RawCompetencyLevel[] = rawLevels.map((lvl: any, index: number) => ({
+            id: index + 1,
+            code: `${entity?.code || 'C'}_L${lvl?.levelNumber || index + 1}`,
+            level: `L${lvl?.levelNumber || index + 1}`,
+            levelId: Number(lvl?.levelNumber || index + 1),
+            name: String(lvl?.levelName || '').trim(),
+            description: String(lvl?.levelDescription || '').trim(),
+            language: entityLanguage,
+            type: 'level',
+            status: String(entity?.status || 'Active'),
+            additionalProperties: {
+                parentCompetency: String(entity?.name || '').trim(),
+            },
+        }))
+
+        return {
+            id: Number(entity?.entityId || 0),
+            type: 'competency',
+            name: String(entity?.name || '').trim(),
+            description: String(entity?.description || '').trim(),
+            language: entityLanguage,
+            code: String(entity?.code || '').trim(),
+            level: String(entity?.code || ''),
+            levelId: 0,
+            status: String(entity?.status || 'Active'),
+            entityType: String(entity?.type || 'Domain'),
+            area: String(entity?.area || ''),
+            additionalProperties: entity?.additionalProperties || {},
+            children,
+            createdDate: entity?.createdAt || undefined,
+            createdBy: entity?.createdBy || undefined,
+            updatedDate: entity?.updatedAt || undefined,
+            updatedBy: entity?.updatedBy || undefined,
+        }
+    }
+}

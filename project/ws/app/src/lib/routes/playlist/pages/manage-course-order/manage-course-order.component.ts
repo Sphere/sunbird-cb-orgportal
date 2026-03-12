@@ -1,7 +1,14 @@
-import { Component, OnInit } from '@angular/core'
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core'
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
+import { CommonModule } from '@angular/common'
 import { Router } from '@angular/router'
-import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
+import { take } from 'rxjs/operators'
+import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop'
+import { MatDialog, MatDialogModule } from '@angular/material/dialog'
+import { MatButtonModule } from '@angular/material/button'
+import { MatFormFieldModule } from '@angular/material/form-field'
+import { MatInputModule } from '@angular/material/input'
+import { MatIconModule } from '@angular/material/icon'
 import { PlaylistStateService } from '../../services/playlist-state.service'
 import { PlaylistApiService, PlaylistType } from '../../services/playlist-api.service'
 import { SelectableCourse } from '../../models/course.model'
@@ -17,12 +24,19 @@ import { ErrorDialogComponent, ErrorDialogData } from '../../components/error-di
     selector: 'app-manage-course-order',
     templateUrl: './manage-course-order.component.html',
     styleUrls: ['./manage-course-order.component.scss'],
+    changeDetection: ChangeDetectionStrategy.OnPush,
+    standalone: true,
+    imports: [CommonModule, DragDropModule, MatDialogModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatIconModule],
 })
 export class ManageCourseOrderComponent implements OnInit {
     orderedCourses: SelectableCourse[] = []
-    searchTerm = ''
     filteredCourses: SelectableCourse[] = []
-    saving = false
+
+    readonly saving = signal(false)
+    readonly searchTerm = signal('')
+    readonly isSaveEnabled = computed(() => this.orderedCourses.length > 0 && !this.saving())
+
+    private readonly destroyRef = inject(DestroyRef)
 
     constructor(
         private router: Router,
@@ -70,7 +84,7 @@ export class ManageCourseOrderComponent implements OnInit {
         this.updateOrderNumbers()
 
         // Update filtered list if search is active
-        if (this.searchTerm) {
+        if (this.searchTerm()) {
             this.onSearch()
         } else {
             this.filteredCourses = [...this.orderedCourses]
@@ -91,12 +105,12 @@ export class ManageCourseOrderComponent implements OnInit {
      * Handle search - non-destructive (doesn't change order)
      */
     onSearch(): void {
-        if (!this.searchTerm || this.searchTerm.trim() === '') {
+        if (!this.searchTerm() || this.searchTerm().trim() === '') {
             this.filteredCourses = [...this.orderedCourses]
             return
         }
 
-        const term = this.searchTerm.toLowerCase().trim()
+        const term = this.searchTerm().toLowerCase().trim()
         this.filteredCourses = this.orderedCourses.filter(course =>
             course.name.toLowerCase().includes(term) ||
             course.sourceName.toLowerCase().includes(term)
@@ -122,7 +136,10 @@ export class ManageCourseOrderComponent implements OnInit {
 
         if (!filters) {
             console.error('No filters found in state')
-            alert('Error: Missing filter information. Please start from the filters page.')
+            this.dialog.open(ErrorDialogComponent, {
+                width: '400px',
+                data: { title: 'Missing Information', message: 'Filter information not found. Please start from the filters page.' }
+            })
             this.router.navigate(['/app/home/playlist/filters'])
             return
         }
@@ -145,7 +162,7 @@ export class ManageCourseOrderComponent implements OnInit {
                 data: dialogData
             })
 
-            const confirmed = await dialogRef.afterClosed().toPromise()
+            const confirmed = await dialogRef.afterClosed().pipe(take(1)).toPromise()
 
             if (!confirmed) {
                 return
@@ -153,7 +170,7 @@ export class ManageCourseOrderComponent implements OnInit {
         }
 
         // Proceed with save
-        this.saving = true
+        this.saving.set(true)
 
         try {
             // Save ordered courses to state
@@ -172,7 +189,7 @@ export class ManageCourseOrderComponent implements OnInit {
                 courseIds,
                 existingPlaylist || undefined,
                 PlaylistType.COURSE
-            ).toPromise()
+            ).pipe(take(1)).toPromise()
 
 
 
@@ -181,7 +198,7 @@ export class ManageCourseOrderComponent implements OnInit {
 
             try {
                 // Search using unique key: orgId + language + role + playlistId
-                const freshPlaylists = await this.playlistApi.searchPlaylist(filters, PlaylistType.COURSE).toPromise()
+                const freshPlaylists = await this.playlistApi.searchPlaylist(filters, PlaylistType.COURSE).pipe(take(1)).toPromise()
                 const freshPlaylist = freshPlaylists && freshPlaylists.length > 0 ? freshPlaylists[0] : null
                 const freshCourseIds = this.playlistApi.extractCourseIds(freshPlaylists || [])
 
@@ -201,7 +218,7 @@ export class ManageCourseOrderComponent implements OnInit {
             })
 
             // Handle Continue button click
-            dialogRef.afterClosed().subscribe(() => {
+            dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
                 this.router.navigate(['/app/home/playlist/filters'])
             })
 
@@ -235,21 +252,13 @@ export class ManageCourseOrderComponent implements OnInit {
             })
 
             // Handle retry
-            errorDialogRef.afterClosed().subscribe((retry: boolean) => {
+            errorDialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe((retry: boolean) => {
                 if (retry) {
                     this.onSave()
                 }
             })
         } finally {
-            this.saving = false
+            this.saving.set(false)
         }
-    }
-
-    /** 
-     * Validates if the playlist is ready to be saved.
-     * Requires at least one selected course and that no save operation is currently in progress.
-     */
-    isSaveEnabled(): boolean {
-        return this.orderedCourses.length > 0 && !this.saving
     }
 }
