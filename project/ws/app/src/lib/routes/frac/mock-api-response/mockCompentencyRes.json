@@ -1,0 +1,1052 @@
+{
+  "id": "api.entity.upload",
+  "ver": "v1",
+  "ts": "2025-11-13T13:22:58.181221Z",
+  "params": {
+    "resmsgid": "116a8850-99b5-4c40-84a3-1f2d929f5074",
+    "msgid": "5593b50f-fec9-461b-8f83-093d74e9b4cd",
+    "status": "SUCCESS",
+    "err": null,
+    "errmsg": null
+  },
+  "responseCode": "OK",
+  "result": {
+    "count": 1,
+    "data": {
+      "entity": [
+        {
+          "id": 331,
+          "type": "competency",
+          "name": "Pregnancy Identification",
+          "description": "Conducts initial assessment to identify pregnancy, High risk pregnancy and estimate gestational age",
+          "additionalProperties": {},
+          "status": "Active",
+          "source": null,
+          "level": "C5013",
+          "levelId": 0,
+          "createdDate": "2025-10-07T00:00:00.000+00:00",
+          "createdBy": "admin",
+          "updatedDate": "2025-10-07T00:00:00.000+00:00",
+          "updatedBy": "admin",
+          "reviewedDate": "2025-10-07T00:00:00.000+00:00",
+          "reviewedBy": "reviewer",
+          "translation": null,
+          "code": "C5013",
+          "children": [
+            {
+              "code": "C5013_L1",
+              "level": "L1",
+              "levelId": 1,
+              "name": "Understands health of males and females",
+              "description": "Understands the anatomy/physiology of male reproductive, sexual health -Understands the female reproductive, sexual, menstrual and ovulatory health -Understands initial assessment protocols for PW during ANC -Understands HRP identification and protocol for tracking",
+              "id": 332,
+              "additionalProperties": {
+                "parentCompetency": "Pregnancy Identification"
+              },
+              "type": "level",
+              "status": "Active"
+            },
+            {
+              "code": "C5013_L2",
+              "level": "L2",
+              "levelId": 2,
+              "name": "Identifies pregnancy using Nischaya Kit",
+              "description": "Conducts pregnancy test using Nischaya kit -Interprets results accurately",
+              "id": 333,
+              "additionalProperties": {
+                "parentCompetency": "Pregnancy Identification"
+              },
+              "type": "level",
+              "status": "Active"
+            },
+            {
+              "code": "C5013_L3",
+              "level": "L3",
+              "levelId": 3,
+              "name": "Conducts initial assessment",
+              "description": "Conducts obstetric investigation of the woman as per protocol -Conducts menstrual history investigation of the woman as per protocol -Understands TD/booster doses",
+              "id": 334,
+              "additionalProperties": {
+                "parentCompetency": "Pregnancy Identification"
+              },
+              "type": "level",
+              "status": "Active"
+            },
+            {
+              "code": "C5013_L4",
+              "level": "L4",
+              "levelId": 4,
+              "name": "Identifies HRP and Estimates gestational age",
+              "description": "Identifies HRP based on initial assessments -Applies the principles to estimate EDD through LMP -Estimates EDD through initial assessment",
+              "id": 335,
+              "additionalProperties": {
+                "parentCompetency": "Pregnancy Identification"
+              },
+              "type": "level",
+              "status": "Active"
+            },
+            {
+              "code": "C5013_L5",
+              "level": "L5",
+              "levelId": 5,
+              "name": "Administers TD/booster as per protocol",
+              "description": "Administers TD/Booster dose as per regime -Assesses the level of risk of pregnancy based on initial assessment -Maintains a line list of HRP cases for follow-up care",
+              "id": 336,
+              "additionalProperties": {
+                "parentCompetency": "Pregnancy Identification"
+              },
+              "type": "level",
+              "status": "Active"
+            }
+          ]
+        },
+        {
+          "id": 331,
+          "type": "competency",
+          "name": "Conducts initial assessment to identify pregnancy",
+          "description": "Conducts initial assessment to identify pregnancy, High risk pregnancy and estimate gestational age",
+          "additionalProperties": {},
+          "status": "Active",
+          "source": null,
+          "level": "C5016",
+          "levelId": 0,
+          "createdDate": "2025-10-07T00:00:00.000+00:00",
+          "createdBy": "admin",
+          "updatedDate": "2025-10-07T00:00:00.000+00:00",
+          "updatedBy": "admin",
+          "reviewedDate": "2025-10-07T00:00:00.000+00:00",
+          "reviewedBy": "reviewer",
+          "translation": null,
+          "code": "C5016",
+          "children": [
+            {
+              "code": "C5016_L1",
+              "level": "L1",
+              "levelId": 1,
+              "name": "Understands health of males and females",
+              "description": "Understands the anatomy/physiology of male reproductive, sexual health -Understands the female reproductive, sexual, menstrual and ovulatory health -Understands initial assessment protocols for PW during ANC -Understands HRP identification and protocol for tracking",
+              "id": 332,
+              "additionalProperties": {
+                "parentCompetency": "Pregnancy Identification"
+              },
+              "type": "level",
+              "status": "Active"
+            },
+            {
+              "code": "C5016_L2",
+              "level": "L2",
+              "levelId": 2,
+              "name": "Identifies pregnancy using Nischaya Kit",
+              "description": "Conducts pregnancy test using Nischaya kit -Interprets results accurately",
+              "id": 333,
+              "additionalProperties": {
+                "parentCompetency": "Pregnancy Identification"
+              },
+              "type": "level",
+              "status": "Active"
+            },
+            {
+              "code": "C5016_L3",
+              "level": "L3",
+              "levelId": 3,
+              "name": "Conducts initial assessment",
+              "description": "Conducts obstetric investigation of the woman as per protocol -Conducts menstrual history investigation of the woman as per protocol -Understands TD/booster doses",
+              "id": 334,
+              "additionalProperties": {
+                "parentCompetency": "Pregnancy Identification"
+              },
+              "type": "level",
+              "status": "Active"
+            },
+            {
+              "code": "C5016_L4",
+              "level": "L4",
+              "levelId": 4,
+              "name": "Identifies HRP and Estimates gestational age",
+              "description": "Identifies HRP based on initial assessments -Applies the principles to estimate EDD through LMP -Estimates EDD through initial assessment",
+              "id": 335,
+              "additionalProperties": {
+                "parentCompetency": "Pregnancy Identification"
+              },
+              "type": "level",
+              "status": "Active"
+            },
+            {
+              "code": "C5016_L5",
+              "level": "L5",
+              "levelId": 5,
+              "name": "Administers TD/booster as per protocol",
+              "description": "Administers TD/Booster dose as per regime -Assesses the level of risk of pregnancy based on initial assessment -Maintains a line list of HRP cases for follow-up care",
+              "id": 336,
+              "additionalProperties": {
+                "parentCompetency": "Pregnancy Identification"
+              },
+              "type": "level",
+              "status": "Active"
+            }
+          ]
+        },
+        {
+          "id": 331,
+          "type": "competency",
+          "name": "Conducts initial assessment to identify pregnancy",
+          "description": "Conducts initial assessment to identify pregnancy, High risk pregnancy and estimate gestational age",
+          "additionalProperties": {},
+          "status": "Active",
+          "source": null,
+          "level": "C5016",
+          "levelId": 0,
+          "createdDate": "2025-10-07T00:00:00.000+00:00",
+          "createdBy": "admin",
+          "updatedDate": "2025-10-07T00:00:00.000+00:00",
+          "updatedBy": "admin",
+          "reviewedDate": "2025-10-07T00:00:00.000+00:00",
+          "reviewedBy": "reviewer",
+          "translation": null,
+          "code": "C5016",
+          "children": [
+            {
+              "code": "C5016_L1",
+              "level": "L1",
+              "levelId": 1,
+              "name": "Understands health of males and females",
+              "description": "Understands the anatomy/physiology of male reproductive, sexual health -Understands the female reproductive, sexual, menstrual and ovulatory health -Understands initial assessment protocols for PW during ANC -Understands HRP identification and protocol for tracking",
+              "id": 332,
+              "additionalProperties": {
+                "parentCompetency": "Pregnancy Identification"
+              },
+              "type": "level",
+              "status": "Active"
+            },
+            {
+              "code": "C5016_L2",
+              "level": "L2",
+              "levelId": 2,
+              "name": "Identifies pregnancy using Nischaya Kit",
+              "description": "Conducts pregnancy test using Nischaya kit -Interprets results accurately",
+              "id": 333,
+              "additionalProperties": {
+                "parentCompetency": "Pregnancy Identification"
+              },
+              "type": "level",
+              "status": "Active"
+            },
+            {
+              "code": "C5016_L3",
+              "level": "L3",
+              "levelId": 3,
+              "name": "Conducts initial assessment",
+              "description": "Conducts obstetric investigation of the woman as per protocol -Conducts menstrual history investigation of the woman as per protocol -Understands TD/booster doses",
+              "id": 334,
+              "additionalProperties": {
+                "parentCompetency": "Pregnancy Identification"
+              },
+              "type": "level",
+              "status": "Active"
+            },
+            {
+              "code": "C5016_L4",
+              "level": "L4",
+              "levelId": 4,
+              "name": "Identifies HRP and Estimates gestational age",
+              "description": "Identifies HRP based on initial assessments -Applies the principles to estimate EDD through LMP -Estimates EDD through initial assessment",
+              "id": 335,
+              "additionalProperties": {
+                "parentCompetency": "Pregnancy Identification"
+              },
+              "type": "level",
+              "status": "Active"
+            },
+            {
+              "code": "C5016_L5",
+              "level": "L5",
+              "levelId": 5,
+              "name": "Administers TD/booster as per protocol",
+              "description": "Administers TD/Booster dose as per regime -Assesses the level of risk of pregnancy based on initial assessment -Maintains a line list of HRP cases for follow-up care",
+              "id": 336,
+              "additionalProperties": {
+                "parentCompetency": "Pregnancy Identification"
+              },
+              "type": "level",
+              "status": "Active"
+            }
+          ]
+        },
+        {
+          "id": 331,
+          "type": "competency",
+          "name": "Conducts initial assessment to identify pregnancy",
+          "description": "Conducts initial assessment to identify pregnancy, High risk pregnancy and estimate gestational age",
+          "additionalProperties": {},
+          "status": "Active",
+          "source": null,
+          "level": "C5016",
+          "levelId": 0,
+          "createdDate": "2025-10-07T00:00:00.000+00:00",
+          "createdBy": "admin",
+          "updatedDate": "2025-10-07T00:00:00.000+00:00",
+          "updatedBy": "admin",
+          "reviewedDate": "2025-10-07T00:00:00.000+00:00",
+          "reviewedBy": "reviewer",
+          "translation": null,
+          "code": "C5016",
+          "children": [
+            {
+              "code": "C5016_L1",
+              "level": "L1",
+              "levelId": 1,
+              "name": "Understands health of males and females",
+              "description": "Understands the anatomy/physiology of male reproductive, sexual health -Understands the female reproductive, sexual, menstrual and ovulatory health -Understands initial assessment protocols for PW during ANC -Understands HRP identification and protocol for tracking",
+              "id": 332,
+              "additionalProperties": {
+                "parentCompetency": "Pregnancy Identification"
+              },
+              "type": "level",
+              "status": "Active"
+            },
+            {
+              "code": "C5016_L2",
+              "level": "L2",
+              "levelId": 2,
+              "name": "Identifies pregnancy using Nischaya Kit",
+              "description": "Conducts pregnancy test using Nischaya kit -Interprets results accurately",
+              "id": 333,
+              "additionalProperties": {
+                "parentCompetency": "Pregnancy Identification"
+              },
+              "type": "level",
+              "status": "Active"
+            },
+            {
+              "code": "C5016_L3",
+              "level": "L3",
+              "levelId": 3,
+              "name": "Conducts initial assessment",
+              "description": "Conducts obstetric investigation of the woman as per protocol -Conducts menstrual history investigation of the woman as per protocol -Understands TD/booster doses",
+              "id": 334,
+              "additionalProperties": {
+                "parentCompetency": "Pregnancy Identification"
+              },
+              "type": "level",
+              "status": "Active"
+            },
+            {
+              "code": "C5016_L4",
+              "level": "L4",
+              "levelId": 4,
+              "name": "Identifies HRP and Estimates gestational age",
+              "description": "Identifies HRP based on initial assessments -Applies the principles to estimate EDD through LMP -Estimates EDD through initial assessment",
+              "id": 335,
+              "additionalProperties": {
+                "parentCompetency": "Pregnancy Identification"
+              },
+              "type": "level",
+              "status": "Active"
+            },
+            {
+              "code": "C5016_L5",
+              "level": "L5",
+              "levelId": 5,
+              "name": "Administers TD/booster as per protocol",
+              "description": "Administers TD/Booster dose as per regime -Assesses the level of risk of pregnancy based on initial assessment -Maintains a line list of HRP cases for follow-up care",
+              "id": 336,
+              "additionalProperties": {
+                "parentCompetency": "Pregnancy Identification"
+              },
+              "type": "level",
+              "status": "Active"
+            }
+          ]
+        },
+        {
+          "id": 331,
+          "type": "competency",
+          "name": "Conducts initial assessment to identify pregnancy",
+          "description": "Conducts initial assessment to identify pregnancy, High risk pregnancy and estimate gestational age",
+          "additionalProperties": {},
+          "status": "Active",
+          "source": null,
+          "level": "C5016",
+          "levelId": 0,
+          "createdDate": "2025-10-07T00:00:00.000+00:00",
+          "createdBy": "admin",
+          "updatedDate": "2025-10-07T00:00:00.000+00:00",
+          "updatedBy": "admin",
+          "reviewedDate": "2025-10-07T00:00:00.000+00:00",
+          "reviewedBy": "reviewer",
+          "translation": null,
+          "code": "C5016",
+          "children": [
+            {
+              "code": "C5016_L1",
+              "level": "L1",
+              "levelId": 1,
+              "name": "Understands health of males and females",
+              "description": "Understands the anatomy/physiology of male reproductive, sexual health -Understands the female reproductive, sexual, menstrual and ovulatory health -Understands initial assessment protocols for PW during ANC -Understands HRP identification and protocol for tracking",
+              "id": 332,
+              "additionalProperties": {
+                "parentCompetency": "Pregnancy Identification"
+              },
+              "type": "level",
+              "status": "Active"
+            },
+            {
+              "code": "C5016_L2",
+              "level": "L2",
+              "levelId": 2,
+              "name": "Identifies pregnancy using Nischaya Kit",
+              "description": "Conducts pregnancy test using Nischaya kit -Interprets results accurately",
+              "id": 333,
+              "additionalProperties": {
+                "parentCompetency": "Pregnancy Identification"
+              },
+              "type": "level",
+              "status": "Active"
+            },
+            {
+              "code": "C5016_L3",
+              "level": "L3",
+              "levelId": 3,
+              "name": "Conducts initial assessment",
+              "description": "Conducts obstetric investigation of the woman as per protocol -Conducts menstrual history investigation of the woman as per protocol -Understands TD/booster doses",
+              "id": 334,
+              "additionalProperties": {
+                "parentCompetency": "Pregnancy Identification"
+              },
+              "type": "level",
+              "status": "Active"
+            },
+            {
+              "code": "C5016_L4",
+              "level": "L4",
+              "levelId": 4,
+              "name": "Identifies HRP and Estimates gestational age",
+              "description": "Identifies HRP based on initial assessments -Applies the principles to estimate EDD through LMP -Estimates EDD through initial assessment",
+              "id": 335,
+              "additionalProperties": {
+                "parentCompetency": "Pregnancy Identification"
+              },
+              "type": "level",
+              "status": "Active"
+            },
+            {
+              "code": "C5016_L5",
+              "level": "L5",
+              "levelId": 5,
+              "name": "Administers TD/booster as per protocol",
+              "description": "Administers TD/Booster dose as per regime -Assesses the level of risk of pregnancy based on initial assessment -Maintains a line list of HRP cases for follow-up care",
+              "id": 336,
+              "additionalProperties": {
+                "parentCompetency": "Pregnancy Identification"
+              },
+              "type": "level",
+              "status": "Active"
+            }
+          ]
+        },
+        {
+          "id": 331,
+          "type": "competency",
+          "name": "Conducts initial assessment to identify pregnancy",
+          "description": "Conducts initial assessment to identify pregnancy, High risk pregnancy and estimate gestational age",
+          "additionalProperties": {},
+          "status": "Active",
+          "source": null,
+          "level": "C5016",
+          "levelId": 0,
+          "createdDate": "2025-10-07T00:00:00.000+00:00",
+          "createdBy": "admin",
+          "updatedDate": "2025-10-07T00:00:00.000+00:00",
+          "updatedBy": "admin",
+          "reviewedDate": "2025-10-07T00:00:00.000+00:00",
+          "reviewedBy": "reviewer",
+          "translation": null,
+          "code": "C5016",
+          "children": [
+            {
+              "code": "C5016_L1",
+              "level": "L1",
+              "levelId": 1,
+              "name": "Understands health of males and females",
+              "description": "Understands the anatomy/physiology of male reproductive, sexual health -Understands the female reproductive, sexual, menstrual and ovulatory health -Understands initial assessment protocols for PW during ANC -Understands HRP identification and protocol for tracking",
+              "id": 332,
+              "additionalProperties": {
+                "parentCompetency": "Pregnancy Identification"
+              },
+              "type": "level",
+              "status": "Active"
+            },
+            {
+              "code": "C5016_L2",
+              "level": "L2",
+              "levelId": 2,
+              "name": "Identifies pregnancy using Nischaya Kit",
+              "description": "Conducts pregnancy test using Nischaya kit -Interprets results accurately",
+              "id": 333,
+              "additionalProperties": {
+                "parentCompetency": "Pregnancy Identification"
+              },
+              "type": "level",
+              "status": "Active"
+            },
+            {
+              "code": "C5016_L3",
+              "level": "L3",
+              "levelId": 3,
+              "name": "Conducts initial assessment",
+              "description": "Conducts obstetric investigation of the woman as per protocol -Conducts menstrual history investigation of the woman as per protocol -Understands TD/booster doses",
+              "id": 334,
+              "additionalProperties": {
+                "parentCompetency": "Pregnancy Identification"
+              },
+              "type": "level",
+              "status": "Active"
+            },
+            {
+              "code": "C5016_L4",
+              "level": "L4",
+              "levelId": 4,
+              "name": "Identifies HRP and Estimates gestational age",
+              "description": "Identifies HRP based on initial assessments -Applies the principles to estimate EDD through LMP -Estimates EDD through initial assessment",
+              "id": 335,
+              "additionalProperties": {
+                "parentCompetency": "Pregnancy Identification"
+              },
+              "type": "level",
+              "status": "Active"
+            },
+            {
+              "code": "C5016_L5",
+              "level": "L5",
+              "levelId": 5,
+              "name": "Administers TD/booster as per protocol",
+              "description": "Administers TD/Booster dose as per regime -Assesses the level of risk of pregnancy based on initial assessment -Maintains a line list of HRP cases for follow-up care",
+              "id": 336,
+              "additionalProperties": {
+                "parentCompetency": "Pregnancy Identification"
+              },
+              "type": "level",
+              "status": "Active"
+            }
+          ]
+        },
+        {
+          "id": 331,
+          "type": "competency",
+          "name": "Conducts initial assessment to identify pregnancy",
+          "description": "Conducts initial assessment to identify pregnancy, High risk pregnancy and estimate gestational age",
+          "additionalProperties": {},
+          "status": "Active",
+          "source": null,
+          "level": "C5016",
+          "levelId": 0,
+          "createdDate": "2025-10-07T00:00:00.000+00:00",
+          "createdBy": "admin",
+          "updatedDate": "2025-10-07T00:00:00.000+00:00",
+          "updatedBy": "admin",
+          "reviewedDate": "2025-10-07T00:00:00.000+00:00",
+          "reviewedBy": "reviewer",
+          "translation": null,
+          "code": "C5016",
+          "children": [
+            {
+              "code": "C5016_L1",
+              "level": "L1",
+              "levelId": 1,
+              "name": "Understands health of males and females",
+              "description": "Understands the anatomy/physiology of male reproductive, sexual health -Understands the female reproductive, sexual, menstrual and ovulatory health -Understands initial assessment protocols for PW during ANC -Understands HRP identification and protocol for tracking",
+              "id": 332,
+              "additionalProperties": {
+                "parentCompetency": "Pregnancy Identification"
+              },
+              "type": "level",
+              "status": "Active"
+            },
+            {
+              "code": "C5016_L2",
+              "level": "L2",
+              "levelId": 2,
+              "name": "Identifies pregnancy using Nischaya Kit",
+              "description": "Conducts pregnancy test using Nischaya kit -Interprets results accurately",
+              "id": 333,
+              "additionalProperties": {
+                "parentCompetency": "Pregnancy Identification"
+              },
+              "type": "level",
+              "status": "Active"
+            },
+            {
+              "code": "C5016_L3",
+              "level": "L3",
+              "levelId": 3,
+              "name": "Conducts initial assessment",
+              "description": "Conducts obstetric investigation of the woman as per protocol -Conducts menstrual history investigation of the woman as per protocol -Understands TD/booster doses",
+              "id": 334,
+              "additionalProperties": {
+                "parentCompetency": "Pregnancy Identification"
+              },
+              "type": "level",
+              "status": "Active"
+            },
+            {
+              "code": "C5016_L4",
+              "level": "L4",
+              "levelId": 4,
+              "name": "Identifies HRP and Estimates gestational age",
+              "description": "Identifies HRP based on initial assessments -Applies the principles to estimate EDD through LMP -Estimates EDD through initial assessment",
+              "id": 335,
+              "additionalProperties": {
+                "parentCompetency": "Pregnancy Identification"
+              },
+              "type": "level",
+              "status": "Active"
+            },
+            {
+              "code": "C5016_L5",
+              "level": "L5",
+              "levelId": 5,
+              "name": "Administers TD/booster as per protocol",
+              "description": "Administers TD/Booster dose as per regime -Assesses the level of risk of pregnancy based on initial assessment -Maintains a line list of HRP cases for follow-up care",
+              "id": 336,
+              "additionalProperties": {
+                "parentCompetency": "Pregnancy Identification"
+              },
+              "type": "level",
+              "status": "Active"
+            }
+          ]
+        },
+        {
+          "id": 331,
+          "type": "competency",
+          "name": "Conducts initial assessment to identify pregnancy",
+          "description": "Conducts initial assessment to identify pregnancy, High risk pregnancy and estimate gestational age",
+          "additionalProperties": {},
+          "status": "Active",
+          "source": null,
+          "level": "C5016",
+          "levelId": 0,
+          "createdDate": "2025-10-07T00:00:00.000+00:00",
+          "createdBy": "admin",
+          "updatedDate": "2025-10-07T00:00:00.000+00:00",
+          "updatedBy": "admin",
+          "reviewedDate": "2025-10-07T00:00:00.000+00:00",
+          "reviewedBy": "reviewer",
+          "translation": null,
+          "code": "C5016",
+          "children": [
+            {
+              "code": "C5016_L1",
+              "level": "L1",
+              "levelId": 1,
+              "name": "Understands health of males and females",
+              "description": "Understands the anatomy/physiology of male reproductive, sexual health -Understands the female reproductive, sexual, menstrual and ovulatory health -Understands initial assessment protocols for PW during ANC -Understands HRP identification and protocol for tracking",
+              "id": 332,
+              "additionalProperties": {
+                "parentCompetency": "Pregnancy Identification"
+              },
+              "type": "level",
+              "status": "Active"
+            },
+            {
+              "code": "C5016_L2",
+              "level": "L2",
+              "levelId": 2,
+              "name": "Identifies pregnancy using Nischaya Kit",
+              "description": "Conducts pregnancy test using Nischaya kit -Interprets results accurately",
+              "id": 333,
+              "additionalProperties": {
+                "parentCompetency": "Pregnancy Identification"
+              },
+              "type": "level",
+              "status": "Active"
+            },
+            {
+              "code": "C5016_L3",
+              "level": "L3",
+              "levelId": 3,
+              "name": "Conducts initial assessment",
+              "description": "Conducts obstetric investigation of the woman as per protocol -Conducts menstrual history investigation of the woman as per protocol -Understands TD/booster doses",
+              "id": 334,
+              "additionalProperties": {
+                "parentCompetency": "Pregnancy Identification"
+              },
+              "type": "level",
+              "status": "Active"
+            },
+            {
+              "code": "C5016_L4",
+              "level": "L4",
+              "levelId": 4,
+              "name": "Identifies HRP and Estimates gestational age",
+              "description": "Identifies HRP based on initial assessments -Applies the principles to estimate EDD through LMP -Estimates EDD through initial assessment",
+              "id": 335,
+              "additionalProperties": {
+                "parentCompetency": "Pregnancy Identification"
+              },
+              "type": "level",
+              "status": "Active"
+            },
+            {
+              "code": "C5016_L5",
+              "level": "L5",
+              "levelId": 5,
+              "name": "Administers TD/booster as per protocol",
+              "description": "Administers TD/Booster dose as per regime -Assesses the level of risk of pregnancy based on initial assessment -Maintains a line list of HRP cases for follow-up care",
+              "id": 336,
+              "additionalProperties": {
+                "parentCompetency": "Pregnancy Identification"
+              },
+              "type": "level",
+              "status": "Active"
+            }
+          ]
+        },
+        {
+          "id": 331,
+          "type": "competency",
+          "name": "Conducts initial assessment to identify pregnancy",
+          "description": "Conducts initial assessment to identify pregnancy, High risk pregnancy and estimate gestational age",
+          "additionalProperties": {},
+          "status": "Active",
+          "source": null,
+          "level": "C5016",
+          "levelId": 0,
+          "createdDate": "2025-10-07T00:00:00.000+00:00",
+          "createdBy": "admin",
+          "updatedDate": "2025-10-07T00:00:00.000+00:00",
+          "updatedBy": "admin",
+          "reviewedDate": "2025-10-07T00:00:00.000+00:00",
+          "reviewedBy": "reviewer",
+          "translation": null,
+          "code": "C5016",
+          "children": [
+            {
+              "code": "C5016_L1",
+              "level": "L1",
+              "levelId": 1,
+              "name": "Understands health of males and females",
+              "description": "Understands the anatomy/physiology of male reproductive, sexual health -Understands the female reproductive, sexual, menstrual and ovulatory health -Understands initial assessment protocols for PW during ANC -Understands HRP identification and protocol for tracking",
+              "id": 332,
+              "additionalProperties": {
+                "parentCompetency": "Pregnancy Identification"
+              },
+              "type": "level",
+              "status": "Active"
+            },
+            {
+              "code": "C5016_L2",
+              "level": "L2",
+              "levelId": 2,
+              "name": "Identifies pregnancy using Nischaya Kit",
+              "description": "Conducts pregnancy test using Nischaya kit -Interprets results accurately",
+              "id": 333,
+              "additionalProperties": {
+                "parentCompetency": "Pregnancy Identification"
+              },
+              "type": "level",
+              "status": "Active"
+            },
+            {
+              "code": "C5016_L3",
+              "level": "L3",
+              "levelId": 3,
+              "name": "Conducts initial assessment",
+              "description": "Conducts obstetric investigation of the woman as per protocol -Conducts menstrual history investigation of the woman as per protocol -Understands TD/booster doses",
+              "id": 334,
+              "additionalProperties": {
+                "parentCompetency": "Pregnancy Identification"
+              },
+              "type": "level",
+              "status": "Active"
+            },
+            {
+              "code": "C5016_L4",
+              "level": "L4",
+              "levelId": 4,
+              "name": "Identifies HRP and Estimates gestational age",
+              "description": "Identifies HRP based on initial assessments -Applies the principles to estimate EDD through LMP -Estimates EDD through initial assessment",
+              "id": 335,
+              "additionalProperties": {
+                "parentCompetency": "Pregnancy Identification"
+              },
+              "type": "level",
+              "status": "Active"
+            },
+            {
+              "code": "C5016_L5",
+              "level": "L5",
+              "levelId": 5,
+              "name": "Administers TD/booster as per protocol",
+              "description": "Administers TD/Booster dose as per regime -Assesses the level of risk of pregnancy based on initial assessment -Maintains a line list of HRP cases for follow-up care",
+              "id": 336,
+              "additionalProperties": {
+                "parentCompetency": "Pregnancy Identification"
+              },
+              "type": "level",
+              "status": "Active"
+            }
+          ]
+        },
+        {
+          "id": 331,
+          "type": "competency",
+          "name": "Conducts initial assessment to identify pregnancy",
+          "description": "Conducts initial assessment to identify pregnancy, High risk pregnancy and estimate gestational age",
+          "additionalProperties": {},
+          "status": "Active",
+          "source": null,
+          "level": "C5016",
+          "levelId": 0,
+          "createdDate": "2025-10-07T00:00:00.000+00:00",
+          "createdBy": "admin",
+          "updatedDate": "2025-10-07T00:00:00.000+00:00",
+          "updatedBy": "admin",
+          "reviewedDate": "2025-10-07T00:00:00.000+00:00",
+          "reviewedBy": "reviewer",
+          "translation": null,
+          "code": "C5016",
+          "children": [
+            {
+              "code": "C5016_L1",
+              "level": "L1",
+              "levelId": 1,
+              "name": "Understands health of males and females",
+              "description": "Understands the anatomy/physiology of male reproductive, sexual health -Understands the female reproductive, sexual, menstrual and ovulatory health -Understands initial assessment protocols for PW during ANC -Understands HRP identification and protocol for tracking",
+              "id": 332,
+              "additionalProperties": {
+                "parentCompetency": "Pregnancy Identification"
+              },
+              "type": "level",
+              "status": "Active"
+            },
+            {
+              "code": "C5016_L2",
+              "level": "L2",
+              "levelId": 2,
+              "name": "Identifies pregnancy using Nischaya Kit",
+              "description": "Conducts pregnancy test using Nischaya kit -Interprets results accurately",
+              "id": 333,
+              "additionalProperties": {
+                "parentCompetency": "Pregnancy Identification"
+              },
+              "type": "level",
+              "status": "Active"
+            },
+            {
+              "code": "C5016_L3",
+              "level": "L3",
+              "levelId": 3,
+              "name": "Conducts initial assessment",
+              "description": "Conducts obstetric investigation of the woman as per protocol -Conducts menstrual history investigation of the woman as per protocol -Understands TD/booster doses",
+              "id": 334,
+              "additionalProperties": {
+                "parentCompetency": "Pregnancy Identification"
+              },
+              "type": "level",
+              "status": "Active"
+            },
+            {
+              "code": "C5016_L4",
+              "level": "L4",
+              "levelId": 4,
+              "name": "Identifies HRP and Estimates gestational age",
+              "description": "Identifies HRP based on initial assessments -Applies the principles to estimate EDD through LMP -Estimates EDD through initial assessment",
+              "id": 335,
+              "additionalProperties": {
+                "parentCompetency": "Pregnancy Identification"
+              },
+              "type": "level",
+              "status": "Active"
+            },
+            {
+              "code": "C5016_L5",
+              "level": "L5",
+              "levelId": 5,
+              "name": "Administers TD/booster as per protocol",
+              "description": "Administers TD/Booster dose as per regime -Assesses the level of risk of pregnancy based on initial assessment -Maintains a line list of HRP cases for follow-up care",
+              "id": 336,
+              "additionalProperties": {
+                "parentCompetency": "Pregnancy Identification"
+              },
+              "type": "level",
+              "status": "Active"
+            }
+          ]
+        },
+        {
+          "id": 331,
+          "type": "competency",
+          "name": "Conducts initial assessment to identify pregnancy",
+          "description": "Conducts initial assessment to identify pregnancy, High risk pregnancy and estimate gestational age",
+          "additionalProperties": {},
+          "status": "Active",
+          "source": null,
+          "level": "C5016",
+          "levelId": 0,
+          "createdDate": "2025-10-07T00:00:00.000+00:00",
+          "createdBy": "admin",
+          "updatedDate": "2025-10-07T00:00:00.000+00:00",
+          "updatedBy": "admin",
+          "reviewedDate": "2025-10-07T00:00:00.000+00:00",
+          "reviewedBy": "reviewer",
+          "translation": null,
+          "code": "C5016",
+          "children": [
+            {
+              "code": "C5016_L1",
+              "level": "L1",
+              "levelId": 1,
+              "name": "Understands health of males and females",
+              "description": "Understands the anatomy/physiology of male reproductive, sexual health -Understands the female reproductive, sexual, menstrual and ovulatory health -Understands initial assessment protocols for PW during ANC -Understands HRP identification and protocol for tracking",
+              "id": 332,
+              "additionalProperties": {
+                "parentCompetency": "Pregnancy Identification"
+              },
+              "type": "level",
+              "status": "Active"
+            },
+            {
+              "code": "C5016_L2",
+              "level": "L2",
+              "levelId": 2,
+              "name": "Identifies pregnancy using Nischaya Kit",
+              "description": "Conducts pregnancy test using Nischaya kit -Interprets results accurately",
+              "id": 333,
+              "additionalProperties": {
+                "parentCompetency": "Pregnancy Identification"
+              },
+              "type": "level",
+              "status": "Active"
+            },
+            {
+              "code": "C5016_L3",
+              "level": "L3",
+              "levelId": 3,
+              "name": "Conducts initial assessment",
+              "description": "Conducts obstetric investigation of the woman as per protocol -Conducts menstrual history investigation of the woman as per protocol -Understands TD/booster doses",
+              "id": 334,
+              "additionalProperties": {
+                "parentCompetency": "Pregnancy Identification"
+              },
+              "type": "level",
+              "status": "Active"
+            },
+            {
+              "code": "C5016_L4",
+              "level": "L4",
+              "levelId": 4,
+              "name": "Identifies HRP and Estimates gestational age",
+              "description": "Identifies HRP based on initial assessments -Applies the principles to estimate EDD through LMP -Estimates EDD through initial assessment",
+              "id": 335,
+              "additionalProperties": {
+                "parentCompetency": "Pregnancy Identification"
+              },
+              "type": "level",
+              "status": "Active"
+            },
+            {
+              "code": "C5016_L5",
+              "level": "L5",
+              "levelId": 5,
+              "name": "Administers TD/booster as per protocol",
+              "description": "Administers TD/Booster dose as per regime -Assesses the level of risk of pregnancy based on initial assessment -Maintains a line list of HRP cases for follow-up care",
+              "id": 336,
+              "additionalProperties": {
+                "parentCompetency": "Pregnancy Identification"
+              },
+              "type": "level",
+              "status": "Active"
+            }
+          ]
+        },
+        {
+          "id": 331,
+          "type": "competency",
+          "name": "Conducts initial assessment to identify pregnancy",
+          "description": "Conducts initial assessment to identify pregnancy, High risk pregnancy and estimate gestational age",
+          "additionalProperties": {},
+          "status": "Active",
+          "source": null,
+          "level": "C5016",
+          "levelId": 0,
+          "createdDate": "2025-10-07T00:00:00.000+00:00",
+          "createdBy": "admin",
+          "updatedDate": "2025-10-07T00:00:00.000+00:00",
+          "updatedBy": "admin",
+          "reviewedDate": "2025-10-07T00:00:00.000+00:00",
+          "reviewedBy": "reviewer",
+          "translation": null,
+          "code": "C5016",
+          "children": [
+            {
+              "code": "C5016_L1",
+              "level": "L1",
+              "levelId": 1,
+              "name": "Understands health of males and females",
+              "description": "Understands the anatomy/physiology of male reproductive, sexual health -Understands the female reproductive, sexual, menstrual and ovulatory health -Understands initial assessment protocols for PW during ANC -Understands HRP identification and protocol for tracking",
+              "id": 332,
+              "additionalProperties": {
+                "parentCompetency": "Pregnancy Identification"
+              },
+              "type": "level",
+              "status": "Active"
+            },
+            {
+              "code": "C5016_L2",
+              "level": "L2",
+              "levelId": 2,
+              "name": "Identifies pregnancy using Nischaya Kit",
+              "description": "Conducts pregnancy test using Nischaya kit -Interprets results accurately",
+              "id": 333,
+              "additionalProperties": {
+                "parentCompetency": "Pregnancy Identification"
+              },
+              "type": "level",
+              "status": "Active"
+            },
+            {
+              "code": "C5016_L3",
+              "level": "L3",
+              "levelId": 3,
+              "name": "Conducts initial assessment",
+              "description": "Conducts obstetric investigation of the woman as per protocol -Conducts menstrual history investigation of the woman as per protocol -Understands TD/booster doses",
+              "id": 334,
+              "additionalProperties": {
+                "parentCompetency": "Pregnancy Identification"
+              },
+              "type": "level",
+              "status": "Active"
+            },
+            {
+              "code": "C5016_L4",
+              "level": "L4",
+              "levelId": 4,
+              "name": "Identifies HRP and Estimates gestational age",
+              "description": "Identifies HRP based on initial assessments -Applies the principles to estimate EDD through LMP -Estimates EDD through initial assessment",
+              "id": 335,
+              "additionalProperties": {
+                "parentCompetency": "Pregnancy Identification"
+              },
+              "type": "level",
+              "status": "Active"
+            },
+            {
+              "code": "C5016_L5",
+              "level": "L5",
+              "levelId": 5,
+              "name": "Administers TD/booster as per protocol",
+              "description": "Administers TD/Booster dose as per regime -Assesses the level of risk of pregnancy based on initial assessment -Maintains a line list of HRP cases for follow-up care",
+              "id": 336,
+              "additionalProperties": {
+                "parentCompetency": "Pregnancy Identification"
+              },
+              "type": "level",
+              "status": "Active"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

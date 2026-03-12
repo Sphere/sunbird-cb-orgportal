@@ -1,0 +1,341 @@
+/* -------------------------------
+   MAIN WRAPPER
+--------------------------------*/
+.competency-wrapper {
+  width: 100%;
+  height: 556px;
+  border-radius: 16px;
+  outline: 1px solid #E1DFDF;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* -------------------------------
+   SCROLL AREA
+--------------------------------*/
+.horizontal-scroll {
+  width: 100%;
+  height: 100%;
+  overflow-x: auto;
+  overflow-y: auto;
+}
+
+.grid-container {
+  display: flex;
+  flex-direction: column;
+  width: max-content;
+  min-width: 100%;
+  height: 100%;
+}
+
+/* -------------------------------
+   GRID LAYOUT
+--------------------------------*/
+.grid-row {
+  display: grid;
+  grid-template-columns:
+    minmax(240px, 360px)
+    repeat(var(--level-count), minmax(60px, 134px));
+  align-items: center;
+}
+
+/* -------------------------------
+   HEADER BAR
+--------------------------------*/
+.header-bar {
+  height: 40px;
+  background: #DFEDF9;
+  padding: 12px 16px;
+  border-radius: 16px 16px 0 0;
+
+  .cell {
+    font-family: Roboto, sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    font-size: 14px;
+    line-height: 100%;
+    letter-spacing: 0%;
+    text-align: center;
+    padding: 0 12px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    // border-right: 1px solid #9ab3d0;
+  }
+
+  .label-cell {
+    text-align: left;
+    justify-content: flex-start;
+    padding-left: 12px;
+    // border-right: 1px solid #9ab3d0;
+  }
+
+  .level-cell {
+    text-align: center;
+    justify-content: center;
+  }
+
+  .level-cell:last-child {
+    border-right: none;
+  }
+}
+
+/* -------------------------------
+   SEARCH BOX
+--------------------------------*/
+.search-row {
+  display: flex;
+  align-items: center;
+  padding: 10px 24px;
+  gap: 0;
+
+
+  .search-box {
+    flex: 1;
+    height: 45px;
+    padding: 0 12px;
+    background: #fff;
+    border-radius: 6px;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+
+    input {
+      flex: 1;
+      font-size: 14px;
+      border: none;
+      outline: none;
+    }
+
+    mat-icon {
+      cursor: pointer;
+    }
+  }
+}
+
+/* -------------------------------
+   TABLE AREA
+--------------------------------*/
+.table-area {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  border-top: 1px solid #DBDBDB;
+
+  .data-row {
+    padding: 0px 24px;
+    border-bottom: 1px solid #DBDBDB;
+
+    .cell {
+      padding: 12px 0px;
+      border-right: 1px solid #dbdbdb;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .cell:last-child {
+      border-right: none;
+    }
+
+    .label-cell {
+      justify-content: flex-start;
+      // padding-left: 12px;
+      border-right: 1px solid #dbdbdb;
+
+      .text {
+        font-family: Roboto, sans-serif;
+        font-weight: 400;
+        font-style: normal;
+        font-size: 16px;
+        line-height: 1.4;
+        letter-spacing: 0%;
+        color: #000000;
+      }
+    }
+
+    .checkbox-cell {
+      justify-content: center;
+    }
+  }
+  }
+
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0;
+  height: 52px;
+}
+
+.title-bar {
+  font-size: 20px;
+  font-family: 'Roboto', sans-serif;
+  font-weight: 400;
+  color: black;
+}
+
+.button-group {
+  display: flex;
+  gap: 12px;
+}
+
+/* -------------------------------
+   BUTTONS
+--------------------------------*/
+.app-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 32px !important;
+  border-radius: 50px !important;
+  font-size: 14px;
+  text-transform: none;
+  cursor: pointer;
+
+  &.primary {
+    background: #1c5d95 !important;
+    color: #fff !important;
+    border: 1px solid #1c5d95 !important;
+    box-shadow: none !important;
+
+    &:hover {
+      background: #174e80 !important;
+    }
+  }
+
+  &.secondary {
+    background: #fff;
+    color: #1c5d95;
+    border: 1px solid #1c5d95 !important;
+
+    &:hover {
+      background: #e9f3fb;
+    }
+  }
+    &:disabled {
+    background: #fcf9f4 !important;   /* Beige background */
+    border-color: #808080 !important; /* Grey border */
+    color: #808080 !important;        /* Grey text */
+    cursor: not-allowed !important;
+    box-shadow: none !important;
+  }
+}
+
+/* -------------------------------
+   CHECKBOX CUSTOM STYLES
+--------------------------------*/
+::ng-deep .mat-mdc-checkbox .mdc-checkbox__background {
+  background: white !important;
+  border-color: #404040 !important;
+  border-radius: 5px !important;
+}
+
+::ng-deep .mat-mdc-checkbox.mat-mdc-checkbox-checked .mdc-checkbox__background {
+  background: #1C5D95 !important;
+  border-color: #1C5D95 !important;
+}
+
+::ng-deep .mat-mdc-checkbox .mdc-checkbox__checkmark-path {
+  stroke: #F3F4F4 !important;
+}
+
+::ng-deep .mat-mdc-checkbox:hover .mdc-checkbox__background {
+  border-color: #404040 !important;
+}
+
+::ng-deep .mat-mdc-checkbox.mat-mdc-checkbox--disabled .mdc-checkbox__background {
+  background: #F3F4F4 !important;
+  border-color: #404040 !important;
+}
+
+/* -------------------------------
+   EMPTY STATE
+--------------------------------*/
+.no-data {
+  height: 85%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-state-card {
+  width: min(420px, 92%);
+  border: 1px dashed #c7d9ec;
+  border-radius: 16px;
+  background: #f8fbff;
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+}
+
+.icon-shell {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #e7f1fb;
+  border: 1px solid #cfe0f2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-state-icon {
+  color: #1c5d95;
+  font-size: 22px;
+  width: 22px;
+  height: 22px;
+}
+
+.empty-state-title {
+  color: #222;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.empty-state-message {
+  color: #4d5a6a;
+  font-size: 14px;
+}
+
+.shimmer-row .cell {
+  min-height: 44px;
+}
+
+.shimmer-box {
+  height: 16px;
+  border-radius: 8px;
+  background: linear-gradient(90deg, #e9eff6 25%, #dfe8f3 37%, #e9eff6 63%);
+  background-size: 400% 100%;
+  animation: shimmer 1.2s ease-in-out infinite;
+}
+
+.shimmer-box.text {
+  width: 80%;
+}
+
+.shimmer-box.checkbox {
+  width: 18px;
+  height: 18px;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+.competency-mapping-table {
+  min-height: 600px;
+  height: 100%;
+}

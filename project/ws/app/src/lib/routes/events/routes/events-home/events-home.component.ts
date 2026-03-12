@@ -61,7 +61,7 @@ export class EventsHomeComponent implements OnInit, AfterViewInit, OnDestroy {
         if (this.activeRoute.snapshot.data.pageData.data) {
           const leftData = this.activeRoute.snapshot.data.pageData.data.menus
           _.set(leftData, 'widgetData.logo', true)
-          _.set(leftData, 'widgetData.logoPath', '/assets/instances/eagle/app_logos/aastar-source.png')
+          _.set(leftData, 'widgetData.logoPath', 'https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/icons/aastrika_menu_logo.svg')
           _.set(leftData, 'widgetData.name', _.get(this.activeRoute, 'snapshot.data.pageData.data.deptName'))
           _.set(leftData, 'widgetData.userRoles', this.myRoles)
           this.widgetData = leftData

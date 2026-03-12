@@ -491,3 +491,6 @@ textarea {
   height: 30px;
   width: 30px
 }
+:host ::ng-deep img.img.rounded {
+  border: 0 !important;
+}

@@ -1,0 +1,266 @@
+.position-mapping-list {
+  min-height: 600px;
+  height: 100%;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0;
+  height: 52px;
+}
+
+.title-header {
+  font-size: 20px;
+  font-family: Roboto, sans-serif;
+  font-weight: 400;
+  color: black;
+}
+
+/* main card */
+.role-container {
+  width: 100%;
+  height: 556px;
+  background: #fff;
+  border-radius: 16px;
+  outline: 1px solid #e1dfdf;
+  position: relative;
+}
+
+.title-bar {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 40px;
+  padding: 12px 16px;
+  background: #DFEDF9;
+  border-radius: 16px 16px 0 0;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: Roboto, sans-serif;
+  color: black;
+}
+
+.scroll-area {
+  position: absolute;
+  top: 56px;
+  left: 16px;
+  right: 16px;
+  bottom: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 0 0 16px 0;
+}
+
+/* search box */
+.search-row {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: #fff;
+  padding-right: 4px;
+  padding-bottom: 8px;
+  margin-bottom: 4px;
+  box-shadow: 0 1px 0 #e8edf4;
+}
+
+.shadow-wrapper {
+  padding: 4px;
+  border-radius: 6px;
+}
+
+.search-box {
+  height: 45px;
+  background: #fff;
+  border-radius: 6px;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.15);
+
+  input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 14px;
+    color: #000;
+    font-family: Roboto, sans-serif;
+  }
+
+  mat-icon {
+    color: #272727;
+  }
+}
+
+.role-item {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.expanded-card {
+  background: #f3f8fd;
+  border-radius: 16px;
+  padding: 24px;
+  margin-top: 4px;
+  border: 1px solid transparent;
+  box-shadow: none;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.header-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.exp-code {
+  font-size: 20px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.exp-title {
+  font-family: Roboto, sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 14px;
+  line-height: 1.4;
+  letter-spacing: 0%;
+  color: #000;
+  flex: 1;
+  min-width: 200px;
+}
+
+.position-section {
+  margin-top: 16px;
+}
+
+.position-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+
+  .pill {
+    width: 100%;
+    background: #e3effa;
+    border-radius: 8px;
+    padding: 10px;
+    word-wrap: break-word;
+    justify-content: normal;
+    // margin-left: 60px;
+  }
+
+  .position-label {
+    color: #1c5d95;
+    font-size: 14px;
+    font-family: Roboto, sans-serif;
+  }
+}
+
+.no-data {
+  height: 85%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.empty-state-card {
+  width: min(360px, 92%);
+  border: 1px dashed #c7d9ec;
+  border-radius: 16px;
+  background: #f8fbff;
+  padding: 22px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+}
+
+.icon-shell {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #e7f1fb;
+  border: 1px solid #cfe0f2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-state-icon {
+  color: #1c5d95;
+  font-size: 22px;
+  width: 22px;
+  height: 22px;
+}
+
+.empty-state-title {
+  font-size: 18px;
+  font-weight: 500;
+  color: #222;
+}
+
+.empty-state-message {
+  color: #4d5a6a;
+  font-size: 14px;
+}
+
+.selected {
+  background: transparent;
+  border-radius: 16px;
+
+  .expanded-card {
+    border-color: #1c5c95;
+    outline: 1px solid #1c5c95;
+    outline-offset: -1px;
+  }
+}
+
+/* scrollbar styling */
+.scroll-area::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scroll-area::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scroll-area::-webkit-scrollbar-thumb {
+  background-color: #bfbfbf;
+  border-radius: 3px;
+}
+
+.shimmer-item .expanded-card {
+  display: grid;
+}
+
+.shimmer-line {
+  height: 14px;
+  border-radius: 8px;
+  background: linear-gradient(90deg, #e9eff6 25%, #dfe8f3 37%, #e9eff6 63%);
+  background-size: 400% 100%;
+  animation: shimmer 1.2s ease-in-out infinite;
+}
+
+.shimmer-line.title {
+  width: 75%;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}

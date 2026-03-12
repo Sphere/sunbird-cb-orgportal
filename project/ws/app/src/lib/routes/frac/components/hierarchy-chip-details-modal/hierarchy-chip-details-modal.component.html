@@ -1,0 +1,22 @@
+<div class="hierarchy-chip-details-modal">
+  <div class="modal-header">
+    <h2 class="title">{{ title }}</h2>
+    <button type="button" class="close-btn" aria-label="Close dialog" (click)="onClose()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div class="modal-body" *ngIf="data.items?.length; else noDataBlock">
+    <div class="entity-line" *ngFor="let item of data.items">
+      {{ formatItem(item) }}
+    </div>
+  </div>
+
+  <ng-template #noDataBlock>
+    <div class="empty-state">{{ emptyLabel }}</div>
+  </ng-template>
+
+  <div class="modal-footer">
+    <button type="button" mat-flat-button class="ok-btn" (click)="onClose()">Close</button>
+  </div>
+</div>

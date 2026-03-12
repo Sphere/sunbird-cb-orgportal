@@ -1,0 +1,11 @@
+<div class="snackbar" [class.visible]="visible" [class.success]="type === 'success'" [class.error]="type === 'error'"
+  [class.warning]="type === 'warning'">
+
+  <div class="icon">
+    <mat-icon *ngIf="type === 'success'">check_circle</mat-icon>
+    <mat-icon *ngIf="type === 'error'">error</mat-icon>
+    <mat-icon *ngIf="type === 'warning'">error</mat-icon>
+  </div>
+
+  <div class="message">{{ message }}</div>
+</div>

@@ -11,10 +11,8 @@
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
     "importHelpers": true,
-    "lib": [
-      "es2018",
-      "dom"
-    ],
+    "resolveJsonModule": true,
+    "lib": ["es2018", "dom"],
     "module": "es2020",
     "moduleResolution": "node",
     "noFallthroughCasesInSwitch": true,
@@ -25,12 +23,8 @@
     "noUnusedParameters": true,
     "outDir": "./dist/out-tsc",
     "paths": {
-      "@ws/app": [
-        "project/ws/app"
-      ],
-      "@ws/app/*": [
-        "project/ws/app/*"
-      ]
+      "@ws/app": ["project/ws/app"],
+      "@ws/app/*": ["project/ws/app/*"]
     },
     "removeComments": true,
     "sourceMap": true,
@@ -40,10 +34,7 @@
     "strictNullChecks": true,
     "strictPropertyInitialization": true,
     "target": "ES2022",
-    "typeRoots": [
-      "node_modules/@types",
-      "./custom_typings"
-    ],
+    "typeRoots": ["node_modules/@types", "./custom_typings"],
     "plugins": [
       {
         "name": "@angular/language-service"

@@ -55,7 +55,8 @@ export class AppInterceptorService implements HttpInterceptor {
                 break
             }
           }
-          return throwError('error')
+          // Preserve original HttpErrorResponse so callers can read status/body details.
+          return throwError(error)
         })
       )
     }

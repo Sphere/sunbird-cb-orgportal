@@ -1,0 +1,127 @@
+<!-- Top Navigation Bar -->
+<div class="header-container">
+  <button class="back-nav-btn" type="button" (click)="onHomeClick()" aria-label="Back to home">
+    <mat-icon>arrow_back</mat-icon>
+    <span>Back</span>
+  </button>
+
+  <button class="save-btn" (click)="onSaveClicked()" *ngIf="routeMode === 'manage'"
+    [disabled]="!isEditing || !hasTableData() || isUpdating || !hasPendingTableChanges()">
+    <mat-spinner *ngIf="isUpdating" class="btn-spinner" [diameter]="16" [strokeWidth]="2"></mat-spinner>
+    <span style="color: white;">{{ isUpdating ? uiConfig.labels.saving : uiConfig.labels.save }}</span>
+  </button>
+</div>
+
+<!-- Main Content -->
+<div class="upload-container">
+  <div class="header">
+    <h2>{{ routeMode === 'manage' ? uiConfig.labels.manageRole : uiConfig.labels.uploadRole }}</h2>
+  </div>
+
+  <!-- Sub Header -->
+  <div class="sub-header">
+    <span>{{ routeMode === 'manage' ? uiConfig.labels.manageRoleSub : uiConfig.labels.uploadRoleSub }}</span>
+  </div>
+
+  <!-- Toolbar: Search, Language, Buttons -->
+  <div class="toolbar">
+    <!-- Left Tools: Search & Language Filter -->
+    <div class="left-tools">
+      <!-- Search Box -->
+      <div class="search-box" [class.disabled]="isFilterControlsDisabled()" *ngIf="routeMode === 'manage'">
+        <input matInput type="text" [placeholder]="uiConfig.labels.searchPlaceholder" [(ngModel)]="searchTerm"
+          [disabled]="isFilterControlsDisabled()" (input)="onSearchTermChange()" (keydown.enter)="onSearchEnter()" />
+        <button mat-icon-button matSuffix class="icon-btn" (click)="onSearch()" [disabled]="isFilterControlsDisabled()">
+          <mat-icon>search</mat-icon>
+        </button>
+      </div>
+
+      <!-- Language Dropdown -->
+      <div class="language-dropdown" [class.disabled]="isLanguageDropdownDisabled()" (click)="toggleDropdown()"
+        *ngIf="routeMode === 'manage'">
+        <div class="dropdown-main">
+          <div class="label-container">
+            <div class="label">{{ uiConfig.labels.language }}</div>
+            <div class="selected">{{ uploadOrchestrator.getLabelForKey(selectedLanguage) }}</div>
+          </div>
+          <div class="icon">
+            <mat-icon>{{ isOpen ? 'expand_less' : 'expand_more' }}</mat-icon>
+          </div>
+        </div>
+
+        <div class="dropdown-list" *ngIf="isOpen && !isLanguageDropdownDisabled()" (click)="$event.stopPropagation()">
+          <div class="dropdown-item" *ngFor="let lang of languages" (click)="selectLanguage(lang, $event)">
+            {{ lang.label }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Tools: Action Buttons -->
+    <div class="right-tools">
+      <div class="button-group">
+        <!-- Remove Button -->
+        <button mat-stroked-button class="app-btn icon red" (click)="onRemoveClicked()"
+          [disabled]="!selectedRows.length || !hasTableData() || isDeleting" *ngIf="routeMode === 'manage'">
+          <mat-spinner *ngIf="isDeleting" class="btn-spinner" [diameter]="16" [strokeWidth]="2"></mat-spinner>
+          <img src="{{ uiConfig.icons.remove }}" alt="delete" class="btn-icon" />
+          {{ uiConfig.labels.remove }}
+        </button>
+
+        <!-- Edit Button -->
+        <button mat-stroked-button class="app-btn icon blue" (click)="onEditClicked()"
+          [disabled]="!selectedRows.length || !hasTableData()" *ngIf="routeMode === 'manage'">
+          <img src="{{ uiConfig.icons.edit }}" alt="edit" class="btn-icon" />
+          {{ uiConfig.labels.edit }}
+        </button>
+
+        <!-- Download Template Button -->
+        <button mat-stroked-button class="app-btn secondary" (click)="onDownloadTemplate()"
+          *ngIf="routeMode !== 'manage'">
+          {{ uiConfig.labels.downloadSample }}
+        </button>
+
+        <!-- Upload File Button -->
+        <button type="button" (click)="openUploadPopup()" mat-button class="app-btn primary"
+          *ngIf="routeMode !== 'manage'">
+          {{ uploadButtonText }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ✅ Loading Overlay with Spinner -->
+  <div class="loading-overlay" *ngIf="isUploading" [class.show]="isUploading">
+    <div class="upload-loader-card" role="status" aria-live="polite">
+      <div class="upload-loader-illustration">
+        <div class="upload-loader-orbit"></div>
+        <div class="upload-loader-badge">
+          <mat-icon>cloud_upload</mat-icon>
+        </div>
+      </div>
+      <p class="loading-text">{{ uiConfig.labels.uploadLoaderContent }}</p>
+      <p class="loading-subtext">{{ uiConfig.labels.uploadLoaderSubtext }}</p>
+      <div class="loading-progress" aria-hidden="true"><span></span></div>
+      <p class="loading-hint">Please keep this window open.</p>
+    </div>
+  </div>
+
+  <div class="table-section">
+    <div class="table-empty-state" *ngIf="shouldShowTableEmptyState()">
+      <div class="table-empty-state-card">
+        <div class="empty-state-icon" aria-hidden="true">
+          <mat-icon>{{ activeEmptyStateConfig.icon }}</mat-icon>
+        </div>
+        <p class="empty-state-title">{{ activeEmptyStateConfig.title }}</p>
+        <p class="empty-state-message">{{ activeEmptyStateConfig.message }}</p>
+        <p class="empty-state-suggestion">{{ activeEmptyStateConfig.suggestion }}</p>
+      </div>
+    </div>
+
+    <!-- Role Table Component: Reusing upload-activity-list-table as generic table -->
+    <app-upload-activity-list-table [columns]="tableConfig.columns" [data]="tableConfig.data" [showCheckbox]="true"
+      [enableSorting]="true" [enablePagination]="false" [gridStyle]="'both'" [isEditing]="isEditing"
+      [isLoading]="(isSearching || isDeleting) && routeMode === 'manage'" (selectionChange)="onSelectionChange($event)">
+    </app-upload-activity-list-table>
+  </div>
+</div>

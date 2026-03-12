@@ -1,0 +1,174 @@
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges } from '@angular/core'
+import {
+  Activity,
+  Competency,
+  CompetencyCheckChangeEvent,
+  SelectedCompetencySummary,
+  SelectedMap,
+} from '../../models/activity-competency.models'
+
+@Component({
+  selector: 'app-competency-mapping-table',
+  templateUrl: './competency-mapping-table.component.html',
+  styleUrls: ['./competency-mapping-table.component.scss']
+})
+export class CompetencyMappingTableComponent implements OnInit, OnChanges {
+
+  /* ---------------------------
+     Input data from parent
+  --------------------------- */
+  @Input() competencies: Competency[] = [];
+  @Input() selectedMap: SelectedMap = {};
+
+  @Input() headerConfig = {
+    codeLabel: 'Code & Name',
+    levels: ['Level 1', 'Level 2', 'Level 3', 'Level 4', 'Level 5'],
+    searchPlaceholder: 'Search by name,code'
+  };
+
+  @Input() levels: string[] = ['L1', 'L2', 'L3', 'L4', 'L5'];
+  @Input() selectedActivity: Activity | null = null;
+  @Input() isLoading = false;
+  @Input() searchResetKey = 0;
+  @Input() isReadOnly = false;
+  @Input() isSaving = false;
+
+  /* ---------------------------
+     Output events to parent
+  --------------------------- */
+  @Output() checked = new EventEmitter<CompetencyCheckChangeEvent>();
+  @Output() searchChange = new EventEmitter<string>();
+  @Output() addCompetency = new EventEmitter<SelectedCompetencySummary[]>();
+
+  searchTerm = '';
+  filteredCompetencies: Competency[] = [];
+  displayLevels: string[] = ['L1', 'L2', 'L3', 'L4', 'L5'];
+  sortDirection: 'asc' | 'desc' | '' = 'asc';
+
+  /**
+   * Runs when the component is first initialized on the screen.
+   */
+  ngOnInit() {
+    this.filteredCompetencies = [...this.competencies]
+    this.syncDisplayLevels()
+    this.applySort()
+  }
+
+  /**
+   * Triggered whenever Angular detects a change to one of the input properties.
+   */
+  ngOnChanges(changes: SimpleChanges) {
+    this.filteredCompetencies = [...this.competencies]
+    this.syncDisplayLevels()
+    this.applySort()
+    if (changes['searchResetKey'] && !changes['searchResetKey'].firstChange) {
+      this.searchTerm = ''
+    }
+  }
+
+  toggleSort(): void {
+    this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc'
+    this.applySort()
+  }
+
+  applySort(): void {
+    if (!this.sortDirection) return
+    this.filteredCompetencies.sort((a, b) => {
+      const aStr = (a.code || '').toLowerCase()
+      const bStr = (b.code || '').toLowerCase()
+      const modifier = this.sortDirection === 'desc' ? -1 : 1
+      return aStr.localeCompare(bStr, undefined, { numeric: true, sensitivity: 'base' }) * modifier
+    })
+  }
+
+  private syncDisplayLevels(): void {
+    const defaultLevels = ['L1', 'L2', 'L3', 'L4', 'L5']
+    const normalizedIncomingLevels = (this.levels || [])
+      .map(level => (level || '').toString().trim().toUpperCase())
+      .filter(level => /^L\d+$/.test(level))
+
+    const extraLevels = normalizedIncomingLevels.filter(level => !defaultLevels.includes(level))
+    this.displayLevels = [...defaultLevels, ...extraLevels]
+
+    // Keep grid columns aligned with rendered level cells.
+    document.documentElement.style.setProperty('--level-count', this.displayLevels.length.toString())
+  }
+
+  /* --------------------------------
+     Send search input to parent
+  -------------------------------- */
+  onSearchChange() {
+    if (!this.selectedActivity) {
+      return
+    }
+    this.searchChange.emit(this.searchTerm)
+  }
+
+  /* --------------------------------
+     Checkbox selection handler
+  -------------------------------- */
+  isChecked(code: string, levelCode: string) {
+    return this.selectedMap[code]?.includes(levelCode)
+  }
+
+  checkChange(code: string, levelCode: string, checked: boolean): void {
+    this.checked.emit({ code, level: levelCode, checked })
+  }
+
+  /* --------------------------------
+     Build selected competency list
+  -------------------------------- */
+  buildSelectedCompetencies(): SelectedCompetencySummary[] {
+    return Object.keys(this.selectedMap).map(code => {
+      const comp = this.competencies.find(c => c.code === code)
+
+      const levels = this.selectedMap[code]
+        .map((lv: string) => lv.split('_')[1]) // "C5013_L1" → "L1"
+        .join(',')
+
+      return {
+        code,
+        label: comp?.label || '',
+        levels
+      }
+    })
+  }
+
+  /* --------------------------------
+     Emit "add competency" event
+  -------------------------------- */
+  onAddCompetency() {
+    const selectedList = this.buildSelectedCompetencies()
+    this.addCompetency.emit([...selectedList]) // Send fresh array
+  }
+
+  isAddDisabled(): boolean {
+    if (!this.selectedActivity) return true
+    if (this.isSaving) return true
+
+    const hasSelectedLevels =
+      Object.values(this.selectedMap || {}).some((levels) => levels.length > 0)
+    const hadPreviousCompetencies =
+      (this.selectedActivity?.competencyDetails?.length || 0) > 0
+
+    if (!hasSelectedLevels && !hadPreviousCompetencies) return true
+    return false
+  }
+
+  get emptyStateTitle(): string {
+    if (!this.selectedActivity) {
+      return 'Activity not selected'
+    }
+    return this.searchTerm.trim() ? 'No competency found' : 'No competency mapped yet'
+  }
+
+  get emptyStateMessage(): string {
+    if (!this.selectedActivity) {
+      return 'Please select an activity to search competency.'
+    }
+    return this.searchTerm.trim()
+      ? 'No competency matches your search. Try another keyword.'
+      : 'Use the search bar to find the competency to map.'
+  }
+
+}

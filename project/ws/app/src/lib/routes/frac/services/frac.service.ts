@@ -12,10 +12,15 @@ export class FracService {
     private configSvc: ConfigurationsService,
     private http: HttpClient) { }
 
-  fetchFrac() {
-    const frac: Promise<IFrac> = this.http
-      .get<IFrac>(`${this.configSvc.baseUrl}/feature/frac.json`)
-      .toPromise()
-    return frac
+  /**
+   * Fetches FRAC widget config JSON used by the container component.
+   */
+  fetchFrac(): Promise<IFrac> {
+    return new Promise<IFrac>((resolve, reject) => {
+      this.http.get<IFrac>(`${this.configSvc.baseUrl}/feature/frac.json`).subscribe({
+        next: (response) => resolve(response),
+        error: (error) => reject(error),
+      })
+    })
   }
 }

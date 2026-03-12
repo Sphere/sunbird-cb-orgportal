@@ -66,26 +66,22 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
         if (fullProfile) {
           let leftData = _.get(this.activeRoute.snapshot, 'data.pageData.data.menus', [])
-          console.log('Original Menu Data:', leftData)
           // Ensure leftData.widgetData exists before filtering
           if (leftData.widgetData && Array.isArray(leftData.widgetData.menus)) {
             // Only keep menus that contain "certificate_manager" in requiredRoles
             leftData.widgetData.menus = leftData.widgetData.menus.filter((menu: { requiredRoles: any[] }) => {
-              console.log('Menu Roles:', menu.requiredRoles, this.myRoles)
               if (this.myRoles.has('certificate_manager')) {
                 return menu.requiredRoles.includes('certificate_manager') // Keep only certificate_manager menus
               }
               return true // Keep all menus if the role is NOT "certificate_manager"
             })
           }
-          console.log('Filtered Menu Data:', leftData)
           // Modify widgetData
           _.set(leftData, 'widgetData.logo', true)
           _.set(leftData, 'widgetData.name', this.departmentName)
           _.set(leftData, 'widgetData.userRoles', this.myRoles)
 
           this.widgetData = leftData
-          console.log('Modified Menu Data:', this.widgetData)
         } else {
           this.widgetData = _.get(this.activeRoute.snapshot, 'data.pageData.data.menus', [])
         }

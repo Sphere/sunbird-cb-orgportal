@@ -76,7 +76,7 @@ export class AppNavBarComponent implements OnInit, OnChanges {
 
     if (this.configSvc.instanceConfig) {
       this.appIcon = this.domSanitizer.bypassSecurityTrustResourceUrl(
-        this.configSvc.instanceConfig.logos.app,
+        'https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/icons/Foundation-secondary.svg',
       )
       this.instanceVal = this.configSvc.rootOrg || ''
       if (this.configSvc.instanceConfig.logos.appBottomNav) {

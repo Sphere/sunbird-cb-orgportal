@@ -1,0 +1,333 @@
+// .frac-table-container {
+//   overflow-y: auto;
+//   border-radius: 8px;
+//   border: 1px solid #e0e0e0;
+//   background: #fff;
+//   width: 100%;
+//   display: block;
+
+//   table {
+//     width: 100%;
+//     min-width: 600px;
+//     border-spacing: 0;
+//     border-collapse: collapse;
+
+//     th {
+//       background-color: #dfedf9;
+//       font-weight: 600;
+//       text-align: left;
+//       padding: 12px 16px;
+//       font-family: 'Roboto', sans-serif;
+//       font-size: 14px;
+//       position: sticky;
+//       top: 0;
+//       z-index: 2;
+//       white-space: nowrap;
+//     }
+
+//     td {
+//       padding: 12px 16px;
+//       font-family: 'Roboto', sans-serif;
+//       font-size: 14px;
+//       line-height: 20px;
+//       color: #333;
+//       white-space: nowrap;
+//     }
+
+//     tr.data-row:hover {
+//       background: #f9fbff;
+//     }
+//   }
+
+//   /* Grid Line Styles */
+//   &.horizontal table td {
+//     border-top: 1px solid #eee;
+//   }
+
+//   &.vertical table td {
+//     border-right: 1px solid #eee;
+//   }
+
+//   &.both table td {
+//     border-top: 1px solid #eee;
+//     border-right: 1px solid #eee;
+//   }
+
+//   &.both table tr:last-child td {
+//     border-bottom: 1px solid #eee;
+//   }
+
+//   /* Scrollbar */
+//   &::-webkit-scrollbar {
+//     height: 8px;
+//     width: 8px;
+//   }
+//   &::-webkit-scrollbar-thumb {
+//     background: #c7c7c7;
+//     border-radius: 4px;
+//   }
+
+//   @media (max-width: 768px) {
+//     table {
+//       font-size: 13px;
+//       min-width: unset;
+//     }
+
+//     th,
+//     td {
+//       padding: 10px;
+//     }
+//   }
+// }
+
+.frac-table-container {
+  width: 100%;
+  max-height: 100%;
+  overflow-y: auto;
+  overflow-x: auto;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  background: #fff;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+
+  table {
+    width: 100%;
+    border-spacing: 0;
+    border-collapse: collapse;
+    min-width: 600px;
+
+    th, td {
+      padding: 12px 16px;
+      font-size: 14px;
+      text-align: left;
+      vertical-align: middle;
+      height: 40px;
+      border: none;
+    }
+
+    // Data column headers and cells - allow text wrapping on whitespace only
+    th:not([style*="width: 50px"]),
+    td:not([style*="width: 50px"]) {
+      white-space: normal;
+      word-break: normal;
+      overflow-wrap: break-word;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    // Checkbox column - center aligned
+    th[style*="width: 50px"],
+    td[style*="width: 50px"] {
+      text-align: center;
+      padding: 0;
+      white-space: nowrap;
+      line-height: 40px;
+    }
+
+    th {
+      background-color: #dfedf9;
+      font-weight: 600;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+
+    // Reset default borders
+    th, td {
+      border: none;
+    }
+  }
+
+  // ============= GRID LINE STYLES =============
+
+  &.horizontal table th,
+  &.horizontal table td {
+    border-bottom: 1px solid #e0e0e0;
+  }
+
+  &.vertical table th,
+  &.vertical table td {
+    border-right: 1px solid #e0e0e0;
+  }
+
+  &.both table th,
+  &.both table td {
+    border-bottom: 1px solid #e0e0e0;
+    border-right: 1px solid #e0e0e0;
+  }
+
+  &.none table th,
+  &.none table td {
+    border: none;
+  }
+
+  // Last column never shows right border
+  table th:last-child,
+  table td:last-child {
+    border-right: none !important;
+  }
+
+  // ============= CELL CONTENT & EDIT MODE =============
+
+  .cell-content {
+    display: block;
+    white-space: pre-wrap;
+    word-break: normal !important;
+    overflow-wrap: normal !important;
+    line-height: 1.5;
+  }
+
+  // Wrapper for edit input - ensures proper vertical alignment
+  .cell-edit-wrapper {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 32px;
+    padding: 0;
+  }
+
+  .editable-input {
+    width: calc(100% - 16px);
+    padding: 6px 8px;
+    border: 1px solid #1c5d95;
+    border-radius: 4px;
+    font-size: 14px;
+    font-family: 'Roboto', sans-serif;
+    outline: none;
+    box-sizing: border-box;
+    height: 32px;
+    vertical-align: middle;
+
+    &:focus {
+      box-shadow: 0 0 4px rgba(28, 93, 149, 0.3);
+      border: 2px solid #1c5d95;
+      padding: 5px 8px;
+    }
+  }
+
+  // ============= RESPONSIVE TYPOGRAPHY =============
+
+  @media (max-width: 768px) {
+    table th,
+    table td {
+      font-size: 13px;
+      padding: 10px 12px;
+    }
+  }
+}
+
+
+mat-paginator {
+  margin-top: 8px;
+  background: #fff;
+  border-radius: 8px;
+  font-family: 'Roboto', sans-serif;
+}
+
+// ============= EMPTY STATE: BORDERED ROWS =============
+
+.table-filler {
+  width: 100%;
+  flex: 1;
+  overflow: hidden;
+
+  .empty-table {
+    width: 100%;
+    min-width: 600px;
+    border-spacing: 0;
+    border-collapse: collapse;
+    table-layout: fixed;
+
+    .empty-row {
+      height: 40px;
+
+      .empty-cell {
+        padding: 12px 16px;
+        background-color: #fafafa;
+        height: 40px;
+        text-align: left;
+        vertical-align: middle;
+        white-space: normal;
+        word-break: normal;
+        overflow-wrap: break-word;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        border: none;
+      }
+
+      // Checkbox column empty cell - center aligned
+      .empty-cell[style*="width: 50px"] {
+        text-align: center;
+        padding: 0;
+        white-space: nowrap;
+        line-height: 40px;
+      }
+
+      .empty-cell:last-child {
+        border-right: none;
+      }
+    }
+  }
+}
+
+// ============= EMPTY ROW GRID LINE STYLES =============
+
+.frac-table-container.horizontal .table-filler .empty-table .empty-row .empty-cell {
+  border-bottom: 1px solid #e0e0e0;
+  border-right: none;
+}
+
+.frac-table-container.vertical .table-filler .empty-table .empty-row .empty-cell {
+  border-bottom: none;
+  border-right: 1px solid #e0e0e0;
+}
+
+.frac-table-container.both .table-filler .empty-table .empty-row .empty-cell {
+  border-bottom: 1px solid #e0e0e0;
+  border-right: 1px solid #e0e0e0;
+}
+
+// Ensure last column never shows right border for empty rows
+.frac-table-container .table-filler .empty-table .empty-row .empty-cell:last-child {
+  border-right: none !important;
+}
+
+.frac-table-container.none .table-filler .empty-table .empty-row .empty-cell {
+  border: none;
+}
+
+// ============= CHECKBOX CUSTOM STYLING =============
+
+/* Base checkbox style (unchecked → white) */
+::ng-deep .mat-mdc-checkbox .mdc-checkbox__background {
+  background-color: white !important;
+  border-color: #404040 !important;
+  border-radius: 5px !important;
+  transition: all 0.2s ease-in-out;
+}
+
+/* Checked state → blue background, white tick */
+::ng-deep .mat-mdc-checkbox.mat-mdc-checkbox-checked .mdc-checkbox__background {
+  background-color: #1C5D95 !important;
+  border-color: #1C5D95 !important;
+}
+
+/* White checkmark inside blue box */
+::ng-deep .mat-mdc-checkbox .mdc-checkbox__checkmark-path {
+  stroke: #F3F4F4 !important;
+  background-color: #1C5D95 !important;
+}
+
+/* Hover → darker blue border */
+::ng-deep .mat-mdc-checkbox:hover .mdc-checkbox__background {
+  border-color: #404040 !important;
+}
+
+/* Disabled → light gray */
+::ng-deep .mat-mdc-checkbox.mat-mdc-checkbox--disabled .mdc-checkbox__background {
+  background-color: #F3F4F4 !important;
+  border-color: #404040 !important;
+}
+

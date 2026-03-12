@@ -1,0 +1,490 @@
+// ============= UPLOAD COMPETENCY LIST TABLE CONTAINER =============
+
+.upload-competency-list-table-container {
+  --table-header-height: 40px;
+  width: 100%;
+  height: 600px;
+  overflow: auto;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+
+  .table-pane {
+    width: 100%;
+  }
+
+  // ============= DATA TABLE (with data) =============
+
+  .data-table {
+    min-width: 100%;
+    width: auto;
+    border-collapse: collapse;
+    border-spacing: 0;
+
+    thead {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    th {
+      background-color: #dfedf9;
+      color: black;
+      font-family: Roboto, sans-serif;
+      font-weight: 400;
+      font-style: normal;
+      font-size: 14px;
+      line-height: 1.4;
+      letter-spacing: 0%;
+      padding: 12px 16px;
+      height: 40px;
+      text-align: left;
+      vertical-align: middle;
+      border: none;
+      white-space: nowrap;
+    }
+
+    // Checkbox column header
+    th:first-child {
+      width: 50px;
+      padding: 0;
+      text-align: center;
+    }
+
+    td {
+      padding: 12px 16px;
+      height: 40px;
+      font-family: Roboto, sans-serif;
+      font-weight: 400;
+      font-style: normal;
+      font-size: 14px;
+      line-height: 1.4;
+      letter-spacing: 0%;
+      color: black;
+      text-align: left;
+      vertical-align: middle;
+      border: none;
+      background: #fff;
+    }
+
+    // Checkbox column cells
+    td:first-child {
+      width: 50px;
+      padding: 0;
+      text-align: center;
+    }
+
+    // Data rows
+    tr.data-row {
+      &:hover {
+        background-color: #f5f5f5;
+      }
+    }
+
+    tr.data-row.editing-row {
+      background: #f7fbff;
+      td {
+        overflow: visible;
+      }
+    }
+
+  }
+
+  .mat-mdc-header-row,
+  .mat-header-row {
+    position: sticky;
+    top: 0;
+    z-index: 12;
+    background: #dfedf9;
+  }
+
+  // ============= GRID LINES (configurable) =============
+
+  &.horizontal {
+    .data-table td {
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .header-row th,
+    .empty-row td,
+    .filler-row td {
+      border-bottom: 1px solid #e0e0e0;
+    }
+  }
+
+  &.vertical {
+    .data-table th,
+    .data-table td {
+      border-right: 1px solid #e0e0e0;
+    }
+
+    .header-row th,
+    .empty-row td,
+    .filler-row td {
+      border-right: 1px solid #e0e0e0;
+    }
+
+    .table-filler::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      border-right: 1px solid #e0e0e0;
+      pointer-events: none;
+    }
+  }
+
+  &.both {
+    .data-table th {
+      border-right: 1px solid #e0e0e0;
+    }
+
+    .data-table td {
+      border-bottom: 1px solid #e0e0e0;
+      border-right: 1px solid #e0e0e0;
+    }
+
+    .header-row th,
+    .empty-row td,
+    .filler-row td {
+      border-bottom: 1px solid #e0e0e0;
+      border-right: 1px solid #e0e0e0;
+    }
+
+    .table-filler::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      border-right: 1px solid #e0e0e0;
+      pointer-events: none;
+    }
+  }
+
+  // Remove right border from last column
+  .data-table th:last-child,
+  .data-table td:last-child,
+  .header-row th:last-child,
+  .empty-row td:last-child,
+  .filler-row td:last-child {
+    border-right: none !important;
+  }
+
+  // ============= TABLE FILLER (empty state) =============
+
+  .table-filler {
+    flex: 1;
+    overflow-x: auto;
+    overflow-y: auto;
+    width: 100%;
+    min-width: 100%;
+    height: calc(100% - 40px);
+    min-height: calc(100% - 40px);
+    max-height: calc(100% - 40px);
+    position: relative;
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      border-right: 1px solid #e0e0e0;
+      pointer-events: none;
+    }
+
+    .empty-table {
+      min-width: 100%;
+      width: auto;
+      border-collapse: collapse;
+      border-spacing: 0;
+
+      // Header row in empty state
+      .header-row {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background-color: #dfedf9;
+
+        th {
+          background-color: #dfedf9;
+          color: black;
+          font-family: Roboto, sans-serif;
+          font-weight: 400;
+          font-style: normal;
+          font-size: 14px;
+          line-height: 1.4;
+          letter-spacing: 0%;
+          padding: 12px 16px;
+          height: 40px;
+          text-align: left;
+          vertical-align: middle;
+          border: none;
+          white-space: nowrap;
+        }
+
+        th:first-child {
+          width: 50px;
+          padding: 0;
+          text-align: center;
+        }
+
+        th:last-child {
+          border-right: none;
+        }
+      }
+
+      // Empty rows (no data)
+      .empty-row,
+      .filler-row {
+        height: 40px;
+
+        td {
+          padding: 12px 16px;
+          background-color: #fafafa;
+          border: none;
+          text-align: left;
+          vertical-align: middle;
+        }
+
+        td:first-child {
+          width: 50px;
+          padding: 0;
+          text-align: center;
+        }
+
+        td:last-child {
+          border-right: none;
+        }
+      }
+    }
+
+    .filler-table {
+      min-width: 100%;
+      width: auto;
+      border-collapse: collapse;
+      border-spacing: 0;
+
+      .filler-row {
+        height: 40px;
+
+        td {
+          padding: 12px 16px;
+          background-color: #fafafa;
+          border: none;
+        }
+
+        td:first-child {
+          width: 50px;
+          padding: 0;
+        }
+
+        td:last-child {
+          border-right: none;
+        }
+      }
+    }
+  }
+
+  // ============= CELL CONTENT & EDIT MODE =============
+
+  .cell-content {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: normal;
+    word-break: normal;
+    word-wrap: normal;
+    overflow-wrap: normal;
+    hyphens: none;
+    line-height: 1.4;
+  }
+
+  .cell-edit-wrapper {
+    width: 100%;
+  }
+
+  .editable-input,
+  .editable-textarea {
+    width: 100%;
+    min-width: 0;
+    border: 1px solid #9eb6cc;
+    border-radius: 6px;
+    padding: 6px 8px;
+    background: #fff;
+    font-size: 13px;
+    line-height: 1.35;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .editable-textarea {
+    min-width: 220px;
+    min-height: 56px;
+    resize: vertical;
+    overflow-y: auto;
+    overflow-x: hidden;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .editable-textarea.tall-description {
+    min-height: 168px;
+  }
+
+  .editable-input:focus,
+  .editable-textarea:focus {
+    border-color: #1c5d95;
+    box-shadow: 0 0 0 3px rgba(28, 93, 149, 0.14);
+    outline: none;
+  }
+
+  .cell-edit-wrapper.long-field .editable-textarea {
+    min-width: 260px;
+  }
+
+  .readonly-input {
+    background: #eef4fb;
+    color: #5b6c7d;
+    border-color: #c8d7e6;
+    cursor: not-allowed;
+  }
+
+  .readonly-input:focus {
+    box-shadow: none;
+    border-color: #c8d7e6;
+  }
+
+  .editable-textarea::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .editable-textarea::-webkit-scrollbar-track {
+    background: #eef2f7;
+    border-radius: 8px;
+  }
+
+  .editable-textarea::-webkit-scrollbar-thumb {
+    background: #b4c3d4;
+    border-radius: 8px;
+  }
+
+  .editable-textarea::-webkit-scrollbar-thumb:hover {
+    background: #94a9c0;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+  }
+}
+
+// ============= SHIMMER ROW (inside mat-table) =============
+
+.shimmer-row td {
+  padding: 0 16px;
+  height: 40px;
+  border-bottom: 1px solid #e0e0e0;
+  border-right: 1px solid #e0e0e0;
+  pointer-events: none;
+  cursor: default;
+
+  &:first-child {
+    padding: 0;
+    text-align: center;
+  }
+
+  &:last-child {
+    border-right: none;
+  }
+}
+
+.shimmer-box {
+  display: inline-block;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #e9eff6 25%, #dfe8f3 37%, #e9eff6 63%);
+  background-size: 400% 100%;
+  animation: rowShimmer 1.2s ease-in-out infinite;
+}
+
+.shimmer-box.checkbox {
+  width: 16px;
+  height: 16px;
+  border-radius: 2px;
+}
+
+.shimmer-box.text {
+  width: 70%;
+  height: 12px;
+  min-width: 48px;
+  max-width: 100%;
+}
+
+.shimmer-box.shimmer-short {
+  width: 56px;
+  min-width: 56px;
+}
+
+@keyframes rowShimmer {
+  0%   { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}
+
+// ============= CHECKBOX STYLING =============
+
+// Unchecked checkbox: White background with dark border
+::ng-deep .mat-mdc-checkbox .mdc-checkbox__background {
+  background-color: white !important;
+  border-color: #404040 !important;
+  border-radius: 5px !important;
+  transition: all 0.2s ease-in-out;
+}
+
+// Checked checkbox: Blue background with blue border
+::ng-deep .mat-mdc-checkbox.mat-mdc-checkbox-checked .mdc-checkbox__background {
+  background-color: #1C5D95 !important;
+  border-color: #1C5D95 !important;
+}
+
+// Checkmark color: White stroke on blue background
+::ng-deep .mat-mdc-checkbox .mdc-checkbox__checkmark-path {
+  stroke: #F3F4F4 !important;
+  background-color: #1C5D95 !important;
+}
+
+// Hover state: Darker border for better visual feedback
+::ng-deep .mat-mdc-checkbox:hover .mdc-checkbox__background {
+  border-color: #404040 !important;
+}
+
+// Disabled state: Light gray background
+::ng-deep .mat-mdc-checkbox.mat-mdc-checkbox--disabled .mdc-checkbox__background {
+  background-color: #F3F4F4 !important;
+  border-color: #404040 !important;
+}
+
+// ============= PAGINATION STYLING =============
+
+// Style for Material paginator footer
+::ng-deep mat-paginator {
+  background-color: #fff;
+  border-top: 1px solid #e0e0e0;
+  border-radius: 0 0 8px 8px;
+}
+
+mat-paginator {
+  margin-top: 8px;
+  background: #fff;
+  border-radius: 8px;
+  font-family: 'Roboto', sans-serif;
+}
