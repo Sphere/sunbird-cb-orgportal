@@ -1,15 +1,14 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, signal, ViewEncapsulation } from '@angular/core'
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, ElementRef, HostListener, inject, OnInit, signal, ViewEncapsulation } from '@angular/core'
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
-import { FormControl, FormGroup, NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms'
+import { AbstractControl, FormControl, FormGroup, NonNullableFormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms'
 import { Router } from '@angular/router'
-import { take } from 'rxjs/operators'
+import { startWith, take } from 'rxjs/operators'
 import { CommonModule } from '@angular/common'
-import { MatFormFieldModule } from '@angular/material/form-field'
-import { MatSelectModule } from '@angular/material/select'
-import { MatOptionModule } from '@angular/material/core'
 import { PlaylistApiService, PlaylistType } from '../../services/playlist-api.service'
 import { PlaylistStateService } from '../../services/playlist-state.service'
 import { PlaylistFilters } from '../../models/playlist.model'
+import { PLAYLIST_LANGUAGES, PLAYLIST_ROUTES, PLAYLIST_UI } from '../../constants/playlist.constants'
+import { log } from '../../utils/playlist-logger.utils'
 
 type FilterForm = {
     orgId: FormControl<string>
@@ -26,7 +25,7 @@ type FilterForm = {
     encapsulation: ViewEncapsulation.None,
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: true,
-    imports: [CommonModule, ReactiveFormsModule, MatFormFieldModule, MatSelectModule, MatOptionModule],
+    imports: [CommonModule, ReactiveFormsModule],
 })
 export class PlaylistFiltersComponent implements OnInit {
     filterForm!: FormGroup<FilterForm>
@@ -34,33 +33,55 @@ export class PlaylistFiltersComponent implements OnInit {
     readonly errorMessage = signal('')
 
     /** Dropdown options - Organizations loaded from API */
-    organizations: { value: string, label: string }[] = []
-    filteredOrganizations: { value: string, label: string }[] = []
+    readonly organizations = signal<{ value: string; label: string }[]>([])
+    readonly filteredOrganizations = signal<{ value: string; label: string }[]>([])
     readonly loadingOrganizations = signal(false)
     readonly loadingPositions = signal(false)
-    orgSearchTerm = ''
+    readonly orgSearchTerm = signal('')
+    readonly selectedOrgId = signal('')
 
-    positions: { value: string, label: string }[] = []
+    readonly positions = signal<{ value: string; label: string }[]>([])
+    readonly districts = signal<{ value: string; label: string }[]>([])
+    readonly blocks = signal<{ value: string; label: string }[]>([])
 
-    districts = []
+    languages = PLAYLIST_LANGUAGES
 
-    blocks = []
+    readonly positionDropdownOpen = signal(false)
+    readonly orgDropdownOpen = signal(false)
 
-    languages = [
-        { value: 'en', label: 'English' },
-        { value: 'hi', label: 'Hindi' },
-        { value: 'kn', label: 'Kannada' },
-        { value: 'tn', label: 'Tamil' },
-    ]
+    get selectedRoles(): string[] {
+        return this.filterForm?.get('role')?.value ?? []
+    }
+
+    readonly selectedOrgLabel = computed(() => {
+        const val = this.selectedOrgId()
+        return this.organizations().find(o => o.value === val)?.label ?? ''
+    })
 
     private readonly destroyRef = inject(DestroyRef)
+    private readonly fb = inject(NonNullableFormBuilder)
+    private readonly router = inject(Router)
+    private readonly playlistApi = inject(PlaylistApiService)
+    private readonly state = inject(PlaylistStateService)
+    private readonly elRef = inject(ElementRef)
 
-    constructor(
-        private fb: NonNullableFormBuilder,
-        private router: Router,
-        private playlistApi: PlaylistApiService,
-        private state: PlaylistStateService
-    ) { }
+    private readonly nonEmptyArray = (control: AbstractControl): ValidationErrors | null =>
+        Array.isArray(control.value) && control.value.length > 0 ? null : { required: true }
+
+    @HostListener('document:click', ['$event'])
+    onDocumentClick(event: MouseEvent): void {
+        const target = event.target as Node
+        const wrappers = this.elRef.nativeElement.querySelectorAll('.select-wrapper')
+        let insideOrg = false, insidePos = false
+        wrappers.forEach((w: HTMLElement) => {
+            if (w.contains(target)) {
+                if (w.querySelector('.org-panel') || w.querySelector('[class*="org"]')) insideOrg = true
+                else insidePos = true
+            }
+        })
+        if (!insideOrg) this.orgDropdownOpen.set(false)
+        if (!insidePos) this.positionDropdownOpen.set(false)
+    }
 
     /**
      * Component initialization.
@@ -81,12 +102,12 @@ export class PlaylistFiltersComponent implements OnInit {
         this.loadingOrganizations.set(true)
         this.playlistApi.searchOrganizations().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
             next: (orgs) => {
-                this.organizations = orgs
-                this.filteredOrganizations = [...orgs]
+                this.organizations.set(orgs)
+                this.filteredOrganizations.set([...orgs])
                 this.loadingOrganizations.set(false)
             },
             error: (err) => {
-                console.error('Failed to load organizations:', err)
+                log.error('Failed to load organizations:', err)
                 this.loadingOrganizations.set(false)
             }
         })
@@ -100,12 +121,12 @@ export class PlaylistFiltersComponent implements OnInit {
         this.loadingPositions.set(true)
         this.playlistApi.searchPositions().pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
             next: (positions) => {
-                this.positions = positions
+                this.positions.set(positions)
                 this.loadingPositions.set(false)
             },
             error: (err) => {
-                console.error('Failed to load positions:', err)
-                this.positions = []
+                log.error('Failed to load positions:', err)
+                this.positions.set([])
                 this.loadingPositions.set(false)
             },
         })
@@ -116,13 +137,13 @@ export class PlaylistFiltersComponent implements OnInit {
      * Performs a case-insensitive search to help users find their organization quickly.
      */
     filterOrganizations(): void {
-        if (!this.orgSearchTerm.trim()) {
-            this.filteredOrganizations = [...this.organizations]
+        if (!this.orgSearchTerm().trim()) {
+            this.filteredOrganizations.set([...this.organizations()])
         } else {
-            const search = this.orgSearchTerm.toLowerCase()
-            this.filteredOrganizations = this.organizations.filter(org =>
+            const search = this.orgSearchTerm().toLowerCase()
+            this.filteredOrganizations.set(this.organizations().filter(org =>
                 org.label.toLowerCase().includes(search)
-            )
+            ))
         }
     }
 
@@ -132,11 +153,15 @@ export class PlaylistFiltersComponent implements OnInit {
     private initForm(): void {
         this.filterForm = this.fb.group<FilterForm>({
             orgId: this.fb.control('', Validators.required),
-            role: this.fb.control<string[]>([], Validators.required),
+            role: this.fb.control([] as string[], this.nonEmptyArray),
             district: this.fb.control(''),
             block: this.fb.control(''),
             language: this.fb.control('', Validators.required),
         })
+
+        this.filterForm.controls.orgId.valueChanges
+            .pipe(startWith(this.filterForm.controls.orgId.value), takeUntilDestroyed(this.destroyRef))
+            .subscribe(value => this.selectedOrgId.set(value ?? ''))
     }
 
     /**
@@ -147,7 +172,7 @@ export class PlaylistFiltersComponent implements OnInit {
         if (previousFilters) {
             this.filterForm.patchValue({
                 orgId: previousFilters.orgId,
-                role: previousFilters.role,
+                role: previousFilters.role ?? [],
                 district: previousFilters.district?.[0] ?? '',
                 language: previousFilters.language,
             })
@@ -167,13 +192,13 @@ export class PlaylistFiltersComponent implements OnInit {
         const rawValue = this.filterForm.getRawValue()
         const filters: PlaylistFilters = {
             orgId: rawValue.orgId,
-            role: rawValue.role,
+            role: rawValue.role ?? [],
             district: rawValue.district ? [rawValue.district] : undefined,
             language: rawValue.language,
         }
 
         // Add org name for display purposes
-        const selectedOrg = this.organizations.find(org => org.value === filters.orgId)
+        const selectedOrg = this.organizations().find(org => org.value === filters.orgId)
         filters.orgName = selectedOrg?.label || filters.orgId
 
         this.loading.set(true)
@@ -182,6 +207,9 @@ export class PlaylistFiltersComponent implements OnInit {
         try {
             // Clear course cache to ensure fresh data is fetched with new filters
             this.state.clearCourseCache()
+            // Reset competency selections for a fresh filter context.
+            // Otherwise stale selections can override backend preselection.
+            this.state.clearSelectedCompetencies()
 
             // Save filters to state
             this.state.setFilters(filters)
@@ -203,11 +231,13 @@ export class PlaylistFiltersComponent implements OnInit {
             this.state.setExistingCompetencyPlaylist(existingCompetencyPlaylist)
             const existingCompetencyIds = this.playlistApi.extractCompetencyIds(competencyPlaylists || [])
             this.state.setExistingCompetencyIds(existingCompetencyIds)
+            const existingCompetencyCodes = this.playlistApi.extractCompetencyCodes(competencyPlaylists || [])
+            this.state.setExistingCompetencyCodes(existingCompetencyCodes)
 
             // Navigate to summary page
-            this.router.navigate(['/app/home/playlist/summary'])
+            this.router.navigate([PLAYLIST_ROUTES.HOME_SUMMARY])
         } catch (error) {
-            console.error('Error searching playlist:', error)
+            log.error('Error searching playlist:', error)
             this.errorMessage.set('Failed to load playlist data. Please try again.')
         } finally {
             this.loading.set(false)
@@ -224,15 +254,39 @@ export class PlaylistFiltersComponent implements OnInit {
         return !!(field && field.invalid && (field.dirty || field.touched))
     }
 
-    onOrgDropdownToggle(isOpen: boolean): void {
-        if (!isOpen) {
-            return
+    toggleOrgDropdown(): void {
+        const open = !this.orgDropdownOpen()
+        this.orgDropdownOpen.set(open)
+        if (open) {
+            this.orgSearchTerm.set('')
+            this.filteredOrganizations.set([...this.organizations()])
+            setTimeout(() => (this.elRef.nativeElement.querySelector('.org-search-input') as HTMLInputElement)?.focus(), PLAYLIST_UI.FOCUS_DELAY_MS)
         }
-
-        // Focus search box when overlay is mounted.
-        setTimeout(() => {
-            const input = document.querySelector('.cdk-overlay-pane .org-dropdown .org-search-input') as HTMLInputElement | null
-            input?.focus()
-        }, 50)
+        this.filterForm.get('orgId')?.markAsTouched()
     }
+
+    selectOrg(value: string): void {
+        this.filterForm.get('orgId')?.setValue(value)
+        this.filterForm.get('orgId')?.markAsTouched()
+        this.orgDropdownOpen.set(false)
+    }
+
+    togglePositionDropdown(): void {
+        this.positionDropdownOpen.set(!this.positionDropdownOpen())
+        this.filterForm.get('role')?.markAsTouched()
+    }
+
+    isRoleSelected(value: string): boolean {
+        return this.selectedRoles.includes(value)
+    }
+
+    toggleRole(value: string): void {
+        const current = [...this.selectedRoles]
+        const idx = current.indexOf(value)
+        if (idx === -1) current.push(value)
+        else current.splice(idx, 1)
+        this.filterForm.get('role')?.setValue(current)
+        this.filterForm.get('role')?.markAsTouched()
+    }
+
 }

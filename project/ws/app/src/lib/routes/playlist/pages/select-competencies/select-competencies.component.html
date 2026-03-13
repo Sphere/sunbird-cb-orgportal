@@ -1,19 +1,15 @@
 <div class="select-competencies-container">
     <!-- Header -->
     <div class="header">
-        <div class="tabs">
-            <!-- <button class="tab-button active">Select Competencies</button> -->
-        </div>
+        <button type="button" class="back-nav-btn" (click)="onBack()">
+            <mat-icon>arrow_back</mat-icon>
+            <span>Back</span>
+        </button>
+        <div class="header-spacer"></div>
         <button class="next-btn" [disabled]="selection.selected.length === 0" (click)="onAssignCourses()">
             Assign courses
         </button>
     </div>
-
-    <!-- Back Button -->
-    <button class="back-text-btn" (click)="onBack()">
-        <img src="https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/icons/frac-left-arrow.svg" alt="back"
-            class="back-icon">
-    </button>
 
     <!-- Page Title -->
     <div class="page-title">
@@ -35,14 +31,8 @@
         </div>
     </div>
 
-    <!-- Loading -->
-    <div *ngIf="loading()" class="loading-container">
-        <div class="spinner"></div>
-        <p class="loading-text">Loading competencies...</p>
-    </div>
-
-    <!-- Table -->
-    <div *ngIf="!loading()" class="table-container">
+    <!-- Table (shimmer while loading, data after) -->
+    <div class="table-container">
         <div class="table-scroll-wrapper">
             <table class="custom-table">
                 <thead>
@@ -53,15 +43,17 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- Empty State -->
-                    <tr *ngIf="filteredCompetencies.length === 0" class="empty-state-row">
-                        <td colspan="3" class="empty-state-cell">
-                            <p>No competencies found</p>
-                        </td>
-                    </tr>
+                    <!-- Shimmer rows while loading -->
+                    <ng-container *ngIf="loading()">
+                        <tr *ngFor="let i of shimmerRows" class="shimmer-row">
+                            <td class="checkbox-col"><div class="shimmer-box checkbox"></div></td>
+                            <td class="code-col"><div class="shimmer-box text shimmer-short"></div></td>
+                            <td class="name-col"><div class="shimmer-box text"></div></td>
+                        </tr>
+                    </ng-container>
 
                     <!-- Competency rows -->
-                    <tr *ngFor="let row of filteredCompetencies" [class.selected-row]="selection.isSelected(row)"
+                    <tr *ngFor="let row of filteredCompetencies()" [class.selected-row]="selection.isSelected(row)"
                         [class.preselected-row]="row.isPreselected">
                         <td class="checkbox-col">
                             <label class="custom-checkbox">
@@ -75,11 +67,15 @@
                     </tr>
                 </tbody>
             </table>
-        </div>
 
-        <!-- Pagination -->
-        <mat-paginator [length]="totalCompetencies" [pageSize]="pageSize" [pageSizeOptions]="[20, 50, 100]"
-            showFirstLastButtons class="custom-paginator">
-        </mat-paginator>
+            <!-- Empty state -->
+            <div *ngIf="!loading() && filteredCompetencies().length === 0" class="empty-state-overlay">
+                <div class="empty-state-card">
+                    <div class="empty-state-icon"><mat-icon>psychology</mat-icon></div>
+                    <p class="empty-state-title">No competencies found</p>
+                    <p class="empty-state-message">No competencies match your search or filter criteria.</p>
+                </div>
+            </div>
+        </div>
     </div>
 </div>

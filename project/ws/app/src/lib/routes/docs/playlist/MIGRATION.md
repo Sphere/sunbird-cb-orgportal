@@ -740,7 +740,7 @@ The following were explicitly out of scope for all seven PRs:
 
 | Area | Status |
 |------|--------|
-| **Routing URLs** | Unchanged. `/app/home/playlist/filters`, `/app/home/playlist/summary`, `/app/playlist/select-courses`, `/app/playlist/manage-order`, `/app/playlist/select-competencies`, `/app/playlist/manage-competency-order` are identical. |
+| **Routing URLs** | Unchanged. `/app/home/playlist/filters`, `/app/home/playlist/summary`, `/app/playlist/select-courses`, `/app/playlist/manage-course-order`, `/app/playlist/select-competencies`, `/app/playlist/manage-competency-order` are identical. |
 | **API payloads** | Unchanged. The shape of requests to `searchPlaylist`, `savePlaylist`, `searchCoursesByCompetency`, and `searchOrganizations` is identical. |
 | **Angular Material legacy modules** | All Material imports remain on the `@angular/material/legacy-*` path (e.g., `MatLegacyDialogModule`, `MatLegacyPaginatorModule`). Migration to non-legacy Material APIs is a separate workstream. |
 | **RxJS version** | Kept at `~6.5.x`. No upgrade to RxJS 7 was performed. `.toPromise()` is still present (deprecated in RxJS 7 but functional). |

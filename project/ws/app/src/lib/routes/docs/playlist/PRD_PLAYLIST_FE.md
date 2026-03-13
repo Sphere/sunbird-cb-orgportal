@@ -51,7 +51,7 @@ Without this feature, content assignment is manual, inconsistent, and hard to ma
 
 ### Standalone routes (no sidebar)
 - `/app/playlist/select-courses`
-- `/app/playlist/manage-order`
+- `/app/playlist/manage-course-order`
 - `/app/playlist/select-competencies`
 - `/app/playlist/manage-competency-order`
 

@@ -1,18 +1,16 @@
 <div class="manage-order-container">
-    <!-- Breadcrumb Top Bar -->
+    <!-- Top Bar -->
     <div class="top-bar">
-        <!-- <div class="breadcrumb">Select Competencies</div> -->
+        <button type="button" class="back-nav-btn" (click)="onBack()">
+            <mat-icon>arrow_back</mat-icon>
+            <span>Back</span>
+        </button>
+        <div class="header-spacer"></div>
         <button class="save-btn-top" [disabled]="!allCompetenciesComplete() || saving()" (click)="onSave()">
             <span *ngIf="!saving()">Save</span>
             <span *ngIf="saving()">Saving...</span>
         </button>
     </div>
-
-    <!-- Back Button -->
-    <button class="back-btn" (click)="onBack()">
-        <img src="https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/icons/frac-left-arrow.svg" alt="back"
-            class="back-icon">
-    </button>
 
     <!-- Header -->
     <h1 class="page-title">Manage Competency Order</h1>
@@ -20,7 +18,7 @@
 
     <!-- Assign Courses Button -->
     <div class="action-row">
-        <button class="assign-btn" [disabled]="!selectedCompetency || !isCurrentCompetencyComplete()"
+        <button class="assign-btn" [disabled]="!selectedCompetency() || !isCurrentCompetencyComplete()"
             (click)="onAssignCourses()">
             Assign courses
         </button>
@@ -35,19 +33,20 @@
                 <span class="header-label">Competencies</span>
             </div>
 
-            <!-- Search Field -->
+            <!-- Search Field — custom input, no Material -->
             <div class="search-container">
-                <mat-form-field appearance="outline" class="search-field">
-                    <input matInput placeholder="Search by name, code" [value]="searchTerm()"
+                <div class="search-wrapper">
+                    <mat-icon class="search-icon">search</mat-icon>
+                    <input type="text" class="search-input" placeholder="Search by name, code"
+                        [value]="searchTerm()"
                         (input)="searchTerm.set($any($event.target).value); onSearch()">
-                    <mat-icon matSuffix>search</mat-icon>
-                </mat-form-field>
+                </div>
             </div>
 
             <!-- Competency List -->
             <div cdkDropList class="competencies-list" (cdkDropListDropped)="onDrop($event)">
-                <div *ngFor="let competency of filteredCompetencies; let i = index" cdkDrag class="competency-item"
-                    [class.selected]="selectedCompetency === competency"
+                <div *ngFor="let competency of filteredCompetencies()" cdkDrag class="competency-item"
+                    [class.selected]="selectedCompetency() === competency"
                     [class.complete]="isCompetencyComplete(competency)" (click)="onSelectCompetency(competency)">
 
                     <!-- Drag Handle -->
@@ -58,7 +57,7 @@
 
                     <!-- Order Number and Competency Info -->
                     <div class="competency-content">
-                        <div class="order-number">{{ i + 1 }}</div>
+                        <div class="order-number">{{ competency.displayOrder }}</div>
                         <div class="competency-info">
                             <div class="competency-name">{{ competency.name }}</div>
                             <div *ngIf="isCompetencyComplete(competency)" class="competency-code">Courses Assigned</div>
@@ -76,7 +75,7 @@
                 </div>
 
                 <!-- Empty State -->
-                <div *ngIf="filteredCompetencies.length === 0 && searchTerm()" class="empty-state">
+                <div *ngIf="filteredCompetencies().length === 0 && searchTerm()" class="empty-state">
                     <p>No competencies match your search</p>
                     <button mat-stroked-button (click)="searchTerm.set(''); onSearch()">Clear Search</button>
                 </div>
@@ -90,13 +89,13 @@
                 <span class="header-label">Levels</span>
             </div>
 
-            <div *ngIf="selectedCompetency" class="levels-content">
+            <div *ngIf="selectedCompetency()" class="levels-content">
                 <!-- Competency Title -->
-                <div class="competency-title">{{ selectedCompetency.name }}</div>
+                <div class="competency-title">{{ selectedCompetency()!.name }}</div>
 
                 <!-- Level Rows -->
                 <div class="levels-list">
-                    <div *ngFor="let level of selectedCompetency.levels" class="level-row">
+                    <div *ngFor="let level of selectedCompetency()!.levels" class="level-row">
                         <div class="level-label">Level {{ level.level }}</div>
                         <div class="level-dropdown">
                             <!-- Shimmer Loader -->
@@ -120,7 +119,7 @@
                 </div>
             </div>
 
-            <div *ngIf="!selectedCompetency" class="no-selection">
+            <div *ngIf="!selectedCompetency()" class="no-selection">
                 <p>Select a competency to assign courses</p>
             </div>
         </div>

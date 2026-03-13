@@ -8,14 +8,14 @@
     <!-- Filter Summary Row -->
     <!-- Figma: Left aligned items with "Change" button at end -->
     <!-- Org: BNRC Position: ANM Language: English -->
-    <div class="filter-summary-row" *ngIf="filters">
+    <div class="filter-summary-row" *ngIf="filters()">
         <div class="filter-group">
             <span class="label">Org:</span>
-            <span class="value">{{ filters.orgId }}</span>
+            <span class="value">{{ filters()!.orgId }}</span>
         </div>
         <div class="filter-group">
             <span class="label">Org Name:</span>
-            <span class="value">{{ filters.orgName }}</span>
+            <span class="value">{{ filters()!.orgName }}</span>
         </div>
         <div class="filter-group">
             <span class="label">Position:</span>
@@ -24,7 +24,7 @@
 
         <div class="filter-group">
             <span class="label">Language: </span>
-            <span class="value">{{ filters.language }}</span>
+            <span class="value">{{ filters()!.language }}</span>
         </div>
 
         <button class="change-btn" (click)="onChangeFilters()">
@@ -46,7 +46,7 @@
                 <div class="stat-row">
                     <span class="stat-label">Total Courses</span>
                     <span class="stat-sep">:</span>
-                    <span class="stat-val highlight">{{ courseSummary.total }}</span>
+                    <span class="stat-val highlight">{{ courseSummary().total }}</span>
                 </div>
                 <!-- <div class="stat-row">
                     <span class="stat-label">Live</span>
@@ -64,14 +64,14 @@
                         <span class="stat-label">Last updated</span>
                         <span class="stat-sep">:</span>
                     </div>
-                    <span class="stat-val highlight">{{ courseSummary.lastUpdated }}</span>
+                    <span class="stat-val highlight">{{ courseSummary().lastUpdated }}</span>
                 </div>
             </div>
 
             <button class="create-btn" (click)="onManageCourse()">
                 <img src="https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/icons/frac_manage_icon.svg"
                     alt="manage" class="btn-icon">
-                {{ hasExistingCoursePlaylist ? 'Manage' : 'Create' }}
+                {{ hasExistingCoursePlaylist() ? 'Manage' : 'Create' }}
             </button>
         </div>
 
@@ -86,7 +86,7 @@
                 <div class="stat-row">
                     <span class="stat-label">Total Competency</span>
                     <span class="stat-sep">:</span>
-                    <span class="stat-val highlight">{{ competencySummary.total }}</span>
+                    <span class="stat-val highlight">{{ competencySummary().total }}</span>
                 </div>
                 <!-- <div class="stat-row">
                     <span class="stat-label">Live</span>
@@ -104,7 +104,7 @@
                         <span class="stat-label">Last updated</span>
                         <span class="stat-sep">:</span>
                     </div>
-                    <span class="stat-val highlight">{{ competencySummary.lastUpdated }}</span>
+                    <span class="stat-val highlight">{{ competencySummary().lastUpdated }}</span>
                 </div>
             </div>
 
@@ -112,7 +112,7 @@
             <button class="create-btn" (click)="onCompetencyClick()">
                 <img src="https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/icons/frac_manage_icon.svg"
                     alt="manage" class="btn-icon">
-                {{ hasExistingCompetencyPlaylist ? 'Manage' : 'Create' }}
+                {{ hasExistingCompetencyPlaylist() ? 'Manage' : 'Create' }}
             </button>
         </div>
 

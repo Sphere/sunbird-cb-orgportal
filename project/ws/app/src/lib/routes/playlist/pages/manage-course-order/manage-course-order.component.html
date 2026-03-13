@@ -9,9 +9,9 @@
     </div>
 
     <!-- Back Button -->
-    <button class="back-btn" (click)="onBack()">
-        <img src="https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/icons/frac-left-arrow.svg" alt="back"
-            class="back-icon">
+    <button type="button" class="back-nav-btn" (click)="onBack()">
+        <mat-icon>arrow_back</mat-icon>
+        <span>Back</span>
     </button>
 
     <!-- Header -->
@@ -27,16 +27,17 @@
 
         <!-- Search Field (Inside Card) -->
         <div class="search-container">
-            <mat-form-field appearance="outline" class="search-field">
-                <input matInput placeholder="Search by name, source" [value]="searchTerm()"
+            <div class="search-wrapper">
+                <mat-icon class="search-icon">search</mat-icon>
+                <input type="text" class="search-input" placeholder="Search by name, source"
+                    [value]="searchTerm()"
                     (input)="searchTerm.set($any($event.target).value); onSearch()">
-                <mat-icon matSuffix>search</mat-icon>
-            </mat-form-field>
+            </div>
         </div>
 
         <!-- Course List -->
         <div cdkDropList class="courses-list" (cdkDropListDropped)="onDrop($event)">
-            <div *ngFor="let course of filteredCourses" cdkDrag class="course-item">
+            <div *ngFor="let course of filteredCourses()" cdkDrag class="course-item">
 
                 <!-- Drag Handle -->
                 <div class="drag-handle" cdkDragHandle>
@@ -58,7 +59,7 @@
             </div>
 
             <!-- Empty State -->
-            <div *ngIf="filteredCourses.length === 0 && searchTerm()" class="empty-state">
+            <div *ngIf="filteredCourses().length === 0 && searchTerm()" class="empty-state">
                 <p>No courses match your search</p>
                 <button mat-stroked-button (click)="searchTerm.set(''); onSearch()">Clear Search</button>
             </div>

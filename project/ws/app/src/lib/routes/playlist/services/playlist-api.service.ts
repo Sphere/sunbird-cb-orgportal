@@ -10,6 +10,7 @@ import {
     PlaylistSearchRequest,
     PlaylistSearchResponse,
 } from '../models/playlist.model'
+import { PLAYLIST_API } from '../constants/playlist.constants'
 
 // ---------------------------------------------------------------------------
 // Internal API response shapes — used only within this service
@@ -69,10 +70,26 @@ export const PLAYLIST_IDS = {
 })
 export class PlaylistApiService {
     private readonly API_BASE = '/apis/protected/v8/playlist'
-    private readonly ORG_API = '/api/proxies/v8/org/v1'
+    private readonly ORG_API = '/apis/proxies/v8/org/v1'
     private readonly ENTITY_API = '/apis/proxies/v8/entity/v1'
 
     constructor(private http: HttpClient) { }
+
+    /** Normalizes competency payload item from flat or key-wrapped formats */
+    private toCompetencyPayloadItem(item: unknown): PlaylistCompetencyPayload | null {
+        if (!item || typeof item !== 'object') {
+            return null
+        }
+
+        if ('id' in item) {
+            return item as PlaylistCompetencyPayload
+        }
+
+        const wrapped = Object.values(item as Record<string, unknown>).find(
+            value => !!value && typeof value === 'object' && 'id' in (value as Record<string, unknown>)
+        )
+        return (wrapped as PlaylistCompetencyPayload) || null
+    }
 
 
     /**
@@ -89,7 +106,7 @@ export class PlaylistApiService {
                 sortBy: {
                     createdDate: 'Desc'
                 },
-                limit: 9999
+                limit: PLAYLIST_API.ORG_SEARCH_LIMIT
             }
         }
 
@@ -99,7 +116,7 @@ export class PlaylistApiService {
                 map(response => {
                     const organizations: OrgApiItem[] = response?.result?.response?.content || []
                     return organizations.map(org => ({
-                        value: org.id,
+                        value: String(org.id),
                         label: org.orgName || org.channel || 'Unknown Organization'
                     }))
                 })
@@ -195,7 +212,10 @@ export class PlaylistApiService {
         playlists.forEach(playlist => {
             if (playlist?.dataSource) {
                 if (playlist?.dataSource?.type === 'static' && Array.isArray(playlist?.dataSource?.payload)) {
-                    allIds.push(...playlist?.dataSource?.payload)
+                    const courseIds = playlist.dataSource.payload.filter(
+                        (item): item is string => typeof item === 'string' && item.trim().length > 0
+                    )
+                    allIds.push(...courseIds)
                 }
             }
         })
@@ -217,7 +237,11 @@ export class PlaylistApiService {
 
         playlists.forEach(playlist => {
             if (playlist?.dataSource?.type === 'competency' && Array.isArray(playlist?.dataSource?.payload)) {
-                playlist.dataSource.payload.forEach((item: any) => {
+                const competencyItems = playlist.dataSource.payload
+                    .map(item => this.toCompetencyPayloadItem(item))
+                    .filter((item): item is PlaylistCompetencyPayload => !!item)
+
+                competencyItems.forEach((item: PlaylistCompetencyPayload) => {
                     // V2 format: item is directly { id: 100, code: "C1", ... }
                     if (item?.id) {
                         allIds.push(String(item.id))
@@ -229,6 +253,37 @@ export class PlaylistApiService {
         // Return all IDs (including duplicates) to get correct count
         // Note: If backend sends duplicate IDs, that's a data issue
         return allIds
+    }
+
+    /**
+     * Gets competency codes from a competency playlist.
+     * Used for resilient preselection because code is stable across environments.
+     */
+    extractCompetencyCodes(playlists: Playlist[]): string[] {
+        if (!playlists || playlists.length === 0) {
+            return []
+        }
+
+        const allCodes: string[] = []
+
+        playlists.forEach(playlist => {
+            if (playlist?.dataSource?.type === 'competency' && Array.isArray(playlist?.dataSource?.payload)) {
+                const competencyItems = playlist.dataSource.payload
+                    .map(item => this.toCompetencyPayloadItem(item))
+                    .filter((item): item is PlaylistCompetencyPayload => !!item)
+
+                competencyItems.forEach((item: PlaylistCompetencyPayload) => {
+                    const code = String(
+                        item?.code || (item?.additionalProperties as { Code?: string } | undefined)?.Code || ''
+                    ).trim()
+                    if (code) {
+                        allCodes.push(code.toUpperCase())
+                    }
+                })
+            }
+        })
+
+        return Array.from(new Set(allCodes))
     }
 
     /**
@@ -244,12 +299,16 @@ export class PlaylistApiService {
 
         playlists.forEach(playlist => {
             if (playlist?.dataSource?.type === 'competency' && Array.isArray(playlist?.dataSource?.payload)) {
-                playlist.dataSource.payload.forEach((item: any) => {
+                const competencyItems = playlist.dataSource.payload
+                    .map(item => this.toCompetencyPayloadItem(item))
+                    .filter((item): item is PlaylistCompetencyPayload => !!item)
+
+                competencyItems.forEach((item: PlaylistCompetencyPayload) => {
                     // V2 format: flat structure with direct fields
                     if (item) {
                         competencies.push({
                             id: String(item.id),
-                            code: item.code || `C${item.id}`,
+                            code: item.code || (item?.additionalProperties as { Code?: string } | undefined)?.Code || `C${item.id}`,
                             name: item.name,
                             description: item.description || '',
                             type: item.type || 'Domain',
@@ -298,7 +357,7 @@ export class PlaylistApiService {
      * @param competencies The competencies to format
      * @returns Formatted array ready for the API
      */
-    buildCompetencyPayload(competencies: any[]): any[] {
+    buildCompetencyPayload(competencies: PlaylistCompetencyPayload[]): Record<string, unknown>[] {
         return competencies.map((comp, index) => {
             const key = `c${index + 1}`
             return {

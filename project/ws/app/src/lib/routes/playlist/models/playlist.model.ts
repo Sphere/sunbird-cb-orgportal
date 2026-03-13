@@ -95,7 +95,7 @@ export type PlaylistPayload = string[] | PlaylistCompetencyPayload[]
  */
 export interface PlaylistDataSource {
     type: 'static' | 'dynamic' | 'competency'
-    payload: any[]  // Runtime response can vary; service methods use PlaylistPayload for request typing
+    payload: unknown[]  // Runtime response can vary; service methods use PlaylistPayload for request typing
 }
 
 

@@ -15,6 +15,8 @@ import { SelectableCourse } from '../../models/course.model'
 import { SuccessDialogComponent } from '../../components/success-dialog/success-dialog.component'
 import { RoleConfirmDialogComponent, RoleConfirmDialogData } from '../../components/role-confirm-dialog/role-confirm-dialog.component'
 import { ErrorDialogComponent, ErrorDialogData } from '../../components/error-dialog/error-dialog.component'
+import { PLAYLIST_ROUTES, PLAYLIST_UI } from '../../constants/playlist.constants'
+import { log } from '../../utils/playlist-logger.utils'
 
 /**
  * Component for finalizing the order of courses within a playlist.
@@ -29,21 +31,18 @@ import { ErrorDialogComponent, ErrorDialogData } from '../../components/error-di
     imports: [CommonModule, DragDropModule, MatDialogModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatIconModule],
 })
 export class ManageCourseOrderComponent implements OnInit {
-    orderedCourses: SelectableCourse[] = []
-    filteredCourses: SelectableCourse[] = []
+    readonly orderedCourses = signal<SelectableCourse[]>([])
+    readonly filteredCourses = signal<SelectableCourse[]>([])
 
     readonly saving = signal(false)
     readonly searchTerm = signal('')
-    readonly isSaveEnabled = computed(() => this.orderedCourses.length > 0 && !this.saving())
+    readonly isSaveEnabled = computed(() => this.orderedCourses().length > 0 && !this.saving())
 
     private readonly destroyRef = inject(DestroyRef)
-
-    constructor(
-        private router: Router,
-        private state: PlaylistStateService,
-        private playlistApi: PlaylistApiService,
-        private dialog: MatDialog
-    ) { }
+    private readonly router = inject(Router)
+    private readonly state = inject(PlaylistStateService)
+    private readonly playlistApi = inject(PlaylistApiService)
+    private readonly dialog = inject(MatDialog)
 
     ngOnInit(): void {
         this.loadSelectedCourses()
@@ -57,19 +56,17 @@ export class ManageCourseOrderComponent implements OnInit {
         const selectedCourses = this.state.getSelectedCourses()
 
         if (!selectedCourses || selectedCourses.length === 0) {
-            // No courses selected, redirect back
-            this.router.navigate(['/app/playlist/select-courses'])
+            this.router.navigate([PLAYLIST_ROUTES.SELECT_COURSES])
             return
         }
 
-        // Initialize the local course array with sequential display numbers
-        this.orderedCourses = selectedCourses.map((course, index) => ({
+        const ordered = selectedCourses.map((course, index) => ({
             ...course,
             displayOrder: index + 1,
         }))
 
-        this.filteredCourses = [...this.orderedCourses]
-
+        this.orderedCourses.set(ordered)
+        this.filteredCourses.set([...ordered])
     }
 
     /** 
@@ -77,27 +74,47 @@ export class ManageCourseOrderComponent implements OnInit {
      * Triggers a recalculation of display numbers to maintain a sequential 1, 2, 3... list.
      */
     onDrop(event: CdkDragDrop<SelectableCourse[]>): void {
-        // Move item in the array
-        moveItemInArray(this.orderedCourses, event.previousIndex, event.currentIndex)
-
-        // Update display order numbers
-        this.updateOrderNumbers()
-
-        // Update filtered list if search is active
-        if (this.searchTerm()) {
-            this.onSearch()
-        } else {
-            this.filteredCourses = [...this.orderedCourses]
+        const courses = [...this.orderedCourses()]
+        const filtered = [...this.filteredCourses()]
+        if (!filtered.length || event.previousIndex === event.currentIndex) {
+            return
         }
 
+        // Reorder based on the rendered (filtered) list first.
+        moveItemInArray(filtered, event.previousIndex, event.currentIndex)
+
+        const hasSearch = !!this.searchTerm() && this.searchTerm().trim().length > 0
+        const reorderedCourses = hasSearch
+            // When searching, only reorder visible items while keeping hidden items in place.
+            ? this.mergeFilteredOrderIntoFull(courses, filtered)
+            // Without search, filtered == full list.
+            : filtered
+
+        reorderedCourses.forEach((course, index) => { course.displayOrder = index + 1 })
+        this.orderedCourses.set(reorderedCourses)
+        this.filteredCourses.set(hasSearch ? filtered : [...reorderedCourses])
+
+        if (hasSearch) {
+            this.onSearch()
+        }
     }
 
-    /** 
-     * Recalculates display orders for all courses after a drag-and-drop event.
-     */
-    private updateOrderNumbers(): void {
-        this.orderedCourses.forEach((course, index) => {
-            course.displayOrder = index + 1
+    /** Applies filtered drag order back into the full ordered list */
+    private mergeFilteredOrderIntoFull(
+        fullList: SelectableCourse[],
+        reorderedFiltered: SelectableCourse[]
+    ): SelectableCourse[] {
+        const key = (c: SelectableCourse) => String(c.identifier || '').trim()
+        const filteredKeySet = new Set(reorderedFiltered.map(key))
+        let filteredIndex = 0
+
+        return fullList.map(item => {
+            if (filteredKeySet.has(key(item))) {
+                const next = reorderedFiltered[filteredIndex]
+                filteredIndex += 1
+                return next
+            }
+            return item
         })
     }
 
@@ -106,22 +123,22 @@ export class ManageCourseOrderComponent implements OnInit {
      */
     onSearch(): void {
         if (!this.searchTerm() || this.searchTerm().trim() === '') {
-            this.filteredCourses = [...this.orderedCourses]
+            this.filteredCourses.set([...this.orderedCourses()])
             return
         }
 
         const term = this.searchTerm().toLowerCase().trim()
-        this.filteredCourses = this.orderedCourses.filter(course =>
+        this.filteredCourses.set(this.orderedCourses().filter(course =>
             course.name.toLowerCase().includes(term) ||
             course.sourceName.toLowerCase().includes(term)
-        )
+        ))
     }
 
     /**
      * Navigate back to course selection
      */
     onBack(): void {
-        this.router.navigate(['/app/playlist/select-courses'])
+        this.router.navigate([PLAYLIST_ROUTES.SELECT_COURSES])
     }
 
     /**
@@ -135,12 +152,12 @@ export class ManageCourseOrderComponent implements OnInit {
         const existingPlaylist = this.state.getExistingPlaylist()
 
         if (!filters) {
-            console.error('No filters found in state')
+            log.error('No filters found in state')
             this.dialog.open(ErrorDialogComponent, {
-                width: '400px',
+                width: PLAYLIST_UI.ERROR_DIALOG_WIDTH,
                 data: { title: 'Missing Information', message: 'Filter information not found. Please start from the filters page.' }
             })
-            this.router.navigate(['/app/home/playlist/filters'])
+            this.router.navigate([PLAYLIST_ROUTES.HOME_FILTERS])
             return
         }
 
@@ -157,7 +174,7 @@ export class ManageCourseOrderComponent implements OnInit {
             }
 
             const dialogRef = this.dialog.open(RoleConfirmDialogComponent, {
-                width: '450px',
+                width: PLAYLIST_UI.DIALOG_WIDTH,
                 disableClose: true,
                 data: dialogData
             })
@@ -173,11 +190,13 @@ export class ManageCourseOrderComponent implements OnInit {
         this.saving.set(true)
 
         try {
+            const courses = this.orderedCourses()
+
             // Save ordered courses to state
-            this.state.setOrderedCourses(this.orderedCourses)
+            this.state.setOrderedCourses(courses)
 
             // Extract ordered course IDs
-            const courseIds = this.orderedCourses.map(c => c.identifier)
+            const courseIds = courses.map(c => c.identifier)
 
             // Merge roles (combine existing + selected)
             const mergedRoles = this.state.getMergedRoles(filters.role)
@@ -206,37 +225,38 @@ export class ManageCourseOrderComponent implements OnInit {
                 this.state.setExistingPlaylist(freshPlaylist)
                 this.state.setExistingCourseIds(freshCourseIds)
             } catch (refetchError) {
-                console.warn('Could not re-fetch playlist data:', refetchError)
+                log.warn('Could not re-fetch playlist data:', refetchError)
                 // Continue anyway - the save was successful
             }
 
             // Show custom success dialog
             const dialogRef = this.dialog.open(SuccessDialogComponent, {
-                width: '323px',
+                width: PLAYLIST_UI.SUCCESS_DIALOG_WIDTH,
                 disableClose: true, // Must click Continue
                 panelClass: 'success-dialog-panel'
             })
 
             // Handle Continue button click
             dialogRef.afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
-                this.router.navigate(['/app/home/playlist/filters'])
+                this.router.navigate([PLAYLIST_ROUTES.HOME_FILTERS])
             })
 
-        } catch (err: any) {
-            console.error('Playlist save error:', JSON.stringify(err?.error || err, null, 2))
-            const apiError = err?.error || err
-            const firstError = apiError?.result?.errors?.[0]?.message
-            const errorMessage = firstError
-                || apiError?.params?.errmsg
-                || apiError?.message
-                || err?.message
+        } catch (err: unknown) {
+            const errObj = err as Record<string, unknown>
+            log.error('Playlist save error:', JSON.stringify(errObj?.['error'] || err, null, 2))
+            const apiError = (errObj?.['error'] as Record<string, unknown>) || errObj
+            const result = apiError?.['result'] as Record<string, unknown> | undefined
+            const params = apiError?.['params'] as Record<string, unknown> | undefined
+            const firstError = result?.['errors'] as { message: string }[] | undefined
+            const errorMessage = firstError?.[0]?.message
+                || params?.['errmsg'] as string
+                || apiError?.['message'] as string
                 || 'Failed to save playlist'
 
             // Format additional error details if multiple errors exist
-            const allErrors = apiError?.result?.errors
-            const errorDetails = allErrors && allErrors.length > 1
-                ? allErrors.map((e: any) => `• ${e.message}`).join('\n')
-                : null
+            const errorDetails = firstError && firstError.length > 1
+                ? firstError.map(e => `• ${e.message}`).join('\n')
+                : undefined
 
             // Show error dialog
             const errorDialogData: ErrorDialogData = {
@@ -246,7 +266,7 @@ export class ManageCourseOrderComponent implements OnInit {
             }
 
             const errorDialogRef = this.dialog.open(ErrorDialogComponent, {
-                width: '400px',
+                width: PLAYLIST_UI.ERROR_DIALOG_WIDTH,
                 disableClose: false,
                 data: errorDialogData
             })

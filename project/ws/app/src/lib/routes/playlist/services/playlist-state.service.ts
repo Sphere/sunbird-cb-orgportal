@@ -3,6 +3,7 @@ import { BehaviorSubject } from 'rxjs'
 import { PlaylistFilters, Playlist, RoleComparisonResult } from '../models/playlist.model'
 import { Course, SelectableCourse } from '../models/course.model'
 import { SelectableCompetency } from '../models/competency.model'
+import { RawCompetencyEntity } from '../utils/competency-transformer'
 
 
 
@@ -34,6 +35,10 @@ export class PlaylistStateService {
     private existingCompetencyIdsSubject = new BehaviorSubject<string[]>([])
     public existingCompetencyIds$ = this.existingCompetencyIdsSubject.asObservable()
 
+    // Competency codes from existing playlist (preferred key for preselection)
+    private existingCompetencyCodesSubject = new BehaviorSubject<string[]>([])
+    public existingCompetencyCodes$ = this.existingCompetencyCodesSubject.asObservable()
+
     // Selected courses
     private selectedCoursesSubject = new BehaviorSubject<SelectableCourse[]>([])
     public selectedCourses$ = this.selectedCoursesSubject.asObservable()
@@ -47,7 +52,7 @@ export class PlaylistStateService {
     private courseCacheLanguage: string = ''
 
     // Competency cache for search
-    private competencyCache: any[] = []
+    private competencyCache: RawCompetencyEntity[] = []
     private competencyCacheLanguage: string = ''
 
     // Competency state
@@ -108,6 +113,16 @@ export class PlaylistStateService {
         return this.existingCompetencyIdsSubject.value
     }
 
+    /** Stores competency codes from existing playlist */
+    setExistingCompetencyCodes(codes: string[]): void {
+        this.existingCompetencyCodesSubject.next(codes)
+    }
+
+    /** Retrieves pre-selection competency codes */
+    getExistingCompetencyCodes(): string[] {
+        return this.existingCompetencyCodesSubject.value
+    }
+
     /** Stores the user's current course selections */
     setSelectedCourses(courses: SelectableCourse[]): void {
         this.selectedCoursesSubject.next(courses)
@@ -149,13 +164,13 @@ export class PlaylistStateService {
     }
 
     /** Caches raw competency data after a successful fetch */
-    setCachedCompetencies(competencies: any[], language: string): void {
+    setCachedCompetencies(competencies: RawCompetencyEntity[], language: string): void {
         this.competencyCache = competencies
         this.competencyCacheLanguage = language
     }
 
     /** Retrieves raw competency data from cache */
-    getCachedCompetencies(language: string): any[] | null {
+    getCachedCompetencies(language: string): RawCompetencyEntity[] | null {
         if (this.competencyCacheLanguage === language && this.competencyCache.length > 0) {
             return this.competencyCache
         }
@@ -273,6 +288,9 @@ export class PlaylistStateService {
         this.filtersSubject.next(null)
         this.existingPlaylistSubject.next(null)
         this.existingCourseIdsSubject.next([])
+        this.existingCompetencyPlaylistSubject.next(null)
+        this.existingCompetencyIdsSubject.next([])
+        this.existingCompetencyCodesSubject.next([])
         this.selectedCoursesSubject.next([])
         this.orderedCoursesSubject.next([])
         this.clearSelectedCompetencies()
@@ -280,4 +298,3 @@ export class PlaylistStateService {
         this.clearCompetencyCache()
     }
 }
-

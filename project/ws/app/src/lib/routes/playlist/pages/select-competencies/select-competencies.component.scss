@@ -5,6 +5,8 @@
     @extend .select-courses-container;
 }
 
+// Back button inherits blue pill style from select-courses base
+
 .code-col {
     width: 100px;
     min-width: 100px;

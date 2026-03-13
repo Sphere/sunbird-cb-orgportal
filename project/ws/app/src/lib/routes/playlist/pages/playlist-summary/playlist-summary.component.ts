@@ -1,8 +1,9 @@
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core'
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { Router } from '@angular/router'
 import { PlaylistStateService } from '../../services/playlist-state.service'
 import { PlaylistFilters } from '../../models/playlist.model'
+import { PLAYLIST_ROUTES, TIME_UNITS } from '../../constants/playlist.constants'
 
 @Component({
     selector: 'app-playlist-summary',
@@ -13,34 +14,18 @@ import { PlaylistFilters } from '../../models/playlist.model'
     imports: [CommonModule],
 })
 export class PlaylistSummaryComponent implements OnInit {
-    filters: PlaylistFilters | null = null
-    existingCourseIds: string[] = []
-    existingCompetencyIds: string[] = []
+    readonly filters = signal<PlaylistFilters | null>(null)
+    readonly existingCourseIds = signal<string[]>([])
+    readonly existingCompetencyIds = signal<string[]>([])
 
-    // Course statistics
-    courseSummary = {
-        total: 0,
-        lastUpdated: 'N/A',
-    }
+    readonly courseSummary = signal({ total: 0, lastUpdated: 'N/A' })
+    readonly competencySummary = signal({ total: 0, lastUpdated: 'N/A' })
 
-    // Competency statistics
-    competencySummary = {
-        total: 0,
-        lastUpdated: 'N/A',
-    }
+    readonly hasExistingCoursePlaylist = computed(() => this.existingCourseIds().length > 0)
+    readonly hasExistingCompetencyPlaylist = computed(() => this.existingCompetencyIds().length > 0)
 
-    get hasExistingCoursePlaylist(): boolean {
-        return this.existingCourseIds.length > 0
-    }
-
-    get hasExistingCompetencyPlaylist(): boolean {
-        return this.existingCompetencyIds.length > 0
-    }
-
-    constructor(
-        private router: Router,
-        private state: PlaylistStateService
-    ) { }
+    private readonly router = inject(Router)
+    private readonly state = inject(PlaylistStateService)
 
     /**
      * Component initialization.
@@ -57,11 +42,11 @@ export class PlaylistSummaryComponent implements OnInit {
      * If no filters are found, redirects the user back to the initialization step.
      */
     private loadFilters(): void {
-        this.filters = this.state.getFilters()
+        const f = this.state.getFilters()
+        this.filters.set(f)
 
-        if (!this.filters) {
-            // If no filters, redirect back to filter page
-            this.router.navigate(['/app/home/playlist/filters'])
+        if (!f) {
+            this.router.navigate([PLAYLIST_ROUTES.HOME_FILTERS])
         }
     }
 
@@ -70,16 +55,16 @@ export class PlaylistSummaryComponent implements OnInit {
      * Calculates the total count and formats the last-updated timestamp for display.
      */
     private loadExistingPlaylist(): void {
-        this.existingCourseIds = this.state.getExistingCourseIds()
+        const ids = this.state.getExistingCourseIds()
+        this.existingCourseIds.set(ids)
         const existingPlaylist = this.state.getExistingPlaylist()
 
-        this.courseSummary.total = this.existingCourseIds.length
-
-        if (this.existingCourseIds.length > 0) {
-            this.courseSummary.lastUpdated = existingPlaylist?.updated_at
-                ? this.timeAgo(existingPlaylist?.updated_at)
-                : 'N/A'
-        }
+        this.courseSummary.set({
+            total: ids.length,
+            lastUpdated: ids.length > 0 && existingPlaylist?.updated_at
+                ? this.timeAgo(existingPlaylist.updated_at)
+                : 'N/A',
+        })
     }
 
     /**
@@ -87,16 +72,16 @@ export class PlaylistSummaryComponent implements OnInit {
      * Syncs with the latest competency IDs and updates the visual summary.
      */
     private loadExistingCompetencyPlaylist(): void {
-        this.existingCompetencyIds = this.state.getExistingCompetencyIds()
+        const ids = this.state.getExistingCompetencyIds()
+        this.existingCompetencyIds.set(ids)
         const existingPlaylist = this.state.getExistingCompetencyPlaylist()
 
-        this.competencySummary.total = this.existingCompetencyIds.length
-
-        if (this.existingCompetencyIds.length > 0) {
-            this.competencySummary.lastUpdated = existingPlaylist?.updated_at
-                ? this.timeAgo(existingPlaylist?.updated_at)
-                : 'N/A'
-        }
+        this.competencySummary.set({
+            total: ids.length,
+            lastUpdated: ids.length > 0 && existingPlaylist?.updated_at
+                ? this.timeAgo(existingPlaylist.updated_at)
+                : 'N/A',
+        })
     }
 
     /**
@@ -107,26 +92,26 @@ export class PlaylistSummaryComponent implements OnInit {
         const now = new Date()
         const seconds = Math.floor((now.getTime() - date.getTime()) / 1000)
 
-        if (seconds < 60) {
+        if (seconds < TIME_UNITS.MINUTE) {
             return 'Just now'
         }
 
-        const minutes = Math.floor(seconds / 60)
-        if (minutes < 60) {
+        const minutes = Math.floor(seconds / TIME_UNITS.MINUTE)
+        if (minutes < TIME_UNITS.HOUR) {
             return `${minutes} min${minutes > 1 ? 's' : ''} ago`
         }
 
-        const hours = Math.floor(minutes / 60)
-        if (hours < 24) {
+        const hours = Math.floor(minutes / TIME_UNITS.HOUR)
+        if (hours < TIME_UNITS.DAY) {
             return `${hours} hr${hours > 1 ? 's' : ''} ago`
         }
 
-        const days = Math.floor(hours / 24)
-        if (days < 30) {
+        const days = Math.floor(hours / TIME_UNITS.DAY)
+        if (days < TIME_UNITS.MONTH_THRESHOLD) {
             return `${days} day${days > 1 ? 's' : ''} ago`
         }
 
-        const months = Math.floor(days / 30)
+        const months = Math.floor(days / TIME_UNITS.MONTH_THRESHOLD)
         if (months < 12) {
             return `${months} month${months > 1 ? 's' : ''} ago`
         }
@@ -139,7 +124,7 @@ export class PlaylistSummaryComponent implements OnInit {
      * Navigates back to the initial filter configuration screen.
      */
     onChangeFilters(): void {
-        this.router.navigate(['/app/home/playlist/filters'])
+        this.router.navigate([PLAYLIST_ROUTES.HOME_FILTERS])
     }
 
     /**
@@ -151,7 +136,7 @@ export class PlaylistSummaryComponent implements OnInit {
         this.state.clearCourseCache()
         // Clear any previously selected courses to start fresh
         this.state.clearSelectedCourses()
-        this.router.navigate(['/app/playlist/select-courses'])
+        this.router.navigate([PLAYLIST_ROUTES.SELECT_COURSES])
     }
 
     /**
@@ -159,7 +144,7 @@ export class PlaylistSummaryComponent implements OnInit {
      * Allows the user to browse and check/uncheck competencies for the playlist.
      */
     onCompetencyClick(): void {
-        this.router.navigate(['/app/playlist/select-competencies'])
+        this.router.navigate([PLAYLIST_ROUTES.SELECT_COMPETENCIES])
     }
 
 
@@ -167,11 +152,10 @@ export class PlaylistSummaryComponent implements OnInit {
      * Formats the list of selected roles into a user-friendly string.
      */
     getRoleDisplay(): string {
-        if (!this.filters || !this.filters.role) {
+        const f = this.filters()
+        if (!f || !f.role) {
             return ''
         }
-        return Array.isArray(this.filters.role)
-            ? this.filters.role.join(', ')
-            : this.filters.role
+        return Array.isArray(f.role) ? f.role.join(', ') : f.role
     }
 }

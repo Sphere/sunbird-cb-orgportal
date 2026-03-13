@@ -1,21 +1,15 @@
 <div class="select-courses-container">
-    <!-- Header with Tab Navigation -->
+    <!-- Header -->
     <div class="header">
-        <div class="tabs">
-            <!-- <button class="tab-button" (click)="onTabClick('competency')">Select Competencies</button> -->
-            <!-- <button class="tab-button active">Select Courses</button> -->
-        </div>
-
+        <button type="button" class="back-nav-btn" (click)="onBack()">
+            <mat-icon>arrow_back</mat-icon>
+            <span>Back</span>
+        </button>
+        <div class="header-spacer"></div>
         <button class="next-btn" (click)="onNext()" [disabled]="!isNextEnabled()">
             Next
         </button>
     </div>
-
-    <!-- Back Button -->
-    <button class="back-text-btn" (click)="onBack()">
-        <img src="https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/icons/frac-left-arrow.svg" alt="back"
-            class="back-icon">
-    </button>
 
     <!-- Page Title -->
     <div class="page-title">
@@ -37,41 +31,29 @@
         </div>
     </div>
 
-    <!-- Loading Indicator - Shows spinner in place of table -->
-    <div *ngIf="loading()" class="loading-container">
-        <div class="spinner"></div>
-        <p class="loading-text">Loading courses...</p>
-    </div>
-
-    <!-- Course Table (Pure HTML) -->
-    <div *ngIf="!loading()" class="table-container">
-        <!-- Scrollable table area (560px max) -->
+    <!-- Table (shimmer while loading, data after) -->
+    <div class="table-container">
         <div class="table-scroll-wrapper">
             <table class="custom-table">
                 <thead>
                     <tr>
-                        <th class="checkbox-col">
-                            <!-- <label class="custom-checkbox">
-                                <input type="checkbox" (change)="$event ? masterToggle() : null"
-                                    [checked]="selection.hasValue() && isAllSelected()"
-                                    [indeterminate]="selection.hasValue() && !isAllSelected()">
-                                <span class="checkmark"></span>
-                            </label> -->
-                        </th>
+                        <th class="checkbox-col"></th>
                         <th class="name-col">Name</th>
                         <th class="source-col">Source</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- Empty State - shown when no courses -->
-                    <tr *ngIf="filteredCourses.length === 0" class="empty-state-row">
-                        <td colspan="3" class="empty-state-cell">
-                            <p>No courses found</p>
-                        </td>
-                    </tr>
+                    <!-- Shimmer rows while loading -->
+                    <ng-container *ngIf="loading()">
+                        <tr *ngFor="let i of shimmerRows" class="shimmer-row">
+                            <td class="checkbox-col"><div class="shimmer-box checkbox"></div></td>
+                            <td class="name-col"><div class="shimmer-box text"></div></td>
+                            <td class="source-col"><div class="shimmer-box text shimmer-short"></div></td>
+                        </tr>
+                    </ng-container>
 
                     <!-- Course rows -->
-                    <tr *ngFor="let row of filteredCourses" [class.selected-row]="selection.isSelected(row)"
+                    <tr *ngFor="let row of filteredCourses()" [class.selected-row]="selection.isSelected(row)"
                         [class.preselected-row]="row.isPreselected">
                         <td class="checkbox-col">
                             <label class="custom-checkbox">
@@ -85,11 +67,15 @@
                     </tr>
                 </tbody>
             </table>
-        </div>
 
-        <!-- Pagination (Outside scroll area) -->
-        <mat-paginator [length]="totalCourses" [pageSize]="pageSize" [pageSizeOptions]="[20, 50, 100]"
-            showFirstLastButtons class="custom-paginator">
-        </mat-paginator>
+            <!-- Empty state -->
+            <div *ngIf="!loading() && filteredCourses().length === 0" class="empty-state-overlay">
+                <div class="empty-state-card">
+                    <div class="empty-state-icon"><mat-icon>menu_book</mat-icon></div>
+                    <p class="empty-state-title">No courses found</p>
+                    <p class="empty-state-message">No courses match your search or filter criteria.</p>
+                </div>
+            </div>
+        </div>
     </div>
 </div>

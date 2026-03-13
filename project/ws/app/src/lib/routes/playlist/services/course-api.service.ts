@@ -10,6 +10,7 @@ import {
     CompetencyInfo,
 } from '../models/course.model'
 import { getLevelCount } from '../config/competency.config'
+import { log } from '../utils/playlist-logger.utils'
 
 /**
  * Service for searching and retrieving course-related metadata.
@@ -19,7 +20,7 @@ import { getLevelCount } from '../config/competency.config'
     providedIn: 'root',
 })
 export class CourseApiService {
-    private readonly API_BASE = `/apis/proxies/v8/sunbirdigot/search`
+    private readonly API_BASE = `/api/proxies/v8/sunbirdigot/search`
 
     constructor(private http: HttpClient) { }
 
@@ -199,7 +200,7 @@ export class CourseApiService {
             const parsed = JSON.parse(course.competencies_v1)
             return Array.isArray(parsed) ? parsed : []
         } catch (error) {
-            console.error('Failed to parse competencies_v1:', error)
+            log.error('Failed to parse competencies_v1:', error)
             return []
         }
     }
@@ -221,10 +222,18 @@ export class CourseApiService {
     filterCoursesByLevel(courses: Course[], competencyId: string, level: number): Course[] {
         return courses.filter(course => {
             const competencies = this.parseCompetencyLevels(course)
-            return competencies.some(comp =>
+            const hasCompetencyV1Match = competencies.some(comp =>
                 String(comp.competencyId) === String(competencyId) &&
                 String(comp.level) === String(level)
             )
+
+            if (hasCompetencyV1Match) {
+                return true
+            }
+
+            // Fallback: some responses only provide competencySearch tags like ["100-1", "100-2"].
+            const tags = Array.isArray(course.competencySearch) ? course.competencySearch : []
+            return tags.includes(`${competencyId}-${level}`)
         })
     }
 

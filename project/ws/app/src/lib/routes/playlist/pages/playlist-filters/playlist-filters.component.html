@@ -7,6 +7,7 @@
 
     <!-- Form Container -->
     <form [formGroup]="filterForm" class="filter-form">
+
         <!-- Section 1: Select Position and State -->
         <div class="form-section">
             <h2 class="section-title">Select Position and State to Manage</h2>
@@ -16,75 +17,95 @@
 
             <!-- Row 1: Organization & Position -->
             <div class="form-row">
-                <!-- Organization Dropdown with Search -->
-                <div class="field-shell with-inner-label required-field" [class.field-error]="hasError('orgId')">
-                    <div class="inner-label">Organisation</div>
-                    <mat-form-field class="custom-mat-select" appearance="outline" hideRequiredMarker>
-                        <mat-select formControlName="orgId" placeholder="Select Organisation"
-                            panelClass="playlist-dropdown org-dropdown" panelWidth="300px" disableOptionCentering
-                            (openedChange)="onOrgDropdownToggle($event)">
-                            <!-- Search Input -->
-                            <mat-option class="search-option" disabled>
+                <!-- Organization — custom dropdown with search -->
+                <div class="field-shell" [class.field-error]="hasError('orgId')">
+                    <div class="select-wrapper">
+                        <span class="select-label required">Organisation</span>
+                        <div class="custom-select multi-select-trigger"
+                            [class.open]="orgDropdownOpen()"
+                            (click)="toggleOrgDropdown()"
+                            tabindex="0"
+                            (keydown.enter)="toggleOrgDropdown()"
+                            (keydown.space)="toggleOrgDropdown(); $event.preventDefault()">
+                            <span class="multi-select-value" [class.placeholder]="!selectedOrgLabel()">
+                                {{ selectedOrgLabel() || 'Select Organisation' }}
+                            </span>
+                        </div>
+                        <div class="multi-select-panel org-panel" *ngIf="orgDropdownOpen()">
+                            <div class="org-search-row" (click)="$event.stopPropagation()" (mousedown)="$event.preventDefault()">
                                 <input class="org-search-input" type="text" placeholder="Search Organisation..."
-                                    [value]="orgSearchTerm"
-                                    (input)="orgSearchTerm = $any($event.target).value; filterOrganizations()"
-                                    (click)="$event.stopPropagation()"
-                                    (mousedown)="$event.stopPropagation()"
-                                    (keydown)="$event.stopPropagation()"
-                                    (keyup)="$event.stopPropagation()">
-                            </mat-option>
-
-                            <mat-option *ngIf="loadingOrganizations()" disabled>Loading...</mat-option>
-                            <mat-option *ngIf="!loadingOrganizations() && filteredOrganizations.length === 0" disabled>
-                                No Organisation found
-                            </mat-option>
-                            <mat-option *ngFor="let org of filteredOrganizations" [value]="org.value">
+                                    [value]="orgSearchTerm()"
+                                    (input)="orgSearchTerm.set($any($event.target).value); filterOrganizations()"
+                                    (keydown)="$event.stopPropagation()">
+                            </div>
+                            <div *ngIf="loadingOrganizations()" class="multi-select-option disabled">Loading...</div>
+                            <div *ngIf="!loadingOrganizations() && filteredOrganizations().length === 0" class="multi-select-option disabled">No Organisation found</div>
+                            <div *ngFor="let org of filteredOrganizations()" class="multi-select-option"
+                                (mousedown)="$event.preventDefault()"
+                                (click)="selectOrg(org.value)">
                                 {{ org.label }}
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field>
+                            </div>
+                        </div>
+                        <span class="select-arrow">
+                            <svg viewBox="0 0 16 16" fill="none"><polyline points="3,5 8,11 13,5" stroke="#272727" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </span>
+                    </div>
                 </div>
 
-                <!-- Position Multi-Select -->
-                <div class="field-shell with-inner-label required-field" [class.field-error]="hasError('role')">
-                    <div class="inner-label">Position</div>
-                    <mat-form-field class="custom-mat-select" appearance="outline" hideRequiredMarker>
-                        <mat-select formControlName="role" multiple placeholder="Select Position"
-                            panelClass="playlist-dropdown">
-                            <mat-option *ngIf="loadingPositions()" disabled>Loading...</mat-option>
-                            <mat-option *ngIf="!loadingPositions() && positions.length === 0" disabled>
-                                No Position found
-                            </mat-option>
-                            <mat-option *ngFor="let position of positions" [value]="position.value">
-                                {{ position.label }}
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field>
+                <!-- Position — custom multi-select dropdown -->
+                <div class="field-shell" [class.field-error]="hasError('role')">
+                    <div class="select-wrapper">
+                        <span class="select-label required">Position</span>
+                        <div class="custom-select multi-select-trigger"
+                            [class.open]="positionDropdownOpen()"
+                            (click)="togglePositionDropdown()"
+                            tabindex="0"
+                            (keydown.enter)="togglePositionDropdown()"
+                            (keydown.space)="togglePositionDropdown(); $event.preventDefault()">
+                            <span class="multi-select-value" [class.placeholder]="selectedRoles.length === 0">
+                                {{ selectedRoles.length === 0 ? 'Select Position' : selectedRoles.join(', ') }}
+                            </span>
+                        </div>
+                        <div class="multi-select-panel" *ngIf="positionDropdownOpen()">
+                            <label *ngIf="loadingPositions()" class="multi-select-option disabled">Loading...</label>
+                            <label *ngFor="let pos of positions()" class="multi-select-option"
+                                (mousedown)="$event.preventDefault()"
+                                (click)="toggleRole(pos.value)">
+                                <input type="checkbox" [checked]="isRoleSelected(pos.value)" (change)="toggleRole(pos.value)" (click)="$event.stopPropagation()">
+                                {{ pos.label }}
+                            </label>
+                        </div>
+                        <span class="select-arrow">
+                            <svg viewBox="0 0 16 16" fill="none"><polyline points="3,5 8,11 13,5" stroke="#272727" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </span>
+                    </div>
                 </div>
             </div>
 
             <!-- Row 2: District & Block -->
             <div class="form-row">
-                <!-- District Dropdown -->
                 <div class="field-shell">
-                    <mat-form-field class="custom-mat-select" appearance="outline">
-                        <mat-select formControlName="district" placeholder="District" panelClass="playlist-dropdown">
-                            <mat-option *ngFor="let district of districts" [value]="district.value">
-                                {{ district.label }}
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field>
+                    <div class="select-wrapper no-label">
+                        <select class="custom-select" formControlName="district">
+                            <option value="" selected>District</option>
+                            <option *ngFor="let d of districts()" [value]="d.value">{{ d.label }}</option>
+                        </select>
+                        <span class="select-arrow">
+                            <svg viewBox="0 0 16 16" fill="none"><polyline points="3,5 8,11 13,5" stroke="#272727" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </span>
+                    </div>
                 </div>
 
-                <!-- Block Dropdown -->
                 <div class="field-shell">
-                    <mat-form-field class="custom-mat-select" appearance="outline">
-                        <mat-select formControlName="block" placeholder="Block" panelClass="playlist-dropdown">
-                            <mat-option *ngFor="let block of blocks" [value]="block.value">
-                                {{ block.label }}
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field>
+                    <div class="select-wrapper no-label">
+                        <select class="custom-select" formControlName="block">
+                            <option value="" selected>Block</option>
+                            <option *ngFor="let b of blocks()" [value]="b.value">{{ b.label }}</option>
+                        </select>
+                        <span class="select-arrow">
+                            <svg viewBox="0 0 16 16" fill="none"><polyline points="3,5 8,11 13,5" stroke="#272727" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -97,17 +118,20 @@
             </p>
 
             <div class="form-row">
-                <!-- Language Dropdown (Full Width) -->
-                <div class="field-shell field-shell-full with-inner-label required-field" [class.field-error]="hasError('language')">
-                    <div class="inner-label">Language</div>
-                    <mat-form-field class="custom-mat-select custom-mat-select-full" appearance="outline" hideRequiredMarker>
-                        <mat-select formControlName="language" placeholder="Select Language" panelClass="playlist-dropdown">
-                            <mat-option *ngFor="let lang of languages" [value]="lang.value">
-                                {{ lang.label }}
-                            </mat-option>
-                        </mat-select>
-                    </mat-form-field>
+                <div class="field-shell" [class.field-error]="hasError('language')">
+                    <div class="select-wrapper">
+                        <span class="select-label required">Language</span>
+                        <select class="custom-select" formControlName="language">
+                            <option value="" disabled selected hidden>Select Language</option>
+                            <option *ngFor="let lang of languages" [value]="lang.value">{{ lang.label }}</option>
+                        </select>
+                        <span class="select-arrow">
+                            <svg viewBox="0 0 16 16" fill="none"><polyline points="3,5 8,11 13,5" stroke="#272727" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </span>
+                    </div>
                 </div>
+                <!-- Spacer -->
+                <div class="field-shell"></div>
             </div>
         </div>
 

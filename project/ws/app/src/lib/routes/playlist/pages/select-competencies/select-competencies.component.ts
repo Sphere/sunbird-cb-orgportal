@@ -1,13 +1,16 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, signal, ViewChild, AfterViewInit } from '@angular/core'
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, signal } from '@angular/core'
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
 import { CommonModule } from '@angular/common'
 import { Router } from '@angular/router'
-import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator'
+import { MatIconModule } from '@angular/material/icon'
 import { SelectionModel } from '@angular/cdk/collections'
 import { CompetencyApiService } from '../../services/competency-api.service'
 import { PlaylistStateService } from '../../services/playlist-state.service'
 import { SelectableCompetency } from '../../models/competency.model'
 import { getLevelNumbers } from '../../config/competency.config'
+import { PLAYLIST_ROUTES, PLAYLIST_UI } from '../../constants/playlist.constants'
+import { log } from '../../utils/playlist-logger.utils'
+import { RawCompetencyEntity, RawCompetencyLevel } from '../../utils/competency-transformer'
 
 /**
  * Component to handle competency selection.
@@ -19,67 +22,70 @@ import { getLevelNumbers } from '../../config/competency.config'
     styleUrls: ['./select-competencies.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: true,
-    imports: [CommonModule, MatPaginatorModule],
+    imports: [CommonModule, MatIconModule],
 })
-export class SelectCompetenciesComponent implements OnInit, AfterViewInit {
-    @ViewChild(MatPaginator, { static: false }) paginator!: MatPaginator
-
+export class SelectCompetenciesComponent implements OnInit {
     selection = new SelectionModel<SelectableCompetency>(true, [])
 
-    allCompetencies: SelectableCompetency[] = []
-    searchResultCompetencies: SelectableCompetency[] = []
-    filteredCompetencies: SelectableCompetency[] = []
-    existingCompetencyIds: string[] = []
-
-    totalCompetencies = 0
-    pageSize = 20
-    currentPage = 0
-    private paginatorSubscriptionSetup = false
+    readonly allCompetencies = signal<SelectableCompetency[]>([])
+    readonly searchResultCompetencies = signal<SelectableCompetency[]>([])
+    readonly filteredCompetencies = signal<SelectableCompetency[]>([])
+    readonly existingCompetencyCodes = signal<string[]>([])
+    readonly shimmerRows = Array(PLAYLIST_UI.SHIMMER_ROWS).fill(0)
 
     readonly loading = signal(false)
     readonly searchTerm = signal('')
+    private preselectedCompetencyOrderMap = new Map<string, number>()
 
     private readonly destroyRef = inject(DestroyRef)
-
-    constructor(
-        private router: Router,
-        private competencyApi: CompetencyApiService,
-        private state: PlaylistStateService
-    ) { }
+    private readonly router = inject(Router)
+    private readonly competencyApi = inject(CompetencyApiService)
+    private readonly state = inject(PlaylistStateService)
 
     ngOnInit(): void {
-        this.existingCompetencyIds = this.state.getExistingCompetencyIds()
+        this.existingCompetencyCodes.set(
+            this.state.getExistingCompetencyCodes().map(code => String(code).trim().toUpperCase())
+        )
+        this.buildPreselectedCompetencyOrderMap()
         this.loadCompetencies()
     }
 
-    /**
-     * Initializes the paginator subscription after the view is fully rendered.
-     * The actual data loading handles the paginator configuration.
-     */
-    ngAfterViewInit(): void {
-        // Initialization handled in loadCompetencies
-    }
-
-    /** Sets up paginator event subscription (called once after data loads) */
-    private setupPaginatorSubscription(): void {
-        if (this.paginatorSubscriptionSetup || !this.paginator) {
+    /** Builds payload-order map for existing playlist competencies by code */
+    private buildPreselectedCompetencyOrderMap(): void {
+        this.preselectedCompetencyOrderMap.clear()
+        const existingPlaylist = this.state.getExistingCompetencyPlaylist()
+        const payload = existingPlaylist?.dataSource?.payload
+        if (!Array.isArray(payload)) {
             return
         }
 
-        this.paginator.page.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(pageEvent => {
-            this.currentPage = pageEvent.pageIndex
-            this.pageSize = pageEvent.pageSize
-            this.applyPagination()
-        })
+        payload.forEach((item, arrayIndex) => {
+            if (!item || typeof item !== 'object') {
+                return
+            }
 
-        this.paginatorSubscriptionSetup = true
+            const entry = item as Record<string, unknown>
+            const wrapped = !('code' in entry)
+                ? Object.values(entry).find(v => !!v && typeof v === 'object') as Record<string, unknown> | undefined
+                : undefined
+            const source = wrapped || entry
+
+            const rawCode = String(source?.['code'] || '').trim().toUpperCase()
+            if (!rawCode) {
+                return
+            }
+
+            const rawIndex = source?.['index']
+            const payloadIndex = typeof rawIndex === 'number' ? rawIndex : arrayIndex
+            this.preselectedCompetencyOrderMap.set(rawCode, payloadIndex)
+        })
     }
 
     /** Loads competency list and restores state */
     private loadCompetencies(): void {
         const filters = this.state.getFilters()
         if (!filters) {
-            this.router.navigate(['/app/home/playlist/filters'])
+            this.router.navigate([PLAYLIST_ROUTES.HOME_FILTERS])
             return
         }
 
@@ -100,17 +106,19 @@ export class SelectCompetenciesComponent implements OnInit, AfterViewInit {
                 this.finalizeLoading()
             },
             error: (err) => {
-                console.error('Error loading competencies:', err)
+                log.error('Error loading competencies:', err)
                 this.loading.set(false)
             }
         })
     }
 
     /** Maps raw competencies to selectable objects (resets UI state) */
-    private processCompetencies(data: any[]): void {
-        this.allCompetencies = data.map((c, index) => {
+    private processCompetencies(data: RawCompetencyEntity[]): void {
+        const existingCodes = this.existingCompetencyCodes()
+        const competencies = data.map((c, index) => {
             const id = String(c.id)
-            const isPreselected = this.existingCompetencyIds.includes(id)
+            const code = String(c.code || '').trim().toUpperCase()
+            const isPreselected = !!code && existingCodes.includes(code)
 
             return {
                 ...c,
@@ -120,7 +128,7 @@ export class SelectCompetenciesComponent implements OnInit, AfterViewInit {
                 displayOrder: index + 1,
                 coursesAssigned: false,
                 levels: c.children && c.children.length > 0
-                    ? c.children.map((child: any) => ({
+                    ? c.children.map((child: RawCompetencyLevel) => ({
                         level: child.levelId || child.level,
                         name: child.name,
                         description: child.description,
@@ -131,179 +139,137 @@ export class SelectCompetenciesComponent implements OnInit, AfterViewInit {
             } as SelectableCompetency
         })
 
-        this.allCompetencies.sort((a, b) => this.compareCompetencies(a, b))
+        competencies.sort((a, b) => this.compareCompetencies(a, b))
+        this.allCompetencies.set(competencies)
     }
 
-    /**
-     * Finalizes the internal state once data is loaded (either from cache or API).
-     * This prepares the search results, applies initial sorting, and sets up pagination.
-     */
     private finalizeLoading(): void {
         this.applyPreselectionAndSort()
-        this.searchResultCompetencies = [...this.allCompetencies]
-        this.totalCompetencies = this.searchResultCompetencies.length
-        this.applyPagination()
-
-        // Configure the paginator UI component once data is ready
-        setTimeout(() => {
-            if (this.paginator) {
-                this.paginator.length = this.totalCompetencies
-                this.paginator.pageSize = this.pageSize
-                this.paginator.pageIndex = 0
-                this.setupPaginatorSubscription()
-            }
-        }, 0)
-
+        this.resortAndRefresh()
         this.loading.set(false)
     }
 
-    /** Handles pagination */
-    private applyPagination(): void {
-        const start = this.currentPage * this.pageSize
-        const end = start + this.pageSize
-        this.filteredCompetencies = this.searchResultCompetencies.slice(start, end)
+    /** Re-sorts list based on selection priority and refreshes visible rows */
+    private resortAndRefresh(): void {
+        const sorted = [...this.allCompetencies()].sort((a, b) => this.compareCompetencies(a, b))
+        this.allCompetencies.set(sorted)
+        const all = this.allCompetencies()
+        this.searchResultCompetencies.set([...all])
+        this.filteredCompetencies.set([...all])
+        this.onSearch()
     }
 
-    /** Sorts competencies with preselected items first (matching select-courses logic) */
+    /** Restores saved selections; list stays in strict A-Z order */
     private applyPreselectionAndSort(): void {
         this.selection.clear()
 
-        // Check if we have saved selections from a previous visit
         const savedSelections = this.state.getSelectedCompetencies()
+        let selectedCount = 0
 
         if (savedSelections && savedSelections.length > 0) {
-            // Restore user's previous selections
-            const savedIds = savedSelections.map(c => c.id)
+            const savedCodes = new Set(
+                savedSelections
+                    .map(c => String(c?.code || '').trim().toUpperCase())
+                    .filter(code => !!code)
+            )
 
-            const selected = this.allCompetencies.filter(c => savedIds.includes(c.id))
-            const unselected = this.allCompetencies.filter(c => !savedIds.includes(c.id))
+            const savedIds = new Set(
+                savedSelections
+                    .map(c => String(c?.id || '').trim())
+                    .filter(id => !!id)
+            )
 
-            // Sort selected competencies by their saved order
-            selected.sort((a, b) => {
-                const indexA = savedIds.indexOf(a.id)
-                const indexB = savedIds.indexOf(b.id)
-                return (indexA === -1 ? 9999 : indexA) - (indexB === -1 ? 9999 : indexB)
-            })
+            this.allCompetencies()
+                .filter((c: SelectableCompetency) => {
+                    const code = String(c?.code || '').trim().toUpperCase()
+                    if (code && savedCodes.size > 0) {
+                        return savedCodes.has(code)
+                    }
+                    return savedIds.has(String(c.id))
+                })
+                .forEach((c: SelectableCompetency) => {
+                    this.selection.select(c)
+                    selectedCount += 1
+                })
+        }
 
-            this.allCompetencies = [...selected, ...unselected]
-
-            // Restore selections to the SelectionModel
-            selected.forEach(competency => {
-                this.selection.select(competency)
-            })
-        } else {
-            // No saved selections - use existing playlist competencies (preselected from DB)
-            const preselected = this.allCompetencies.filter(c => c.isPreselected)
-            const others = this.allCompetencies.filter(c => !c.isPreselected)
-
-            // Sort preselected by their original order from state
-            preselected.sort((a, b) => {
-                const indexA = this.existingCompetencyIds.indexOf(a.id)
-                const indexB = this.existingCompetencyIds.indexOf(b.id)
-                return (indexA === -1 ? 9999 : indexA) - (indexB === -1 ? 9999 : indexB)
-            })
-
-            this.allCompetencies = [...preselected, ...others]
-
-            // Auto-select preselected competencies
-            preselected.forEach(competency => {
-                this.selection.select(competency)
-            })
+        // Fallback: if no saved match found (stale state), use backend preselected IDs.
+        if (selectedCount === 0) {
+            this.allCompetencies()
+                .filter((c: SelectableCompetency) => c.isPreselected)
+                .forEach((c: SelectableCompetency) => this.selection.select(c))
         }
     }
 
     /** Filters competencies based on name or code */
     onSearch(): void {
-        this.currentPage = 0
-
         if (this.searchTerm().trim() === '') {
-            this.searchResultCompetencies = [...this.allCompetencies]
+            this.searchResultCompetencies.set([...this.allCompetencies()])
         } else {
             const term = this.searchTerm().toLowerCase()
-            this.searchResultCompetencies = this.allCompetencies.filter(c =>
+            this.searchResultCompetencies.set(this.allCompetencies().filter((c: SelectableCompetency) =>
                 c.name?.toLowerCase().includes(term) ||
                 c.code?.toLowerCase().includes(term)
-            )
+            ))
         }
 
-        this.sortBySelection()
-        this.totalCompetencies = this.searchResultCompetencies.length
-        this.applyPagination()
-
-        setTimeout(() => {
-            if (this.paginator) {
-                this.paginator.pageIndex = 0
-                this.paginator.length = this.totalCompetencies
-            }
-        }, 0)
+        this.filteredCompetencies.set([...this.searchResultCompetencies()])
     }
 
-    /** Syncs checkbox state and re-sorts list */
-    onSelectionChange(row: SelectableCompetency, event: any): void {
-        if (event.target.checked) {
+    /** Syncs checkbox state — list order stays A-Z */
+    onSelectionChange(row: SelectableCompetency, event: Event): void {
+        if ((event.target as HTMLInputElement).checked) {
             this.selection.select(row)
         } else {
             this.selection.deselect(row)
         }
-
-        this.sortBySelection()
-        this.currentPage = 0
-        this.applyPagination()
-
-        setTimeout(() => {
-            if (this.paginator) {
-                this.paginator.pageIndex = 0
-            }
-        }, 0)
+        this.resortAndRefresh()
     }
 
-    /** Sorts list: preselected/active first, then others */
-    private sortBySelection(): void {
-        const defaultPreselected: SelectableCompetency[] = []
-        const userSelected: SelectableCompetency[] = []
-        const unselected: SelectableCompetency[] = []
-
-        this.searchResultCompetencies.forEach(competency => {
-            const isSelected = this.selection.isSelected(competency)
-
-            if (competency.isPreselected) {
-                defaultPreselected.push(competency)
-            } else if (isSelected) {
-                userSelected.push(competency)
-            } else {
-                unselected.push(competency)
-            }
-        })
-
-        userSelected.sort((a, b) => this.compareCompetencies(a, b))
-        unselected.sort((a, b) => this.compareCompetencies(a, b))
-
-        this.searchResultCompetencies = [
-            ...defaultPreselected,
-            ...userSelected,
-            ...unselected
-        ]
-    }
-
-    /** Natural ascending sort (A-Z, numeric-aware 0-9). */
+    /** Sort by code A-Z / 0-9, then name as tiebreaker */
     private compareCompetencies(a: SelectableCompetency, b: SelectableCompetency): number {
-        const nameA = (a?.name || '').trim()
-        const nameB = (b?.name || '').trim()
-        const nameSort = nameA.localeCompare(nameB, undefined, { numeric: true, sensitivity: 'base' })
-        if (nameSort !== 0) {
-            return nameSort
+        // Priority groups:
+        // 1) existing/preselected 2) newly selected 3) remaining unselected
+        const rank = (item: SelectableCompetency): number => {
+            if (item.isPreselected) return 0
+            if (this.selection.isSelected(item)) return 1
+            return 2
+        }
+
+        const rankA = rank(a)
+        const rankB = rank(b)
+        if (rankA !== rankB) {
+            return rankA - rankB
+        }
+
+        // Within preselected group, respect playlist payload order.
+        if (rankA === 0 && rankB === 0) {
+            const keyA = String(a?.code || '').trim().toUpperCase()
+            const keyB = String(b?.code || '').trim().toUpperCase()
+            const orderA = this.preselectedCompetencyOrderMap.get(keyA) ?? Number.MAX_SAFE_INTEGER
+            const orderB = this.preselectedCompetencyOrderMap.get(keyB) ?? Number.MAX_SAFE_INTEGER
+            if (orderA !== orderB) {
+                return orderA - orderB
+            }
         }
 
         const codeA = (a?.code || '').trim()
         const codeB = (b?.code || '').trim()
-        return codeA.localeCompare(codeB, undefined, { numeric: true, sensitivity: 'base' })
+        const codeSort = codeA.localeCompare(codeB, undefined, { numeric: true, sensitivity: 'base' })
+        if (codeSort !== 0) {
+            return codeSort
+        }
+
+        const nameA = (a?.name || '').trim()
+        const nameB = (b?.name || '').trim()
+        return nameA.localeCompare(nameB, undefined, { numeric: true, sensitivity: 'base' })
     }
 
     /**
      * Returns the user to the playlist summary dashboard.
      */
     onBack(): void {
-        this.router.navigate(['/app/home/playlist/summary'])
+        this.router.navigate([PLAYLIST_ROUTES.HOME_SUMMARY])
     }
 
     /**
@@ -311,7 +277,8 @@ export class SelectCompetenciesComponent implements OnInit, AfterViewInit {
      * This is the bridge between selecting competencies and assigning courses to them.
      */
     onAssignCourses(): void {
-        this.state.setSelectedCompetencies(this.selection.selected)
-        this.router.navigate(['/app/playlist/manage-competency-order'])
+        const selectedInListOrder = this.allCompetencies().filter(c => this.selection.isSelected(c))
+        this.state.setSelectedCompetencies(selectedInListOrder)
+        this.router.navigate([PLAYLIST_ROUTES.MANAGE_COMPETENCY_ORDER])
     }
 }

@@ -34,7 +34,7 @@ export const STANDALONE_PLAYLIST_ROUTES: Routes = [
         component: SelectCoursesComponent,
     },
     {
-        path: 'manage-order',
+        path: 'manage-course-order',
         component: ManageCourseOrderComponent,
     },
     {

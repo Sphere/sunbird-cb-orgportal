@@ -1,90 +1,65 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, signal, ViewChild, AfterViewInit } from '@angular/core'
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { Router } from '@angular/router'
-import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator'
-import { MatTableDataSource } from '@angular/material/table'
+import { MatIconModule } from '@angular/material/icon'
 import { SelectionModel } from '@angular/cdk/collections'
 import { CourseApiService } from '../../services/course-api.service'
 import { PlaylistStateService } from '../../services/playlist-state.service'
 import { Course, SelectableCourse } from '../../models/course.model'
+import { PLAYLIST_ROUTES, PLAYLIST_UI } from '../../constants/playlist.constants'
+import { log } from '../../utils/playlist-logger.utils'
 
-/**
- * Component for browsing and selecting courses for a playlist.
- * Handles existing selection restoration, client-side search, and managed pagination.
- */
 @Component({
     selector: 'app-select-courses',
     templateUrl: './select-courses.component.html',
     styleUrls: ['./select-courses.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: true,
-    imports: [CommonModule, MatPaginatorModule],
+    imports: [CommonModule, MatIconModule],
 })
-export class SelectCoursesComponent implements OnInit, AfterViewInit {
-    @ViewChild(MatPaginator, { static: false }) paginator!: MatPaginator
-
-    displayedColumns: string[] = ['select', 'name', 'source']
-    dataSource = new MatTableDataSource<SelectableCourse>([])
+export class SelectCoursesComponent implements OnInit {
     selection = new SelectionModel<SelectableCourse>(true, [])
 
-    allCourses: SelectableCourse[] = []
-    searchResultCourses: SelectableCourse[] = []
-    filteredCourses: SelectableCourse[] = []
-    existingCourseIds: string[] = []
-    totalCourses = 0
-    pageSize = 20
-    currentPage = 0
-    private paginatorSubscriptionSetup = false
+    readonly allCourses = signal<SelectableCourse[]>([])
+    readonly searchResultCourses = signal<SelectableCourse[]>([])
+    readonly filteredCourses = signal<SelectableCourse[]>([])
+    readonly existingCourseIds = signal<string[]>([])
+    readonly shimmerRows = Array(PLAYLIST_UI.SHIMMER_ROWS).fill(0)
 
     readonly loading = signal(false)
     readonly searchTerm = signal('')
-    private readonly destroyRef = inject(DestroyRef)
+    private preselectedCourseOrderMap = new Map<string, number>()
 
-    constructor(
-        private router: Router,
-        private courseApi: CourseApiService,
-        private state: PlaylistStateService
-    ) { }
+    private readonly router = inject(Router)
+    private readonly courseApi = inject(CourseApiService)
+    private readonly state = inject(PlaylistStateService)
 
-    /**
-     * Component initialization.
-     * Loads the existing playlist context and triggers the master course list fetch.
-     */
     ngOnInit(): void {
-        this.loadExistingPlaylist()
+        this.existingCourseIds.set(this.state.getExistingCourseIds())
+        this.buildPreselectedCourseOrderMap()
         this.loadCourses()
     }
 
-    ngAfterViewInit(): void {
-        // Paginator subscription is set up in loadCourses() after data loads
-    }
-
-    /** Sets up paginator event subscription (called once after data loads) */
-    private setupPaginatorSubscription(): void {
-        if (this.paginatorSubscriptionSetup) {
+    /** Builds payload-order map for existing playlist courses (index 0,1,2...) */
+    private buildPreselectedCourseOrderMap(): void {
+        this.preselectedCourseOrderMap.clear()
+        const existingPlaylist = this.state.getExistingPlaylist()
+        const payload = existingPlaylist?.dataSource?.payload
+        if (!Array.isArray(payload)) {
             return
         }
 
-        this.paginator.page.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(pageEvent => {
-            this.currentPage = pageEvent.pageIndex
-            this.pageSize = pageEvent.pageSize
-            this.applyPagination()
+        payload.forEach((item, index) => {
+            if (typeof item === 'string' && item.trim()) {
+                this.preselectedCourseOrderMap.set(item.trim(), index)
+            }
         })
-
-        this.paginatorSubscriptionSetup = true
     }
 
-    /** Loads existing playlist course IDs from state */
-    private loadExistingPlaylist(): void {
-        this.existingCourseIds = this.state.getExistingCourseIds()
-    }
-
-    /** Loads all courses from cache or API */
     private async loadCourses(): Promise<void> {
         const filters = this.state.getFilters()
         if (!filters) {
-            this.router.navigate(['/app/home/playlist/filters'])
+            this.router.navigate([PLAYLIST_ROUTES.HOME_FILTERS])
             return
         }
 
@@ -102,233 +77,115 @@ export class SelectCoursesComponent implements OnInit, AfterViewInit {
             }
 
             const courses = rawCourses.map(course => this.toSelectableCourse(course))
-
-            this.allCourses = courses
-            this.totalCourses = courses.length
-
+            courses.sort((a, b) => this.compareCourses(a, b))
+            this.allCourses.set(courses)
             this.applyPreselectionAndSort()
-            this.searchResultCourses = [...this.allCourses]
-            this.totalCourses = this.searchResultCourses.length
-            this.applyPagination()
-
-            // Configure paginator after view is ready
-            setTimeout(() => {
-                if (this.paginator) {
-                    this.paginator.length = this.totalCourses
-                    this.paginator.pageSize = this.pageSize
-                    this.paginator.pageIndex = 0
-                    this.setupPaginatorSubscription()
-                }
-            }, 0)
+            this.resortAndRefresh()
         } catch (error) {
-            console.error('Error loading courses:', error)
+            log.error('Error loading courses:', error)
         } finally {
             this.loading.set(false)
         }
     }
 
-    /**
-     * Applies pagination to the current search results.
-     * Updates the data source to reflect only the courses visible on the current page.
-     */
-    private applyPagination(): void {
-        const start = this.currentPage * this.pageSize
-        const end = start + this.pageSize
-
-        this.filteredCourses = this.searchResultCourses.slice(start, end)
-        this.dataSource.data = this.filteredCourses
-    }
-
-    /**
-     * Transforms a raw Course object into a SelectableCourse.
-     * Checks against the existing playlist to mark items as pre-selected.
-     */
     private toSelectableCourse(course: Course): SelectableCourse {
-        const isPreselected = this.existingCourseIds.includes(course.identifier)
-
-        return {
-            ...course,
-            selected: isPreselected,
-            isPreselected,
-        }
+        const isPreselected = this.existingCourseIds().includes(course.identifier)
+        return { ...course, selected: isPreselected, isPreselected }
     }
 
-    /** Sorts courses with preselected items first (in playlist order) */
+    /** Restores saved selections; list order is set before calling this */
     private applyPreselectionAndSort(): void {
-        // Check if we have saved selections from a previous visit (e.g., coming back from manage-order)
+        this.selection.clear()
         const savedSelections = this.state.getSelectedCourses()
+        let selectedCount = 0
 
         if (savedSelections && savedSelections.length > 0) {
-            // Restore user's previous selections
             const savedIds = savedSelections.map(c => c.identifier)
+            this.allCourses()
+                .filter(c => savedIds.includes(c.identifier))
+                .forEach(c => {
+                    this.selection.select(c)
+                    selectedCount += 1
+                })
+        }
 
-            const preselected = this.allCourses.filter(c => savedIds.includes(c.identifier))
-            const notPreselected = this.allCourses.filter(c => !savedIds.includes(c.identifier))
-
-            // Sort preselected courses by their saved order
-            preselected.sort((a, b) => {
-                const indexA = savedIds.indexOf(a.identifier)
-                const indexB = savedIds.indexOf(b.identifier)
-                return indexA - indexB
-            })
-
-            this.allCourses = [...preselected, ...notPreselected]
-
-            // Restore selections
-            preselected.forEach(course => {
-                this.selection.select(course)
-            })
-        } else {
-            // No saved selections - use existing playlist courses
-            const preselected = this.allCourses.filter(c => c.isPreselected)
-            const notPreselected = this.allCourses.filter(c => !c.isPreselected)
-
-            // Sort preselected courses by their original playlist order
-            preselected.sort((a, b) => {
-                const indexA = this.existingCourseIds.indexOf(a.identifier)
-                const indexB = this.existingCourseIds.indexOf(b.identifier)
-                return (indexA === -1 ? 9999 : indexA) - (indexB === -1 ? 9999 : indexB)
-            })
-
-            this.allCourses = [...preselected, ...notPreselected]
-
-            // Auto-select preselected courses
-            preselected.forEach(course => {
-                this.selection.select(course)
-            })
+        if (selectedCount === 0) {
+            this.allCourses().filter(c => c.isPreselected).forEach(c => this.selection.select(c))
         }
     }
 
-    /** Handles search input with client-side filtering */
-    onSearch(): void {
-        this.currentPage = 0
+    /** Re-sorts list based on selection priority and refreshes visible rows */
+    private resortAndRefresh(): void {
+        const sorted = [...this.allCourses()].sort((a, b) => this.compareCourses(a, b))
+        this.allCourses.set(sorted)
+        this.onSearch()
+    }
 
-        if (this.searchTerm().trim() === '') {
-            // Search cleared - restore all courses
-            this.searchResultCourses = [...this.allCourses]
-        } else {
-            // Filter courses based on search term
-            this.searchResultCourses = this.courseApi.filterCourses(this.allCourses, this.searchTerm())
+    /** Priority: preselected first, then selected, then remaining; then name/source */
+    private compareCourses(a: SelectableCourse, b: SelectableCourse): number {
+        const rank = (item: SelectableCourse): number => {
+            if (item.isPreselected) return 0
+            if (this.selection.isSelected(item)) return 1
+            return 2
         }
 
-        // Apply sorting to keep selected courses at top
-        this.sortBySelection()
+        const rankA = rank(a)
+        const rankB = rank(b)
+        if (rankA !== rankB) {
+            return rankA - rankB
+        }
 
-        this.totalCourses = this.searchResultCourses.length
-        this.applyPagination()
-
-        setTimeout(() => {
-            if (this.paginator) {
-                this.paginator.pageIndex = 0
-                this.paginator.length = this.totalCourses
+        // Within preselected group, respect playlist payload order.
+        if (rankA === 0 && rankB === 0) {
+            const orderA = this.preselectedCourseOrderMap.get(String(a.identifier || '').trim()) ?? Number.MAX_SAFE_INTEGER
+            const orderB = this.preselectedCourseOrderMap.get(String(b.identifier || '').trim()) ?? Number.MAX_SAFE_INTEGER
+            if (orderA !== orderB) {
+                return orderA - orderB
             }
-        }, 0)
+        }
+
+        const nameA = (a?.name || '').trim()
+        const nameB = (b?.name || '').trim()
+        const nameSort = nameA.localeCompare(nameB, undefined, { numeric: true, sensitivity: 'base' })
+        if (nameSort !== 0) {
+            return nameSort
+        }
+
+        const sourceA = (a?.sourceName || '').trim()
+        const sourceB = (b?.sourceName || '').trim()
+        return sourceA.localeCompare(sourceB, undefined, { numeric: true, sensitivity: 'base' })
     }
 
-    /**
-     * Handles course selection/deselection
-     * Dynamically re-sorts to show all selected courses at the top
-     */
-    onSelectionChange(row: SelectableCourse, event: any): void {
-        // Toggle selection
-        if (event.target.checked) {
+    onSearch(): void {
+        if (this.searchTerm().trim() === '') {
+            this.searchResultCourses.set([...this.allCourses()])
+        } else {
+            this.searchResultCourses.set(this.courseApi.filterCourses(this.allCourses(), this.searchTerm()))
+        }
+        this.filteredCourses.set([...this.searchResultCourses()])
+    }
+
+    onSelectionChange(row: SelectableCourse, event: Event): void {
+        if ((event.target as HTMLInputElement).checked) {
             this.selection.select(row)
         } else {
             this.selection.deselect(row)
         }
-
-        // Re-sort: Selected courses first, then unselected
-        this.sortBySelection()
-
-        // Reset to page 1 to show newly selected courses
-        this.currentPage = 0
-        this.applyPagination()
-
-        setTimeout(() => {
-            if (this.paginator) {
-                this.paginator.pageIndex = 0
-            }
-        }, 0)
+        this.resortAndRefresh()
     }
 
-    /**
-     * Sorts the course list to maintain a logical hierarchy:
-     * 1. Mandatory/Existing courses from the database.
-     * 2. New selections made during the current session.
-     * 3. All other available courses.
-     */
-    private sortBySelection(): void {
-        const defaultPreselected: SelectableCourse[] = []
-        const userSelected: SelectableCourse[] = []
-        const unselected: SelectableCourse[] = []
-
-        this.searchResultCourses.forEach(course => {
-            const isSelected = this.selection.isSelected(course)
-
-            if (course.isPreselected) {
-                defaultPreselected.push(course)
-            } else if (isSelected) {
-                userSelected.push(course)
-            } else {
-                unselected.push(course)
-            }
-        })
-
-        // Maintain original order within each group
-        this.searchResultCourses = [
-            ...defaultPreselected,
-            ...userSelected,
-            ...unselected
-        ]
-    }
-
-    /**
-     * Checks if every course on the current page is currently selected.
-     * Used to drive the state of the master "select all" checkbox.
-     */
-    isAllSelected(): boolean {
-        const numSelected = this.selection.selected.length
-        const numRows = this.dataSource.data.length
-        return numSelected === numRows
-    }
-
-    /**
-     * Selects or deselects all courses on the current page in a single action.
-     */
-    masterToggle(): void {
-        if (this.isAllSelected()) {
-            this.selection.clear()
-        } else {
-            this.dataSource.data.forEach(row => this.selection.select(row))
-        }
-    }
-
-    /** Returns accessibility label for checkbox */
-    checkboxLabel(row?: SelectableCourse): string {
-        if (!row) {
-            return `${this.isAllSelected() ? 'deselect' : 'select'} all`
-        }
-        return `${this.selection.isSelected(row) ? 'deselect' : 'select'} row`
-    }
-
-    /** Navigates back to playlist summary */
     onBack(): void {
-        this.router.navigate(['/app/home/playlist/summary'])
+        this.router.navigate([PLAYLIST_ROUTES.HOME_SUMMARY])
     }
 
-    /**
-     * Finalizes selections and proceeds to the course ordering screen.
-     */
     onNext(): void {
-        this.state.setSelectedCourses(this.selection.selected)
-        this.router.navigate(['/app/playlist/manage-order'])
-    }
-
-    onTabClick(_tab: string): void {
-        // Tab click handler (for future use)
+        const selectedInListOrder = this.allCourses().filter(c => this.selection.isSelected(c))
+        this.state.setSelectedCourses(selectedInListOrder)
+        this.router.navigate([PLAYLIST_ROUTES.MANAGE_COURSE_ORDER])
     }
 
     isNextEnabled(): boolean {
         return this.selection.selected.length > 0
     }
+
 }

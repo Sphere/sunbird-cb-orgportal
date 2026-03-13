@@ -191,7 +191,7 @@ Rules:
   - [ ] `/app/home/playlist/filters`
   - [ ] `/app/home/playlist/summary`
   - [ ] `/app/playlist/select-courses`
-  - [ ] `/app/playlist/manage-order`
+  - [ ] `/app/playlist/manage-course-order`
   - [ ] `/app/playlist/select-competencies`
   - [ ] `/app/playlist/manage-competency-order`
 
@@ -216,4 +216,3 @@ When adding/changing playlist features, update this file if:
 2. routing strategy changes,
 3. state management strategy changes,
 4. UI component standards change.
-

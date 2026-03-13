@@ -60,17 +60,30 @@
 // BACK BUTTON
 // ===========================================================================
 
-.back-btn {
+.back-nav-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px 6px 8px;
     margin-bottom: 16px;
-    background: transparent;
-    border: none;
-    padding: 0;
+    border-radius: 90px;
+    border: 1px solid #1c5d95;
+    background: #f3f8fd;
+    color: #1c5d95;
+    font-size: 15px;
+    font-family: Roboto, sans-serif;
+    font-weight: 400;
     cursor: pointer;
+    transition: background 0.15s ease;
 
-    .back-icon {
-        width: 24px;
-        height: 24px;
+    mat-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+        color: #1c5d95;
     }
+
+    &:hover { background: #e3edf7; }
 }
 
 // ===========================================================================
@@ -132,34 +145,42 @@
     padding: 16px 16px 0px 16px;
 }
 
-.search-field {
-    width: 100%;
+.search-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 40px;
+    padding: 0 12px 0 10px;
+    background: #fff;
+    border-radius: 50px;
+    border: 1px solid #E1DFDF;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
 
-    ::ng-deep {
-        .mat-form-field-wrapper {
-            padding-bottom: 0;
-        }
+    &:focus-within {
+        border-color: #1c5d95;
+        box-shadow: 0 0 0 2px rgba(28, 93, 149, 0.12);
+    }
 
-        .mat-form-field-outline {
-            background: white;
-            box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.15);
-            border-radius: 6px;
-        }
+    .search-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+        color: #757575;
+        flex-shrink: 0;
+    }
 
-        .mat-form-field-infix {
-            padding: 12px 0;
-        }
+    .search-input {
+        flex: 1;
+        border: none;
+        outline: none;
+        background: transparent;
+        color: #333;
+        font-size: 13px;
+        font-family: 'Roboto', sans-serif;
+        font-weight: 400;
 
-        input {
-            color: #808080;
-            font-size: 14px;
-            font-family: 'Roboto', sans-serif;
-            font-weight: 400;
-        }
-
-        .mat-icon {
-            color: #272727;
-        }
+        &::placeholder { color: #808080; }
     }
 }
 
