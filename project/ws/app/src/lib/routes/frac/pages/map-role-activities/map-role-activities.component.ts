@@ -76,7 +76,7 @@ export class MapRoleActivitiesComponent implements OnInit, OnDestroy {
   readonly languages = FRAC_LANGUAGES
   selectedLanguage = FRAC_LANGUAGES[0]?.key || 'en'
   isOpen = false
-  isEditing = true
+  get isEditing(): boolean { return this.selectedLanguage === 'en' }
   isSaving = false
   isRoleMappingLoading = false
   isRolesLoading = false

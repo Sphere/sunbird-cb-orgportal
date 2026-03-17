@@ -6,7 +6,8 @@
 
   <div class="view-only-banner" *ngIf="selectedLanguage !== 'en'">
     <mat-icon>info</mat-icon>
-    <span>You are currently viewing mappings for <strong>{{ getLangLabel(selectedLanguage) }}</strong>. To make changes or add new
+    <span>You are currently viewing mappings for <strong>{{ getLangLabel(selectedLanguage) }}</strong>. To make changes
+      or add new
       mappings, please switch to English.</span>
   </div>
 
@@ -57,8 +58,8 @@
     <div class="competency-panel">
       <app-competency-mapping-table [competencies]="competencies" [selectedActivity]="selectedActivity"
         [searchResetKey]="searchResetKey" [selectedMap]="selectedMap"
-        [isLoading]="isActivityMappingLoading || isCompetenciesLoading" [isReadOnly]="selectedLanguage !== 'English'"
-        [isSaving]="isSaving" (checked)="onCheck($event)" (searchChange)="onCompetencySearch($event)"
+        [isLoading]="isActivityMappingLoading || isCompetenciesLoading" [isReadOnly]="!isEditing" [isSaving]="isSaving"
+        (checked)="onCheck($event)" (searchChange)="onCompetencySearch($event)"
         (addCompetency)="onAddCompetencyToActivity()">
       </app-competency-mapping-table>
     </div>

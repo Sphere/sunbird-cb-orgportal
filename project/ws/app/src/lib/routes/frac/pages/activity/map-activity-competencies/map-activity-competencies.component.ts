@@ -65,7 +65,7 @@ export class MapActivityCompetenciesComponent implements OnInit, OnDestroy {
   readonly languages = FRAC_LANGUAGES
   selectedLanguage = FRAC_LANGUAGES[0]?.key || 'en'
   isOpen = false
-  isEditing = true
+  get isEditing(): boolean { return this.selectedLanguage === 'en' }
   isSaving = false
   isActivitiesLoading = false
   isCompetenciesLoading = false
