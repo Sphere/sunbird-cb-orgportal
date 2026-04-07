@@ -6,7 +6,8 @@
 
   <div class="view-only-banner" *ngIf="selectedLanguage !== 'en'">
     <mat-icon>info</mat-icon>
-    <span>You are currently viewing mappings for <strong>{{ getLangLabel(selectedLanguage) }}</strong>. To make changes or add new
+    <span>You are currently viewing mappings for <strong>{{ getLangLabel(selectedLanguage) }}</strong>. To make changes
+      or add new
       mappings, please switch to English.</span>
   </div>
 
@@ -66,7 +67,7 @@
       <app-activity-mapping-table [activities]="filteredActivities" [selectedRole]="selectedRole"
         [searchResetKey]="searchResetKey" [selectedActivityMap]="selectedActivityMap"
         [isLoading]="isRoleMappingLoading || isActivitiesLoading" [isActionLoading]="isValidatingActivityMappings"
-        [isReadOnly]="selectedLanguage !== 'English'" [isSaving]="isSaving" (searchChange)="onActivitySearch($event)"
+        [isReadOnly]="!isEditing" [isSaving]="isSaving" (searchChange)="onActivitySearch($event)"
         (activityCheckChange)="onActivityCheckChanged($event)" (addActivity)="onAddActivityToRole()">
       </app-activity-mapping-table>
     </div>
