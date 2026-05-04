@@ -21,33 +21,34 @@
                 <div class="field-shell" [class.field-error]="hasError('orgId')">
                     <div class="select-wrapper">
                         <span class="select-label required">Organisation</span>
-                        <div class="custom-select multi-select-trigger"
-                            [class.open]="orgDropdownOpen()"
-                            (click)="toggleOrgDropdown()"
-                            tabindex="0"
-                            (keydown.enter)="toggleOrgDropdown()"
+                        <div class="custom-select multi-select-trigger" [class.open]="orgDropdownOpen()"
+                            (click)="toggleOrgDropdown()" tabindex="0" (keydown.enter)="toggleOrgDropdown()"
                             (keydown.space)="toggleOrgDropdown(); $event.preventDefault()">
                             <span class="multi-select-value" [class.placeholder]="!selectedOrgLabel()">
                                 {{ selectedOrgLabel() || 'Select Organisation' }}
                             </span>
                         </div>
                         <div class="multi-select-panel org-panel" *ngIf="orgDropdownOpen()">
-                            <div class="org-search-row" (click)="$event.stopPropagation()" (mousedown)="$event.preventDefault()">
+                            <div class="org-search-row" (click)="$event.stopPropagation()"
+                                (mousedown)="$event.preventDefault()">
                                 <input class="org-search-input" type="text" placeholder="Search Organisation..."
                                     [value]="orgSearchTerm()"
                                     (input)="orgSearchTerm.set($any($event.target).value); filterOrganizations()"
                                     (keydown)="$event.stopPropagation()">
                             </div>
                             <div *ngIf="loadingOrganizations()" class="multi-select-option disabled">Loading...</div>
-                            <div *ngIf="!loadingOrganizations() && filteredOrganizations().length === 0" class="multi-select-option disabled">No Organisation found</div>
+                            <div *ngIf="!loadingOrganizations() && filteredOrganizations().length === 0"
+                                class="multi-select-option disabled">No Organisation found</div>
                             <div *ngFor="let org of filteredOrganizations()" class="multi-select-option"
-                                (mousedown)="$event.preventDefault()"
-                                (click)="selectOrg(org.value)">
+                                (mousedown)="$event.preventDefault()" (click)="selectOrg(org.value)">
                                 {{ org.label }}
                             </div>
                         </div>
                         <span class="select-arrow">
-                            <svg viewBox="0 0 16 16" fill="none"><polyline points="3,5 8,11 13,5" stroke="#272727" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            <svg viewBox="0 0 16 16" fill="none">
+                                <polyline points="3,5 8,11 13,5" stroke="#272727" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
                         </span>
                     </div>
                 </div>
@@ -56,11 +57,8 @@
                 <div class="field-shell" [class.field-error]="hasError('role')">
                     <div class="select-wrapper">
                         <span class="select-label required">Position</span>
-                        <div class="custom-select multi-select-trigger"
-                            [class.open]="positionDropdownOpen()"
-                            (click)="togglePositionDropdown()"
-                            tabindex="0"
-                            (keydown.enter)="togglePositionDropdown()"
+                        <div class="custom-select multi-select-trigger" [class.open]="positionDropdownOpen()"
+                            (click)="togglePositionDropdown()" tabindex="0" (keydown.enter)="togglePositionDropdown()"
                             (keydown.space)="togglePositionDropdown(); $event.preventDefault()">
                             <span class="multi-select-value" [class.placeholder]="selectedRoles.length === 0">
                                 {{ selectedRoles.length === 0 ? 'Select Position' : selectedRoles.join(', ') }}
@@ -69,14 +67,17 @@
                         <div class="multi-select-panel" *ngIf="positionDropdownOpen()">
                             <label *ngIf="loadingPositions()" class="multi-select-option disabled">Loading...</label>
                             <label *ngFor="let pos of positions()" class="multi-select-option"
-                                (mousedown)="$event.preventDefault()"
-                                (click)="toggleRole(pos.value)">
-                                <input type="checkbox" [checked]="isRoleSelected(pos.value)" (change)="toggleRole(pos.value)" (click)="$event.stopPropagation()">
+                                (mousedown)="$event.preventDefault()" (click)="toggleRole(pos.value)">
+                                <input type="checkbox" [checked]="isRoleSelected(pos.value)"
+                                    (change)="toggleRole(pos.value)" (click)="$event.stopPropagation()">
                                 {{ pos.label }}
                             </label>
                         </div>
                         <span class="select-arrow">
-                            <svg viewBox="0 0 16 16" fill="none"><polyline points="3,5 8,11 13,5" stroke="#272727" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            <svg viewBox="0 0 16 16" fill="none">
+                                <polyline points="3,5 8,11 13,5" stroke="#272727" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
                         </span>
                     </div>
                 </div>
@@ -91,7 +92,10 @@
                             <option *ngFor="let d of districts()" [value]="d.value">{{ d.label }}</option>
                         </select>
                         <span class="select-arrow">
-                            <svg viewBox="0 0 16 16" fill="none"><polyline points="3,5 8,11 13,5" stroke="#272727" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            <svg viewBox="0 0 16 16" fill="none">
+                                <polyline points="3,5 8,11 13,5" stroke="#272727" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
                         </span>
                     </div>
                 </div>
@@ -103,7 +107,10 @@
                             <option *ngFor="let b of blocks()" [value]="b.value">{{ b.label }}</option>
                         </select>
                         <span class="select-arrow">
-                            <svg viewBox="0 0 16 16" fill="none"><polyline points="3,5 8,11 13,5" stroke="#272727" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            <svg viewBox="0 0 16 16" fill="none">
+                                <polyline points="3,5 8,11 13,5" stroke="#272727" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
                         </span>
                     </div>
                 </div>
@@ -126,7 +133,10 @@
                             <option *ngFor="let lang of languages" [value]="lang.value">{{ lang.label }}</option>
                         </select>
                         <span class="select-arrow">
-                            <svg viewBox="0 0 16 16" fill="none"><polyline points="3,5 8,11 13,5" stroke="#272727" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            <svg viewBox="0 0 16 16" fill="none">
+                                <polyline points="3,5 8,11 13,5" stroke="#272727" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
                         </span>
                     </div>
                 </div>

@@ -111,6 +111,7 @@ export interface Playlist {
     state?: string[]
     district?: string[]
     language: string
+    scope?: PlaylistScope
     dataSource: PlaylistDataSource
     createdOn?: string
     updatedOn?: string

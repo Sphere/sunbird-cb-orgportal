@@ -1,18 +1,15 @@
 <div class="manage-order-container">
     <!-- Breadcrumb Top Bar -->
     <div class="top-bar">
-        <div class="breadcrumb">Select Competencies</div>
+        <button type="button" class="back-nav-btn" (click)="onBack()">
+            <mat-icon>arrow_back</mat-icon>
+            <span>Back</span>
+        </button>
         <button mat-raised-button class="save-btn-top" [disabled]="!isSaveEnabled()" (click)="onSave()">
             <span *ngIf="!saving()">Save</span>
             <span *ngIf="saving()">Saving...</span>
         </button>
     </div>
-
-    <!-- Back Button -->
-    <button type="button" class="back-nav-btn" (click)="onBack()">
-        <mat-icon>arrow_back</mat-icon>
-        <span>Back</span>
-    </button>
 
     <!-- Header -->
     <h1 class="page-title">Manage Courses Order</h1>

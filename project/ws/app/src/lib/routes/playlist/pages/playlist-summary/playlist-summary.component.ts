@@ -1,9 +1,20 @@
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { Router } from '@angular/router'
+import { MatDialog, MatDialogModule } from '@angular/material/dialog'
+import { MatIconModule } from '@angular/material/icon'
 import { PlaylistStateService } from '../../services/playlist-state.service'
-import { PlaylistFilters } from '../../models/playlist.model'
+import { Playlist, PlaylistCompetencyPayload, PlaylistFilters } from '../../models/playlist.model'
+import { CourseApiService } from '../../services/course-api.service'
 import { PLAYLIST_ROUTES, TIME_UNITS } from '../../constants/playlist.constants'
+import {
+    PlaylistViewCompetencyRow,
+    PlaylistViewCourseRow,
+    PlaylistViewDialogComponent,
+    PlaylistViewDialogData,
+    PlaylistViewLevelRow,
+} from '../../components/playlist-view-dialog/playlist-view-dialog.component'
+import { Course } from '../../models/course.model'
 
 @Component({
     selector: 'app-playlist-summary',
@@ -11,7 +22,7 @@ import { PLAYLIST_ROUTES, TIME_UNITS } from '../../constants/playlist.constants'
     styleUrls: ['./playlist-summary.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: true,
-    imports: [CommonModule],
+    imports: [CommonModule, MatDialogModule, MatIconModule],
 })
 export class PlaylistSummaryComponent implements OnInit {
     readonly filters = signal<PlaylistFilters | null>(null)
@@ -26,6 +37,8 @@ export class PlaylistSummaryComponent implements OnInit {
 
     private readonly router = inject(Router)
     private readonly state = inject(PlaylistStateService)
+    private readonly dialog = inject(MatDialog)
+    private readonly courseApi = inject(CourseApiService)
 
     /**
      * Component initialization.
@@ -145,6 +158,144 @@ export class PlaylistSummaryComponent implements OnInit {
      */
     onCompetencyClick(): void {
         this.router.navigate([PLAYLIST_ROUTES.SELECT_COMPETENCIES])
+    }
+
+    async onViewCourse(): Promise<void> {
+        const filters = this.filters()
+        const existingPlaylist = this.state.getExistingPlaylist()
+        if (!filters || !existingPlaylist) {
+            return
+        }
+
+        const courseRows = await this.buildCourseRows(existingPlaylist, filters.language)
+        const dialogData: PlaylistViewDialogData = {
+            mode: 'course',
+            title: 'Course Playlist View',
+            orgId: filters.orgId,
+            orgName: filters.orgName || '',
+            roles: filters.role || [],
+            language: filters.language,
+            playlistId: existingPlaylist.playlistId || '',
+            courseRows,
+            competencyRows: [],
+        }
+        this.dialog.open(PlaylistViewDialogComponent, {
+            width: '980px',
+            maxWidth: '95vw',
+            panelClass: 'playlist-view-dialog-panel',
+            data: dialogData,
+        })
+    }
+
+    async onViewCompetency(): Promise<void> {
+        const filters = this.filters()
+        const existingPlaylist = this.state.getExistingCompetencyPlaylist()
+        if (!filters || !existingPlaylist) {
+            return
+        }
+
+        const courseMap = await this.getCourseLookup(filters.language)
+        const competencyRows = this.buildCompetencyRows(existingPlaylist, courseMap)
+        const dialogData: PlaylistViewDialogData = {
+            mode: 'competency',
+            title: 'Competency Playlist View',
+            orgId: filters.orgId,
+            orgName: filters.orgName || '',
+            roles: filters.role || [],
+            language: filters.language,
+            playlistId: existingPlaylist.playlistId || '',
+            courseRows: [],
+            competencyRows,
+        }
+        this.dialog.open(PlaylistViewDialogComponent, {
+            width: '1100px',
+            maxWidth: '96vw',
+            panelClass: 'playlist-view-dialog-panel',
+            data: dialogData,
+        })
+    }
+
+    private async getCourseLookup(language: string): Promise<Map<string, Course>> {
+        const cached = this.state.getCachedCourses(language)
+        const courses = cached || await this.courseApi.loadAllCourses(language)
+        if (!cached && courses.length > 0) {
+            this.state.setCachedCourses(courses, language)
+        }
+        return new Map(courses.map((c: Course) => [c.identifier, c]))
+    }
+
+    private async buildCourseRows(playlist: Playlist, language: string): Promise<PlaylistViewCourseRow[]> {
+        const courseMap = await this.getCourseLookup(language)
+        const payload = Array.isArray(playlist?.dataSource?.payload) ? playlist.dataSource.payload : []
+        return payload
+            .filter((item): item is string => typeof item === 'string' && !!item.trim())
+            .map((identifier, index) => {
+                const course = courseMap.get(identifier)
+                return {
+                    index,
+                    identifier,
+                    name: course?.name || identifier,
+                    sourceName: course?.sourceName || 'N/A',
+                }
+            })
+    }
+
+    private buildCompetencyRows(playlist: Playlist, courseMap: Map<string, Course>): PlaylistViewCompetencyRow[] {
+        const payload = Array.isArray(playlist?.dataSource?.payload) ? playlist.dataSource.payload : []
+
+        const rows = payload.map((item, arrayIndex) => {
+            const comp = this.normalizeCompetencyPayload(item)
+            if (!comp) {
+                return null
+            }
+
+            const levelRows: PlaylistViewLevelRow[] = (Array.isArray(comp.levels) ? comp.levels : []).map(level => {
+                const courseId = String(level?.courseId || '').trim()
+                return {
+                    level: level?.level ?? '',
+                    name: String(level?.name || ''),
+                    description: String(level?.description || ''),
+                    courseId,
+                    courseName: courseId ? (courseMap.get(courseId)?.name || '') : '',
+                }
+            }).sort((a, b) => this.compareLevels(a.level, b.level))
+
+            const payloadIndex = typeof comp.index === 'number' ? comp.index : arrayIndex
+            return {
+                index: payloadIndex,
+                code: String(comp.code || ''),
+                name: String(comp.name || comp.code || ''),
+                levels: levelRows,
+            } as PlaylistViewCompetencyRow
+        }).filter((row): row is PlaylistViewCompetencyRow => !!row)
+
+        return rows.sort((a, b) => a.index - b.index)
+    }
+
+    private compareLevels(a: number | string, b: number | string): number {
+        const aNum = Number(String(a).replace(/[^0-9.-]/g, ''))
+        const bNum = Number(String(b).replace(/[^0-9.-]/g, ''))
+        const aValid = Number.isFinite(aNum)
+        const bValid = Number.isFinite(bNum)
+        if (aValid && bValid) {
+            return aNum - bNum
+        }
+        return String(a).localeCompare(String(b), undefined, { numeric: true, sensitivity: 'base' })
+    }
+
+    private normalizeCompetencyPayload(item: unknown): PlaylistCompetencyPayload | null {
+        if (!item || typeof item !== 'object') {
+            return null
+        }
+
+        if ('id' in item || 'code' in item) {
+            return item as PlaylistCompetencyPayload
+        }
+
+        const wrapped = Object.values(item as Record<string, unknown>).find(
+            value => !!value && typeof value === 'object' && ('id' in (value as Record<string, unknown>) || 'code' in (value as Record<string, unknown>))
+        )
+        return (wrapped as PlaylistCompetencyPayload) || null
     }
 
 

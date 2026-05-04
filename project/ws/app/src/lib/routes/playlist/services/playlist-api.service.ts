@@ -91,6 +91,44 @@ export class PlaylistApiService {
         return (wrapped as PlaylistCompetencyPayload) || null
     }
 
+    /** Normalizes playlist object to consistently expose top-level fields used by UI/state */
+    private normalizePlaylist(raw: Playlist): Playlist {
+        const rawObj = raw as unknown as Record<string, unknown>
+        const scope = (rawObj?.['scope'] as Record<string, unknown> | undefined) || {}
+
+        const roles = Array.isArray(rawObj?.['role'])
+            ? rawObj['role'] as string[]
+            : Array.isArray(scope?.['roles'])
+                ? scope['roles'] as string[]
+                : Array.isArray(scope?.['role'])
+                    ? scope['role'] as string[]
+                    : []
+
+        const state = Array.isArray(rawObj?.['state'])
+            ? rawObj['state'] as string[]
+            : Array.isArray(scope?.['state'])
+                ? scope['state'] as string[]
+                : undefined
+
+        const district = Array.isArray(rawObj?.['district'])
+            ? rawObj['district'] as string[]
+            : Array.isArray(scope?.['district'])
+                ? scope['district'] as string[]
+                : undefined
+
+        const orgId = String(rawObj?.['orgId'] || scope?.['orgId'] || '')
+        const language = String(rawObj?.['language'] || scope?.['language'] || '')
+
+        return {
+            ...raw,
+            orgId,
+            role: roles,
+            state,
+            district,
+            language,
+        }
+    }
+
 
     /**
      * Gets the list of organizations to show in the dropdown.
@@ -191,10 +229,10 @@ export class PlaylistApiService {
         return this.http
             .post<PlaylistSearchResponse>(`${this.API_BASE}/search`, payload)
             .pipe(
-                map(response => response.result.playlist || [])
+                map(response => (response?.result?.playlist || []).map(item => this.normalizePlaylist(item)))
             )
     }
-
+ 
     /**
      * Pulls out the course IDs from a playlist.
      * We only look at 'static' playlists (not dynamic ones) and remove any duplicates.

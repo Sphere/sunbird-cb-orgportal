@@ -26,6 +26,10 @@
     align-items: center;
     justify-content: space-between;
     margin-bottom: 36px;
+
+    .back-nav-btn {
+        margin-bottom: 0;
+    }
 }
 
 .breadcrumb {

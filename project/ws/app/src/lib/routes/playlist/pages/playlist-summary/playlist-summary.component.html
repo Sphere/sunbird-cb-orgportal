@@ -10,24 +10,29 @@
     <!-- Org: BNRC Position: ANM Language: English -->
     <div class="filter-summary-row" *ngIf="filters()">
         <div class="filter-group">
+            <mat-icon class="filter-icon">corporate_fare</mat-icon>
             <span class="label">Org:</span>
             <span class="value">{{ filters()!.orgId }}</span>
         </div>
         <div class="filter-group">
+            <mat-icon class="filter-icon">business</mat-icon>
             <span class="label">Org Name:</span>
             <span class="value">{{ filters()!.orgName }}</span>
         </div>
         <div class="filter-group">
+            <mat-icon class="filter-icon">badge</mat-icon>
             <span class="label">Position:</span>
             <span class="value">{{ getRoleDisplay() }}</span>
         </div>
 
         <div class="filter-group">
-            <span class="label">Language: </span>
+            <mat-icon class="filter-icon">language</mat-icon>
+            <span class="label">Language:</span>
             <span class="value">{{ filters()!.language }}</span>
         </div>
 
         <button class="change-btn" (click)="onChangeFilters()">
+            <mat-icon>edit</mat-icon>
             Change
         </button>
     </div>
@@ -36,84 +41,71 @@
     <div class="cards-container">
 
         <!-- Manage Course Card -->
-        <div class="summary-card">
+        <div class="summary-card summary-card--course">
+            <mat-icon class="card-bg-icon">school</mat-icon>
             <div class="card-header">
                 <h2>Manage Course</h2>
                 <p>Choose the courses to be displayed on the learner’s home page.</p>
             </div>
 
             <div class="stats-container">
-                <div class="stat-row">
-                    <span class="stat-label">Total Courses</span>
-                    <span class="stat-sep">:</span>
-                    <span class="stat-val highlight">{{ courseSummary().total }}</span>
+                <div class="stat-pill stat-pill--blue">
+                    <mat-icon>library_books</mat-icon>
+                    <span class="stat-count">{{ courseSummary().total }}</span>
+                    <span class="stat-text">Total Courses</span>
                 </div>
-                <!-- <div class="stat-row">
-                    <span class="stat-label">Live</span>
-                    <span class="stat-sep">:</span>
-                    <span class="stat-val highlight">{{ courseSummary.live }}</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label">Hidden</span>
-                    <span class="stat-sep">:</span>
-                    <span class="stat-val highlight">{{ courseSummary.hidden }}</span>
-                </div> -->
-                <!-- Last Updated -->
-                <div class="stat-row last-updated">
-                    <div class="stat-label-group">
-                        <span class="stat-label">Last updated</span>
-                        <span class="stat-sep">:</span>
-                    </div>
-                    <span class="stat-val highlight">{{ courseSummary().lastUpdated }}</span>
+
+                <div class="last-updated-text">
+                    <mat-icon>history</mat-icon>
+                    Last updated: <span>{{ courseSummary().lastUpdated }}</span>
                 </div>
             </div>
 
-            <button class="create-btn" (click)="onManageCourse()">
-                <img src="https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/icons/frac_manage_icon.svg"
-                    alt="manage" class="btn-icon">
-                {{ hasExistingCoursePlaylist() ? 'Manage' : 'Create' }}
-            </button>
+            <div class="card-actions">
+                <button class="primary-btn" (click)="onManageCourse()">
+                    <mat-icon>settings</mat-icon>
+                    {{ hasExistingCoursePlaylist() ? 'Manage' : 'Create' }}
+                </button>
+                <button class="secondary-btn" [disabled]="!hasExistingCoursePlaylist()" (click)="onViewCourse()">
+                    <mat-icon>visibility</mat-icon>
+                    View
+                </button>
+            </div>
         </div>
 
         <!-- Manage Competency Card -->
-        <div class="summary-card">
+        <div class="summary-card summary-card--competency">
+            <mat-icon class="card-bg-icon">workspace_premium</mat-icon>
             <div class="card-header">
                 <h2>Manage Competency</h2>
                 <p>Choose the competency to be displayed on the learner’s home page.</p>
             </div>
 
             <div class="stats-container">
-                <div class="stat-row">
-                    <span class="stat-label">Total Competency</span>
-                    <span class="stat-sep">:</span>
-                    <span class="stat-val highlight">{{ competencySummary().total }}</span>
+                <div class="stat-pill stat-pill--green">
+                    <mat-icon>star</mat-icon>
+                    <span class="stat-count">{{ competencySummary().total }}</span>
+                    <span class="stat-text">Total Competencies</span>
                 </div>
-                <!-- <div class="stat-row">
-                    <span class="stat-label">Live</span>
-                    <span class="stat-sep">:</span>
-                    <span class="stat-val highlight">{{ competencySummary.live }}</span>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label">Hidden</span>
-                    <span class="stat-sep">:</span>
-                    <span class="stat-val highlight">{{ competencySummary.hidden }}</span>
-                </div> -->
-                <!-- Last Updated -->
-                <div class="stat-row last-updated">
-                    <div class="stat-label-group">
-                        <span class="stat-label">Last updated</span>
-                        <span class="stat-sep">:</span>
-                    </div>
-                    <span class="stat-val highlight">{{ competencySummary().lastUpdated }}</span>
+
+                <div class="last-updated-text">
+                    <mat-icon>history</mat-icon>
+                    Last updated: <span>{{ competencySummary().lastUpdated }}</span>
                 </div>
             </div>
 
             <!-- Create/Manage Competency Button -->
-            <button class="create-btn" (click)="onCompetencyClick()">
-                <img src="https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/icons/frac_manage_icon.svg"
-                    alt="manage" class="btn-icon">
-                {{ hasExistingCompetencyPlaylist() ? 'Manage' : 'Create' }}
-            </button>
+            <div class="card-actions">
+                <button class="primary-btn" (click)="onCompetencyClick()">
+                    <mat-icon>settings</mat-icon>
+                    {{ hasExistingCompetencyPlaylist() ? 'Manage' : 'Create' }}
+                </button>
+                <button class="secondary-btn" [disabled]="!hasExistingCompetencyPlaylist()"
+                    (click)="onViewCompetency()">
+                    <mat-icon>visibility</mat-icon>
+                    View
+                </button>
+            </div>
         </div>
 
 

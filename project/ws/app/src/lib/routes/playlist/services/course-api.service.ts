@@ -11,6 +11,7 @@ import {
 } from '../models/course.model'
 import { getLevelCount } from '../config/competency.config'
 import { log } from '../utils/playlist-logger.utils'
+import { expandLanguageFilter } from '../utils/language.utils'
 
 /**
  * Service for searching and retrieving course-related metadata.
@@ -33,11 +34,12 @@ export class CourseApiService {
         limit: number = 20,
         offset: number = 0
     ): Observable<{ courses: Course[]; totalCount: number }> {
+        const langFilter = expandLanguageFilter(language)
         const payload: CourseSearchRequest = {
             request: {
                 filters: {
                     primaryCategory: ['Course'],
-                    lang: [language]
+                    lang: langFilter
                 },
                 limit,
                 offset,
@@ -125,6 +127,7 @@ export class CourseApiService {
     ): Observable<{ courses: Course[]; totalCount: number }> {
         const levelCount = getLevelCount()
         const competencySearch: string[] = []
+        const langFilter = expandLanguageFilter(language)
 
         competencyIds.forEach(id => {
             for (let i = 1; i <= levelCount; i++) {
@@ -136,7 +139,7 @@ export class CourseApiService {
             request: {
                 filters: {
                     competencySearch,
-                    lang: [language],
+                    lang: langFilter,
                     primaryCategory: ['Course']
                 },
                 exists: ['competencies_v1'],
@@ -162,12 +165,13 @@ export class CourseApiService {
     buildCompetencySearchRequest(competencyId: string, language: string): CompetencyCourseSearchRequest {
         const levelCount = getLevelCount()
         const competencySearch = Array.from({ length: levelCount }, (_, i) => `${competencyId}-${i + 1}`)
+        const langFilter = expandLanguageFilter(language)
 
         return {
             request: {
                 filters: {
                     competencySearch,
-                    lang: [language],
+                    lang: langFilter,
                     primaryCategory: ['Course']
                 },
                 exists: ['competencies_v1'],

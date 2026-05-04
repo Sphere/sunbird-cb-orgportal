@@ -30,6 +30,7 @@ export class SuccessDialogComponent {
     ) {
         this.title = data?.title || 'Courses Updated'
         this.message = data?.message || 'Learners will now see the updated courses on their home screen.'
+        this.dialogRef.addPanelClass('success-dialog-panel')
     }
 
     onContinue(): void {
