@@ -510,6 +510,7 @@
                 font-size: 14px !important;
                 color: #111 !important;
                 font-family: 'Roboto', sans-serif !important;
+                font-weight: 500 !important;
             }
 
             .mat-mdc-select-placeholder {
@@ -524,6 +525,11 @@
 
             .mat-mdc-floating-label {
                 display: none !important;
+            }
+
+            .mat-mdc-option-text,
+            .mat-mdc-select-min-line {
+                font-weight: 500 !important;
             }
         }
 

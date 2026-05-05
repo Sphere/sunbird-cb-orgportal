@@ -3,7 +3,7 @@ import { Router, Event, NavigationEnd, ActivatedRoute } from '@angular/router'
 import { ConfigurationsService, ValueService } from '@sunbird-cb/utils'
 import { map } from 'rxjs/operators'
 import { NsWidgetResolver } from '@sunbird-cb/resolver'
-import { MenuConfigService } from '../../services/menu-config.service'
+// import { MenuConfigService } from '../../services/menu-config.service'
 /* tslint:disable */
 import _ from 'lodash'
 import { ILeftMenu } from '@sunbird-cb/collection'
@@ -52,7 +52,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     private router: Router,
     private activeRoute: ActivatedRoute,
     private configService: ConfigurationsService,
-    private menuConfig: MenuConfigService
+    // private menuConfig: MenuConfigService
   ) {
     if (_.get(this.activeRoute, 'snapshot.data.configService.userRoles')) {
       this.myRoles = _.get(this.activeRoute, 'snapshot.data.configService.userRoles')
@@ -71,7 +71,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
           // Ensure leftData.widgetData exists before filtering
           if (leftData.widgetData && Array.isArray(leftData.widgetData.menus)) {
             // Merge local menus (e.g., Playlist) with API menus
-            leftData.widgetData.menus = this.menuConfig.mergeMenus(leftData.widgetData.menus)
+            // leftData.widgetData.menus = this.menuConfig.mergeMenus(leftData.widgetData.menus)
             console.log('After merge:', leftData.widgetData.menus.map((m: any) => ({ name: m.name, key: m.key, routerLink: m.routerLink })))
             // Filter menus based on user roles
             leftData.widgetData.menus = leftData.widgetData.menus.filter((menu: { requiredRoles: any[] }) => {
