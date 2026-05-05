@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common'
 import { Router } from '@angular/router'
 import { MatDialog, MatDialogModule } from '@angular/material/dialog'
 import { MatIconModule } from '@angular/material/icon'
+import { take } from 'rxjs/operators'
 import { PlaylistStateService } from '../../services/playlist-state.service'
 import { Playlist, PlaylistCompetencyPayload, PlaylistFilters } from '../../models/playlist.model'
 import { CourseApiService } from '../../services/course-api.service'
@@ -187,15 +188,14 @@ export class PlaylistSummaryComponent implements OnInit {
         })
     }
 
-    async onViewCompetency(): Promise<void> {
+    onViewCompetency(): void {
         const filters = this.filters()
         const existingPlaylist = this.state.getExistingCompetencyPlaylist()
         if (!filters || !existingPlaylist) {
             return
         }
 
-        const courseMap = await this.getCourseLookup(filters.language)
-        const competencyRows = this.buildCompetencyRows(existingPlaylist, courseMap)
+        const competencyRows = this.buildCompetencyRows(existingPlaylist)
         const dialogData: PlaylistViewDialogData = {
             mode: 'competency',
             title: 'Competency Playlist View',
@@ -215,32 +215,35 @@ export class PlaylistSummaryComponent implements OnInit {
         })
     }
 
-    private async getCourseLookup(language: string): Promise<Map<string, Course>> {
-        const cached = this.state.getCachedCourses(language)
-        const courses = cached || await this.courseApi.loadAllCourses(language)
-        if (!cached && courses.length > 0) {
-            this.state.setCachedCourses(courses, language)
+
+    private async getCourseMapForIds(courseIds: string[], language: string): Promise<Map<string, Course>> {
+        if (courseIds.length === 0) {
+            return new Map()
         }
+
+        const response = await this.courseApi.searchCoursesByIds(courseIds, language).pipe(take(1)).toPromise()
+        const courses = (response as any)?.courses || []
         return new Map(courses.map((c: Course) => [c.identifier, c]))
     }
 
     private async buildCourseRows(playlist: Playlist, language: string): Promise<PlaylistViewCourseRow[]> {
-        const courseMap = await this.getCourseLookup(language)
         const payload = Array.isArray(playlist?.dataSource?.payload) ? playlist.dataSource.payload : []
-        return payload
-            .filter((item): item is string => typeof item === 'string' && !!item.trim())
-            .map((identifier, index) => {
-                const course = courseMap.get(identifier)
-                return {
-                    index,
-                    identifier,
-                    name: course?.name || identifier,
-                    sourceName: course?.sourceName || 'N/A',
-                }
-            })
+        const courseIds = payload.filter((item): item is string => typeof item === 'string' && !!item.trim())
+
+        const courseMap = await this.getCourseMapForIds(courseIds, language)
+
+        return courseIds.map((identifier, index) => {
+            const course = courseMap.get(identifier)
+            return {
+                index,
+                identifier,
+                name: course?.name || identifier,
+                sourceName: course?.sourceName || 'N/A',
+            }
+        })
     }
 
-    private buildCompetencyRows(playlist: Playlist, courseMap: Map<string, Course>): PlaylistViewCompetencyRow[] {
+    private buildCompetencyRows(playlist: Playlist): PlaylistViewCompetencyRow[] {
         const payload = Array.isArray(playlist?.dataSource?.payload) ? playlist.dataSource.payload : []
 
         const rows = payload.map((item, arrayIndex) => {
@@ -256,7 +259,7 @@ export class PlaylistSummaryComponent implements OnInit {
                     name: String(level?.name || ''),
                     description: String(level?.description || ''),
                     courseId,
-                    courseName: courseId ? (courseMap.get(courseId)?.name || '') : '',
+                    courseName: '',
                 }
             }).sort((a, b) => this.compareLevels(a.level, b.level))
 

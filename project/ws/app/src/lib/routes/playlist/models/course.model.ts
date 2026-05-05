@@ -13,6 +13,7 @@ export interface CourseSearchRequest {
             status?: string[]
             lang: string[]
             channel?: string
+            identifier?: string[]  // Optional: filter by specific course IDs
         }
         limit: number
         offset: number
