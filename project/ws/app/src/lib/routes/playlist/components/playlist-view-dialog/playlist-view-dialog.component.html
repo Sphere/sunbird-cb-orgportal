@@ -1,0 +1,165 @@
+<div class="pv-dialog">
+
+  <!-- Header -->
+  <div class="pv-header">
+    <div class="pv-header__left">
+      <mat-icon class="pv-header__icon">playlist_play</mat-icon>
+      <h2 class="pv-header__title">{{ data.title }}</h2>
+    </div>
+    <button class="pv-close" (click)="onClose()" aria-label="Close">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <!-- Scrollable body -->
+  <div class="pv-scroll">
+
+    <div class="pv-meta-wrap">
+      <div class="pv-meta">
+        <!-- Row 1: Org ID & Org Name -->
+        <div class="pv-meta__item pv-meta__item--span-6">
+          <mat-icon class="pv-meta__icon">corporate_fare</mat-icon>
+          <div class="pv-meta__content">
+            <span class="pv-meta__label">Org ID</span>
+            <span class="pv-meta__value pv-meta__value--mono">{{ data.orgId }}</span>
+          </div>
+        </div>
+
+        <div class="pv-meta__item pv-meta__item--span-6">
+          <mat-icon class="pv-meta__icon">apartment</mat-icon>
+          <div class="pv-meta__content">
+            <span class="pv-meta__label">Org Name</span>
+            <span class="pv-meta__value">{{ data.orgName || 'N/A' }}</span>
+          </div>
+        </div>
+
+        <!-- Row 2: Playlist ID & Language -->
+        <div class="pv-meta__item pv-meta__item--span-6">
+          <mat-icon class="pv-meta__icon">tag</mat-icon>
+          <div class="pv-meta__content">
+            <span class="pv-meta__label">Playlist ID</span>
+            <span class="pv-meta__value pv-meta__value--mono">{{ data.playlistId }}</span>
+          </div>
+        </div>
+
+        <div class="pv-meta__item pv-meta__item--span-6">
+          <mat-icon class="pv-meta__icon">translate</mat-icon>
+          <div class="pv-meta__content">
+            <span class="pv-meta__label">Language</span>
+            <span class="pv-meta__value">{{ data.language }}</span>
+          </div>
+        </div>
+
+        <!-- Row 3: Role (Flexible for long content) -->
+        <div class="pv-meta__item pv-meta__item--full">
+          <mat-icon class="pv-meta__icon">badge</mat-icon>
+          <div class="pv-meta__content">
+            <span class="pv-meta__label">Role</span>
+            <span class="pv-meta__value">{{ data.roles.join(', ') || 'N/A' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Summary Stat Pills -->
+    <div class="pv-summary-bar" *ngIf="data.mode === 'course'">
+      <span class="pv-stat-pill pv-stat-pill--blue">
+        <mat-icon>menu_book</mat-icon>
+        {{ totalCourses }} {{ totalCourses === 1 ? 'Course' : 'Courses' }}
+      </span>
+    </div>
+
+    <div class="pv-summary-bar" *ngIf="data.mode === 'competency'">
+      <span class="pv-stat-pill pv-stat-pill--green">
+        <mat-icon>psychology</mat-icon>
+        {{ totalCompetencies }} {{ totalCompetencies === 1 ? 'Competency' : 'Competencies' }}
+      </span>
+      <span class="pv-stat-pill pv-stat-pill--amber">
+        <mat-icon>layers</mat-icon>
+        {{ totalMappedLevels }} {{ totalMappedLevels === 1 ? 'Mapped Level' : 'Mapped Levels' }}
+      </span>
+    </div>
+
+    <!-- Course Table -->
+    <div *ngIf="data.mode === 'course'">
+      <div class="pv-empty" *ngIf="data.courseRows.length === 0">
+        <mat-icon>inbox</mat-icon>
+        <span>No mapped courses found.</span>
+      </div>
+
+      <div class="pv-table-wrap" *ngIf="data.courseRows.length > 0">
+        <div class="pv-table-container">
+          <table class="pv-table">
+            <thead>
+              <tr>
+                <th class="pv-table__th pv-table__th--index">#</th>
+                <th class="pv-table__th pv-table__th--id">Course ID</th>
+                <th class="pv-table__th pv-table__th--name">Name</th>
+                <th class="pv-table__th">Source</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="pv-table__row" *ngFor="let row of data.courseRows">
+                <td class="pv-table__td pv-table__td--index">{{ row.index }}</td>
+                <td class="pv-table__td">
+                  <span class="pv-id-badge">{{ row.identifier }}</span>
+                </td>
+                <td class="pv-table__td pv-table__td--name">{{ row.name }}</td>
+                <td class="pv-table__td">
+                  <span class="pv-badge">{{ row.sourceName }}</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Competency Accordion -->
+    <div *ngIf="data.mode === 'competency'">
+      <div class="pv-empty" *ngIf="data.competencyRows.length === 0">
+        <mat-icon>inbox</mat-icon>
+        <span>No mapped competencies found.</span>
+      </div>
+
+      <div class="pv-accordion" *ngFor="let comp of data.competencyRows">
+        <div class="pv-accordion__header" (click)="toggleCompetency(comp)"
+          [class.pv-accordion__header--open]="isCompetencyExpanded(comp)">
+          <span class="pv-chip pv-chip--index">#{{ comp.index }}</span>
+          <span class="pv-chip pv-chip--code">{{ comp.code }}</span>
+          <span class="pv-accordion__name">{{ comp.name }}</span>
+          <mat-icon
+            class="pv-accordion__chevron">{{ isCompetencyExpanded(comp) ? 'expand_less' : 'expand_more' }}</mat-icon>
+        </div>
+
+        <div class="pv-accordion__body" *ngIf="isCompetencyExpanded(comp)">
+          <div class="pv-empty pv-empty--sm" *ngIf="comp.levels.length === 0">No levels mapped for this competency.
+          </div>
+          <div class="pv-table-container">
+            <table class="pv-table" *ngIf="comp.levels.length > 0">
+              <thead>
+                <tr>
+                  <th class="pv-table__th pv-table__th--index">Level</th>
+                  <th class="pv-table__th pv-table__th--name">Level Name</th>
+                  <th class="pv-table__th pv-table__th--id">Course ID</th>
+                  <th class="pv-table__th">Course Name</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="pv-table__row" *ngFor="let lvl of comp.levels">
+                  <td class="pv-table__td">{{ lvl.level }}</td>
+                  <td class="pv-table__td">{{ lvl.name || 'N/A' }}</td>
+                  <td class="pv-table__td">
+                    <span class="pv-id-badge">{{ lvl.courseId || 'N/A' }}</span>
+                  </td>
+                  <td class="pv-table__td">{{ lvl.courseName || 'N/A' }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /pv-scroll -->
+</div>

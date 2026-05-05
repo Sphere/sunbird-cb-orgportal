@@ -1,0 +1,158 @@
+<div class="playlist-filters-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1 class="main-title">e-Kshamata Admin Portal</h1>
+        <p class="main-subtitle">Oversee and customize learning content for State, District, and Block levels.</p>
+    </div>
+
+    <!-- Form Container -->
+    <form [formGroup]="filterForm" class="filter-form">
+
+        <!-- Section 1: Select Position and State -->
+        <div class="form-section">
+            <h2 class="section-title">Select Position and State to Manage</h2>
+            <p class="section-description">
+                Choose the learner organisation and position for which you want to manage courses and competencies.
+            </p>
+
+            <!-- Row 1: Organization & Position -->
+            <div class="form-row">
+                <!-- Organization — custom dropdown with search -->
+                <div class="field-shell" [class.field-error]="hasError('orgId')">
+                    <div class="select-wrapper">
+                        <span class="select-label required">Organisation</span>
+                        <div class="custom-select multi-select-trigger" [class.open]="orgDropdownOpen()"
+                            (click)="toggleOrgDropdown()" tabindex="0" (keydown.enter)="toggleOrgDropdown()"
+                            (keydown.space)="toggleOrgDropdown(); $event.preventDefault()">
+                            <span class="multi-select-value" [class.placeholder]="!selectedOrgLabel()">
+                                {{ selectedOrgLabel() || 'Select Organisation' }}
+                            </span>
+                        </div>
+                        <div class="multi-select-panel org-panel" *ngIf="orgDropdownOpen()">
+                            <div class="org-search-row" (click)="$event.stopPropagation()"
+                                (mousedown)="$event.preventDefault()">
+                                <input class="org-search-input" type="text" placeholder="Search Organisation..."
+                                    [value]="orgSearchTerm()"
+                                    (input)="orgSearchTerm.set($any($event.target).value); filterOrganizations()"
+                                    (keydown)="$event.stopPropagation()">
+                            </div>
+                            <div *ngIf="loadingOrganizations()" class="multi-select-option disabled">Loading...</div>
+                            <div *ngIf="!loadingOrganizations() && filteredOrganizations().length === 0"
+                                class="multi-select-option disabled">No Organisation found</div>
+                            <div *ngFor="let org of filteredOrganizations()" class="multi-select-option"
+                                (mousedown)="$event.preventDefault()" (click)="selectOrg(org.value)">
+                                {{ org.label }}
+                            </div>
+                        </div>
+                        <span class="select-arrow">
+                            <svg viewBox="0 0 16 16" fill="none">
+                                <polyline points="3,5 8,11 13,5" stroke="#272727" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Position — custom multi-select dropdown -->
+                <div class="field-shell" [class.field-error]="hasError('role')">
+                    <div class="select-wrapper">
+                        <span class="select-label required">Position</span>
+                        <div class="custom-select multi-select-trigger" [class.open]="positionDropdownOpen()"
+                            (click)="togglePositionDropdown()" tabindex="0" (keydown.enter)="togglePositionDropdown()"
+                            (keydown.space)="togglePositionDropdown(); $event.preventDefault()">
+                            <span class="multi-select-value" [class.placeholder]="selectedRoles.length === 0">
+                                {{ selectedRoles.length === 0 ? 'Select Position' : selectedRoles.join(', ') }}
+                            </span>
+                        </div>
+                        <div class="multi-select-panel" *ngIf="positionDropdownOpen()">
+                            <label *ngIf="loadingPositions()" class="multi-select-option disabled">Loading...</label>
+                            <label *ngFor="let pos of positions()" class="multi-select-option"
+                                (mousedown)="$event.preventDefault()" (click)="toggleRole(pos.value)">
+                                <input type="checkbox" [checked]="isRoleSelected(pos.value)"
+                                    (change)="toggleRole(pos.value)" (click)="$event.stopPropagation()">
+                                {{ pos.label }}
+                            </label>
+                        </div>
+                        <span class="select-arrow">
+                            <svg viewBox="0 0 16 16" fill="none">
+                                <polyline points="3,5 8,11 13,5" stroke="#272727" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Row 2: District & Block -->
+            <div class="form-row">
+                <div class="field-shell">
+                    <div class="select-wrapper no-label">
+                        <select class="custom-select" formControlName="district">
+                            <option value="" selected>District</option>
+                            <option *ngFor="let d of districts()" [value]="d.value">{{ d.label }}</option>
+                        </select>
+                        <span class="select-arrow">
+                            <svg viewBox="0 0 16 16" fill="none">
+                                <polyline points="3,5 8,11 13,5" stroke="#272727" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="field-shell">
+                    <div class="select-wrapper no-label">
+                        <select class="custom-select" formControlName="block">
+                            <option value="" selected>Block</option>
+                            <option *ngFor="let b of blocks()" [value]="b.value">{{ b.label }}</option>
+                        </select>
+                        <span class="select-arrow">
+                            <svg viewBox="0 0 16 16" fill="none">
+                                <polyline points="3,5 8,11 13,5" stroke="#272727" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 2: Select Language -->
+        <div class="form-section">
+            <h2 class="section-title">Select Language</h2>
+            <p class="section-description">
+                Choose the language in which learners will view their courses and competencies on the home screen.
+            </p>
+
+            <div class="form-row">
+                <div class="field-shell" [class.field-error]="hasError('language')">
+                    <div class="select-wrapper">
+                        <span class="select-label required">Language</span>
+                        <select class="custom-select" formControlName="language">
+                            <option value="" disabled selected hidden>Select Language</option>
+                            <option *ngFor="let lang of languages" [value]="lang.value">{{ lang.label }}</option>
+                        </select>
+                        <span class="select-arrow">
+                            <svg viewBox="0 0 16 16" fill="none">
+                                <polyline points="3,5 8,11 13,5" stroke="#272727" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </span>
+                    </div>
+                </div>
+                <!-- Spacer -->
+                <div class="field-shell"></div>
+            </div>
+        </div>
+
+        <!-- Continue Button -->
+        <button type="button" class="continue-btn" [disabled]="filterForm.invalid || loading()" (click)="onContinue()">
+            {{ loading() ? 'Loading...' : 'Continue' }}
+        </button>
+
+        <!-- Error Message -->
+        <div *ngIf="errorMessage()" class="error-message">
+            <span>⚠️ {{ errorMessage() }}</span>
+        </div>
+    </form>
+</div>

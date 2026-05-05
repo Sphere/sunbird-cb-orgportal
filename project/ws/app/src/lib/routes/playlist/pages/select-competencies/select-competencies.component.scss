@@ -1,0 +1,20 @@
+// Reuse styles from select-courses
+@import '../select-courses/select-courses.component.scss';
+
+.select-competencies-container {
+    @extend .select-courses-container;
+}
+
+// Back button inherits blue pill style from select-courses base
+
+.code-col {
+    width: 100px;
+    min-width: 100px;
+    border-right: 1px solid #E1DFDF;
+    padding-left: 16px !important;
+}
+
+.name-col {
+    width: auto;
+    padding-left: 16px !important;
+}

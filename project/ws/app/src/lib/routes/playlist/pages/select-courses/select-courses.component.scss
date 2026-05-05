@@ -1,0 +1,539 @@
+// ===========================================================================
+// SELECT COURSES PAGE - Styles (PURE CSS)
+// ===========================================================================
+
+// Override container-balanced padding from home component
+:host ::ng-deep .container-balanced {
+    padding: 0 !important;
+}
+
+.select-courses-container {
+    // max-width: 1440px;
+    margin: 0 auto;
+    padding: 0; // Reset padding to match 1440px layout if needed, or keep consistent
+    position: relative;
+    background: white;
+    min-height: 100vh;
+}
+
+// ---------------------------------------------------------------------------
+// HEADER WITH TABS ( 88px height white bg + tabs below?)
+// User Code: 
+// Top white bar 88px.
+// Tabs bar (Select Competencies) at top?
+// Actually, looking at screenshot 533: 
+// "Select Competencies" is a tab next to "Select Courses" in a light blue bar.
+// The blue bar is top-level.
+// ---------------------------------------------------------------------------
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 62px;
+    background: #f3f8fd;
+    padding: 0 24px;
+}
+
+.header-spacer {
+    flex: 1;
+}
+
+.tabs {
+    display: flex;
+    gap: 32px;
+}
+
+.tab-button {
+    background: transparent;
+    border: none;
+    font-family: 'Roboto', sans-serif;
+    font-size: 24px;
+    cursor: pointer;
+    color: #000;
+    opacity: 0.4;
+    padding: 0;
+
+    &.active {
+        font-weight: 600; // Bold for active
+        opacity: 1;
+    }
+
+    &:hover {
+        opacity: 0.8;
+    }
+}
+
+.next-btn {
+    width: 156px;
+    height: 40px;
+    border-radius: 50px;
+    border: none;
+    background: #BFBFBF; // Disabled gray
+    color: #808080;
+    font-family: 'Roboto', sans-serif;
+    font-size: 14px;
+    cursor: not-allowed;
+
+    &:not(:disabled) {
+        background: #1C5D95; // primary blue
+        color: white;
+        cursor: pointer;
+
+        &:hover {
+            background: #164d7a;
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// BACK BUTTON — matches FRAC back-nav-btn
+// ---------------------------------------------------------------------------
+.back-nav-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px 6px 8px;
+    border-radius: 90px;
+    border: 1px solid #1c5d95;
+    background: #f3f8fd;
+    color: #1c5d95;
+    font-size: 15px;
+    font-family: Roboto, sans-serif;
+    font-weight: 400;
+    cursor: pointer;
+    transition: background 0.15s ease;
+
+    mat-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+        color: #1c5d95;
+    }
+
+    &:hover {
+        background: #e3edf7;
+    }
+}
+
+// ---------------------------------------------------------------------------
+// PAGE TITLE & SUBTITLE
+// ---------------------------------------------------------------------------
+.page-title {
+    margin: 16px 0 32px 36px; // Left 80px
+
+    h1 {
+        font-family: 'Roboto', sans-serif;
+        font-size: 32px;
+        font-weight: 600;
+        color: #000;
+        margin: 0 0 12px 0;
+    }
+
+    .subtitle {
+        font-family: 'Roboto', sans-serif;
+        font-size: 20px;
+        font-weight: 400;
+        color: #000;
+        margin: 0;
+    }
+}
+
+// ---------------------------------------------------------------------------
+// SEARCH FIELD ( 289px x 44px)
+// ---------------------------------------------------------------------------
+.search-container {
+    margin: 0 0 24px 36px; // Left 80px
+}
+
+.custom-search-field {
+    width: 289px;
+    height: 44px;
+    background: white;
+    box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.15);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 12px;
+
+    input {
+        border: none;
+        outline: none;
+        flex: 1;
+        font-family: 'Roboto', sans-serif;
+        font-size: 14px;
+        color: #000;
+
+        &::placeholder {
+            color: #808080;
+        }
+    }
+
+    .search-icon {
+        width: 21px;
+        height: 21px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        svg,
+        img {
+            width: 16px;
+            height: 16px;
+        }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// VARIABLES
+// ---------------------------------------------------------------------------
+$table-height: 560px;
+
+// ---------------------------------------------------------------------------
+// TABLE CONTAINER & TABLE
+// ---------------------------------------------------------------------------
+.table-container {
+    width: calc(100% - 72px);
+    margin-left: 36px;
+    margin-right: 36px;
+    border-radius: 16px;
+    border: 1px solid #E1DFDF;
+    overflow: visible; // Allow dropdown to show outside
+    background: white;
+    margin-bottom: 40px;
+}
+
+// Scrollable wrapper for table body
+.table-scroll-wrapper {
+    position: relative;
+    min-height: $table-height; // Minimum height for empty state, grows with content
+    max-height: $table-height; // Max height for scrolling
+    overflow-y: auto; // Allow vertical scrolling
+    overflow-x: hidden; // Hide horizontal overflow
+    border-radius: 15px; // Slightly less than container to ensure visibility
+}
+
+.custom-table {
+    width: 100%;
+    border-collapse: separate; // Changed from collapse to allow border-radius on cells
+    border-spacing: 0; // Remove spacing between cells
+
+
+    thead {
+        background: #DFEDF9;
+        height: 32px;
+
+        tr {
+            th:first-child {
+                border-top-left-radius: 16px; // Match container radius
+            }
+
+            th:last-child {
+                border-top-right-radius: 16px; // Match container radius
+            }
+        }
+
+        th {
+            font-family: 'Roboto', sans-serif;
+            font-size: 14px;
+            font-weight: 400;
+            color: #000;
+            text-align: left;
+            padding: 0 16px; // Same padding as body cells for alignment
+        }
+    }
+
+    tbody {
+        tr {
+            height: 48px; // Approx row height
+
+            &:last-child {
+
+                // Bottom corners rounded for last row
+                td:first-child {
+                    border-bottom-left-radius: 16px;
+                    border-bottom: none; // No border on last row
+                }
+
+                td:last-child {
+                    border-bottom-right-radius: 16px;
+                    border-bottom: none; // No border on last row
+                }
+
+                td {
+                    border-bottom: none; // Remove border from all td in last row
+                }
+            }
+
+            &:hover {
+                background-color: #f9f9f9;
+            }
+
+            // Selected row - light green for clear distinction from header
+            &.selected-row {
+                background-color: #F0F3F4;
+            }
+
+            // Preselected (from existing playlist)
+            &.preselected-row {
+                background-color: #fff8e1; // Light yellow/amber
+            }
+        }
+
+
+        td {
+            font-family: 'Roboto', sans-serif;
+            font-size: 16px; // Body font 16px
+            font-weight: 400;
+            color: #000;
+            padding: 0 16px;
+            border-bottom: 1px solid #E1DFDF; // Horizontal border between rows
+        }
+    }
+}
+
+// Column Widths
+.checkbox-col {
+    width: 48px; // Fixed width for checkbox icon
+    min-width: 48px;
+    max-width: 48px;
+    padding-left: 16px !important;
+    // Add vertical divider on right side (between checkbox and name)
+    border-right: 1px solid #E1DFDF;
+}
+
+.name-col {
+    width: 50%; // Takes 50% of remaining space
+    // Add vertical divider on right side (between name and source)
+    border-right: 1px solid #E1DFDF;
+}
+
+.source-col {
+    width: 50%; // Takes 50% of remaining space
+    padding-left: 24px !important;
+}
+
+// ---------------------------------------------------------------------------
+// CUSTOM CHECKBOX (custom style)
+// ---------------------------------------------------------------------------
+.custom-checkbox {
+    display: block;
+    position: relative;
+    padding-left: 0;
+    margin-bottom: 0;
+    cursor: pointer;
+    width: 20px;
+    height: 20px;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+
+    input {
+        position: absolute;
+        opacity: 0;
+        cursor: pointer;
+        height: 0;
+        width: 0;
+    }
+
+    .checkmark {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 18.8px;
+        width: 18.8px;
+        background-color: white;
+        border: 1.76px solid #404040; // border
+        border-radius: 4.7px; // radius
+    }
+
+    input:checked~.checkmark {
+        background-color: #1C5D95; // primary color for checked
+        border-color: #1C5D95;
+    }
+
+    .checkmark:after {
+        content: "";
+        position: absolute;
+        display: none;
+    }
+
+    input:checked~.checkmark:after {
+        display: block;
+    }
+
+    // Checkmark icon (CSS draw)
+    .checkmark:after {
+        left: 6px;
+        top: 2px;
+        width: 5px;
+        height: 10px;
+        border: solid white;
+        border-width: 0 2px 2px 0;
+        -webkit-transform: rotate(45deg);
+        -ms-transform: rotate(45deg);
+        transform: rotate(45deg);
+    }
+}
+
+// ---------------------------------------------------------------------------
+// SHIMMER ROWS
+// ---------------------------------------------------------------------------
+.shimmer-row td {
+    height: 48px;
+    border-bottom: 1px solid #e0e0e0;
+    padding: 0 16px;
+    pointer-events: none;
+}
+
+.shimmer-box {
+    display: inline-block;
+    border-radius: 3px;
+    background: linear-gradient(90deg, #e9eff6 25%, #dfe8f3 37%, #e9eff6 63%);
+    background-size: 400% 100%;
+    animation: rowShimmer 1.2s ease-in-out infinite;
+}
+
+.shimmer-box.checkbox {
+    width: 16px;
+    height: 16px;
+    border-radius: 2px;
+}
+
+.shimmer-box.text {
+    width: 70%;
+    height: 12px;
+    min-width: 48px;
+}
+
+.shimmer-box.shimmer-short {
+    width: 80px;
+    min-width: 80px;
+}
+
+@keyframes rowShimmer {
+    0%   { background-position: 100% 0; }
+    100% { background-position: -100% 0; }
+}
+
+// ---------------------------------------------------------------------------
+// EMPTY STATE (centered in table area)
+// ---------------------------------------------------------------------------
+.empty-state-overlay {
+    position: absolute;
+    top: 32px; // below table header
+    right: 0;
+    bottom: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+}
+
+.empty-state-card {
+    display: block;
+    width: fit-content;
+    margin: 0 auto;
+    padding: 24px 28px;
+    border-radius: 12px;
+    border: 1px dashed #c8d6e6;
+    background: rgba(255, 255, 255, 0.95);
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(28, 93, 149, 0.08);
+    min-width: 280px;
+}
+
+.empty-state-icon {
+    width: 56px;
+    height: 56px;
+    margin: 0 auto 12px;
+    border-radius: 50%;
+    background: #eef4fb;
+    border: 1px solid #d5e3f3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    mat-icon {
+        color: #1c5d95;
+        font-size: 30px;
+        width: 30px;
+        height: 30px;
+    }
+}
+
+.empty-state-title {
+    margin: 0;
+    color: #1f2937;
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 1.3;
+}
+
+.empty-state-message {
+    margin: 10px 0 0;
+    color: #374151;
+    font-size: 15px;
+    font-weight: 400;
+    line-height: 1.45;
+}
+
+// ---------------------------------------------------------------------------
+// CUSTOM PAGINATOR
+// ---------------------------------------------------------------------------
+.custom-paginator {
+    border-radius: 0 0 14px 14px; // Bottom corners rounded
+    border-top: 1px solid #E1DFDF; // Separator from table
+    background: white;
+    overflow: visible; // Allow dropdown to show
+
+    ::ng-deep {
+
+        .mat-paginator-outer-container,
+        .mat-paginator-container {
+            border-radius: 0 0 14px 14px;
+            overflow: visible; // Ensure dropdown is visible
+        }
+
+        // Ensure the select dropdown is visible
+        .mat-paginator-page-size {
+            overflow: visible;
+        }
+
+        .mat-paginator-page-size-select {
+            overflow: visible;
+        }
+
+        .mat-select {
+            overflow: visible;
+        }
+
+        // Fix: Ensure arrow is ALWAYS visible regardless of focus/selection state
+        .mat-select-arrow-wrapper {
+            display: flex !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+
+        .mat-select-arrow {
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+
+        // Ensure arrow visible even when focused/selected
+        .mat-select.mat-focused .mat-select-arrow-wrapper,
+        .mat-select.mat-select-active .mat-select-arrow-wrapper {
+            display: flex !important;
+            visibility: visible !important;
+        }
+
+        .mat-select.mat-focused .mat-select-arrow,
+        .mat-select.mat-select-active .mat-select-arrow {
+            display: block !important;
+            visibility: visible !important;
+        }
+    }
+}

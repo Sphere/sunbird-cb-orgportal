@@ -1,0 +1,587 @@
+// ===========================================================================
+// MANAGE COMPETENCY ORDER - Styles (Same as Course Page)
+// ===========================================================================
+
+// Override container-balanced padding from home component
+:host ::ng-deep .container-balanced {
+    padding: 0 !important;
+}
+
+/* Shimmer Animation */
+@keyframes shimmer {
+    0% {
+        background-position: -468px 0;
+    }
+
+    100% {
+        background-position: 468px 0;
+    }
+}
+
+.shimmer-row {
+    height: 48px;
+    width: 100%;
+    background: #f6f7f8;
+    background-image: linear-gradient(to right,
+            #f6f7f8 0%,
+            #edeef1 20%,
+            #f6f7f8 40%,
+            #f6f7f8 100%);
+    background-repeat: no-repeat;
+    background-size: 800px 104px;
+    display: block;
+    position: relative;
+    animation: shimmer 1.5s linear infinite forwards;
+    border-radius: 8px;
+    margin-bottom: 24px;
+}
+
+.manage-order-container {
+    padding: 0 36px;
+    background: white;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+// ===========================================================================
+// TOP BAR (Breadcrumb + Save Button)
+// ===========================================================================
+
+.top-bar {
+    background: #f3f8fd;
+    margin: 0 -36px;
+    padding: 8px 36px;
+    min-height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 36px;
+}
+
+.header-spacer {
+    flex: 1;
+}
+
+.breadcrumb {
+    color: black;
+    font-size: 24px;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400;
+}
+
+.save-btn-top {
+    width: 120px;
+    height: 40px;
+    background: #BFBFBF;
+    border-radius: 50px;
+    border: none;
+    color: #808080;
+    font-size: 14px;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400;
+    cursor: not-allowed;
+
+    &:not([disabled]) {
+        background: #2E6491;
+        color: white;
+        cursor: pointer;
+
+        &:hover {
+            background: #255178;
+        }
+    }
+}
+
+// ===========================================================================
+// BACK BUTTON — matches FRAC back-nav-btn
+// ===========================================================================
+
+.back-nav-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px 6px 8px;
+    border-radius: 90px;
+    border: 1px solid #1c5d95;
+    background: #f3f8fd;
+    color: #1c5d95;
+    font-size: 15px;
+    font-family: Roboto, sans-serif;
+    font-weight: 400;
+    cursor: pointer;
+    transition: background 0.15s ease;
+
+    mat-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+        color: #1c5d95;
+    }
+
+    &:hover {
+        background: #e3edf7;
+    }
+}
+
+// ===========================================================================
+// HEADER
+// ===========================================================================
+
+.page-title {
+    margin: 0 0 10px 0;
+    color: black;
+    font-size: 32px;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 500;
+}
+
+.page-subtitle {
+    // margin: 0 0 20px 0;
+    color: black;
+    font-size: 20px;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400;
+}
+
+// Assign courses button
+.action-row {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 16px;
+}
+
+.assign-btn {
+    padding: 10px 24px;
+    border-radius: 50px;
+    border: none;
+    background: #BFBFBF;
+    color: #808080;
+    font-size: 14px;
+    font-family: 'Roboto', sans-serif;
+    cursor: not-allowed;
+
+    &:not(:disabled) {
+        background: #1C5D95;
+        color: white;
+        cursor: pointer;
+    }
+}
+
+// ===========================================================================
+// TWO COLUMN LAYOUT
+// ===========================================================================
+
+.content-wrapper {
+    display: flex;
+    gap: 24px;
+    align-items: stretch;
+}
+
+// ===========================================================================
+// LEFT PANEL: COMPETENCIES CARD (Same as Course Card)
+// ===========================================================================
+
+.competencies-card {
+    width: 450px;
+    height: 556px;
+    border-radius: 12px;
+    border: 1px solid #E1DFDF;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+// Card Header (Blue)
+.card-header {
+    height: 40px;
+    background: #DFEDF9;
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.header-label {
+    color: black;
+    font-size: 16px;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400;
+}
+
+// ===========================================================================
+// SEARCH FIELD — pure custom input, no Material MDC
+// ===========================================================================
+
+.search-container {
+    padding: 16px 16px 8px 16px;
+    flex-shrink: 0;
+}
+
+.search-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 40px;
+    padding: 0 12px 0 10px;
+    background: #fff;
+    border-radius: 50px;
+    border: 1px solid #E1DFDF;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+    &:focus-within {
+        border-color: #1c5d95;
+        box-shadow: 0 0 0 2px rgba(28, 93, 149, 0.12);
+    }
+
+    .search-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+        color: #757575;
+        flex-shrink: 0;
+    }
+
+    .search-input {
+        flex: 1;
+        border: none;
+        outline: none;
+        background: transparent;
+        color: #333;
+        font-size: 13px;
+        font-family: 'Roboto', sans-serif;
+        font-weight: 400;
+
+        &::placeholder {
+            color: #9e9e9e;
+            font-size: 13px;
+        }
+    }
+}
+
+// ===========================================================================
+// COMPETENCY LIST
+// ===========================================================================
+
+.competencies-list {
+    padding: 8px 16px 16px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    flex: 1;
+    overflow-y: auto;
+    min-height: 0;
+}
+
+.competency-item {
+    padding: 14px 16px;
+    background: white; // Default: White background
+    box-shadow: none; // No shadow by default
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1.5px solid #E1DFDF; // Light gray border by default
+
+    &:hover {
+        box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    &.selected {
+        border-color: #1C5D95; // Blue border when selected/clicked
+        background: #EFF6FC; // Light blue background when selected
+        box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.15); // Subtle shadow when selected
+    }
+
+    &.complete {
+        .complete-badge {
+            display: flex;
+        }
+    }
+
+    &.cdk-drag-preview {
+        box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.4);
+        opacity: 0.9;
+    }
+
+    &.cdk-drag-animating {
+        transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+    }
+}
+
+// Drag Handle
+.drag-handle {
+    cursor: grab;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+
+    &:active {
+        cursor: grabbing;
+    }
+
+    .drag-icon {
+        width: 12px;
+        height: 24px;
+        flex-shrink: 0;
+    }
+}
+
+// Competency Content
+.competency-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+}
+
+.order-number {
+    color: black;
+    font-size: 24px;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 500;
+    line-height: 1;
+    min-width: 24px;
+}
+
+.competency-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+    min-width: 0;
+}
+
+.competency-name {
+    color: black;
+    font-size: 16px;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400;
+    word-wrap: break-word;
+}
+
+.competency-code {
+    color: #808080;
+    font-size: 12px;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400;
+}
+
+// Complete Badge
+.complete-badge {
+    display: none;
+    align-items: center;
+
+    .check-icon {
+        width: 24px;
+        height: 24px;
+    }
+}
+
+
+// Drag Placeholder
+.placeholder {
+    background: rgba(223, 237, 249, 0.5);
+    border: 2px dashed #1C5D95;
+    min-height: 64px;
+    border-radius: 10px;
+}
+
+.cdk-drop-list-dragging .competency-item:not(.cdk-drag-placeholder) {
+    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+// Empty State
+.empty-state {
+    text-align: center;
+    padding: 32px 16px;
+    color: #808080;
+
+    p {
+        margin: 0 0 16px 0;
+        font-size: 14px;
+    }
+}
+
+// ===========================================================================
+// RIGHT PANEL: LEVELS CARD (Same Height as Competencies)
+// ===========================================================================
+
+.levels-card {
+    flex: 1;
+    height: 556px;
+    border-radius: 12px;
+    border: 1px solid #E1DFDF;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.levels-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+// Competency Title
+.competency-title {
+    color: black;
+    font-size: 20px;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400;
+    word-wrap: break-word;
+    padding: 18px 24px;
+    border-bottom: 1px solid #DBDBDB;
+    flex-shrink: 0;
+}
+
+.levels-list {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow-y: auto;
+}
+
+// Level Row with border-bottom - Equal height distribution
+.level-row {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    padding: 0 24px;
+    min-height: 92px;
+    border-bottom: 1px solid #DBDBDB;
+
+    &:first-child {
+        padding-top: 0;
+    }
+
+    &:last-child {
+        border-bottom: none;
+    }
+}
+
+// Level Label
+.level-label {
+    color: black;
+    font-size: 18px;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400;
+    min-width: 60px;
+    flex-shrink: 0;
+}
+
+// Level Dropdown — CSS variables to beat MDC outline, card shadow style
+.level-dropdown {
+    flex: 1;
+
+    .dropdown-field {
+        width: 100%;
+
+        // MDC CSS variables: suppress outline, let box-shadow be the "border"
+        --mdc-outlined-text-field-outline-color: transparent;
+        --mdc-outlined-text-field-hover-outline-color: transparent;
+        --mdc-outlined-text-field-focus-outline-color: transparent;
+        --mdc-outlined-text-field-container-shape: 8px;
+
+        ::ng-deep {
+            .mat-mdc-form-field-subscript-wrapper {
+                display: none;
+            }
+
+            .mat-mdc-text-field-wrapper {
+                background: #fff !important;
+                border-radius: 8px !important;
+                box-shadow: 0 0 4px rgba(0, 0, 0, 0.18) !important;
+                border: 1px solid #E1DFDF !important;
+            }
+
+            .mat-mdc-form-field-infix {
+                padding: 12px 0 !important;
+                min-height: 48px !important;
+                display: flex;
+                align-items: center;
+            }
+
+            .mat-mdc-select-value-text {
+                font-size: 14px !important;
+                color: #111 !important;
+                font-family: 'Roboto', sans-serif !important;
+                font-weight: 500 !important;
+            }
+
+            .mat-mdc-select-placeholder {
+                color: #9e9e9e !important;
+                font-size: 14px !important;
+                font-family: 'Roboto', sans-serif !important;
+            }
+
+            .mat-mdc-select-arrow {
+                color: #444 !important;
+            }
+
+            .mat-mdc-floating-label {
+                display: none !important;
+            }
+
+            .mat-mdc-option-text,
+            .mat-mdc-select-min-line {
+                font-weight: 500 !important;
+            }
+        }
+
+        // Focus: blue highlight ring
+        &:focus-within {
+            ::ng-deep .mat-mdc-text-field-wrapper {
+                border-color: #1c5d95 !important;
+                box-shadow: 0 0 0 2px rgba(28, 93, 149, 0.15) !important;
+            }
+        }
+    }
+}
+
+
+// No Selection State
+.no-selection {
+    padding: 80px 40px;
+    text-align: center;
+    color: #808080;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    p {
+        font-size: 16px;
+        font-family: 'Roboto', sans-serif;
+        font-weight: 400;
+        margin: 0;
+    }
+}
+
+// ===========================================================================
+// CDK DRAG & DROP
+// ===========================================================================
+
+.cdk-drag-preview {
+    box-sizing: border-box;
+    border-radius: 8px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+    background: white;
+    display: flex;
+    align-items: center;
+    padding: 16px;
+    gap: 21px;
+}
+
+.cdk-drag-placeholder {
+    opacity: 0.3;
+    background: #e3f2fd;
+}
+
+.cdk-drag-animating {
+    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
