@@ -18,7 +18,7 @@
 
     <!-- Assign Courses Button -->
     <div class="action-row">
-        <button class="assign-btn" [disabled]="!selectedCompetency() || !isCurrentCompetencyComplete()"
+        <button class="assign-btn" [disabled]="!selectedCompetency() || !isCurrentCompetencyComplete() || allCompetenciesComplete()"
             (click)="onAssignCourses()">
             Assign courses
         </button>

@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http'
 import { Injectable } from '@angular/core'
-import { Observable } from 'rxjs'
+import { Observable, of } from 'rxjs'
 import { map, take } from 'rxjs/operators'
 import {
     Course,
@@ -21,7 +21,7 @@ import { expandLanguageFilter } from '../utils/language.utils'
     providedIn: 'root',
 })
 export class CourseApiService {
-    private readonly API_BASE = `/api/proxies/v8/sunbirdigot/search`
+    private readonly API_BASE = `/apis/proxies/v8/sunbirdigot/search`
 
     constructor(private http: HttpClient) { }
 
@@ -259,7 +259,7 @@ export class CourseApiService {
         })
     }
 
-    /** 
+    /**
      * Fetches the entire available course library for a specific language.
      * This is useful for caching purposes and large-scale selection screens.
      */
@@ -271,5 +271,49 @@ export class CourseApiService {
         }
 
         return result.courses
+    }
+
+    /**
+     * Searches for specific courses by their IDs.
+     * Much more efficient than loading all courses when you only need a few.
+     *
+     * @param courseIds Array of course identifiers
+     * @param language Language code for filtering
+     * @returns Observable of matching courses
+     */
+    searchCoursesByIds(
+        courseIds: string[],
+        language: string = 'en'
+    ): Observable<{ courses: Course[]; totalCount: number }> {
+        if (!courseIds || courseIds.length === 0) {
+            return of({ courses: [], totalCount: 0 })
+        }
+
+        const identifiers = courseIds.map(id => id.trim()).filter(id => id.length > 0)
+
+        const payload: CourseSearchRequest = {
+            request: {
+                filters: {
+                    primaryCategory: ['Course'],
+                    identifier: identifiers,
+                    lang: expandLanguageFilter(language)
+                },
+                limit: identifiers.length + 10,
+                offset: 0,
+                sort_by: {
+                    createdOn: 'desc',
+                },
+                fields: ["name", "sourceName", "identifier"]
+            },
+        }
+
+        return this.http
+            .post<CourseSearchResponse>(`${this.API_BASE}`, payload)
+            .pipe(
+                map(response => ({
+                    courses: response.result.content || [],
+                    totalCount: response.result.count || 0,
+                }))
+            )
     }
 }

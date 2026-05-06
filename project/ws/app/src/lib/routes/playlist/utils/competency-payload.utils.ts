@@ -26,6 +26,8 @@ interface ExistingLevelItem {
     level: number | string
     courseId?: string
     name?: string
+    courseName?: string
+    description?: string
 }
 
 export interface CompetencyLevelPayload {
@@ -197,9 +199,19 @@ export function restoreSavedCourseAssignments(
 
     competency.levels.forEach(level => {
         const savedLevel = savedLevels.find(l => String(l.level) === String(level.level))
-        if (savedLevel?.courseId) {
-            level.courseId = savedLevel.courseId
-            level.courseName = savedLevel.name || ''
+        if (savedLevel) {
+            if (savedLevel.courseId) {
+                level.courseId = savedLevel.courseId
+            }
+            if (savedLevel.courseName) {
+                level.courseName = savedLevel.courseName
+            }
+            if (savedLevel.name) {
+                level.name = savedLevel.name
+            }
+            if (savedLevel.description) {
+                level.description = savedLevel.description
+            }
         }
     })
 }
