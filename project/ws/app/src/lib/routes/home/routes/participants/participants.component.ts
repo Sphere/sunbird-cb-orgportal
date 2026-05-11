@@ -39,7 +39,7 @@ export class ParticipantsComponent implements OnInit, OnDestroy {
         this.participants = response.map((participant: any) => ({
           firstName: participant.firstName,
           lastName: participant.lastName,
-          place: participant.place,
+          place: participant.location,
         }))
       },
       error => {

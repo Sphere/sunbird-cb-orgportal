@@ -3,7 +3,7 @@ import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
 import { AddParticipantsComponent } from '../add-participants/add-participants.component'
 import { ActivatedRoute, Router } from '@angular/router'
 import { EventService } from '../../services/event.service'
-import { HttpClient, HttpHeaders } from '@angular/common/http'
+import { HttpClient } from '@angular/common/http'
 import { saveAs } from 'file-saver'
 import { svg2pdf } from 'svg2pdf.js'
 import JSZip from 'jszip'
@@ -25,6 +25,7 @@ export class EventOverviewComponent implements OnInit, OnDestroy {
   certificateTemplates: any[] = []
   private eventSubscription!: Subscription
   nonRegistered = false
+  isDownloading = false
 
   constructor(
     private dialog: MatDialog,
@@ -39,8 +40,9 @@ export class EventOverviewComponent implements OnInit, OnDestroy {
     this.loadCertificateTemplates()
 
     //  Get event details
-    this.eventService.currentEvent.subscribe(event => {
+    this.eventSubscription = this.eventService.currentEvent.subscribe(event => {
       this.selectedEvent = event
+      this.nonRegistered = this.selectedEvent?.registrationType === 'registred without sphere'
 
       if (this.selectedEvent?.participantCount !== undefined) {
         this.participantCount = this.selectedEvent.participantCount
@@ -55,7 +57,6 @@ export class EventOverviewComponent implements OnInit, OnDestroy {
         this.fetchSelectedCertificate()
       }
     })
-    this.nonRegistered = this.selectedEvent.registrationType === 'registred without sphere' ? true : false
 
 
     console.log('Received Event in Overview:', this.selectedEvent, this.participantCount)
@@ -182,11 +183,9 @@ export class EventOverviewComponent implements OnInit, OnDestroy {
   }
 
   downloadCertificates(): void {
-    if (!this.selectedEvent?.eventId) {
-      console.error('Event ID is missing')
-      return
-    }
-    console.log(this.selectedEvent)
+    if (this.isDownloading || !this.selectedEvent?.eventId) { return }
+    this.isDownloading = true
+
     if (this.selectedEvent?.selectedTemplate?.registered === true) {
       this.eventService.downloadCertificates(this.selectedEvent.eventId).subscribe({
         next: blob => {
@@ -198,96 +197,45 @@ export class EventOverviewComponent implements OnInit, OnDestroy {
           a.click()
           window.URL.revokeObjectURL(url)
           document.body.removeChild(a)
-          console.log('Certificates downloaded successfully')
+          this.isDownloading = false
         },
         error: error => {
           console.error('Error downloading certificates:', error)
+          this.isDownloading = false
         },
       })
     } else {
       this.generateCertificatesForNonRegisteredUsers()
     }
-
   }
 
   // Generate certificates for non-registered users
   generateCertificatesForNonRegisteredUsers(): void {
-    console.log('Generating certificates for non-registered users')
-
     if (!this.selectedEvent?.eventId) {
-      console.error('Event ID is missing')
+      this.isDownloading = false
       return
     }
 
     const formattedDate = this.formatEventDate(this.selectedEvent.eventDate)
 
     this.eventService.getParticipants(this.selectedEvent.eventId).subscribe({
-      next: participants => {
-        console.log('Participants received:', participants)
+      next: async participants => {
         if (!participants || participants.length === 0) {
           console.warn('No participants found for certificate generation')
+          this.isDownloading = false
           return
         }
-
-        this.downloadAllCertificatesAsZip(participants, formattedDate)
+        try {
+          await this.downloadAllCertificatesAsZip(participants, formattedDate)
+        } finally {
+          this.isDownloading = false
+        }
       },
       error: error => {
         console.error('Error fetching participants:', error)
+        this.isDownloading = false
       },
     })
-  }
-
-  // Generate & download all certificates as a ZIP file
-  async downloadAllCertificatesAsZipold(participants: any[], date: string): Promise<void> {
-    if (!this.selectedEvent?.selectedTemplate?.templateLogo) {
-      console.error('No certificate template selected')
-      return
-    }
-
-    try {
-      const zip = new JSZip()
-      // this.http.get(this.selectedEvent.selectedTemplate.templateLogo, { responseType: 'text' }) - for prod
-      // this.http.get('/mdo-assets/images/RMC-Online.svg', { responseType: 'text' }) - local use age
-      const svgTemplate = await this.http.get(this.selectedEvent.selectedTemplate.templateLogo,
-        {
-          responseType: 'text',
-          headers: new HttpHeaders({
-            'Cache-Control': 'no-store',
-            'Access-Control-Allow-Origin': '*',
-            "Access-Control-Request-Method": "GET",
-            "Access-Control-Request-Headers": "*",
-            "content-type": "image/svg+xml"
-          })
-        }).toPromise()
-
-      fetch(this.selectedEvent.selectedTemplate.templateLogo, { mode: 'no-cors' })
-        .then(response => response.text())
-        .then(svg => console.log('Fetched SVG:', svg))
-        .catch(error => console.error('Fetch error:', error))
-
-      for (const participant of participants) {
-        console.log(`Generating certificate for: ${participant.firstName}`)
-
-        // Generate personalized SVG with participant details
-        const personalizedSVG = this.generatePersonalizedSVG(svgTemplate, participant.firstName, date)
-
-        // Convert modified SVG to a PDF
-        const pdfBlob = await this.generatePDFBlob(personalizedSVG)
-
-        // Add the generated PDF to the ZIP file
-        const fileName = `${participant.firstName}-${date}.pdf`
-        zip.file(fileName, pdfBlob)
-        console.log(`Added ${fileName} to ZIP.`)
-      }
-
-      // Generate and download ZIP file
-      const zipBlob = await zip.generateAsync({ type: 'blob' })
-      saveAs(zipBlob, 'Certificates.zip')
-      console.log('ZIP file downloaded successfully.')
-
-    } catch (error) {
-      console.error('Error during certificate generation:', error)
-    }
   }
 
   async downloadAllCertificatesAsZip(participants: any[], date: string) {
