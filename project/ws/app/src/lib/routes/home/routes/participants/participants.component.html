@@ -5,6 +5,20 @@
     <button class="filter-btn">
       <mat-icon class="material-icons-outlined">filter_alt</mat-icon> Filter
     </button>
+
+    <div *ngIf="showCertificateStatus" class="cert-summary">
+      <span class="cert-summary-text">
+        {{ participants.length - usersWithoutCert.length }} of {{ participants.length }} received certificates
+      </span>
+      <button
+        *ngIf="usersWithoutCert.length > 0"
+        class="download-report-btn"
+        (click)="downloadUsersWithoutCertificates()"
+      >
+        <mat-icon>download</mat-icon>
+        Download Users Without Certificates ({{ usersWithoutCert.length }})
+      </button>
+    </div>
   </div>
 
   <!-- Participants Table -->
@@ -15,6 +29,7 @@
           <th>First Name</th>
           <th>Last Name</th>
           <th>Place</th>
+          <th *ngIf="showCertificateStatus">Certificate Status</th>
         </tr>
       </thead>
       <tbody>
@@ -22,6 +37,19 @@
           <td>{{ participant.firstName }}</td>
           <td>{{ participant.lastName }}</td>
           <td>{{ participant.place }}</td>
+          <td *ngIf="showCertificateStatus">
+            <span
+              class="cert-status-badge"
+              [ngClass]="{
+                'status-success': participant.certificateStatus === 'success',
+                'status-failed': participant.certificateStatus === 'failed',
+                'status-pending': !participant.certificateStatus
+              }"
+            >
+              {{ participant.certificateStatus === 'success' ? 'Generated' :
+                 participant.certificateStatus === 'failed' ? 'Failed' : 'Not Generated' }}
+            </span>
+          </td>
         </tr>
       </tbody>
     </table>
