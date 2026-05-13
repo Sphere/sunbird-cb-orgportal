@@ -4,9 +4,16 @@
 
 .participants-header {
   display: flex;
-  gap: 20px;
   align-items: center;
+  justify-content: space-between;
   margin-bottom: 15px;
+  gap: 16px;
+}
+
+.search-filter-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .search-input {
@@ -64,8 +71,7 @@ th {
   display: flex;
   align-items: center;
   gap: 16px;
-  margin-left: auto;
-  flex-wrap: wrap;
+  flex-shrink: 0;
 }
 
 .cert-summary-text {
