@@ -39,14 +39,16 @@ export class CourseApiService {
             request: {
                 filters: {
                     primaryCategory: ['Course'],
-                    lang: langFilter
+                    lang: langFilter,
+                    status: ["Live"],
+                    competency: false
                 },
                 limit,
                 offset,
                 sort_by: {
                     createdOn: 'desc',
                 },
-                fields: ["name", "sourceName"]
+                fields: ["name", "sourceName", "competency", "status"]
             },
         }
 
@@ -65,11 +67,11 @@ export class CourseApiService {
      * Searches for courses mapped to a specific competency across all configured levels.
      * Transforms competency ID (e.g., "100") into level-based search array.
      * Currently: ["100-1", "100-2", "100-3", "100-4", "100-5"] for 5 levels.
-     * 
+     *
      * @param competencyId The competency ID (e.g., "100", "200")
      * @param language Language code for filtering
      * @returns Observable of courses with competency mappings
-     * 
+     *
      * @example
      * ```typescript
      * searchCoursesByCompetency("100", "en").subscribe(result => {
@@ -96,11 +98,11 @@ export class CourseApiService {
     /**
      * Builds the competency-based course search request payload.
      * Transforms a competency ID into an array of level-based search terms.
-     * 
+     *
      * @param competencyId The competency ID (e.g., "100")
      * @param language Language code
      * @returns Request payload for competency-based search
-     * 
+     *
      * @example
      * Input: competencyId = "100", language = "en"
      * Output: {
@@ -117,7 +119,7 @@ export class CourseApiService {
      */
     /**
      * Searches for courses mapped to multiple competencies.
-     * 
+     *
      * @param competencyIds Array of competency IDs (e.g., ["100", "200"])
      * @param language Language code
      */
@@ -182,10 +184,10 @@ export class CourseApiService {
 
     /**
      * Parses the competencies_v1 JSON string field from a course.
-     * 
+     *
      * @param course Course object with competencies_v1 field
      * @returns Array of parsed competency info, or empty array if parsing fails
-     * 
+     *
      * @example
      * ```typescript
      * const course = {
@@ -211,12 +213,12 @@ export class CourseApiService {
 
     /**
      * Filters courses to only include those mapped to a specific competency level.
-     * 
+     *
      * @param courses Array of courses with competency mappings
      * @param competencyId The competency ID to filter by
      * @param level The specific level to filter (e.g., 1-5 for current 5-level system)
      * @returns Filtered array of courses
-     * 
+     *
      * @example
      * ```typescript
      * const levelOneCourses = filterCoursesByLevel(allCourses, "100", 1);
