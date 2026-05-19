@@ -138,7 +138,7 @@ export class PlaylistApiService {
         const payload = {
             request: {
                 filters: {
-                    isRootOrg: true
+                    // isRootOrg: true
                 },
                 fields: [],
                 sortBy: {
