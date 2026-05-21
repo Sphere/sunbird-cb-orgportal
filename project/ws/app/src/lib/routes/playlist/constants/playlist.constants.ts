@@ -18,6 +18,7 @@ export const PLAYLIST_ROUTES = {
     MANAGE_COURSE_ORDER: '/app/playlist/manage-course-order',
     SELECT_COMPETENCIES: '/app/playlist/select-competencies',
     MANAGE_COMPETENCY_ORDER: '/app/playlist/manage-competency-order',
+    MANAGE_SEARCH: '/app/playlist/manage-search',
 } as const
 
 // ---------------------------------------------------------------------------

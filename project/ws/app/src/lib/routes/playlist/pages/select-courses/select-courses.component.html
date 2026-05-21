@@ -38,6 +38,7 @@
                 <thead>
                     <tr>
                         <th class="checkbox-col"></th>
+                        <th class="id-col">Identifier</th>
                         <th class="name-col">Name</th>
                         <th class="source-col">Source</th>
                     </tr>
@@ -46,9 +47,18 @@
                     <!-- Shimmer rows while loading -->
                     <ng-container *ngIf="loading()">
                         <tr *ngFor="let i of shimmerRows" class="shimmer-row">
-                            <td class="checkbox-col"><div class="shimmer-box checkbox"></div></td>
-                            <td class="name-col"><div class="shimmer-box text"></div></td>
-                            <td class="source-col"><div class="shimmer-box text shimmer-short"></div></td>
+                            <td class="checkbox-col">
+                                <div class="shimmer-box checkbox"></div>
+                            </td>
+                            <td class="id-col">
+                                <div class="shimmer-box text"></div>
+                            </td>
+                            <td class="name-col">
+                                <div class="shimmer-box text"></div>
+                            </td>
+                            <td class="source-col">
+                                <div class="shimmer-box text shimmer-short"></div>
+                            </td>
                         </tr>
                     </ng-container>
 
@@ -62,6 +72,7 @@
                                 <span class="checkmark"></span>
                             </label>
                         </td>
+                        <td class="id-col">{{ row.identifier }}</td>
                         <td class="name-col">{{ row.name }}</td>
                         <td class="source-col">{{ row.sourceName }}</td>
                     </tr>

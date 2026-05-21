@@ -48,7 +48,8 @@ interface PlaylistMutationResponse {
  */
 export enum PlaylistType {
     COURSE = 'COURSE',
-    COMPETENCY = 'COMPETENCY'
+    COMPETENCY = 'COMPETENCY',
+    SEARCH = 'SEARCH'
 }
 
 /**
@@ -59,6 +60,7 @@ export enum PlaylistType {
 export const PLAYLIST_IDS = {
     [PlaylistType.COURSE]: 'Playlist_Course',
     [PlaylistType.COMPETENCY]: 'COMPETENCY_PLAYLIST_V2',
+    [PlaylistType.SEARCH]: 'SEARCH_PLAYLIST',
 } as const
 
 /**
@@ -203,7 +205,7 @@ export class PlaylistApiService {
     /**
      * Looks for playlists that match the given criteria.
      * Each playlist is unique based on: organization, language, role, and playlist type.
-     * 
+     *
      * @param filters What organization, role, and language to search for
      * @param playlistType Whether we're looking for course or competency playlists
      * @returns List of matching playlists
@@ -232,11 +234,11 @@ export class PlaylistApiService {
                 map(response => (response?.result?.playlist || []).map(item => this.normalizePlaylist(item)))
             )
     }
- 
+
     /**
      * Pulls out the course IDs from a playlist.
      * We only look at 'static' playlists (not dynamic ones) and remove any duplicates.
-     * 
+     *
      * @param playlists The playlists to extract from
      * @returns Clean list of unique course IDs
      */
@@ -391,7 +393,7 @@ export class PlaylistApiService {
     /**
      * Formats competencies for the API.
      * Takes our UI competency objects and converts them to the c1, c2, c3 format the backend expects.
-     * 
+     *
      * @param competencies The competencies to format
      * @returns Formatted array ready for the API
      */
@@ -413,10 +415,34 @@ export class PlaylistApiService {
         })
     }
 
+    private buildDataSource(
+        playlistType: PlaylistType,
+        payloadItems: PlaylistPayload
+    ): { type: 'static' | 'competency' | 'query', payload: PlaylistPayload } {
+        if (playlistType === PlaylistType.COMPETENCY) {
+            return {
+                type: 'competency',
+                payload: payloadItems,
+            }
+        }
+
+        if (playlistType === PlaylistType.SEARCH) {
+            return {
+                type: 'query',
+                payload: payloadItems,
+            }
+        }
+
+        return {
+            type: 'static',
+            payload: payloadItems,
+        }
+    }
+
     /**
      * Creates a brand new playlist.
      * This is called when we don't find an existing playlist for the given filters.
-     * 
+     *
      * @param filters Who this playlist is for (organization, role, etc.)
      * @param payloadItems The courses or competencies to include
      * @param playlistType What kind of playlist we're creating
@@ -430,16 +456,7 @@ export class PlaylistApiService {
         // Use configured playlistId for new playlists
         const playlistId = PLAYLIST_IDS[playlistType]
 
-        // Build dataSource based on playlist type
-        const dataSource = playlistType === PlaylistType.COMPETENCY
-            ? {
-                type: 'competency',
-                payload: payloadItems  // For competency, this should be the competency objects array
-            }
-            : {
-                type: 'static',
-                payload: payloadItems
-            }
+        const dataSource = this.buildDataSource(playlistType, payloadItems)
 
         const payload = {
             request: {
@@ -471,7 +488,7 @@ export class PlaylistApiService {
     /**
      * Updates an existing playlist with new content.
      * This is called when we found a playlist and want to modify it.
-     * 
+     *
      * @param existingPlaylist The playlist we're updating
      * @param filters Updated filter values (roles might be merged)
      * @param payloadItems The new list of courses/competencies
@@ -481,18 +498,9 @@ export class PlaylistApiService {
         existingPlaylist: Playlist,
         filters: PlaylistFilters,
         payloadItems: PlaylistPayload,
-        isCompetency: boolean = false
+        playlistType: PlaylistType = PlaylistType.COURSE
     ): Observable<PlaylistMutationResponse> {
-        // Build dataSource based on existing playlist type
-        const dataSource = isCompetency || existingPlaylist.dataSource?.type === 'competency'
-            ? {
-                type: 'competency',
-                payload: payloadItems  // For competency, this is the competency objects array
-            }
-            : {
-                type: 'static',
-                payload: payloadItems
-            }
+        const dataSource = this.buildDataSource(playlistType, payloadItems)
 
         const payload = {
             request: {
@@ -524,7 +532,7 @@ export class PlaylistApiService {
     /**
      * Saves a playlist - either creates a new one or updates an existing one.
      * This is the main method you'll call. It figures out whether to create or update automatically.
-     * 
+     *
      * @param filters Who this playlist is for
      * @param payloadItems What content to include
      * @param existingPlaylist If we found an existing playlist, pass it here
@@ -537,9 +545,8 @@ export class PlaylistApiService {
         existingPlaylist?: Playlist,
         playlistType: PlaylistType = PlaylistType.COURSE
     ): Observable<PlaylistMutationResponse> {
-        const isCompetency = playlistType === PlaylistType.COMPETENCY
         if (existingPlaylist) {
-            return this.updatePlaylist(existingPlaylist, filters, payloadItems, isCompetency)
+            return this.updatePlaylist(existingPlaylist, filters, payloadItems, playlistType)
         } else {
             return this.createPlaylist(filters, payloadItems, playlistType)
         }

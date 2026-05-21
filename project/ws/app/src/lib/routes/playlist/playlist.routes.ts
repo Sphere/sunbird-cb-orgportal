@@ -5,6 +5,7 @@ import { SelectCoursesComponent } from './pages/select-courses/select-courses.co
 import { ManageCourseOrderComponent } from './pages/manage-course-order/manage-course-order.component'
 import { SelectCompetenciesComponent } from './pages/select-competencies/select-competencies.component'
 import { ManageCompetencyOrderComponent } from './pages/manage-competency-order/manage-competency-order.component'
+import { ManageSearchComponent } from './pages/manage-search/manage-search.component'
 
 /**
  * Routes for /app/home/playlist/ (with sidebar)
@@ -44,5 +45,9 @@ export const STANDALONE_PLAYLIST_ROUTES: Routes = [
     {
         path: 'manage-competency-order',
         component: ManageCompetencyOrderComponent,
+    },
+    {
+        path: 'manage-search',
+        component: ManageSearchComponent,
     },
 ]

@@ -108,6 +108,39 @@
             </div>
         </div>
 
+        <!-- Manage Search Card -->
+        <div class="summary-card summary-card--search">
+            <mat-icon class="card-bg-icon">manage_search</mat-icon>
+            <div class="card-header">
+                <h2>Manage Search</h2>
+                <p>Configure and review the search experience available to learners.</p>
+            </div>
+
+            <div class="stats-container">
+                <div class="stat-pill stat-pill--orange">
+                    <mat-icon>search</mat-icon>
+                    <span class="stat-count">{{ searchSummary().total }}</span>
+                    <span class="stat-text">Query Config</span>
+                </div>
+
+                <div class="last-updated-text">
+                    <mat-icon>history</mat-icon>
+                    Last updated: <span>{{ searchSummary().lastUpdated }}</span>
+                </div>
+            </div>
+
+            <div class="card-actions">
+                <button class="primary-btn" (click)="onSearchClick()">
+                    <mat-icon>settings</mat-icon>
+                    {{ hasExistingSearchPlaylist() ? 'Manage' : 'Create' }}
+                </button>
+                <button class="secondary-btn" [disabled]="!hasExistingSearchPlaylist()" (click)="onViewSearch()">
+                    <mat-icon>visibility</mat-icon>
+                    View
+                </button>
+            </div>
+        </div>
+
 
     </div>
 </div>

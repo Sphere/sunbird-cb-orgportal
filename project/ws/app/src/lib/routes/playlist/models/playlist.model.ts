@@ -86,16 +86,18 @@ export interface PlaylistCompetencyPayload {
  * Payload accepted by playlist create/update APIs.
  * - Course playlist: array of course identifiers
  * - Competency playlist: array of competency objects
+ * - Search playlist: query payload object
  */
-export type PlaylistPayload = string[] | PlaylistCompetencyPayload[]
+export type PlaylistPayload = string[] | PlaylistCompetencyPayload[] | Record<string, unknown>
 
 /**
  * Data source within a playlist
- * 'static' for course management, 'competency' for competency management
+ * 'static' for course management, 'competency' for competency management,
+ * 'query' for search playlist management
  */
 export interface PlaylistDataSource {
-    type: 'static' | 'dynamic' | 'competency'
-    payload: unknown[]  // Runtime response can vary; service methods use PlaylistPayload for request typing
+    type: 'static' | 'dynamic' | 'competency' | 'query'
+    payload: unknown[] | Record<string, unknown>  // Runtime response can vary; service methods use PlaylistPayload for request typing
 }
 
 

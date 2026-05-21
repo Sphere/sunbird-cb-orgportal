@@ -18,7 +18,8 @@
 
     <!-- Assign Courses Button -->
     <div class="action-row">
-        <button class="assign-btn" [disabled]="!selectedCompetency() || !isCurrentCompetencyComplete() || allCompetenciesComplete()"
+        <button class="assign-btn"
+            [disabled]="!selectedCompetency() || !isCurrentCompetencyComplete() || allCompetenciesComplete()"
             (click)="onAssignCourses()">
             Assign courses
         </button>
@@ -37,8 +38,7 @@
             <div class="search-container">
                 <div class="search-wrapper">
                     <mat-icon class="search-icon">search</mat-icon>
-                    <input type="text" class="search-input" placeholder="Search by name, code"
-                        [value]="searchTerm()"
+                    <input type="text" class="search-input" placeholder="Search by name, code" [value]="searchTerm()"
                         (input)="searchTerm.set($any($event.target).value); onSearch()">
                 </div>
             </div>
@@ -105,12 +105,13 @@
                             <mat-form-field *ngIf="!loadingCourses()" appearance="outline" class="dropdown-field">
                                 <mat-select [(ngModel)]="level.courseId" placeholder="Search or select Course"
                                     (selectionChange)="onCourseSelect(level, $event.value)">
-                                    <mat-option *ngIf="!loadingCourses() && getCoursesForLevel(level.level).length === 0"
+                                    <mat-option
+                                        *ngIf="!loadingCourses() && getCoursesForLevel(level.level).length === 0"
                                         disabled>No courses
                                         available for this level</mat-option>
                                     <mat-option *ngFor="let course of getCoursesForLevel(level.level)"
                                         [value]="course.identifier">
-                                        {{ course.name }}
+                                        {{ course.name }} - {{ course.identifier }}
                                     </mat-option>
                                 </mat-select>
                             </mat-form-field>
