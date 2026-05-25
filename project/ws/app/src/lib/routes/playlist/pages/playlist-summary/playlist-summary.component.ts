@@ -190,7 +190,32 @@ export class PlaylistSummaryComponent implements OnInit {
      * Opens the learner search view.
      */
     onViewSearch(): void {
-        this.router.navigate([PLAYLIST_ROUTES.MANAGE_SEARCH])
+        const filters = this.filters()
+        const existingPlaylist = this.state.getExistingSearchPlaylist()
+        if (!filters || !existingPlaylist) {
+            return
+        }
+
+        const payload = existingPlaylist.dataSource?.payload
+        const dialogData: PlaylistViewDialogData = {
+            mode: 'search',
+            title: 'Search Playlist View',
+            orgId: filters.orgId,
+            orgName: filters.orgName || '',
+            roles: filters.role || [],
+            language: filters.language,
+            playlistId: existingPlaylist.playlistId || '',
+            courseRows: [],
+            competencyRows: [],
+            searchPayloadJson: JSON.stringify(payload ?? {}, null, 2),
+        }
+
+        this.dialog.open(PlaylistViewDialogComponent, {
+            width: '980px',
+            maxWidth: '95vw',
+            panelClass: 'playlist-view-dialog-panel',
+            data: dialogData,
+        })
     }
 
     async onViewCourse(): Promise<void> {

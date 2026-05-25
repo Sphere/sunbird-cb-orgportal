@@ -80,6 +80,23 @@
       </span>
     </div>
 
+    <div class="pv-summary-bar" *ngIf="data.mode === 'search'">
+      <span class="pv-stat-pill pv-stat-pill--orange">
+        <mat-icon>search</mat-icon>
+        Search Query Payload
+      </span>
+    </div>
+
+    <div *ngIf="data.mode === 'search'">
+      <div class="pv-empty" *ngIf="!data.searchPayloadJson">
+        <mat-icon>inbox</mat-icon>
+        <span>No search payload found.</span>
+      </div>
+      <div class="pv-json-view" *ngIf="data.searchPayloadJson">
+        <pre>{{ data.searchPayloadJson }}</pre>
+      </div>
+    </div>
+
     <!-- Course Table -->
     <div *ngIf="data.mode === 'course'">
       <div class="pv-empty" *ngIf="data.courseRows.length === 0">
@@ -128,8 +145,8 @@
           <span class="pv-chip pv-chip--index">#{{ comp.index }}</span>
           <span class="pv-chip pv-chip--code">{{ comp.code }}</span>
           <span class="pv-accordion__name">{{ comp.name }}</span>
-          <mat-icon
-            class="pv-accordion__chevron">{{ isCompetencyExpanded(comp) ? 'expand_less' : 'expand_more' }}</mat-icon>
+          <mat-icon class="pv-accordion__chevron">{{ isCompetencyExpanded(comp) ? 'expand_less' : 'expand_more'
+            }}</mat-icon>
         </div>
 
         <div class="pv-accordion__body" *ngIf="isCompetencyExpanded(comp)">

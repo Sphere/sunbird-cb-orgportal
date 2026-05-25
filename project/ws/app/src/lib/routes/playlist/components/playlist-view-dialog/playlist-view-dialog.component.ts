@@ -26,7 +26,7 @@ export interface PlaylistViewCompetencyRow {
 }
 
 export interface PlaylistViewDialogData {
-    mode: 'course' | 'competency'
+    mode: 'course' | 'competency' | 'search'
     title: string
     orgId: string
     orgName: string
@@ -35,6 +35,7 @@ export interface PlaylistViewDialogData {
     playlistId: string
     courseRows: PlaylistViewCourseRow[]
     competencyRows: PlaylistViewCompetencyRow[]
+    searchPayloadJson?: string
 }
 
 @Component({
