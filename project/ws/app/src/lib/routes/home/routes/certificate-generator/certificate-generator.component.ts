@@ -1,27 +1,27 @@
-import { Component, OnInit } from '@angular/core'
+import { Component, OnDestroy, OnInit } from '@angular/core'
 import { ActivatedRoute, Router } from '@angular/router'
 import { EventService } from '../../services/event.service'
 import { ICertificateTemplate } from '../../interface/events'
 import { take } from 'rxjs/operators'
+import { Subscription } from 'rxjs'
 
 @Component({
   selector: 'ws-app-certificate-generator',
   templateUrl: './certificate-generator.component.html',
   styleUrls: ['./certificate-generator.component.scss'],
 })
-export class CertificateGeneratorComponent implements OnInit {
+export class CertificateGeneratorComponent implements OnInit, OnDestroy {
 
   certificates: ICertificateTemplate[] = []
   selectedCertIndex = 0
-  // isLoading = true
   isGenerating = false
   errorMessage = ''
-  eventId = '' // Store event ID dynamically
+  eventId = ''
   eventType = ''
-  // eventDetails: any
 
   private readonly jsonUrl = 'https://aastar-assets.s3.ap-south-1.amazonaws.com/rc-mdo-templates/MDO-RC-TEMPLATES.json'
   nonRegistered = false
+  private eventSubscription!: Subscription
 
   constructor(
     private router: Router,
@@ -30,13 +30,18 @@ export class CertificateGeneratorComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-
-    this.eventService.currentEvent.subscribe(event => {
+    this.eventSubscription = this.eventService.currentEvent.subscribe(event => {
+      if (!event) { return }
       this.eventType = event.eventType
       this.eventId = event.eventId
     })
-    console.log('Received Event in Overview:', this.eventId)
     this.fetchCertificates()
+  }
+
+  ngOnDestroy(): void {
+    if (this.eventSubscription) {
+      this.eventSubscription.unsubscribe()
+    }
   }
 
   async fetchCertificates(): Promise<void> {

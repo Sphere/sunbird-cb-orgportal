@@ -31,10 +31,15 @@
         Choose a Certificate
       </button>
 
-      <div *ngIf="selectedEvent?.selectedTemplate" (click)="downloadCertificates()">
+      <div *ngIf="selectedEvent?.selectedTemplate"
+        (click)="!isDownloading && downloadCertificates()"
+        [style.cursor]="isDownloading ? 'not-allowed' : 'pointer'"
+        [style.opacity]="isDownloading ? '0.6' : '1'">
         <img [src]="selectedEvent.selectedTemplate.templateLogo" alt="Selected Certificate">
-        <button class="certificate-text-enabled">
-          <mat-icon>download</mat-icon> Download Certificates
+        <button class="certificate-text-enabled" [disabled]="isDownloading">
+          <mat-spinner *ngIf="isDownloading" diameter="16" style="display:inline-block; margin-right:6px;"></mat-spinner>
+          <mat-icon *ngIf="!isDownloading">download</mat-icon>
+          {{ isDownloading ? 'Generating...' : 'Download Certificates' }}
         </button>
       </div>
     </div>
