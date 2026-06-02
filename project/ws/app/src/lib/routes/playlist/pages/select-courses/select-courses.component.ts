@@ -66,14 +66,17 @@ export class SelectCoursesComponent implements OnInit {
         this.loading.set(true)
 
         try {
-            const cached = this.state.getCachedCourses(filters.language)
+            // TODO: Temporarily using empty string for language until we have language specific courses mapped in the API
+            // const language = filters.language
+            const language = ''
+            const cached = this.state.getCachedCourses(language)
             let rawCourses: Course[]
 
             if (cached) {
                 rawCourses = cached
             } else {
-                rawCourses = await this.courseApi.loadAllCourses(filters.language)
-                this.state.setCachedCourses(rawCourses, filters.language)
+                rawCourses = await this.courseApi.loadAllCourses(language)
+                this.state.setCachedCourses(rawCourses, language)
             }
 
             const courses = rawCourses.map(course => this.toSelectableCourse(course))

@@ -35,14 +35,20 @@ export class CourseApiService {
         offset: number = 0
     ): Observable<{ courses: Course[]; totalCount: number }> {
         const langFilter = expandLanguageFilter(language)
+        const filters: any = {
+            primaryCategory: ['Course'],
+            status: ["Live"],
+            competency: false,
+        }
+
+        const validLangFilter = langFilter.filter((l: string) => String(l).trim().length > 0)
+        if (language && validLangFilter.length > 0) {
+            filters.lang = validLangFilter
+        }
+
         const payload: CourseSearchRequest = {
             request: {
-                filters: {
-                    primaryCategory: ['Course'],
-                    lang: langFilter,
-                    status: ["Live"],
-                    competency: false
-                },
+                filters,
                 limit,
                 offset,
                 sort_by: {
@@ -137,13 +143,19 @@ export class CourseApiService {
             }
         })
 
+        const filters: any = {
+            competencySearch,
+            primaryCategory: ['Course'],
+        }
+
+        const validLangFilter = langFilter.filter((l: string) => String(l).trim().length > 0)
+        if (language && validLangFilter.length > 0) {
+            filters.lang = validLangFilter
+        }
+
         const payload = {
             request: {
-                filters: {
-                    competencySearch,
-                    lang: langFilter,
-                    primaryCategory: ['Course']
-                },
+                filters,
                 exists: ['competencies_v1'],
                 fields: ['name', 'sourceName', 'competencies_v1', 'competencySearch'],
                 limit: 9999
@@ -169,13 +181,19 @@ export class CourseApiService {
         const competencySearch = Array.from({ length: levelCount }, (_, i) => `${competencyId}-${i + 1}`)
         const langFilter = expandLanguageFilter(language)
 
+        const filters: any = {
+            competencySearch,
+            primaryCategory: ['Course'],
+        }
+
+        const validLangFilter = langFilter.filter((l: string) => String(l).trim().length > 0)
+        if (language && validLangFilter.length > 0) {
+            filters.lang = validLangFilter
+        }
+
         return {
             request: {
-                filters: {
-                    competencySearch,
-                    lang: langFilter,
-                    primaryCategory: ['Course']
-                },
+                filters,
                 exists: ['competencies_v1'],
                 fields: ['name', 'sourceName', 'competencies_v1', 'competencySearch']
             }
@@ -255,9 +273,10 @@ export class CourseApiService {
         const term = searchTerm.toLowerCase().trim()
 
         return courses.filter(course => {
+            const doId = course.identifier?.toLowerCase() || ''
             const name = course.name?.toLowerCase() || ''
             const sourceName = course.sourceName?.toLowerCase() || ''
-            return name.includes(term) || sourceName.includes(term)
+            return doId.includes(term) || name.includes(term) || sourceName.includes(term)
         })
     }
 
@@ -293,13 +312,20 @@ export class CourseApiService {
 
         const identifiers = courseIds.map(id => id.trim()).filter(id => id.length > 0)
 
+        const langFilter = expandLanguageFilter(language)
+        const filters: any = {
+            primaryCategory: ['Course'],
+            identifier: identifiers,
+        }
+
+        const validLangFilter = langFilter.filter((l: string) => String(l).trim().length > 0)
+        if (language && validLangFilter.length > 0) {
+            filters.lang = validLangFilter
+        }
+
         const payload: CourseSearchRequest = {
             request: {
-                filters: {
-                    primaryCategory: ['Course'],
-                    identifier: identifiers,
-                    lang: expandLanguageFilter(language)
-                },
+                filters,
                 limit: identifiers.length + 10,
                 offset: 0,
                 sort_by: {

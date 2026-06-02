@@ -169,9 +169,11 @@ export class ManageCompetencyOrderComponent implements OnInit {
             this.updateLevelFilteredCourses(competency.id, cached)
             return
         }
+        // TODO: Temporarily using empty string for language until we have language specific courses mapped in the API
+        // const filters = this.state.getFilters()
+        // const language = filters?.language || 'en'
 
-        const filters = this.state.getFilters()
-        const language = filters?.language || 'en'
+        const language = ''
 
         this.loadingCourses.set(true)
         const loadingGuard = setTimeout(() => {
