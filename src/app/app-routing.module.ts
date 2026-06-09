@@ -100,6 +100,11 @@ const routes: Routes = [
     },
   },
   {
+    path: 'app/playlist',
+    loadChildren: () => import('@ws/app/src/lib/routes/playlist/playlist.routes').then(u => u.STANDALONE_PLAYLIST_ROUTES),
+    canActivate: [GeneralGuard],
+  },
+  {
     path: 'app/frac',
     loadChildren: () => import('./routes/route-frac.module').then(u => u.RouteFracModule),
     canActivate: [GeneralGuard],

@@ -1,0 +1,92 @@
+<div class="select-courses-container">
+    <!-- Header -->
+    <div class="header">
+        <button type="button" class="back-nav-btn" (click)="onBack()">
+            <mat-icon>arrow_back</mat-icon>
+            <span>Back</span>
+        </button>
+        <div class="header-spacer"></div>
+        <button class="next-btn" (click)="onNext()" [disabled]="!isNextEnabled()">
+            Next
+        </button>
+    </div>
+
+    <!-- Page Title -->
+    <div class="page-title">
+        <h1>Select Courses</h1>
+        <p class="subtitle">Choose which courses learners will see on their home screen.</p>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="search-container">
+        <div class="custom-search-field">
+            <input type="text" placeholder="Search by identifier, name, source" [value]="searchTerm()"
+                (input)="searchTerm.set($any($event.target).value); onSearch()">
+            <span class="search-icon">
+                <svg width="21" height="21" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="9" cy="9" r="7" stroke="#272727" stroke-width="2" />
+                    <line x1="14" y1="14" x2="19" y2="19" stroke="#272727" stroke-width="2" stroke-linecap="round" />
+                </svg>
+            </span>
+        </div>
+    </div>
+
+    <!-- Table (shimmer while loading, data after) -->
+    <div class="table-container">
+        <div class="table-scroll-wrapper">
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th class="checkbox-col"></th>
+                        <th class="id-col">Identifier</th>
+                        <th class="name-col">Name</th>
+                        <th class="source-col">Source</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Shimmer rows while loading -->
+                    <ng-container *ngIf="loading()">
+                        <tr *ngFor="let i of shimmerRows" class="shimmer-row">
+                            <td class="checkbox-col">
+                                <div class="shimmer-box checkbox"></div>
+                            </td>
+                            <td class="id-col">
+                                <div class="shimmer-box text"></div>
+                            </td>
+                            <td class="name-col">
+                                <div class="shimmer-box text"></div>
+                            </td>
+                            <td class="source-col">
+                                <div class="shimmer-box text shimmer-short"></div>
+                            </td>
+                        </tr>
+                    </ng-container>
+
+                    <!-- Course rows -->
+                    <tr *ngFor="let row of filteredCourses()" [class.selected-row]="selection.isSelected(row)"
+                        [class.preselected-row]="row.isPreselected">
+                        <td class="checkbox-col">
+                            <label class="custom-checkbox">
+                                <input type="checkbox" (click)="$event.stopPropagation()"
+                                    (change)="onSelectionChange(row, $event)" [checked]="selection.isSelected(row)">
+                                <span class="checkmark"></span>
+                            </label>
+                        </td>
+                        <td class="id-col">{{ row.identifier }}</td>
+                        <td class="name-col">{{ row.name }}</td>
+                        <td class="source-col">{{ row.sourceName }}</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Empty state -->
+            <div *ngIf="!loading() && filteredCourses().length === 0" class="empty-state-overlay">
+                <div class="empty-state-card">
+                    <div class="empty-state-icon"><mat-icon>menu_book</mat-icon></div>
+                    <p class="empty-state-title">No courses found</p>
+                    <p class="empty-state-message">No courses match your search or filter criteria.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

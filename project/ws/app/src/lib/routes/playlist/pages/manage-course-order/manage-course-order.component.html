@@ -1,0 +1,65 @@
+<div class="manage-order-container">
+    <!-- Breadcrumb Top Bar -->
+    <div class="top-bar">
+        <button type="button" class="back-nav-btn" (click)="onBack()">
+            <mat-icon>arrow_back</mat-icon>
+            <span>Back</span>
+        </button>
+        <button mat-raised-button class="save-btn-top" [disabled]="!isSaveEnabled()" (click)="onSave()">
+            <span *ngIf="!saving()">Save</span>
+            <span *ngIf="saving()">Saving...</span>
+        </button>
+    </div>
+
+    <!-- Header -->
+    <h1 class="page-title">Manage Courses Order</h1>
+    <p class="page-subtitle">Arrange the order in which courses appear on the learner's home page.</p>
+
+    <!-- Courses Card -->
+    <div class="courses-card">
+        <!-- Card Header -->
+        <div class="card-header">
+            <span class="header-label">Courses</span>
+        </div>
+
+        <!-- Search Field (Inside Card) -->
+        <div class="search-container">
+            <div class="search-wrapper">
+                <mat-icon class="search-icon">search</mat-icon>
+                <input type="text" class="search-input" placeholder="Search by name, source"
+                    [value]="searchTerm()"
+                    (input)="searchTerm.set($any($event.target).value); onSearch()">
+            </div>
+        </div>
+
+        <!-- Course List -->
+        <div cdkDropList class="courses-list" (cdkDropListDropped)="onDrop($event)">
+            <div *ngFor="let course of filteredCourses()" cdkDrag class="course-item">
+
+                <!-- Drag Handle -->
+                <div class="drag-handle" cdkDragHandle>
+                    <img src="https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/icons/Vector-drag.svg"
+                        alt="drag" class="drag-icon">
+                </div>
+
+                <!-- Order Number and Course Info -->
+                <div class="course-content">
+                    <div class="order-number">{{ course.displayOrder }}</div>
+                    <div class="course-info">
+                        <div class="course-name">{{ course.name }}</div>
+                        <div class="course-source">{{ course.sourceName }}</div>
+                    </div>
+                </div>
+
+                <!-- Drag Placeholder -->
+                <div class="placeholder" *cdkDragPlaceholder></div>
+            </div>
+
+            <!-- Empty State -->
+            <div *ngIf="filteredCourses().length === 0 && searchTerm()" class="empty-state">
+                <p>No courses match your search</p>
+                <button mat-stroked-button (click)="searchTerm.set(''); onSearch()">Clear Search</button>
+            </div>
+        </div>
+    </div>
+</div>

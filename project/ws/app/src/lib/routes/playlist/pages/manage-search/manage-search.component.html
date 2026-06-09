@@ -1,0 +1,42 @@
+<div class="manage-search-container">
+    <!-- Header -->
+    <div class="header">
+        <button type="button" class="back-nav-btn" (click)="onBack()">
+            <mat-icon>arrow_back</mat-icon>
+            <span>Back</span>
+        </button>
+        <div class="header-spacer"></div>
+        <button class="next-btn" type="button" [disabled]="saving() || !!validationError()" (click)="onSave()">
+            {{ saving() ? 'Saving...' : 'Save' }}
+        </button>
+    </div>
+
+    <!-- Page Title -->
+    <div class="page-title">
+        <h1>Manage Search</h1>
+        <p class="subtitle">Create or update the SEARCH_PLAYLIST query JSON.</p>
+    </div>
+
+    <section class="editor-shell">
+        <div class="editor-toolbar">
+            <div class="editor-title">
+                <mat-icon>data_object</mat-icon>
+                <span>Search Playlist JSON</span>
+            </div>
+
+            <button class="secondary-btn" type="button" (click)="onFormatJson()">
+                <mat-icon>format_align_left</mat-icon>
+                Format
+            </button>
+        </div>
+
+        <div #jsonEditor class="json-editor"></div>
+
+        <div class="editor-footer">
+            <div class="validation-message" [class.validation-message--error]="validationError()">
+                <mat-icon>{{ validationError() ? 'error_outline' : 'check_circle' }}</mat-icon>
+                <span>{{ validationError() || 'JSON payload is valid' }}</span>
+            </div>
+        </div>
+    </section>
+</div>

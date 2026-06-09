@@ -112,6 +112,10 @@ const routes: Routes = [
         ],
       },
       {
+        path: 'playlist',
+        loadChildren: () => import('../playlist/playlist.routes').then(m => m.HOME_PLAYLIST_ROUTES),
+      },
+      {
         path: 'frac',
         loadChildren: () =>
           import('../frac/frac.module').then((m) => m.FracModule),
