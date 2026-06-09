@@ -55,21 +55,18 @@ export class EventDashboardComponent implements OnInit {
       console.log('Events:', response)
       this.events = response.map((event: any) => ({
         id: event.eventId,
+        eventId: event.eventId,
         name: event.eventName,
         description: event.eventDescription,
         location: event.eventPlace,
-        date: new Date(event.eventDate), // event.eventDate,
+        date: new Date(event.eventDate),
         organizer: event.createdBy,
         registrationType: event.eventType,
+        eventType: event.eventType,
         status: event.status,
         createdAt: new Date(event.createdAt),
       }))
 
-      console.log('userId:', this.userId)
-      if (!this.userId) {
-        console.error('User ID is not available.')
-        this.fetchUserDetails()
-      }
       //Filter by current user (organizer)
       const filteredByUser = this.events.filter(event => event.organizer === this.userId)
       console.log('Filtered Events by User:', filteredByUser)

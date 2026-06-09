@@ -20,4 +20,5 @@ export interface ICertificateTemplate {
   templateId: string
   templateLogo: string
   templateName: string
+  registered?: boolean
 }

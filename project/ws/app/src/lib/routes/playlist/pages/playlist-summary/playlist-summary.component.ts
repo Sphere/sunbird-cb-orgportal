@@ -32,9 +32,11 @@ export class PlaylistSummaryComponent implements OnInit {
 
     readonly courseSummary = signal({ total: 0, lastUpdated: 'N/A' })
     readonly competencySummary = signal({ total: 0, lastUpdated: 'N/A' })
+    readonly searchSummary = signal({ total: 0, lastUpdated: 'N/A' })
 
     readonly hasExistingCoursePlaylist = computed(() => this.existingCourseIds().length > 0)
     readonly hasExistingCompetencyPlaylist = computed(() => this.existingCompetencyIds().length > 0)
+    readonly hasExistingSearchPlaylist = computed(() => this.searchSummary().total > 0)
 
     private readonly router = inject(Router)
     private readonly state = inject(PlaylistStateService)
@@ -49,6 +51,7 @@ export class PlaylistSummaryComponent implements OnInit {
         this.loadFilters()
         this.loadExistingPlaylist()
         this.loadExistingCompetencyPlaylist()
+        this.loadExistingSearchPlaylist()
     }
 
     /**
@@ -93,6 +96,21 @@ export class PlaylistSummaryComponent implements OnInit {
         this.competencySummary.set({
             total: ids.length,
             lastUpdated: ids.length > 0 && existingPlaylist?.updated_at
+                ? this.timeAgo(existingPlaylist.updated_at)
+                : 'N/A',
+        })
+    }
+
+    /**
+     * Loads the existing query-based search playlist details.
+     */
+    private loadExistingSearchPlaylist(): void {
+        const existingPlaylist = this.state.getExistingSearchPlaylist()
+        const hasPayload = !!existingPlaylist?.dataSource?.payload
+
+        this.searchSummary.set({
+            total: hasPayload ? 1 : 0,
+            lastUpdated: hasPayload && existingPlaylist?.updated_at
                 ? this.timeAgo(existingPlaylist.updated_at)
                 : 'N/A',
         })
@@ -159,6 +177,45 @@ export class PlaylistSummaryComponent implements OnInit {
      */
     onCompetencyClick(): void {
         this.router.navigate([PLAYLIST_ROUTES.SELECT_COMPETENCIES])
+    }
+
+    /**
+     * Navigates to the search management entry point.
+     */
+    onSearchClick(): void {
+        this.router.navigate([PLAYLIST_ROUTES.MANAGE_SEARCH])
+    }
+
+    /**
+     * Opens the learner search view.
+     */
+    onViewSearch(): void {
+        const filters = this.filters()
+        const existingPlaylist = this.state.getExistingSearchPlaylist()
+        if (!filters || !existingPlaylist) {
+            return
+        }
+
+        const payload = existingPlaylist.dataSource?.payload
+        const dialogData: PlaylistViewDialogData = {
+            mode: 'search',
+            title: 'Search Playlist View',
+            orgId: filters.orgId,
+            orgName: filters.orgName || '',
+            roles: filters.role || [],
+            language: filters.language,
+            playlistId: existingPlaylist.playlistId || '',
+            courseRows: [],
+            competencyRows: [],
+            searchPayloadJson: JSON.stringify(payload ?? {}, null, 2),
+        }
+
+        this.dialog.open(PlaylistViewDialogComponent, {
+            width: '980px',
+            maxWidth: '95vw',
+            panelClass: 'playlist-view-dialog-panel',
+            data: dialogData,
+        })
     }
 
     async onViewCourse(): Promise<void> {

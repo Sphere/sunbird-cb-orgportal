@@ -35,6 +35,10 @@ export class PlaylistStateService {
     private existingCompetencyIdsSubject = new BehaviorSubject<string[]>([])
     public existingCompetencyIds$ = this.existingCompetencyIdsSubject.asObservable()
 
+    // Search Playlist (query payload editor)
+    private existingSearchPlaylistSubject = new BehaviorSubject<Playlist | null>(null)
+    public existingSearchPlaylist$ = this.existingSearchPlaylistSubject.asObservable()
+
     // Competency codes from existing playlist (preferred key for preselection)
     private existingCompetencyCodesSubject = new BehaviorSubject<string[]>([])
     public existingCompetencyCodes$ = this.existingCompetencyCodesSubject.asObservable()
@@ -101,6 +105,16 @@ export class PlaylistStateService {
     /** Retrieves the existing competency playlist object */
     getExistingCompetencyPlaylist(): Playlist | null {
         return this.existingCompetencyPlaylistSubject.value
+    }
+
+    /** Stores the full search playlist object */
+    setExistingSearchPlaylist(playlist: Playlist | null): void {
+        this.existingSearchPlaylistSubject.next(playlist)
+    }
+
+    /** Retrieves the existing search playlist object */
+    getExistingSearchPlaylist(): Playlist | null {
+        return this.existingSearchPlaylistSubject.value
     }
 
     /** Stores the IDs of competencies present in the existing playlist */
@@ -291,6 +305,7 @@ export class PlaylistStateService {
         this.existingCompetencyPlaylistSubject.next(null)
         this.existingCompetencyIdsSubject.next([])
         this.existingCompetencyCodesSubject.next([])
+        this.existingSearchPlaylistSubject.next(null)
         this.selectedCoursesSubject.next([])
         this.orderedCoursesSubject.next([])
         this.clearSelectedCompetencies()

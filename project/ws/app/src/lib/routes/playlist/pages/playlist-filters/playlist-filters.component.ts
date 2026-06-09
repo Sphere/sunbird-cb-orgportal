@@ -132,7 +132,7 @@ export class PlaylistFiltersComponent implements OnInit {
         })
     }
 
-    /** 
+    /**
      * Filters the organization dropdown results based on user input.
      * Performs a case-insensitive search to help users find their organization quickly.
      */
@@ -214,10 +214,11 @@ export class PlaylistFiltersComponent implements OnInit {
             // Save filters to state
             this.state.setFilters(filters)
 
-            // Search for both Course and Competency playlists in parallel
-            const [coursePlaylists, competencyPlaylists] = await Promise.all([
+            // Search for Course, Competency, and Search playlists in parallel
+            const [coursePlaylists, competencyPlaylists, searchPlaylists] = await Promise.all([
                 this.playlistApi.searchPlaylist(filters, PlaylistType.COURSE).pipe(take(1)).toPromise(),
                 this.playlistApi.searchPlaylist(filters, PlaylistType.COMPETENCY).pipe(take(1)).toPromise(),
+                this.playlistApi.searchPlaylist(filters, PlaylistType.SEARCH).pipe(take(1)).toPromise(),
             ])
 
             // Store Course playlist data
@@ -233,6 +234,8 @@ export class PlaylistFiltersComponent implements OnInit {
             this.state.setExistingCompetencyIds(existingCompetencyIds)
             const existingCompetencyCodes = this.playlistApi.extractCompetencyCodes(competencyPlaylists || [])
             this.state.setExistingCompetencyCodes(existingCompetencyCodes)
+            const existingSearchPlaylist = searchPlaylists && searchPlaylists.length > 0 ? searchPlaylists[0] : null
+            this.state.setExistingSearchPlaylist(existingSearchPlaylist)
 
             // Navigate to summary page
             this.router.navigate([PLAYLIST_ROUTES.HOME_SUMMARY])

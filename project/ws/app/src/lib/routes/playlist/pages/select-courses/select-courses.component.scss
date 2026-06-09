@@ -18,10 +18,10 @@
 
 // ---------------------------------------------------------------------------
 // HEADER WITH TABS ( 88px height white bg + tabs below?)
-// User Code: 
+// User Code:
 // Top white bar 88px.
 // Tabs bar (Select Competencies) at top?
-// Actually, looking at screenshot 533: 
+// Actually, looking at screenshot 533:
 // "Select Competencies" is a tab next to "Select Courses" in a light blue bar.
 // The blue bar is top-level.
 // ---------------------------------------------------------------------------
@@ -302,14 +302,20 @@ $table-height: 560px;
     border-right: 1px solid #E1DFDF;
 }
 
+.id-col {
+    width: 20%; // Takes 50% of remaining space
+    // Add vertical divider on right side (between name and source)
+    border-right: 1px solid #E1DFDF;
+}
+
 .name-col {
-    width: 50%; // Takes 50% of remaining space
+    width: 40%; // Takes 50% of remaining space
     // Add vertical divider on right side (between name and source)
     border-right: 1px solid #E1DFDF;
 }
 
 .source-col {
-    width: 50%; // Takes 50% of remaining space
+    width: 40%; // Takes 50% of remaining space
     padding-left: 24px !important;
 }
 
