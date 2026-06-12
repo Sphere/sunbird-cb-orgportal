@@ -1,10 +1,11 @@
 import { Component, OnInit, Inject, ViewChild } from '@angular/core'
 import { Router } from '@angular/router'
-import { MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA, MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog'
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog'
 import { UntypedFormGroup } from '@angular/forms'
 import { UploadFileService } from '../../services/uploadfile.service'
 import { ConfigurationsService } from '@sunbird-cb/utils'
 @Component({
+  standalone: false,
   selector: 'ws-app-publish-popup',
   templateUrl: './publish-popup.component.html',
   styleUrls: ['./publish-popup.component.scss'],

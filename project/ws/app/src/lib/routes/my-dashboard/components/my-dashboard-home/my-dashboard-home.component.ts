@@ -16,6 +16,7 @@ import { ConfigurationsService } from '@sunbird-cb/utils'
 import { HttpClient } from '@angular/common/http'
 
 @Component({
+  standalone: false,
   selector: 'ws-app-my-dashboard-home',
   templateUrl: './my-dashboard-home.component.html',
   styleUrls: ['./my-dashboard-home.component.scss'],

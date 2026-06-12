@@ -21,6 +21,7 @@ import { FracTableCellValue, FracTableColumn, FracTableRow } from '../../models/
 type GridStyle = 'horizontal' | 'vertical' | 'both' | 'none'
 
 @Component({
+  standalone: false,
   selector: 'app-upload-competency-list-table',
   templateUrl: './upload-competency-list-table.component.html',
   styleUrls: ['./upload-competency-list-table.component.scss'],

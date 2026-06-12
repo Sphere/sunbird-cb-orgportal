@@ -54,6 +54,7 @@ interface PositionMappingSearchResponseShape {
 }
 
 @Component({
+  standalone: false,
   selector: 'ws-app-map-role-position',
   templateUrl: './map-role-position.component.html',
   styleUrls: ['./map-role-position.component.scss'],

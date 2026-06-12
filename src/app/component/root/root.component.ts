@@ -32,11 +32,12 @@ import { SwUpdate } from '@angular/service-worker'
 import { environment } from '../../../environments/environment'
 import { interval, concat, timer } from 'rxjs'
 import { DialogConfirmComponent } from '../dialog-confirm/dialog-confirm.component'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
+import { MatDialog } from '@angular/material/dialog'
 // import { MatDialog } from '@angular/material/dialog'
 // import { DialogConfirmComponent } from '../dialog-confirm/dialog-confirm.component'
 
 @Component({
+  standalone: false,
   selector: 'ws-root',
   templateUrl: './root.component.html',
   styleUrls: ['./root.component.scss'],
@@ -143,7 +144,8 @@ export class RootComponent implements OnInit, AfterViewInit {
       const everySixHoursOnceAppIsStable$ = concat(appIsStable$, everySixHours$)
       everySixHoursOnceAppIsStable$.subscribe(() => this.swUpdate.checkForUpdate())
       if (this.swUpdate.isEnabled) {
-        this.swUpdate.available.subscribe(() => {
+        this.swUpdate.versionUpdates.subscribe((evt: any) => {
+          if (evt.type !== 'VERSION_READY') { return }
           const dialogRef = this.dialog.open(DialogConfirmComponent, {
             data: {
               title: (this.appUpdateTitleRef && this.appUpdateTitleRef.nativeElement.value) || '',

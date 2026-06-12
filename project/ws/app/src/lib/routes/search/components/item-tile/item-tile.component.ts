@@ -2,6 +2,7 @@ import { Component, OnInit, Input } from '@angular/core'
 import { ActivatedRoute, Router } from '@angular/router'
 
 @Component({
+  standalone: false,
   selector: 'ws-app-item-tile',
   templateUrl: './item-tile.component.html',
   styleUrls: ['./item-tile.component.scss'],

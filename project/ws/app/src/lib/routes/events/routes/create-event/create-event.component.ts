@@ -1,20 +1,21 @@
 import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ChangeDetectorRef } from '@angular/core'
 import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms'
 import { EventsService } from '../../services/events.service'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
-import { MatLegacyPaginator as MatPaginator } from '@angular/material/legacy-paginator'
+import { MatSnackBar } from '@angular/material/snack-bar'
+import { MatPaginator } from '@angular/material/paginator'
 import { MatSort } from '@angular/material/sort'
 import { ITableData } from '../../interfaces/interfaces'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
+import { MatDialog } from '@angular/material/dialog'
 import { ParticipantsComponent } from '../../components/participants/participants.component'
 import { SuccessComponent } from '../../components/success/success.component'
 import { Router, ActivatedRoute } from '@angular/router'
 import { ConfigurationsService } from '@sunbird-cb/utils'
-import * as moment from 'moment'
+import moment from 'moment'
 /* tslint:disable */
 import _ from 'lodash'
 /* tslint:enable */
 @Component({
+  standalone: false,
   selector: 'ws-app-create-event',
   templateUrl: './create-event.component.html',
   styleUrls: ['./create-event.component.scss'],
@@ -347,7 +348,7 @@ export class CreateEventComponent implements OnInit {
     const minutes = totalMinutes % 60
     let finalTime
     let newendDate
-    if (hours < 24) {
+    if ((hours as number) < 24) {
       if (minutes === 0) {
         // tslint:disable-next-line:prefer-template
         finalTime = hours + ':' + '00' + ':00+05:30'

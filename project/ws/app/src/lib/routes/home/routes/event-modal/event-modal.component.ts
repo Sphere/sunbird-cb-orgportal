@@ -1,12 +1,13 @@
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core'
 import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms'
-import { MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA, MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog'
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog'
 import { Subscription } from 'rxjs'
 import { take } from 'rxjs/operators'
 import { EventService } from '../../services/event.service'
 import { IEventData } from '../../interface/events'
 
 @Component({
+  standalone: false,
   selector: 'ws-app-event-modal',
   templateUrl: './event-modal.component.html',
   styleUrls: ['./event-modal.component.scss'],

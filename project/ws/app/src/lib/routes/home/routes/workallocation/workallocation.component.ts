@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit, SimpleChanges } from '@angular/core'
-import { ITableData } from '@sunbird-cb/collection/lib/ui-org-table/interface/interfaces'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
-import { MatLegacyPaginator as MatPaginator } from '@angular/material/legacy-paginator'
+import { ITableData } from '../../../ui-org-table.model'
+import { MatDialog } from '@angular/material/dialog'
+import { MatPaginator } from '@angular/material/paginator'
 import { Router, ActivatedRoute } from '@angular/router'
 import { ExportAsService, ExportAsConfig } from 'ngx-export-as'
 /* tslint:disable */
@@ -10,6 +10,7 @@ import { WorkallocationService } from '../../services/workallocation.service'
 import { WorkAllocationPopUpComponent } from '../../../../head/work-allocation-table/work-order-popup/pop-up.component'
 
 @Component({
+  standalone: false,
   selector: 'ws-app-workallocation',
   templateUrl: './workallocation.component.html',
   styleUrls: ['./workallocation.component.scss'],

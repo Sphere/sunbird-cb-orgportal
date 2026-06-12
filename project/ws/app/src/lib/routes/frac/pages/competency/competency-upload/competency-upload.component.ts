@@ -34,6 +34,7 @@ interface UploadEmptyStateConfig {
 }
 
 @Component({
+  standalone: false,
   selector: 'ws-app-competency-upload',
   templateUrl: './competency-upload.component.html',
   styleUrls: ['./competency-upload.component.scss']

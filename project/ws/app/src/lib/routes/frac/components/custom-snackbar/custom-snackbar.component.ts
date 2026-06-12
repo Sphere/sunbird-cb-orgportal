@@ -2,6 +2,7 @@ import { Component } from '@angular/core'
 import { FRAC_SNACKBAR_DURATION_MS } from '../../constants/frac.constants'
 
 @Component({
+  standalone: false,
   selector: 'app-custom-snackbar',
   templateUrl: './custom-snackbar.component.html',
   styleUrls: ['./custom-snackbar.component.scss']

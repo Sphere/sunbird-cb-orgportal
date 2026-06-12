@@ -3,6 +3,7 @@ import { ActivatedRoute, Router, Event, NavigationEnd } from '@angular/router'
 import moment from 'moment'
 
 @Component({
+  standalone: false,
   selector: 'ws-app-view-event',
   templateUrl: './view-event.component.html',
   styleUrls: ['./view-event.component.scss'],

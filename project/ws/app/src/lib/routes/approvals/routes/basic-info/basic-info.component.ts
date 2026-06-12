@@ -6,6 +6,7 @@ import _ from 'lodash'
 // import { ConfigurationsService } from '@sunbird-cb/utils'
 
 @Component({
+  standalone: false,
   selector: 'ws-app-basic-info',
   templateUrl: './basic-info.component.html',
   styleUrls: ['./basic-info.component.scss'],

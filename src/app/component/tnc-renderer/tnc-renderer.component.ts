@@ -3,6 +3,7 @@ import { NsTnc } from '../../models/tnc.model'
 import { ConfigurationsService } from '@sunbird-cb/utils'
 
 @Component({
+  standalone: false,
   selector: 'ws-tnc-renderer',
   templateUrl: './tnc-renderer.component.html',
   styleUrls: ['./tnc-renderer.component.scss'],

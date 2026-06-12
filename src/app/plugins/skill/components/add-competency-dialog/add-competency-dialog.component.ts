@@ -1,11 +1,12 @@
 import { Component, Inject, OnInit } from '@angular/core'
-import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog'
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog'
 import { UntypedFormGroup, UntypedFormBuilder, Validators } from '@angular/forms'
 import * as _ from 'lodash'
 import { CompetencyService } from '../../services/competency.service'
 import { map } from 'rxjs/operators'
 import moment from 'moment'
 @Component({
+  standalone: false,
   selector: 'ws-add-competency-dialog',
   templateUrl: './add-competency-dialog.component.html',
   styleUrls: ['./add-competency-dialog.component.scss'],

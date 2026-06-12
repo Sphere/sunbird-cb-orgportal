@@ -7,6 +7,7 @@ import * as _ from 'lodash'
 import * as XLSX from 'xlsx'
 
 @Component({
+  standalone: false,
   selector: 'ws-app-participants',
   templateUrl: './participants.component.html',
   styleUrls: ['./participants.component.scss'],

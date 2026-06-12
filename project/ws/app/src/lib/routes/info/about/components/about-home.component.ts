@@ -12,6 +12,7 @@ import { IAboutObject } from '../../../../../../../../../src/app/routes/public/p
 import { Subscription } from 'rxjs'
 
 @Component({
+  standalone: false,
   selector: 'ws-app-about-home',
   templateUrl: './about-home.component.html',
   styleUrls: ['./about-home.component.scss'],

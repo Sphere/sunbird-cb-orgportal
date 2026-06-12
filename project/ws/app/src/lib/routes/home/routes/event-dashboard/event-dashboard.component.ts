@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
+import { MatDialog } from '@angular/material/dialog'
 import { Router } from '@angular/router'
 import { EventService } from '../../services/event.service'
 import { EventModalComponent } from '../event-modal/event-modal.component'
@@ -7,6 +7,7 @@ import { EventModalComponent } from '../event-modal/event-modal.component'
 import { WorkallocationService } from '../../services/workallocation.service'
 
 @Component({
+  standalone: false,
   selector: 'ws-app-event-dashboard',
   templateUrl: './event-dashboard.component.html',
   styleUrls: ['./event-dashboard.component.scss'],

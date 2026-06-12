@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
+import { MatDialog } from '@angular/material/dialog'
 import { ActivatedRoute, Router } from '@angular/router'
 import * as _ from 'lodash'
 import moment from 'moment'
@@ -10,6 +10,7 @@ import { AddCompetencyDialogComponent } from '../add-competency-dialog/add-compe
 import { ProficiencyLevelDialogComponent } from './../proficiency-level-dialog/proficiency-level-dialog.component'
 
 @Component({
+  standalone: false,
   selector: 'ws-user-competency',
   templateUrl: './user-competency.component.html',
   styleUrls: ['./user-competency.component.scss'],

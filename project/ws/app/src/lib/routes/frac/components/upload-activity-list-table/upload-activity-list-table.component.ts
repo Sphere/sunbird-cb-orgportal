@@ -25,6 +25,7 @@ export type ActivityTableColumn = FracTableColumn
 type GridStyle = 'horizontal' | 'vertical' | 'both' | 'none'
 
 @Component({
+  standalone: false,
   selector: 'app-upload-activity-list-table',
   templateUrl: './upload-activity-list-table.component.html',
   styleUrls: ['./upload-activity-list-table.component.scss'],

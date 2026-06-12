@@ -1,28 +1,31 @@
 # CLAUDE.md — sunbird-cb-orgportal
 
-## Active effort: Angular 16 → 21 migration
+## Active effort: Angular 16 → 20 migration
 
-This repo is being migrated from **Angular 16.2 → 21.2.x** on branch `feat/angular-21-migration`.
-Full plan: `~/.claude/plans/we-need-to-migrate-mighty-pancake.md`. Reference template repo (already on
-Angular 21): `D:\tarento projects\sunbird-cb-creationportal-old` (pkg `cbp`). Copy its configs verbatim
-where possible. Another 21 sibling: `D:\tarento projects\eagle-fusion`.
+This repo is being migrated from **Angular 16.2 → 20.3.x** on branch `feat/angular-21-migration`
+(branch name kept; **target is Angular 20**, not 21 — the Sunbird libs only ship `-ang-17-20` builds).
+Full plan: `~/.claude/plans/we-need-to-migrate-mighty-pancake.md`. Config-shape template (on Angular 21):
+`D:\tarento projects\sunbird-cb-creationportal-old` (pkg `cbp`) — copy its builder/jest/eslint/tsconfig
+SHAPES but pin versions to 20.3.x, and ignore its `library/ws-widget` vendoring (we don't vendor).
 
 ### Hard rules for this migration (do not deviate without asking)
 - **Stay NgModule-based.** Do NOT convert to standalone components. New/edited declarations must set
-  `standalone: false` (matches the reference; ESLint `prefer-standalone` is off).
+  `standalone: false` (ESLint `prefer-standalone` is off).
 - **Keep legacy control flow** `*ngIf` / `*ngFor` / `*ngSwitch`. Do NOT convert to `@if`/`@for`
   (template `prefer-control-flow` is off).
-- **Vendored Sunbird libs:** the npm `@sunbird-cb/{collection,resolver,utils}` packages are replaced by
-  local libraries under `library/ws-widget/{collection,resolver,utils}`, namespace **`@ws-widget/*`**,
-  referenced via tsconfig `paths`. All `@sunbird-cb/*` imports must become `@ws-widget/*`.
+- **Sunbird libs come from npm — do NOT vendor, do NOT rewrite import specifiers.** Imports stay
+  `@sunbird-cb/{collection,resolver,utils}`. Use these versions (verified to export every symbol
+  orgportal uses): `collection@0.0.9-ang-17-20`, `utils@0.0.1-ang-17-20`, `resolver@0.0.1-ang-17-20`
+  (NOT the `-v2` packages — `resolver-v2` is missing `WidgetResolverService/Module`).
+  `@sunbird-cb/design-system@0.0.3` (CSS only) and `@project-sunbird/telemetry-sdk` stay as-is.
 - **Output path stays `dist/www/en`** (the Express/static server expects `/en`). In angular.json use
   `outputPath: { base: "dist/www/en", browser: "" }`.
 - Build flags are kebab-case only (`--configuration=…`, `--base-href=/`). The old
   `--outputPath` / `--baseHref` / `--i18nLocale` flags are invalid on the new builder.
 
 ### Target toolchain
-- Angular `21.2.x`, builder `@angular/build:application` (esbuild), dev-server `@angular/build:dev-server`.
-- TypeScript `5.9.x`, RxJS `7.8.x`, zone.js `0.15.x`.
+- Angular `20.3.x`, builder `@angular/build:application` (esbuild), dev-server `@angular/build:dev-server`.
+- TypeScript `5.8.x`/`5.9.x` (per Angular 20 support), RxJS `7.8.x`, zone.js `0.15.x`.
 - Unit tests: **Jest** (`jest-preset-angular`) — Karma/Jasmine removed.
 - Lint/format: **ESLint 9 + @angular-eslint 21 + Prettier 3** — TSLint/codelyzer removed.
 - e2e: Protractor removed (Cypress optional/deferred).

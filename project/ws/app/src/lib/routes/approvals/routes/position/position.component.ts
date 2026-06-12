@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core'
 import { ActivatedRoute, Router, NavigationEnd, Event } from '@angular/router'
 
 @Component({
+  standalone: false,
   selector: 'ws-app-position',
   templateUrl: './position.component.html',
   styleUrls: ['./position.component.scss'],

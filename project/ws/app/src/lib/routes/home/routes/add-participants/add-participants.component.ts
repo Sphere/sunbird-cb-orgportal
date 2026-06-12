@@ -1,5 +1,5 @@
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core'
-import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog'
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog'
 import { EventService } from '../../services/event.service'
 import * as Papa from 'papaparse'
 import * as XLSX from 'xlsx'
@@ -7,6 +7,7 @@ import { Subscription } from 'rxjs'
 import { IParticipant } from '../../interface/events'
 
 @Component({
+  standalone: false,
   selector: 'ws-app-add-participants',
   templateUrl: './add-participants.component.html',
   styleUrls: ['./add-participants.component.scss'],

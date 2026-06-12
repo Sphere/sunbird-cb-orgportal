@@ -8,6 +8,7 @@ import { NSWatCompetency } from '../../models/competency-wat.model'
 import { WatStoreService } from '../../services/wat.store.service'
 
 @Component({
+  standalone: false,
   selector: 'ws-app-comp-details',
   templateUrl: './comp-details.component.html',
   styleUrls: ['./comp-details.component.scss'],

@@ -1,5 +1,5 @@
 import { Component, OnInit, SimpleChanges } from '@angular/core'
-import { MatLegacyDialog as MatDialog, MatLegacyDialogConfig as MatDialogConfig } from '@angular/material/legacy-dialog'
+import { MatDialog, MatDialogConfig } from '@angular/material/dialog'
 import { Router, ActivatedRoute } from '@angular/router'
 /* tslint:disable */
 import _ from 'lodash'
@@ -7,8 +7,9 @@ import { PublishPopupComponent } from '../../components/publish-popup/publish-po
 import { AllocationService } from '../../services/allocation.service'
 // import FileSaver from 'file-saver'
 import { UploadFileService } from '../../services/uploadfile.service'
-import { MatLegacyPaginator as MatPaginator } from '@angular/material/legacy-paginator'
+import { MatPaginator } from '@angular/material/paginator'
 @Component({
+  standalone: false,
   selector: 'ws-app-draft-allocations',
   templateUrl: './draft-allocations.component.html',
   styleUrls: ['./draft-allocations.component.scss'],

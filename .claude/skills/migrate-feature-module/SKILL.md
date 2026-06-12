@@ -1,11 +1,11 @@
 ---
 name: migrate-feature-module
-description: Migrate one Angular feature module/folder for the orgportal 16→21 upgrade — rewrite @sunbird-cb/* imports to @ws-widget/*, swap MatLegacy* Material to MDC, fix RxJS/TS compile errors. Use when grinding through project/ws/app feature modules during the Angular 21 migration. Pass the module folder path as the argument.
+description: Migrate one Angular feature module/folder for the orgportal 16→20 upgrade — swap MatLegacy* Material to MDC, fix RxJS/TS compile errors. Use when grinding through project/ws/app feature modules during the Angular 20 migration. Pass the module folder path as the argument.
 ---
 
-# Migrate one feature module to Angular 21
+# Migrate one feature module to Angular 20
 
-Goal: make a single feature module/folder compile and behave identically under Angular 21, following
+Goal: make a single feature module/folder compile and behave identically under Angular 20, following
 the repo-wide rules in `CLAUDE.md`. Keep changes mechanical and minimal — no standalone conversion,
 no `@if`/`@for` rewrites, no refactors beyond what the compiler requires.
 
@@ -16,12 +16,10 @@ no `@if`/`@for` rewrites, no refactors beyond what the compiler requires.
 1. **Scope it.** List the `.ts`/`.html` files under the target folder. Read the module file(s)
    (`*.module.ts`) and note declarations, imports, providers.
 
-2. **Rewrite Sunbird imports.** In every file under the folder, replace import specifiers:
-   - `@sunbird-cb/collection` → `@ws-widget/collection`
-   - `@sunbird-cb/resolver`   → `@ws-widget/resolver`
-   - `@sunbird-cb/utils`      → `@ws-widget/utils`
-   Do NOT change imported symbol names yet. If a symbol is missing from the vendored lib after build,
-   reconcile per the plan (port it into the vendored lib; don't rewrite call sites).
+2. **Sunbird imports stay as-is.** Do NOT rewrite `@sunbird-cb/*` specifiers — the upgraded npm
+   packages (`collection@0.0.9-ang-17-20`, `utils@0.0.1-ang-17-20`, `resolver@0.0.1-ang-17-20`) keep the
+   same names and export surface. If a symbol genuinely fails to resolve, check the package's `.d.ts`
+   first; flag it rather than rewriting call sites.
 
 3. **Material legacy → MDC.** Replace `@angular/material/legacy-<x>` → `@angular/material/<x>` and
    `MatLegacyFoo` / `MAT_LEGACY_*` → `MatFoo` / `MAT_*` using the swap map in `CLAUDE.md`. Cross-check the

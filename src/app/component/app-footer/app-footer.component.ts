@@ -2,6 +2,7 @@ import { Component } from '@angular/core'
 import { ConfigurationsService, ValueService } from '@sunbird-cb/utils'
 
 @Component({
+  standalone: false,
   selector: 'ws-app-footer',
   templateUrl: './app-footer.component.html',
   styleUrls: ['./app-footer.component.scss'],

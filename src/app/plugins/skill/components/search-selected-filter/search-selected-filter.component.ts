@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core'
 
 @Component({
+  standalone: false,
   selector: 'ws-search-selected-filter',
   templateUrl: './search-selected-filter.component.html',
   styleUrls: ['./search-selected-filter.component.scss'],

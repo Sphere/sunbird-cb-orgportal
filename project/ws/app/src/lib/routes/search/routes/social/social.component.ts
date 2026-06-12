@@ -14,6 +14,7 @@ import { ValueService } from '@sunbird-cb/utils'
 import { NsWidgetResolver } from '@sunbird-cb/resolver'
 
 @Component({
+  standalone: false,
   selector: 'ws-app-social',
   templateUrl: './social.component.html',
   styleUrls: ['./social.component.scss'],

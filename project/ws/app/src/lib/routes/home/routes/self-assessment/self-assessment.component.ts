@@ -1,5 +1,5 @@
 import { Component, OnInit, Self, ViewChild } from '@angular/core'
-import { MatLegacyPaginator as MatPaginator } from '@angular/material/legacy-paginator'
+import { MatPaginator } from '@angular/material/paginator'
 import { ActivatedRoute } from '@angular/router'
 import * as _ from 'lodash'
 import { map } from 'rxjs/operators'
@@ -7,6 +7,7 @@ import { UsersService } from '../../../users/services/users.service'
 import { UtilityService } from '../../services/utility.service'
 
 @Component({
+  standalone: false,
   selector: 'ws-app-self-assessment',
   templateUrl: './self-assessment.component.html',
   styleUrls: ['./self-assessment.component.scss'],

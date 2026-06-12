@@ -10,12 +10,12 @@
       "prefix": "ws",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-angular:browser",
+          "builder": "@angular/build:application",
           "options": {
-            "outputPath": "dist/www/mdo",
+            "outputPath": { "base": "dist/www/en", "browser": "" },
             "index": "src/index.html",
-            "main": "src/main.ts",
-            "polyfills": "src/polyfills.ts",
+            "browser": "src/main.ts",
+            "polyfills": ["zone.js", "@angular/localize/init", "src/polyfills.ts"],
             "tsConfig": "tsconfig.app.json",
             "preserveSymlinks": true,
             "assets": [
@@ -96,19 +96,11 @@
               "node_modules/shepherd.js/dist/js/shepherd.min.js",
               "node_modules/hammerjs/hammer.min.js"
             ],
-            "aot": false,
-            "vendorChunk": true,
-            "extractLicenses": false,
-            "buildOptimizer": false,
             "sourceMap": true,
-            "optimization": false,
-            "namedChunks": true
+            "optimization": false
           },
           "configurations": {
             "production": {
-              "outputPath": "dist/www/en",
-              "baseHref": "/",
-              "localize": false,
               "fileReplacements": [
                 {
                   "replace": "src/environments/environment.ts",
@@ -118,11 +110,7 @@
               "optimization": false,
               "outputHashing": "all",
               "sourceMap": false,
-              "namedChunks": false,
-              "aot": false,
               "extractLicenses": true,
-              "vendorChunk": false,
-              "buildOptimizer": false,
               "budgets": [
                 {
                   "type": "initial",
@@ -133,9 +121,7 @@
                   "type": "anyComponentStyle",
                   "maximumWarning": "6kb"
                 }
-              ],
-              "serviceWorker": false,
-              "ngswConfigPath": "ngsw-config.json"
+              ]
             },
             "np": {
               "fileReplacements": [
@@ -147,11 +133,7 @@
               "optimization": true,
               "outputHashing": "all",
               "sourceMap": false,
-              "namedChunks": false,
-              "aot": false,
               "extractLicenses": true,
-              "vendorChunk": false,
-              "buildOptimizer": false,
               "budgets": [
                 {
                   "type": "initial",
@@ -162,9 +144,7 @@
                   "type": "anyComponentStyle",
                   "maximumWarning": "6kb"
                 }
-              ],
-              "serviceWorker": false,
-              "ngswConfigPath": "ngsw-config.json"
+              ]
             },
             "dev": {
               "fileReplacements": [
@@ -176,11 +156,7 @@
               "optimization": false,
               "outputHashing": "all",
               "sourceMap": false,
-              "namedChunks": false,
-              "aot": false,
               "extractLicenses": true,
-              "vendorChunk": false,
-              "buildOptimizer": false,
               "budgets": [
                 {
                   "type": "initial",
@@ -191,9 +167,7 @@
                   "type": "anyComponentStyle",
                   "maximumWarning": "6kb"
                 }
-              ],
-              "serviceWorker": false,
-              "ngswConfigPath": "ngsw-config.json"
+              ]
             },
             "preprod": {
               "fileReplacements": [
@@ -205,20 +179,14 @@
               "optimization": true,
               "outputHashing": "all",
               "sourceMap": false,
-              "namedChunks": false,
-              "aot": false,
               "extractLicenses": true,
-              "vendorChunk": false,
-              "buildOptimizer": false,
               "budgets": [
                 {
                   "type": "initial",
                   "maximumWarning": "4mb",
                   "maximumError": "100mb"
                 }
-              ],
-              "serviceWorker": false,
-              "ngswConfigPath": "ngsw-config.json"
+              ]
             },
             "benchmark": {
               "fileReplacements": [
@@ -230,72 +198,45 @@
               "optimization": true,
               "outputHashing": "all",
               "sourceMap": false,
-              "namedChunks": false,
-              "aot": false,
               "extractLicenses": true,
-              "vendorChunk": false,
-              "buildOptimizer": false,
               "budgets": [
                 {
                   "type": "initial",
                   "maximumWarning": "5mb",
                   "maximumError": "20mb"
                 }
-              ],
-              "serviceWorker": false,
-              "ngswConfigPath": "ngsw-config.json"
+              ]
             }
-          },
-          "defaultConfiguration": ""
+          }
         },
         "serve": {
-          "builder": "@angular-devkit/build-angular:dev-server",
+          "builder": "@angular/build:dev-server",
           "options": {
             "port": 3000,
-            "browserTarget": "mdo:build"
+            "buildTarget": "mdo:build"
           },
           "configurations": {
             "production": {
-              "browserTarget": "mdo:build:production"
+              "buildTarget": "mdo:build:production"
             },
-            "de": {
-              "browserTarget": "mdo:build:de"
+            "dev": {
+              "buildTarget": "mdo:build:dev"
             }
           }
         },
         "extract-i18n": {
-          "builder": "@angular-devkit/build-angular:extract-i18n",
+          "builder": "@angular/build:extract-i18n",
           "options": {
-            "browserTarget": "mdo:build"
+            "buildTarget": "mdo:build"
           }
         },
-        "test": {
-          "builder": "@angular-devkit/build-angular:karma",
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
           "options": {
-            "main": "src/test.ts",
-            "polyfills": "src/polyfills.ts",
-            "tsConfig": "tsconfig.spec.json",
-            "karmaConfig": "karma.conf.js",
-            "assets": [
-              "src/favicon.ico",
-              "src/mdo-assets"
-            ],
-            "styles": [
-              "src/styles.scss"
-            ],
-            "scripts": []
-          }
-        },
-        "e2e": {
-          "builder": "@angular-devkit/build-angular:protractor",
-          "options": {
-            "protractorConfig": "e2e/protractor.conf.js",
-            "devServerTarget": "mdo:serve"
-          },
-          "configurations": {
-            "production": {
-              "devServerTarget": "mdo:serve:production"
-            }
+            "lintFilePatterns": [
+              "src/**/*.ts",
+              "src/**/*.html"
+            ]
           }
         }
       }
@@ -307,18 +248,19 @@
       "prefix": "ws-app",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-ng-packagr:build",
+          "builder": "@angular-devkit/build-angular:ng-packagr",
           "options": {
             "tsConfig": "project/ws/app/tsconfig.lib.json",
             "project": "project/ws/app/ng-package.json"
           }
         },
-        "test": {
-          "builder": "@angular-devkit/build-angular:karma",
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
           "options": {
-            "main": "project/ws/app/src/test.ts",
-            "tsConfig": "project/ws/app/tsconfig.spec.json",
-            "karmaConfig": "project/ws/app/karma.conf.js"
+            "lintFilePatterns": [
+              "project/ws/app/src/**/*.ts",
+              "project/ws/app/src/**/*.html"
+            ]
           }
         }
       }

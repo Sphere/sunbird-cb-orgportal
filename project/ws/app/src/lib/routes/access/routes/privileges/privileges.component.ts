@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core'
 
 @Component({
+  standalone: false,
   selector: 'ws-app-privileges',
   templateUrl: './privileges.component.html',
   styleUrls: ['./privileges.component.scss'],

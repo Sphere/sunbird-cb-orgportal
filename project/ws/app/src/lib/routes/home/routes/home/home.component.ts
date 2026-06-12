@@ -10,6 +10,7 @@ import { ILeftMenu } from '@sunbird-cb/collection'
 /* tslint:enable */
 
 @Component({
+  standalone: false,
   selector: 'ws-app-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],

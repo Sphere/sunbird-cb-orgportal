@@ -1,7 +1,7 @@
 import { Component, Inject, OnInit } from '@angular/core'
 import { UntypedFormArray, UntypedFormBuilder, UntypedFormControl, UntypedFormGroup } from '@angular/forms'
-import { MatLegacyCheckboxChange as MatCheckboxChange } from '@angular/material/legacy-checkbox'
-import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog'
+import { MatCheckboxChange } from '@angular/material/checkbox'
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog'
 import * as _ from 'lodash'
 
 export interface IWatRolePopupData {
@@ -28,6 +28,7 @@ export interface IChield {
  * @title Dialog Overview
  */
 @Component({
+  standalone: false,
   selector: 'ws-app-wat-role-popup',
   templateUrl: './wat-role-popup.component.html',
   styleUrls: ['./wat-role-popup.component.scss'],

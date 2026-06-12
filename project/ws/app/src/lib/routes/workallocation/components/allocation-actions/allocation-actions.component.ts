@@ -1,10 +1,11 @@
 import { Component, OnInit, ViewChild, ElementRef, Inject } from '@angular/core'
-import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog'
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog'
 import { UntypedFormGroup, Validators, UntypedFormBuilder, UntypedFormControl } from '@angular/forms'
 import { AllocationService } from '../../services/allocation.service'
-import { MatLegacyTabGroup as MatTabGroup } from '@angular/material/legacy-tabs'
+import { MatTabGroup } from '@angular/material/tabs'
 
 @Component({
+  standalone: false,
   selector: 'ws-app-allocation-actions',
   templateUrl: './allocation-actions.component.html',
   styleUrls: ['./allocation-actions.component.scss'],

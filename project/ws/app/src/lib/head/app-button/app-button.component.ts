@@ -1,6 +1,7 @@
 import { Component, OnInit, EventEmitter, Input, Output } from '@angular/core'
 
 @Component({
+  standalone: false,
   selector: 'ws-widget-app-button',
   templateUrl: './app-button.component.html',
   styleUrls: ['./app-button.component.scss'],

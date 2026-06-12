@@ -2,6 +2,7 @@ import { Component, EventEmitter, OnInit, Output, Input, ChangeDetectorRef } fro
 import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms'
 
 @Component({
+  standalone: false,
   selector: 'ws-dropdown-dob',
   templateUrl: './dropdown-dob.component.html',
   styleUrls: ['./dropdown-dob.component.scss'],

@@ -1,8 +1,8 @@
 import { Component, Inject, OnInit } from '@angular/core'
 import { UntypedFormControl } from '@angular/forms'
-import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog'
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog'
 import { SelectionModel } from '@angular/cdk/collections'
-import { MatLegacyTableDataSource as MatTableDataSource } from '@angular/material/legacy-table'
+import { MatTableDataSource } from '@angular/material/table'
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators'
 import { EventsService } from '../../services/events.service'
 import { HttpClient } from '@angular/common/http'
@@ -14,6 +14,7 @@ export interface IParticipantElement {
 }
 
 @Component({
+  standalone: false,
     selector: 'ws-app-participants',
     templateUrl: './participants.component.html',
     styleUrls: ['./participants.component.scss'],

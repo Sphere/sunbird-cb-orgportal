@@ -4,12 +4,13 @@ import {
   ConfigurationsService,
   NsPage,
 } from '@sunbird-cb/utils'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
+import { MatDialog } from '@angular/material/dialog'
 import { AppTourDialogComponent } from '@sunbird-cb/collection'
 import { Router, ActivatedRoute } from '@angular/router'
 import { Globals } from '../../globals'
 
 @Component({
+  standalone: false,
   selector: 'ws-app-setup-done',
   templateUrl: './setup-done.component.html',
   styleUrls: ['./setup-done.component.scss'],

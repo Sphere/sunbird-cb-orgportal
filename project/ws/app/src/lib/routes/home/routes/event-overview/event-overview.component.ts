@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
+import { MatDialog } from '@angular/material/dialog'
 import { AddParticipantsComponent } from '../add-participants/add-participants.component'
 import { ActivatedRoute, Router } from '@angular/router'
 import { EventService } from '../../services/event.service'
@@ -15,6 +15,7 @@ import montserratBase64 from '../../../../../../../../../src//mdo-assets/fonts/m
 import montserratRegularBase64 from '../../../../../../../../../src/mdo-assets/fonts/montserrat/montserrat-regular-base64.js'
 // import { Console } from 'console'
 @Component({
+  standalone: false,
   selector: 'ws-app-event-overview',
   templateUrl: './event-overview.component.html',
   styleUrls: ['./event-overview.component.scss'],

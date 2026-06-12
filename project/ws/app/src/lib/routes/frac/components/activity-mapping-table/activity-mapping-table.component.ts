@@ -2,6 +2,7 @@ import { Component, Input, Output, EventEmitter, OnChanges, OnInit, SimpleChange
 import { FracActivityMappingItem, FracRoleMappingItem, FracSelectionMap } from '../../models/frac-mapping.models'
 
 @Component({
+  standalone: false,
   selector: 'app-activity-mapping-table',
   templateUrl: './activity-mapping-table.component.html',
   styleUrls: ['./activity-mapping-table.component.scss'],

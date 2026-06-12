@@ -8,6 +8,7 @@ import {
 } from '../../models/activity-competency.models'
 
 @Component({
+  standalone: false,
   selector: 'app-competency-mapping-table',
   templateUrl: './competency-mapping-table.component.html',
   styleUrls: ['./competency-mapping-table.component.scss']

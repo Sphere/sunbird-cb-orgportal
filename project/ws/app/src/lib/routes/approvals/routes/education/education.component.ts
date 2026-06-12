@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core'
 import { ActivatedRoute, Router, NavigationEnd, Event } from '@angular/router'
 
 @Component({
+  standalone: false,
   selector: 'ws-app-education',
   templateUrl: './education.component.html',
   styleUrls: ['./education.component.scss'],

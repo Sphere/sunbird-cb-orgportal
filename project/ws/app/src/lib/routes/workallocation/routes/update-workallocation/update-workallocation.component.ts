@@ -2,11 +2,12 @@ import { Component, OnInit, ViewChild, ElementRef } from '@angular/core'
 import { UntypedFormGroup, Validators, UntypedFormBuilder, UntypedFormArray, UntypedFormControl } from '@angular/forms'
 import { ExportAsService, ExportAsConfig } from 'ngx-export-as'
 import { ActivatedRoute, Router } from '@angular/router'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { MatSnackBar } from '@angular/material/snack-bar'
 import { AllocationService } from '../../services/allocation.service'
 import { ConfigurationsService } from '@sunbird-cb/utils'
 
 @Component({
+  standalone: false,
   selector: 'ws-app-update-workallocation',
   templateUrl: './update-workallocation.component.html',
   styleUrls: ['./update-workallocation.component.scss'],

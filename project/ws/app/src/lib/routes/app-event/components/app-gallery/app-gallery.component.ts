@@ -4,6 +4,7 @@ import { ValueService } from '@sunbird-cb/utils'
 import { Subscription } from 'rxjs'
 
 @Component({
+  standalone: false,
   selector: 'ws-app-app-gallery',
   templateUrl: './app-gallery.component.html',
   styleUrls: ['./app-gallery.component.scss'],

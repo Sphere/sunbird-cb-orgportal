@@ -4,6 +4,7 @@ import { NsPlaylist, BtnPlaylistService } from '@sunbird-cb/collection'
 import { TFetchStatus, NsPage, ConfigurationsService } from '@sunbird-cb/utils'
 
 @Component({
+  standalone: false,
   selector: 'ws-app-notification',
   templateUrl: './notification.component.html',
   styleUrls: ['./notification.component.scss'],
