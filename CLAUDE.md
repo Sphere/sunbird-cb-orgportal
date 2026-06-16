@@ -52,6 +52,30 @@ over `HttpClientModule`/`HttpClientJsonpModule`. Keep the DI-based `HTTP_INTERCE
   `$env:Path = "$env:LOCALAPPDATA\nvs\default;$env:Path"` (currently node 20.20.1 / npm 10.8.2).
 - Heap: builds use `--max_old_space_size` (see package.json scripts); keep that for large builds.
 
+## Local asset/config serving
+The 6 runtime config JSONs (`host.config.json`, `site.config.json`, `features.config.json`,
+`widgets.config.json`, `feature/apps.json`, `feature/home.json`) and every image/script referenced via
+an `assets/...` path in app code (icons, app/source logos, flag PNGs, hero/login banner images,
+`js/ie-check.js`) live under `src/assets/` and are tracked in git so a fresh clone runs without
+proxying to a backend for them.
+- **`src/assets/env.js`** stays **untracked** (`.gitignore`: `/src/assets/env.js`) — it's per-deployment
+  runtime config (sets `window['env'].sitePath` etc.) and must not be set via an IIFE keyed on `this`
+  (that resolved to `undefined` in some load contexts and crashed `environment.ts`); assign `window['env']`
+  directly. Each environment needs its own local `env.js` copy before `npm start`.
+- `angular.json`'s app `assets` array must include `"src/assets"` (it was missing, causing 404s under
+  `ng serve`) — **`ng serve` caches that glob list at process startup**, so adding new entries/folders
+  under `src/assets/` requires a full restart, not just a save/HMR reload.
+- `proxy/localhost.proxy.json` must NOT proxy `/assets/**` to a backend — that shadows the local files
+  with the backend's SPA-fallback HTML.
+- The Express server (`dist/server.js`, used for `node dist/server.js` / preview builds) serves `/assets`
+  from `dist/assets/` via `express.static`, separately from `dist/www/en/` — local-only file additions
+  under `src/assets/` need a build (or a manual copy into `dist/assets/`) to reach that server.
+- `@sunbird-cb/collection` hardcodes a profile-placeholder path at
+  `assets/images/profile/karmayogi-image.svg` — keep that file present or list/grid widgets 404-flood.
+- When adding a new feature/component, grep for new `assets/...` literals in its `.html`/`.scss`
+  (`src=`, `url(...)`, background-image) and add a matching file under `src/assets/` — missing ones
+  fail silently as broken images/backgrounds, not build errors.
+
 ## Repo layout
 - `src/` — the `mdo` application (root project, prefix `ws`).
 - `project/ws/app/` — the `@ws/app` workspace library (~142 components / ~48 modules; prefix `ws-app`).

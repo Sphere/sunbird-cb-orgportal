@@ -1,5 +1,14 @@
 # MDO-Fusion
 
+## Local development setup
+
+Before `npm start`, copy your deployment's `env.js` into `src/assets/env.js` (this file is
+gitignored — it sets `window['env'].sitePath`/`karmYogiPath`/`cbpPath` per environment and isn't
+committed). Everything else under `src/assets/` (runtime config JSON, icons, logos, banners) is
+checked into git, so a fresh clone runs locally against those files without proxying to a backend
+for them. See `CLAUDE.md` → "Local asset/config serving" for details (dev-server restart caveat,
+Express server asset path, etc.) if you add a feature that references a new `assets/...` path.
+
 //Comment by Amit Sengar
 Initialization Code:
 
