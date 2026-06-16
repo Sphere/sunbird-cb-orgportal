@@ -5,7 +5,8 @@
             <mat-icon>arrow_back</mat-icon>
             <span>Back</span>
         </button>
-        <button mat-raised-button class="save-btn-top" [disabled]="!isSaveEnabled()" (click)="onSave()">
+        <button mat-raised-button class="save-btn-top" [disabled]="!isSaveEnabled()" (click)="onSave()"
+            *appHideForViewOnly>
             <span *ngIf="!saving()">Save</span>
             <span *ngIf="saving()">Saving...</span>
         </button>
@@ -33,7 +34,8 @@
         </div>
 
         <!-- Course List -->
-        <div cdkDropList class="courses-list" (cdkDropListDropped)="onDrop($event)">
+        <div cdkDropList class="courses-list" (cdkDropListDropped)="onDrop($event)"
+            [cdkDropListDisabled]="isViewOnly">
             <div *ngFor="let course of filteredCourses()" cdkDrag class="course-item">
 
                 <!-- Drag Handle -->

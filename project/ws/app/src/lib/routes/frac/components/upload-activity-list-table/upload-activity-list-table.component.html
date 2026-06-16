@@ -8,7 +8,7 @@
       <td mat-cell *matCellDef="let row" style="width: 50px;">
         <ng-container *ngIf="!isLoading">
           <mat-checkbox (click)="$event.stopPropagation()" (change)="onRowSelect(row)" (keydown)="onRowSelect(row)"
-            [checked]="selection.isSelected(row)" [aria-label]="checkboxLabel(row)">
+            [checked]="selection.isSelected(row)" [aria-label]="checkboxLabel(row)" appDisableForViewOnly>
           </mat-checkbox>
         </ng-container>
         <div *ngIf="isLoading" class="shimmer-box checkbox"></div>

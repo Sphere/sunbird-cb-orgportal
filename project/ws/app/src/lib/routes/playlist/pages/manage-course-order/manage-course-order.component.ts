@@ -17,6 +17,8 @@ import { RoleConfirmDialogComponent, RoleConfirmDialogData } from '../../compone
 import { ErrorDialogComponent, ErrorDialogData } from '../../components/error-dialog/error-dialog.component'
 import { PLAYLIST_ROUTES, PLAYLIST_UI } from '../../constants/playlist.constants'
 import { log } from '../../utils/playlist-logger.utils'
+import { HideForViewOnlyDirective } from '../../../../shared/directives/hide-for-view-only.directive'
+import { FeatureAccessService, FEATURE_KEY } from '../../../../shared/access/feature-access'
 
 /**
  * Component for finalizing the order of courses within a playlist.
@@ -28,7 +30,7 @@ import { log } from '../../utils/playlist-logger.utils'
     styleUrls: ['./manage-course-order.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: true,
-    imports: [CommonModule, DragDropModule, MatDialogModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatIconModule],
+    imports: [CommonModule, DragDropModule, MatDialogModule, MatButtonModule, MatFormFieldModule, MatInputModule, MatIconModule, HideForViewOnlyDirective],
 })
 export class ManageCourseOrderComponent implements OnInit {
     readonly orderedCourses = signal<SelectableCourse[]>([])
@@ -43,6 +45,13 @@ export class ManageCourseOrderComponent implements OnInit {
     private readonly state = inject(PlaylistStateService)
     private readonly playlistApi = inject(PlaylistApiService)
     private readonly dialog = inject(MatDialog)
+    private readonly featureAccess = inject(FeatureAccessService)
+    private readonly featureKey = inject(FEATURE_KEY, { optional: true })
+
+    /** Read-only mode for view-only users — disables reordering. */
+    get isViewOnly(): boolean {
+        return this.featureAccess.isViewOnly(this.featureKey)
+    }
 
     ngOnInit(): void {
         this.loadSelectedCourses()

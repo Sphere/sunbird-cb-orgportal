@@ -28,6 +28,8 @@ import { log } from '../../utils/playlist-logger.utils'
 import 'brace/ext/language_tools'
 import 'brace/mode/json'
 import 'brace/theme/chrome'
+import { HideForViewOnlyDirective } from '../../../../shared/directives/hide-for-view-only.directive'
+import { FeatureAccessService, FEATURE_KEY } from '../../../../shared/access/feature-access'
 
 @Component({
     selector: 'app-manage-search',
@@ -35,7 +37,7 @@ import 'brace/theme/chrome'
     styleUrls: ['./manage-search.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: true,
-    imports: [CommonModule, MatButtonModule, MatDialogModule, MatIconModule],
+    imports: [CommonModule, MatButtonModule, MatDialogModule, MatIconModule, HideForViewOnlyDirective],
 })
 export class ManageSearchComponent implements OnInit, AfterViewInit, OnDestroy {
     @ViewChild('jsonEditor', { static: false }) private jsonEditorRef?: ElementRef<HTMLElement>
@@ -49,8 +51,15 @@ export class ManageSearchComponent implements OnInit, AfterViewInit, OnDestroy {
     private readonly dialog = inject(MatDialog)
     private readonly playlistApi = inject(PlaylistApiService)
     private readonly state = inject(PlaylistStateService)
+    private readonly featureAccess = inject(FeatureAccessService)
+    private readonly featureKey = inject(FEATURE_KEY, { optional: true })
     private editor?: any
     private editorChangeHandler?: () => void
+
+    /** Read-only mode for view-only users — makes the JSON editor non-editable. */
+    get isViewOnly(): boolean {
+        return this.featureAccess.isViewOnly(this.featureKey)
+    }
 
     ngOnInit(): void {
         const filters = this.state.getFilters()
@@ -183,6 +192,8 @@ export class ManageSearchComponent implements OnInit, AfterViewInit, OnDestroy {
             useSoftTabs: true,
         })
         this.editor.$blockScrolling = Infinity
+        // View-only users can read the query but not edit it.
+        this.editor.setReadOnly(this.isViewOnly)
         this.editor.setValue(this.jsonText(), -1)
 
         this.editorChangeHandler = () => {

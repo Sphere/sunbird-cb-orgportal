@@ -5,10 +5,13 @@
     <div class="title-bar">Available Competencies</div>
 
     <div class="button-group">
-      <button *ngIf="!isReadOnly" mat-raised-button class="app-btn primary" [disabled]="isAddDisabled()"
-        (click)="onAddCompetency()">
-        {{ isSaving ? 'Saving...' : 'Add Competency' }}
-      </button>
+      <ng-container *ngIf="!isReadOnly">
+        <!-- Add button - hidden for view-only -->
+        <button mat-raised-button class="app-btn primary" [disabled]="isAddDisabled()"
+          (click)="onAddCompetency()" *appHideForViewOnly>
+          {{ isSaving ? 'Saving...' : 'Add Competency' }}
+        </button>
+      </ng-container>
     </div>
   </div>
 
@@ -64,7 +67,7 @@
 
               <!-- Dynamic Level Checkboxes -->
               <div class="cell checkbox-cell" *ngFor="let lvl of displayLevels">
-                <mat-checkbox [checked]="isChecked(c.code, c.code + '_' + lvl)" [disabled]="isReadOnly"
+                <mat-checkbox [checked]="isChecked(c.code, c.code + '_' + lvl)" [disabled]="isReadOnly" appDisableForViewOnly
                   (change)="checkChange(c.code, c.code + '_' + lvl, $event.checked)">
                 </mat-checkbox>
               </div>
