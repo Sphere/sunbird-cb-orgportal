@@ -230,13 +230,16 @@ mat-toolbar {
   }
 }
 
-// Override checkbox
+// Override checkbox (legacy + MDC)
 .fit-checkbox-to-width {
-  .mat-checkbox-layout {
+  .mat-checkbox-layout,
+  .mat-mdc-checkbox {
+    display: flex;
     width: 100%;
   }
 
-  .mat-checkbox-label {
+  .mat-checkbox-label,
+  .mat-mdc-checkbox label {
     flex: 1;
     min-width: 1px;
   }
@@ -908,6 +911,119 @@ h3.shepherd-title {
   overflow: hidden !important;
   padding: 0 !important;
 }
+
+// =============================================================================
+// Angular Material MDC compatibility overrides (Angular 16 → 20 migration)
+// Angular Material 17+ renamed many mat-* classes to mat-mdc-*. Component CSS
+// that was written against the old names still works for sidenav/toolbar (those
+// didn't switch to MDC), but needs these aliases for components that did switch.
+// =============================================================================
+
+// --- Nav sidebar: active item + hover states ---
+// Sunbird @sunbird-cb/collection@0.0.9-ang-17-20 ships an aggressive ::ng-deep rule
+// (.ws-active-route-menu { background: #1b4ca1; color: #fff }) that differs from
+// production (light grey bg + left accent border from _theme-mixins). Override it back.
+.mat-mdc-nav-list .mat-mdc-list-item.ws-active-route-menu,
+.mat-nav-list .mat-list-item.ws-active-route-menu {
+  background-color: rgba(0, 0, 0, 0.04) !important;
+  border-left: 3px solid #0074b6 !important;
+  border-radius: 0 !important;
+  font-weight: 700;
+
+  .menu-text,
+  mat-icon {
+    color: rgba(0, 0, 0, 0.87) !important;
+  }
+}
+
+// MDC mat-nav-list no longer auto-applies a hover background; add it back.
+.mat-mdc-nav-list .mat-mdc-list-item:not(.ws-active-route-menu) {
+  cursor: pointer;
+
+  &:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+    transition: background-color 150ms ease;
+  }
+}
+
+// --- Legacy Material typography classes (used by @sunbird-cb/* widget templates) ---
+// mat.typography-hierarchy() no longer emits mat-subheading-*/mat-display-* names;
+// map them to the equivalent M2 metrics so vendor widget text renders correctly.
+.mat-subheading-2 {
+  font: 400 16px/28px 'Roboto', 'Helvetica Neue', sans-serif;
+  letter-spacing: 0.0094em;
+  margin: 0 0 16px;
+}
+
+.mat-subheading-1 {
+  font: 400 15px/24px 'Roboto', 'Helvetica Neue', sans-serif;
+  letter-spacing: 0.0067em;
+  margin: 0 0 16px;
+}
+
+.mat-display-1 {
+  font: 400 34px/40px 'Roboto', 'Helvetica Neue', sans-serif;
+  letter-spacing: -0.0134em;
+  margin: 0 0 64px;
+}
+
+// --- Dialog MDC renames ---
+// mat-dialog-content → mat-mdc-dialog-content (need scrollbar)
+.mat-mdc-dialog-content {
+  @extend .custom-scroll;
+}
+
+// .remove-pad was written for .mat-dialog-container; also apply to MDC container
+.remove-pad .mat-mdc-dialog-container .mdc-dialog__surface {
+  padding: 0 24px;
+}
+
+// --- Form field MDC ---
+// .mat-form-field-infix → .mat-mdc-form-field-infix
+.mat-mdc-form-field-infix {
+  line-height: 1.5 !important;
+}
+
+.auto-mat-form-field-input-infix .mat-mdc-form-field-infix {
+  width: auto;
+  min-width: 2em;
+}
+
+// --- Menu MDC ---
+// .mat-menu-panel → .mat-mdc-menu-panel
+.mat-mdc-menu-panel {
+  max-width: 290px !important;
+}
+
+// --- Button MDC ---
+// .mat-flat-button → .mat-mdc-unelevated-button
+.mat-mdc-unelevated-button {
+  border: 1px solid;
+}
+
+// --- Checkbox MDC ---
+ws-app-kb-detail .mat-mdc-checkbox label {
+  white-space: normal;
+}
+
+// --- Radio MDC ---
+ws-app-role .mat-mdc-radio-button label {
+  width: 100%;
+  display: block;
+  box-sizing: border-box;
+}
+
+// --- Option MDC ---
+// .mat-option → .mat-mdc-option
+.ws-widget-user-autocomplete .mat-mdc-option {
+  line-height: 1.3;
+  height: auto;
+  padding: 8px 16px;
+  min-height: 48px;
+  border-bottom: 1px solid rgb(231, 231, 231);
+}
+
+// =============================================================================
 
 /* FRAC position hierarchy view popup: clean surface */
 .cdk-overlay-pane.position-hierarchy-view-dialog .mat-mdc-dialog-container,
