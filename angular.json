@@ -12,15 +12,23 @@
         "build": {
           "builder": "@angular/build:application",
           "options": {
-            "outputPath": { "base": "dist/www/en", "browser": "" },
+            "outputPath": {
+              "base": "dist/www/en",
+              "browser": ""
+            },
             "index": "src/index.html",
             "browser": "src/main.ts",
-            "polyfills": ["zone.js", "@angular/localize/init", "src/polyfills.ts"],
+            "polyfills": [
+              "zone.js",
+              "@angular/localize/init",
+              "src/polyfills.ts"
+            ],
             "tsConfig": "tsconfig.app.json",
             "preserveSymlinks": true,
             "assets": [
               "src/favicon.ico",
               "src/favicon.png",
+              "src/assets",
               "src/mdo-assets"
             ],
             "stylePreprocessorOptions": {
@@ -212,7 +220,7 @@
         "serve": {
           "builder": "@angular/build:dev-server",
           "options": {
-            "port": 3000,
+            "port": 4200,
             "buildTarget": "mdo:build"
           },
           "configurations": {
