@@ -42,6 +42,21 @@ Replace every `@angular/material/legacy-<x>` import with `@angular/material/<x>`
 `legacy-slide-toggle→slide-toggle`, `legacy-dialog`’s `MatLegacyDialogRef`→`MatDialogRef`, etc.
 MDC markup/sizing differs — visually QA buttons, form-fields, tabs, dialogs after swapping.
 
+### Theming stays on Material's M2 (Material 2) API — not M3
+Angular Material 17+ defaults its Sass theming API to M3 ("Material You"), exposing the old API under
+an `m2-` prefix (`mat.m2-define-light-theme`, `mat.m2-define-palette`, `mat.$m2-blue-palette`,
+`mat.m2-get-color-from-palette`, `mat.m2-define-typography-config/level`, etc., via
+`@angular/material`'s `@forward './core/m2' as m2-*`). All 9 files under `src/themes/` (`theme-*.scss`,
+`_theme-mixins.scss`) and `src/styles/mat-typography.scss` use this M2-compatible API, not the M3
+`mat.define-theme`/bare palette names — every component's CSS was authored against M2's type-scale/
+shape/spacing tokens, and M3 changes those tokens app-wide. Do NOT migrate these files to M3 without
+a full visual QA pass across all 9 themes (`day-mode`/`night-mode`) and the font-scale classes
+(`.x-small-typography` … `.x-large-typography`, driven by `host.config.json`'s `fontSizes`).
+Each `theme-*.scss` must call both `mat.all-component-themes($theme)` AND
+`theme-based-configurations($theme)` (the latter from `_theme-mixins.scss`, generating the
+`.ws-mat-*` utility classes ~80 components rely on) — a prior migration pass dropped the second call
+from every theme file, silently breaking those utility classes app-wide without a build error.
+
 ### HttpClient
 In `src/app/app.module.ts`, prefer `provideHttpClient(withInterceptorsFromDi(), withJsonpSupport())`
 over `HttpClientModule`/`HttpClientJsonpModule`. Keep the DI-based `HTTP_INTERCEPTORS`.
