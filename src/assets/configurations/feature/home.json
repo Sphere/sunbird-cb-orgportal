@@ -4,7 +4,7 @@
     "widgetSubType": "leftMenu",
     "widgetData": {
       "logo": true,
-      "logoPath": "assets/instances/eagle/app_logos/aastar-logo.svg",
+      "logoPath": "assets/instances/eagle/app_logos/aastar-source.png",
       "name": "Sphere Org Manager",
       "menus": [
         {
