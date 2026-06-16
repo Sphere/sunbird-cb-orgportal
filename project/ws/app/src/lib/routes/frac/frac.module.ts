@@ -63,6 +63,9 @@ import { UnsavedChangesModalComponent } from './components/unsaved-changes-modal
 import { HierarchyChipDetailsModalComponent } from './components/hierarchy-chip-details-modal/hierarchy-chip-details-modal.component'
 import { PositionHierarchyViewModalComponent } from './components/position-hierarchy-view-modal/position-hierarchy-view-modal.component'
 import { FracApiErrorNormalizerInterceptor } from './interceptors/frac-api-error-normalizer.interceptor'
+import { HideForViewOnlyDirective } from '../../shared/directives/hide-for-view-only.directive'
+import { DisableForViewOnlyDirective } from '../../shared/directives/disable-for-view-only.directive'
+import { FEATURE_KEY } from '../../shared/access/feature-access'
 
 
 @NgModule({
@@ -124,7 +127,11 @@ import { FracApiErrorNormalizerInterceptor } from './interceptors/frac-api-error
     MatSelectModule,
     MatCheckboxModule,
     MatDialogModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+
+    // ✅ Standalone directives
+    HideForViewOnlyDirective,
+    DisableForViewOnlyDirective,
 
   ],
   exports: [
@@ -137,6 +144,8 @@ import { FracApiErrorNormalizerInterceptor } from './interceptors/frac-api-error
       useClass: FracApiErrorNormalizerInterceptor,
       multi: true,
     },
+    // Tells view-only directives in this module they render inside the FRAC feature.
+    { provide: FEATURE_KEY, useValue: 'frac' },
   ]
 })
 export class FracModule { }

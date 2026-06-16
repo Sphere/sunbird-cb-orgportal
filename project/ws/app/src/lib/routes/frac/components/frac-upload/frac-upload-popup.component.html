@@ -79,7 +79,8 @@
       (click)="onConfirmUpload()">
       {{ config.actions?.primary?.label || 'Confirm & Upload' }}
     </button> -->
-    <button mat-stroked-button class="upload-btn" [disabled]="!selectedFile" (click)="onConfirmUpload()">
+    <button mat-stroked-button class="upload-btn" [disabled]="!selectedFile" (click)="onConfirmUpload()"
+      *appHideForViewOnly>
       {{ config.actions?.primary?.label || 'Confirm & Upload' }}
     </button>
   </div>

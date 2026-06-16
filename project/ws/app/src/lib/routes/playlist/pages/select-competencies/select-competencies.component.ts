@@ -11,6 +11,7 @@ import { getLevelNumbers } from '../../config/competency.config'
 import { PLAYLIST_ROUTES, PLAYLIST_UI } from '../../constants/playlist.constants'
 import { log } from '../../utils/playlist-logger.utils'
 import { RawCompetencyEntity, RawCompetencyLevel } from '../../utils/competency-transformer'
+import { DisableForViewOnlyDirective } from '../../../../shared/directives/disable-for-view-only.directive'
 
 /**
  * Component to handle competency selection.
@@ -22,7 +23,7 @@ import { RawCompetencyEntity, RawCompetencyLevel } from '../../utils/competency-
     styleUrls: ['./select-competencies.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: true,
-    imports: [CommonModule, MatIconModule],
+    imports: [CommonModule, MatIconModule, DisableForViewOnlyDirective],
 })
 export class SelectCompetenciesComponent implements OnInit {
     selection = new SelectionModel<SelectableCompetency>(true, [])

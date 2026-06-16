@@ -6,7 +6,8 @@
             <span>Back</span>
         </button>
         <div class="header-spacer"></div>
-        <button class="save-btn-top" [disabled]="!allCompetenciesComplete() || saving()" (click)="onSave()">
+        <button class="save-btn-top" [disabled]="!allCompetenciesComplete() || saving()" (click)="onSave()"
+            *appHideForViewOnly>
             <span *ngIf="!saving()">Save</span>
             <span *ngIf="saving()">Saving...</span>
         </button>
@@ -20,7 +21,7 @@
     <div class="action-row">
         <button class="assign-btn"
             [disabled]="!selectedCompetency() || !isCurrentCompetencyComplete() || allCompetenciesComplete()"
-            (click)="onAssignCourses()">
+            (click)="onAssignCourses()" *appHideForViewOnly>
             Assign courses
         </button>
     </div>
@@ -44,7 +45,8 @@
             </div>
 
             <!-- Competency List -->
-            <div cdkDropList class="competencies-list" (cdkDropListDropped)="onDrop($event)">
+            <div cdkDropList class="competencies-list" (cdkDropListDropped)="onDrop($event)"
+                [cdkDropListDisabled]="isViewOnly">
                 <div *ngFor="let competency of filteredCompetencies()" cdkDrag class="competency-item"
                     [class.selected]="selectedCompetency() === competency"
                     [class.complete]="isCompetencyComplete(competency)" (click)="onSelectCompetency(competency)">
@@ -104,7 +106,7 @@
                             <!-- Course Dropdown -->
                             <mat-form-field *ngIf="!loadingCourses()" appearance="outline" class="dropdown-field">
                                 <mat-select [(ngModel)]="level.courseId" placeholder="Search or select Course"
-                                    (selectionChange)="onCourseSelect(level, $event.value)">
+                                    [disabled]="isViewOnly" (selectionChange)="onCourseSelect(level, $event.value)">
                                     <mat-option
                                         *ngIf="!loadingCourses() && getCoursesForLevel(level.level).length === 0"
                                         disabled>No courses
