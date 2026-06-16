@@ -4,12 +4,14 @@
     <span>Back</span>
   </button>
 
-  <!-- Save Button - Disabled when no data -->
-  <button class="save-btn" (click)="onSaveClicked()" *ngIf="routeMode === 'manage'"
-    [disabled]="!isEditing || !hasTableData() || isUpdating || !hasPendingTableChanges()">
-    <mat-spinner *ngIf="isUpdating" class="btn-spinner" [diameter]="16" [strokeWidth]="2"></mat-spinner>
-    <span style="color: white;">{{ isUpdating ? uiConfig.labels.saving : uiConfig.labels.save }}</span>
-  </button>
+  <!-- Save Button - Disabled when no data; hidden for view-only -->
+  <ng-container *ngIf="routeMode === 'manage'">
+    <button class="save-btn" (click)="onSaveClicked()" *appHideForViewOnly
+      [disabled]="!isEditing || !hasTableData() || isUpdating || !hasPendingTableChanges()">
+      <mat-spinner *ngIf="isUpdating" class="btn-spinner" [diameter]="16" [strokeWidth]="2"></mat-spinner>
+      <span style="color: white;">{{ isUpdating ? uiConfig.labels.saving : uiConfig.labels.save }}</span>
+    </button>
+  </ng-container>
 </div>
 
 
@@ -56,30 +58,32 @@
     <div class="right-tools">
 
       <div class="button-group">
-        <!-- Remove Button (Red Outline + Icon) - Disabled when no data -->
-        <button mat-stroked-button class="app-btn icon red" (click)="onRemoveClicked()"
-          [disabled]="!selectedRows.length || !hasTableData() || isDeleting" *ngIf="routeMode === 'manage'">
-          <mat-spinner *ngIf="isDeleting" class="btn-spinner" [diameter]="16" [strokeWidth]="2"></mat-spinner>
-          <img src="{{ uiConfig.icons.remove }}" alt="delete" class="btn-icon" />
-          {{ uiConfig.labels.remove }}
-        </button>
-        <!-- Edit Button (Blue Outline + Icon) - Disabled when no data -->
-        <button mat-stroked-button class="app-btn icon blue" (click)="onEditClicked()"
-          [disabled]="!selectedRows.length || !hasTableData()" *ngIf="routeMode === 'manage'">
-          <img src="{{ uiConfig.icons.edit }}" alt="edit" class="btn-icon" />
-          {{ uiConfig.labels.edit }}
-        </button>
+        <ng-container *ngIf="routeMode === 'manage'">
+          <!-- Remove Button (Red Outline + Icon) - Disabled when no data; hidden for view-only -->
+          <button mat-stroked-button class="app-btn icon red" (click)="onRemoveClicked()" *appHideForViewOnly
+            [disabled]="!selectedRows.length || !hasTableData() || isDeleting">
+            <mat-spinner *ngIf="isDeleting" class="btn-spinner" [diameter]="16" [strokeWidth]="2"></mat-spinner>
+            <img src="{{ uiConfig.icons.remove }}" alt="delete" class="btn-icon" />
+            {{ uiConfig.labels.remove }}
+          </button>
+          <!-- Edit Button (Blue Outline + Icon) - Disabled when no data; hidden for view-only -->
+          <button mat-stroked-button class="app-btn icon blue" (click)="onEditClicked()" *appHideForViewOnly
+            [disabled]="!selectedRows.length || !hasTableData()">
+            <img src="{{ uiConfig.icons.edit }}" alt="edit" class="btn-icon" />
+            {{ uiConfig.labels.edit }}
+          </button>
+        </ng-container>
 
-        <!-- Secondary Button -->
-        <button mat-stroked-button class="app-btn secondary" (click)="onDownloadTemplate()"
-          *ngIf="routeMode !== 'manage'">
-          {{ uiConfig.labels.downloadSample }}
-        </button>
-        <!-- Primary Button -->
-        <button type="button" (click)="openUploadPopup()" mat-button class="app-btn primary"
-          *ngIf="routeMode !== 'manage'">
-          {{ uploadButtonText }}
-        </button>
+        <ng-container *ngIf="routeMode !== 'manage'">
+          <!-- Secondary Button -->
+          <button mat-stroked-button class="app-btn secondary" (click)="onDownloadTemplate()">
+            {{ uiConfig.labels.downloadSample }}
+          </button>
+          <!-- Primary (Upload) Button - hidden for view-only -->
+          <button type="button" (click)="openUploadPopup()" mat-button class="app-btn primary" *appHideForViewOnly>
+            {{ uploadButtonText }}
+          </button>
+        </ng-container>
       </div>
     </div>
   </div>

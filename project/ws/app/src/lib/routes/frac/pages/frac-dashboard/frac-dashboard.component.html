@@ -21,11 +21,14 @@
 
       <!-- Card Actions -->
       <div class="card-actions">
-        <button type="button" (click)="onBtnClick(action.redirectLink)" class="action-btn"
-          *ngFor="let action of card.actions">
-          <img class="action-icon" [src]="getIconUrl(action.icon)" [alt]="action.label" />
-          <span class="action-label">{{ action.label }}</span>
-        </button>
+        <ng-container *ngFor="let action of card.actions">
+          <!-- Upload (create) actions are hidden for FRAC view-only users; Manage/Map navigation stays. -->
+          <button type="button" (click)="onBtnClick(action.redirectLink)" class="action-btn"
+            *appHideForViewOnly="action.icon === 'upload'">
+            <img class="action-icon" [src]="getIconUrl(action.icon)" [alt]="action.label" />
+            <span class="action-label">{{ action.label }}</span>
+          </button>
+        </ng-container>
       </div>
     </mat-card>
   </section>

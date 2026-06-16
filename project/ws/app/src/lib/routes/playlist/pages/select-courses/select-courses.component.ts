@@ -8,6 +8,7 @@ import { PlaylistStateService } from '../../services/playlist-state.service'
 import { Course, SelectableCourse } from '../../models/course.model'
 import { PLAYLIST_ROUTES, PLAYLIST_UI } from '../../constants/playlist.constants'
 import { log } from '../../utils/playlist-logger.utils'
+import { DisableForViewOnlyDirective } from '../../../../shared/directives/disable-for-view-only.directive'
 
 @Component({
     selector: 'app-select-courses',
@@ -15,7 +16,7 @@ import { log } from '../../utils/playlist-logger.utils'
     styleUrls: ['./select-courses.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: true,
-    imports: [CommonModule, MatIconModule],
+    imports: [CommonModule, MatIconModule, DisableForViewOnlyDirective],
 })
 export class SelectCoursesComponent implements OnInit {
     selection = new SelectionModel<SelectableCourse>(true, [])

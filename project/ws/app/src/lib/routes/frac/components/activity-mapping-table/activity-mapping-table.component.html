@@ -4,11 +4,14 @@
     <div class="title-bar">Available Activities</div>
 
     <div class="button-group">
-      <button *ngIf="!isReadOnly" mat-raised-button class="app-btn primary" [disabled]="isAddDisabled()"
-        (click)="onAddActivity()">
-        <mat-spinner *ngIf="isSaving" class="btn-spinner" [diameter]="16" [strokeWidth]="2"></mat-spinner>
-        {{ isSaving ? 'Saving...' : 'Add activity' }}
-      </button>
+      <ng-container *ngIf="!isReadOnly">
+        <!-- Add button - hidden for view-only -->
+        <button mat-raised-button class="app-btn primary" [disabled]="isAddDisabled()"
+          (click)="onAddActivity()" *appHideForViewOnly>
+          <mat-spinner *ngIf="isSaving" class="btn-spinner" [diameter]="16" [strokeWidth]="2"></mat-spinner>
+          {{ isSaving ? 'Saving...' : 'Add activity' }}
+        </button>
+      </ng-container>
     </div>
   </div>
 
@@ -53,7 +56,7 @@
         <ng-container *ngIf="!isLoading">
           <div class="activity-row" *ngFor="let a of filteredActivities">
             <div class="check-cell">
-              <mat-checkbox [checked]="isChecked(a.code)" [disabled]="isReadOnly"
+              <mat-checkbox [checked]="isChecked(a.code)" [disabled]="isReadOnly" appDisableForViewOnly
                 (change)="onCheckboxChange(a.code, $event.checked)">
               </mat-checkbox>
             </div>

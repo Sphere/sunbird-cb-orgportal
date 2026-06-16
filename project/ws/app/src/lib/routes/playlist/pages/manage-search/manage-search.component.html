@@ -6,7 +6,8 @@
             <span>Back</span>
         </button>
         <div class="header-spacer"></div>
-        <button class="next-btn" type="button" [disabled]="saving() || !!validationError()" (click)="onSave()">
+        <button class="next-btn" type="button" [disabled]="saving() || !!validationError()" (click)="onSave()"
+            *appHideForViewOnly>
             {{ saving() ? 'Saving...' : 'Save' }}
         </button>
     </div>
@@ -24,7 +25,7 @@
                 <span>Search Playlist JSON</span>
             </div>
 
-            <button class="secondary-btn" type="button" (click)="onFormatJson()">
+            <button class="secondary-btn" type="button" (click)="onFormatJson()" *appHideForViewOnly>
                 <mat-icon>format_align_left</mat-icon>
                 Format
             </button>

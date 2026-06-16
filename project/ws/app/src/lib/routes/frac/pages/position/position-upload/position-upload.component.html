@@ -5,12 +5,14 @@
     <span>Back</span>
   </button>
 
-  <!-- Save shown only in table-manage mode -->
-  <button class="save-btn" (click)="onSaveClicked()" *ngIf="routeMode === 'manage'"
-    [disabled]="!isEditing || !hasTableData() || isUpdating || !hasPendingTableChanges()">
-    <mat-spinner *ngIf="isUpdating" class="btn-spinner" [diameter]="16" [strokeWidth]="2"></mat-spinner>
-    <span>{{ isUpdating ? uiConfig.labels.saving : uiConfig.labels.save }}</span>
-  </button>
+  <!-- Save shown only in table-manage mode; hidden for FRAC view-only users -->
+  <ng-container *ngIf="routeMode === 'manage'">
+    <button class="save-btn" (click)="onSaveClicked()" *appHideForViewOnly
+      [disabled]="!isEditing || !hasTableData() || isUpdating || !hasPendingTableChanges()">
+      <mat-spinner *ngIf="isUpdating" class="btn-spinner" [diameter]="16" [strokeWidth]="2"></mat-spinner>
+      <span>{{ isUpdating ? uiConfig.labels.saving : uiConfig.labels.save }}</span>
+    </button>
+  </ng-container>
 </div>
 
 <!-- Main Content -->
@@ -33,7 +35,8 @@
           <button mat-stroked-button class="app-btn secondary" (click)="onDownloadTemplate()">
             {{ uiConfig.labels.downloadSample }}
           </button>
-          <button type="button" (click)="openUploadPopup()" mat-button class="app-btn primary">
+          <button type="button" (click)="openUploadPopup()" mat-button class="app-btn primary"
+            *appHideForViewOnly>
             {{ uploadButtonText }}
           </button>
         </div>
@@ -103,7 +106,8 @@
         </div>
 
         <div class="manage-header-buttons">
-          <button type="button" class="upload-position-btn" (click)="goToUploadMode()">
+          <button type="button" class="upload-position-btn" (click)="goToUploadMode()"
+            *appHideForViewOnly>
             <img [src]="uiConfig.icons.upload" alt="upload" class="action-btn-icon" />
             {{ uiConfig.labels.uploadPositionBtn }}
           </button>
@@ -195,7 +199,8 @@
               <mat-icon class="card-action-icon">visibility</mat-icon>
               View
             </button>
-            <button type="button" class="card-action-btn card-action-edit" (click)="onViewEdit(pos)">
+            <button type="button" class="card-action-btn card-action-edit" (click)="onViewEdit(pos)"
+              *appHideForViewOnly>
               <mat-icon class="card-action-icon">edit</mat-icon>
               Edit
             </button>
@@ -248,12 +253,14 @@
       <div class="right-tools">
         <div class="button-group">
           <button mat-stroked-button class="app-btn icon red" (click)="onRemoveClicked()"
+            *appHideForViewOnly
             [disabled]="!selectedRows.length || !hasTableData() || isDeleting">
             <mat-spinner *ngIf="isDeleting" class="btn-spinner" [diameter]="16" [strokeWidth]="2"></mat-spinner>
             <img [src]="uiConfig.icons.remove" alt="delete" class="btn-icon" />
             {{ uiConfig.labels.remove }}
           </button>
           <button mat-stroked-button class="app-btn icon blue" (click)="onEditClicked()"
+            *appHideForViewOnly
             [disabled]="!selectedRows.length || !hasTableData()">
             <img [src]="uiConfig.icons.edit" alt="edit" class="btn-icon" />
             {{ uiConfig.labels.edit }}
