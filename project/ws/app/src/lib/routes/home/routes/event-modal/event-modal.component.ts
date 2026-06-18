@@ -19,10 +19,10 @@ export class EventModalComponent implements OnInit, OnDestroy {
   private userSubscription!: Subscription
 
   constructor(
-    public dialogRef: MatDialogRef<EventModalComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: any,
-    private fb: UntypedFormBuilder,
-    private eventService: EventService
+    public readonly dialogRef: MatDialogRef<EventModalComponent>,
+    @Inject(MAT_DIALOG_DATA) public readonly data: any,
+    private readonly fb: UntypedFormBuilder,
+    private readonly eventService: EventService
   ) { }
 
   ngOnInit(): void {
@@ -83,25 +83,21 @@ export class EventModalComponent implements OnInit, OnDestroy {
       if (this.isEditMode) {
 
         eventData.eventId = this.data.event.eventId
-        this.eventService.editEvent(eventData).subscribe(
-          response => {
+        this.eventService.editEvent(eventData).subscribe({
+          next: response => {
             console.log('Edit Event updated successfully:', response)
             this.dialogRef.close(response)
           },
-          error => {
-            console.error('Error updating event:', error)
-          }
-        )
+          error: error => console.error('Error updating event:', error),
+        })
       } else {
-        this.eventService.createEvent(eventData).subscribe(
-          response => {
+        this.eventService.createEvent(eventData).subscribe({
+          next: response => {
             console.log('Event created successfully:', response)
             this.dialogRef.close(response)
           },
-          error => {
-            console.error('Error creating event:', error)
-          }
-        )
+          error: error => console.error('Error creating event:', error),
+        })
       }
     }
   }

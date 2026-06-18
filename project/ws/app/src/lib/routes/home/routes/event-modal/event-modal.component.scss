@@ -24,12 +24,11 @@
 }
 
 // ── Dialog layout ──────────────────────────────────────────────────────────
-// Remove Material's built-in max-height (65vh) so the dialog container
-// controls overflow instead of the inner content area.
 mat-dialog-content.dialog-content {
   padding: 0 0 8px 0;
-  max-height: none;
-  overflow: visible;
+  max-height: 65vh;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 mat-dialog-actions {
@@ -92,45 +91,17 @@ mat-dialog-actions {
   margin-top: 4px;
 }
 
-// ── Date input — native input + overlaid calendar button ──────────────────
-// Replaces mat-form-field to get a uniform 40px height matching other fields.
-.date-input-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
+// ── Native date input ──────────────────────────────────────────────────────
+// <input type="date"> uses the browser's native date picker — no CDK overlay,
+// no z-index fight with the dialog. Click on the input opens the picker.
+.form-input[type='date'] {
+  cursor: pointer;
 
-  .date-input {
-    padding-right: 44px;
+  &::-webkit-calendar-picker-indicator {
     cursor: pointer;
-  }
+    opacity: 0.6;
 
-  .date-toggle-btn {
-    position: absolute;
-    right: 6px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 30px;
-    height: 30px;
-    border: none;
-    background: none;
-    cursor: pointer;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: $v2-color-text-secondary;
-    transition: background 0.15s, color 0.15s;
-
-    mat-icon {
-      font-size: 18px;
-      width: 18px;
-      height: 18px;
-    }
-
-    &:hover {
-      background: $v2-color-primary-tint;
-      color: $v2-color-primary;
-    }
+    &:hover { opacity: 1; }
   }
 }
 

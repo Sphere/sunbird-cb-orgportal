@@ -43,9 +43,6 @@ const routes: Routes = [
       {
         path: 'users',
         component: UsersViewComponent,
-        resolve: {
-          usersList: UsersListResolve,
-        },
       },
       {
         path: 'about',

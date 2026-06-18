@@ -1,9 +1,9 @@
-import { Component, OnDestroy, OnInit } from '@angular/core'
+import { Component, ElementRef, HostListener, OnDestroy, OnInit } from '@angular/core'
 import { ActivatedRoute } from '@angular/router'
 import { forkJoin, of, Subscription } from 'rxjs'
 import { catchError } from 'rxjs/operators'
 import { EventService } from '../../services/event.service'
-import * as _ from 'lodash'
+import _ from 'lodash'
 import * as XLSX from 'xlsx'
 
 @Component({
@@ -14,6 +14,8 @@ import * as XLSX from 'xlsx'
 })
 export class ParticipantsComponent implements OnInit, OnDestroy {
   searchQuery = ''
+  filterStatus = ''
+  showFilterPanel = false
   participants: any[] = []
   selectedEvent: any
   isExporting = false
@@ -21,16 +23,17 @@ export class ParticipantsComponent implements OnInit, OnDestroy {
   private eventSubscription!: Subscription
 
   constructor(
-    private route: ActivatedRoute,
-    private eventService: EventService
+    private readonly route: ActivatedRoute,
+    private readonly eventService: EventService,
+    private readonly elementRef: ElementRef
   ) { }
 
   ngOnInit(): void {
-    this.routeSubscription = this.route.parent?.params.subscribe(params => {
-      const eventId = params['id']
-      this.fetchParticipants(eventId)
-    }) as Subscription
-
+    if (this.route.parent) {
+      this.routeSubscription = this.route.parent.params.subscribe(params => {
+        this.fetchParticipants(params['id'])
+      })
+    }
     this.eventSubscription = this.eventService.currentEvent.subscribe(event => {
       this.selectedEvent = event
     })
@@ -41,21 +44,28 @@ export class ParticipantsComponent implements OnInit, OnDestroy {
     this.eventSubscription?.unsubscribe()
   }
 
+  // Close the filter panel when clicking outside the component
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    if (this.showFilterPanel && !this.elementRef.nativeElement.contains(event.target)) {
+      this.showFilterPanel = false
+    }
+  }
+
   fetchParticipants(eventId: string): void {
-    this.eventService.getParticipants(eventId).subscribe(
-      response => {
+    this.eventService.getParticipants(eventId).subscribe({
+      next: response => {
         this.participants = response.map((participant: any) => ({
           firstName: participant.firstName,
           lastName: participant.lastName || '',
           place: participant.place || '',
           userId: participant.userId || '',
+          isNonQr: participant.userId === 'Non-QR-User',
           certificateStatus: participant.certificateGenerationStatus || null,
         }))
       },
-      error => {
-        console.error('Error fetching participants:', error)
-      }
-    )
+      error: error => console.error('Error fetching participants:', error),
+    })
   }
 
   get showCertificateStatus(): boolean {
@@ -66,16 +76,44 @@ export class ParticipantsComponent implements OnInit, OnDestroy {
   }
 
   get usersWithoutCert(): any[] {
-    return this.participants.filter(p => p.certificateStatus !== 'success')
+    // Non-QR users are excluded — their cert is generated manually from the UI,
+    // not via the userId-based profile download flow.
+    return this.participants.filter(p => !p.isNonQr && p.certificateStatus !== 'success')
+  }
+
+  toggleFilterPanel(event: MouseEvent): void {
+    event.stopPropagation()
+    this.showFilterPanel = !this.showFilterPanel
+  }
+
+  setFilter(status: string): void {
+    // Clicking the active chip clears it; clicking a new chip sets it
+    this.filterStatus = this.filterStatus === status ? '' : status
+  }
+
+  clearFilters(): void {
+    this.searchQuery = ''
+    this.filterStatus = ''
+    this.showFilterPanel = false
   }
 
   filteredParticipants() {
-    return _.filter(this.participants, participant =>
-      _.some(
+    return _.filter(this.participants, participant => {
+      const matchesSearch = !this.searchQuery || _.some(
         ['firstName', 'lastName', 'place'],
         key => _.toLower(participant[key]).includes(_.toLower(this.searchQuery))
       )
-    )
+      const matchesStatus = !this.filterStatus || (() => {
+        if (this.filterStatus === 'nonqr') { return participant.isNonQr }
+        if (this.filterStatus === 'pending') {
+          return !participant.isNonQr &&
+            participant.certificateStatus !== 'success' &&
+            participant.certificateStatus !== 'failed'
+        }
+        return participant.certificateStatus === this.filterStatus
+      })()
+      return matchesSearch && matchesStatus
+    })
   }
 
   downloadUsersWithoutCertificates(): void {
@@ -97,7 +135,7 @@ export class ParticipantsComponent implements OnInit, OnDestroy {
           return {
             'First Name': p.firstName,
             'Last Name': p.lastName,
-            'Phone': rawPhone.replace(/"/g, ''),
+            'Phone': rawPhone.replaceAll('"', ''),
             'Email': email,
             'Place': p.place,
             'Certificate Status': p.certificateStatus || 'Not Generated',
@@ -111,12 +149,12 @@ export class ParticipantsComponent implements OnInit, OnDestroy {
         }
         const buffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' })
         const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
-        const url = window.URL.createObjectURL(blob)
+        const url = globalThis.URL.createObjectURL(blob)
         const a = document.createElement('a')
         a.href = url
         a.download = 'Users_Without_Certificates.xlsx'
         a.click()
-        window.URL.revokeObjectURL(url)
+        globalThis.URL.revokeObjectURL(url)
         this.isExporting = false
       },
       error: () => { this.isExporting = false },

@@ -24,15 +24,7 @@
         <div>
           <label class="form-label" for="eventDate">Select the Date *</label>
           <div class="field-wrapper">
-            <div class="date-input-wrapper">
-              <input id="eventDate" class="form-input date-input"
-                [matDatepicker]="picker" formControlName="eventDate"
-                placeholder="Select a date" />
-              <button type="button" class="date-toggle-btn" (click)="picker.open()" aria-label="Open date picker">
-                <mat-icon>calendar_month</mat-icon>
-              </button>
-              <mat-datepicker #picker></mat-datepicker>
-            </div>
+            <input type="date" id="eventDate" class="form-input" formControlName="eventDate" />
             <span class="field-error" *ngIf="eventForm.get('eventDate')?.invalid && eventForm.get('eventDate')?.touched">
               Date is required
             </span>

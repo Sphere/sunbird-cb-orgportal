@@ -1,10 +1,43 @@
-<div class="tab-content ">
-  <!-- Search and Filter -->
+<div class="tab-content">
+
+  <!-- Search + Filter controls -->
   <div class="participants-header">
     <div class="search-filter-group">
       <input type="text" placeholder="Search by name, place" [(ngModel)]="searchQuery" class="search-input" />
-      <button class="filter-btn">
-        <mat-icon class="material-icons-outlined">filter_alt</mat-icon> Filter
+
+      <!-- Filter button + popover wrapper -->
+      <div class="filter-popover-anchor">
+        <button class="filter-btn" [class.active]="showFilterPanel || filterStatus" (click)="toggleFilterPanel($event)">
+          <mat-icon class="material-icons-outlined">filter_alt</mat-icon> Filter
+          <span class="filter-dot" *ngIf="filterStatus"></span>
+        </button>
+
+        <!-- Floating filter popover -->
+        <div class="filter-popover" *ngIf="showFilterPanel" (click)="$event.stopPropagation()">
+          <p class="popover-title">Filters</p>
+
+          <ng-container *ngIf="showCertificateStatus">
+            <p class="filter-section-label">CERTIFICATE STATUS</p>
+            <div class="chip-group">
+              <button class="chip" [class.chip-active]="filterStatus === 'success'" (click)="setFilter('success')">Generated</button>
+              <button class="chip" [class.chip-active]="filterStatus === 'failed'" (click)="setFilter('failed')">Failed</button>
+              <button class="chip" [class.chip-active]="filterStatus === 'pending'" (click)="setFilter('pending')">Not Generated</button>
+              <button class="chip" [class.chip-active]="filterStatus === 'nonqr'" (click)="setFilter('nonqr')">Pending (Manual)</button>
+            </div>
+          </ng-container>
+
+          <p class="no-filters-msg" *ngIf="!showCertificateStatus">
+            No additional filters for this event type.
+          </p>
+
+          <div class="popover-actions">
+            <button class="clear-link" (click)="clearFilters()" *ngIf="filterStatus">Clear filters</button>
+          </div>
+        </div>
+      </div>
+
+      <button class="clear-btn" *ngIf="searchQuery || filterStatus" (click)="clearFilters()">
+        <mat-icon>close</mat-icon> Clear
       </button>
     </div>
 
@@ -47,12 +80,19 @@
               [ngClass]="{
                 'status-success': participant.certificateStatus === 'success',
                 'status-failed': participant.certificateStatus === 'failed',
-                'status-pending': !participant.certificateStatus
+                'status-nonqr': participant.isNonQr && participant.certificateStatus !== 'success' && participant.certificateStatus !== 'failed',
+                'status-pending': !participant.isNonQr && participant.certificateStatus !== 'success' && participant.certificateStatus !== 'failed'
               }"
             >
               {{ participant.certificateStatus === 'success' ? 'Generated' :
-                 participant.certificateStatus === 'failed' ? 'Failed' : 'Not Generated' }}
+                 participant.certificateStatus === 'failed' ? 'Failed' :
+                 participant.isNonQr ? 'Pending' : 'Not Generated' }}
             </span>
+          </td>
+        </tr>
+        <tr *ngIf="filteredParticipants().length === 0">
+          <td [attr.colspan]="showCertificateStatus ? 4 : 3" class="empty-row">
+            No participants match the current search / filter.
           </td>
         </tr>
       </tbody>

@@ -1,149 +1,168 @@
-<div class="flex flex-wrap">
-  <div class="flex flex-row fle-wrap w-full">
-    <div class="flex-1 inline-flex items-end justify-end">
-      <!-- <span class="mat-body-1 mr-5 pl-1">Download the sample file</span> -->
-      <button class="download-btn mat-accent-border mat-button mat-button-base" i18n (click)="downloadFile()">
-        <ng-container>Download sample file</ng-container>
-      </button>
-    </div>
-  </div>
-  <div class="flex flex-row fle-wrap w-full">
-    <mat-card class="my-5 flex-custom ws-mat-accent-border mat-card w-full">
-      <div>
-        <form [formGroup]="formGroup" #form>
-          <input type="file" class="mb-5" (change)="onFileChange($event)" name="file" placeholder="Choose file"
-            (dblclick)="$event.preventDefault();"
-            accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel, .xlsx, .xls" />
-          <!-- <input type="submit" [disabled]="formGroup.invalid" value="upload" /> -->
-          <mat-error *ngIf="showFileError">Only .xlsx or .csv files are accepted</mat-error>
+<div class="upload-page">
 
-          <div class="mt-5 text-left">
-            <div *ngIf="displayLoader | async" class="pr-4 flex items-center justify-center">
-              <mat-spinner [diameter]="30"></mat-spinner>
-            </div>
-            <button mat-button class="upload-btn mat-button mat-button-base" type="submit" i18n
-              [disabled]="formGroup.invalid || (displayLoader | async)" (click)="onSubmit(form)"
-              (dblclick)="$event.preventDefault();">
-              <ng-container>Upload</ng-container>
-            </button>
-          </div>
+  <!-- Upload card -->
+  <div class="upload-card">
 
-        </form>
-      </div>
-    </mat-card>
-  </div>
-  <div class="w-full relative">
-    <h2 class="w-full contacts-head">File uploads</h2>
-    <div class="mb-4 ws-mat-black60-text">
-      Need help? contact us <a class="mat-accent" target="_blank" href="{{contactUsUrl}}">here</a>
-    </div>
-    <div class="example-loading w-full text-center" *ngIf="fetching">
-      <mat-spinner></mat-spinner>
-    </div>
-    <!-- <div *ngIf="bulkUploadData && bulkUploadData.length"> -->
-    <div [hidden]="!bulkUploadData || (bulkUploadData && !bulkUploadData.length) || fetching">
-      <div class=" mx-5 my-5 table-container w-full">
-        <div class="pt-2 ">
-          <!-- <div class=" m-5 flex items-end justify-end">
-          <button mat-raised-button color="primary" class="self-end" i18n (click)="refreshTable()">
-            <ng-container>Refresh</ng-container>
-          </button>
-        </div> -->
-          <mat-table mat-table [dataSource]="dataSource" matSort [matSortActive]="tabledata?.sortColumn"
-            [matSortDirection]="tabledata?.sortState">
-
-            <!-- ID Column -->
-            <ng-container matColumnDef="identifier">
-              <th mat-header-cell *matHeaderCellDef mat-sort-header class="ws-mat-black60-text mat-header-cell"> Id
-              </th>
-              <td mat-cell *matCellDef="let row"> {{row.identifier}} </td>
-              <!-- <mat-header-cell *matHeaderCellDef mat-sort-header> Id </mat-header-cell>
-              <mat-cell *matCellDef="let row"> {{row.identifier}} </mat-cell> -->
-            </ng-container>
-
-
-            <!-- Name Column -->
-            <ng-container matColumnDef="fileName">
-              <th mat-header-cell *matHeaderCellDef mat-sort-header class="ws-mat-black60-text mat-header-cell"> Name
-              </th>
-              <td mat-cell *matCellDef="let row"> {{row.fileName}} </td>
-            </ng-container>
-
-            <!-- status Column -->
-            <ng-container matColumnDef="status">
-              <th mat-header-cell *matHeaderCellDef mat-sort-header class="ws-mat-black60-text mat-header-cell"> Status
-              </th>
-              <td mat-cell *matCellDef="let row"> {{row.status}} </td>
-            </ng-container>
-            <!-- status Column -->
-            <ng-container matColumnDef="failedRecordsCount">
-              <th mat-header-cell *matHeaderCellDef mat-sort-header class="ws-mat-black60-text mat-header-cell"> Failed
-                records
-              </th>
-              <td mat-cell *matCellDef="let row"> {{row.failedRecordsCount}} </td>
-            </ng-container>
-            <!-- status Column -->
-            <ng-container matColumnDef="successfulRecordsCount">
-              <th mat-header-cell *matHeaderCellDef mat-sort-header class="ws-mat-black60-text mat-header-cell"> Success
-                records
-              </th>
-              <td mat-cell *matCellDef="let row"> {{row.successfulRecordsCount}} </td>
-            </ng-container>
-            <!-- status Column -->
-            <ng-container matColumnDef="totalRecords">
-              <th mat-header-cell *matHeaderCellDef mat-sort-header class="ws-mat-black60-text mat-header-cell"> Total
-                records
-              </th>
-              <td mat-cell *matCellDef="let row"> {{row.totalRecords}} </td>
-            </ng-container>
-            <!-- status Column -->
-            <ng-container matColumnDef="dateCreatedOn">
-              <th mat-header-cell *matHeaderCellDef mat-sort-header class="ws-mat-black60-text mat-header-cell"> Created
-                on
-              </th>
-              <td mat-cell *matCellDef="let row"> {{row.dateCreatedOn | date:'dd MMM yyy h:mm a' }} </td>
-            </ng-container>
-
-            <!-- status Column -->
-            <ng-container matColumnDef="dateUpdatedOn">
-              <th mat-header-cell *matHeaderCellDef mat-sort-header class="ws-mat-black60-text mat-header-cell"> Updated
-                on
-              </th>
-              <td mat-cell *matCellDef="let row"> {{row.dateUpdatedOn | date:'dd MMM yyy h:mm a' }} </td>
-            </ng-container>
-
-            <!-- report Column -->
-            <!-- <ng-container matColumnDef="filePath">
-              <th mat-header-cell *matHeaderCellDef mat-sort-header> Download file </th>
-              <td mat-cell *matCellDef="let row">
-                <button class="download-report-btn" i18n (click)="downloadReportStatus(row)">
-                  <img src="/mdo-assets/icons/material-symbols_download.svg" alt="Download File">
-                </button>
-              </td>
-            </ng-container> -->
-
-            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-
-            <!-- Row shown when there is no matching data. -->
-            <tr class="mat-row" *matNoDataRow>
-              <td class="mat-cell" colspan="4">No data ...</td>
-            </tr>
-
-          </mat-table>
-
-          <mat-paginator [pageSize]="10" [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
+    <!-- Card header row: title + download button -->
+    <div class="upload-card-header">
+      <div class="upload-card-intro">
+        <div class="upload-hero-icon">
+          <mat-icon>cloud_upload</mat-icon>
+        </div>
+        <div class="upload-card-text">
+          <p class="upload-card-title">Upload users in bulk</p>
+          <p class="upload-card-desc">Select an Excel or CSV file to create or update multiple users at once.</p>
         </div>
       </div>
+      <button type="button" class="download-sample-btn" (click)="downloadFile()">
+        <mat-icon>download</mat-icon>
+        Download sample file
+      </button>
     </div>
-    <ng-container *ngIf="(!bulkUploadData || !bulkUploadData.length) && !fetching">
-      <h4 class="w-full
-       ws-mat-black60-text text-center">No data to be displayed!</h4>
-    </ng-container>
+
+    <div class="upload-divider"></div>
+
+    <!-- File selection form -->
+    <form [formGroup]="formGroup" #form>
+      <div class="file-row">
+        <label for="file-input" class="file-label-btn">
+          <mat-icon>attach_file</mat-icon>
+          Choose file
+        </label>
+        <input id="file-input" type="file" class="file-input-hidden"
+          (change)="onFileChange($event)" name="file"
+          (dblclick)="$event.preventDefault();"
+          accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel, .xlsx, .xls" />
+        <span class="file-name-display" [class.file-name-selected]="formGroup.get('file')?.value?.name">
+          {{ formGroup.get('file')?.value?.name || 'No file chosen' }}
+        </span>
+      </div>
+
+      <p class="file-formats-hint">Accepted formats: .xlsx, .xls, .csv &nbsp;&middot;&nbsp; Maximum file size: 10 MB</p>
+
+      <div class="file-error" *ngIf="showFileError">
+        <mat-icon>error_outline</mat-icon>
+        Only .xlsx or .csv files are accepted
+      </div>
+
+      <div class="upload-btn-row">
+        <button type="submit" class="upload-btn"
+          [class.upload-btn--loading]="displayLoader | async"
+          [disabled]="formGroup.invalid || (displayLoader | async)"
+          (click)="onSubmit(form)"
+          (dblclick)="$event.preventDefault();">
+          <mat-spinner *ngIf="displayLoader | async" [diameter]="16"></mat-spinner>
+          <span>{{ (displayLoader | async) ? 'Uploading…' : 'Upload' }}</span>
+        </button>
+      </div>
+    </form>
   </div>
+
+  <!-- Upload history -->
+  <div class="history-section">
+    <h2 class="history-title">Upload history</h2>
+
+    <!-- Skeleton loading state -->
+    <div class="history-skeleton" *ngIf="fetching">
+      <div class="history-skeleton-header">
+        <div class="sk-cell sk-narrow"></div>
+        <div class="sk-cell sk-wide"></div>
+        <div class="sk-cell sk-narrow"></div>
+        <div class="sk-cell"></div>
+        <div class="sk-cell"></div>
+        <div class="sk-cell sk-narrow"></div>
+        <div class="sk-cell sk-wide"></div>
+        <div class="sk-cell sk-wide"></div>
+      </div>
+      <div class="history-skeleton-row" *ngFor="let i of [1,2,3,4,5]">
+        <div class="sk-cell sk-narrow"></div>
+        <div class="sk-cell sk-wide"></div>
+        <div class="sk-cell sk-narrow"></div>
+        <div class="sk-cell"></div>
+        <div class="sk-cell"></div>
+        <div class="sk-cell sk-narrow"></div>
+        <div class="sk-cell sk-wide"></div>
+        <div class="sk-cell sk-wide"></div>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="history-table-wrap" [hidden]="!bulkUploadData || (bulkUploadData && !bulkUploadData.length) || fetching">
+      <mat-table [dataSource]="dataSource" matSort
+        [matSortActive]="tabledata?.sortColumn"
+        [matSortDirection]="tabledata?.sortState">
+
+        <ng-container matColumnDef="identifier">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Id</th>
+          <td mat-cell *matCellDef="let row">{{row.identifier}}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="fileName">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
+          <td mat-cell *matCellDef="let row">{{row.fileName}}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
+          <td mat-cell *matCellDef="let row">
+            <span class="status-badge"
+              [ngClass]="{
+                'status-success': row.status === 'SUCCESS',
+                'status-failed': row.status === 'FAILED',
+                'status-pending': row.status !== 'SUCCESS' && row.status !== 'FAILED'
+              }">
+              {{row.status}}
+            </span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="failedRecordsCount">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Failed records</th>
+          <td mat-cell *matCellDef="let row">{{row.failedRecordsCount}}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="successfulRecordsCount">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Success records</th>
+          <td mat-cell *matCellDef="let row">{{row.successfulRecordsCount}}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="totalRecords">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Total records</th>
+          <td mat-cell *matCellDef="let row">{{row.totalRecords}}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="dateCreatedOn">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Created on</th>
+          <td mat-cell *matCellDef="let row">{{row.dateCreatedOn | date:'dd MMM yyyy h:mm a'}}</td>
+        </ng-container>
+
+        <ng-container matColumnDef="dateUpdatedOn">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Updated on</th>
+          <td mat-cell *matCellDef="let row">{{row.dateUpdatedOn | date:'dd MMM yyyy h:mm a'}}</td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+        <tr class="mat-row" *matNoDataRow>
+          <td class="mat-cell no-data-cell" colspan="8">No upload history found</td>
+        </tr>
+      </mat-table>
+
+      <mat-paginator [pageSize]="10" [pageSizeOptions]="[5, 10, 25, 100]"></mat-paginator>
+    </div>
+
+    <!-- Empty state -->
+    <div class="empty-state" *ngIf="(!bulkUploadData || !bulkUploadData.length) && !fetching">
+      <div class="empty-icon">
+        <mat-icon>cloud_upload</mat-icon>
+      </div>
+      <p class="empty-text">No file uploads yet</p>
+    </div>
+  </div>
+
 </div>
 
-<input type="hidden" i18-value i18-aria-value aria-value="File upload successful..!" [value]="uplaodSuccessMsg"
-  #toastSuccess />
-<input type="hidden" i18-value i18-aria-value aria-value="Unable to process file upload..!"
-  value="Unable to process file upload..!" #toastError />
+<!-- Hidden i18n inputs (preserved from original) -->
+<input type="hidden" i18-value i18-aria-value aria-value="File upload successful..!" [value]="uplaodSuccessMsg" #toastSuccess />
+<input type="hidden" i18-value i18-aria-value aria-value="Unable to process file upload..!" value="Unable to process file upload..!" #toastError />

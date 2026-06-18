@@ -8,7 +8,7 @@
       "/apis": "/apis"
     },
     "headers": {
-      "Cookie": "connect.sid=s%3ASilcoOISive5pFeGZY-dpbQRqWezVTk-.QwNrjLywpyDyYnPFNyB1FQp9t0PcN9OEJt0IgUuCl1w"
+      "Cookie": "connect.sid=s%3AF2mZzuvRtK_w-c14tajYqtoUQq0zVAGS.t%2B17bwt08Bj%2BTSYoNYLz9ialX1URlmgvje6ry0%2BWkMk"
     }
   },
   "/content-api/**": {
@@ -55,5 +55,5 @@
     "pathRewrite": {
       "/apis": ""
     }
-  },
+  }
 }

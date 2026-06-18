@@ -22,9 +22,9 @@ export class AddParticipantsComponent implements OnInit, OnDestroy {
   eventType: boolean = false
 
   constructor(
-    private dialogRef: MatDialogRef<AddParticipantsComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: any,
-    private eventService: EventService
+    private readonly dialogRef: MatDialogRef<AddParticipantsComponent>,
+    @Inject(MAT_DIALOG_DATA) public readonly data: any,
+    private readonly eventService: EventService
   ) {
     this.eventId = data.eventId
     this.eventType = data.eventType
@@ -110,16 +110,16 @@ export class AddParticipantsComponent implements OnInit, OnDestroy {
       phone: String(participant.phone),
     }))
 
-    this.subscription = this.eventService.addParticipants(this.eventId, this.participants).subscribe(
-      response => {
+    this.subscription = this.eventService.addParticipants(this.eventId, this.participants).subscribe({
+      next: response => {
         console.log('Participants added successfully:', response)
         this.dialogRef.close('saved')
       },
-      error => {
+      error: error => {
         console.error('Error adding participants:', error)
         this.dialogRef.close('error')
-      }
-    )
+      },
+    })
   }
 
   // downloadSampleExcel() {

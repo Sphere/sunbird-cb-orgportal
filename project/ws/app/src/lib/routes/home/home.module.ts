@@ -52,7 +52,6 @@ import { ParticipantsComponent } from './routes/participants/participants.compon
 import { CertificateGeneratorComponent } from './routes/certificate-generator/certificate-generator.component'
 import { EventModalComponent } from './routes/event-modal/event-modal.component'
 import { AddParticipantsComponent } from './routes/add-participants/add-participants.component'
-import { MatDatepickerModule } from '@angular/material/datepicker'
 // import { Ng2SearchPipeModule } from 'ng2-search-filter'
 @NgModule({
     declarations: [
@@ -121,7 +120,6 @@ import { MatDatepickerModule } from '@angular/material/datepicker'
         UsersModule,
         MatTableModule,
         SkillModule,
-        MatDatepickerModule,
     ],
     providers: [
         // CKEditorService,

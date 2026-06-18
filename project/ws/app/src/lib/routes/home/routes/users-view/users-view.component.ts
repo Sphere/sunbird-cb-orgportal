@@ -48,6 +48,7 @@ export class UsersViewComponent implements OnInit, OnDestroy {
   content: NsContent.IContent = {} as NsContent.IContent
   selectedFilters: any = []
   filterValues: any = []
+  isLoading = true
 
   tabledata: ITableData = {
     actions: [],
@@ -236,9 +237,14 @@ export class UsersViewComponent implements OnInit, OnDestroy {
     }
     const rootOrgId = _.get(this.route.snapshot.parent, 'data.configService.unMappedUser.rootOrg.rootOrgId')
 
-    this.usersService.searchUserByFilter(req, rootOrgId).subscribe(data => {
-      this.usersData = data.result.response
-      this.filterData()
+    this.isLoading = true
+    this.usersService.searchUserByFilter(req, rootOrgId).subscribe({
+      next: data => {
+        this.usersData = data.result.response
+        this.filterData()
+        this.isLoading = false
+      },
+      error: () => { this.isLoading = false },
     })
 
   }
@@ -328,9 +334,13 @@ export class UsersViewComponent implements OnInit, OnDestroy {
     //   this.usersData = data
     //   this.filterData()
     // })
-    this.usersService.getAllKongUsers(rootOrgId).subscribe(data => {
-      this.usersData = data.result.response
-      this.filterData()
+    this.usersService.getAllKongUsers(rootOrgId).subscribe({
+      next: data => {
+        this.usersData = data.result.response
+        this.filterData()
+        this.isLoading = false
+      },
+      error: () => { this.isLoading = false },
     })
   }
 
