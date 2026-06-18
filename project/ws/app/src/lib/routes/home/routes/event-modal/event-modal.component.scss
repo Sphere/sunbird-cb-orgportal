@@ -1,135 +1,190 @@
-// .dialog-content {
-//   padding: 10px 0;
-// }
+@import 'ws-design-system-v2';
 
-.subtext {
-  color: #808080;
-
-  margin-bottom: 15px;
-  font-family: Roboto;
-  font-weight: 400;
-  font-size: 16px;
-  line-height: 24px;
-  letter-spacing: -2%;
+// ── Container ──────────────────────────────────────────────────────────────
+.modal-container {
+  padding: $v2-space-3 $v2-space-3 0;
+  font-family: $v2-font-family;
 }
 
-.form-label {
-  font-size: 14px;
-  font-weight: 500;
-  margin-bottom: 5px;
-  display: block;
-}
-
-mat-form-field {
-  width: 100%;
-
-}
-
-
-/* ✅ Box shadow when field is valid */
-mat-form-field:not(.mat-form-field-invalid) .mat-mdc-text-field-wrapper {
-  box-shadow: 0px 0px 4px 0px #00000026;
-  /* Normal shadow */
-  border-radius: 5px;
-}
-
-/* ✅ Box shadow when field is in error (red border) */
-mat-form-field.mat-form-field-invalid .mat-mdc-text-field-wrapper {
-  box-shadow: 0px 0px 4px 0px rgba(255, 0, 0, 0.5);
-  /* Red shadow */
-  border: 1px solid red;
-  /* Ensures a red border */
-  border-radius: 5px;
-}
-
-.full-width {
-  width: 100%;
-}
-
-.half-width {
-  width: 48%;
-}
-
-.row {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-mat-dialog-actions {
-  margin-top: 20px;
-}
-
-.title {
-  font-family: Roboto;
-  font-weight: 500;
-  font-size: 32px;
-  line-height: 38.4px;
-  letter-spacing: -2%;
-  margin-bottom: 2px;
-}
-
-// input {
-//   box-shadow: 0px 0px 4px 0px #00000026;
-// }
-
-// input:focus,
-// textarea:focus {
-//   outline: none !important;
-// }
-
-.creat-btn {
-  background-color: #1C5D95 !important;
-  color: #ffffff !important;
-  font-family: Roboto;
-  font-weight: 400;
-  font-size: 14px;
-  border-radius: 50px;
-}
-
-// .date-fiels {
-//   display: flex;
-//   padding: 5px;
-// }
-
-// ::ng-deep .mat-form-field-appearance-outline .mat-form-field-infix {
-//   padding: 0 !important;
-// }
-
-
-.date-fiels {
-  display: flex;
-  align-items: center;
-  /* Align elements vertically */
-  height: 40px;
-  /* Match other input fields */
-}
-
-.date-fiels input {
-  flex: 1;
-  /* Allow input to take available space */
-  height: 100%;
-  border: none;
-  outline: none;
-  padding: 8px;
-}
-
-.date-fiels mat-icon,
-.date-fiels mat-datepicker-toggle {
-  cursor: pointer;
-  margin-left: 5px;
-}
-
+// ── Header ─────────────────────────────────────────────────────────────────
 .modal-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
+  margin-bottom: 4px;
 }
 
 .title {
-  margin: 0;
+  @include v2-modal-title;
 }
 
-mat-icon-button {
+.subtext {
+  @include v2-modal-subtitle;
+  margin-bottom: 16px;
+}
+
+// ── Dialog layout ──────────────────────────────────────────────────────────
+// Remove Material's built-in max-height (65vh) so the dialog container
+// controls overflow instead of the inner content area.
+mat-dialog-content.dialog-content {
+  padding: 0 0 8px 0;
+  max-height: none;
+  overflow: visible;
+}
+
+mat-dialog-actions {
+  padding: 12px 0 16px;
   margin: 0;
+  border-top: 1px solid $v2-color-border;
+  justify-content: flex-end;
+  min-height: unset;
+}
+
+// ── Two-column row (Date + Location) ──────────────────────────────────────
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $v2-space-2;
+  margin-bottom: 12px;
+
+  @media (max-width: 480px) { grid-template-columns: 1fr; }
+}
+
+// ── Field wrapper ──────────────────────────────────────────────────────────
+.field-wrapper {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 12px;
+}
+
+// ── Labels ─────────────────────────────────────────────────────────────────
+.form-label {
+  @include v2-form-label;
+}
+
+// ── Native text input & textarea ───────────────────────────────────────────
+.form-input {
+  @include v2-input-field;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.form-textarea {
+  height: auto;
+  padding: 10px 14px;
+  resize: none;
+  line-height: 1.5;
+}
+
+// ── Validation error ───────────────────────────────────────────────────────
+.field-error {
+  font-family: $v2-font-family;
+  font-size: $v2-font-micro;
+  color: $v2-color-danger;
+  margin-top: 4px;
+}
+
+// ── Char count hint ────────────────────────────────────────────────────────
+.char-count {
+  font-family: $v2-font-family;
+  font-size: $v2-font-micro;
+  color: $v2-color-text-secondary;
+  margin-top: 4px;
+}
+
+// ── Date input — native input + overlaid calendar button ──────────────────
+// Replaces mat-form-field to get a uniform 40px height matching other fields.
+.date-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  .date-input {
+    padding-right: 44px;
+    cursor: pointer;
+  }
+
+  .date-toggle-btn {
+    position: absolute;
+    right: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 30px;
+    height: 30px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $v2-color-text-secondary;
+    transition: background 0.15s, color 0.15s;
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+
+    &:hover {
+      background: $v2-color-primary-tint;
+      color: $v2-color-primary;
+    }
+  }
+}
+
+// ── Native <select> (replaces mat-select) ─────────────────────────────────
+.select-wrapper {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  border: 1px solid $v2-color-border;
+  border-radius: $v2-radius-input;
+  background: #ffffff;
+  overflow: hidden;
+  transition: border-color 0.2s, box-shadow 0.2s;
+
+  &:focus-within {
+    border-color: $v2-color-primary;
+    box-shadow: 0 0 0 3px rgba(28, 93, 149, 0.1);
+  }
+
+  &.select-error { border-color: $v2-color-danger; }
+}
+
+.form-select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  flex: 1;
+  height: 40px;
+  padding: 0 36px 0 14px;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: $v2-font-family;
+  font-size: $v2-font-caption;
+  color: $v2-color-text;
+  cursor: pointer;
+
+  &:disabled { cursor: not-allowed; opacity: 0.6; }
+  option[disabled] { color: $v2-color-text-secondary; }
+}
+
+.select-chevron {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 11px;
+  color: $v2-color-text-secondary;
+  pointer-events: none;
+  line-height: 1;
+}
+
+// ── Submit button ──────────────────────────────────────────────────────────
+.creat-btn {
+  @include v2-btn-primary;
+  box-shadow: none;
 }

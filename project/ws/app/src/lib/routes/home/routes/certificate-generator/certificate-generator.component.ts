@@ -15,6 +15,7 @@ export class CertificateGeneratorComponent implements OnInit, OnDestroy {
 
   certificates: ICertificateTemplate[] = []
   selectedCertIndex = 0
+  isLoading = false
   isGenerating = false
   errorMessage = ''
   eventId = ''

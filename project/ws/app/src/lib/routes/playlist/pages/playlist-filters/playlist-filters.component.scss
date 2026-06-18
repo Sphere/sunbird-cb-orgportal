@@ -4,6 +4,8 @@
 // resets from Bootstrap / Angular Material that load after component styles.
 // ===========================================================================
 
+@import 'ws-design-system-v2';
+
 .playlist-filters-container {
     padding: 54px;
     max-width: 760px;
@@ -19,7 +21,7 @@
     h1.main-title {
         margin: 0 0 8px !important;
         color: #000 !important;
-        font-family: 'Roboto', sans-serif !important;
+        font-family: $v2-font-family !important;
         font-size: 36px !important;
         font-weight: 500 !important;
         line-height: 1.2 !important;
@@ -28,7 +30,7 @@
     p.main-subtitle {
         margin: 0 !important;
         color: #000 !important;
-        font-family: 'Roboto', sans-serif !important;
+        font-family: $v2-font-family !important;
         font-size: 20px !important;
         font-weight: 400 !important;
         line-height: 1.35 !important;
@@ -45,7 +47,7 @@
         h2.section-title {
             margin: 0 0 6px !important;
             color: #000 !important;
-            font-family: 'Roboto', sans-serif !important;
+            font-family: $v2-font-family !important;
             font-size: 24px !important;
             font-weight: 500 !important;
             line-height: 1.2 !important;
@@ -54,7 +56,7 @@
         p.section-description {
             margin: 0 0 20px !important;
             color: #000 !important;
-            font-family: 'Roboto', sans-serif !important;
+            font-family: $v2-font-family !important;
             font-size: 20px !important;
             font-weight: 400 !important;
             line-height: 1.35 !important;
@@ -92,7 +94,7 @@
         left: 16px;
         z-index: 2;
         color: #808080;
-        font-family: 'Roboto', sans-serif;
+        font-family: $v2-font-family;
         font-size: 13px;
         font-weight: 400;
         line-height: 1;
@@ -117,7 +119,7 @@
         background: #fff;
         box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.15);
         color: #000;
-        font-family: 'Roboto', sans-serif;
+        font-family: $v2-font-family;
         font-size: 14px;
         font-weight: 400;
         appearance: none;
@@ -215,7 +217,7 @@
         }
 
         .multi-select-value {
-            font-family: 'Roboto', sans-serif;
+            font-family: $v2-font-family;
             font-size: 14px;
             font-weight: 400;
             color: #000;
@@ -244,7 +246,7 @@
             border: 1px solid #d8d8d8;
             border-radius: 8px;
             padding: 0 12px;
-            font-family: 'Roboto', sans-serif;
+            font-family: $v2-font-family;
             font-size: 14px;
             outline: none;
 
@@ -276,7 +278,7 @@
             align-items: center;
             gap: 10px;
             padding: 10px 16px;
-            font-family: 'Roboto', sans-serif;
+            font-family: $v2-font-family;
             font-size: 14px;
             color: #202124;
             cursor: pointer;
@@ -314,7 +316,7 @@
         border-radius: 50px;
         background: #1c5d95;
         color: #fff;
-        font-family: 'Roboto', sans-serif;
+        font-family: $v2-font-family;
         font-size: 14px;
         font-weight: 400;
         cursor: pointer;
@@ -335,7 +337,7 @@
     .error-message {
         margin-top: 12px;
         color: #c62828;
-        font-family: 'Roboto', sans-serif;
+        font-family: $v2-font-family;
         font-size: 14px;
     }
 

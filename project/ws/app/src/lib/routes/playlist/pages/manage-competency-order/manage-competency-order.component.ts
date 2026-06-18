@@ -28,6 +28,8 @@ import {
     CompetencyPayloadItem,
 } from '../../utils/competency-payload.utils'
 import { log } from '../../utils/playlist-logger.utils'
+import { HideForViewOnlyDirective } from '../../../../shared/directives/hide-for-view-only.directive'
+import { FeatureAccessService, FEATURE_KEY } from '../../../../shared/access/feature-access'
 
 /**
  * Component for managing competency playlists.
@@ -44,7 +46,7 @@ import { log } from '../../utils/playlist-logger.utils'
     styleUrls: ['./manage-competency-order.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: true,
-    imports: [CommonModule, FormsModule, DragDropModule, MatDialogModule, MatButtonModule, MatFormFieldModule, MatSelectModule, MatOptionModule, MatIconModule, MatInputModule],
+    imports: [CommonModule, FormsModule, DragDropModule, MatDialogModule, MatButtonModule, MatFormFieldModule, MatSelectModule, MatOptionModule, MatIconModule, MatInputModule, HideForViewOnlyDirective],
 })
 export class ManageCompetencyOrderComponent implements OnInit {
     readonly competencies = signal<SelectableCompetency[]>([])
@@ -74,6 +76,13 @@ export class ManageCompetencyOrderComponent implements OnInit {
     private readonly state = inject(PlaylistStateService)
     private readonly playlistApi = inject(PlaylistApiService)
     private readonly courseApi = inject(CourseApiService)
+    private readonly featureAccess = inject(FeatureAccessService)
+    private readonly featureKey = inject(FEATURE_KEY, { optional: true })
+
+    /** Read-only mode for view-only users — disables reordering and course dropdowns. */
+    get isViewOnly(): boolean {
+        return this.featureAccess.isViewOnly(this.featureKey)
+    }
 
     /**
      * Component initialization.

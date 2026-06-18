@@ -96,3 +96,50 @@ proxying to a backend for them.
 - `project/ws/app/` — the `@ws/app` workspace library (~142 components / ~48 modules; prefix `ws-app`).
 - `library/ws-widget/{collection,resolver,utils}/` — vendored Sunbird libs (added during migration).
 - `proxy/` — dev-server proxy configs. `src/environments/` — per-env files (dev/preprod/np/benchmark/prod).
+
+## UI design reference — copy these, don't reinvent
+
+Four already-shipped components implement this project's modern design language end-to-end. When
+redesigning/modernizing any other page, match their literal values instead of inventing new ones:
+- `project/ws/app/src/lib/routes/frac/pages/frac-dashboard/frac-dashboard.component.{html,scss}` —
+  page container, h1 title, subtitle, responsive card-grid
+- `project/ws/app/src/lib/routes/frac/pages/position/position-upload/position-upload.component.{html,scss}` —
+  manage-mode card grid, custom dropdown, empty/loading states, shimmer skeletons, pill buttons
+- `project/ws/app/src/lib/routes/playlist/pages/playlist-filters/playlist-filters.component.{html,scss}` —
+  form page with a custom native `<select>` styled as a card field with a floating mini-label (replaces
+  `mat-select` to avoid MDC's uncontrollable internal padding — see Material legacy→MDC swap map above)
+- `project/ws/app/src/lib/routes/frac/components/frac-table/frac-table.component.{html,scss}` —
+  canonical table layout: blue header `#dfedf9`, 40px rows, `border: 1px solid #e0e0e0`, `border-radius: 8px`
+
+**Design system file: `src/styles/_ws-design-system-v2.scss`** — import with `@import 'ws-design-system-v2'`.
+Provides all tokens AND ready-to-use mixins so components never hard-code values. Use these mixins first:
+
+| Element | Mixin | Key values |
+|---|---|---|
+| Page container | `@include v2-page-container` | `padding: 32px`, flex column, gap 24px, responsive |
+| h1 title | `@include v2-page-title` | `40px / 500 / #000` → 32px@768 → 24px@480 |
+| Subtitle | `@include v2-page-subtitle` | `20px / 400 / #000` → 16px@768 |
+| Section label | `@include v2-section-title` | `18px / 500 / $v2-color-text` |
+| Modal title | `@include v2-modal-title` | `28px / 500 / #000` |
+| Form label | `@include v2-form-label` | `13px / 500`, display block, 6px bottom margin |
+| Text input | `@include v2-input-field` | `height 40px`, `border: 1px solid $v2-color-border`, `border-radius: 8px`, FRAC focus ring |
+| Card grid | `@include v2-card-grid` | `repeat(3,1fr)` → 2-col@1024 → 1-col@480, `gap: 24px` |
+| Action card | `@include v2-action-card` | `padding: 24px`, border, shadow, hover lift `0 4px 16px rgba(28,93,149,0.14)` |
+| Card action btn | `@include v2-card-action-btn` | outlined `#1c5d95`, `height: 40px`, pill |
+| Table wrapper | `@include v2-table-container` | `border: 1px solid #e0e0e0`, `border-radius: 8px` |
+| Table inner | `@include v2-table-inner` | header `#dfedf9 / bold / sticky`, rows `40px`, hover `#f9fbff` |
+| Primary button | `@include v2-btn-primary` | filled `#1c5d95`, pill `50px`, hover lift |
+| Secondary button | `@include v2-btn-secondary` | outlined `#1c5d95`, pill, hover tint |
+| Danger button | `@include v2-btn-danger` | outlined `#ca0000`, pill |
+| Custom select (wrapper) | `@include v2-custom-select-wrapper` | `position: relative; width: 100%` — structural only |
+| Custom select (input) | `@include v2-custom-select-input` | `height: 52px`, `border: 1px solid #E1DFDF`, floating-label padding |
+| Empty state card | `@include v2-empty-state-card` | dashed `#c8d6e6` border, `border-radius: 8px`, center-aligned |
+| Empty state icon | `@include v2-empty-state-icon` | 56px circle, `background: #eef4fb`, `border: 1px solid #d5e3f3` |
+| Shimmer skeleton | `@include v2-shimmer` | gradient sweep animation `1.5s linear`, `border-radius: 6px` |
+
+**Never** use `mat-select` for dropdowns — use a native `<select>` with the playlist-filters pattern:
+wrapper `@include v2-custom-select-wrapper` + floating `<span class="select-label">` (13px/`#808080`,
+`top:7px left:16px absolute`) + select `@include v2-custom-select-input` + chevron SVG/span at `right:14px`.
+
+Note: `playlist-filters.component.ts` already uses Angular signals — this is existing shipped code, not
+a license to introduce signals elsewhere in this migration.

@@ -1,5 +1,17 @@
 @import 'ws-mixins';
 
+// Visual separation between the fixed top toolbar and the page body below it.
+// mat-elevation-z3 (set on the host template) is too subtle against a white body —
+// use the same shadow strength as other elevated surfaces in the design system
+// (search-box / dropdown-panel tokens), oriented downward for a header.
+mat-toolbar.mat-elevation-z3 {
+  background-color: #ffffff;
+  box-shadow: none !important;
+  border-bottom: 1px solid #e8ecf0;
+  height: 56px;
+  min-height: 56px;
+}
+
 .tourGuideBtn {
   padding: 10px 16px;
   display: flex;

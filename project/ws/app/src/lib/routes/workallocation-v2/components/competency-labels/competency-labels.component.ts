@@ -109,7 +109,7 @@ export class CompetencyLabelsComponent implements OnInit, OnDestroy, AfterViewIn
             compLevel: _.get(numa, 'level') || '',
             compType: _.get(numa, 'additionalProperties.competencyType') || '',
             compArea: _.get(numa, 'additionalProperties.competencyArea') || '',
-            levelList: [_.get(numa, 'chield')] || [this.activated.snapshot.data.pageData.data.levels],
+            levelList: _.get(numa, 'chield') ? [_.get(numa, 'chield')] : [this.activated.snapshot.data.pageData.data.levels],
             compSource: _.get(numa, 'source') || 'WAT',
           }
         })
@@ -502,7 +502,7 @@ export class CompetencyLabelsComponent implements OnInit, OnDestroy, AfterViewIn
     const dialogRef = this.dialog.open(WatCompPopupComponent, {
       restoreFocus: false,
       disableClose: true,
-      data: { ...oldcompData, children } || event.option.value,
+      data: oldcompData ? { ...oldcompData, children } : event.option.value,
     })
     if (this.activated.snapshot.data && this.activated.snapshot.data.pageData) {
       dialogRef.componentInstance.defaultCompLevels = this.activated.snapshot.data.pageData

@@ -29,11 +29,11 @@ export class EventOverviewComponent implements OnInit, OnDestroy {
   isDownloading = false
 
   constructor(
-    private dialog: MatDialog,
-    private router: Router,
-    private route: ActivatedRoute,
-    private eventService: EventService,
-    private http: HttpClient
+    private readonly dialog: MatDialog,
+    private readonly router: Router,
+    private readonly route: ActivatedRoute,
+    private readonly eventService: EventService,
+    private readonly http: HttpClient
   ) { }
 
   ngOnInit(): void {
@@ -76,15 +76,13 @@ export class EventOverviewComponent implements OnInit, OnDestroy {
   loadCertificateTemplates(): void {
     const templateUrl = 'https://aastar-assets.s3.ap-south-1.amazonaws.com/rc-mdo-templates/MDO-RC-TEMPLATES.json'
 
-    this.http.get<{ templates: any[] }>(templateUrl).subscribe(
-      data => {
+    this.http.get<{ templates: any[] }>(templateUrl).subscribe({
+      next: data => {
         this.certificateTemplates = data.templates
         this.checkSelectedTemplate()
       },
-      error => {
-        console.error('Error fetching templates:', error)
-      }
-    )
+      error: err => console.error('Error fetching templates:', err),
+    })
   }
 
   /**
@@ -92,22 +90,14 @@ export class EventOverviewComponent implements OnInit, OnDestroy {
    */
   fetchParticipantsCount(): void {
     if (this.selectedEvent && this.selectedEvent.eventId) {
-      this.eventService.getParticipants(this.selectedEvent.eventId).subscribe(
-        response => {
+      this.eventService.getParticipants(this.selectedEvent.eventId).subscribe({
+        next: response => {
           this.participantCount = response.length
           this.selectedEvent.participantCount = this.participantCount
-
-          // if (response[0].certificateGenerationStatus === 'success') {
-          //   this.selectedEvent.templateId = response[0].templateId
-          //   this.checkSelectedTemplate()
-          // }
-
           this.eventService.updateEvent(this.selectedEvent)
         },
-        error => {
-          console.error('Error fetching participants:', error)
-        }
-      )
+        error: err => console.error('Error fetching participants:', err),
+      })
     }
   }
 
@@ -164,14 +154,13 @@ export class EventOverviewComponent implements OnInit, OnDestroy {
       },
     })
 
-    dialogRef.afterClosed().subscribe(result => {
-      if (result === 'saved') {
-        this.fetchParticipantsCount()
-        this.setTab('participants')
-      }
-      if (result === 'error') {
-        console.log('Cancelled')
-      }
+    dialogRef.afterClosed().subscribe({
+      next: result => {
+        if (result === 'saved') {
+          this.fetchParticipantsCount()
+          this.setTab('participants')
+        }
+      },
     })
   }
 

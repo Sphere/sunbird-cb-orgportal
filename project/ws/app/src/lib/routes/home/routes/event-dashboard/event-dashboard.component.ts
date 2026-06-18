@@ -1,9 +1,8 @@
-import { Component, OnInit } from '@angular/core'
+import { Component, OnInit, HostListener, ElementRef } from '@angular/core'
 import { MatDialog } from '@angular/material/dialog'
 import { Router } from '@angular/router'
 import { EventService } from '../../services/event.service'
 import { EventModalComponent } from '../event-modal/event-modal.component'
-// import { ProfileV2Service } from '../../services/home.servive'
 import { WorkallocationService } from '../../services/workallocation.service'
 
 @Component({
@@ -18,84 +17,96 @@ export class EventDashboardComponent implements OnInit {
   searchQuery = ''
   userId: string = ''
   userName: any
+  filterPanelOpen = false
+  activeStatusFilter = ''
+  activeTypeFilter = ''
+
+  get uniqueStatuses(): string[] {
+    return [...new Set(this.events.map(e => e.status).filter(Boolean))] as string[]
+  }
+
+  get uniqueRegistrationTypes(): string[] {
+    return [...new Set(this.events.map(e => e.registrationType).filter(Boolean))] as string[]
+  }
+
+  get activeFilterCount(): number {
+    return (this.activeStatusFilter ? 1 : 0) + (this.activeTypeFilter ? 1 : 0)
+  }
 
   constructor(
-    private eventService: EventService,
-    private dialog: MatDialog,
-    private router: Router,
-    private userService: WorkallocationService
-
+    private readonly eventService: EventService,
+    private readonly dialog: MatDialog,
+    private readonly router: Router,
+    private readonly userService: WorkallocationService,
+    private readonly el: ElementRef
   ) { }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    if (!this.el.nativeElement.contains(event.target)) {
+      this.filterPanelOpen = false
+    }
+  }
 
   ngOnInit(): void {
     this.eventService.updateEvent(null)
     this.fetchUserDetails()
-
-
   }
 
   fetchUserDetails(): void {
-    this.userService.getAllUsers().subscribe(response => {
-      const user = response.result.response
-      this.userId = user.userId
-      this.userName = user.userName
-      this.eventService.setUserData(
-        {
+    this.userService.getAllUsers().subscribe({
+      next: response => {
+        const user = response.result.response
+        this.userId = user.userId
+        this.userName = user.userName
+        this.eventService.setUserData({
           userId: user.userId,
           userName: user.userName,
         })
-      console.log('User Details:', this.userId, this.userName)
-      this.fetchEvents() // Fetch events after getting user details
-    }, error => {
-      console.error('Error fetching user details:', error)
+        this.fetchEvents()
+      },
+      error: err => console.error('Error fetching user details:', err),
     })
   }
 
   fetchEvents(): void {
-    this.eventService.getAllEvents().subscribe(response => {
-      console.log('Events:', response)
-      this.events = response.map((event: any) => ({
-        id: event.eventId,
-        eventId: event.eventId,
-        name: event.eventName,
-        description: event.eventDescription,
-        location: event.eventPlace,
-        date: new Date(event.eventDate),
-        organizer: event.createdBy,
-        registrationType: event.eventType,
-        eventType: event.eventType,
-        status: event.status,
-        createdAt: new Date(event.createdAt),
-      }))
-
-      //Filter by current user (organizer)
-      const filteredByUser = this.events.filter(event => event.organizer === this.userId)
-      console.log('Filtered Events by User:', filteredByUser)
-
-      // 👉 Sort by date (latest first)
-      this.events = filteredByUser.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
-      console.log('Sorted Events:', this.events)
-
-      // 👉 Assign to filteredEvents if needed for UI
-      this.filteredEvents = [...this.events]
-      console.log('Filtered Events:', this.filteredEvents)
-    }, error => {
-      console.error('Error fetching events:', error)
-    }
-    )
+    this.eventService.getAllEvents().subscribe({
+      next: response => {
+        const mapped = response.map((event: any) => ({
+          id: event.eventId,
+          eventId: event.eventId,
+          name: event.eventName,
+          description: event.eventDescription,
+          location: event.eventPlace,
+          date: new Date(event.eventDate),
+          organizer: event.createdBy,
+          registrationType: event.eventType,
+          eventType: event.eventType,
+          status: event.status,
+          createdAt: new Date(event.createdAt),
+        }))
+        const byUser = mapped.filter((event: any) => event.organizer === this.userId)
+        this.events = byUser.toSorted((a: any, b: any) => b.createdAt.getTime() - a.createdAt.getTime())
+        this.filteredEvents = [...this.events]
+      },
+      error: err => console.error('Error fetching events:', err),
+    })
   }
 
   openEventModal(): void {
     const dialogRef = this.dialog.open(EventModalComponent, {
-      width: '1000px',
+      width: '640px',
+      maxWidth: '95vw',
+      maxHeight: '95vh',
       disableClose: true,
     })
 
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        console.log(result)
-        this.fetchEvents()// Refresh the list of events
-      }
+    dialogRef.afterClosed().subscribe({
+      next: result => {
+        if (result) {
+          this.fetchEvents()
+        }
+      },
     })
   }
 
@@ -104,12 +115,36 @@ export class EventDashboardComponent implements OnInit {
     this.router.navigate(['/app/home/event-dashboard', event.id])
   }
 
-  filterEvents(): void {
-    this.filteredEvents = this.events.filter(event =>
-      event.name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-      event.location.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-      event.registrationType.toLowerCase().includes(this.searchQuery.toLowerCase())
-    )
+  toggleFilter(): void {
+    this.filterPanelOpen = !this.filterPanelOpen
   }
 
+  setStatusFilter(status: string): void {
+    this.activeStatusFilter = this.activeStatusFilter === status ? '' : status
+    this.filterEvents()
+  }
+
+  setTypeFilter(type: string): void {
+    this.activeTypeFilter = this.activeTypeFilter === type ? '' : type
+    this.filterEvents()
+  }
+
+  clearAllFilters(): void {
+    this.activeStatusFilter = ''
+    this.activeTypeFilter = ''
+    this.filterEvents()
+  }
+
+  filterEvents(): void {
+    const q = this.searchQuery.toLowerCase()
+    this.filteredEvents = this.events.filter(event => {
+      const matchesSearch =
+        (event.name || '').toLowerCase().includes(q) ||
+        (event.location || '').toLowerCase().includes(q) ||
+        (event.registrationType || '').toLowerCase().includes(q)
+      const matchesStatus = !this.activeStatusFilter || event.status === this.activeStatusFilter
+      const matchesType = !this.activeTypeFilter || event.registrationType === this.activeTypeFilter
+      return matchesSearch && matchesStatus && matchesType
+    })
+  }
 }

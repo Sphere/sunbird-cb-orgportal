@@ -10,6 +10,7 @@
         {
           "name": "Home",
           "key": "Home",
+          "icon": "home",
           "fragment": false,
           "render": true,
           "badges": {
@@ -28,6 +29,7 @@
         {
           "name": "Users",
           "key": "users",
+          "icon": "group",
           "fragment": false,
           "render": true,
           "badges": {
@@ -44,6 +46,7 @@
         {
           "name": "Roles and access",
           "key": "roles-access",
+          "icon": "admin_panel_settings",
           "fragment": false,
           "render": true,
           "badges": {
@@ -60,6 +63,7 @@
         {
           "name": "Competencies",
           "key": "competencies",
+          "icon": "psychology",
           "fragment": false,
           "render": true,
           "badges": {
@@ -76,6 +80,7 @@
         {
           "name": "Events",
           "key": "events",
+          "icon": "event",
           "fragment": false,
           "render": true,
           "badges": {
@@ -93,6 +98,7 @@
         {
           "name": "FRAC",
           "key": "Frac",
+          "icon": "account_tree",
           "fragment": false,
           "render": true,
           "badges": {
@@ -108,6 +114,7 @@
         {
           "name": "Manage Positions",
           "key": "position",
+          "icon": "work_outline",
           "fragment": false,
           "render": true,
           "badges": {
@@ -123,6 +130,7 @@
         {
           "name": "Playlist",
           "key": "playlist",
+          "icon": "playlist_play",
           "fragment": false,
           "render": true,
           "badges": {

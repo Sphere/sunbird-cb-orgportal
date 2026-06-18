@@ -18,11 +18,10 @@ export class EventDetailsComponent implements OnInit {
   isCertificateRoute = false
 
   constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private dialog: MatDialog,
-    private eventService: EventService
-
+    private readonly route: ActivatedRoute,
+    private readonly router: Router,
+    private readonly dialog: MatDialog,
+    private readonly eventService: EventService
   ) { }
 
   ngOnInit(): void {
@@ -69,11 +68,12 @@ export class EventDetailsComponent implements OnInit {
       data: { event: eventData },
     })
 
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        console.log('Event updated:', result)
-        this.event = result // Update the event details
-      }
+    dialogRef.afterClosed().subscribe({
+      next: result => {
+        if (result) {
+          this.event = result
+        }
+      },
     })
   }
 
