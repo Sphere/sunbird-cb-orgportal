@@ -160,9 +160,11 @@ export class SkillTableComponent implements OnInit, OnChanges {
 
   /** Selects all rows if they are not all selected; otherwise clear selection. */
   toggleAllRows() {
-    this.isAllSelected() ?
-      this.selection.clear() :
+    if (this.isAllSelected()) {
+      this.selection.clear()
+    } else {
       this.dataSource.data.forEach((row: any) => this.selection.select(row))
+    }
     this.selectedAll = this.isAllSelected()
 
   }

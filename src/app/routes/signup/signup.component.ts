@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core'
+import { Component, OnDestroy, ViewChild, ElementRef } from '@angular/core'
 import { UntypedFormGroup, UntypedFormControl, Validators } from '@angular/forms'
 import { Subscription } from 'rxjs'
 import { MatSnackBar } from '@angular/material/snack-bar'
@@ -10,7 +10,7 @@ import { SignupService } from './signup.service'
   templateUrl: './signup.component.html',
   styleUrls: ['./signup.component.scss'],
 })
-export class SignupComponent implements OnInit, OnDestroy {
+export class SignupComponent implements OnDestroy {
   signupForm: UntypedFormGroup
   unseenCtrl!: UntypedFormControl
   unseenCtrlSub!: Subscription
@@ -31,11 +31,6 @@ export class SignupComponent implements OnInit, OnDestroy {
     })
   }
 
-  ngOnInit() {
-    // this.unseenCtrlSub = this.signupForm.valueChanges.subscribe(value => {
-    //   console.log('ngOnInit - value', value);
-    // })
-  }
 
   ngOnDestroy() {
     if (this.unseenCtrlSub && !this.unseenCtrlSub.closed) {
