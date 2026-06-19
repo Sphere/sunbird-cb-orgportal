@@ -1,5 +1,6 @@
 import { Component, OnInit, HostListener, ElementRef } from '@angular/core'
 import { MatDialog } from '@angular/material/dialog'
+import { PageEvent } from '@angular/material/paginator'
 import { Router } from '@angular/router'
 import { EventService } from '../../services/event.service'
 import { EventModalComponent } from '../event-modal/event-modal.component'
@@ -20,6 +21,14 @@ export class EventDashboardComponent implements OnInit {
   filterPanelOpen = false
   activeStatusFilter = ''
   activeTypeFilter = ''
+  pageSize = 10
+  currentPage = 0
+  readonly pageSizeOptions = [5, 10, 20]
+
+  get pagedEvents(): any[] {
+    const start = this.currentPage * this.pageSize
+    return this.filteredEvents.slice(start, start + this.pageSize)
+  }
 
   get uniqueStatuses(): string[] {
     return [...new Set(this.events.map(e => e.status).filter(Boolean))] as string[]
@@ -88,6 +97,7 @@ export class EventDashboardComponent implements OnInit {
         const byUser = mapped.filter((event: any) => event.organizer === this.userId)
         this.events = byUser.toSorted((a: any, b: any) => b.createdAt.getTime() - a.createdAt.getTime())
         this.filteredEvents = [...this.events]
+        this.currentPage = 0
       },
       error: err => console.error('Error fetching events:', err),
     })
@@ -136,6 +146,7 @@ export class EventDashboardComponent implements OnInit {
   }
 
   filterEvents(): void {
+    this.currentPage = 0
     const q = this.searchQuery.toLowerCase()
     this.filteredEvents = this.events.filter(event => {
       const matchesSearch =
@@ -146,5 +157,10 @@ export class EventDashboardComponent implements OnInit {
       const matchesType = !this.activeTypeFilter || event.registrationType === this.activeTypeFilter
       return matchesSearch && matchesStatus && matchesType
     })
+  }
+
+  onPageChange(event: PageEvent): void {
+    this.currentPage = event.pageIndex
+    this.pageSize = event.pageSize
   }
 }

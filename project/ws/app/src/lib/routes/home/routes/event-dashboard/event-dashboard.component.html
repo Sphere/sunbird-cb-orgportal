@@ -80,7 +80,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let event of filteredEvents" tabindex="0"
+        <tr *ngFor="let event of pagedEvents" tabindex="0"
           (click)="navigateToEvent(event)" (keydown.enter)="navigateToEvent(event)">
           <td>{{ event.name }}</td>
           <td class="nowrap">{{ event.date | date: 'dd-MM-yyyy' }}</td>
@@ -97,5 +97,14 @@
         </tr>
       </tbody>
     </table>
+    <mat-paginator
+      *ngIf="filteredEvents.length > pageSize"
+      [length]="filteredEvents.length"
+      [pageSize]="pageSize"
+      [pageSizeOptions]="pageSizeOptions"
+      [pageIndex]="currentPage"
+      (page)="onPageChange($event)"
+      showFirstLastButtons>
+    </mat-paginator>
   </div>
 </div>

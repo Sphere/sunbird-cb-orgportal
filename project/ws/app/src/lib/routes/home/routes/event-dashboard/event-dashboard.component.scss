@@ -270,6 +270,126 @@
   }
 }
 
+// ── Paginator ──────────────────────────────────────────────────────────────
+mat-paginator {
+  border-top: 1px solid $v2-color-border;
+  background: transparent;
+
+  // Container row
+  ::ng-deep .mat-mdc-paginator-container {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 10px 16px;
+    gap: 24px;
+    min-height: 48px;
+    flex-wrap: wrap;
+  }
+
+  // "Items per page" label + select group
+  ::ng-deep .mat-mdc-paginator-page-size {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+  }
+
+  ::ng-deep .mat-mdc-paginator-page-size-label {
+    font-family: $v2-font-family;
+    font-size: 13px;
+    color: $v2-color-text-secondary;
+    white-space: nowrap;
+  }
+
+  // Replace the MDC form-field chrome with a simple styled select
+  ::ng-deep .mat-mdc-paginator-page-size-select {
+    width: 72px;
+
+    // Hide MDC underline/outline chrome entirely
+    .mdc-notched-outline,
+    .mdc-line-ripple,
+    .mat-mdc-form-field-subscript-wrapper {
+      display: none !important;
+    }
+
+    .mat-mdc-select-trigger {
+      height: 32px;
+      border: 1px solid $v2-color-border;
+      border-radius: 6px;
+      padding: 0 8px;
+      background: #ffffff;
+      font-family: $v2-font-family;
+      font-size: 13px;
+      color: $v2-color-text;
+
+      &:hover { border-color: $v2-color-primary; }
+    }
+
+    .mat-mdc-select-arrow-wrapper { height: 32px; }
+
+    .mat-mdc-select-arrow {
+      color: $v2-color-text-secondary;
+    }
+
+    .mat-mdc-form-field-infix {
+      padding: 0;
+      min-height: unset;
+    }
+  }
+
+  // "X – Y of Z" range label
+  ::ng-deep .mat-mdc-paginator-range-label {
+    font-family: $v2-font-family;
+    font-size: 13px;
+    color: $v2-color-text-secondary;
+    margin: 0;
+    white-space: nowrap;
+  }
+
+  // Navigation button group
+  ::ng-deep .mat-mdc-paginator-range-actions {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    margin: 0;
+  }
+
+  // Each nav icon button
+  ::ng-deep .mat-mdc-icon-button {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    color: $v2-color-text-secondary;
+    transition: background 0.15s, color 0.15s;
+
+    // Remove MDC ripple/state-layer chrome
+    .mat-mdc-button-ripple,
+    .mat-mdc-button-persistent-ripple,
+    .mat-mdc-focus-indicator { display: none; }
+
+    &:hover:not([disabled]) {
+      background: $v2-color-primary-tint;
+      color: $v2-color-primary;
+    }
+
+    &[disabled] {
+      opacity: 0.35;
+      cursor: default;
+    }
+
+    mat-icon, .material-icons {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      line-height: 18px;
+    }
+  }
+}
+
 // ── Empty state row ────────────────────────────────────────────────────────
 .empty-row {
   text-align: center;
