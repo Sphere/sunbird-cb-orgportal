@@ -16,21 +16,27 @@ describe('ActivityUploadComponent', () => {
   let component: ActivityUploadComponent
   let fixture: ComponentFixture<ActivityUploadComponent>
   let queryParams$: BehaviorSubject<Record<string, string>>
-  let mockMatDialog: jasmine.SpyObj<MatDialog>
-  let mockFracApiService: jasmine.SpyObj<FracApiService>
-  let mockTableTransformUtil: jasmine.SpyObj<TableTransformUtil>
-  let mockRouter: jasmine.SpyObj<Router>
+  let mockMatDialog: jest.Mocked<MatDialog>
+  let mockFracApiService: jest.Mocked<FracApiService>
+  let mockTableTransformUtil: jest.Mocked<TableTransformUtil>
+  let mockRouter: jest.Mocked<Router>
 
   beforeEach(async () => {
     queryParams$ = new BehaviorSubject<Record<string, string>>({ mode: 'upload' })
-    mockMatDialog = jasmine.createSpyObj('MatDialog', ['open'])
-    mockFracApiService = jasmine.createSpyObj('FracApiService', ['searchEntities', 'uploadFile', 'updateEntity'])
-    mockTableTransformUtil = jasmine.createSpyObj('TableTransformUtil', ['transformResponseToTableConfig'])
-    mockRouter = jasmine.createSpyObj('Router', ['navigateByUrl'])
+    mockMatDialog = { open: jest.fn() } as unknown as jest.Mocked<MatDialog>
+    mockFracApiService = {
+      searchEntities: jest.fn(),
+      uploadFile: jest.fn(),
+      updateEntity: jest.fn(),
+    } as unknown as jest.Mocked<FracApiService>
+    mockTableTransformUtil = {
+      transformResponseToTableConfig: jest.fn(),
+    } as unknown as jest.Mocked<TableTransformUtil>
+    mockRouter = { navigateByUrl: jest.fn() } as unknown as jest.Mocked<Router>
 
-    mockFracApiService.searchEntities.and.returnValue(of({ result: { entity: [] } }))
-    mockTableTransformUtil.transformResponseToTableConfig.and.returnValue({ columns: [], data: [] })
-    mockMatDialog.open.and.returnValue({ afterClosed: () => of(undefined) } as any)
+    mockFracApiService.searchEntities.mockReturnValue(of({ result: { entity: [] } }))
+    mockTableTransformUtil.transformResponseToTableConfig.mockReturnValue({ columns: [], data: [] })
+    mockMatDialog.open.mockReturnValue({ afterClosed: () => of(undefined) } as any)
 
     await TestBed.configureTestingModule({
       declarations: [ActivityUploadComponent],
@@ -87,31 +93,31 @@ describe('ActivityUploadComponent', () => {
   }))
 
   it('should open unsaved changes modal before leaving home', () => {
-    spyOn(component, 'hasPendingTableChanges').and.returnValue(true)
+    jest.spyOn(component, 'hasPendingTableChanges').mockReturnValue(true)
 
     component.onHomeClick()
 
     expect(mockMatDialog.open).toHaveBeenCalledWith(
       UnsavedChangesModalComponent,
-      jasmine.objectContaining({ disableClose: true }),
+      expect.objectContaining({ disableClose: true }),
     )
   })
 
   it('should redirect to manage page after successful upload modal close', () => {
-    mockFracApiService.uploadFile.and.returnValue(of({
+    mockFracApiService.uploadFile.mockReturnValue(of({
       responseCode: 'OK',
       result: {
         entity: [{ entityType: 'activity', entityCode: ['ACT_01'] }],
         count: 1,
       },
     }))
-    mockMatDialog.open.and.returnValue({ afterClosed: () => of(undefined) } as any)
+    mockMatDialog.open.mockReturnValue({ afterClosed: () => of(undefined) } as any)
 
     component.uploadFile(new File(['a'], 'activity.csv'), 'English')
 
     expect(mockMatDialog.open).toHaveBeenCalledWith(
       UploadResultModalComponent,
-      jasmine.any(Object),
+      expect.any(Object),
     )
     expect(mockRouter.navigateByUrl).toHaveBeenCalledWith(FRAC_ROUTES.activityManage)
   })

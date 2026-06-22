@@ -1,6 +1,6 @@
 ﻿import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing'
 
-import { ParticipantsComponent } from './participants.component'
+import { ParticipantsComponent } from '../participants/participants.component'
 
 describe('ParticipantsComponent', () => {
   let component: ParticipantsComponent

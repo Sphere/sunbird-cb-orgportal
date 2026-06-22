@@ -4,6 +4,7 @@ import { AddParticipantsComponent } from '../add-participants/add-participants.c
 import { ActivatedRoute, Router } from '@angular/router'
 import { EventService } from '../../services/event.service'
 import { HttpClient } from '@angular/common/http'
+import { ConfigurationsService } from '@sunbird-cb/utils'
 import { saveAs } from 'file-saver'
 import { svg2pdf } from 'svg2pdf.js'
 import JSZip from 'jszip'
@@ -33,7 +34,8 @@ export class EventOverviewComponent implements OnInit, OnDestroy {
     private readonly router: Router,
     private readonly route: ActivatedRoute,
     private readonly eventService: EventService,
-    private readonly http: HttpClient
+    private readonly http: HttpClient,
+    private readonly configSvc: ConfigurationsService
   ) { }
 
   ngOnInit(): void {
@@ -74,7 +76,8 @@ export class EventOverviewComponent implements OnInit, OnDestroy {
    * ✅ Fetch all certificate templates from JSON
    */
   loadCertificateTemplates(): void {
-    const templateUrl = 'https://aastar-assets.s3.ap-south-1.amazonaws.com/rc-mdo-templates/MDO-RC-TEMPLATES.json'
+    const templateUrl = (this.configSvc.instanceConfig as any)?.externalUrls?.rcMdoTemplatesUrl
+      || 'https://aastar-assets.s3.ap-south-1.amazonaws.com/rc-mdo-templates/MDO-RC-TEMPLATES.json'
 
     this.http.get<{ templates: any[] }>(templateUrl).subscribe({
       next: data => {

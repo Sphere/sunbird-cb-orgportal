@@ -71,7 +71,9 @@ export class MyDashboardHomeComponent implements OnInit, OnDestroy {
     // }
   }
   loadDashboardBasedOnOrg(): void {
-    const orgPowerBiDashboardUrl = `https://aastar-assets.s3.ap-south-1.amazonaws.com/orgPowerBiDashboard.json?cb=${Date.now()}`
+    const baseUrl = (this.configSvc.instanceConfig as any)?.externalUrls?.orgPowerBiDashboardUrl
+      || 'https://aastar-assets.s3.ap-south-1.amazonaws.com/orgPowerBiDashboard.json'
+    const orgPowerBiDashboardUrl = `${baseUrl}?cb=${Date.now()}`
     // const orgPowerBiDashboardUrl = `mdo-assets/files/orgPowerBiDashboard.json?cb=${Date.now()}`
     this.http.get<any>(orgPowerBiDashboardUrl).pipe(takeUntil(this.destroy$)).subscribe(
       data => {

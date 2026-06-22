@@ -4,6 +4,7 @@ import { EventService } from '../../services/event.service'
 import { ICertificateTemplate } from '../../interface/events'
 import { take } from 'rxjs/operators'
 import { Subscription } from 'rxjs'
+import { ConfigurationsService } from '@sunbird-cb/utils'
 
 @Component({
   standalone: false,
@@ -21,14 +22,19 @@ export class CertificateGeneratorComponent implements OnInit, OnDestroy {
   eventId = ''
   eventType = ''
 
-  private readonly jsonUrl = 'https://aastar-assets.s3.ap-south-1.amazonaws.com/rc-mdo-templates/MDO-RC-TEMPLATES.json'
   nonRegistered = false
   private eventSubscription!: Subscription
+
+  private get jsonUrl(): string {
+    return (this.configSvc.instanceConfig as any)?.externalUrls?.rcMdoTemplatesUrl
+      || 'https://aastar-assets.s3.ap-south-1.amazonaws.com/rc-mdo-templates/MDO-RC-TEMPLATES.json'
+  }
 
   constructor(
     private router: Router,
     private route: ActivatedRoute,
-    private eventService: EventService
+    private eventService: EventService,
+    private configSvc: ConfigurationsService
   ) { }
 
   ngOnInit(): void {

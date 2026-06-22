@@ -1,16 +1,16 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing'
 
-import { MapActivitiyCompetenciesComponent } from './map-activity-competencies.component'
+import { MapActivityCompetenciesComponent } from './map-activity-competencies.component'
 
-describe('MapActivitiyCompetenciesComponent', () => {
-  let component: MapActivitiyCompetenciesComponent
-  let fixture: ComponentFixture<MapActivitiyCompetenciesComponent>
+describe('MapActivityCompetenciesComponent', () => {
+  let component: MapActivityCompetenciesComponent
+  let fixture: ComponentFixture<MapActivityCompetenciesComponent>
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [MapActivitiyCompetenciesComponent]
+      declarations: [MapActivityCompetenciesComponent]
     })
-    fixture = TestBed.createComponent(MapActivitiyCompetenciesComponent)
+    fixture = TestBed.createComponent(MapActivityCompetenciesComponent)
     component = fixture.componentInstance
     fixture.detectChanges()
   })

@@ -13,24 +13,25 @@ describe('RoleUploadComponent', () => {
   let component: RoleUploadComponent
   let fixture: ComponentFixture<RoleUploadComponent>
   let queryParams$: BehaviorSubject<Record<string, string>>
-  let mockFracApiService: jasmine.SpyObj<FracApiService>
+  let mockFracApiService: jest.Mocked<FracApiService>
 
   beforeEach(async () => {
     queryParams$ = new BehaviorSubject<Record<string, string>>({ mode: 'upload' })
-    mockFracApiService = jasmine.createSpyObj('FracApiService', ['searchEntities', 'uploadFile', 'updateEntity'])
-    mockFracApiService.searchEntities.and.returnValue(of({ result: { entity: [] } }))
+    mockFracApiService = {
+      searchEntities: jest.fn(),
+      uploadFile: jest.fn(),
+      updateEntity: jest.fn(),
+    } as unknown as jest.Mocked<FracApiService>
+    mockFracApiService.searchEntities.mockReturnValue(of({ result: { entity: [] } }))
 
     await TestBed.configureTestingModule({
       declarations: [RoleUploadComponent],
       providers: [
         FracEntityUploadOrchestratorService,
-        { provide: MatDialog, useValue: jasmine.createSpyObj('MatDialog', ['open']) },
-        { provide: Router, useValue: jasmine.createSpyObj('Router', ['navigateByUrl']) },
+        { provide: MatDialog, useValue: { open: jest.fn() } },
+        { provide: Router, useValue: { navigateByUrl: jest.fn() } },
         { provide: FracApiService, useValue: mockFracApiService },
-        {
-          provide: TableTransformUtil,
-          useValue: jasmine.createSpyObj('TableTransformUtil', ['transformResponseToTableConfig']),
-        },
+        { provide: TableTransformUtil, useValue: { transformResponseToTableConfig: jest.fn() } },
         { provide: ActivatedRoute, useValue: { queryParams: queryParams$.asObservable() } },
         { provide: ConfigurationsService, useValue: { instanceConfig: {} } },
       ],
