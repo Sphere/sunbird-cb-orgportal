@@ -1,12 +1,12 @@
 # Release <version> — <YYYY-MM-DD>
 
-|                              |                                                  |
-| ---------------------------- | ------------------------------------------------ |
-| **Build branch deployed**    | `cbrelease-<X.Y.Z>` (Jenkins deploy source)      |
-| **Tag**                      | `Release-<X.Y.Z>` (immutable marker + GitHub Release) |
-| **Baseline (previous prod)** | `<previous Release-X.Y.Z tag>`                   |
-| **Commits**                  | `<n>`                                            |
-| **Author**                   | <name>                                           |
+|                              |                                              |
+| ---------------------------- | -------------------------------------------- |
+| **Build branch deployed**    | `release-<X.Y.Z>` (Jenkins deploy source)      |
+| **Tag**                      | `v<X.Y.Z>` (immutable marker + GitHub Release) |
+| **Baseline (previous prod)** | `v<previous X.Y.Z>`                            |
+| **Commits**                  | `<n>`                                        |
+| **Author**                   | <name>                                       |
 
 ## Summary
 
@@ -48,16 +48,13 @@ release change for users / org admins, and why does it matter?>
 - [ ] `npm run lint` clean
 - [ ] Unit tests green (`npm test`)
 - [ ] Smoke-tested on preprod (login, navigate MDO portal, check key flows)
-- [ ] Rollback ref confirmed (re-runnable in Jenkins): `<previous cbrelease-X.Y.Z branch>`
+- [ ] Rollback ref confirmed (re-runnable in Jenkins): `<previous release-X.Y.Z branch>`
 
 ## Release & rollback
 
-**Deploy** — this release ships as the **`cbrelease-<X.Y.Z>`** branch; a human runs the
-manual Jenkins job with `github_release_tag = cbrelease-<X.Y.Z>`.
-Pushing the branch only provides the deploy source — it does not deploy on its own.
+**Deploy** — a human runs the manual Jenkins job (`Jenkinsfile-sun`) pointed at the **build branch** `release-<X.Y.Z>` (deploy is from a branch, not a tag). Each release gets its own new build branch + a `v<X.Y.Z>` tag; the previous `release-<prev X.Y.Z>` branch stays frozen.
 
-**Rollback** — re-run the same manual Jenkins job against the previous release branch:
+**Rollback** — re-run the same manual Jenkins job against the previous release branch `release-<prev X.Y.Z>`.
 
-```text
-github_release_tag = cbrelease-<previous X.Y.Z>
-```
+---
+_File naming: this file is `RELEASE_NOTES/release-<X.Y.Z>.md` — name matches the deploy branch._

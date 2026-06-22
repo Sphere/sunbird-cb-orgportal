@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
+﻿import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing'
 
 import { EventThumbnailComponent } from './event-thumbnail.component'
 
@@ -6,7 +6,7 @@ describe('ParticipantsComponent', () => {
   let component: EventThumbnailComponent
   let fixture: ComponentFixture<EventThumbnailComponent>
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [EventThumbnailComponent],
     })

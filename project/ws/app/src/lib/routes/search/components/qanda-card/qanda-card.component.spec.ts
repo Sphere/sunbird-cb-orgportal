@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
+﻿import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing'
 
 import { QandaCardComponent } from './qanda-card.component'
 
@@ -6,7 +6,7 @@ describe('QandaCardComponent', () => {
   let component: QandaCardComponent
   let fixture: ComponentFixture<QandaCardComponent>
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [QandaCardComponent],
     }).compileComponents()

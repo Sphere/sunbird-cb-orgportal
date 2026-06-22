@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
+﻿import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing'
 
 import { UserAutocompleteCardComponent } from './user-autocomplete-card.component'
 
@@ -6,7 +6,7 @@ describe('UserAutocompleteCardComponent', () => {
   let component: UserAutocompleteCardComponent
   let fixture: ComponentFixture<UserAutocompleteCardComponent>
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [
         UserAutocompleteCardComponent,

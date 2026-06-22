@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
+﻿import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing'
 
 import { SignupAutoComponent } from './signup-auto.component'
 
@@ -6,7 +6,7 @@ describe('SignupAutoComponent', () => {
   let component: SignupAutoComponent
   let fixture: ComponentFixture<SignupAutoComponent>
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [SignupAutoComponent],
     })

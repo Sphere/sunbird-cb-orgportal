@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
+﻿import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing'
 
 import { RoleConfirmDialogComponent } from './role-confirm-dialog.component'
 
@@ -6,7 +6,7 @@ describe('ConfirmDialogComponent', () => {
   let component: RoleConfirmDialogComponent
   let fixture: ComponentFixture<RoleConfirmDialogComponent>
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [RoleConfirmDialogComponent],
     })

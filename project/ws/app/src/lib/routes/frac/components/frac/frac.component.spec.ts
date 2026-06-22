@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
+﻿import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing'
 
 import { FracComponent } from './frac.component'
 
@@ -6,7 +6,7 @@ describe('FracComponent', () => {
   let component: FracComponent
   let fixture: ComponentFixture<FracComponent>
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [FracComponent],
     })
