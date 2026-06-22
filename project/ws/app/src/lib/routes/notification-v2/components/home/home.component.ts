@@ -1,10 +1,11 @@
-import { Component, OnInit } from '@angular/core'
+import { Component, OnInit, OnDestroy } from '@angular/core'
 import { ConfigurationsService, NsPage, TFetchStatus } from '@sunbird-cb/utils'
 
 import { NotificationApiService } from '../../services/notification-api.service'
 import { ENotificationType, INotification } from '../../models/notifications.model'
 import { NotificationService } from '../../services/notification.service'
-import { noop } from 'rxjs'
+import { noop, Subject } from 'rxjs'
+import { takeUntil } from 'rxjs/operators'
 import { Router } from '@angular/router'
 
 @Component({
@@ -13,7 +14,9 @@ import { Router } from '@angular/router'
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>()
+
   showMarkAsRead = false
   pageNavbar: Partial<NsPage.INavBackground> = this.configSvc.pageNavBar
   actionNotifications: INotification[]
@@ -37,6 +40,11 @@ export class HomeComponent implements OnInit {
     this.infoNotificationsFetchStatus = 'none'
   }
 
+  ngOnDestroy() {
+    this.destroy$.next()
+    this.destroy$.complete()
+  }
+
   ngOnInit() {
     this.fetchActionNotifications()
     this.fetchInfoNotifications()
@@ -47,6 +55,7 @@ export class HomeComponent implements OnInit {
     this.actionNotificationsFetchStatus = 'fetching'
     this.notificationApi
       .getNotifications(ENotificationType.Action, this.pageSize, this.actionNotificationsNextPage)
+      .pipe(takeUntil(this.destroy$))
       .subscribe(
         notifications => {
           this.actionNotifications = this.actionNotifications.concat(notifications.data)
@@ -67,6 +76,7 @@ export class HomeComponent implements OnInit {
         this.pageSize,
         this.infoNotificationsNextPage,
       )
+      .pipe(takeUntil(this.destroy$))
       .subscribe(
         notifications => {
           this.infoNotifications = this.infoNotifications.concat(notifications.data)
@@ -83,6 +93,7 @@ export class HomeComponent implements OnInit {
     if (!notification.seen) {
       this.notificationApi
         .updateNotificationSeenStatus(notification.notificationId, notification.classifiedAs)
+        .pipe(takeUntil(this.destroy$))
         .subscribe(() => {
           notification.seen = true
         },         noop)
@@ -92,7 +103,7 @@ export class HomeComponent implements OnInit {
   }
 
   getCount() {
-    this.notificationApi.getCount().subscribe(count => {
+    this.notificationApi.getCount().pipe(takeUntil(this.destroy$)).subscribe(count => {
       if (count > 0) {
         this.showMarkAsRead = true
       }
@@ -100,7 +111,7 @@ export class HomeComponent implements OnInit {
   }
 
   readAllNotifications() {
-    this.notificationApi.updateNotificationSeenStatus().subscribe(_data => {
+    this.notificationApi.updateNotificationSeenStatus().pipe(takeUntil(this.destroy$)).subscribe(_data => {
       this.router.navigate([], { queryParams: { ts: Date.now() } })
       this.showMarkAsRead = false
       this.actionNotifications.forEach((notification: INotification) => {

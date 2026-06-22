@@ -1,5 +1,7 @@
-import { Component, OnInit } from '@angular/core'
+import { Component, OnDestroy, OnInit } from '@angular/core'
 import { ActivatedRoute, Router, NavigationEnd, Event } from '@angular/router'
+import { Subject } from 'rxjs'
+import { takeUntil } from 'rxjs/operators'
 /* tslint:disable */
 import _ from 'lodash'
 /* tslint:enable */
@@ -11,11 +13,12 @@ import _ from 'lodash'
   templateUrl: './basic-info.component.html',
   styleUrls: ['./basic-info.component.scss'],
 })
-export class BasicInfoComponent implements OnInit {
+export class BasicInfoComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>()
   basicInfo: any
   imagePath: any
   constructor(private activeRoute: ActivatedRoute, private router: Router) {
-    this.router.events.subscribe((event: Event) => {
+    this.router.events.pipe(takeUntil(this.destroy$)).subscribe((event: Event) => {
       if (event instanceof NavigationEnd) {
         // const profileData = this.activeRoute.snapshot.data.profileData.data.result.UserProfile[0] || {}
         const profileData = this.activeRoute.snapshot.data.profileData.data.result.response.profileDetails || {}
@@ -26,6 +29,11 @@ export class BasicInfoComponent implements OnInit {
         this.imagePath = profileData.photo
       }
     })
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next()
+    this.destroy$.complete()
   }
 
   ngOnInit() { }

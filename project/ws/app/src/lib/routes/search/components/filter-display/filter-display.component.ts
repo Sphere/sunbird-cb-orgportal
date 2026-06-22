@@ -1,6 +1,8 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core'
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core'
 import { ActivatedRoute, Router } from '@angular/router'
 import { ConfigurationsService } from '@sunbird-cb/utils'
+import { Subject } from 'rxjs'
+import { takeUntil } from 'rxjs/operators'
 import { IFilterUnitItem, IFilterUnitResponse, ISearchConfigContentStrip, IWsSearchAdvancedFilter } from '../../models/search.model'
 import { SearchServService } from '../../services/search-serv.service'
 @Component({
@@ -9,7 +11,8 @@ import { SearchServService } from '../../services/search-serv.service'
   templateUrl: './filter-display.component.html',
   styleUrls: ['./filter-display.component.scss'],
 })
-export class FilterDisplayComponent implements OnInit {
+export class FilterDisplayComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>()
   @Input() filtersResponse: IFilterUnitResponse[] = []
   @Input() routeComp = ''
   @Input() filtersResetAble = false
@@ -51,7 +54,7 @@ export class FilterDisplayComponent implements OnInit {
         },
       )
     }
-    this.activated.queryParamMap.subscribe(queryParams => {
+    this.activated.queryParamMap.pipe(takeUntil(this.destroy$)).subscribe(queryParams => {
       // Reset search request object
       this.searchRequest = {
         filters: {},
@@ -148,6 +151,11 @@ export class FilterDisplayComponent implements OnInit {
       queryParamsHandling: 'merge',
       relativeTo: this.activated.parent,
     })
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next()
+    this.destroy$.complete()
   }
 
   lowerCaseFilter(filterObj: any, filterKeys: string[]) {

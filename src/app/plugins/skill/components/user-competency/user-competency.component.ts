@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core'
+import { Component, OnInit, OnDestroy } from '@angular/core'
 import { MatDialog } from '@angular/material/dialog'
 import { ActivatedRoute, Router } from '@angular/router'
 import * as _ from 'lodash'
 import moment from 'moment'
-import { forkJoin } from 'rxjs'
+import { forkJoin, Subject } from 'rxjs'
+import { takeUntil } from 'rxjs/operators'
 import { CompetencyService } from '../../services/competency.service'
 import { UsersService } from '../../services/users.service'
 import { AddCompetencyDialogComponent } from '../add-competency-dialog/add-competency-dialog.component'
@@ -15,7 +16,8 @@ import { ProficiencyLevelDialogComponent } from './../proficiency-level-dialog/p
   templateUrl: './user-competency.component.html',
   styleUrls: ['./user-competency.component.scss'],
 })
-export class UserCompetencyComponent implements OnInit {
+export class UserCompetencyComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>()
 
   legends: any[] = [
     {
@@ -108,7 +110,7 @@ export class UserCompetencyComponent implements OnInit {
   getCompitencies() {
     if (this.allEntity) {
       const userPassbook = this.getAllUserPassbook()
-      forkJoin([this.allEntity, userPassbook]).subscribe(res => {
+      forkJoin([this.allEntity, userPassbook]).pipe(takeUntil(this.destroy$)).subscribe(res => {
         const res0 = _.get(res, '[0].result.response')
         const res1 = _.get(res, '[1].result.content')
         const response = this.competencySvc.formatedUserCompetency(res0, res1)
@@ -128,6 +130,7 @@ export class UserCompetencyComponent implements OnInit {
 
   getUserDetails() {
     this.usersSvc.getUserById(this.userID)
+      .pipe(takeUntil(this.destroy$))
       .subscribe((userDetails: any) => {
         this.userDetails = userDetails
       })
@@ -161,7 +164,7 @@ export class UserCompetencyComponent implements OnInit {
       },
     })
 
-    dialogRef.afterClosed().subscribe((response: any) => {
+    dialogRef.afterClosed().pipe(takeUntil(this.destroy$)).subscribe((response: any) => {
       if (_.get(response, 'updated', false)) {
         this.getCompitencies()
       }
@@ -192,12 +195,17 @@ export class UserCompetencyComponent implements OnInit {
       panelClass: 'competencies',
     })
 
-    dialogRef.afterClosed().subscribe((response: any) => {
+    dialogRef.afterClosed().pipe(takeUntil(this.destroy$)).subscribe((response: any) => {
       if (_.get(response, 'formData.comments')) {
         levelDetails['reports'] = _.get(response, 'formData.comments')
         this.addCompetency(levelDetails)
       }
     })
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next()
+    this.destroy$.complete()
   }
 
   addCompetency(levelDetails: any) {
@@ -222,7 +230,7 @@ export class UserCompetencyComponent implements OnInit {
         ],
       },
     }
-    this.competencySvc.updatePassbook(formatedData).subscribe((data: any) => {
+    this.competencySvc.updatePassbook(formatedData).pipe(takeUntil(this.destroy$)).subscribe((data: any) => {
       if (data) {
         this.getCompitencies()
       }

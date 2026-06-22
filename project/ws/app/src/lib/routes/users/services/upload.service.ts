@@ -1,6 +1,6 @@
-import { Injectable } from '@angular/core'
+import { Injectable, OnDestroy } from '@angular/core'
 import { BehaviorSubject, Subject, Observable } from 'rxjs'
-import { finalize } from 'rxjs/operators'
+import { finalize, takeUntil } from 'rxjs/operators'
 import { HttpClient } from '@angular/common/http'
 import * as fileSaver from 'file-saver'
 
@@ -13,13 +13,19 @@ const API_ENDPOINTS = {
 }
 
 @Injectable()
-export class FileService {
+export class FileService implements OnDestroy {
+  private destroy$ = new Subject<void>()
   // tslint:disable-next-line: prefer-array-literal
   private fileList: string[] = new Array<string>()
   private fileList$: Subject<string[]> = new Subject<string[]>()
   private displayLoader$: Subject<boolean> = new BehaviorSubject<boolean>(false)
 
   constructor(private http: HttpClient) { }
+
+  ngOnDestroy() {
+    this.destroy$.next()
+    this.destroy$.complete()
+  }
 
   public isLoading(): Observable<boolean> {
     return this.displayLoader$
@@ -36,13 +42,14 @@ export class FileService {
     //   headers: new HttpHeaders({ responseType:  'blob',
     //   'Content-Type':  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}),
     // }
-    this.http.get(filePath, { responseType: 'blob' }).subscribe((res: any) => {
+    this.http.get(filePath, { responseType: 'blob' }).pipe(takeUntil(this.destroy$)).subscribe((res: any) => {
       // window.open(window.URL.createObjectURL(res))
       fileSaver.saveAs(res, downloadAsFileName)
     })
   }
   public downloadFile(url: string): void {
     this.http.get(url, { responseType: 'arraybuffer' })
+      .pipe(takeUntil(this.destroy$))
       .subscribe((response: ArrayBuffer) => {
         return this.saveFile(response)
       },         error => {
@@ -70,7 +77,7 @@ export class FileService {
   }
 
   public downloadReport(id: any, name: string) {
-    return this.http.get(`${API_ENDPOINTS.downloadReport}/${id}`).subscribe(
+    return this.http.get(`${API_ENDPOINTS.downloadReport}/${id}`).pipe(takeUntil(this.destroy$)).subscribe(
       (response: any) => {
         const blobObj = new Blob([new Uint8Array(response.report.data)])
         fileSaver.saveAs(blobObj, `${name.split('.')[0]}-report.csv`)
@@ -80,7 +87,7 @@ export class FileService {
   }
 
   public remove(fileName: any): void {
-    this.http.delete('/files/${fileName}').subscribe(() => {
+    this.http.delete('/files/${fileName}').pipe(takeUntil(this.destroy$)).subscribe(() => {
       this.fileList.splice(this.fileList.findIndex(name => name === fileName), 1)
       this.fileList$.next(this.fileList)
     })

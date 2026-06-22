@@ -6,11 +6,14 @@ import {
   ElementRef,
   QueryList,
   OnChanges,
+  OnDestroy,
   SimpleChanges,
   AfterViewInit,
   EventEmitter,
   Output,
 } from '@angular/core'
+import { Subject } from 'rxjs'
+import { takeUntil } from 'rxjs/operators'
 import { MatTableDataSource } from '@angular/material/table'
 import { MatPaginator } from '@angular/material/paginator'
 import { MatSort, Sort } from '@angular/material/sort'
@@ -30,7 +33,9 @@ type GridStyle = 'horizontal' | 'vertical' | 'both' | 'none'
   templateUrl: './upload-activity-list-table.component.html',
   styleUrls: ['./upload-activity-list-table.component.scss'],
 })
-export class UploadActivityListTableComponent implements OnChanges, AfterViewInit {
+export class UploadActivityListTableComponent implements OnChanges, AfterViewInit, OnDestroy {
+  private destroy$ = new Subject<void>()
+
   // ============= INPUTS =============
 
   /** Column configuration with headers and widths */
@@ -151,10 +156,15 @@ export class UploadActivityListTableComponent implements OnChanges, AfterViewIni
       this.syncHeaderHeight()
     })
 
-    this.headerCells?.changes.subscribe(() => {
+    this.headerCells?.changes.pipe(takeUntil(this.destroy$)).subscribe(() => {
       this.syncLoadingColumnWidths()
       this.syncHeaderHeight()
     })
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next()
+    this.destroy$.complete()
   }
 
   /**

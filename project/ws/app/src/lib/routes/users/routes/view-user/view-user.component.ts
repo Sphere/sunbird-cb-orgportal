@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core'
+import { AfterViewInit, Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core'
 import { ActivatedRoute, Router, Event, NavigationEnd } from '@angular/router'
 // import moment from 'moment'
 import { UntypedFormGroup, UntypedFormControl, Validators, UntypedFormBuilder } from '@angular/forms'
@@ -7,7 +7,8 @@ import { MatSnackBar } from '@angular/material/snack-bar'
 // tslint:disable-next-line
 import _ from 'lodash'
 import { EventService } from '@sunbird-cb/utils'
-import { Subscription } from 'rxjs'
+import { Subject, Subscription } from 'rxjs'
+import { takeUntil } from 'rxjs/operators'
 import { TelemetryEvents } from '../../../../head/_services/telemetry.event.model'
 import { RoleConfirmDialogComponent } from '../../../../../../../../../src/app/plugins/skill/components/role-confirm-dialog/role-confirm-dialog.component'
 import { MatDialog } from '@angular/material/dialog'
@@ -20,7 +21,8 @@ import { NsUserProfileDetails } from '../models/NsUserProfile'
   templateUrl: './view-user.component.html',
   styleUrls: ['./view-user.component.scss'],
 })
-export class ViewUserComponent implements OnInit, AfterViewInit {
+export class ViewUserComponent implements OnInit, AfterViewInit, OnDestroy {
+  private destroy$ = new Subject<void>()
   constructor(private activeRoute: ActivatedRoute, private router: Router, private events: EventService,
     // tslint:disable-next-line:align
     private fb: UntypedFormBuilder,
@@ -99,7 +101,7 @@ export class ViewUserComponent implements OnInit, AfterViewInit {
       professional: new UntypedFormControl(),
       courseDegree: new UntypedFormControl(true),
     })
-    this.router.events.subscribe((event: Event) => {
+    this.router.events.pipe(takeUntil(this.destroy$)).subscribe((event: Event) => {
       if (event instanceof NavigationEnd) {
         this.configSvc = this.activeRoute.snapshot.data.configService || {}
         const profileDataAll = this.activeRoute.snapshot.data.profileData.data || {}
@@ -188,12 +190,12 @@ export class ViewUserComponent implements OnInit, AfterViewInit {
         // const wfHistoryData = wfHistoryDatas.filter((wfh: { inWorkflow: any }) => !wfh.inWorkflow)
         // let currentdate: Date
 
-        this.activeRoute.data.subscribe(data => {
+        this.activeRoute.data.pipe(takeUntil(this.destroy$)).subscribe(data => {
           this.profileData = data.pageData.data.profileData ? data.pageData.data.profileData : []
           this.profileDataKeys = data.pageData.data.profileDataKey ? data.pageData.data.profileDataKey : []
         })
 
-        this.routeSubscription = this.activeRoute.queryParamMap.subscribe(qParamsMap => {
+        this.routeSubscription = this.activeRoute.queryParamMap.pipe(takeUntil(this.destroy$)).subscribe(qParamsMap => {
           this.qpParam = qParamsMap.get('param')
           this.qpPath = qParamsMap.get('path')
           if (this.qpParam === 'MDOinfo') {
@@ -547,6 +549,11 @@ export class ViewUserComponent implements OnInit, AfterViewInit {
     this.elementPosition = this.menuElement.nativeElement.parentElement.offsetTop
   }
 
+  ngOnDestroy() {
+    this.destroy$.next()
+    this.destroy$.complete()
+  }
+
   modifyUserRoles(role: string) {
     if (this.userRoles.has(role)) {
       this.userRoles.delete(role)
@@ -608,7 +615,7 @@ export class ViewUserComponent implements OnInit, AfterViewInit {
       },
     }
 
-    this.usersSvc.updateProfileDetails(reqUpdate).subscribe(data => {
+    this.usersSvc.updateProfileDetails(reqUpdate).pipe(takeUntil(this.destroy$)).subscribe(data => {
       if (data) {
         // this.router.navigate('./app/users')
         // this.router.navigate(['/app/users', this.userID, 'details'])
@@ -638,7 +645,7 @@ export class ViewUserComponent implements OnInit, AfterViewInit {
         },
       }
 
-      this.usersSvc.addUserToDepartment(dreq).subscribe(dres => {
+      this.usersSvc.addUserToDepartment(dreq).pipe(takeUntil(this.destroy$)).subscribe(dres => {
         if (dres) {
           // this.openSnackbar('User role updated Successfully')
           const dialogRef = this.dialog.open(RoleConfirmDialogComponent, {
@@ -650,7 +657,7 @@ export class ViewUserComponent implements OnInit, AfterViewInit {
             panelClass: 'competencies',
             data: { user: this.fullname, role: form.value.roles },
           })
-          dialogRef.afterClosed().subscribe((response: any) => {
+          dialogRef.afterClosed().pipe(takeUntil(this.destroy$)).subscribe((response: any) => {
             if (response) {
               // this.updateUserRole(form)
               this.updateUserRoleForm.reset({ roles: '' })

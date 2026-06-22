@@ -1,9 +1,10 @@
-import { Component, Inject, OnInit } from '@angular/core'
+import { Component, Inject, OnDestroy, OnInit } from '@angular/core'
 import { UntypedFormControl } from '@angular/forms'
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog'
 import { SelectionModel } from '@angular/cdk/collections'
 import { MatTableDataSource } from '@angular/material/table'
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators'
+import { Subject } from 'rxjs'
+import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators'
 import { EventsService } from '../../services/events.service'
 import { HttpClient } from '@angular/common/http'
 
@@ -19,7 +20,8 @@ export interface IParticipantElement {
     templateUrl: './participants.component.html',
     styleUrls: ['./participants.component.scss'],
 })
-export class ParticipantsComponent implements OnInit {
+export class ParticipantsComponent implements OnInit, OnDestroy {
+    private destroy$ = new Subject<void>()
 
     participants: any = []
     displayedColumns: string[] = ['select', 'fullname', 'email']
@@ -64,8 +66,9 @@ export class ParticipantsComponent implements OnInit {
         this.searchUserCtrl.valueChanges.pipe(
             debounceTime(200),
             distinctUntilChanged(),
+            takeUntil(this.destroy$),
         ).subscribe(() => {
-            this.eventSrc.searchUser(this.searchUserCtrl.value).subscribe((data: any) => {
+            this.eventSrc.searchUser(this.searchUserCtrl.value).pipe(takeUntil(this.destroy$)).subscribe((data: any) => {
                 this.dataSource = new MatTableDataSource<IParticipantElement>(data)
                 this.dataSource.data = data.result.response.content
                 const resultdata = data.result.response.content
@@ -84,6 +87,11 @@ export class ParticipantsComponent implements OnInit {
                 })
             })
         })
+    }
+
+    ngOnDestroy() {
+        this.destroy$.next()
+        this.destroy$.complete()
     }
 
     confirm() {

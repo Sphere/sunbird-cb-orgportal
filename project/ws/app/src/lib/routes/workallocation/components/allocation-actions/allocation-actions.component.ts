@@ -1,8 +1,10 @@
-import { Component, OnInit, ViewChild, ElementRef, Inject } from '@angular/core'
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, Inject } from '@angular/core'
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog'
 import { UntypedFormGroup, Validators, UntypedFormBuilder, UntypedFormControl } from '@angular/forms'
 import { AllocationService } from '../../services/allocation.service'
 import { MatTabGroup } from '@angular/material/tabs'
+import { Subject } from 'rxjs'
+import { takeUntil } from 'rxjs/operators'
 
 @Component({
   standalone: false,
@@ -10,7 +12,8 @@ import { MatTabGroup } from '@angular/material/tabs'
   templateUrl: './allocation-actions.component.html',
   styleUrls: ['./allocation-actions.component.scss'],
 })
-export class AllocationActionsComponent implements OnInit {
+export class AllocationActionsComponent implements OnInit, OnDestroy {
+  private readonly destroy$ = new Subject<void>()
 
   @ViewChild('tabGroup', { static: false }) tabGroup!: MatTabGroup
 
@@ -78,6 +81,11 @@ export class AllocationActionsComponent implements OnInit {
     })
   }
 
+  ngOnDestroy() {
+    this.destroy$.next()
+    this.destroy$.complete()
+  }
+
   ngOnInit() { }
 
   // changeProjectTab() {
@@ -117,7 +125,7 @@ export class AllocationActionsComponent implements OnInit {
       this.similarRoles = []
       this.similarActivities = []
       this.similarPositions = []
-      this.allocateSrvc.onSearchRole(val).subscribe((res: any) => {
+      this.allocateSrvc.onSearchRole(val).pipe(takeUntil(this.destroy$)).subscribe((res: any) => {
         if (res !== undefined) {
           this.similarRoles = []
           res.forEach((obj: any) => {
@@ -155,7 +163,7 @@ export class AllocationActionsComponent implements OnInit {
       this.similarActivities = []
       this.similarPositions = []
       this.similarCompetencies = []
-      this.allocateSrvc.onSearchCompetency(val).subscribe((res: any) => {
+      this.allocateSrvc.onSearchCompetency(val).pipe(takeUntil(this.destroy$)).subscribe((res: any) => {
         this.similarCompetencies = res.responseData
         this.displayLoader('false')
         if (this.similarCompetencies && this.similarCompetencies.length === 0) {
@@ -278,7 +286,7 @@ export class AllocationActionsComponent implements OnInit {
           },
         ],
       }
-      this.allocateSrvc.onSearchActivity(req).subscribe(res => {
+      this.allocateSrvc.onSearchActivity(req).pipe(takeUntil(this.destroy$)).subscribe(res => {
         this.similarActivities = res.responseData
         this.displayLoader('false')
         if (this.similarActivities && this.similarActivities.length === 0) {
@@ -400,7 +408,7 @@ export class AllocationActionsComponent implements OnInit {
       waId: '',
     }
 
-    this.allocateSrvc.createAllocation(reqdata).subscribe(res => {
+    this.allocateSrvc.createAllocation(reqdata).pipe(takeUntil(this.destroy$)).subscribe(res => {
       if (res) {
         this.allocationFieldForm.reset()
         this.selectedUser = ''

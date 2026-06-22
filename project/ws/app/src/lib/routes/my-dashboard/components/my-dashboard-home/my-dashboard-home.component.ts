@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewEncapsulation } from '@angular/core'
+import { Component, OnInit, OnDestroy, ViewEncapsulation } from '@angular/core'
 import { Router } from '@angular/router'
 import { ConfigurationsService } from '@sunbird-cb/utils'
 // import {
@@ -14,6 +14,8 @@ import { ConfigurationsService } from '@sunbird-cb/utils'
 //   dashboardEmptyData,
 // } from '../../../../../../../../../src/mdo-assets/data/data'
 import { HttpClient } from '@angular/common/http'
+import { Subject } from 'rxjs'
+import { takeUntil } from 'rxjs/operators'
 
 @Component({
   standalone: false,
@@ -24,9 +26,15 @@ import { HttpClient } from '@angular/common/http'
   encapsulation: ViewEncapsulation.None,
   /* tslint:enable */
 })
-export class MyDashboardHomeComponent implements OnInit {
+export class MyDashboardHomeComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>()
 
   constructor(private router: Router, private configSvc: ConfigurationsService, private http: HttpClient) { }
+
+  ngOnDestroy() {
+    this.destroy$.next()
+    this.destroy$.complete()
+  }
   // pageNavbar: Partial<NsPage.INavBackground> = this.configSvc.pageNavBar
 
   // selectedDashboardId = ''
@@ -65,7 +73,7 @@ export class MyDashboardHomeComponent implements OnInit {
   loadDashboardBasedOnOrg(): void {
     const orgPowerBiDashboardUrl = `https://aastar-assets.s3.ap-south-1.amazonaws.com/orgPowerBiDashboard.json?cb=${Date.now()}`
     // const orgPowerBiDashboardUrl = `mdo-assets/files/orgPowerBiDashboard.json?cb=${Date.now()}`
-    this.http.get<any>(orgPowerBiDashboardUrl).subscribe(
+    this.http.get<any>(orgPowerBiDashboardUrl).pipe(takeUntil(this.destroy$)).subscribe(
       data => {
         const currentOrgId = this.configSvc?.userProfile?.rootOrgId
         const orgData = data.organisations.find((org: any) => org.orgId === currentOrgId)

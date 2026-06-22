@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core'
+import { Component, OnInit, OnDestroy } from '@angular/core'
 import { SafeUrl, DomSanitizer } from '@angular/platform-browser'
 import {
   ConfigurationsService,
@@ -8,6 +8,8 @@ import { MatDialog } from '@angular/material/dialog'
 import { AppTourDialogComponent } from '@sunbird-cb/collection'
 import { Router, ActivatedRoute } from '@angular/router'
 import { Globals } from '../../globals'
+import { Subject } from 'rxjs'
+import { takeUntil } from 'rxjs/operators'
 
 @Component({
   standalone: false,
@@ -15,7 +17,8 @@ import { Globals } from '../../globals'
   templateUrl: './setup-done.component.html',
   styleUrls: ['./setup-done.component.scss'],
 })
-export class SetupDoneComponent implements OnInit {
+export class SetupDoneComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>()
   appIcon: SafeUrl | null = null
   pageNavbar: Partial<NsPage.INavBackground> = this.configSvc.pageNavBar
   badges: any | null = null
@@ -29,7 +32,7 @@ export class SetupDoneComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.route.data.subscribe(async data => {
+    this.route.data.pipe(takeUntil(this.destroy$)).subscribe(async data => {
       this.badges = data.badges.data
     })
     if (this.configSvc.instanceConfig) {
@@ -37,6 +40,11 @@ export class SetupDoneComponent implements OnInit {
         this.configSvc.instanceConfig.logos.thumpsUp || '',
       )
     }
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next()
+    this.destroy$.complete()
   }
 
   finishSetup() {

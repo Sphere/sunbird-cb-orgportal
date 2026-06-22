@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core'
+import { Component, OnInit, OnDestroy } from '@angular/core'
 import { ConfigurationsService, NsPage, ValueService } from '@sunbird-cb/utils'
-import { Subscription } from 'rxjs'
+import { Subject, Subscription } from 'rxjs'
+import { takeUntil } from 'rxjs/operators'
 
 @Component({
   standalone: false,
@@ -8,7 +9,8 @@ import { Subscription } from 'rxjs'
   templateUrl: './meetup.component.html',
   styleUrls: ['./meetup.component.scss'],
 })
-export class MeetupComponent implements OnInit {
+export class MeetupComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>()
 
   pageNavbar: Partial<NsPage.INavBackground> = this.configSvc.pageNavBar
   navBarTitle = 'iGOT Meetup Platform'
@@ -20,17 +22,22 @@ export class MeetupComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.screenSubscription = this.valSvc.isLtMedium$.subscribe(isLtSMed => {
+    this.screenSubscription = this.valSvc.isLtMedium$.pipe(takeUntil(this.destroy$)).subscribe(isLtSMed => {
       if (isLtSMed) {
         this.navBarTitle = ''
       }
     })
 
-    this.screenSubscription = this.valSvc.isXSmall$.subscribe(isXSmall => {
+    this.screenSubscription = this.valSvc.isXSmall$.pipe(takeUntil(this.destroy$)).subscribe(isXSmall => {
       if (isXSmall) {
         this.navBarTitle = ''
       }
     })
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next()
+    this.destroy$.complete()
   }
 
 }

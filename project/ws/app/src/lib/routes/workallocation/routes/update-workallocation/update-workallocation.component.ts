@@ -1,10 +1,12 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core'
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core'
 import { UntypedFormGroup, Validators, UntypedFormBuilder, UntypedFormArray, UntypedFormControl } from '@angular/forms'
 import { ExportAsService, ExportAsConfig } from 'ngx-export-as'
 import { ActivatedRoute, Router } from '@angular/router'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { AllocationService } from '../../services/allocation.service'
 import { ConfigurationsService } from '@sunbird-cb/utils'
+import { Subject } from 'rxjs'
+import { takeUntil } from 'rxjs/operators'
 
 @Component({
   standalone: false,
@@ -12,7 +14,8 @@ import { ConfigurationsService } from '@sunbird-cb/utils'
   templateUrl: './update-workallocation.component.html',
   styleUrls: ['./update-workallocation.component.scss'],
 })
-export class UpdateWorkallocationComponent implements OnInit {
+export class UpdateWorkallocationComponent implements OnInit, OnDestroy {
+  private readonly destroy$ = new Subject<void>()
   @ViewChild('childNodes', { static: false })
   inputvar!: ElementRef
   tabsData!: any[]
@@ -82,6 +85,11 @@ export class UpdateWorkallocationComponent implements OnInit {
     this.getdeptUsers()
   }
 
+  ngOnDestroy() {
+    this.destroy$.next()
+    this.destroy$.complete()
+  }
+
   ngOnInit() {
     this.tabsData = [
       {
@@ -120,7 +128,7 @@ export class UpdateWorkallocationComponent implements OnInit {
       pageSize: 1000,
       departmentName: this.departmentName,
     }
-    this.allocateSrvc.getUsers(req).subscribe(res => {
+    this.allocateSrvc.getUsers(req).pipe(takeUntil(this.destroy$)).subscribe(res => {
       const userslist = res.result.data
       userslist.forEach((user: any) => {
         // if (user.userDetails) {
@@ -162,7 +170,7 @@ export class UpdateWorkallocationComponent implements OnInit {
   export() {
     // download the file using old school javascript method
     // if (this.data) {
-    this.exportAsService.save(this.config, 'WorkAllocation').subscribe(() => {
+    this.exportAsService.save(this.config, 'WorkAllocation').pipe(takeUntil(this.destroy$)).subscribe(() => {
       // save started
       this.displaytemplate = true
     })
@@ -240,7 +248,7 @@ export class UpdateWorkallocationComponent implements OnInit {
           },
         ],
       }
-      this.allocateSrvc.onSearchPosition(req).subscribe(res => {
+      this.allocateSrvc.onSearchPosition(req).pipe(takeUntil(this.destroy$)).subscribe(res => {
         this.similarPositions = res.responseData
         this.displayLoader('false')
         if (this.similarPositions && this.similarPositions.length === 0) {
@@ -263,7 +271,7 @@ export class UpdateWorkallocationComponent implements OnInit {
       this.similarRoles = []
       this.similarActivities = []
       this.similarPositions = []
-      this.allocateSrvc.onSearchRole(val).subscribe(res => {
+      this.allocateSrvc.onSearchRole(val).pipe(takeUntil(this.destroy$)).subscribe(res => {
         this.similarRoles = res
         this.displayLoader('false')
         if (this.similarRoles && this.similarRoles.length === 0) {
@@ -299,7 +307,7 @@ export class UpdateWorkallocationComponent implements OnInit {
           },
         ],
       }
-      this.allocateSrvc.onSearchActivity(req).subscribe(res => {
+      this.allocateSrvc.onSearchActivity(req).pipe(takeUntil(this.destroy$)).subscribe(res => {
         this.similarActivities = res.responseData
         this.displayLoader('false')
         if (this.similarActivities && this.similarActivities.length === 0) {
@@ -491,7 +499,7 @@ export class UpdateWorkallocationComponent implements OnInit {
         reqdata.positionId = ''
       }
     }
-    this.allocateSrvc.updateAllocation(reqdata).subscribe(res => {
+    this.allocateSrvc.updateAllocation(reqdata).pipe(takeUntil(this.destroy$)).subscribe(res => {
       if (res) {
         this.openSnackbar('Work Allocation updated Successfully')
         this.newAllocationForm.reset()

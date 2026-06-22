@@ -1,7 +1,9 @@
-import { Component, OnInit, HostListener, ElementRef } from '@angular/core'
+import { Component, OnInit, OnDestroy, HostListener, ElementRef } from '@angular/core'
 import { MatDialog } from '@angular/material/dialog'
 import { PageEvent } from '@angular/material/paginator'
 import { Router } from '@angular/router'
+import { Subject } from 'rxjs'
+import { takeUntil } from 'rxjs/operators'
 import { EventService } from '../../services/event.service'
 import { EventModalComponent } from '../event-modal/event-modal.component'
 import { WorkallocationService } from '../../services/workallocation.service'
@@ -12,7 +14,9 @@ import { WorkallocationService } from '../../services/workallocation.service'
   templateUrl: './event-dashboard.component.html',
   styleUrls: ['./event-dashboard.component.scss'],
 })
-export class EventDashboardComponent implements OnInit {
+export class EventDashboardComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>()
+
   events: any[] = []
   filteredEvents: any[] = []
   searchQuery = ''
@@ -57,13 +61,18 @@ export class EventDashboardComponent implements OnInit {
     }
   }
 
+  ngOnDestroy() {
+    this.destroy$.next()
+    this.destroy$.complete()
+  }
+
   ngOnInit(): void {
     this.eventService.updateEvent(null)
     this.fetchUserDetails()
   }
 
   fetchUserDetails(): void {
-    this.userService.getAllUsers().subscribe({
+    this.userService.getAllUsers().pipe(takeUntil(this.destroy$)).subscribe({
       next: response => {
         const user = response.result.response
         this.userId = user.userId
@@ -79,7 +88,7 @@ export class EventDashboardComponent implements OnInit {
   }
 
   fetchEvents(): void {
-    this.eventService.getAllEvents().subscribe({
+    this.eventService.getAllEvents().pipe(takeUntil(this.destroy$)).subscribe({
       next: response => {
         const mapped = response.map((event: any) => ({
           id: event.eventId,
@@ -111,7 +120,7 @@ export class EventDashboardComponent implements OnInit {
       disableClose: true,
     })
 
-    dialogRef.afterClosed().subscribe({
+    dialogRef.afterClosed().pipe(takeUntil(this.destroy$)).subscribe({
       next: result => {
         if (result) {
           this.fetchEvents()

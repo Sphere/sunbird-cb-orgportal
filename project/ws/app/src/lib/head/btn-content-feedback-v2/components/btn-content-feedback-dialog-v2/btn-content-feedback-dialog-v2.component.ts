@@ -1,8 +1,10 @@
-import { Component, Inject, OnInit } from '@angular/core'
+import { Component, Inject, OnDestroy, OnInit } from '@angular/core'
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { UntypedFormGroup, UntypedFormControl, Validators } from '@angular/forms'
 import { TSendStatus, TFetchStatus } from '@sunbird-cb/utils'
+import { Subject } from 'rxjs'
+import { takeUntil } from 'rxjs/operators'
 import { NsContent } from '../../../_services/widget-content.model'
 import { FeedbackService } from '../../services/feedback.service'
 import { EFeedbackType, EFeedbackRole, IFeedbackConfig } from '../../models/feedback.model'
@@ -14,7 +16,8 @@ import { FeedbackSnackbarComponent } from '../feedback-snackbar/feedback-snackba
   templateUrl: './btn-content-feedback-dialog-v2.component.html',
   styleUrls: ['./btn-content-feedback-dialog-v2.component.scss'],
 })
-export class BtnContentFeedbackDialogV2Component implements OnInit {
+export class BtnContentFeedbackDialogV2Component implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>()
   positiveFeedbackSendStatus: TSendStatus
   negativeFeedbackSendStatus: TSendStatus
   singleFeedbackSendStatus: TSendStatus
@@ -46,7 +49,7 @@ export class BtnContentFeedbackDialogV2Component implements OnInit {
 
   ngOnInit() {
     this.configFetchStatus = 'fetching'
-    this.feedbackApi.getFeedbackConfig().subscribe(
+    this.feedbackApi.getFeedbackConfig().pipe(takeUntil(this.destroy$)).subscribe(
       config => {
         this.feedbackConfig = config
         this.configFetchStatus = 'done'
@@ -67,6 +70,7 @@ export class BtnContentFeedbackDialogV2Component implements OnInit {
         type: EFeedbackType.Content,
         role: EFeedbackRole.User,
       })
+      .pipe(takeUntil(this.destroy$))
       .subscribe(
         () => {
           this.positiveFeedbackSendStatus = 'done'
@@ -95,6 +99,7 @@ export class BtnContentFeedbackDialogV2Component implements OnInit {
         type: EFeedbackType.Content,
         role: EFeedbackRole.User,
       })
+      .pipe(takeUntil(this.destroy$))
       .subscribe(
         () => {
           this.negativeFeedbackSendStatus = 'done'
@@ -122,6 +127,7 @@ export class BtnContentFeedbackDialogV2Component implements OnInit {
         role: EFeedbackRole.User,
         type: EFeedbackType.Content,
       })
+      .pipe(takeUntil(this.destroy$))
       .subscribe(
         () => {
           this.singleFeedbackSendStatus = 'done'
@@ -138,6 +144,11 @@ export class BtnContentFeedbackDialogV2Component implements OnInit {
           })
         },
       )
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next()
+    this.destroy$.complete()
   }
 
   submitFeedback() {

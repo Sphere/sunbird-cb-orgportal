@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core'
+import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core'
 import { MatDialog } from '@angular/material/dialog'
 import { MatPaginator } from '@angular/material/paginator'
 import { MatSort } from '@angular/material/sort'
@@ -9,7 +9,7 @@ import { FilterDialogComponent } from '../filter-dialog/filter-dialog.component'
 import { AddCompetencyDialogComponent } from '../add-competency-dialog/add-competency-dialog.component'
 import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component'
 import { UntypedFormBuilder } from '@angular/forms'
-import { debounceTime, distinctUntilChanged, filter, switchMap } from 'rxjs/operators'
+import { debounceTime, distinctUntilChanged, filter, switchMap, takeUntil } from 'rxjs/operators'
 import { of, Subject } from 'rxjs'
 import { UserAutoCompleteService } from '../../services/user-auto-complete.service'
 @Component({
@@ -18,7 +18,8 @@ import { UserAutoCompleteService } from '../../services/user-auto-complete.servi
   templateUrl: './skill-table.component.html',
   styleUrls: ['./skill-table.component.scss'],
 })
-export class SkillTableComponent implements OnInit, OnChanges {
+export class SkillTableComponent implements OnInit, OnChanges, OnDestroy {
+  private destroy$ = new Subject<void>()
 
   @Input() tableData!: any | undefined
   @Input() data?: []
@@ -95,7 +96,8 @@ export class SkillTableComponent implements OnInit, OnChanges {
         this.searchByEnterKey.emit(value)
 
         return of([])
-      })
+      }),
+                           takeUntil(this.destroy$)
     ).subscribe((users: any) => {
       this.dataSource.data = users
       this.dataSource.paginator = this.paginator
@@ -199,7 +201,7 @@ export class SkillTableComponent implements OnInit, OnChanges {
       restoreFocus: false,
       panelClass: 'competencies',
     })
-    dialogRef.afterClosed().subscribe((response: any) => {
+    dialogRef.afterClosed().pipe(takeUntil(this.destroy$)).subscribe((response: any) => {
       if (response) {
         this.constuctSelectedFilter(response)
       }
@@ -237,7 +239,7 @@ export class SkillTableComponent implements OnInit, OnChanges {
       restoreFocus: false,
       panelClass: 'add-Competency',
     })
-    dialogRef.afterClosed().subscribe((responce: any) => {
+    dialogRef.afterClosed().pipe(takeUntil(this.destroy$)).subscribe((responce: any) => {
       // tslint:disable-next-line: no-console
       console.log(responce)
     })
@@ -262,10 +264,15 @@ export class SkillTableComponent implements OnInit, OnChanges {
         },
       },
     })
-    dialogRef.afterClosed().subscribe((responce: any) => {
+    dialogRef.afterClosed().pipe(takeUntil(this.destroy$)).subscribe((responce: any) => {
       // tslint:disable-next-line: no-console
       console.log(responce)
     })
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next()
+    this.destroy$.complete()
   }
 
 }
