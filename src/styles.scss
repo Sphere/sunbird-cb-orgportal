@@ -1271,19 +1271,3 @@ video {
     width: 50%;
   }
 }
-
-// ── Material tooltip — global override ─────────────────────────────────────
-.mat-mdc-tooltip .mdc-tooltip__surface {
-  background: #1a2332;
-  color: #ffffff;
-  font-family: 'Inter', 'Roboto', sans-serif;
-  font-size: 12px;
-  font-weight: 500;
-  line-height: 1.4;
-  padding: 6px 10px;
-  border-radius: 6px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
-  letter-spacing: 0.01em;
-  max-width: 220px;
-  word-break: break-word;
-}

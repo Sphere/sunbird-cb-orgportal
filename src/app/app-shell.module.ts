@@ -21,6 +21,12 @@ import { MatSortModule } from '@angular/material/sort'
 import { MatTabsModule } from '@angular/material/tabs'
 import { MatToolbarModule } from '@angular/material/toolbar'
 import { MatTooltipModule } from '@angular/material/tooltip'
+import {
+  BtnFeatureModule,
+  ErrorResolverModule,
+  StickyHeaderModule,
+  TourModule,
+} from '@sunbird-cb/collection'
 import { WidgetResolverModule } from '@sunbird-cb/resolver'
 import { PipeSafeSanitizerModule } from '@sunbird-cb/utils'
 
@@ -73,6 +79,10 @@ import { TncRendererComponent } from './component/tnc-renderer/tnc-renderer.comp
     MatNativeDateModule,
     MatSortModule,
     MatTabsModule,
+    BtnFeatureModule,
+    ErrorResolverModule,
+    StickyHeaderModule,
+    TourModule,
     PipeSafeSanitizerModule,
     WidgetResolverModule,
   ],

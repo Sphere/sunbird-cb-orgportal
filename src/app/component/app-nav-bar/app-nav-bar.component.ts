@@ -110,15 +110,11 @@ export class AppNavBarComponent implements OnInit, OnChanges {
       }
     }
 
-    console.log(
-      'Filtered Navbar Config:',
-      this.primaryNavbarConfig?.mediumScreen?.right
-    )
-
     if (this.configSvc.appsConfig) {
       this.featureApps = Object.keys(this.configSvc.appsConfig.features)
     }
     this.configSvc.tourGuideNotifier.subscribe(canShow => {
+
       if (
         this.configSvc.restrictedFeatures &&
         !this.configSvc.restrictedFeatures.has('tourGuide')
@@ -127,6 +123,24 @@ export class AppNavBarComponent implements OnInit, OnChanges {
         this.popupTour = this.tourService.createPopupTour()
       }
     })
+  }
+
+  getFeatureUrl(actionBtnId: string): string {
+    return (this.configSvc.appsConfig as any)?.features?.[actionBtnId]?.url || '/'
+  }
+
+  getFeatureIcon(actionBtnId: string): string {
+    return (this.configSvc.appsConfig as any)?.features?.[actionBtnId]?.icon || 'home'
+  }
+
+  getUserInitials(): string {
+    const first = this.configSvc.userProfile?.firstName?.charAt(0) || 'G'
+    const last = this.configSvc.userProfile?.lastName?.charAt(0) || 'U'
+    return (first + last).toUpperCase()
+  }
+
+  logout(): void {
+    globalThis.location.href = '/public/logout'
   }
 
   ngOnChanges(changes: SimpleChanges) {

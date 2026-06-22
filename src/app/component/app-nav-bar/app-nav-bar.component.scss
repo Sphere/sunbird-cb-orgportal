@@ -183,5 +183,47 @@ mat-toolbar.mat-elevation-z3 {
   }
 }
 
+.nav-icon-btn {
+  color: #555;
+  transition: color 150ms ease, background-color 150ms ease;
+
+  mat-icon { font-size: 22px; width: 22px; height: 22px; line-height: 22px; }
+
+  &:hover {
+    color: #1c5d95;
+    background-color: rgba(28, 93, 149, 0.08);
+  }
+
+  &.ws-active-nav-icon {
+    color: #1c5d95;
+  }
+}
+
+.profile-avatar-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #1c5d95;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin-left: 4px;
+  transition: box-shadow 150ms ease;
+
+  &:hover {
+    box-shadow: 0 2px 8px rgba(28, 93, 149, 0.32);
+  }
+}
+
+.profile-initials {
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  line-height: 1;
+  pointer-events: none;
+}
+
 // @media
 // 760px
