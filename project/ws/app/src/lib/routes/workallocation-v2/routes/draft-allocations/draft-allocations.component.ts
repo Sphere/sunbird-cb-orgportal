@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, SimpleChanges } from '@angular/core'
+import { Component, OnInit, OnDestroy, SimpleChanges, OnChanges } from '@angular/core'
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog'
 import { Router, ActivatedRoute } from '@angular/router'
 /* tslint:disable */
@@ -16,7 +16,7 @@ import { takeUntil } from 'rxjs/operators'
   templateUrl: './draft-allocations.component.html',
   styleUrls: ['./draft-allocations.component.scss'],
 })
-export class DraftAllocationsComponent implements OnInit, OnDestroy {
+export class DraftAllocationsComponent implements OnInit, OnDestroy, OnChanges {
   private readonly destroy$ = new Subject<void>()
   tabs: any
   currentUser!: string | null
@@ -66,8 +66,8 @@ export class DraftAllocationsComponent implements OnInit, OnDestroy {
     // FileSaver.saveAs(pdfUrl, pdfName)
 
     this.uploadService.getDraftPDF(this.workorderID).pipe(takeUntil(this.destroy$)).subscribe((response) => {
-      let file = new Blob([response], { type: 'application/pdf' })
-      var fileURL = URL.createObjectURL(file)
+      const file = new Blob([response], { type: 'application/pdf' })
+      const fileURL = URL.createObjectURL(file)
       window.open(fileURL)
     })
   }

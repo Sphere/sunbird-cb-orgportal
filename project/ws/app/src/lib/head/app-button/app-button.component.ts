@@ -13,7 +13,7 @@ export class AppButtonComponent implements OnInit {
   @Input() icon?: string
   @Input() type?: string
   @Input() styles?: any = {}
-  @Input() classes?: String = ''
+  @Input() classes?: string = ''
   @Output() eonClick = new EventEmitter<any>()
 
   constructor() {

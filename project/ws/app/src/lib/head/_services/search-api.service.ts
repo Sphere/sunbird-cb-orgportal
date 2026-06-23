@@ -34,7 +34,7 @@ export class SearchApiService {
 
   getSearchV6Results(body: any): Observable<any> {
     return this.http.post<any>(API_END_POINTS.SEARCH_V6, body).pipe(map((res: any) => {
-      const tempArray = Array()
+      const tempArray = []
       if (res.result.facets.length > 0) {
         res.result.facets.forEach((ele: { name: any; values: { name: any; count: any }[] }) => {
           const temp: any = {

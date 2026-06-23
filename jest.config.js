@@ -24,8 +24,12 @@ module.exports = {
     '!**/*-routing.module.ts',
   ],
   coveragePathIgnorePatterns: ['/node_modules/', '/dist/', '/out-tsc/'],
+  transformIgnorePatterns: [
+    '/node_modules/(?!.*\\.mjs$|keycloak-js/|keycloak-angular/)',
+  ],
   moduleNameMapper: {
     ...pathsToModuleNameMapper(compilerOptions.paths || {}, { prefix: '<rootDir>/' }),
     '^@ws/app$': '<rootDir>/project/ws/app/src/public-api.ts',
+    '^src/(.*)$': '<rootDir>/src/$1',
   },
 }

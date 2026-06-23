@@ -22,7 +22,7 @@ export class UIDirectoryTableComponent implements OnInit, AfterViewInit, OnChang
   @Input() data?: []
   @Input() selectedDepartment!: string
   @Input() departmentID!: string
-  @Input() needCreate: Boolean = true
+  @Input() needCreate: boolean = true
   @Output() clicked?: EventEmitter<any>
   @Output() actionsClick?: EventEmitter<any>
   @Output() eOnRowClick = new EventEmitter<any>()

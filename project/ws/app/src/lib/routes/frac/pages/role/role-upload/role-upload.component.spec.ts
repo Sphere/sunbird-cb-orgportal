@@ -59,6 +59,6 @@ describe('RoleUploadComponent', () => {
 
   it('should trigger initial search in manage mode', () => {
     queryParams$.next({ mode: 'manage' })
-    expect(mockFracApiService.searchEntities).toHaveBeenCalledWith('role', '', 'English')
+    expect(mockFracApiService.searchEntities).toHaveBeenCalledWith('role', '', 'en')
   })
 })

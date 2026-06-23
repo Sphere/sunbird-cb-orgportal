@@ -18,33 +18,33 @@ export class CompetencyMappingTableComponent implements OnInit, OnChanges {
   /* ---------------------------
      Input data from parent
   --------------------------- */
-  @Input() competencies: Competency[] = [];
-  @Input() selectedMap: SelectedMap = {};
+  @Input() competencies: Competency[] = []
+  @Input() selectedMap: SelectedMap = {}
 
   @Input() headerConfig = {
     codeLabel: 'Code & Name',
     levels: ['Level 1', 'Level 2', 'Level 3', 'Level 4', 'Level 5'],
     searchPlaceholder: 'Search by name,code'
-  };
+  }
 
-  @Input() levels: string[] = ['L1', 'L2', 'L3', 'L4', 'L5'];
-  @Input() selectedActivity: Activity | null = null;
-  @Input() isLoading = false;
-  @Input() searchResetKey = 0;
-  @Input() isReadOnly = false;
-  @Input() isSaving = false;
+  @Input() levels: string[] = ['L1', 'L2', 'L3', 'L4', 'L5']
+  @Input() selectedActivity: Activity | null = null
+  @Input() isLoading = false
+  @Input() searchResetKey = 0
+  @Input() isReadOnly = false
+  @Input() isSaving = false
 
   /* ---------------------------
      Output events to parent
   --------------------------- */
-  @Output() checked = new EventEmitter<CompetencyCheckChangeEvent>();
-  @Output() searchChange = new EventEmitter<string>();
-  @Output() addCompetency = new EventEmitter<SelectedCompetencySummary[]>();
+  @Output() checked = new EventEmitter<CompetencyCheckChangeEvent>()
+  @Output() searchChange = new EventEmitter<string>()
+  @Output() addCompetency = new EventEmitter<SelectedCompetencySummary[]>()
 
-  searchTerm = '';
-  filteredCompetencies: Competency[] = [];
-  displayLevels: string[] = ['L1', 'L2', 'L3', 'L4', 'L5'];
-  sortDirection: 'asc' | 'desc' | '' = 'asc';
+  searchTerm = ''
+  filteredCompetencies: Competency[] = []
+  displayLevels: string[] = ['L1', 'L2', 'L3', 'L4', 'L5']
+  sortDirection: 'asc' | 'desc' | '' = 'asc'
 
   /**
    * Runs when the component is first initialized on the screen.

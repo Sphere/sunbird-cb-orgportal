@@ -50,7 +50,7 @@ export class FracTableComponent implements OnChanges, AfterViewInit {
   /** Configurable grid line style: horizontal | vertical | both | none */
   @Input() gridStyle: GridStyle = 'horizontal'
 
-  @Input() isEditing = false;
+  @Input() isEditing = false
   @Output() selectionChange = new EventEmitter<FracTableRow[]>()
 
   /** Table data source */

@@ -11,20 +11,20 @@ export class ActivityMappingListComponent implements OnInit, OnChanges {
   private readonly collator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' })
 
   /* INPUT: List of activities */
-  @Input() activities: FracActivityMappingItem[] = [];
-  @Input() isLoading = false;
-  @Input() selectedActivityCode: string | null = null;
-  @Input() searchResetKey = 0;
+  @Input() activities: FracActivityMappingItem[] = []
+  @Input() isLoading = false
+  @Input() selectedActivityCode: string | null = null
+  @Input() searchResetKey = 0
 
   /* OUTPUT: Emit search keyword to parent */
-  @Output() searchChange = new EventEmitter<string>();
+  @Output() searchChange = new EventEmitter<string>()
 
   /* OUTPUT: Notify parent when user selects an activity */
-  @Output() activitySelected = new EventEmitter<FracActivityMappingItem>();
+  @Output() activitySelected = new EventEmitter<FracActivityMappingItem>()
 
-  searchTerm = '';
-  filteredActivities: FracActivityMappingItem[] = [];
-  expanded: FracActivityMappingItem | null = null;
+  searchTerm = ''
+  filteredActivities: FracActivityMappingItem[] = []
+  expanded: FracActivityMappingItem | null = null
 
   /**
    * Runs when the component is first initialized on the screen.

@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, SimpleChanges } from '@angular/core'
+import { Component, OnDestroy, OnInit, SimpleChanges, OnChanges } from '@angular/core'
 import { ITableData } from '../../../ui-org-table.model'
 import { MatDialog } from '@angular/material/dialog'
 import { MatPaginator } from '@angular/material/paginator'
@@ -15,7 +15,7 @@ import { WorkAllocationPopUpComponent } from '../../../../head/work-allocation-t
   templateUrl: './workallocation.component.html',
   styleUrls: ['./workallocation.component.scss'],
 })
-export class WorkallocationComponent implements OnInit, OnDestroy {
+export class WorkallocationComponent implements OnInit, OnDestroy, OnChanges {
   currentFilter = 'Draft'
   tabs: any
   currentUser!: string | null
@@ -39,7 +39,7 @@ export class WorkallocationComponent implements OnInit, OnDestroy {
   userslist: any[] = []
   downloaddata: any = []
   totalusersCount: any
-  p: number = 1;
+  p: number = 1
   isPrint = false
 
 

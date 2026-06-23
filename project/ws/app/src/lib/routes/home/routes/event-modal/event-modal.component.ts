@@ -65,7 +65,7 @@ export class EventModalComponent implements OnInit, OnDestroy {
 
   onSave(): void {
 
-    let formatedDate = this.formatDate(this.eventForm.value.eventDate)
+    const formatedDate = this.formatDate(this.eventForm.value.eventDate)
     console.log('formatedDate', formatedDate)
 
 

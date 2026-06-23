@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, SimpleChanges } from '@angular/core'
+import { Component, OnInit, OnDestroy, SimpleChanges, OnChanges } from '@angular/core'
 import { MatPaginator } from '@angular/material/paginator'
 import { ExportAsService, ExportAsConfig } from 'ngx-export-as'
 /* tslint:disable */
@@ -13,7 +13,7 @@ import { takeUntil } from 'rxjs/operators'
   templateUrl: './published-allocations.component.html',
   styleUrls: ['./published-allocations.component.scss'],
 })
-export class PublishedAllocationsComponent implements OnInit, OnDestroy {
+export class PublishedAllocationsComponent implements OnInit, OnDestroy, OnChanges {
   private readonly destroy$ = new Subject<void>()
   tabs: any
   currentUser!: string | null

@@ -16,7 +16,7 @@ export class NotificationComponent implements OnInit, OnDestroy {
 
   recentBadge: IUserNotification | null = null
   sharedPlaylists: NsPlaylist.IPlaylist[] = []
-  // sharedGoals: NsGoal.IGoal[] = []
+  sharedGoals: any[] = []
   // sharedNotificationGoals: NsGoal.IGoal[] = []
   fetchStatus: TFetchStatus | null = null
   statusCount: number | null = null

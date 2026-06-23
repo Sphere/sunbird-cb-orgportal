@@ -8,9 +8,9 @@ import { FRAC_SNACKBAR_DURATION_MS } from '../../constants/frac.constants'
   styleUrls: ['./custom-snackbar.component.scss']
 })
 export class CustomSnackbarComponent {
-  message = '';
-  type: 'success' | 'error' | 'warning' = 'success';
-  visible = false;
+  message = ''
+  type: 'success' | 'error' | 'warning' = 'success'
+  visible = false
 
   /**
    * Displays the notification or snackbar message to the user.

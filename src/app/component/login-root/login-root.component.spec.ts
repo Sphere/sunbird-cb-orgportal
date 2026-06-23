@@ -1,4 +1,7 @@
-﻿import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing'
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing'
+import { NO_ERRORS_SCHEMA } from '@angular/core'
+import { LoginRootService } from './login-root.service'
+import { LoginRootDirective } from './login-root.directive'
 
 import { LoginRootComponent } from './login-root.component'
 
@@ -8,7 +11,16 @@ describe('LoginRootComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [LoginRootComponent],
+      declarations: [LoginRootComponent, LoginRootDirective],
+      providers: [
+        {
+          provide: LoginRootService,
+          useValue: {
+            getComponent: jest.fn().mockReturnValue(class {}),
+          },
+        },
+      ],
+      schemas: [NO_ERRORS_SCHEMA],
     })
     .compileComponents()
   }))
@@ -16,6 +28,7 @@ describe('LoginRootComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(LoginRootComponent)
     component = fixture.componentInstance
+    jest.spyOn(component, 'loadComponent').mockImplementation(() => {})
     fixture.detectChanges()
   })
 

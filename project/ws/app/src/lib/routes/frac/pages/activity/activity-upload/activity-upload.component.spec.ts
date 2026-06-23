@@ -73,7 +73,7 @@ describe('ActivityUploadComponent', () => {
 
   it('should trigger initial search in manage mode from query params', () => {
     queryParams$.next({ mode: 'manage' })
-    expect(mockFracApiService.searchEntities).toHaveBeenCalledWith('activity', '', 'English')
+    expect(mockFracApiService.searchEntities).toHaveBeenCalledWith('activity', '', 'en')
   })
 
   it('should debounce typing search and run immediate enter search', fakeAsync(() => {
@@ -82,14 +82,14 @@ describe('ActivityUploadComponent', () => {
 
     component.onSearchTermChange()
     tick(499)
-    expect(mockFracApiService.searchEntities).not.toHaveBeenCalledWith('activity', 'Act', 'English')
+    expect(mockFracApiService.searchEntities).not.toHaveBeenCalledWith('activity', 'Act', 'en')
 
     tick(1)
-    expect(mockFracApiService.searchEntities).toHaveBeenCalledWith('activity', 'Act', 'English')
+    expect(mockFracApiService.searchEntities).toHaveBeenCalledWith('activity', 'Act', 'en')
 
     component.searchTerm = 'Act now'
     component.onSearchEnter()
-    expect(mockFracApiService.searchEntities).toHaveBeenCalledWith('activity', 'Act now', 'English')
+    expect(mockFracApiService.searchEntities).toHaveBeenCalledWith('activity', 'Act now', 'en')
   }))
 
   it('should open unsaved changes modal before leaving home', () => {
@@ -103,7 +103,7 @@ describe('ActivityUploadComponent', () => {
     )
   })
 
-  it('should redirect to manage page after successful upload modal close', () => {
+  it('should redirect to manage page after successful upload modal close', async () => {
     mockFracApiService.uploadFile.mockReturnValue(of({
       responseCode: 'OK',
       result: {
@@ -113,7 +113,8 @@ describe('ActivityUploadComponent', () => {
     }))
     mockMatDialog.open.mockReturnValue({ afterClosed: () => of(undefined) } as any)
 
-    component.uploadFile(new File(['a'], 'activity.csv'), 'English')
+    component.uploadFile(new File(['a'], 'activity.csv'), 'en')
+    await fixture.whenStable()
 
     expect(mockMatDialog.open).toHaveBeenCalledWith(
       UploadResultModalComponent,

@@ -59,6 +59,6 @@ describe('CompetencyUploadComponent', () => {
 
   it('should trigger initial search in manage mode', () => {
     queryParams$.next({ mode: 'manage' })
-    expect(mockFracApiService.searchEntities).toHaveBeenCalledWith('competency', '', 'English')
+    expect(mockFracApiService.searchEntities).toHaveBeenCalledWith('competency', '', 'en')
   })
 })

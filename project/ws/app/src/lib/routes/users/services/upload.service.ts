@@ -102,7 +102,7 @@ export class FileService implements OnDestroy {
   //   this.fileList$.next(this.fileList)
   // }
 
-  validateFile(name: String) {
+  validateFile(name: string) {
     const allowedFormats = ['xlsx', 'csv']
     const ext = name.substring(name.lastIndexOf('.') + 1).toLowerCase()
     if (allowedFormats.indexOf(ext) > -1) {

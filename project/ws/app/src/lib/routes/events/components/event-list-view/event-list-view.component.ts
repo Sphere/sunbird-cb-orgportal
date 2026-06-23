@@ -26,7 +26,7 @@ export class EventListViewComponent implements OnInit, AfterViewInit, OnChanges 
   @Input() isCreate?: boolean
 
   @Input() columns?: IColums[]
-  @Input() needCheckBox?: Boolean
+  @Input() needCheckBox?: boolean
   @Input() needHash?: boolean
   @Input() actions?: IAction[]
   @Output() clicked?: EventEmitter<any>

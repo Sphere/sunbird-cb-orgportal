@@ -176,7 +176,7 @@ export class CompetencyLabelsComponent implements OnInit, OnDestroy, AfterViewIn
 
       if (targetContainerIndex === 0) {
         // means dropped to unmapped
-        let aaa = (oldArray as UntypedFormArray).at(event.previousIndex) as UntypedFormGroup
+        const aaa = (oldArray as UntypedFormArray).at(event.previousIndex) as UntypedFormGroup
 
         (oldArray as UntypedFormArray).at(event.previousIndex).patchValue({
           ...(aaa.value),

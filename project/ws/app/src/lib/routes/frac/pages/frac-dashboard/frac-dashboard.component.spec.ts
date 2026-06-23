@@ -12,7 +12,7 @@ describe('FracDashboardComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [FracDashboardComponent],
       providers: [
-        { provide: Router, useValue: jasmine.createSpyObj('Router', ['navigateByUrl']) },
+        { provide: Router, useValue: { navigateByUrl: jest.fn() } },
         { provide: ConfigurationsService, useValue: { instanceConfig: {} } },
       ],
       schemas: [NO_ERRORS_SCHEMA],

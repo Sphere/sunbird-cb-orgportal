@@ -1,4 +1,8 @@
-﻿import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing'
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing'
+import { NO_ERRORS_SCHEMA } from '@angular/core'
+import { MatMenuModule } from '@angular/material/menu'
+import { MatSelectModule } from '@angular/material/select'
+import { ConfigurationsService } from '@sunbird-cb/utils'
 
 import { TncRendererComponent } from './tnc-renderer.component'
 
@@ -9,8 +13,17 @@ describe('TncRendererComponent', () => {
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [TncRendererComponent],
-    })
-    .compileComponents()
+      imports: [MatMenuModule, MatSelectModule],
+      providers: [
+        {
+          provide: ConfigurationsService,
+          useValue: {
+            restrictedFeatures: null,
+          },
+        },
+      ],
+      schemas: [NO_ERRORS_SCHEMA],
+    }).compileComponents()
   }))
 
   beforeEach(() => {
