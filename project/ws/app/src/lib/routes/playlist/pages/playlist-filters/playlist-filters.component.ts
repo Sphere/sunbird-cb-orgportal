@@ -2,11 +2,13 @@ import { ChangeDetectionStrategy, Component, computed, DestroyRef, ElementRef, H
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
 import { AbstractControl, FormControl, FormGroup, NonNullableFormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms'
 import { Router } from '@angular/router'
-import { startWith, take } from 'rxjs/operators'
+import { of } from 'rxjs'
+import { catchError, startWith, take } from 'rxjs/operators'
 import { CommonModule } from '@angular/common'
 import { PlaylistApiService, PlaylistType } from '../../services/playlist-api.service'
 import { PlaylistStateService } from '../../services/playlist-state.service'
 import { PlaylistFilters } from '../../models/playlist.model'
+import { ASKME_COURSE_CONTEXT_KEY } from '../../config/course-context.config'
 import { PLAYLIST_LANGUAGES, PLAYLIST_ROUTES, PLAYLIST_UI } from '../../constants/playlist.constants'
 import { log } from '../../utils/playlist-logger.utils'
 
@@ -214,9 +216,18 @@ export class PlaylistFiltersComponent implements OnInit {
             // Save filters to state
             this.state.setFilters(filters)
 
-            // Search for Course, Competency, and Search playlists in parallel
-            const [coursePlaylists, competencyPlaylists, searchPlaylists] = await Promise.all([
+            // Search for Course, ASKME Course, Competency, and Search playlists in parallel.
+            // The ASKME search swallows its own errors so that a failure in this newer,
+            // additive feature can never break the Course / Competency / Search flow.
+            const [coursePlaylists, askmeCoursePlaylists, competencyPlaylists, searchPlaylists] = await Promise.all([
                 this.playlistApi.searchPlaylist(filters, PlaylistType.COURSE).pipe(take(1)).toPromise(),
+                this.playlistApi.searchPlaylist(filters, PlaylistType.ASKME_COURSE).pipe(
+                    take(1),
+                    catchError(err => {
+                        log.warn('ASKME course playlist search failed, continuing without it:', err)
+                        return of([])
+                    })
+                ).toPromise(),
                 this.playlistApi.searchPlaylist(filters, PlaylistType.COMPETENCY).pipe(take(1)).toPromise(),
                 this.playlistApi.searchPlaylist(filters, PlaylistType.SEARCH).pipe(take(1)).toPromise(),
             ])
@@ -226,6 +237,12 @@ export class PlaylistFiltersComponent implements OnInit {
             this.state.setExistingPlaylist(existingCoursePlaylist)
             const existingCourseIds = this.playlistApi.extractCourseIds(coursePlaylists || [])
             this.state.setExistingCourseIds(existingCourseIds)
+
+            // Store ASKME Course playlist data — same shape, kept in its own state slice
+            const existingAskmePlaylist = askmeCoursePlaylists && askmeCoursePlaylists.length > 0 ? askmeCoursePlaylists[0] : null
+            this.state.setExistingPlaylist(existingAskmePlaylist, ASKME_COURSE_CONTEXT_KEY)
+            const existingAskmeCourseIds = this.playlistApi.extractCourseIds(askmeCoursePlaylists || [])
+            this.state.setExistingCourseIds(existingAskmeCourseIds, ASKME_COURSE_CONTEXT_KEY)
 
             // Store Competency playlist data
             const existingCompetencyPlaylist = competencyPlaylists && competencyPlaylists.length > 0 ? competencyPlaylists[0] : null

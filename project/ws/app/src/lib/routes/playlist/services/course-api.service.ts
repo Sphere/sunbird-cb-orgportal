@@ -298,13 +298,15 @@ export class CourseApiService {
      * Searches for specific courses by their IDs.
      * Much more efficient than loading all courses when you only need a few.
      *
+     * No language filter is applied: an identifier already resolves to exactly one
+     * course, and courses are not reliably tagged with `lang`, so filtering by it
+     * silently drops rows (they then render as "N/A").
+     *
      * @param courseIds Array of course identifiers
-     * @param language Language code for filtering
      * @returns Observable of matching courses
      */
     searchCoursesByIds(
-        courseIds: string[],
-        language: string = 'en'
+        courseIds: string[]
     ): Observable<{ courses: Course[]; totalCount: number }> {
         if (!courseIds || courseIds.length === 0) {
             return of({ courses: [], totalCount: 0 })
@@ -312,15 +314,9 @@ export class CourseApiService {
 
         const identifiers = courseIds.map(id => id.trim()).filter(id => id.length > 0)
 
-        const langFilter = expandLanguageFilter(language)
         const filters: any = {
             primaryCategory: ['Course'],
             identifier: identifiers,
-        }
-
-        const validLangFilter = langFilter.filter((l: string) => String(l).trim().length > 0)
-        if (language && validLangFilter.length > 0) {
-            filters.lang = validLangFilter
         }
 
         const payload: CourseSearchRequest = {

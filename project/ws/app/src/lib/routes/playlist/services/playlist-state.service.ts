@@ -4,6 +4,19 @@ import { PlaylistFilters, Playlist, RoleComparisonResult } from '../models/playl
 import { Course, SelectableCourse } from '../models/course.model'
 import { SelectableCompetency } from '../models/competency.model'
 import { RawCompetencyEntity } from '../utils/competency-transformer'
+import { CourseContextKey, DEFAULT_COURSE_CONTEXT_KEY } from '../config/course-context.config'
+
+/**
+ * One independent set of course-playlist state.
+ * There is one per course context (standard course playlist, ASKME course playlist, ...),
+ * so selections made in one flow never leak into the other.
+ */
+interface CourseContextState {
+    existingPlaylist: BehaviorSubject<Playlist | null>
+    existingCourseIds: BehaviorSubject<string[]>
+    selectedCourses: BehaviorSubject<SelectableCourse[]>
+    orderedCourses: BehaviorSubject<SelectableCourse[]>
+}
 
 
 
@@ -19,13 +32,9 @@ export class PlaylistStateService {
     private filtersSubject = new BehaviorSubject<PlaylistFilters | null>(null)
     public filters$ = this.filtersSubject.asObservable()
 
-    // Course Playlist (for edit mode)
-    private existingPlaylistSubject = new BehaviorSubject<Playlist | null>(null)
-    public existingPlaylist$ = this.existingPlaylistSubject.asObservable()
-
-    // Course IDs from existing playlist (for preselection)
-    private existingCourseIdsSubject = new BehaviorSubject<string[]>([])
-    public existingCourseIds$ = this.existingCourseIdsSubject.asObservable()
+    // Course playlist state, one slice per course context (default / askme).
+    // Created lazily so a new context needs no extra wiring here.
+    private courseContexts = new Map<CourseContextKey, CourseContextState>()
 
     // Competency Playlist (for edit mode)
     private existingCompetencyPlaylistSubject = new BehaviorSubject<Playlist | null>(null)
@@ -43,14 +52,6 @@ export class PlaylistStateService {
     private existingCompetencyCodesSubject = new BehaviorSubject<string[]>([])
     public existingCompetencyCodes$ = this.existingCompetencyCodesSubject.asObservable()
 
-    // Selected courses
-    private selectedCoursesSubject = new BehaviorSubject<SelectableCourse[]>([])
-    public selectedCourses$ = this.selectedCoursesSubject.asObservable()
-
-    // Ordered courses (after drag & drop)
-    private orderedCoursesSubject = new BehaviorSubject<SelectableCourse[]>([])
-    public orderedCourses$ = this.orderedCoursesSubject.asObservable()
-
     // Course cache for search
     private courseCache: Course[] = []
     private courseCacheLanguage: string = ''
@@ -65,7 +66,20 @@ export class PlaylistStateService {
 
     constructor() { }
 
-
+    /** Returns the state slice for a course context, creating it on first use */
+    private courseState(context: CourseContextKey = DEFAULT_COURSE_CONTEXT_KEY): CourseContextState {
+        let slice = this.courseContexts.get(context)
+        if (!slice) {
+            slice = {
+                existingPlaylist: new BehaviorSubject<Playlist | null>(null),
+                existingCourseIds: new BehaviorSubject<string[]>([]),
+                selectedCourses: new BehaviorSubject<SelectableCourse[]>([]),
+                orderedCourses: new BehaviorSubject<SelectableCourse[]>([]),
+            }
+            this.courseContexts.set(context, slice)
+        }
+        return slice
+    }
 
     /** Stores the current playlist filter criteria */
     setFilters(filters: PlaylistFilters): void {
@@ -78,23 +92,23 @@ export class PlaylistStateService {
     }
 
     /** Stores the IDs of courses present in the existing playlist (for pre-selection) */
-    setExistingCourseIds(ids: string[]): void {
-        this.existingCourseIdsSubject.next(ids)
+    setExistingCourseIds(ids: string[], context: CourseContextKey = DEFAULT_COURSE_CONTEXT_KEY): void {
+        this.courseState(context).existingCourseIds.next(ids)
     }
 
     /** Retrieves pre-selection course IDs */
-    getExistingCourseIds(): string[] {
-        return this.existingCourseIdsSubject.value
+    getExistingCourseIds(context: CourseContextKey = DEFAULT_COURSE_CONTEXT_KEY): string[] {
+        return this.courseState(context).existingCourseIds.value
     }
 
     /** Stores the full course playlist object for reference during updates */
-    setExistingPlaylist(playlist: Playlist | null): void {
-        this.existingPlaylistSubject.next(playlist)
+    setExistingPlaylist(playlist: Playlist | null, context: CourseContextKey = DEFAULT_COURSE_CONTEXT_KEY): void {
+        this.courseState(context).existingPlaylist.next(playlist)
     }
 
     /** Retrieves the existing course playlist object */
-    getExistingPlaylist(): Playlist | null {
-        return this.existingPlaylistSubject.value
+    getExistingPlaylist(context: CourseContextKey = DEFAULT_COURSE_CONTEXT_KEY): Playlist | null {
+        return this.courseState(context).existingPlaylist.value
     }
 
     /** Stores the full competency playlist object */
@@ -138,23 +152,23 @@ export class PlaylistStateService {
     }
 
     /** Stores the user's current course selections */
-    setSelectedCourses(courses: SelectableCourse[]): void {
-        this.selectedCoursesSubject.next(courses)
+    setSelectedCourses(courses: SelectableCourse[], context: CourseContextKey = DEFAULT_COURSE_CONTEXT_KEY): void {
+        this.courseState(context).selectedCourses.next(courses)
     }
 
     /** Retrieves the active list of selected courses */
-    getSelectedCourses(): SelectableCourse[] {
-        return this.selectedCoursesSubject.value
+    getSelectedCourses(context: CourseContextKey = DEFAULT_COURSE_CONTEXT_KEY): SelectableCourse[] {
+        return this.courseState(context).selectedCourses.value
     }
 
     /** Stores the final order of courses after drag-and-drop */
-    setOrderedCourses(courses: SelectableCourse[]): void {
-        this.orderedCoursesSubject.next(courses)
+    setOrderedCourses(courses: SelectableCourse[], context: CourseContextKey = DEFAULT_COURSE_CONTEXT_KEY): void {
+        this.courseState(context).orderedCourses.next(courses)
     }
 
     /** Retrieves the manually ordered list of courses */
-    getOrderedCourses(): SelectableCourse[] {
-        return this.orderedCoursesSubject.value
+    getOrderedCourses(context: CourseContextKey = DEFAULT_COURSE_CONTEXT_KEY): SelectableCourse[] {
+        return this.courseState(context).orderedCourses.value
     }
 
     /** Caches the master list of courses to avoid redundant API calls */
@@ -198,9 +212,10 @@ export class PlaylistStateService {
     }
 
     /** Resets all course-related selections */
-    clearSelectedCourses(): void {
-        this.selectedCoursesSubject.next([])
-        this.orderedCoursesSubject.next([])
+    clearSelectedCourses(context: CourseContextKey = DEFAULT_COURSE_CONTEXT_KEY): void {
+        const slice = this.courseState(context)
+        slice.selectedCourses.next([])
+        slice.orderedCourses.next([])
     }
 
     /** Stores the user's current competency selections */
@@ -222,7 +237,10 @@ export class PlaylistStateService {
      * Compares currently selected roles with the roles defined in the existing playlist.
      * Helps determine if an update is needed or if a new playlist should be created.
      */
-    compareRoles(selectedRoles: string[] | null | undefined): RoleComparisonResult {
+    compareRoles(
+        selectedRoles: string[] | null | undefined,
+        context: CourseContextKey = DEFAULT_COURSE_CONTEXT_KEY
+    ): RoleComparisonResult {
         const defaultResult: RoleComparisonResult = {
             newRoles: [],
             existingOnlyRoles: [],
@@ -231,7 +249,7 @@ export class PlaylistStateService {
         }
 
         const safeSelectedRoles = selectedRoles ?? []
-        const existingPlaylist = this.getExistingPlaylist()
+        const existingPlaylist = this.getExistingPlaylist(context)
 
         if (!existingPlaylist) {
             return defaultResult
@@ -271,9 +289,12 @@ export class PlaylistStateService {
      * Combines currently selected roles with existing playlist roles.
      * Ensures a unique set of roles while preserving the original casing where possible.
      */
-    getMergedRoles(selectedRoles: string[] | null | undefined): string[] {
+    getMergedRoles(
+        selectedRoles: string[] | null | undefined,
+        context: CourseContextKey = DEFAULT_COURSE_CONTEXT_KEY
+    ): string[] {
         const safeSelectedRoles = selectedRoles ?? []
-        const existingPlaylist = this.getExistingPlaylist()
+        const existingPlaylist = this.getExistingPlaylist(context)
 
         if (!existingPlaylist) {
             return safeSelectedRoles.filter(r => r)
@@ -300,14 +321,16 @@ export class PlaylistStateService {
     /** Full reset of all application state - used when leaving the playlist workflow */
     clearState(): void {
         this.filtersSubject.next(null)
-        this.existingPlaylistSubject.next(null)
-        this.existingCourseIdsSubject.next([])
+        this.courseContexts.forEach(slice => {
+            slice.existingPlaylist.next(null)
+            slice.existingCourseIds.next([])
+            slice.selectedCourses.next([])
+            slice.orderedCourses.next([])
+        })
         this.existingCompetencyPlaylistSubject.next(null)
         this.existingCompetencyIdsSubject.next([])
         this.existingCompetencyCodesSubject.next([])
         this.existingSearchPlaylistSubject.next(null)
-        this.selectedCoursesSubject.next([])
-        this.orderedCoursesSubject.next([])
         this.clearSelectedCompetencies()
         this.clearCourseCache()
         this.clearCompetencyCache()
