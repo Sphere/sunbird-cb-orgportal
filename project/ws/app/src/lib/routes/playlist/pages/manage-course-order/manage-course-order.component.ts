@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core'
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
 import { CommonModule } from '@angular/common'
-import { Router } from '@angular/router'
+import { ActivatedRoute, Router } from '@angular/router'
 import { take } from 'rxjs/operators'
 import { CdkDragDrop, DragDropModule, moveItemInArray } from '@angular/cdk/drag-drop'
 import { MatDialog, MatDialogModule } from '@angular/material/dialog'
@@ -10,8 +10,9 @@ import { MatFormFieldModule } from '@angular/material/form-field'
 import { MatInputModule } from '@angular/material/input'
 import { MatIconModule } from '@angular/material/icon'
 import { PlaylistStateService } from '../../services/playlist-state.service'
-import { PlaylistApiService, PlaylistType } from '../../services/playlist-api.service'
+import { PlaylistApiService } from '../../services/playlist-api.service'
 import { SelectableCourse } from '../../models/course.model'
+import { CourseContextConfig, getCourseContext } from '../../config/course-context.config'
 import { SuccessDialogComponent } from '../../components/success-dialog/success-dialog.component'
 import { RoleConfirmDialogComponent, RoleConfirmDialogData } from '../../components/role-confirm-dialog/role-confirm-dialog.component'
 import { ErrorDialogComponent, ErrorDialogData } from '../../components/error-dialog/error-dialog.component'
@@ -42,11 +43,15 @@ export class ManageCourseOrderComponent implements OnInit {
 
     private readonly destroyRef = inject(DestroyRef)
     private readonly router = inject(Router)
+    private readonly route = inject(ActivatedRoute)
     private readonly state = inject(PlaylistStateService)
     private readonly playlistApi = inject(PlaylistApiService)
     private readonly dialog = inject(MatDialog)
     private readonly featureAccess = inject(FeatureAccessService)
     private readonly featureKey = inject(FEATURE_KEY, { optional: true })
+
+    /** Which course playlist this screen saves to — set by route data */
+    readonly context: CourseContextConfig = getCourseContext(this.route.snapshot.data['courseContext'])
 
     /** Read-only mode for view-only users — disables reordering. */
     get isViewOnly(): boolean {
@@ -62,10 +67,10 @@ export class ManageCourseOrderComponent implements OnInit {
      * If selections are missing, redirects the user back to the course selection screen.
      */
     private loadSelectedCourses(): void {
-        const selectedCourses = this.state.getSelectedCourses()
+        const selectedCourses = this.state.getSelectedCourses(this.context.key)
 
         if (!selectedCourses || selectedCourses.length === 0) {
-            this.router.navigate([PLAYLIST_ROUTES.SELECT_COURSES])
+            this.router.navigate([this.context.selectRoute])
             return
         }
 
@@ -147,7 +152,7 @@ export class ManageCourseOrderComponent implements OnInit {
      * Navigate back to course selection
      */
     onBack(): void {
-        this.router.navigate([PLAYLIST_ROUTES.SELECT_COURSES])
+        this.router.navigate([this.context.selectRoute])
     }
 
     /**
@@ -158,7 +163,7 @@ export class ManageCourseOrderComponent implements OnInit {
     async onSave(): Promise<void> {
         // Get filters and existing playlist
         const filters = this.state.getFilters()
-        const existingPlaylist = this.state.getExistingPlaylist()
+        const existingPlaylist = this.state.getExistingPlaylist(this.context.key)
 
         if (!filters) {
             log.error('No filters found in state')
@@ -171,7 +176,7 @@ export class ManageCourseOrderComponent implements OnInit {
         }
 
         // Compare roles before saving
-        const roleComparison = this.state.compareRoles(filters.role)
+        const roleComparison = this.state.compareRoles(filters.role, this.context.key)
 
 
         // If roles differ, show confirmation dialog
@@ -202,13 +207,13 @@ export class ManageCourseOrderComponent implements OnInit {
             const courses = this.orderedCourses()
 
             // Save ordered courses to state
-            this.state.setOrderedCourses(courses)
+            this.state.setOrderedCourses(courses, this.context.key)
 
             // Extract ordered course IDs
             const courseIds = courses.map(c => c.identifier)
 
             // Merge roles (combine existing + selected)
-            const mergedRoles = this.state.getMergedRoles(filters.role)
+            const mergedRoles = this.state.getMergedRoles(filters.role, this.context.key)
             const filtersWithMergedRoles = { ...filters, role: mergedRoles }
 
             // Call save API
@@ -216,7 +221,7 @@ export class ManageCourseOrderComponent implements OnInit {
                 filtersWithMergedRoles,
                 courseIds,
                 existingPlaylist || undefined,
-                PlaylistType.COURSE
+                this.context.playlistType
             ).pipe(take(1)).toPromise()
 
 
@@ -226,13 +231,13 @@ export class ManageCourseOrderComponent implements OnInit {
 
             try {
                 // Search using unique key: orgId + language + role + playlistId
-                const freshPlaylists = await this.playlistApi.searchPlaylist(filters, PlaylistType.COURSE).pipe(take(1)).toPromise()
+                const freshPlaylists = await this.playlistApi.searchPlaylist(filters, this.context.playlistType).pipe(take(1)).toPromise()
                 const freshPlaylist = freshPlaylists && freshPlaylists.length > 0 ? freshPlaylists[0] : null
                 const freshCourseIds = this.playlistApi.extractCourseIds(freshPlaylists || [])
 
                 // Update state with fresh data
-                this.state.setExistingPlaylist(freshPlaylist)
-                this.state.setExistingCourseIds(freshCourseIds)
+                this.state.setExistingPlaylist(freshPlaylist, this.context.key)
+                this.state.setExistingCourseIds(freshCourseIds, this.context.key)
             } catch (refetchError) {
                 log.warn('Could not re-fetch playlist data:', refetchError)
                 // Continue anyway - the save was successful

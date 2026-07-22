@@ -1,11 +1,12 @@
 import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core'
 import { CommonModule } from '@angular/common'
-import { Router } from '@angular/router'
+import { ActivatedRoute, Router } from '@angular/router'
 import { MatIconModule } from '@angular/material/icon'
 import { SelectionModel } from '@angular/cdk/collections'
 import { CourseApiService } from '../../services/course-api.service'
 import { PlaylistStateService } from '../../services/playlist-state.service'
 import { Course, SelectableCourse } from '../../models/course.model'
+import { CourseContextConfig, getCourseContext } from '../../config/course-context.config'
 import { PLAYLIST_ROUTES, PLAYLIST_UI } from '../../constants/playlist.constants'
 import { log } from '../../utils/playlist-logger.utils'
 import { DisableForViewOnlyDirective } from '../../../../shared/directives/disable-for-view-only.directive'
@@ -32,11 +33,15 @@ export class SelectCoursesComponent implements OnInit {
     private preselectedCourseOrderMap = new Map<string, number>()
 
     private readonly router = inject(Router)
+    private readonly route = inject(ActivatedRoute)
     private readonly courseApi = inject(CourseApiService)
     private readonly state = inject(PlaylistStateService)
 
+    /** Which course playlist this screen is editing — set by route data */
+    readonly context: CourseContextConfig = getCourseContext(this.route.snapshot.data['courseContext'])
+
     ngOnInit(): void {
-        this.existingCourseIds.set(this.state.getExistingCourseIds())
+        this.existingCourseIds.set(this.state.getExistingCourseIds(this.context.key))
         this.buildPreselectedCourseOrderMap()
         this.loadCourses()
     }
@@ -44,7 +49,7 @@ export class SelectCoursesComponent implements OnInit {
     /** Builds payload-order map for existing playlist courses (index 0,1,2...) */
     private buildPreselectedCourseOrderMap(): void {
         this.preselectedCourseOrderMap.clear()
-        const existingPlaylist = this.state.getExistingPlaylist()
+        const existingPlaylist = this.state.getExistingPlaylist(this.context.key)
         const payload = existingPlaylist?.dataSource?.payload
         if (!Array.isArray(payload)) {
             return
@@ -100,7 +105,7 @@ export class SelectCoursesComponent implements OnInit {
     /** Restores saved selections; list order is set before calling this */
     private applyPreselectionAndSort(): void {
         this.selection.clear()
-        const savedSelections = this.state.getSelectedCourses()
+        const savedSelections = this.state.getSelectedCourses(this.context.key)
         let selectedCount = 0
 
         if (savedSelections && savedSelections.length > 0) {
@@ -184,8 +189,8 @@ export class SelectCoursesComponent implements OnInit {
 
     onNext(): void {
         const selectedInListOrder = this.allCourses().filter(c => this.selection.isSelected(c))
-        this.state.setSelectedCourses(selectedInListOrder)
-        this.router.navigate([PLAYLIST_ROUTES.MANAGE_COURSE_ORDER])
+        this.state.setSelectedCourses(selectedInListOrder, this.context.key)
+        this.router.navigate([this.context.orderRoute])
     }
 
     isNextEnabled(): boolean {

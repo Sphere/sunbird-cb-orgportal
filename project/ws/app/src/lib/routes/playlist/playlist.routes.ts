@@ -64,4 +64,18 @@ export const STANDALONE_PLAYLIST_ROUTES: Routes = [
         component: ManageSearchComponent,
         providers: PLAYLIST_FEATURE_PROVIDERS,
     },
+    // ASKME course flow — same screens, driven by the 'askme' course context
+    // so it reads and writes the ASKME_COURSES_V1 playlist instead.
+    {
+        path: 'askme/select-courses',
+        component: SelectCoursesComponent,
+        providers: PLAYLIST_FEATURE_PROVIDERS,
+        data: { courseContext: 'askme' },
+    },
+    {
+        path: 'askme/manage-course-order',
+        component: ManageCourseOrderComponent,
+        providers: PLAYLIST_FEATURE_PROVIDERS,
+        data: { courseContext: 'askme' },
+    },
 ]

@@ -9,6 +9,12 @@ import { Playlist, PlaylistCompetencyPayload, PlaylistFilters } from '../../mode
 import { CourseApiService } from '../../services/course-api.service'
 import { PLAYLIST_ROUTES, TIME_UNITS } from '../../constants/playlist.constants'
 import {
+    ASKME_COURSE_CONTEXT_KEY,
+    COURSE_CONTEXTS,
+    CourseContextKey,
+    DEFAULT_COURSE_CONTEXT_KEY,
+} from '../../config/course-context.config'
+import {
     PlaylistViewCompetencyRow,
     PlaylistViewCourseRow,
     PlaylistViewDialogComponent,
@@ -28,15 +34,20 @@ import { Course } from '../../models/course.model'
 export class PlaylistSummaryComponent implements OnInit {
     readonly filters = signal<PlaylistFilters | null>(null)
     readonly existingCourseIds = signal<string[]>([])
+    readonly existingAskmeCourseIds = signal<string[]>([])
     readonly existingCompetencyIds = signal<string[]>([])
 
     readonly courseSummary = signal({ total: 0, lastUpdated: 'N/A' })
+    readonly askmeCourseSummary = signal({ total: 0, lastUpdated: 'N/A' })
     readonly competencySummary = signal({ total: 0, lastUpdated: 'N/A' })
     readonly searchSummary = signal({ total: 0, lastUpdated: 'N/A' })
 
     readonly hasExistingCoursePlaylist = computed(() => this.existingCourseIds().length > 0)
+    readonly hasExistingAskmeCoursePlaylist = computed(() => this.existingAskmeCourseIds().length > 0)
     readonly hasExistingCompetencyPlaylist = computed(() => this.existingCompetencyIds().length > 0)
     readonly hasExistingSearchPlaylist = computed(() => this.searchSummary().total > 0)
+
+    private readonly askmeContext = COURSE_CONTEXTS[ASKME_COURSE_CONTEXT_KEY]
 
     private readonly router = inject(Router)
     private readonly state = inject(PlaylistStateService)
@@ -50,6 +61,7 @@ export class PlaylistSummaryComponent implements OnInit {
     ngOnInit(): void {
         this.loadFilters()
         this.loadExistingPlaylist()
+        this.loadExistingAskmeCoursePlaylist()
         this.loadExistingCompetencyPlaylist()
         this.loadExistingSearchPlaylist()
     }
@@ -77,6 +89,23 @@ export class PlaylistSummaryComponent implements OnInit {
         const existingPlaylist = this.state.getExistingPlaylist()
 
         this.courseSummary.set({
+            total: ids.length,
+            lastUpdated: ids.length > 0 && existingPlaylist?.updated_at
+                ? this.timeAgo(existingPlaylist.updated_at)
+                : 'N/A',
+        })
+    }
+
+    /**
+     * Loads the existing ASKME course playlist details.
+     * Same shape as the course playlist, read from the ASKME state slice.
+     */
+    private loadExistingAskmeCoursePlaylist(): void {
+        const ids = this.state.getExistingCourseIds(ASKME_COURSE_CONTEXT_KEY)
+        this.existingAskmeCourseIds.set(ids)
+        const existingPlaylist = this.state.getExistingPlaylist(ASKME_COURSE_CONTEXT_KEY)
+
+        this.askmeCourseSummary.set({
             total: ids.length,
             lastUpdated: ids.length > 0 && existingPlaylist?.updated_at
                 ? this.timeAgo(existingPlaylist.updated_at)
@@ -172,6 +201,18 @@ export class PlaylistSummaryComponent implements OnInit {
     }
 
     /**
+     * Navigates to the ASKME course selection workflow.
+     * Uses the same screens as Manage Course, bound to the ASKME playlist.
+     */
+    onManageAskmeCourse(): void {
+        // Clear course cache to ensure fresh data is fetched from sunbirdigot/search
+        this.state.clearCourseCache()
+        // Clear any previously selected ASKME courses to start fresh
+        this.state.clearSelectedCourses(ASKME_COURSE_CONTEXT_KEY)
+        this.router.navigate([this.askmeContext.selectRoute])
+    }
+
+    /**
      * Navigates to the competency selection workflow.
      * Allows the user to browse and check/uncheck competencies for the playlist.
      */
@@ -218,17 +259,26 @@ export class PlaylistSummaryComponent implements OnInit {
         })
     }
 
-    async onViewCourse(): Promise<void> {
+    onViewCourse(): Promise<void> {
+        return this.openCourseView(DEFAULT_COURSE_CONTEXT_KEY)
+    }
+
+    onViewAskmeCourse(): Promise<void> {
+        return this.openCourseView(ASKME_COURSE_CONTEXT_KEY)
+    }
+
+    /** Opens the read-only view for whichever course playlist the context points at */
+    private async openCourseView(contextKey: CourseContextKey): Promise<void> {
         const filters = this.filters()
-        const existingPlaylist = this.state.getExistingPlaylist()
+        const existingPlaylist = this.state.getExistingPlaylist(contextKey)
         if (!filters || !existingPlaylist) {
             return
         }
 
-        const courseRows = await this.buildCourseRows(existingPlaylist, filters.language)
+        const courseRows = await this.buildCourseRows(existingPlaylist)
         const dialogData: PlaylistViewDialogData = {
             mode: 'course',
-            title: 'Course Playlist View',
+            title: COURSE_CONTEXTS[contextKey].viewDialogTitle,
             orgId: filters.orgId,
             orgName: filters.orgName || '',
             roles: filters.role || [],
@@ -273,21 +323,21 @@ export class PlaylistSummaryComponent implements OnInit {
     }
 
 
-    private async getCourseMapForIds(courseIds: string[], language: string): Promise<Map<string, Course>> {
+    private async getCourseMapForIds(courseIds: string[]): Promise<Map<string, Course>> {
         if (courseIds.length === 0) {
             return new Map()
         }
 
-        const response = await this.courseApi.searchCoursesByIds(courseIds, language).pipe(take(1)).toPromise()
+        const response = await this.courseApi.searchCoursesByIds(courseIds).pipe(take(1)).toPromise()
         const courses = (response as any)?.courses || []
         return new Map(courses.map((c: Course) => [c.identifier, c]))
     }
 
-    private async buildCourseRows(playlist: Playlist, language: string): Promise<PlaylistViewCourseRow[]> {
+    private async buildCourseRows(playlist: Playlist): Promise<PlaylistViewCourseRow[]> {
         const payload = Array.isArray(playlist?.dataSource?.payload) ? playlist.dataSource.payload : []
         const courseIds = payload.filter((item): item is string => typeof item === 'string' && !!item.trim())
 
-        const courseMap = await this.getCourseMapForIds(courseIds, language)
+        const courseMap = await this.getCourseMapForIds(courseIds)
 
         return courseIds.map((identifier, index) => {
             const course = courseMap.get(identifier)

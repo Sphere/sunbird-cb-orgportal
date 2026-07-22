@@ -49,7 +49,9 @@ interface PlaylistMutationResponse {
 export enum PlaylistType {
     COURSE = 'COURSE',
     COMPETENCY = 'COMPETENCY',
-    SEARCH = 'SEARCH'
+    SEARCH = 'SEARCH',
+    /** ASKME course playlist — same static course payload as COURSE, stored under its own playlistId */
+    ASKME_COURSE = 'ASKME_COURSE'
 }
 
 /**
@@ -61,6 +63,7 @@ export const PLAYLIST_IDS = {
     [PlaylistType.COURSE]: 'Playlist_Course',
     [PlaylistType.COMPETENCY]: 'COMPETENCY_PLAYLIST_V2',
     [PlaylistType.SEARCH]: 'SEARCH_PLAYLIST',
+    [PlaylistType.ASKME_COURSE]: 'ASKME_COURSES_V1',
 } as const
 
 /**
