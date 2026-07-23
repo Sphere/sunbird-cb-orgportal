@@ -1,14 +1,18 @@
-import { Component, OnInit } from '@angular/core'
+import { Component, OnInit, OnDestroy } from '@angular/core'
 import { ActivatedRoute } from '@angular/router'
 import { EventService } from '../../services/event.service'
 import { ConfigurationsService, NsPage } from '@sunbird-cb/utils'
+import { Subject } from 'rxjs'
+import { takeUntil } from 'rxjs/operators'
 
 @Component({
+  standalone: false,
   selector: 'ws-app-app-event',
   templateUrl: './app-event.component.html',
   styleUrls: ['./app-event.component.scss'],
 })
-export class AppEventComponent implements OnInit {
+export class AppEventComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>()
   data: any
   error = false
   isRegisteredUser = false
@@ -21,10 +25,10 @@ export class AppEventComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.appEventSvc.bannerisEnabled.subscribe(data => {
+    this.appEventSvc.bannerisEnabled.pipe(takeUntil(this.destroy$)).subscribe(data => {
       this.isEnabled = data
     })
-    this.activatedRoute.data.subscribe((data: any) => {
+    this.activatedRoute.data.pipe(takeUntil(this.destroy$)).subscribe((data: any) => {
       if (data.eventdata && data.eventdata.data) {
         this.data = data.eventdata.data
         this.isRegisteredUser = this.data.RegistrationStatus.RegisteredUser === 'true'
@@ -33,6 +37,11 @@ export class AppEventComponent implements OnInit {
       }
     })
 
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next()
+    this.destroy$.complete()
   }
 
 }

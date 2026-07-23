@@ -5,6 +5,7 @@ import { Subscription } from 'rxjs'
 import { ValueService, ConfigurationsService, EFeatures, NsPage } from '@sunbird-cb/utils'
 
 @Component({
+  standalone: false,
   selector: 'ws-public-faq',
   templateUrl: './public-faq.component.html',
   styleUrls: ['./public-faq.component.scss'],

@@ -1,20 +1,24 @@
-import { Component, OnInit } from '@angular/core'
+import { Component, OnInit, OnDestroy } from '@angular/core'
 import { ConfigurationsService } from '@sunbird-cb/utils'
 import { SafeUrl, DomSanitizer } from '@angular/platform-browser'
 import { Event, NavigationEnd, Router } from '@angular/router'
+import { Subject } from 'rxjs'
+import { takeUntil } from 'rxjs/operators'
 
 @Component({
+  standalone: false,
   selector: 'ws-app-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>()
   appIcon: SafeUrl = ''
   stepCount = 1
   appName = ''
   showStepCount = false
   constructor(private configSvc: ConfigurationsService, private domSanitizer: DomSanitizer, private router: Router) {
-    this.router.events.subscribe((e: Event) => {
+    this.router.events.pipe(takeUntil(this.destroy$)).subscribe((e: Event) => {
       if (e instanceof NavigationEnd) {
         if (e.url.includes('lang')) {
           this.stepCount = 1
@@ -34,6 +38,11 @@ export class HomeComponent implements OnInit {
 
       }
     })
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next()
+    this.destroy$.complete()
   }
 
   ngOnInit() {

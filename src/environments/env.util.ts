@@ -2,7 +2,14 @@
  * Fallback roles that are always included even if window.env.portalRoles is missing.
  * Update this list when Jenkins/DevOps config is not yet set.
  */
-const DEFAULT_REQUIRED_ROLES: string[] = ['FRAC_ADMIN', 'FRAC_READ', 'PLAYLIST_ADMIN', 'PLAYLIST_READ']
+const DEFAULT_REQUIRED_ROLES: string[] = [
+  'MDO_ADMIN',
+  'MDO_DASHBOARD_VIEWER',
+  'FRAC_ADMIN',
+  'FRAC_READ',
+  'PLAYLIST_ADMIN',
+  'PLAYLIST_READ',
+]
 
 type EnvMap = { [key: string]: any }
 

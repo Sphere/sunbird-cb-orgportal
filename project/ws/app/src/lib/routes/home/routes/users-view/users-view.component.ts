@@ -1,14 +1,14 @@
 import { Component, OnDestroy, OnInit } from '@angular/core'
 import { NSProfileDataV2 } from '../../models/profile-v2.model'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
+import { MatDialog } from '@angular/material/dialog'
 import { ActivatedRoute, Router } from '@angular/router'
 import { UsersService } from '../../../users/services/users.service'
 /* tslint:disable */
 import _ from 'lodash'
 /* tslint:enable */
 import { environment } from 'src/environments/environment'
-import { ITableData } from '@sunbird-cb/collection/lib/ui-org-table/interface/interfaces'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { ITableData } from '../../../ui-org-table.model'
+import { MatSnackBar } from '@angular/material/snack-bar'
 import { EventService } from '@sunbird-cb/utils'
 import { NsContent } from '@sunbird-cb/collection'
 import { TelemetryEvents } from '../../../../head/_services/telemetry.event.model'
@@ -16,6 +16,7 @@ import { LoaderService } from '../../../../../../../../../src/app/services/loade
 import { FilterDialogComponent } from '../../../../../../../../../src/app/plugins/skill/components/filter-dialog/filter-dialog.component'
 
 @Component({
+  standalone: false,
   selector: 'ws-app-users-view',
   templateUrl: './users-view.component.html',
   styleUrls: ['./users-view.component.scss'],
@@ -47,6 +48,7 @@ export class UsersViewComponent implements OnInit, OnDestroy {
   content: NsContent.IContent = {} as NsContent.IContent
   selectedFilters: any = []
   filterValues: any = []
+  isLoading = true
 
   tabledata: ITableData = {
     actions: [],
@@ -235,9 +237,14 @@ export class UsersViewComponent implements OnInit, OnDestroy {
     }
     const rootOrgId = _.get(this.route.snapshot.parent, 'data.configService.unMappedUser.rootOrg.rootOrgId')
 
-    this.usersService.searchUserByFilter(req, rootOrgId).subscribe(data => {
-      this.usersData = data.result.response
-      this.filterData()
+    this.isLoading = true
+    this.usersService.searchUserByFilter(req, rootOrgId).subscribe({
+      next: data => {
+        this.usersData = data.result.response
+        this.filterData()
+        this.isLoading = false
+      },
+      error: () => { this.isLoading = false },
     })
 
   }
@@ -327,9 +334,13 @@ export class UsersViewComponent implements OnInit, OnDestroy {
     //   this.usersData = data
     //   this.filterData()
     // })
-    this.usersService.getAllKongUsers(rootOrgId).subscribe(data => {
-      this.usersData = data.result.response
-      this.filterData()
+    this.usersService.getAllKongUsers(rootOrgId).subscribe({
+      next: data => {
+        this.usersData = data.result.response
+        this.filterData()
+        this.isLoading = false
+      },
+      error: () => { this.isLoading = false },
     })
   }
 

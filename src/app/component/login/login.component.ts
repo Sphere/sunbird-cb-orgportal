@@ -6,6 +6,7 @@ import { Subscription } from 'rxjs'
 import { ILoginDescriptiveFooterConfig, IWSPublicLoginConfig } from './login.model'
 
 @Component({
+  standalone: false,
   selector: 'ws-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],

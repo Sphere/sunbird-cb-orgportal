@@ -1,16 +1,20 @@
-import { Component, OnInit, SimpleChanges } from '@angular/core'
-import { MatLegacyPaginator as MatPaginator } from '@angular/material/legacy-paginator'
+import { Component, OnInit, OnDestroy, SimpleChanges, OnChanges } from '@angular/core'
+import { MatPaginator } from '@angular/material/paginator'
 import { ExportAsService, ExportAsConfig } from 'ngx-export-as'
 /* tslint:disable */
 import _ from 'lodash'
 import { AllocationService } from '../../services/allocation.service'
 import { ActivatedRoute } from '@angular/router'
+import { Subject } from 'rxjs'
+import { takeUntil } from 'rxjs/operators'
 @Component({
+  standalone: false,
   selector: 'ws-app-published-allocations',
   templateUrl: './published-allocations.component.html',
   styleUrls: ['./published-allocations.component.scss'],
 })
-export class PublishedAllocationsComponent implements OnInit {
+export class PublishedAllocationsComponent implements OnInit, OnDestroy, OnChanges {
+  private readonly destroy$ = new Subject<void>()
   tabs: any
   currentUser!: string | null
   data: any = []
@@ -36,10 +40,15 @@ export class PublishedAllocationsComponent implements OnInit {
   p: number = 1
   constructor(private activated: ActivatedRoute, private exportAsService: ExportAsService,
     private allocateSrvc: AllocationService) {
-    this.activated.params.subscribe((param: any) => {
+    this.activated.params.pipe(takeUntil(this.destroy$)).subscribe((param: any) => {
       this.workorderID = param['workorder'] || ''
       this.getAllocatedUsers(this.workorderID)
     })
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next()
+    this.destroy$.complete()
   }
 
   ngOnInit() {
@@ -72,7 +81,7 @@ export class PublishedAllocationsComponent implements OnInit {
     if (action === 'Download') {
       console.log('row data', row)
       this.downloaddata.push(row)
-      this.exportAsService.save(this.config, 'WorkAllocation').subscribe(() => {
+      this.exportAsService.save(this.config, 'WorkAllocation').pipe(takeUntil(this.destroy$)).subscribe(() => {
         // save started
       })
     } else if (action === 'Archive') {
@@ -86,7 +95,7 @@ export class PublishedAllocationsComponent implements OnInit {
   }
 
   getAllocatedUsers(woId: any) {
-    this.allocateSrvc.getAllocatedUsers(woId).subscribe((res: any) => {
+    this.allocateSrvc.getAllocatedUsers(woId).pipe(takeUntil(this.destroy$)).subscribe((res: any) => {
       this.workorderData = res.result.data
       const newbdtitle = { title: this.workorderData.name, url: 'none' }
       this.bdtitles.push(newbdtitle)

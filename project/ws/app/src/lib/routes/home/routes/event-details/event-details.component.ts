@@ -1,37 +1,44 @@
-import { Component, OnInit } from '@angular/core'
+import { Component, OnInit, OnDestroy } from '@angular/core'
 import { ActivatedRoute, Router, NavigationEnd } from '@angular/router'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
-import { filter } from 'rxjs/operators'
+import { MatDialog } from '@angular/material/dialog'
+import { Subject } from 'rxjs'
+import { filter, takeUntil } from 'rxjs/operators'
 import { EventService } from '../../services/event.service'
 import { EventModalComponent } from '../event-modal/event-modal.component'
 
 @Component({
+  standalone: false,
   selector: 'ws-app-event-details',
   templateUrl: './event-details.component.html',
   styleUrls: ['./event-details.component.scss'],
 })
-export class EventDetailsComponent implements OnInit {
+export class EventDetailsComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>()
 
   event: any // Stores the fetched event details
   activeTab = 'overview'
   isCertificateRoute = false
 
   constructor(
-    private route: ActivatedRoute,
-    private router: Router,
-    private dialog: MatDialog,
-    private eventService: EventService
-
+    private readonly route: ActivatedRoute,
+    private readonly router: Router,
+    private readonly dialog: MatDialog,
+    private readonly eventService: EventService
   ) { }
+
+  ngOnDestroy() {
+    this.destroy$.next()
+    this.destroy$.complete()
+  }
 
   ngOnInit(): void {
 
-    this.route.paramMap.subscribe(params => {
+    this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe(params => {
       console.log('Route Params:', params)
       const eventId = params.get('id')
       if (eventId) {
         console.log('Fetching event data for ID:', eventId)
-        this.eventService.getEventById(eventId).subscribe(data => {
+        this.eventService.getEventById(eventId).pipe(takeUntil(this.destroy$)).subscribe(data => {
           console.log('Event Data:', data)
           this.event = data
           this.eventService.updateEvent(this.event) // ✅ Store event globally
@@ -40,14 +47,15 @@ export class EventDetailsComponent implements OnInit {
     })
 
     // ✅ Detect if the current route is 'certificate'
-    this.route.url.subscribe(urlSegments => {
+    this.route.url.pipe(takeUntil(this.destroy$)).subscribe(urlSegments => {
       console.log('URL Segments:', urlSegments)
       this.isCertificateRoute = urlSegments.some(segment => segment.path === 'certificate')
     })
 
     // ✅ Update on navigation change
     this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd)
+      filter(event => event instanceof NavigationEnd),
+      takeUntil(this.destroy$)
     ).subscribe(() => {
 
       this.isCertificateRoute = this.route.firstChild?.snapshot.url[0]?.path === 'certificate'
@@ -68,11 +76,12 @@ export class EventDetailsComponent implements OnInit {
       data: { event: eventData },
     })
 
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        console.log('Event updated:', result)
-        this.event = result // Update the event details
-      }
+    dialogRef.afterClosed().pipe(takeUntil(this.destroy$)).subscribe({
+      next: result => {
+        if (result) {
+          this.event = result
+        }
+      },
     })
   }
 

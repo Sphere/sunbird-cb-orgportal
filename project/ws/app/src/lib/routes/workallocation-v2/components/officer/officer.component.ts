@@ -9,6 +9,7 @@ import _ from 'lodash'
 // tslint:enable
 
 @Component({
+  standalone: false,
   selector: 'ws-app-officer',
   templateUrl: './officer.component.html',
   styleUrls: ['./officer.component.scss'],

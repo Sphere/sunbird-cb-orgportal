@@ -1,20 +1,24 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core'
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core'
 import { UntypedFormGroup, Validators, UntypedFormBuilder, UntypedFormArray, UntypedFormControl } from '@angular/forms'
 import { AllocationService } from '../../services/allocation.service'
 import { Router } from '@angular/router'
 import { ExportAsService, ExportAsConfig } from 'ngx-export-as'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
+import { MatDialog } from '@angular/material/dialog'
 import { DialogConfirmComponent } from 'src/app/component/dialog-confirm/dialog-confirm.component'
 import { AllocationActionsComponent } from '../../components/allocation-actions/allocation-actions.component'
 import { ConfigurationsService } from '@sunbird-cb/utils'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { MatSnackBar } from '@angular/material/snack-bar'
+import { Subject } from 'rxjs'
+import { takeUntil } from 'rxjs/operators'
 
 @Component({
+  standalone: false,
   selector: 'ws-app-create-workallocation',
   templateUrl: './create-workallocation.component.html',
   styleUrls: ['./create-workallocation.component.scss'],
 })
-export class CreateWorkallocationComponent implements OnInit {
+export class CreateWorkallocationComponent implements OnInit, OnDestroy {
+  private readonly destroy$ = new Subject<void>()
   @ViewChild('childNodes', { static: false })
   inputvar!: ElementRef
   tabsData!: any[]
@@ -84,6 +88,11 @@ export class CreateWorkallocationComponent implements OnInit {
     })
   }
 
+  ngOnDestroy() {
+    this.destroy$.next()
+    this.destroy$.complete()
+  }
+
   ngOnInit() {
     this.tabsData = [
       {
@@ -112,7 +121,7 @@ export class CreateWorkallocationComponent implements OnInit {
 
   export() {
     // download the file using old school javascript method
-    this.exportAsService.save(this.config, 'WorkAllocation').subscribe(() => {
+    this.exportAsService.save(this.config, 'WorkAllocation').pipe(takeUntil(this.destroy$)).subscribe(() => {
       // save started
     })
     // get the data as base64 or json object for json type - this will be helpful in ionic or SSR
@@ -175,7 +184,7 @@ export class CreateWorkallocationComponent implements OnInit {
       this.similarActivities = []
       this.similarPositions = []
 
-      this.allocateSrvc.onSearchUser(val).subscribe(res => {
+      this.allocateSrvc.onSearchUser(val).pipe(takeUntil(this.destroy$)).subscribe(res => {
         this.userslist = res.result.data
         this.similarUsers = this.userslist
         this.displayLoader('false')
@@ -201,7 +210,7 @@ export class CreateWorkallocationComponent implements OnInit {
       this.similarRoles = []
       this.similarActivities = []
       this.similarPositions = []
-      this.allocateSrvc.onSearchRole(val).subscribe(res => {
+      this.allocateSrvc.onSearchRole(val).pipe(takeUntil(this.destroy$)).subscribe(res => {
         this.similarRoles = res
         this.displayLoader('false')
         if (this.similarRoles && this.similarRoles.length === 0) {
@@ -241,7 +250,7 @@ export class CreateWorkallocationComponent implements OnInit {
           },
         ],
       }
-      this.allocateSrvc.onSearchPosition(req).subscribe(res => {
+      this.allocateSrvc.onSearchPosition(req).pipe(takeUntil(this.destroy$)).subscribe(res => {
         this.similarPositions = res.responseData
         this.displayLoader('false')
         if (this.similarPositions && this.similarPositions.length === 0) {
@@ -302,7 +311,7 @@ export class CreateWorkallocationComponent implements OnInit {
       },
     })
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().pipe(takeUntil(this.destroy$)).subscribe(result => {
       if (result) {
         this.selectedUser = ''
         this.ralist = []
@@ -475,7 +484,7 @@ export class CreateWorkallocationComponent implements OnInit {
     if (this.selectedUser && this.selectedUser.allocationDetails) {
       reqdata.activeList = this.selectedUser.allocationDetails.archivedList
     }
-    this.allocateSrvc.createAllocation(reqdata).subscribe(res => {
+    this.allocateSrvc.createAllocation(reqdata).pipe(takeUntil(this.destroy$)).subscribe(res => {
       if (res) {
         this.openSnackbar('Work Allocated Successfully')
         this.newAllocationForm.reset()
@@ -513,7 +522,7 @@ export class CreateWorkallocationComponent implements OnInit {
       panelClass: 'wa-dialog',
       data: userObj,
     })
-    this.dialogRef.afterClosed().subscribe((result: any) => {
+    this.dialogRef.afterClosed().pipe(takeUntil(this.destroy$)).subscribe((result: any) => {
 
       if (result.data !== undefined) {
         this.showPublishButton = true
@@ -535,7 +544,7 @@ export class CreateWorkallocationComponent implements OnInit {
       userId: reqUserId,
 
     }
-    this.allocateSrvc.getAllocationDetails(reqUserObj).subscribe((res: any) => {
+    this.allocateSrvc.getAllocationDetails(reqUserObj).pipe(takeUntil(this.destroy$)).subscribe((res: any) => {
       if (res) {
         this.waId = res.result.data[0].allocationDetails.draftWAObject.id
       }
@@ -545,7 +554,7 @@ export class CreateWorkallocationComponent implements OnInit {
   publishWorkOrder() {
     this.publishWorkAllocationData.waId = this.waId
     this.publishWorkAllocationData.status = 'Published'
-    this.allocateSrvc.updateAllocation(this.publishWorkAllocationData).subscribe((res: any) => {
+    this.allocateSrvc.updateAllocation(this.publishWorkAllocationData).pipe(takeUntil(this.destroy$)).subscribe((res: any) => {
       if (res) {
         this.openSnackbar('Work Allocated Successfully')
         this.router.navigate(['/app/home/workallocation'])

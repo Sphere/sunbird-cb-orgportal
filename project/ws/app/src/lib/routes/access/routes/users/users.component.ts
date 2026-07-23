@@ -4,9 +4,10 @@ import { environment } from '../../../../../../../../../src/environments/environ
 import { UsersService } from '../../services/users.service'
 /* tslint:disable */
 import _ from 'lodash'
-import { ITableData } from '@sunbird-cb/collection/lib/ui-org-table/interface/interfaces'
+import { ITableData } from '../../../ui-org-table.model'
 /* tslint:enable */
 @Component({
+  standalone: false,
   selector: 'ws-app-users',
   templateUrl: './users.component.html',
   styleUrls: ['./users.component.scss'],

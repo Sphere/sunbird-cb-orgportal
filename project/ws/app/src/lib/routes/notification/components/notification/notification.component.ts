@@ -1,17 +1,22 @@
-import { Component, OnInit } from '@angular/core'
+import { Component, OnInit, OnDestroy } from '@angular/core'
 import { IUserNotification } from '../../models/notifications.model'
 import { NsPlaylist, BtnPlaylistService } from '@sunbird-cb/collection'
 import { TFetchStatus, NsPage, ConfigurationsService } from '@sunbird-cb/utils'
+import { Subject } from 'rxjs'
+import { takeUntil } from 'rxjs/operators'
 
 @Component({
+  standalone: false,
   selector: 'ws-app-notification',
   templateUrl: './notification.component.html',
   styleUrls: ['./notification.component.scss'],
 })
-export class NotificationComponent implements OnInit {
+export class NotificationComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>()
+
   recentBadge: IUserNotification | null = null
   sharedPlaylists: NsPlaylist.IPlaylist[] = []
-  // sharedGoals: NsGoal.IGoal[] = []
+  sharedGoals: any[] = []
   // sharedNotificationGoals: NsGoal.IGoal[] = []
   fetchStatus: TFetchStatus | null = null
   statusCount: number | null = null
@@ -21,6 +26,11 @@ export class NotificationComponent implements OnInit {
     private playlistSvc: BtnPlaylistService,
     private configSvc: ConfigurationsService,
   ) { }
+
+  ngOnDestroy() {
+    this.destroy$.next()
+    this.destroy$.complete()
+  }
 
   ngOnInit() {
     this.initiate()
@@ -34,7 +44,7 @@ export class NotificationComponent implements OnInit {
   }
 
   fetchSharedPlaylist() {
-    this.playlistSvc.getPlaylists(NsPlaylist.EPlaylistTypes.PENDING).subscribe(
+    this.playlistSvc.getPlaylists(NsPlaylist.EPlaylistTypes.PENDING).pipe(takeUntil(this.destroy$)).subscribe(
       (data: any) => {
         data.forEach((playlist: any) => {
           playlist.sharedBy = (playlist.sharedBy || '').split('@')[0]

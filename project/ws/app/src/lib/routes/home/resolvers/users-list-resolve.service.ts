@@ -5,7 +5,7 @@ import { map, catchError } from 'rxjs/operators'
 import { IResolveResponse, ConfigurationsService } from '@sunbird-cb/utils'
 import { UsersService } from '../../users/services/users.service'
 // tslint:disable-next-line
-import _ from 'lodash';
+import _ from 'lodash'
 
 @Injectable()
 export class UsersListResolve

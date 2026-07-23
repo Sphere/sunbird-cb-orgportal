@@ -1,16 +1,20 @@
-import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core'
+import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core'
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser'
 import { IBtnAppsConfig, CustomTourService } from '@sunbird-cb/collection'
 import { NsWidgetResolver } from '@sunbird-cb/resolver'
 import { ConfigurationsService, NsPage } from '@sunbird-cb/utils'
 import { Router, NavigationStart, NavigationEnd, Event } from '@angular/router'
+import { Subject } from 'rxjs'
+import { takeUntil } from 'rxjs/operators'
 
 @Component({
+  standalone: false,
   selector: 'ws-app-nav-bar',
   templateUrl: './app-nav-bar.component.html',
   styleUrls: ['./app-nav-bar.component.scss'],
 })
-export class AppNavBarComponent implements OnInit, OnChanges {
+export class AppNavBarComponent implements OnInit, OnChanges, OnDestroy {
+  private destroy$ = new Subject<void>()
   isDashboardReport: boolean = false
   @Input() mode: 'top' | 'bottom' = 'top'
   // @Input()
@@ -44,7 +48,7 @@ export class AppNavBarComponent implements OnInit, OnChanges {
     if (this.configSvc.restrictedFeatures) {
       this.isHelpMenuRestricted = this.configSvc.restrictedFeatures.has('helpNavBarMenu')
     }
-    this.router.events.subscribe(event => {
+    this.router.events.pipe(takeUntil(this.destroy$)).subscribe(event => {
       if (event instanceof NavigationStart) {
         this.cancelTour()
       } else if (event instanceof NavigationEnd) {
@@ -60,7 +64,7 @@ export class AppNavBarComponent implements OnInit, OnChanges {
 
     this.isDashboardReport = hasDashboardViewerRole
 
-    this.router.events.subscribe((e: Event) => {
+    this.router.events.pipe(takeUntil(this.destroy$)).subscribe((e: Event) => {
       if (e instanceof NavigationEnd) {
         if (
           e.url.includes('/app/setup') &&
@@ -109,15 +113,11 @@ export class AppNavBarComponent implements OnInit, OnChanges {
       }
     }
 
-    console.log(
-      'Filtered Navbar Config:',
-      this.primaryNavbarConfig?.mediumScreen?.right
-    )
-
     if (this.configSvc.appsConfig) {
       this.featureApps = Object.keys(this.configSvc.appsConfig.features)
     }
-    this.configSvc.tourGuideNotifier.subscribe(canShow => {
+    this.configSvc.tourGuideNotifier.pipe(takeUntil(this.destroy$)).subscribe(canShow => {
+
       if (
         this.configSvc.restrictedFeatures &&
         !this.configSvc.restrictedFeatures.has('tourGuide')
@@ -126,6 +126,24 @@ export class AppNavBarComponent implements OnInit, OnChanges {
         this.popupTour = this.tourService.createPopupTour()
       }
     })
+  }
+
+  getFeatureUrl(actionBtnId: string): string {
+    return (this.configSvc.appsConfig as any)?.features?.[actionBtnId]?.url || '/'
+  }
+
+  getFeatureIcon(actionBtnId: string): string {
+    return (this.configSvc.appsConfig as any)?.features?.[actionBtnId]?.icon || 'home'
+  }
+
+  getUserInitials(): string {
+    const first = this.configSvc.userProfile?.firstName?.charAt(0) || 'G'
+    const last = this.configSvc.userProfile?.lastName?.charAt(0) || 'U'
+    return (first + last).toUpperCase()
+  }
+
+  logout(): void {
+    globalThis.location.href = '/public/logout'
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -150,7 +168,7 @@ export class AppNavBarComponent implements OnInit, OnChanges {
 
   startTour() {
     this.tourService.startTour()
-    this.tourService.isTourComplete.subscribe((result: boolean) => {
+    this.tourService.isTourComplete.pipe(takeUntil(this.destroy$)).subscribe((result: boolean) => {
       if ((result)) {
         this.tourService.startPopupTour()
         this.configSvc.completedTour = true
@@ -171,5 +189,10 @@ export class AppNavBarComponent implements OnInit, OnChanges {
       this.isTourGuideClosed = false
     }
 
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next()
+    this.destroy$.complete()
   }
 }

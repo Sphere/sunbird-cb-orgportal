@@ -1,5 +1,5 @@
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core'
-import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog'
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog'
 import { EventService } from '../../services/event.service'
 import * as Papa from 'papaparse'
 import * as XLSX from 'xlsx'
@@ -7,6 +7,7 @@ import { Subscription } from 'rxjs'
 import { IParticipant } from '../../interface/events'
 
 @Component({
+  standalone: false,
   selector: 'ws-app-add-participants',
   templateUrl: './add-participants.component.html',
   styleUrls: ['./add-participants.component.scss'],
@@ -21,9 +22,9 @@ export class AddParticipantsComponent implements OnInit, OnDestroy {
   eventType: boolean = false
 
   constructor(
-    private dialogRef: MatDialogRef<AddParticipantsComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: any,
-    private eventService: EventService
+    private readonly dialogRef: MatDialogRef<AddParticipantsComponent>,
+    @Inject(MAT_DIALOG_DATA) public readonly data: any,
+    private readonly eventService: EventService
   ) {
     this.eventId = data.eventId
     this.eventType = data.eventType
@@ -109,16 +110,16 @@ export class AddParticipantsComponent implements OnInit, OnDestroy {
       phone: String(participant.phone),
     }))
 
-    this.subscription = this.eventService.addParticipants(this.eventId, this.participants).subscribe(
-      response => {
+    this.subscription = this.eventService.addParticipants(this.eventId, this.participants).subscribe({
+      next: response => {
         console.log('Participants added successfully:', response)
         this.dialogRef.close('saved')
       },
-      error => {
+      error: error => {
         console.error('Error adding participants:', error)
         this.dialogRef.close('error')
-      }
-    )
+      },
+    })
   }
 
   // downloadSampleExcel() {

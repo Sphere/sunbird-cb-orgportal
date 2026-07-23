@@ -1,16 +1,22 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing'
+import { NO_ERRORS_SCHEMA } from '@angular/core'
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog'
+import { FracUploadPopupComponent } from './frac-upload-popup.component'
 
-import { FracUploadComponent } from './frac-upload-popup.component'
-
-describe('FracUploadComponent', () => {
-  let component: FracUploadComponent
-  let fixture: ComponentFixture<FracUploadComponent>
+describe('FracUploadPopupComponent', () => {
+  let component: FracUploadPopupComponent
+  let fixture: ComponentFixture<FracUploadPopupComponent>
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [FracUploadComponent]
+      declarations: [FracUploadPopupComponent],
+      providers: [
+        { provide: MatDialogRef, useValue: { close: jest.fn() } },
+        { provide: MAT_DIALOG_DATA, useValue: {} },
+      ],
+      schemas: [NO_ERRORS_SCHEMA],
     })
-    fixture = TestBed.createComponent(FracUploadComponent)
+    fixture = TestBed.createComponent(FracUploadPopupComponent)
     component = fixture.componentInstance
     fixture.detectChanges()
   })

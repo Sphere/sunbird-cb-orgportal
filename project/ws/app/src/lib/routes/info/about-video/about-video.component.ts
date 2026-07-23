@@ -4,6 +4,7 @@ import { NsWidgetResolver } from '@sunbird-cb/resolver'
 import { ConfigurationsService, NsPage } from '@sunbird-cb/utils'
 
 @Component({
+  standalone: false,
   selector: 'ws-app-about-video',
   templateUrl: './about-video.component.html',
   styleUrls: ['./about-video.component.scss'],

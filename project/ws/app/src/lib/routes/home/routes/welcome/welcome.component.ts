@@ -11,6 +11,7 @@ import {
 /* tslint:enable */
 
 @Component({
+  standalone: false,
   selector: 'ws-app-welcome',
   templateUrl: './welcome.component.html',
   styleUrls: ['./welcome.component.scss', './bootstrap-rain.scss'],

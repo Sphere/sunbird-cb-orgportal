@@ -1,5 +1,5 @@
-import { Component, OnInit, SimpleChanges } from '@angular/core'
-import { MatLegacyDialog as MatDialog, MatLegacyDialogConfig as MatDialogConfig } from '@angular/material/legacy-dialog'
+import { Component, OnInit, OnDestroy, SimpleChanges, OnChanges } from '@angular/core'
+import { MatDialog, MatDialogConfig } from '@angular/material/dialog'
 import { Router, ActivatedRoute } from '@angular/router'
 /* tslint:disable */
 import _ from 'lodash'
@@ -7,13 +7,17 @@ import { PublishPopupComponent } from '../../components/publish-popup/publish-po
 import { AllocationService } from '../../services/allocation.service'
 // import FileSaver from 'file-saver'
 import { UploadFileService } from '../../services/uploadfile.service'
-import { MatLegacyPaginator as MatPaginator } from '@angular/material/legacy-paginator'
+import { MatPaginator } from '@angular/material/paginator'
+import { Subject } from 'rxjs'
+import { takeUntil } from 'rxjs/operators'
 @Component({
+  standalone: false,
   selector: 'ws-app-draft-allocations',
   templateUrl: './draft-allocations.component.html',
   styleUrls: ['./draft-allocations.component.scss'],
 })
-export class DraftAllocationsComponent implements OnInit {
+export class DraftAllocationsComponent implements OnInit, OnDestroy, OnChanges {
+  private readonly destroy$ = new Subject<void>()
   tabs: any
   currentUser!: string | null
   data: any = []
@@ -37,15 +41,20 @@ export class DraftAllocationsComponent implements OnInit {
   p: number = 1
   constructor(private activated: ActivatedRoute, private router: Router, private uploadService: UploadFileService,
     public dialog: MatDialog, private allocateSrvc: AllocationService) {
-    this.activated.queryParamMap.subscribe((queryParams: any) => {
+    this.activated.queryParamMap.pipe(takeUntil(this.destroy$)).subscribe((queryParams: any) => {
       if (queryParams.has('status')) {
         this.queryParams = queryParams.get('status') || ''
       }
     })
-    this.activated.params.subscribe((param: any) => {
+    this.activated.params.pipe(takeUntil(this.destroy$)).subscribe((param: any) => {
       this.workorderID = param['workorder'] || ''
       this.getAllocatedUsers(this.workorderID)
     })
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next()
+    this.destroy$.complete()
   }
 
   ngOnInit() { }
@@ -56,9 +65,9 @@ export class DraftAllocationsComponent implements OnInit {
     // const pdfUrl = '/assets/files/draft.pdf'
     // FileSaver.saveAs(pdfUrl, pdfName)
 
-    this.uploadService.getDraftPDF(this.workorderID).subscribe((response) => {
-      let file = new Blob([response], { type: 'application/pdf' })
-      var fileURL = URL.createObjectURL(file)
+    this.uploadService.getDraftPDF(this.workorderID).pipe(takeUntil(this.destroy$)).subscribe((response) => {
+      const file = new Blob([response], { type: 'application/pdf' })
+      const fileURL = URL.createObjectURL(file)
       window.open(fileURL)
     })
   }
@@ -121,7 +130,7 @@ export class DraftAllocationsComponent implements OnInit {
   }
 
   getAllocatedUsers(woId: any) {
-    this.allocateSrvc.getAllocatedUsers(woId).subscribe((res: any) => {
+    this.allocateSrvc.getAllocatedUsers(woId).pipe(takeUntil(this.destroy$)).subscribe((res: any) => {
       this.workorderData = res.result.data
       const newbdtitle = { title: this.workorderData.name, url: 'none' }
       this.bdtitles.push(newbdtitle)

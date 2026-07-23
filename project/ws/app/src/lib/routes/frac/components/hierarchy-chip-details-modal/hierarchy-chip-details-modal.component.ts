@@ -15,6 +15,7 @@ export interface HierarchyChipDetailsModalData {
 }
 
 @Component({
+  standalone: false,
   selector: 'ws-app-hierarchy-chip-details-modal',
   templateUrl: './hierarchy-chip-details-modal.component.html',
   styleUrls: ['./hierarchy-chip-details-modal.component.scss'],

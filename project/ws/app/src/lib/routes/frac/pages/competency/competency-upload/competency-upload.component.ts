@@ -1,4 +1,4 @@
-import { Component } from '@angular/core'
+import { Component, OnInit, OnDestroy } from '@angular/core'
 import { MatDialog } from '@angular/material/dialog'
 import { ActivatedRoute, Router } from '@angular/router'
 import { FracUploadPopupComponent } from '../../../components/frac-upload/frac-upload-popup.component'
@@ -34,11 +34,12 @@ interface UploadEmptyStateConfig {
 }
 
 @Component({
+  standalone: false,
   selector: 'ws-app-competency-upload',
   templateUrl: './competency-upload.component.html',
   styleUrls: ['./competency-upload.component.scss']
 })
-export class CompetencyUploadComponent {
+export class CompetencyUploadComponent implements OnInit, OnDestroy {
   private editTracker: FracEditTracker
   constructor(
     private dialog: MatDialog,
@@ -55,18 +56,18 @@ export class CompetencyUploadComponent {
   uiConfig = FRAC_UI_CONFIG
 
   // ============= STATE VARIABLES =============
-  originalRowData: FracUploadRow[] = [];
-  removedData: FracUploadRow[] = [];
-  private searchTrigger$ = new Subject<UploadSearchTriggerPayload>();
-  private destroy$ = new Subject<void>();
-  private searchSubscription: Subscription | null = null;
-  searchResults: FracUploadRow[] = [];
+  originalRowData: FracUploadRow[] = []
+  removedData: FracUploadRow[] = []
+  private searchTrigger$ = new Subject<UploadSearchTriggerPayload>()
+  private destroy$ = new Subject<void>()
+  private searchSubscription: Subscription | null = null
+  searchResults: FracUploadRow[] = []
   selectedRows: FracUploadRow[] = []
   editRows: FracUploadRow[] = []
   editedData: FracUploadRow[] = []
   isEditing = false
-  routeMode: UploadRouteMode = 'upload';
-  uploadButtonText: string = 'Upload File';
+  routeMode: UploadRouteMode = 'upload'
+  uploadButtonText: string = 'Upload File'
 
 
   // ============= LOADING & API RESPONSE =============

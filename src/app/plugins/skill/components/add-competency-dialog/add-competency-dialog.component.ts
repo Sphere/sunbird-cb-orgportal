@@ -1,16 +1,19 @@
-import { Component, Inject, OnInit } from '@angular/core'
-import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog'
+import { Component, Inject, OnDestroy, OnInit } from '@angular/core'
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog'
 import { UntypedFormGroup, UntypedFormBuilder, Validators } from '@angular/forms'
 import * as _ from 'lodash'
 import { CompetencyService } from '../../services/competency.service'
-import { map } from 'rxjs/operators'
+import { map, takeUntil } from 'rxjs/operators'
+import { Subject } from 'rxjs'
 import moment from 'moment'
 @Component({
+  standalone: false,
   selector: 'ws-add-competency-dialog',
   templateUrl: './add-competency-dialog.component.html',
   styleUrls: ['./add-competency-dialog.component.scss'],
 })
-export class AddCompetencyDialogComponent implements OnInit {
+export class AddCompetencyDialogComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>()
 
   addCompetencyForm!: UntypedFormGroup
   aastrikaFormBuilder: UntypedFormBuilder
@@ -80,6 +83,7 @@ export class AddCompetencyDialogComponent implements OnInit {
         console.log('this.selectCompet', data)
         return this.competencySvc.getFormatedData(data)
       }))
+      .pipe(takeUntil(this.destroy$))
       .subscribe((data: any) => {
         // tslint:disable-next-line: no-console
         console.log('this.selectCompet', data)
@@ -142,12 +146,17 @@ export class AddCompetencyDialogComponent implements OnInit {
 
   addSelectedCompetency(formatedData: any) {
     if (formatedData) {
-      this.competencySvc.updatePassbook(formatedData).subscribe((data: any) => {
+      this.competencySvc.updatePassbook(formatedData).pipe(takeUntil(this.destroy$)).subscribe((data: any) => {
         if (data) {
           this.dialogRef.close({ updated: true })
         }
       })
     }
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next()
+    this.destroy$.complete()
   }
 
 }

@@ -4,6 +4,7 @@ import { Subscription } from 'rxjs'
 // import { ActivatedRoute } from '@angular/router'
 
 @Component({
+  standalone: false,
   selector: 'ws-public-logout',
   templateUrl: './public-logout.component.html',
   styleUrls: ['./public-logout.component.scss'],

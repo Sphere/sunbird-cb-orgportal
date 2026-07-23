@@ -1,3 +1,5 @@
+@import 'ws-design-system-v2';
+
 // ============= HEADER CONTAINER =============
 // Top navigation bar with home button and save button
 
@@ -21,7 +23,7 @@
   background: #f3f8fd;
   color: #1c5d95;
   font-size: 15px;
-  font-family: Roboto, sans-serif;
+  font-family: $v2-font-family;
   font-weight: 400;
   cursor: pointer;
   transition: background 0.15s ease;
@@ -185,7 +187,7 @@
 
     span {
       font-size: 20px;
-      font-family: Roboto, sans-serif;
+      font-family: $v2-font-family;
       font-weight: 400;
       color: #000000;
       word-wrap: break-word;
@@ -228,7 +230,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-family: Roboto, sans-serif;
+  font-family: $v2-font-family;
 
   input {
     border: none;
@@ -300,7 +302,7 @@
 .language-dropdown {
   width: 197px;
   position: relative;
-  font-family: Roboto, sans-serif;
+  font-family: $v2-font-family;
 
   .dropdown-main {
     width: 100%;
@@ -339,7 +341,7 @@
       align-self: stretch;
       color: black;
       font-size: 16px;
-      font-family: Roboto, sans-serif;
+      font-family: $v2-font-family;
       font-weight: 400;
       line-height: 1.2;
       word-wrap: break-word;
@@ -538,7 +540,7 @@
 .table-empty-state-card {
   width: min(560px, calc(100% - 120px));
   padding: 24px 28px;
-  border-radius: 12px;
+  border-radius: $v2-radius-card;
   border: 1px dashed #c8d6e6;
   background: rgba(255, 255, 255, 0.95);
   text-align: center;
@@ -604,7 +606,7 @@
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.3s ease, visibility 0.3s ease;
-  border-radius: 12px;
+  border-radius: $v2-radius-card;
 
   &.show {
     opacity: 1;
@@ -669,7 +671,7 @@
   .loading-text {
     margin: 0;
     color: #1f2937;
-    font-family: Roboto, sans-serif;
+    font-family: $v2-font-family;
     font-size: 20px;
     font-weight: 700;
     line-height: 1.35;
@@ -678,7 +680,7 @@
   .loading-subtext {
     margin: 0;
     color: #516072;
-    font-family: Roboto, sans-serif;
+    font-family: $v2-font-family;
     font-size: 16px;
     font-weight: 400;
     line-height: 1.3;
@@ -757,7 +759,7 @@
   .manage-title {
     color: #000;
     font-size: 40px;
-    font-family: Roboto, sans-serif;
+    font-family: $v2-font-family;
     font-weight: 500;
     line-height: 1;
     margin: 0;
@@ -766,7 +768,7 @@
   .manage-subtext {
     color: #000;
     font-size: 20px;
-    font-family: Roboto, sans-serif;
+    font-family: $v2-font-family;
     font-weight: 400;
     line-height: 1.3;
     margin: 0;
@@ -800,7 +802,7 @@
   border-radius: 50px;
   color: #1C5D95;
   font-size: 14px;
-  font-family: Roboto, sans-serif;
+  font-family: $v2-font-family;
   font-weight: 400;
   padding: 0 18px;
   cursor: pointer;
@@ -824,7 +826,7 @@
   border-radius: 50px;
   color: white;
   font-size: 14px;
-  font-family: Roboto, sans-serif;
+  font-family: $v2-font-family;
   font-weight: 400;
   padding: 0 20px;
   border: none;
@@ -923,8 +925,8 @@
 .position-card {
   padding: 0;
   background: #fff;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.06);
-  border-radius: 12px;
+  box-shadow: $v2-shadow-card;
+  border-radius: $v2-radius-card;
   display: flex;
   flex-direction: column;
   overflow: hidden;

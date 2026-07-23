@@ -1,4 +1,4 @@
-<div class="p-5">
+<div class="modal-container">
   <div class="modal-header">
     <h2 class="title">{{ isEditMode ? 'Edit Event' : 'Create an event' }}</h2>
     <button mat-icon-button (click)="onCancel()">
@@ -11,70 +11,67 @@
     <form [formGroup]="eventForm">
 
       <!-- Event Name -->
-      <label class="form-label">Enter the Event name *</label>
-      <mat-form-field appearance="outline" class="full-width">
-        <input matInput formControlName="eventName" placeholder="Event Name">
-        <mat-error *ngIf="eventForm.get('eventName')?.invalid && eventForm.get('eventName')?.touched">
+      <label class="form-label" for="eventName">Enter the Event name *</label>
+      <div class="field-wrapper">
+        <input type="text" id="eventName" class="form-input" formControlName="eventName" placeholder="Event Name" />
+        <span class="field-error" *ngIf="eventForm.get('eventName')?.invalid && eventForm.get('eventName')?.touched">
           Event name is required
-        </mat-error>
-      </mat-form-field>
+        </span>
+      </div>
 
       <!-- Date & Location -->
-      <div class="row">
-        <div class="half-width">
-          <label class="form-label">Select the Date *</label>
-          <mat-form-field appearance="outline" class="full-width">
-            <!-- <div class="date-fiels"> -->
-            <input matInput [matDatepicker]="picker" formControlName="eventDate" placeholder="Date">
-            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-            <mat-datepicker #picker></mat-datepicker>
-            <!-- </div> -->
-
-            <mat-error *ngIf="eventForm.get('eventDate')?.invalid && eventForm.get('eventDate')?.touched">
+      <div class="two-col">
+        <div>
+          <label class="form-label" for="eventDate">Select the Date *</label>
+          <div class="field-wrapper">
+            <input type="date" id="eventDate" class="form-input" formControlName="eventDate" />
+            <span class="field-error" *ngIf="eventForm.get('eventDate')?.invalid && eventForm.get('eventDate')?.touched">
               Date is required
-            </mat-error>
-          </mat-form-field>
-
+            </span>
+          </div>
         </div>
-        <div class="half-width">
-          <label class="form-label">Location *</label>
-          <mat-form-field appearance="outline" class="full-width">
-            <input matInput formControlName="eventLocation" placeholder="Enter location">
-            <mat-error *ngIf="eventForm.get('eventLocation')?.invalid && eventForm.get('eventLocation')?.touched">
+        <div>
+          <label class="form-label" for="eventLocation">Location *</label>
+          <div class="field-wrapper">
+            <input type="text" id="eventLocation" class="form-input" formControlName="eventLocation" placeholder="Enter location" />
+            <span class="field-error" *ngIf="eventForm.get('eventLocation')?.invalid && eventForm.get('eventLocation')?.touched">
               Location is required
-            </mat-error>
-          </mat-form-field>
+            </span>
+          </div>
         </div>
       </div>
 
       <!-- Description -->
-      <label class="form-label">Enter your Description</label>
-      <mat-form-field appearance="outline" class="full-width">
-        <textarea matInput rows="3" formControlName="eventDescription" placeholder="Description"></textarea>
-        <mat-hint align="end">0/200 (In a few words, describe your event)</mat-hint>
-      </mat-form-field>
+      <label class="form-label" for="eventDescription">Enter your Description</label>
+      <div class="field-wrapper">
+        <textarea id="eventDescription" class="form-input form-textarea" formControlName="eventDescription"
+          placeholder="Description" maxlength="200" rows="2"></textarea>
+        <span class="char-count">
+          {{(eventForm.get('eventDescription')?.value?.length || 0)}}/200 (In a few words, describe your event)
+        </span>
+      </div>
 
-      <!-- Certificate Type Dropdown -->
-      <label class="form-label">Participant registration type for Certificate *</label>
-      <div class="row">
-        <mat-form-field appearance="outline" class="half-width">
-          <mat-select formControlName="certificateType"
-            placeholder="Choose the type of certificate this event will use">
-            <mat-option value="registred with sphere">Registration based</mat-option>
-            <mat-option value="registred without sphere">No Registration</mat-option>
-          </mat-select>
-          <mat-error *ngIf="eventForm.get('certificateType')?.invalid && eventForm.get('certificateType')?.touched">
-            Please select a certificate type
-          </mat-error>
-        </mat-form-field>
+      <!-- Certificate Type -->
+      <label class="form-label" for="certificateType">Participant registration type for Certificate *</label>
+      <div class="field-wrapper">
+        <div class="select-wrapper" [class.select-error]="eventForm.get('certificateType')?.invalid && eventForm.get('certificateType')?.touched">
+          <select id="certificateType" class="form-select" formControlName="certificateType">
+            <option value="" disabled>Choose the certificate type</option>
+            <option value="registred with sphere">Registration based</option>
+            <option value="registred without sphere">No Registration</option>
+          </select>
+          <span class="select-chevron">&#9660;</span>
+        </div>
+        <span class="field-error" *ngIf="eventForm.get('certificateType')?.invalid && eventForm.get('certificateType')?.touched">
+          Please select a certificate type
+        </span>
       </div>
 
     </form>
   </mat-dialog-content>
 
   <mat-dialog-actions align="end">
-    <!-- <button mat-button (click)="onCancel()">Cancel</button> -->
-    <button mat-raised-button class="creat-btn" (click)="onSave()" [disabled]="eventForm.invalid">
+    <button type="button" class="creat-btn" (click)="onSave()" [disabled]="eventForm.invalid">
       {{ isEditMode ? 'Edit Event' : 'Create Event' }}
     </button>
   </mat-dialog-actions>

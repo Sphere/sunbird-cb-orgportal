@@ -1,6 +1,6 @@
 <mat-toolbar [color]="primaryNavbarBackground?.color" [ngStyle]="primaryNavbarBackground?.styles"
   class="mat-elevation-z3 custom mobile">
-  <div class="fix-ww" id="root-tool-bar" title="toolbar" i18n-aria-label role="toolbar">
+  <div class="fix-ww" id="root-tool-bar" role="toolbar">
     <ng-container *ngIf="mode === 'top'">
       <a routerLink="/app/home" class="logo-dim" role="link" title="Home" i18n-aria-title i18n-aria-label>
         <img [src]="appIcon" alt="Application Logo" class="app-logo" />
@@ -77,9 +77,33 @@
 </mat-toolbar>
 
 <ng-template #navbarSide let-item="item">
-  <ng-container *ngIf="item.type === 'widgetButton'" [wsResolverWidget]="item.config"></ng-container>
-  <ws-widget-btn-feature *ngIf="item.type === 'featureButton' && item.config.actionBtnId !== 'feature_notification'"
-    [id]="item.config.actionBtnId" [widgetData]="item.config" [showFixedLength]="true"></ws-widget-btn-feature>
+  <button mat-icon-button
+          type="button"
+          *ngIf="item.type === 'featureButton' && item.config.actionBtnId !== 'feature_notification'"
+          [routerLink]="getFeatureUrl(item.config.actionBtnId)"
+          [matTooltip]="item.config.toolTip"
+          matTooltipPosition="below"
+          routerLinkActive="ws-active-nav-icon"
+          class="nav-icon-btn">
+    <mat-icon>{{ getFeatureIcon(item.config.actionBtnId) }}</mat-icon>
+  </button>
+  <ng-container *ngIf="item.type === 'widgetButton' && item.config.widgetSubType === 'actionButtonProfile'">
+    <button mat-icon-button type="button" [matMenuTriggerFor]="profileMenu" class="profile-avatar-btn" matTooltip="Profile" matTooltipPosition="below">
+      <span class="profile-initials">{{ getUserInitials() }}</span>
+    </button>
+    <mat-menu #profileMenu="matMenu" xPosition="before" panelClass="ws-nav-profile-menu">
+      <div style="display:flex;align-items:center;gap:10px;padding:14px 16px;background:#eef4fb;pointer-events:none;">
+        <span style="width:34px;height:34px;min-width:34px;border-radius:50%;background:#1c5d95;color:#fff;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;letter-spacing:0.5px;flex-shrink:0;">{{ getUserInitials() }}</span>
+        <span style="font-size:14px;font-weight:600;color:#1c5d95;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ configSvc.userProfile?.firstName }} {{ configSvc.userProfile?.lastName }}</span>
+      </div>
+      <mat-divider></mat-divider>
+      <button mat-menu-item (click)="logout()" style="min-height:44px;">
+        <mat-icon style="color:#ca0000;font-size:20px;width:20px;height:20px;line-height:20px;margin-right:6px;">logout</mat-icon>
+        <span style="font-size:14px;color:#333;">Logout</span>
+      </button>
+    </mat-menu>
+  </ng-container>
+  <ng-container *ngIf="item.type === 'widgetButton' && item.config.widgetSubType !== 'actionButtonProfile'" [wsResolverWidget]="item.config"></ng-container>
 </ng-template>
 
 <mat-menu #helpMenu="matMenu">

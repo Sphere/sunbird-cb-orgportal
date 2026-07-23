@@ -1,206 +1,225 @@
-# MDO-Fusion
+# MDO Portal (sunbird-cb-orgportal)
 
-//Comment by Amit Sengar
-Initialization Code:
+Angular-based MDO (Ministries, Departments, and Organisations) admin portal for the Sphere MDO portal.
 
-If Authenticated:
+---
 
-Get Roles, Get Groups, Get Features, Get WidgetConfigs
-Process Features by roles & Groups
-Process Widgets by features, roles and groups
-Initialize Widgets by widgetConfig => Reset the available Flow of static injection
-Process featuesList.json by using roles & groups
+## Tech Stack
 
-Features =>
-check if its available
+| Layer | Technology |
+|---|---|
+| Framework | Angular **20.3.x** (`@angular/build:application`, esbuild) |
+| Language | TypeScript **5.8.x** |
+| UI Library | Angular Material **20.x** (MDC, M2 theming) |
+| State / Async | RxJS **7.8.x** |
+| Node | **≥ 20.19.0** (managed via [nvs](https://github.com/jasongin/nvs)) |
+| Package manager | npm **10.x** |
+| Unit tests | Jest + `jest-preset-angular` |
+| Linting | ESLint 9 + `@angular-eslint/21` |
+| Sunbird libs | `@sunbird-cb/collection@0.0.9-ang-17-20`, `utils@0.0.1-ang-17-20`, `resolver@0.0.1-ang-17-20` |
 
-- No -> check if is denied or not available
-- Yes -> check for current page rendering
-  -> Yes => render
-  -> No => stop rendering
+---
 
-**FRAC and Playlist Overview**
-This is an Angular org portal with two main areas visible here:
+## Local Development Setup
 
-`Playlist` module: creates and manages learner playlists for an org, role/position, language, and optional district.
+### 1. Node (via nvs)
 
-`FRAC` module: manages framework entities and mappings:
+```powershell
+# Install nvs if not present: https://github.com/jasongin/nvs
+nvs add 20.20.1
+nvs use 20.20.1
 
-- Competency
-- Activity
-- Role
-- Position
-- Position → Role
-- Role → Activity
-- Activity → Competency
+# In every new shell session before running npm/ng commands:
+$env:Path = "$env:LOCALAPPDATA\nvs\default;$env:Path"
+```
 
-**Playlist API Calls**
-From [playlist-api.service.ts]
+### 2. Install dependencies
 
-`POST /apis/proxies/v8/org/v1/search`
+```powershell
+npm install --legacy-peer-deps
+```
 
-- Loads root organizations for dropdown.
+### 3. Runtime config (`env.js`)
 
-`POST /apis/proxies/v8/entity/v1/search`
+Copy your environment's `env.js` into `src/assets/env.js` before starting the dev server. This file is gitignored (per-deployment config):
 
-- Loads positions for role/position dropdown.
-- Also used by competency service to load competencies.
+```js
+// src/assets/env.js — example
+window['env'] = {
+  sitePath: 'https://your-backend.example.com',
+  karmYogiPath: '...',
+  cbpPath: '...',
+}
+```
 
-`POST /apis/protected/v8/playlist/search`
+Everything else under `src/assets/` (runtime config JSONs, icons, logos, banners) is checked into git — a fresh clone runs locally without proxying to a backend for those files.
 
-- Searches existing playlist by:
-  - `orgId`
-  - `role`
-  - `language`
-  - `playlistId`
-- Called twice from filters:
-  - Course playlist: `Playlist_Course`
-  - Competency playlist: `COMPETENCY_PLAYLIST_V2`
+### 4. Dev server
 
-`POST /apis/protected/v8/playlist/create`
+```powershell
+npm start
+# Runs: ng serve --proxy-config proxy/localhost.proxy.json
+# Opens: http://localhost:4200
+```
 
-- Creates a new playlist when no existing playlist is found.
+The proxy config forwards `/apis/**` to the backend defined in `proxy/localhost.proxy.json`. Do NOT use `node dist/server.js` for local dev — the Express server does not proxy API calls.
 
-`PUT /apis/protected/v8/playlist/update`
+---
 
-- Updates existing playlist when one already exists.
+## Available Commands
 
-From [course-api.service.ts]
+| Command | What it does |
+|---|---|
+| `npm start` | Dev server on port 4200 with API proxy |
+| `npm run build` | Production build → `dist/www/en/` |
+| `npm run build:dev` | Dev-config build |
+| `npm test` | Jest unit tests |
+| `npm run test-coverage` | Jest with coverage report |
+| `npm run lint` | ESLint across all source files |
+| `npm run lint:fix` | ESLint with auto-fix |
 
-`POST /apis/proxies/v8/sunbirdigot/search`
+> **Build flags:** use kebab-case only (`--configuration=production`, `--base-href=/`). The old `--outputPath`/`--baseHref` flags are invalid on the esbuild builder.
 
-- Searches all courses.
-- Searches courses by course IDs.
-- Searches courses mapped to competency levels using `competencySearch`.
+---
 
-**Playlist Conditional Flow**
+## Project Structure
 
-1. User opens playlist filters.
-2. App loads:
-   - organizations
-   - positions
-3. User selects org, role/position, language, district.
-4. On Continue:
-   - if form invalid, stop and show validation.
-   - if valid, save filters in state.
-   - clear stale course/competency selections.
-   - search course playlist.
-   - search competency playlist.
-5. If playlist exists:
-   - store existing playlist and payload IDs in state.
-6. If no playlist exists:
-   - state keeps playlist as `null`.
-7. User goes to summary.
-8. User chooses:
-   - manage course playlist
-   - manage competency playlist
-9. On Save:
-   - if no existing playlist, call create.
-   - if existing playlist, call update.
-   - if selected roles differ from existing roles, show confirmation before saving.
-   - roles are merged before saving.
+```
+src/                          Root application (prefix: ws)
+  app/
+    component/                Shared layout components (nav bar, footer, etc.)
+    plugins/                  Skill / competency plugins
+    routes/                   Top-level routes (features, public, signup, tnc)
+    services/                 App-level services (init, auth, config)
+  assets/                     Runtime config JSONs, images, icons (tracked in git)
+  environments/               Per-env TypeScript environment files
+  styles/                     Global SCSS, design system, themes (9 × M2 themes)
 
-**Course Playlist Flow**
+project/ws/app/               @ws/app workspace library (prefix: ws-app)
+  src/lib/routes/             Feature modules: FRAC, Playlist, Events, Home, Search…
+  src/lib/shared/             Shared directives, pipes, components
 
-1. Load all courses by language.
-2. If cached courses exist, use cache.
-3. Preselect courses already in existing playlist.
-4. User selects/unselects courses.
-5. User orders selected courses.
-6. Save payload is ordered course identifiers.
-7. API decides:
-   - create playlist if new
-   - update playlist if existing
+proxy/                        Dev-server proxy configs
+RELEASE_NOTES/                Release notes per version (release-X.Y.Z.md)
+```
 
-**Competency Playlist Flow**
+---
 
-1. Load competencies by language from entity search.
-2. Preselect competencies from existing competency playlist using competency code.
-3. User selects competencies.
-4. User orders competencies.
-5. For each competency, app loads mapped courses by competency levels.
-6. User assigns courses to levels.
-7. Save payload contains competency details, level data, course assignments, and order.
-8. If all competencies are complete, reorder can auto-save.
-9. Final save uses create/update playlist API.
+## Key Architecture Notes
 
-**FRAC API Calls**
-From [frac-api.service.ts]
+- **NgModule-based** — no standalone components. All declarations set `standalone: false`.
+- **Legacy control flow** — uses `*ngIf` / `*ngFor` / `*ngSwitch` (not `@if` / `@for`).
+- **M2 theming** — all 9 themes under `src/styles/theme-*.scss` use `mat.m2-*` APIs. Do not migrate to M3.
+- **Output path** — build outputs to `dist/www/en` with `browser: ""`. The Express production server (`dist/server.js`) expects `/en`.
+- **Sunbird libs** — imported from npm as `@sunbird-cb/{collection,utils,resolver}` (`-ang-17-20` builds). Do not vendor or rewrite import paths.
 
-Configured endpoints come from `resolveFracClientConfig`.
+---
 
-Defaults include:
+## Initialization Flow
 
-`PUT /apis/proxies/v8/entity/v1/update`
+On authenticated load:
+1. Get Roles → Get Groups → Get Features → Get WidgetConfigs
+2. Process Features by roles & groups
+3. Process Widgets by features, roles, and groups
+4. Initialize Widgets by widgetConfig → reset static injection flow
 
-- Updates competency/activity/role/position records.
+Feature availability check:
+- Not available → check if denied or simply absent
+- Available → check current page rendering → render or stop
 
-`DELETE /apis/proxies/v8/entity/v1/delete`
+---
 
-- Deletes entity records.
+## FRAC Module
 
-`POST /apis/proxies/v8/entity/v1/upload`
+Manages framework entities and their mappings:
 
-- Uploads Excel/entity sheet.
+- Competency · Activity · Role · Position
+- Position → Role · Role → Activity · Activity → Competency
 
-`POST /apis/proxies/v8/entity/v1/search`
+### FRAC API Calls (`frac-api.service.ts`)
 
-- Searches entities by type:
-  - `Competency`
-  - `Activity`
-  - `Role`
-  - `Position`
+Endpoints are resolved from `resolveFracClientConfig`.
 
-`POST /apis/proxies/v8/entity/v1/mapping`
+| Method | Endpoint | Purpose |
+|---|---|---|
+| `PUT` | `/apis/proxies/v8/entity/v1/update` | Update competency / activity / role / position |
+| `DELETE` | `/apis/proxies/v8/entity/v1/delete` | Delete entity records |
+| `POST` | `/apis/proxies/v8/entity/v1/upload` | Upload Excel / entity sheet |
+| `POST` | `/apis/proxies/v8/entity/v1/search` | Search by type (Competency, Activity, Role, Position) |
+| `POST` | `/apis/proxies/v8/entity/v1/mapping` | Save parent-child mappings |
+| `POST` | `/apis/proxies/v8/entity/v1/mapping/search` | Search saved mappings |
+| `POST` | `/apis/proxies/v8/entity/v1/hierarchy` | Fetch full entity hierarchy |
 
-- Saves parent-child mappings.
+### Map Role → Position Flow
 
-`POST /apis/proxies/v8/entity/v1/mapping/search`
+1. Search positions → user selects one
+2. Load existing mapped roles for that position
+3. User searches and checks roles
+4. Validate each selected role has an activity mapping before saving
+5. If any role lacks an activity mapping → show warning modal
+6. Build and save Position → Role payload
 
-- Searches saved mappings.
+### Upload / Edit / Delete Flow (per entity type)
 
-`POST /apis/proxies/v8/entity/v1/hierarchy`
+1. Search existing entities (`searchEntities(type, keyword, language)`)
+2. Upload sheet (`uploadFile(file, language)`)
+3. Parse response → show success / error modal
+4. Edit: `updateEntity(payloads)` · Delete: `deleteEntity(payload)`
 
-- Fetches full hierarchy for an entity.
+---
 
-**Map Role Position Flow**
-From [map-role-position.component.ts]
+## Playlist Module
 
-1. Page loads.
-2. Search positions:
-   - `searchEntities('position')`
-3. User selects a position.
-4. App loads existing mapped roles:
-   - `searchEntityMapping('position', position.code)`
-5. User searches roles:
-   - `searchEntities('role')`
-6. User checks roles.
-7. Before saving, app validates each selected role has activity mapping:
-   - `searchEntityMapping('role', role.code)`
-8. If any selected role has no activity mapping:
-   - show warning modal.
-   - user can go map roles to activities.
-9. If all roles are valid:
-   - build Position → Role payload.
-   - save using `mapEntity(payload)`.
-10. If role selection is unchanged from cached mapping:
+Creates and manages learner playlists for an org, role/position, language, and optional district.
 
-- skip API save and show “No changes detected.”
+### Playlist API Calls
 
-**Upload/Edit/Delete FRAC Flow**
-For competency/activity/role/position upload pages:
+| Method | Endpoint | Purpose |
+|---|---|---|
+| `POST` | `/apis/proxies/v8/org/v1/search` | Load root organisations for dropdown |
+| `POST` | `/apis/proxies/v8/entity/v1/search` | Load positions and competencies |
+| `POST` | `/apis/protected/v8/playlist/search` | Search existing playlist by orgId / role / language / playlistId |
+| `POST` | `/apis/protected/v8/playlist/create` | Create new playlist |
+| `PUT` | `/apis/protected/v8/playlist/update` | Update existing playlist |
+| `POST` | `/apis/proxies/v8/sunbirdigot/search` | Search all courses or by competency levels |
 
-1. Search existing entity list:
-   - `searchEntities(type, keyword, language)`
-2. Upload sheet:
-   - `uploadFile(file, language)`
-3. Parse API response.
-4. Show success/error modal.
-5. Edit rows:
-   - `updateEntity(payloads)`
-6. Delete rows:
-   - `deleteEntity(payload)`.
+### Filters → Summary Flow
 
-In short:
-playlist is a curated learning-content workflow,
-while FRAC is the entity and mapping backbone that supplies competencies, roles, activities, and positions.
+1. User opens playlist filters
+2. App loads organisations and positions
+3. User selects org, role/position, language, district
+4. On Continue: validate form → save filters in state → search course + competency playlists
+5. If playlist exists → store existing playlist and payload IDs
+6. If not → playlist state stays `null`
+7. User goes to Summary → chooses course or competency playlist management
+8. On Save: call create (no existing) or update (existing); confirm if roles changed
+
+### Course Playlist Flow
+
+1. Load all courses by language (use cache if available)
+2. Preselect courses already in existing playlist
+3. User selects / unselects / orders courses
+4. Save payload = ordered course identifiers → create or update playlist
+
+### Competency Playlist Flow
+
+1. Load competencies by language
+2. Preselect from existing playlist by competency code
+3. User selects and orders competencies
+4. For each competency, load mapped courses by level
+5. User assigns courses to levels
+6. Save payload = competency details + level data + course assignments + order
+7. On reorder auto-save (if all competencies complete) → final create / update
+
+---
+
+## Release Process
+
+See [`RELEASE_NOTES/TEMPLATE.md`](RELEASE_NOTES/TEMPLATE.md) and the full runbook in `CLAUDE.md`.
+
+**Naming convention:**
+- Deploy branch: `release-X.Y.Z`
+- Immutable tag: `vX.Y.Z`
+- Release notes file: `RELEASE_NOTES/release-X.Y.Z.md`
+
+Jenkins deploys from the **branch** (`release-X.Y.Z`), not the tag.

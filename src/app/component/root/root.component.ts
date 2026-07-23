@@ -3,6 +3,7 @@ import {
   ChangeDetectorRef,
   Component,
   ElementRef,
+  OnDestroy,
   OnInit,
   ViewChild,
   ViewContainerRef,
@@ -15,7 +16,7 @@ import {
   NavigationStart,
   Router,
 } from '@angular/router'
-// import { interval, concat, timer } from 'rxjs'
+// import { interval, concat, timer, Subject } from 'rxjs'
 import { BreadcrumbsOrgService } from '@sunbird-cb/collection'
 import {
   // AuthKeycloakService,
@@ -25,24 +26,25 @@ import {
   // WsEvents,
   LoggerService,
 } from '@sunbird-cb/utils'
-import { delay, first } from 'rxjs/operators'
+import { delay, first, takeUntil } from 'rxjs/operators'
 import { MobileAppsService } from '../../services/mobile-apps.service'
 import { RootService } from './root.service'
 import { SwUpdate } from '@angular/service-worker'
 import { environment } from '../../../environments/environment'
-import { interval, concat, timer } from 'rxjs'
+import { interval, concat, timer, Subject } from 'rxjs'
 import { DialogConfirmComponent } from '../dialog-confirm/dialog-confirm.component'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
+import { MatDialog } from '@angular/material/dialog'
 // import { MatDialog } from '@angular/material/dialog'
 // import { DialogConfirmComponent } from '../dialog-confirm/dialog-confirm.component'
 
 @Component({
+  standalone: false,
   selector: 'ws-root',
   templateUrl: './root.component.html',
   styleUrls: ['./root.component.scss'],
   providers: [SwUpdate],
 })
-export class RootComponent implements OnInit, AfterViewInit {
+export class RootComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('previewContainer', { read: ViewContainerRef, static: true })
   previewContainerViewRef: ViewContainerRef | null = null
   @ViewChild('appUpdateTitle', { static: true })
@@ -50,6 +52,7 @@ export class RootComponent implements OnInit, AfterViewInit {
   @ViewChild('appUpdateBody', { static: true })
   appUpdateBodyRef: ElementRef | null = null
 
+  private destroy$ = new Subject<void>()
   isXSmall$ = this.valueSvc.isXSmall$
   routeChangeInProgress = false
   showNavbar = false
@@ -90,7 +93,7 @@ export class RootComponent implements OnInit, AfterViewInit {
     // this.appStartRaised = true
 
     // }
-    this.router.events.subscribe((event: any) => {
+    this.router.events.pipe(takeUntil(this.destroy$)).subscribe((event: any) => {
       if (event instanceof NavigationEnd) {
         if (event.url.includes('/setup/')) {
           this.isSetupPage = true
@@ -124,13 +127,18 @@ export class RootComponent implements OnInit, AfterViewInit {
         // }
       }
     })
-    this.rootSvc.showNavbarDisplay$.pipe(delay(500)).subscribe(display => {
+    this.rootSvc.showNavbarDisplay$.pipe(delay(500), takeUntil(this.destroy$)).subscribe(display => {
       this.showNavbar = display
     })
   }
 
   ngAfterViewInit() {
     this.initAppUpdateCheck()
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next()
+    this.destroy$.complete()
   }
 
   initAppUpdateCheck() {
@@ -141,23 +149,24 @@ export class RootComponent implements OnInit, AfterViewInit {
       )
       const everySixHours$ = interval(6 * 60 * 60 * 1000)
       const everySixHoursOnceAppIsStable$ = concat(appIsStable$, everySixHours$)
-      everySixHoursOnceAppIsStable$.subscribe(() => this.swUpdate.checkForUpdate())
+      everySixHoursOnceAppIsStable$.pipe(takeUntil(this.destroy$)).subscribe(() => this.swUpdate.checkForUpdate())
       if (this.swUpdate.isEnabled) {
-        this.swUpdate.available.subscribe(() => {
+        this.swUpdate.versionUpdates.pipe(takeUntil(this.destroy$)).subscribe((evt: any) => {
+          if (evt.type !== 'VERSION_READY') { return }
           const dialogRef = this.dialog.open(DialogConfirmComponent, {
             data: {
               title: (this.appUpdateTitleRef && this.appUpdateTitleRef.nativeElement.value) || '',
               body: (this.appUpdateBodyRef && this.appUpdateBodyRef.nativeElement.value) || '',
             },
           })
-          dialogRef.afterClosed().subscribe(
+          dialogRef.afterClosed().pipe(takeUntil(this.destroy$)).subscribe(
             (result: any) => {
               if (result) {
                 this.swUpdate.activateUpdate().then(() => {
                   if ('caches' in window) {
                     caches.keys()
                       .then(keyList => {
-                        timer(2000).subscribe(
+                        timer(2000).pipe(takeUntil(this.destroy$)).subscribe(
                           _ => window.location.reload(),
                         )
                         return Promise.all(keyList.map(key => {

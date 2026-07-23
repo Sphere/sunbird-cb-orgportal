@@ -8,9 +8,10 @@ import { NsWidgetResolver } from '@sunbird-cb/resolver'
 import { ROOT_WIDGET_CONFIG, NsError } from '@sunbird-cb/collection'
 import { TncAppResolverService } from '../../services/tnc-app-resolver.service'
 import { TncPublicResolverService } from '../../services/tnc-public-resolver.service'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
+import { MatDialog } from '@angular/material/dialog'
 
 @Component({
+  standalone: false,
   selector: 'ws-tnc',
   templateUrl: './tnc.component.html',
   styleUrls: ['./tnc.component.scss'],

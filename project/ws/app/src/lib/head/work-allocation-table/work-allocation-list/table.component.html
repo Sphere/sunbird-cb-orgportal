@@ -23,14 +23,14 @@
                             'min-wid':col.displayName === 'Work order'}">
                     <mat-radio-button *ngIf="col.displayName==='Work order'" (click)="selectWorkOrder(element)">
                     </mat-radio-button>
-                    <span *ngIf="!col.isList && element[col.key]!='Download'" class="flex textclass mat-body-2">
+                    <span *ngIf="!col.isList && element[col.key]!=='Download'" class="flex textclass mat-body-2">
 
                         <ws-app-initial-avatar
                             *ngIf="col.displayName ==='Published by' ||  col.displayName ==='Last updated by'"
                             [name]="element[col.key]">
                         </ws-app-initial-avatar> <span [ngClass]="{
                             'mat-button':col.displayName === 'Work order',
-                            'mat-body-2':col.displayName != 'Work order',
+                            'mat-body-2':col.displayName !== 'Work order',
                             'ws-mat-red-text':col.displayName === 'Errors' }"
                             (click)="onRowClick(element)">{{element[col.key]}}
                             {{col.isList}}</span>

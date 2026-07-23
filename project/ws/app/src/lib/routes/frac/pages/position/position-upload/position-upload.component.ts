@@ -46,6 +46,7 @@ interface UploadEmptyStateConfig {
 
 
 @Component({
+  standalone: false,
   selector: 'ws-app-position-upload',
   templateUrl: './position-upload.component.html',
   styleUrls: ['./position-upload.component.scss']

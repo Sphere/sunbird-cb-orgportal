@@ -1,0 +1,152 @@
+{
+  "menus": {
+    "widgetType": "menus",
+    "widgetSubType": "leftMenu",
+    "widgetData": {
+      "logo": true,
+      "logoPath": "assets/instances/eagle/app_logos/aastar-source.png",
+      "name": "Sphere Org Manager",
+      "menus": [
+        {
+          "name": "Home",
+          "key": "Home",
+          "icon": "home",
+          "fragment": false,
+          "render": true,
+          "badges": {
+            "enabled": false,
+            "uri": ""
+          },
+          "enabled": true,
+          "routerLink": "/app/home/welcome",
+          "requiredRoles": [
+            "admin",
+            "mdo_admin",
+            "wat_member",
+            "frac_admin"
+          ]
+        },
+        {
+          "name": "Users",
+          "key": "users",
+          "icon": "group",
+          "fragment": false,
+          "render": true,
+          "badges": {
+            "enabled": false,
+            "uri": ""
+          },
+          "enabled": true,
+          "routerLink": "/app/home/users",
+          "requiredRoles": [
+            "admin",
+            "mdo_admin"
+          ]
+        },
+        {
+          "name": "Roles and access",
+          "key": "roles-access",
+          "icon": "admin_panel_settings",
+          "fragment": false,
+          "render": true,
+          "badges": {
+            "enabled": false,
+            "uri": ""
+          },
+          "enabled": true,
+          "routerLink": "/app/home/roles-access",
+          "requiredRoles": [
+            "admin",
+            "mdo_admin"
+          ]
+        },
+        {
+          "name": "Competencies",
+          "key": "competencies",
+          "icon": "psychology",
+          "fragment": false,
+          "render": true,
+          "badges": {
+            "enabled": false,
+            "uri": ""
+          },
+          "enabled": true,
+          "routerLink": "/app/home/competencies",
+          "requiredRoles": [
+            "admin",
+            "mdo_admin"
+          ]
+        },
+        {
+          "name": "Events",
+          "key": "events",
+          "icon": "event",
+          "fragment": false,
+          "render": true,
+          "badges": {
+            "enabled": false,
+            "uri": ""
+          },
+          "enabled": true,
+          "routerLink": "/app/home/event-dashboard",
+          "requiredRoles": [
+            "admin",
+            "mdo_admin",
+            "certificate_manager"
+          ]
+        },
+        {
+          "name": "FRAC",
+          "key": "Frac",
+          "icon": "account_tree",
+          "fragment": false,
+          "render": true,
+          "badges": {
+            "enabled": false,
+            "uri": ""
+          },
+          "enabled": true,
+          "routerLink": "/app/home/frac/dashboard",
+          "requiredRoles": [
+            "frac_admin"
+          ]
+        },
+        {
+          "name": "Manage Positions",
+          "key": "position",
+          "icon": "work_outline",
+          "fragment": false,
+          "render": true,
+          "badges": {
+            "enabled": false,
+            "uri": ""
+          },
+          "enabled": true,
+          "routerLink": "/app/home/frac/position",
+          "requiredRoles": [
+            "frac_admin"
+          ]
+        },
+        {
+          "name": "Playlist",
+          "key": "playlist",
+          "icon": "playlist_play",
+          "fragment": false,
+          "render": true,
+          "badges": {
+            "enabled": false,
+            "uri": ""
+          },
+          "enabled": true,
+          "routerLink": "/app/home/playlist",
+          "routerLinkActiveOptions": {
+            "exact": false
+          },
+          "requiredRoles": [
+            "frac_admin"
+          ]
+        }
+      ]
+    }
+  }
+}

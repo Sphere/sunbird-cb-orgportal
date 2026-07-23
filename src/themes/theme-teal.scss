@@ -1,7 +1,8 @@
 @use '@angular/material' as mat;
 @import './theme-mixins';
 
-mat.$teal-palette: (50: #e0f2f1,
+$custom-teal-palette: (
+  50: #e0f2f1,
   100: #b2dfdb,
   200: #80cbc4,
   300: #4db6ac,
@@ -16,7 +17,8 @@ mat.$teal-palette: (50: #e0f2f1,
   A400: #1de9b6,
   A700: #00bfa5,
   sample: #005f87,
-  contrast: (50: rgba(black, 0.87),
+  contrast: (
+    50: rgba(black, 0.87),
     100: rgba(black, 0.87),
     200: rgba(black, 0.87),
     300: rgba(black, 0.87),
@@ -30,9 +32,12 @@ mat.$teal-palette: (50: #e0f2f1,
     A200: rgba(black, 0.87),
     A400: rgba(black, 0.87),
     A700: rgba(black, 0.87),
-    sample: white));
+    sample: white,
+  ),
+);
 
-mat.$orange-palette: (50: #fff3e0,
+$custom-orange-palette: (
+  50: #fff3e0,
   100: #ffe0b2,
   200: #ffcc80,
   300: #ffb74d,
@@ -46,9 +51,9 @@ mat.$orange-palette: (50: #fff3e0,
   A200: #ffab40,
   A400: #ff9100,
   A700: #ff6d00,
-  // sample: #ffb900,
   sample: #eb780a,
-  contrast: (50: rgba(black, 0.87),
+  contrast: (
+    50: rgba(black, 0.87),
     100: rgba(black, 0.87),
     200: rgba(black, 0.87),
     300: rgba(black, 0.87),
@@ -61,9 +66,12 @@ mat.$orange-palette: (50: #fff3e0,
     A100: rgba(black, 0.87),
     A200: rgba(black, 0.87),
     A400: rgba(black, 0.87),
-    A700: black));
+    A700: black,
+  ),
+);
 
-mat.$pink-palette: (50: #fce4ec,
+$custom-pink-palette: (
+  50: #fce4ec,
   100: #f8bbd0,
   200: #f48fb1,
   300: #f06292,
@@ -78,7 +86,8 @@ mat.$pink-palette: (50: #fce4ec,
   A400: #f50057,
   A700: #c51162,
   sample: #af235f,
-  contrast: (50: rgba(black, 0.87),
+  contrast: (
+    50: rgba(black, 0.87),
     100: rgba(black, 0.87),
     200: rgba(black, 0.87),
     300: rgba(black, 0.87),
@@ -92,29 +101,24 @@ mat.$pink-palette: (50: #fce4ec,
     A200: white,
     A400: white,
     A700: white,
-    sample: white));
+    sample: white,
+  ),
+);
 
-// Plus imports for other components in your app.
-
-// Define the palettes for your theme using the Material Design palettes available in palette.scss
-// (imported above). For each palette, you can optionally specify a default, lighter, and darker
-// hue. Available color palettes: https://material.io/design/color/
-$theme-primary: mat.define-palette(mat.$teal-palette, sample, 50);
-$theme-accent: mat.define-palette(mat.$pink-palette, sample);
-
-// The warn palette is optional (defaults to red).
-$theme-warn: mat.define-palette(mat.$orange-palette, sample);
+$theme-primary: mat.m2-define-palette($custom-teal-palette, sample, 50);
+$theme-accent: mat.m2-define-palette($custom-pink-palette, sample);
+$theme-warn: mat.m2-define-palette($custom-orange-palette, sample);
 
 .theme-teal {
   &.day-mode {
-    $theme: mat.define-light-theme($theme-primary, $theme-accent, $theme-warn);
-    @include mat.all-legacy-component-themes($theme);
+    $theme: mat.m2-define-light-theme($theme-primary, $theme-accent, $theme-warn);
+    @include mat.all-component-themes($theme);
     @include theme-based-configurations($theme);
   }
 
   &.night-mode {
-    $theme: mat.define-dark-theme($theme-primary, $theme-accent, $theme-warn);
-    @include mat.all-legacy-component-themes($theme);
+    $theme: mat.m2-define-dark-theme($theme-primary, $theme-accent, $theme-warn);
+    @include mat.all-component-themes($theme);
     @include theme-based-configurations($theme);
   }
 }

@@ -19,7 +19,7 @@
       </div>
       <div class="w-full search">
         <form (submit)="search(query.value)" class="w-full search-form flex">
-          <mat-form-field class="w-full" appearance="none">
+          <mat-form-field class="w-full" appearance="fill">
             <input name="searchQuery" [matAutocomplete]="auto" [formControl]="query" type="text" matInput
               placeholder="Search" i18-aria-label aria-label="Query" i18n-placeholder="search content">
           </mat-form-field>

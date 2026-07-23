@@ -1,20 +1,22 @@
-import { Component, ElementRef, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChange, ViewChild, ViewEncapsulation } from '@angular/core'
+import { Component, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChange, ViewChild, ViewEncapsulation } from '@angular/core'
 import { UntypedFormControl } from '@angular/forms'
 import { ActivatedRoute, Router } from '@angular/router'
 import { ConfigurationsService } from '@sunbird-cb/utils'
-import { Observable } from 'rxjs'
-import { debounceTime, distinctUntilChanged, startWith, switchMap } from 'rxjs/operators'
+import { Observable, Subject } from 'rxjs'
+import { debounceTime, distinctUntilChanged, startWith, switchMap, takeUntil } from 'rxjs/operators'
 import { ISearchAutoComplete } from '../../models/search.model'
 import { SearchServService } from '../../services/search-serv.service'
 
 @Component({
+  standalone: false,
   selector: 'ws-app-search-input-home',
   templateUrl: './search-input-home.component.html',
   styleUrls: ['./search-input-home.component.scss'],
   // tslint:disable-next-line
   encapsulation: ViewEncapsulation.None,
 })
-export class SearchInputHomeComponent implements OnInit, OnChanges {
+export class SearchInputHomeComponent implements OnInit, OnChanges, OnDestroy {
+  private destroy$ = new Subject<void>()
   @Input() placeHolder = ''
   @Input() ref = ''
   @Output() closed: EventEmitter<boolean> = new EventEmitter()
@@ -58,6 +60,7 @@ export class SearchInputHomeComponent implements OnInit, OnChanges {
         this.queryControl.valueChanges.pipe(
           debounceTime(200),
           distinctUntilChanged(),
+          takeUntil(this.destroy$),
         ).subscribe(q => {
           this.getSearchAutoCompleteResults(q)
         })
@@ -69,7 +72,7 @@ export class SearchInputHomeComponent implements OnInit, OnChanges {
       // activated
       this.searchInputElem.nativeElement.focus()
     }
-    this.activated.queryParamMap.subscribe(queryParam => {
+    this.activated.queryParamMap.pipe(takeUntil(this.destroy$)).subscribe(queryParam => {
       if (queryParam.has('q')) {
         this.queryControl.setValue(queryParam.get('q') || 'all')
       } else {
@@ -96,6 +99,11 @@ export class SearchInputHomeComponent implements OnInit, OnChanges {
     if (this.preferredLanguages && this.preferredLanguages.split(',').length > 1) {
       this.languageSearch.splice(1, 0, this.preferredLanguages)
     }
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next()
+    this.destroy$.complete()
   }
 
   ngOnInit() {

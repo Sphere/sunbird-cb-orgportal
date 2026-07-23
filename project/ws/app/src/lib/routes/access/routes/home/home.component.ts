@@ -8,6 +8,7 @@ import { map } from 'rxjs/operators'
 import _ from 'lodash'
 /* tslint:enable */
 @Component({
+  standalone: false,
   selector: 'ws-app-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],

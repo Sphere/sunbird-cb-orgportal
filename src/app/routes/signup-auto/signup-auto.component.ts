@@ -1,14 +1,18 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core'
+import { MatSnackBar } from '@angular/material/snack-bar'
 import { SignupAutoService } from './signup-auto.service'
 import { ActivatedRoute } from '@angular/router'
+import { Subject } from 'rxjs'
+import { takeUntil } from 'rxjs/operators'
 
 @Component({
+  standalone: false,
   selector: 'ws-signup-auto',
   templateUrl: './signup-auto.component.html',
   styleUrls: ['./signup-auto.component.scss'],
 })
-export class SignupAutoComponent implements OnInit {
+export class SignupAutoComponent implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>()
   fetching = false
   showResonse = false
   uniqueId: any
@@ -23,7 +27,7 @@ export class SignupAutoComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.route.paramMap.subscribe(params => {
+    this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe(params => {
       this.uniqueId = params.get('id')
       this.signup(this.uniqueId)
     })
@@ -31,7 +35,7 @@ export class SignupAutoComponent implements OnInit {
 
   signup(id: any) {
     this.fetching = true
-    this.signupAutoService.signup(id).subscribe(
+    this.signupAutoService.signup(id).pipe(takeUntil(this.destroy$)).subscribe(
       result => {
         this.fetching = false
         const [resonseCode] = result.msg.split(':')
@@ -61,6 +65,11 @@ export class SignupAutoComponent implements OnInit {
         this.msg = `Something went wrong please try again later!!`
         this.openSnackbar(err.error.msg)
       })
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next()
+    this.destroy$.complete()
   }
 
   private openSnackbar(primaryMsg: string, duration: number = 5000) {
