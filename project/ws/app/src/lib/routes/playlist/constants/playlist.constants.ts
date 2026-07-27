@@ -19,6 +19,10 @@ export const PLAYLIST_ROUTES = {
     SELECT_COMPETENCIES: '/app/playlist/select-competencies',
     MANAGE_COMPETENCY_ORDER: '/app/playlist/manage-competency-order',
     MANAGE_SEARCH: '/app/playlist/manage-search',
+
+    /** ASKME course flow — reuses the course screens under a separate playlist */
+    ASKME_SELECT_COURSES: '/app/playlist/askme/select-courses',
+    ASKME_MANAGE_COURSE_ORDER: '/app/playlist/askme/manage-course-order',
 } as const
 
 // ---------------------------------------------------------------------------

@@ -73,6 +73,40 @@
             </div>
         </div>
 
+        <!-- ASKME Manage Courses Card -->
+        <div class="summary-card summary-card--askme">
+            <mat-icon class="card-bg-icon">auto_awesome</mat-icon>
+            <div class="card-header">
+                <h2>Askme Manage Courses</h2>
+                <p>Choose the courses to be displayed in the Askme chat window.</p>
+            </div>
+
+            <div class="stats-container">
+                <div class="stat-pill stat-pill--purple">
+                    <mat-icon>library_books</mat-icon>
+                    <span class="stat-count">{{ askmeCourseSummary().total }}</span>
+                    <span class="stat-text">Total Courses</span>
+                </div>
+
+                <div class="last-updated-text">
+                    <mat-icon>history</mat-icon>
+                    Last updated: <span>{{ askmeCourseSummary().lastUpdated }}</span>
+                </div>
+            </div>
+
+            <div class="card-actions">
+                <button class="primary-btn" (click)="onManageAskmeCourse()">
+                    <mat-icon>settings</mat-icon>
+                    {{ hasExistingAskmeCoursePlaylist() ? 'Manage' : 'Create' }}
+                </button>
+                <button class="secondary-btn" [disabled]="!hasExistingAskmeCoursePlaylist()"
+                    (click)="onViewAskmeCourse()">
+                    <mat-icon>visibility</mat-icon>
+                    View
+                </button>
+            </div>
+        </div>
+
         <!-- Manage Competency Card -->
         <div class="summary-card summary-card--competency">
             <mat-icon class="card-bg-icon">workspace_premium</mat-icon>
