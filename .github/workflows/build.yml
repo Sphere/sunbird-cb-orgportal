@@ -34,7 +34,7 @@ jobs:
         run: npm run build
 
       - name: Test with coverage
-        run: npm test -- --watch=false --code-coverage --browsers=ChromeHeadless
+        run: npm test -- --watch=false --browsers=ChromeHeadless
 
       - name: SonarQube Scan
         uses: sonarsource/sonarqube-scan-action@v3
