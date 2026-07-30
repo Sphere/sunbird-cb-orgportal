@@ -8,28 +8,29 @@ import { RoleUploadComponent } from './role-upload.component'
 import { FracApiService } from '../../../services/frac-api.service'
 import { FracEntityUploadOrchestratorService } from '../../../services/frac-entity-upload-orchestrator.service'
 import { TableTransformUtil } from '../../../utils/table-transform.util'
+import { createSpyObj } from 'src/test-utils/create-spy-obj'
 
 describe('RoleUploadComponent', () => {
   let component: RoleUploadComponent
   let fixture: ComponentFixture<RoleUploadComponent>
   let queryParams$: BehaviorSubject<Record<string, string>>
-  let mockFracApiService: jasmine.SpyObj<FracApiService>
+  let mockFracApiService: jest.Mocked<FracApiService>
 
   beforeEach(async () => {
     queryParams$ = new BehaviorSubject<Record<string, string>>({ mode: 'upload' })
-    mockFracApiService = jasmine.createSpyObj('FracApiService', ['searchEntities', 'uploadFile', 'updateEntity'])
-    mockFracApiService.searchEntities.and.returnValue(of({ result: { entity: [] } }))
+    mockFracApiService = createSpyObj('FracApiService', ['searchEntities', 'uploadFile', 'updateEntity'])
+    mockFracApiService.searchEntities.mockReturnValue(of({ result: { entity: [] } }) as any)
 
     await TestBed.configureTestingModule({
       declarations: [RoleUploadComponent],
       providers: [
         FracEntityUploadOrchestratorService,
-        { provide: MatDialog, useValue: jasmine.createSpyObj('MatDialog', ['open']) },
-        { provide: Router, useValue: jasmine.createSpyObj('Router', ['navigateByUrl']) },
+        { provide: MatDialog, useValue: createSpyObj('MatDialog', ['open']) },
+        { provide: Router, useValue: createSpyObj('Router', ['navigateByUrl']) },
         { provide: FracApiService, useValue: mockFracApiService },
         {
           provide: TableTransformUtil,
-          useValue: jasmine.createSpyObj('TableTransformUtil', ['transformResponseToTableConfig']),
+          useValue: createSpyObj('TableTransformUtil', ['transformResponseToTableConfig']),
         },
         { provide: ActivatedRoute, useValue: { queryParams: queryParams$.asObservable() } },
         { provide: ConfigurationsService, useValue: { instanceConfig: {} } },
@@ -58,6 +59,6 @@ describe('RoleUploadComponent', () => {
 
   it('should trigger initial search in manage mode', () => {
     queryParams$.next({ mode: 'manage' })
-    expect(mockFracApiService.searchEntities).toHaveBeenCalledWith('role', '', 'English')
+    expect(mockFracApiService.searchEntities).toHaveBeenCalledWith('role', '', 'en')
   })
 })

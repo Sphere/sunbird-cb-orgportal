@@ -1,7 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core'
-// import { AuthKeycloakService, ConfigurationsService, NsPage } from '@sunbird-cb/utils'
 import { Subscription } from 'rxjs'
-// import { ActivatedRoute } from '@angular/router'
 
 @Component({
   selector: 'ws-public-logout',
@@ -13,32 +11,17 @@ export class PublicLogoutComponent implements OnInit, OnDestroy {
   contactPage: any
   platform = 'Learner'
   panelOpenState = false
-  // pageNavbar: Partial<NsPage.INavBackground> = this.configSvc.pageNavBar
   private subscriptionContact: Subscription | null = null
   http: any
   redirectUrl: string | undefined
 
-  constructor(
-    // private configSvc: ConfigurationsService,
-    // private activateRoute: ActivatedRoute,
-    // private authSvc: AuthKeycloakService,
-  ) { }
+  constructor() { }
 
   ngOnInit() {
-    // this.subscriptionContact = this.activateRoute.data.subscribe(data => {
-    //   this.contactPage = data.pageData.data
-    // })
-    // if (this.configSvc.instanceConfig) {
-    //   this.contactUsMail = this.configSvc.instanceConfig.mailIds.contactUs
-    // }
     try {
       this.deleteAllCookies()
 
     } catch (error) { }
-    // window.location.href = `${this.defaultRedirectUrl}public/home`
-    // this.router.navigate(['/page/home'])
-    // }
-    // this.authSvc.logout().then(() => { })
   }
 
   ngOnDestroy() {
@@ -50,7 +33,6 @@ export class PublicLogoutComponent implements OnInit, OnDestroy {
   login() {
     const host = window.location.origin
     window.location.href = `${host}/protected/v8/resource`
-    // window.location.reload()
   }
 
   async deleteAllCookies() {
@@ -60,7 +42,6 @@ export class PublicLogoutComponent implements OnInit, OnDestroy {
       const cookie = cookies[i]
       const eqPos = cookie.indexOf('=')
       const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie
-      // tslint:disable-next-line: prefer-array-literal
       document.cookie = name + '=;expires=Thu, 01 Jan 1970 00:00:00 GMT'
     }
 

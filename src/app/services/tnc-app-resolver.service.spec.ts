@@ -1,9 +1,13 @@
 import { TestBed } from '@angular/core/testing'
+import { HttpClientTestingModule } from '@angular/common/http/testing'
 
 import { TncAppResolverService } from './tnc-app-resolver.service'
 
 describe('TncAppResolverService', () => {
-  beforeEach(() => TestBed.configureTestingModule({}))
+  beforeEach(() => TestBed.configureTestingModule({
+    imports: [HttpClientTestingModule],
+    providers: [TncAppResolverService],
+  }))
 
   it('should be created', () => {
     const service: TncAppResolverService = TestBed.inject(TncAppResolverService)

@@ -1,7 +1,6 @@
 import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core'
 import { NsContent } from '@sunbird-cb/collection'
 import { ConfigurationsService, EventService } from '@sunbird-cb/utils'
-import { SafeHtml, DomSanitizer } from '@angular/platform-browser'
 @Component({
   selector: 'ws-app-learning-card',
   templateUrl: './learning-card.component.html',
@@ -15,11 +14,16 @@ export class LearningCardComponent implements OnInit, OnChanges {
   contentProgress = 0
   isExpanded = false
   defaultThumbnail = ''
-  description: SafeHtml = ''
+  /**
+   * Bound as a plain string (not SafeHtml) so Angular's default [innerHTML]
+   * sanitizer still strips scripts/handlers from this CMS-sourced text;
+   * bypassing sanitization here would let a compromised content record
+   * execute arbitrary markup in the viewer's browser.
+   */
+  description = ''
   constructor(
     private events: EventService,
     private configSvc: ConfigurationsService,
-    private domSanitizer: DomSanitizer,
   ) { }
 
   ngOnInit() {
@@ -33,7 +37,7 @@ export class LearningCardComponent implements OnInit, OnChanges {
     for (const prop in changes) {
       if (prop === 'content' && this.content.description) {
         this.content.description = this.content.description.replace(/<br>/g, '')
-        this.description = this.domSanitizer.bypassSecurityTrustHtml(this.content.description)
+        this.description = this.content.description
       }
     }
   }

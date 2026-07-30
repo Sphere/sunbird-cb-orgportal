@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core'
-import { SafeUrl, DomSanitizer } from '@angular/platform-browser'
+import { SafeUrl } from '@angular/platform-browser'
 import {
   ConfigurationsService,
   NsPage,
@@ -7,6 +7,7 @@ import {
 import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
 import { AppTourDialogComponent } from '@sunbird-cb/collection'
 import { Router, ActivatedRoute } from '@angular/router'
+import { SanitizerService } from 'src/app/services/sanitizer.service'
 import { Globals } from '../../globals'
 
 @Component({
@@ -21,7 +22,7 @@ export class SetupDoneComponent implements OnInit {
   constructor(
     private configSvc: ConfigurationsService,
     private route: ActivatedRoute,
-    private domSanitizer: DomSanitizer,
+    private sanitizerService: SanitizerService,
     private matDialog: MatDialog,
     private router: Router,
     private globals: Globals,
@@ -32,7 +33,7 @@ export class SetupDoneComponent implements OnInit {
       this.badges = data.badges.data
     })
     if (this.configSvc.instanceConfig) {
-      this.appIcon = this.domSanitizer.bypassSecurityTrustResourceUrl(
+      this.appIcon = this.sanitizerService.trustResourceUrl(
         this.configSvc.instanceConfig.logos.thumpsUp || '',
       )
     }

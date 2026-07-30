@@ -1,4 +1,8 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing'
+import { NO_ERRORS_SCHEMA } from '@angular/core'
+import { HttpClientTestingModule } from '@angular/common/http/testing'
+import { RouterTestingModule } from '@angular/router/testing'
+import { PipeLimitToPipe } from '@sunbird-cb/utils'
 
 import { LearningCardComponent } from './learning-card.component'
 
@@ -8,7 +12,12 @@ describe('LearningCardComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [LearningCardComponent],
+      declarations: [LearningCardComponent, PipeLimitToPipe],
+      imports: [HttpClientTestingModule, RouterTestingModule],
+      providers: [
+        { provide: 'environment', useValue: {} },
+      ],
+      schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents()
   }))
 

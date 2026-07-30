@@ -1,9 +1,10 @@
 import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core'
-import { DomSanitizer, SafeUrl } from '@angular/platform-browser'
+import { SafeUrl } from '@angular/platform-browser'
 import { IBtnAppsConfig, CustomTourService } from '@sunbird-cb/collection'
 import { NsWidgetResolver } from '@sunbird-cb/resolver'
 import { ConfigurationsService, NsPage } from '@sunbird-cb/utils'
 import { Router, NavigationStart, NavigationEnd, Event } from '@angular/router'
+import { SanitizerService } from '../../services/sanitizer.service'
 
 @Component({
   selector: 'ws-app-nav-bar',
@@ -35,7 +36,7 @@ export class AppNavBarComponent implements OnInit, OnChanges {
   showAppNavBar = false
   popupTour: any
   constructor(
-    private domSanitizer: DomSanitizer,
+    private sanitizerSvc: SanitizerService,
     private configSvc: ConfigurationsService,
     private tourService: CustomTourService,
     private router: Router,
@@ -75,12 +76,12 @@ export class AppNavBarComponent implements OnInit, OnChanges {
     })
 
     if (this.configSvc.instanceConfig) {
-      this.appIcon = this.domSanitizer.bypassSecurityTrustResourceUrl(
+      this.appIcon = this.sanitizerSvc.trustResourceUrl(
         'https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/icons/Foundation-secondary.svg',
       )
       this.instanceVal = this.configSvc.rootOrg || ''
       if (this.configSvc.instanceConfig.logos.appBottomNav) {
-        this.appBottomIcon = this.domSanitizer.bypassSecurityTrustResourceUrl(
+        this.appBottomIcon = this.sanitizerSvc.trustResourceUrl(
           this.configSvc.instanceConfig.logos.appBottomNav,
         )
       }

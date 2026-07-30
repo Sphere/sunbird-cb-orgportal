@@ -1,5 +1,9 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing'
 
+import { NO_ERRORS_SCHEMA } from '@angular/core'
+import { ActivatedRoute } from '@angular/router'
+import { of } from 'rxjs'
+import { HttpClientTestingModule } from '@angular/common/http/testing'
 import { CardDetailsComponent } from './card-details.component'
 
 describe('CardDetailsComponent', () => {
@@ -9,6 +13,20 @@ describe('CardDetailsComponent', () => {
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       declarations: [CardDetailsComponent],
+    imports: [HttpClientTestingModule],
+    providers: [
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            data: of({ pageData: { data: {} }, eventdata: { data: {} } }),
+            paramMap: of({ get: () => null }),
+            params: of({}),
+            snapshot: { paramMap: { get: () => null }, queryParamMap: { get: () => null }, data: {}, params: {} },
+            parent: { data: of({ eventdata: { data: {} } }), params: of({}) },
+          },
+        },
+      ],
+      schemas: [NO_ERRORS_SCHEMA],
     })
     .compileComponents()
   }))

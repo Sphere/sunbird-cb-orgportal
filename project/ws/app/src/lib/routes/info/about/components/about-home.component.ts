@@ -1,13 +1,13 @@
 import { Component, OnInit, OnDestroy } from '@angular/core'
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout'
 import {
-  DomSanitizer,
   SafeResourceUrl,
   SafeStyle,
 } from '@angular/platform-browser'
 import { map } from 'rxjs/operators'
 import { ConfigurationsService, NsPage } from '@sunbird-cb/utils'
 import { ActivatedRoute } from '@angular/router'
+import { SanitizerService } from 'src/app/services/sanitizer.service'
 import { IAboutObject } from '../../../../../../../../../src/app/routes/public/public-about/about.model'
 import { Subscription } from 'rxjs'
 
@@ -32,7 +32,7 @@ export class AboutHomeComponent implements OnInit, OnDestroy {
 
   constructor(
     private breakpointObserver: BreakpointObserver,
-    private domSanitizer: DomSanitizer,
+    private sanitizerService: SanitizerService,
     private configSvc: ConfigurationsService,
     private activateRoute: ActivatedRoute,
   ) { }
@@ -41,18 +41,18 @@ export class AboutHomeComponent implements OnInit, OnDestroy {
     this.subscriptionAbout = this.activateRoute.data.subscribe(data => {
       this.aboutPage = data.pageData.data
       if (this.aboutPage && this.aboutPage.banner && this.aboutPage.banner.videoLink) {
-        this.videoLink = this.domSanitizer.bypassSecurityTrustResourceUrl(
+        this.videoLink = this.sanitizerService.trustResourceUrl(
           this.aboutPage.banner.videoLink,
         )
       }
     })
 
     if (this.configSvc.instanceConfig) {
-      (this.headerBanner = this.domSanitizer.bypassSecurityTrustStyle(
-        `url('${this.configSvc.instanceConfig.logos.aboutHeader}')`,
+      (this.headerBanner = this.sanitizerService.trustStyleUrl(
+        this.configSvc.instanceConfig.logos.aboutHeader,
       )),
-        (this.footerBanner = this.domSanitizer.bypassSecurityTrustStyle(
-          `url('${this.configSvc.instanceConfig.logos.aboutFooter}')`,
+        (this.footerBanner = this.sanitizerService.trustStyleUrl(
+          this.configSvc.instanceConfig.logos.aboutFooter,
         ))
     }
   }

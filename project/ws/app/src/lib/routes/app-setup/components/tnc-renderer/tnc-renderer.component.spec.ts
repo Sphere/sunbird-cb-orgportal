@@ -1,4 +1,6 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing'
+import { NO_ERRORS_SCHEMA } from '@angular/core'
+import { PipeSafeSanitizerPipe } from '@sunbird-cb/utils'
 
 import { TncRendererComponent } from './tnc-renderer.component'
 
@@ -8,7 +10,8 @@ describe('TncRendererComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [TncRendererComponent],
+      declarations: [TncRendererComponent, PipeSafeSanitizerPipe],
+      schemas: [NO_ERRORS_SCHEMA],
     })
     .compileComponents()
   }))

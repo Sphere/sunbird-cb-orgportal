@@ -1,14 +1,14 @@
 import { Injectable } from '@angular/core'
-import { ActivatedRouteSnapshot, Router, RouterStateSnapshot, 
-// RouterStateSnapshot,
-UrlTree } from '@angular/router'
+import {
+  ActivatedRouteSnapshot, Router, RouterStateSnapshot,
+  UrlTree
+} from '@angular/router'
 import { ConfigurationsService, AuthKeycloakService } from '@sunbird-cb/utils'
-// tslint:disable-next-line
 import _ from 'lodash'
 @Injectable({
   providedIn: 'root',
 })
-export class GeneralGuard  {
+export class GeneralGuard {
   constructor(
     private router: Router,
     private configSvc: ConfigurationsService,
@@ -38,44 +38,6 @@ export class GeneralGuard  {
     requiredFeatures: string[],
     requiredRoles: string[],
   ): Promise<T | UrlTree | boolean> {
-    /**
-     * Test IF User is authenticated===> in now from backend
-     */
-    // if (!this.configSvc.isAuthenticated) {
-    // let refAppend = ''
-    // if (state.url) {
-    //   refAppend = `?ref=${encodeURIComponent(state.url)}`
-    // }
-    // return this.router.parseUrl(`/login${refAppend}`)
-
-    // let redirectUrl
-    // if (refAppend) {
-    //   redirectUrl = document.baseURI + refAppend
-    // } else {
-    //   redirectUrl = document.baseURI
-    // }
-
-    //   try {
-    //     // Promise.resolve(this.authSvc.login('S', redirectUrl))
-    //     return true
-    //   } catch (e) {
-    //     return false
-    //   }
-    // }
-
-    // if Invalid Role checked in init.service
-    // if (
-    //   state.url &&
-    //   // !state.url.includes('/app/setup/') &&
-    //   !(state.url.includes('/app/tnc') ||
-    //     state.url.includes('/app/setup/'))
-    // ) {
-    //   if (!this.hasRole(environment.portalRoles)) {
-    //     this.authSvc.logout()
-    //     return false
-    //   }
-    // }
-    // If invalid user
     if (
       this.configSvc.userProfile === null &&
       this.configSvc.instanceConfig &&
@@ -92,30 +54,14 @@ export class GeneralGuard  {
         !state.url.includes('/app/setup/') &&
         !state.url.includes('/app/tnc') &&
         !state.url.includes('/')
-        // !state.url.includes('/page/home')
       ) {
         this.configSvc.userUrl = state.url
       }
-      // if (
-      //   this.configSvc.restrictedFeatures &&
-      //   !this.configSvc.restrictedFeatures.has('firstTimeSetupV2')
-      // ) {
-      //   return this.router.parseUrl(`/app/setup/home/lang`)
-      // }
-      // return this.router.parseUrl(`/app/tnc`)
     }
     if (_.get(this.configSvc, 'unMappedUser.isDeleted')) {
       this.router.navigateByUrl('/error-access-forbidden')
       this.authSvc.logout()
       return false
-    }
-
-    /**
-       * Test IF User updated the profile details
-       */
-    if (!this.configSvc.profileDetailsStatus) {
-      // ===
-      // return this.router.navigate(['/app/user-profile/details', { isForcedUpdate: true }])
     }
 
     /**

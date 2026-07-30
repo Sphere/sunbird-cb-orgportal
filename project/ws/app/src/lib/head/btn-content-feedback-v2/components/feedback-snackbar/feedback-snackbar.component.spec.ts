@@ -1,4 +1,6 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing'
+import { NO_ERRORS_SCHEMA } from '@angular/core'
+import { MAT_LEGACY_SNACK_BAR_DATA as MAT_SNACK_BAR_DATA } from '@angular/material/legacy-snack-bar'
 
 import { FeedbackSnackbarComponent } from './feedback-snackbar.component'
 
@@ -9,6 +11,10 @@ describe('FeedbackSnackbarComponent', () => {
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       declarations: [FeedbackSnackbarComponent],
+      providers: [
+        { provide: MAT_SNACK_BAR_DATA, useValue: { action: 'content_feedback_submit', code: 'success' } },
+      ],
+      schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents()
   }))
 

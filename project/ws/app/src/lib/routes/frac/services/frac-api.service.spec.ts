@@ -67,7 +67,7 @@ describe('FracApiService', () => {
       expect(response.result.entity[0].entityCode).toEqual(['ACT_01'])
     })
 
-    const req = httpMock.expectOne('/custom/upload')
+    const req = httpMock.expectOne(r => r.url === '/custom/upload')
     expect(req.request.method).toBe('POST')
     expect(req.request.responseType).toBe('text')
 
@@ -87,7 +87,7 @@ describe('FracApiService', () => {
       expect(response).toBe('upstream plain-text error')
     })
 
-    const req = httpMock.expectOne('/custom/upload')
+    const req = httpMock.expectOne(r => r.url === '/custom/upload')
     req.flush('upstream plain-text error', { status: 200, statusText: 'OK' })
   })
 })

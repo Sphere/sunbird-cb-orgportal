@@ -1,20 +1,29 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing'
+import { NO_ERRORS_SCHEMA } from '@angular/core'
+import { RouterTestingModule } from '@angular/router/testing'
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
+import { createSpyObj } from 'src/test-utils/create-spy-obj'
 
-import { ParticipantsComponent } from './participants.component'
+import { EventListViewComponent } from './event-list-view.component'
 
-describe('ParticipantsComponent', () => {
-  let component: ParticipantsComponent
-  let fixture: ComponentFixture<ParticipantsComponent>
+describe('EventListViewComponent', () => {
+  let component: EventListViewComponent
+  let fixture: ComponentFixture<EventListViewComponent>
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ParticipantsComponent],
+      declarations: [EventListViewComponent],
+      imports: [RouterTestingModule],
+      providers: [
+        { provide: MatDialog, useValue: createSpyObj('MatDialog', ['open']) },
+      ],
+      schemas: [NO_ERRORS_SCHEMA],
     })
     .compileComponents()
   }))
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(ParticipantsComponent)
+    fixture = TestBed.createComponent(EventListViewComponent)
     component = fixture.componentInstance
     fixture.detectChanges()
   })

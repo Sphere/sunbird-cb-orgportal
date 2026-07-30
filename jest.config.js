@@ -1,0 +1,26 @@
+module.exports = {
+  preset: 'jest-preset-angular',
+  setupFilesAfterEnv: ['<rootDir>/setup-jest.ts'],
+  roots: ['<rootDir>/src', '<rootDir>/project'],
+  testPathIgnorePatterns: ['/node_modules/', '/dist/'],
+  moduleNameMapper: {
+    '^src/(.*)$': '<rootDir>/src/$1',
+    '^@ws/app/(.*)$': '<rootDir>/project/ws/app/$1',
+    '^@ws/app$': '<rootDir>/project/ws/app',
+  },
+  collectCoverage: true,
+  coverageDirectory: '<rootDir>/coverage/mdo',
+  coverageReporters: ['html', 'lcov', 'text-summary'],
+  collectCoverageFrom: [
+    'src/**/*.ts',
+    'project/**/*.ts',
+    '!**/*.spec.ts',
+    '!**/*.module.ts',
+    '!**/*api.ts',
+    '!**/polyfills.ts',
+    '!src/main.ts',
+    '!src/test.ts',
+    '!src/environments/**',
+    '!src/mdo-assets/**',
+  ],
+}

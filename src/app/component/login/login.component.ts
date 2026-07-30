@@ -1,8 +1,9 @@
 import { Component, OnDestroy, OnInit } from '@angular/core'
-import { DomSanitizer, SafeUrl } from '@angular/platform-browser'
+import { SafeUrl } from '@angular/platform-browser'
 import { ActivatedRoute } from '@angular/router'
-import { ConfigurationsService } from '@sunbird-cb/utils' // AuthKeycloakService
+import { ConfigurationsService } from '@sunbird-cb/utils'
 import { Subscription } from 'rxjs'
+import { SanitizerService } from '../../services/sanitizer.service'
 import { ILoginDescriptiveFooterConfig, IWSPublicLoginConfig } from './login.model'
 
 @Component({
@@ -18,24 +19,21 @@ export class LoginComponent implements OnInit, OnDestroy {
   showIconBackground = false
   developedBy = ''
   appIcon: SafeUrl | null = null
-  // todo what to do for client login
   isClientLogin = false
   loginConfig: IWSPublicLoginConfig | null = null
   welcomeFooter: ILoginDescriptiveFooterConfig | null = null
   title = ''
   subTitle = ''
-  // private redirectUrl = ''
   private subscriptionLogin: Subscription | null = null
 
   constructor(
     private activateRoute: ActivatedRoute,
-    // private authSvc: AuthKeycloakService,
     private configSvc: ConfigurationsService,
-    private domSanitizer: DomSanitizer,
+    private sanitizerSvc: SanitizerService,
   ) {
     const instanceConfig = this.configSvc.instanceConfig
     if (instanceConfig) {
-      this.appIcon = this.domSanitizer.bypassSecurityTrustResourceUrl(
+      this.appIcon = this.sanitizerSvc.trustResourceUrl(
         instanceConfig.logos.appTransparent,
       )
       this.productLogo = instanceConfig.logos.company
@@ -45,7 +43,6 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.subscriptionLogin = this.activateRoute.data.subscribe(data => {
-      // todo
       this.loginConfig = data.pageData.data
       this.isClientLogin = data.pageData.data.isClient
       this.welcomeFooter = data.pageData.data.footer.descriptiveFooter
@@ -53,13 +50,6 @@ export class LoginComponent implements OnInit, OnDestroy {
       this.subTitle = data.pageData.data.topbar.subTitle
       this.contactUs = data.pageData.data.footer.contactUs
     })
-
-    // const paramsMap = this.activateRoute.snapshot.queryParamMap
-    // if (paramsMap.has('ref')) {
-    //   this.redirectUrl = document.baseURI + paramsMap.get('ref')
-    // } else {
-    //   this.redirectUrl = document.baseURI
-    // }
   }
 
   ngOnDestroy() {
@@ -67,8 +57,4 @@ export class LoginComponent implements OnInit, OnDestroy {
       this.subscriptionLogin.unsubscribe()
     }
   }
-
-  // login(key: 'E' | 'N' | 'S') {
-  //   this.authSvc.login(key, this.redirectUrl)
-  // }
 }
