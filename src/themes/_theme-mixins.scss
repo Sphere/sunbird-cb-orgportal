@@ -370,7 +370,6 @@
 
     .ws-active-route-menu {
       background-color: $colorBlack040 !important;
-      font-weight: 700;
       font: bold 14px Lato !important;
 
       &::after {
@@ -613,7 +612,6 @@
 
     .ws-mat-text-fade-gradient {
       height: 2rem;
-      background-color: white;
       position: absolute;
       width: 90%;
       margin-top: 24%;

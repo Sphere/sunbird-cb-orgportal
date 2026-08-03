@@ -62,7 +62,7 @@
   margin: 0 auto;
   // border: 1px solid;
   // font-weight: 500;
-  box-shadow: 0px 10px 30p;
+  box-shadow: 0px 10px 30px #99999933;
   /*#99999933*/
   border-radius: 8px;
 }
@@ -172,7 +172,6 @@
 }
 
 .pagination {
-  display: -ms-flexbox;
   display: flex;
   padding-left: 0;
   list-style: none;

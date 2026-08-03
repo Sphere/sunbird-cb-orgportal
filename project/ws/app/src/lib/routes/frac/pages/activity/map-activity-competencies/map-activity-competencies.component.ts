@@ -405,9 +405,9 @@ export class MapActivityCompetenciesComponent implements OnInit, OnDestroy {
     const cachedSignature = cached
       .map(d => {
         const levels = this.parseLevelsString(d.levels || '')
-        return `${d.code}:${levels.sort().join(',')}`
+        return `${d.code}:${levels.sort((a, b) => a.localeCompare(b)).join(',')}`
       })
-      .sort()
+      .sort((a, b) => a.localeCompare(b))
       .join('|')
 
     // Build sorted signature from current selectedMap — strip the "CODE_" prefix from each level key
@@ -418,9 +418,9 @@ export class MapActivityCompetenciesComponent implements OnInit, OnDestroy {
           const underscoreIdx = lv.lastIndexOf('_')
           return underscoreIdx >= 0 ? lv.slice(underscoreIdx + 1) : lv
         })
-        return `${code}:${plainLevels.sort().join(',')}`
+        return `${code}:${plainLevels.sort((a, b) => a.localeCompare(b)).join(',')}`
       })
-      .sort()
+      .sort((a, b) => a.localeCompare(b))
       .join('|')
 
     return cachedSignature === currentSignature

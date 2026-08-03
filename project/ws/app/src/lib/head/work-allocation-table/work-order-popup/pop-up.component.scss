@@ -73,7 +73,6 @@ $card-standard-width: 268px;
   box-sizing: border-box;
 
   .progress-bar {
-    display: block;
     width: calc(100% + #{2 * $card-padding});
     margin-left: -$card-padding;
     margin-top: -$card-padding;
@@ -142,7 +141,6 @@ $card-standard-width: 268px;
   }
 
   .progress-bar {
-    display: block;
     width: calc(100% + #{2 * $card-padding});
     margin-left: -$card-padding;
     margin-top: -$card-padding;
@@ -248,7 +246,6 @@ $card-standard-width: 268px;
   box-shadow: 0px 10px 30px #99999933;
 
   .progress-bar {
-    display: block;
     width: calc(100% + #{2 * $card-padding - 2});
     margin-left: -#{$card-padding - 1};
     // margin-top: -$card-padding;
@@ -365,7 +362,6 @@ $card-standard-width: 268px;
   box-shadow: 0px 10px 30px #99999933;
 
   .progress-bar {
-    display: block;
     width: calc(100% + #{2 * $card-padding - 2});
     margin-left: -#{$card-padding - 1};
     display: flex;

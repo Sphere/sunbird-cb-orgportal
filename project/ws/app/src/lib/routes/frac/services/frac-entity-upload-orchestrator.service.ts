@@ -97,7 +97,7 @@ export class FracEntityUploadOrchestratorService {
    */
   getRowSignature(row: Record<string, unknown>): string {
     const normalized: Record<string, string> = {}
-    const keys = Object.keys(row || {}).sort()
+    const keys = Object.keys(row || {}).sort((a, b) => a.localeCompare(b))
 
     keys.forEach((key) => {
       normalized[key] = (row?.[key] ?? '').toString()
@@ -112,7 +112,7 @@ export class FracEntityUploadOrchestratorService {
   computeTableSignature(rows: Array<Record<string, unknown>>): string {
     return (rows || [])
       .map(row => this.getRowSignature(row))
-      .sort()
+      .sort((a, b) => a.localeCompare(b))
       .join('||')
   }
 

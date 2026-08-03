@@ -127,7 +127,7 @@ export class HomeComponent implements OnInit {
       this.languageSearch = this.route.snapshot.data.pageData.data.search.languageSearch.map(
         (u: string) => u.toLowerCase(),
       )
-      this.languageSearch = this.languageSearch.sort()
+      this.languageSearch = this.languageSearch.sort((a: string, b: string) => a.localeCompare(b))
       this.swapRemove(this.languageSearch, this.languageSearch.indexOf('all'), 0)
       if (this.preferredLanguages && this.preferredLanguages.split(',').length > 1) {
       this.languageSearch.splice(1, 0, this.preferredLanguages)
