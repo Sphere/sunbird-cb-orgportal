@@ -12,17 +12,17 @@
             <ng-container *ngIf="academic.type == 'X_STANDARD'">
               <mat-grid-list cols="1" rowHeight="50px">
                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                  <label class="header-text">10th Standard</label>
+                  <span class="header-text">10th Standard</span>
                 </mat-grid-tile>
               </mat-grid-list>
               <mat-grid-list cols="1" rowHeight="100px">
                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                  <label class="appr-text-label">School name</label>
-                  <input type="text" class="appr-text-field" [disabled]="true" [value]="academic.nameOfInstitute">
+                  <label class="appr-text-label" for="name-of-institute-input">School name</label>
+                  <input id="name-of-institute-input" type="text" class="appr-text-field" [disabled]="true" [value]="academic.nameOfInstitute">
                 </mat-grid-tile>
                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                  <label class="appr-text-label">Year of passing</label>
-                  <input type="text" class="appr-text-field" [disabled]="true" [value]="academic.yearOfPassing">
+                  <label class="appr-text-label" for="year-of-passing-input">Year of passing</label>
+                  <input id="year-of-passing-input" type="text" class="appr-text-field" [disabled]="true" [value]="academic.yearOfPassing">
                 </mat-grid-tile>
               </mat-grid-list>
             </ng-container>
@@ -30,17 +30,17 @@
             <ng-container *ngIf="academic.type == 'XII_STANDARD'">
               <mat-grid-list cols="1" rowHeight="50px">
                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                  <label class="header-text">12th Standard</label>
+                  <span class="header-text">12th Standard</span>
                 </mat-grid-tile>
               </mat-grid-list>
               <mat-grid-list cols="1" rowHeight="100px">
                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                  <label class="appr-text-label">School name</label>
-                  <input type="text" class="appr-text-field" [disabled]="true" [value]="academic.nameOfInstitute">
+                  <label class="appr-text-label" for="name-of-institute-input-2">School name</label>
+                  <input id="name-of-institute-input-2" type="text" class="appr-text-field" [disabled]="true" [value]="academic.nameOfInstitute">
                 </mat-grid-tile>
                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                  <label class="appr-text-label">Year of passing</label>
-                  <input type="text" class="appr-text-field" [disabled]="true" [value]="academic.yearOfPassing">
+                  <label class="appr-text-label" for="year-of-passing-input-2">Year of passing</label>
+                  <input id="year-of-passing-input-2" type="text" class="appr-text-field" [disabled]="true" [value]="academic.yearOfPassing">
                 </mat-grid-tile>
               </mat-grid-list>
             </ng-container>
@@ -48,21 +48,21 @@
             <ng-container *ngIf="academic.type == 'GRADUATE'">
               <mat-grid-list cols="1" rowHeight="50px">
                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                  <label class="header-text">Graduation details</label>
+                  <span class="header-text">Graduation details</span>
                 </mat-grid-tile>
               </mat-grid-list>
               <mat-grid-list cols="1" rowHeight="100px">
                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                  <label class="appr-text-label">Degree</label>
-                  <input type="text" class="appr-text-field" [disabled]="true" [value]="academic.nameOfQualification">
+                  <label class="appr-text-label" for="name-of-qualification-input">Degree</label>
+                  <input id="name-of-qualification-input" type="text" class="appr-text-field" [disabled]="true" [value]="academic.nameOfQualification">
                 </mat-grid-tile>
                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                  <label class="appr-text-label">Institute name</label>
-                  <input type="text" class="appr-text-field" [disabled]="true" [value]="academic.nameOfInstitute">
+                  <label class="appr-text-label" for="name-of-institute-input-3">Institute name</label>
+                  <input id="name-of-institute-input-3" type="text" class="appr-text-field" [disabled]="true" [value]="academic.nameOfInstitute">
                 </mat-grid-tile>
                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                  <label class="appr-text-label">Year of passing</label>
-                  <input type="text" class="appr-text-field" [disabled]="true" [value]="academic.yearOfPassing">
+                  <label class="appr-text-label" for="year-of-passing-input-3">Year of passing</label>
+                  <input id="year-of-passing-input-3" type="text" class="appr-text-field" [disabled]="true" [value]="academic.yearOfPassing">
                 </mat-grid-tile>
               </mat-grid-list>
             </ng-container>
@@ -70,21 +70,21 @@
             <ng-container *ngIf="academic.type == 'POST_GRADUATE'">
               <mat-grid-list cols="1" rowHeight="50px">
                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                  <label class="header-text">Post graduation details</label>
+                  <span class="header-text">Post graduation details</span>
                 </mat-grid-tile>
               </mat-grid-list>
               <mat-grid-list cols="1" rowHeight="100px">
                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                  <label class="appr-text-label">Degree</label>
-                  <input type="text" class="appr-text-field" [disabled]="true" [value]="academic.nameOfQualification">
+                  <label class="appr-text-label" for="name-of-qualification-input-2">Degree</label>
+                  <input id="name-of-qualification-input-2" type="text" class="appr-text-field" [disabled]="true" [value]="academic.nameOfQualification">
                 </mat-grid-tile>
                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                  <label class="appr-text-label">Institute name</label>
-                  <input type="text" class="appr-text-field" [disabled]="true" [value]="academic.nameOfInstitute">
+                  <label class="appr-text-label" for="name-of-institute-input-4">Institute name</label>
+                  <input id="name-of-institute-input-4" type="text" class="appr-text-field" [disabled]="true" [value]="academic.nameOfInstitute">
                 </mat-grid-tile>
                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                  <label class="appr-text-label">Year of passing</label>
-                  <input type="text" class="appr-text-field" [disabled]="true" [value]="academic.yearOfPassing">
+                  <label class="appr-text-label" for="year-of-passing-input-4">Year of passing</label>
+                  <input id="year-of-passing-input-4" type="text" class="appr-text-field" [disabled]="true" [value]="academic.yearOfPassing">
                 </mat-grid-tile>
               </mat-grid-list>
             </ng-container>

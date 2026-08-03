@@ -341,8 +341,8 @@
         <div class="flex-1 similar-sidebar">
             <ng-container id="changelog">
                 <div>
-                    <label class="change-log-text margin-top-l margin-bottom-l margin-left-m margin-right-m">Similar
-                        items</label>
+                    <span class="change-log-text margin-top-l margin-bottom-l margin-left-m margin-right-m">Similar
+                        items</span>
                     <div class="w-full similarUsersList" *ngIf="similarRoles && similarRoles.length > 0">
                         <div class="suser-card" *ngFor="let role of similarRoles">
                             <div class="padding-top-m padding-bottom-xs padding-left-s padding-right-s">
@@ -377,11 +377,11 @@
                     </div>
                     <div id="loader"></div>
                     <div class="no-request-text margin-m">
-                        <label *ngIf="!similarPositions && !similarActivities && !similarRoles">System will recommend
-                            similar items to avoid duplication</label>
-                        <label *ngIf="nosimilarRoles && similarRoles.length === 0">No roles found</label>
-                        <label *ngIf="nosimilarPositions && similarPositions.length === 0">No position found</label>
-                        <label *ngIf="nosimilarActivities && similarActivities.length === 0">No activity found</label>
+                        <span *ngIf="!similarPositions && !similarActivities && !similarRoles">System will recommend
+                            similar items to avoid duplication</span>
+                        <span *ngIf="nosimilarRoles && similarRoles.length === 0">No roles found</span>
+                        <span *ngIf="nosimilarPositions && similarPositions.length === 0">No position found</span>
+                        <span *ngIf="nosimilarActivities && similarActivities.length === 0">No activity found</span>
                     </div>
                 </div>
             </ng-container>

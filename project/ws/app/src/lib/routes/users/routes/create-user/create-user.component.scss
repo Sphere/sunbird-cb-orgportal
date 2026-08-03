@@ -301,13 +301,13 @@ input[type=number] {
   font-size: 14px;
   margin-bottom: .5rem;
   font-weight: 700;
-  font-family: 'Lato';
+  font-family: 'Lato', sans-serif;
 }
 
 .form-input {
   font-size: 14px;
   font-weight: 400;
-  font-family: 'Lato';
+  font-family: 'Lato', sans-serif;
 }
 
 input.mat-input-element {
@@ -524,7 +524,7 @@ input.mat-input-element {
 
 .heading{
   font-weight: 600;
-  font-family: 'Montserrat';
+  font-family: 'Montserrat', sans-serif;
   font-size: 20px;
   display: block;
   padding: 15px 0;

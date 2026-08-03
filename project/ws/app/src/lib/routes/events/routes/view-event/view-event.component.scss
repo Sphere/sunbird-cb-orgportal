@@ -320,7 +320,7 @@ a:not([href]):not([tabindex]) {
 
 .appr-section-heading{
   font-size: 20px;
-  font-family: 'Montserrat';
+  font-family: 'Montserrat', sans-serif;
   font-weight: 600;
 }
 
@@ -329,7 +329,7 @@ a:not([href]):not([tabindex]) {
   border: 1px solid #DDDDDD;
   border-radius: 4px;
   padding: 9px;
-  font-family: 'Lato';
+  font-family: 'Lato', sans-serif;
   font-size: 14px;
   font-weight: 400;
 }
@@ -380,20 +380,20 @@ textarea {
 }
 
 ::ng-deep .mat-radio-label-content{
-  font-family: 'Lato';
+  font-family: 'Lato', sans-serif;
   font-size: 14px;
   font-weight: 400;
 }
 
 .header-text{
-  font-family: 'Montserrat';
+  font-family: 'Montserrat', sans-serif;
   font-weight: 600;
   font-size: 16px;
 }
 
 .middle-heading{
   font-weight: 600;
-    font-family: "Montserrat";
+    font-family: "Montserrat", sans-serif;
     font-size:16px
 }
 

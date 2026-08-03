@@ -27,7 +27,7 @@ export class SearchApiService {
   get userId(): string | undefined {
     const kc = this.keycloakSvc.getKeycloakInstance()
     if (!kc) {
-      return
+      return undefined
     }
     return (kc.tokenParsed && kc.tokenParsed.sub) || (kc.idTokenParsed && kc.idTokenParsed.sub)
   }

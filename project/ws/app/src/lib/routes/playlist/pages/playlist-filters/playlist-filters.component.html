@@ -65,7 +65,7 @@
                             </span>
                         </div>
                         <div class="multi-select-panel" *ngIf="positionDropdownOpen()">
-                            <label *ngIf="loadingPositions()" class="multi-select-option disabled">Loading...</label>
+                            <span *ngIf="loadingPositions()" class="multi-select-option disabled">Loading...</span>
                             <label *ngFor="let pos of positions()" class="multi-select-option"
                                 (mousedown)="$event.preventDefault()" (click)="toggleRole(pos.value)">
                                 <input type="checkbox" [checked]="isRoleSelected(pos.value)"

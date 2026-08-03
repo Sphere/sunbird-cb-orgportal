@@ -19,87 +19,87 @@
                 </mat-grid-tile>
 
                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                  <label class="appr-text-label">MDO</label>
-                  <input type="text" [disabled]="true" class="appr-text-field" [value]="employmentDetails.departmentName">
+                  <label class="appr-text-label" for="department-name-input">MDO</label>
+                  <input id="department-name-input" type="text" [disabled]="true" class="appr-text-field" [value]="employmentDetails.departmentName">
                 </mat-grid-tile>
                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                  <label class="appr-text-label">Industry</label>
-                  <input type="text" [disabled]="true" [value]="professionalDetails.industry ? professionalDetails.industry : ''"
+                  <label class="appr-text-label" for="industry-input">Industry</label>
+                  <input id="industry-input" type="text" [disabled]="true" [value]="professionalDetails.industry ? professionalDetails.industry : ''"
                     class="appr-text-field">
                 </mat-grid-tile>
                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                  <label class="appr-text-label">Designation</label>
-                  <input type="text" [disabled]="true" [value]="professionalDetails.designation ? professionalDetails.designation : ''"
+                  <label class="appr-text-label" for="designation-input">Designation</label>
+                  <input id="designation-input" type="text" [disabled]="true" [value]="professionalDetails.designation ? professionalDetails.designation : ''"
                     class="appr-text-field">
                 </mat-grid-tile>
                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                  <label class="appr-text-label">Location</label>
-                  <input type="text" [disabled]="true" [value]="professionalDetails.location ? professionalDetails.location : ''"
+                  <label class="appr-text-label" for="location-input">Location</label>
+                  <input id="location-input" type="text" [disabled]="true" [value]="professionalDetails.location ? professionalDetails.location : ''"
                     class="appr-text-field">
                 </mat-grid-tile>
                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                  <label class="appr-text-label">Description</label>
-                  <textarea [disabled]="true" rows="3" [value]="professionalDetails.description ? professionalDetails.description : ''"
+                  <label class="appr-text-label" for="description-input">Description</label>
+                  <textarea id="description-input" [disabled]="true" rows="3" [value]="professionalDetails.description ? professionalDetails.description : ''"
                     class="appr-text-field"></textarea>
                 </mat-grid-tile>
               </mat-grid-list>
 
               <mat-grid-list cols="1" rowHeight="50px" class="margin-top-xl">
                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                  <label class="appr-text-label middle-heading">Other details for government employess (If
-                    applicable)</label>
+                  <span class="appr-text-label middle-heading">Other details for government employess (If
+                    applicable)</span>
                 </mat-grid-tile>
               </mat-grid-list>
 
               <mat-grid-list cols="2" rowHeight="100px">
                 <mat-grid-tile [colspan]="2" [rowspan]="1" class="input-wrapper">
-                  <label class="appr-text-label">Pay band (grade pay)</label>
-                  <input type="text" [disabled]="true" [value]="professionalDetails.industry ? professionalDetails.industry : ''"
+                  <label class="appr-text-label" for="industry-input-2">Pay band (grade pay)</label>
+                  <input id="industry-input-2" type="text" [disabled]="true" [value]="professionalDetails.industry ? professionalDetails.industry : ''"
                     class="appr-text-field">
                 </mat-grid-tile>
                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                  <label class="appr-text-label">Service</label>
-                  <input type="text" [disabled]="true" [value]="professionalDetails.industry ? professionalDetails.industry : ''"
+                  <label class="appr-text-label" for="industry-input-3">Service</label>
+                  <input id="industry-input-3" type="text" [disabled]="true" [value]="professionalDetails.industry ? professionalDetails.industry : ''"
                     class="appr-text-field">
                 </mat-grid-tile>
                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                  <label class="appr-text-label">Cadre</label>
-                  <input type="text" [disabled]="true" [value]="professionalDetails.industry ? professionalDetails.industry : ''"
+                  <label class="appr-text-label" for="industry-input-4">Cadre</label>
+                  <input id="industry-input-4" type="text" [disabled]="true" [value]="professionalDetails.industry ? professionalDetails.industry : ''"
                     class="appr-text-field">
                 </mat-grid-tile>
                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                  <label class="appr-text-label">Allotment year of service</label>
-                  <input type="text" [disabled]="true" [value]="professionalDetails.industry ? professionalDetails.industry : ''"
+                  <label class="appr-text-label" for="industry-input-5">Allotment year of service</label>
+                  <input id="industry-input-5" type="text" [disabled]="true" [value]="professionalDetails.industry ? professionalDetails.industry : ''"
                     class="appr-text-field">
                 </mat-grid-tile>
                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                  <label class="appr-text-label">Date of joining</label>
-                  <input type="text" [disabled]="true" [value]="professionalDetails.doj ? professionalDetails.doj : ''"
+                  <label class="appr-text-label" for="doj-input">Date of joining</label>
+                  <input id="doj-input" type="text" [disabled]="true" [value]="professionalDetails.doj ? professionalDetails.doj : ''"
                     class="appr-text-field">
                 </mat-grid-tile>
                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                  <label class="appr-text-label">Civil list number</label>
-                  <input type="text" [disabled]="true" [value]="professionalDetails.industry ? professionalDetails.industry : ''"
+                  <label class="appr-text-label" for="industry-input-6">Civil list number</label>
+                  <input id="industry-input-6" type="text" [disabled]="true" [value]="professionalDetails.industry ? professionalDetails.industry : ''"
                     class="appr-text-field">
                 </mat-grid-tile>
                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                  <label class="appr-text-label">Emplyee code</label>
-                  <input type="text" [disabled]="true" [value]="professionalDetails.industry ? professionalDetails.industry : ''"
+                  <label class="appr-text-label" for="industry-input-7">Emplyee code</label>
+                  <input id="industry-input-7" type="text" [disabled]="true" [value]="professionalDetails.industry ? professionalDetails.industry : ''"
                     class="appr-text-field">
                 </mat-grid-tile>
                 <mat-grid-tile [colspan]="2" [rowspan]="1" class="input-wrapper">
-                  <label class="appr-text-label">Location</label>
-                  <input type="text" [disabled]="true" [value]="professionalDetails.location ? professionalDetails.location : ''"
+                  <label class="appr-text-label" for="location-input-2">Location</label>
+                  <input id="location-input-2" type="text" [disabled]="true" [value]="professionalDetails.location ? professionalDetails.location : ''"
                     class="appr-text-field">
                 </mat-grid-tile>
                 <mat-grid-tile [colspan]="2" [rowspan]="1" class="input-wrapper">
-                  <label class="appr-text-label">Official postal address</label>
-                  <textarea [disabled]="true" rows="3" [value]="professionalDetails.completePostalAddress ? professionalDetails.completePostalAddress : ''"
+                  <label class="appr-text-label" for="complete-postal-address-input">Official postal address</label>
+                  <textarea id="complete-postal-address-input" [disabled]="true" rows="3" [value]="professionalDetails.completePostalAddress ? professionalDetails.completePostalAddress : ''"
                     class="appr-text-field"></textarea>
                 </mat-grid-tile>
                 <mat-grid-tile [colspan]="2" [rowspan]="1" class="input-wrapper">
-                  <label class="appr-text-label">Pin code</label>
-                  <input type="text" [disabled]="true" [value]="professionalDetails.industry ? professionalDetails.industry : ''"
+                  <label class="appr-text-label" for="industry-input-8">Pin code</label>
+                  <input id="industry-input-8" type="text" [disabled]="true" [value]="professionalDetails.industry ? professionalDetails.industry : ''"
                     class="appr-text-field">
                 </mat-grid-tile>
               </mat-grid-list>

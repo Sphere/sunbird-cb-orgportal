@@ -16,28 +16,28 @@
                     (error)="changeToGlobalSymbol($event)" />
                 </mat-grid-tile>
                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                  <label class="appr-text-label">First name</label>
-                  <input type="text" [disabled]="true" [value]="basicInfo.firstname" class="appr-text-field">
+                  <label class="appr-text-label" for="firstname-input">First name</label>
+                  <input id="firstname-input" type="text" [disabled]="true" [value]="basicInfo.firstname" class="appr-text-field">
                 </mat-grid-tile>
 
                 <!-- <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                              <label class="appr-text-label">Middle Name</label>
-                              <input type="text" [disabled]="true" [value]="basicInfo.middlename" class="appr-text-field">
+                              <label class="appr-text-label" for="middlename-input">Middle Name</label>
+                              <input id="middlename-input" type="text" [disabled]="true" [value]="basicInfo.middlename" class="appr-text-field">
                             </mat-grid-tile> -->
 
                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                  <label class="appr-text-label">Last name</label>
-                  <input type="text" [disabled]="true" [value]="basicInfo.surname" class="appr-text-field">
+                  <label class="appr-text-label" for="surname-input">Last name</label>
+                  <input id="surname-input" type="text" [disabled]="true" [value]="basicInfo.surname" class="appr-text-field">
                 </mat-grid-tile>
 
                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                  <label class="appr-text-label">Date of birth (dd-mm-yy)</label>
-                  <input type="text" [disabled]="true" [value]="basicInfo.dob" class="appr-text-field">
+                  <label class="appr-text-label" for="dob-input">Date of birth (dd-mm-yy)</label>
+                  <input id="dob-input" type="text" [disabled]="true" [value]="basicInfo.dob" class="appr-text-field">
                 </mat-grid-tile>
 
                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                  <label class="appr-text-label">Nationality</label>
-                  <input type="text" [disabled]="true" [value]="basicInfo.nationality" class="appr-text-field">
+                  <label class="appr-text-label" for="nationality-input">Nationality</label>
+                  <input id="nationality-input" type="text" [disabled]="true" [value]="basicInfo.nationality" class="appr-text-field">
                 </mat-grid-tile>
 
                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
@@ -68,44 +68,44 @@
                 </mat-grid-tile>
 
                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                  <label class="appr-text-label">Domicile medium (Mother tongue)</label>
-                  <input type="text" [disabled]="true" [value]="basicInfo.domicileMedium" class="appr-text-field">
+                  <label class="appr-text-label" for="domicile-medium-input">Domicile medium (Mother tongue)</label>
+                  <input id="domicile-medium-input" type="text" [disabled]="true" [value]="basicInfo.domicileMedium" class="appr-text-field">
                 </mat-grid-tile>
 
                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                  <label class="appr-text-label">Other languages known</label>
-                  <input type="text" [disabled]="true" [value]="basicInfo.knownLanguages" class="appr-text-field">
+                  <label class="appr-text-label" for="known-languages-input">Other languages known</label>
+                  <input id="known-languages-input" type="text" [disabled]="true" [value]="basicInfo.knownLanguages" class="appr-text-field">
                 </mat-grid-tile>
 
                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                  <label class="appr-text-label">Mobile number</label>
-                  <input type="text" [disabled]="true" [value]="basicInfo.mobile" class="appr-text-field">
+                  <label class="appr-text-label" for="mobile-input">Mobile number</label>
+                  <input id="mobile-input" type="text" [disabled]="true" [value]="basicInfo.mobile" class="appr-text-field">
                 </mat-grid-tile>
 
                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                  <label class="appr-text-label">Telephone number</label>
-                  <input type="text" [disabled]="true" [value]="basicInfo.telephone" class="appr-text-field">
+                  <label class="appr-text-label" for="telephone-input">Telephone number</label>
+                  <input id="telephone-input" type="text" [disabled]="true" [value]="basicInfo.telephone" class="appr-text-field">
                 </mat-grid-tile>
 
                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                  <label class="appr-text-label">Primary email</label>
-                  <input type="text" [disabled]="true" [value]="basicInfo.primaryEmail" class="appr-text-field">
+                  <label class="appr-text-label" for="primary-email-input">Primary email</label>
+                  <input id="primary-email-input" type="text" [disabled]="true" [value]="basicInfo.primaryEmail" class="appr-text-field">
                 </mat-grid-tile>
 
                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                  <label class="appr-text-label">Secondary email</label>
-                  <input type="text" [disabled]="true" [value]="basicInfo.personalEmail" class="appr-text-field">
+                  <label class="appr-text-label" for="personal-email-input">Secondary email</label>
+                  <input id="personal-email-input" type="text" [disabled]="true" [value]="basicInfo.personalEmail" class="appr-text-field">
                 </mat-grid-tile>
 
                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                  <label class="appr-text-label">Postal address</label>
-                  <textarea [disabled]="true" rows="3" [value]="basicInfo.postalAddress"
+                  <label class="appr-text-label" for="postal-address-input">Postal address</label>
+                  <textarea id="postal-address-input" [disabled]="true" rows="3" [value]="basicInfo.postalAddress"
                     class="appr-text-field"></textarea>
                 </mat-grid-tile>
 
                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                  <label class="appr-text-label">Pin code</label>
-                  <input type="text" [disabled]="true" [value]="basicInfo.pincode" class="appr-text-field">
+                  <label class="appr-text-label" for="pincode-input">Pin code</label>
+                  <input id="pincode-input" type="text" [disabled]="true" [value]="basicInfo.pincode" class="appr-text-field">
                 </mat-grid-tile>
 
               </mat-grid-list>

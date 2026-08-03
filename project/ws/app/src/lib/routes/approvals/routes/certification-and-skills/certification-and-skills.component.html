@@ -10,35 +10,35 @@
             <ng-container>
               <mat-grid-list cols="1" rowHeight="50px">
                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                  <label class="appr-text-label">Certification</label>
+                  <span class="appr-text-label">Certification</span>
                 </mat-grid-tile>
               </mat-grid-list>
               <mat-grid-list cols="1" rowHeight="150px">
                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                  <label class="appr-text-label">Additional skill acquired/course completed</label>
-                  <textarea [disabled]="true" rows="4" [value]="skillDetails.additionalSkills"
+                  <label class="appr-text-label" for="additional-skills-input">Additional skill acquired/course completed</label>
+                  <textarea id="additional-skills-input" [disabled]="true" rows="4" [value]="skillDetails.additionalSkills"
                     class="appr-text-field"></textarea>
                 </mat-grid-tile>
                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                  <label class="appr-text-label">Provide certification details</label>
-                  <textarea [disabled]="true" rows="4" [value]="skillDetails.certificateDetails"
+                  <label class="appr-text-label" for="certificate-details-input">Provide certification details</label>
+                  <textarea id="certificate-details-input" [disabled]="true" rows="4" [value]="skillDetails.certificateDetails"
                     class="appr-text-field"></textarea>
                 </mat-grid-tile>
               </mat-grid-list>
               <mat-grid-list cols="1" rowHeight="50px">
                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                  <label class="appr-text-label">Skills</label>
+                  <span class="appr-text-label">Skills</span>
                 </mat-grid-tile>
               </mat-grid-list>
               <mat-grid-list cols="1" rowHeight="150px">
                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                  <label class="appr-text-label">Professional interests</label>
-                  <textarea [disabled]="true" rows="4" [value]="skillDetails.additionalSkills"
+                  <label class="appr-text-label" for="additional-skills-input-2">Professional interests</label>
+                  <textarea id="additional-skills-input-2" [disabled]="true" rows="4" [value]="skillDetails.additionalSkills"
                     class="appr-text-field"></textarea>
                 </mat-grid-tile>
                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                  <label class="appr-text-label">Hobbies</label>
-                  <textarea [disabled]="true" rows="4" [value]="skillDetails.certificateDetails"
+                  <label class="appr-text-label" for="certificate-details-input-2">Hobbies</label>
+                  <textarea id="certificate-details-input-2" [disabled]="true" rows="4" [value]="skillDetails.certificateDetails"
                     class="appr-text-field"></textarea>
                 </mat-grid-tile>
               </mat-grid-list>
