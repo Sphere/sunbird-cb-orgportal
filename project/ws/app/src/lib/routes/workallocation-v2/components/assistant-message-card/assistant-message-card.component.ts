@@ -167,7 +167,7 @@ export class AssistantMessageCardComponent implements OnInit, OnDestroy {
     const unmapedActivities = _.get(_.first(data), 'activities')
     let noActivityDescCount = 0
     let noAssignedToCount = 0
-    unmapedActivities.map((ua: any) => {
+    unmapedActivities.forEach((ua: any) => {
       if (ua.activityDescription === '') {
         noActivityDescCount += 1
       }
@@ -182,7 +182,7 @@ export class AssistantMessageCardComponent implements OnInit, OnDestroy {
     // let noActivityDescCount = 0
     let roleNameCount = 0
     let roleDescriptionCount = 0
-    roles.map((role: any) => {
+    roles.forEach((role: any) => {
       const roleActivities = _.get(role, 'activities')
       if (!role.groupName) {
         roleNameCount += 1
@@ -196,7 +196,7 @@ export class AssistantMessageCardComponent implements OnInit, OnDestroy {
       if (roleActivities && !roleActivities.length) {
         noActivitiesCount += 1
       } else {
-        roleActivities.map((ra: any) => {
+        roleActivities.forEach((ra: any) => {
           if (!ra.activityDescription) {
             noActivityDescCount += 1
           }
@@ -233,7 +233,7 @@ export class AssistantMessageCardComponent implements OnInit, OnDestroy {
     const unmapedComps = _.get(_.first(data), 'competincies')
     let noCompDescCount = 0
     let noCompLableCount = 0
-    unmapedComps.map((uc: any) => {
+    unmapedComps.forEach((uc: any) => {
       if (!uc.compDescription) {
         noCompDescCount += 1
       }
@@ -246,12 +246,12 @@ export class AssistantMessageCardComponent implements OnInit, OnDestroy {
     let noCompCount = 0
     // let compLableCount = 0
     // let compDescriptionCount = 0
-    competencies.map((comp: any) => {
+    competencies.forEach((comp: any) => {
       const roleComps = _.get(comp, 'competincies')
       if (roleComps && !roleComps.length) {
         noCompCount += 1
       } else {
-        roleComps.map((rc: any) => {
+        roleComps.forEach((rc: any) => {
           if (!rc.compDescription) {
             noCompDescCount += 1
           }
@@ -279,7 +279,7 @@ export class AssistantMessageCardComponent implements OnInit, OnDestroy {
       let noLevelCount = 0
       let noAreaCount = 0
       let noTypeCount = 0
-      data.map((comp: any) => {
+      data.forEach((comp: any) => {
         if (comp.compLevel === '') {
           noLevelCount += 1
         }
@@ -442,7 +442,7 @@ export class AssistantMessageCardComponent implements OnInit, OnDestroy {
   calculateCompDetailsProgress(data: any): number {
     let progress = 0
     if (data && data.length) {
-      data.map((comp: any) => {
+      data.forEach((comp: any) => {
         if (comp.compLevel) {
           progress += this.defaultProgressValues.competecyDetails.controls.level / data.length
         }

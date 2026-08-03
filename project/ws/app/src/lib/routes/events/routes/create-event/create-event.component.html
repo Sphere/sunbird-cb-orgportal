@@ -42,7 +42,7 @@
                                                         [ngClass]="imageSrcURL ? 'button-row' : 'button-row-inline'">
                                                         <div class="item text-center">
                                                             <img class="imgicon display-block"
-                                                                src="/assets/icons/jpg.svg">
+                                                                src="/assets/icons/jpg.svg" alt="Cover picture placeholder">
                                                             <div id="thumbnail" class="deleteIcon" *ngIf="imageSrcURL">
                                                                 <a href="javascript:void(0);"
                                                                     (click)="removeSelectedFile()">
@@ -53,7 +53,7 @@
                                                                 (change)="onFileSelect($event);"
                                                                 accept="image/x-png,image/gif,image/jpeg" />
                                                             <img *ngIf="imageSrcURL" id="blah" [src]="imageSrcURL"
-                                                                alt="your image" />
+                                                                alt="Cover picture preview" />
                                                             <button *ngIf="!imageSrcURL" mat-stroked-button
                                                                 color="accent" type="button"
                                                                 class="caption dispaly-block mat-accent-border flex-auto-display"

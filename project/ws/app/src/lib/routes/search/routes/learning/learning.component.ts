@@ -222,7 +222,7 @@ export class LearningComponent implements OnInit, OnDestroy {
         this.activated.snapshot.data.pageData
       ) {
         this.routeComp = this.activated.snapshot.data.pageroute
-        this.activated.snapshot.data.pageData.data.search.tabs.map((cur: ISearchTab) => {
+        this.activated.snapshot.data.pageData.data.search.tabs.forEach((cur: ISearchTab) => {
           if (cur.titleKey === this.activated.snapshot.data.pageroute) {
             this.searchRequestObject.filters = cur.searchQuery.filters
           }

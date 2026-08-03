@@ -139,8 +139,8 @@ export class WidgetContentService {
     )
   }
 
-  async continueLearning(id: string, collectionId?: string, collectionType?: string): Promise<any> {
-    return new Promise(async resolve => {
+  continueLearning(id: string, collectionId?: string, collectionType?: string): Promise<any> {
+    return new Promise(resolve => {
       if (collectionType &&
         collectionType.toLowerCase() === 'playlist') {
         const reqBody = {
@@ -153,10 +153,9 @@ export class WidgetContentService {
           dateAccessed: Date.now(),
           contextType: 'playlist',
         }
-        await this.saveContinueLearning(reqBody).toPromise().catch().finally(() => {
+        this.saveContinueLearning(reqBody).toPromise().catch().finally(() => {
           resolve(true)
-        }
-        )
+        })
       } else {
         const reqBody = {
           contextPathId: collectionId ? collectionId : id,
@@ -164,7 +163,7 @@ export class WidgetContentService {
           data: JSON.stringify({ timestamp: Date.now() }),
           dateAccessed: Date.now(),
         }
-        await this.saveContinueLearning(reqBody).toPromise().catch().finally(() => {
+        this.saveContinueLearning(reqBody).toPromise().catch().finally(() => {
           resolve(true)
         })
       }

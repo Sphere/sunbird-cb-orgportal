@@ -352,7 +352,7 @@ export class ViewUserComponent implements OnInit, AfterViewInit {
       postDegree: [],
     }
     if (data.academics && Array.isArray(data.academics)) {
-      data.academics.map((item: any) => {
+      data.academics.forEach((item: any) => {
         switch (item.type) {
           case 'X_STANDARD': academics.X_STANDARD.schoolName10 = item.nameOfInstitute
             academics.X_STANDARD.yop10 = item.yearOfPassing
