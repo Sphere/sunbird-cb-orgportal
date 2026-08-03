@@ -42,7 +42,7 @@
                                                         [ngClass]="imageSrcURL ? 'button-row' : 'button-row-inline'">
                                                         <div class="item text-center">
                                                             <img class="imgicon display-block"
-                                                                src="/assets/icons/jpg.svg" alt="Cover picture placeholder">
+                                                                src="/assets/icons/jpg.svg" alt="Cover placeholder">
                                                             <div id="thumbnail" class="deleteIcon" *ngIf="imageSrcURL">
                                                                 <a href="javascript:void(0);"
                                                                     (click)="removeSelectedFile()">
@@ -53,7 +53,7 @@
                                                                 (change)="onFileSelect($event);"
                                                                 accept="image/x-png,image/gif,image/jpeg" />
                                                             <img *ngIf="imageSrcURL" id="blah" [src]="imageSrcURL"
-                                                                alt="Cover picture preview" />
+                                                                alt="Cover preview" />
                                                             <button *ngIf="!imageSrcURL" mat-stroked-button
                                                                 color="accent" type="button"
                                                                 class="caption dispaly-block mat-accent-border flex-auto-display"
@@ -344,9 +344,9 @@
                                                 <div class="example-table-container" *ngIf="participantsArr.length > 0">
                                                     <table class="mat-body-2">
                                                         <tr>
-                                                            <td>Name</td>
-                                                            <td>Email</td>
-                                                            <td>Type</td>
+                                                            <th scope="col">Name</th>
+                                                            <th scope="col">Email</th>
+                                                            <th scope="col">Type</th>
                                                         </tr>
                                                         <tr *ngFor="let row of participantsArr">
                                                             <td>{{ row.firstname }} {{ row.lastname }}</td>

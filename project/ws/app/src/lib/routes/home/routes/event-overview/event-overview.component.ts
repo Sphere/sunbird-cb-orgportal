@@ -219,7 +219,8 @@ export class EventOverviewComponent implements OnInit, OnDestroy {
     const formattedDate = this.formatEventDate(this.selectedEvent.eventDate)
 
     this.eventService.getParticipants(this.selectedEvent.eventId).subscribe({
-      next: async participants => {
+      next: participants => {
+        void (async () => {
         if (!participants || participants.length === 0) {
           console.warn('No participants found for certificate generation')
           this.isDownloading = false
@@ -230,6 +231,7 @@ export class EventOverviewComponent implements OnInit, OnDestroy {
         } finally {
           this.isDownloading = false
         }
+        })()
       },
       error: error => {
         console.error('Error fetching participants:', error)

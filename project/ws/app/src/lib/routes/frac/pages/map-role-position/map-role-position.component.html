@@ -11,7 +11,7 @@
   </div>
 
   <div class="header-tools">
-    <div class="language-dropdown header-language-dropdown" (click)="toggleDropdown()" role="button" tabindex="0">
+    <div class="language-dropdown header-language-dropdown" (click)="toggleDropdown()" (keydown.enter)="toggleDropdown()" (keydown.space)="toggleDropdown(); $event.preventDefault()" role="button" tabindex="0">
       <div class="dropdown-main">
         <div class="label-container">
           <div class="label">Language</div>

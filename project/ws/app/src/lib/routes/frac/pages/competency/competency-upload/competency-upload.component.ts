@@ -495,7 +495,8 @@ export class CompetencyUploadComponent {
 
     // Use actual upload method
     this.fracApiService.uploadFile(file, language).subscribe({
-      next: async (res) => {
+      next: (res) => {
+        void (async () => {
         fracLogger.debug('Competency upload completed', res)
 
         this.isUploading = false
@@ -523,6 +524,7 @@ export class CompetencyUploadComponent {
           fracLogger.warn('Upload API returned a failure payload', parsedRes)
           this.showResultModal(FracUploadHelper.createFailureModalData(parsedRes), false)
         }
+        })()
       },
       error: (err) => {
         fracLogger.error('Competency upload failed', {

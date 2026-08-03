@@ -639,7 +639,8 @@ export class PositionUploadComponent implements OnInit, OnDestroy {
     this.isUploading = true
 
     this.fracApiService.uploadFile(file, language).subscribe({
-      next: async (res) => {
+      next: (res) => {
+        void (async () => {
         this.isUploading = false
         const resolvedResponse = await FracResponseParserUtil.resolveApiPayload(res)
         this.apiResponse = resolvedResponse
@@ -659,6 +660,7 @@ export class PositionUploadComponent implements OnInit, OnDestroy {
         } else {
           this.showResultModal(FracUploadHelper.createFailureModalData(resolvedResponse), false)
         }
+        })()
       },
       error: (err) => {
         this.isUploading = false

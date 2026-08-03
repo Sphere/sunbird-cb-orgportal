@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChange, ViewChild, ViewEncapsulation } from '@angular/core'
+import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild, ViewEncapsulation } from '@angular/core'
 import { UntypedFormControl } from '@angular/forms'
 import { ActivatedRoute, Router } from '@angular/router'
 import { ConfigurationsService } from '@sunbird-cb/utils'
@@ -14,7 +14,7 @@ import { SearchServService } from '../../services/search-serv.service'
   // tslint:disable-next-line
   encapsulation: ViewEncapsulation.None,
 })
-export class SearchInputComponent implements OnInit, OnChanges {
+export class SearchInputComponent implements OnInit {
   @Input() placeHolder = ''
   @Input() ref = ''
   @Output() closed: EventEmitter<boolean> = new EventEmitter()
@@ -82,14 +82,6 @@ export class SearchInputComponent implements OnInit, OnChanges {
       this.languageSearch.splice(1, 0, this.preferredLanguages)
     }
   }
-  ngOnChanges() {
-    for (const change in SimpleChange) {
-      if (change === 'placeHolder') {
-        this.placeHolder = this.placeHolder
-      }
-    }
-  }
-
   swapRemove(langArray: string[], from: number, to: number) {
     langArray.splice(to, 0, langArray[from])
     langArray.splice(from + 1, 1)

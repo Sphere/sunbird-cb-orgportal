@@ -508,7 +508,8 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
 
     // Use actual upload method
     this.fracApiService.uploadFile(file, language).subscribe({
-      next: async (res) => {
+      next: (res) => {
+        void (async () => {
         fracLogger.debug('Role upload completed', res)
 
         // ✅ Hide local loader
@@ -533,6 +534,7 @@ export class RoleUploadComponent implements OnInit, OnDestroy {
         } else {
           this.showResultModal(FracUploadHelper.createFailureModalData(resolvedResponse), false)
         }
+        })()
       },
       error: (err) => {
         fracLogger.error('Role upload failed', {

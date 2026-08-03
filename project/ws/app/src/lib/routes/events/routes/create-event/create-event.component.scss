@@ -393,7 +393,6 @@ input[type=number] {
       border-right-style: none;
       /* border: 1px solid currentColor; */
       min-width: 8px;
-      border-right-style: none;
     }
 
     .mat-form-field-outline-gap {
@@ -504,7 +503,7 @@ input.mat-input-element {
   }
 }
 
-::ng-deeptextarea.mat-input-element {
+::ng-deep textarea.mat-input-element {
   padding: 8px 0;
 }
 

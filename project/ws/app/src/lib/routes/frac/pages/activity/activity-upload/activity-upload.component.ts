@@ -504,7 +504,8 @@ export class ActivityUploadComponent implements OnInit, OnDestroy {
 
     // Use actual upload method
     this.fracApiService.uploadFile(file, language).subscribe({
-      next: async (res) => {
+      next: (res) => {
+        void (async () => {
         fracLogger.debug('Activity upload completed', res)
 
         // ✅ Hide local loader
@@ -529,6 +530,7 @@ export class ActivityUploadComponent implements OnInit, OnDestroy {
         } else {
           this.showResultModal(FracUploadHelper.createFailureModalData(resolvedResponse), false)
         }
+        })()
       },
       error: (err) => {
         fracLogger.error('Activity upload failed', {

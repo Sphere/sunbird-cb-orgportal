@@ -19,7 +19,7 @@ export class FracService {
     return new Promise<IFrac>((resolve, reject) => {
       this.http.get<IFrac>(`${this.configSvc.baseUrl}/feature/frac.json`).subscribe({
         next: (response) => resolve(response),
-        error: (error) => reject(error),
+        error: (error) => reject(error instanceof Error ? error : new Error(error?.message || 'Failed to fetch FRAC config')),
       })
     })
   }

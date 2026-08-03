@@ -29,7 +29,7 @@ export class SetupDoneComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.route.data.subscribe(async data => {
+    this.route.data.subscribe(data => {
       this.badges = data.badges.data
     })
     if (this.configSvc.instanceConfig) {
