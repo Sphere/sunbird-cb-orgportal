@@ -301,28 +301,28 @@ a:not([href]):not([tabindex]) {
 .field-key{
   display: block;
   padding:5px 0;
-  font:400 14px Lato;
+  font:400 14px Lato, sans-serif;
   color: #999999;
 }
 
 .field-name{
   display: block;
   padding:5px 0px;
-  font:700 14px Lato;
+  font:700 14px Lato, sans-serif;
 
 }
 
 .field-change{
   display: block;
   padding:5px 0px;
-  font:400 14px Lato;
+  font:400 14px Lato, sans-serif;
   color: #d9d9d9;
 }
 
 .field-date{
   display: block;
   padding:5px 0px;
-  font:400 14px Lato;
+  font:400 14px Lato, sans-serif;
   color: #999999
 
 }
@@ -333,7 +333,7 @@ a:not([href]):not([tabindex]) {
 
 .change-log-text{
   display: block;
-  font: 700 14px Lato;
+  font: 700 14px Lato, sans-serif;
 }
 
 ::ng-deep.container-balanced .text-capitalize {

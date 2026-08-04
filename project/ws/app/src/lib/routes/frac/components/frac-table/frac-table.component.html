@@ -39,7 +39,7 @@
 
   <!-- Empty state: bordered grid rows for visual consistency (when no data) -->
   <div class="table-filler" *ngIf="dataSource.data.length === 0">
-    <table class="empty-table">
+    <table class="empty-table" role="presentation">
       <tr class="empty-row" *ngFor="let i of getEmptyRows()">
         <!-- Checkbox column empty cell: 50px fixed width -->
         <td class="empty-cell" *ngIf="showCheckbox" style="width: 50px;">&nbsp;</td>
@@ -51,7 +51,7 @@
 
   <!-- Filler rows when data exists but doesn't fill container height -->
   <div class="table-filler" *ngIf="dataSource.data.length > 0">
-    <table class="empty-table">
+    <table class="empty-table" role="presentation">
       <tr class="empty-row" *ngFor="let i of getEmptyRowsForData()">
         <!-- Checkbox column empty cell: 50px fixed width -->
         <td class="empty-cell" *ngIf="showCheckbox" style="width: 50px;">&nbsp;</td>

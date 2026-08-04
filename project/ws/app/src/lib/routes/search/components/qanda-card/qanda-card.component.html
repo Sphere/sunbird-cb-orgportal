@@ -22,16 +22,16 @@
     <div class="question-section width-expand">
       <div class="flex flex-between">
         <a [routerLink]="['/app/social/qna/' + item.id]">
-          <h2 *ngIf="item.highlight.title" class="mat-primary-text question-text" [innerHTML]="item.body"></h2>
+          <h2 *ngIf="item.highlight.title && item.body" class="mat-primary-text question-text" [innerHTML]="item.body"></h2>
           <h2 *ngIf="!item.highlight.title && item.title" class="mat-primary-text question-text">
             {{ item.title | pipeLimitTo: 120 }}
           </h2>
           <h2 *ngIf="!item.highlight.title && !item.title" class="mat-primary-text question-text">
             {{ item.abstract | pipeLimitTo: 120 }}
           </h2>
-          <h2 *ngIf="!item.title && !item.abstract && item.highlight.body" class="mat-primary-text question-text"
+          <h2 *ngIf="!item.title && !item.abstract && item.highlight.body && item.highlight.body[0]" class="mat-primary-text question-text"
             [innerHTML]="item.highlight.body[0]"></h2>
-          <h2 *ngIf="!item.title && !item.abstract && !item.highlight.body" class="mat-primary-text question-text"
+          <h2 *ngIf="!item.title && !item.abstract && !item.highlight.body && item.body" class="mat-primary-text question-text"
             [innerHTML]="item.body"></h2>
         </a>
         <!--[matMenuTriggerFor]="editMenu"  -->

@@ -340,7 +340,7 @@ a:not([href]):not([tabindex]) {
   margin-bottom: 0;
   color: #000000;
   display: block;
-  font: 700 14px Lato;
+  font: 700 14px Lato, sans-serif;
 }
 
 
@@ -401,28 +401,28 @@ textarea {
 .field-key{
   display: block;
   padding:5px 0;
-  font:400 14px Lato;
+  font:400 14px Lato, sans-serif;
   color: #999999;
 }
 
 .field-name{
   display: block;
   padding:5px 0px;
-  font:700 14px Lato;
+  font:700 14px Lato, sans-serif;
 
 }
 
 .field-change{
   display: block;
   padding:5px 0px;
-  font:400 14px Lato;
+  font:400 14px Lato, sans-serif;
   color: #d9d9d9;
 }
 
 .field-date{
   display: block;
   padding:5px 0px;
-  font:400 14px Lato;
+  font:400 14px Lato, sans-serif;
   color: #999999
 
 }
@@ -433,11 +433,11 @@ textarea {
 
 .change-log-text{
   display: block;
-  font: 700 14px Lato;
+  font: 700 14px Lato, sans-serif;
 }
 
 .no-request-text{
-  font: normal 14px Lato;
+  font: normal 14px Lato, sans-serif;
   font-weight: 400;
   color:rgba(0, 0, 0, 0.6);
   margin-left : 16px;

@@ -44,15 +44,15 @@ export class WorkallocationService {
   addWAT(departmentName: any, deptId: number): Observable<any> {
     const request = {
       deptId,
-      name: `Work order - ${departmentName}` || '',
-      deptName: this.configService.userProfile && this.configService.userProfile.departmentName || '',
+      name: `Work order - ${departmentName}`,
+      deptName: (this.configService.userProfile && this.configService.userProfile.departmentName) || '',
     }
     return this.http.post<any>(API_END_POINTS.ADD_WORK_ORDERS, request)
   }
   copyWAT(workOrderId: any, departmentName: any): Observable<any> {
     const request = {
       id: workOrderId,
-      name: `Work order - ${departmentName}` || '',
+      name: `Work order - ${departmentName}`,
     }
     return this.http.post<any>(API_END_POINTS.COPY_WORK_ORDERS, request)
   }

@@ -764,13 +764,12 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
         }
         this.showResultModal(successData)
       },
-      error: async (err) => {
+      error: (err) => {
         this.isSaving = false
-        const failureData = await this.buildMappingFailureModalData(
+        this.buildMappingFailureModalData(
           err,
           'Failed to save position to role mapping.',
-        )
-        this.showResultModal(failureData)
+        ).then(failureData => this.showResultModal(failureData))
       },
     })
   }

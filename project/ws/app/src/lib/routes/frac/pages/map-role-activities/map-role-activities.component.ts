@@ -719,13 +719,12 @@ export class MapRoleActivitiesComponent implements OnInit, OnDestroy {
         }
         this.showResultModal(successData)
       },
-      error: async (err) => {
+      error: (err) => {
         this.isSaving = false
-        const failureData = await this.buildMappingFailureModalData(
+        this.buildMappingFailureModalData(
           err,
           'Failed to save role to activity mapping.',
-        )
-        this.showResultModal(failureData)
+        ).then(failureData => this.showResultModal(failureData))
       },
     })
   }
