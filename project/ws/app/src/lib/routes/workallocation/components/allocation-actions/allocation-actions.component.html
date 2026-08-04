@@ -79,8 +79,10 @@
                         placeholder="Type here" i18n-aria-label aria-label="Map Activities input" class="form-input"
                         autocomplete="off" (keypress)="onSearchActivity($event)" (keyup)="onSearchActivity($event)"
                         maxlength="40" />
-                      <span class="form-control" style="color:#0074B6; cursor:pointer; margin-left:10px;"
-                        (click)="mapSelectedActivity()" *ngIf="selectedActivity !== ''">Map</span>
+                      <span class="form-control" style="color:#0074B6; cursor:pointer; margin-left:10px;" role="button"
+                        tabindex="0" (click)="mapSelectedActivity()" (keydown.enter)="mapSelectedActivity()"
+                        (keydown.space)="mapSelectedActivity(); $event.preventDefault()"
+                        *ngIf="selectedActivity !== ''">Map</span>
                     </mat-form-field>
 
                     <label for="mapActivities" class="margin-remove-bottom margin-top-xs form-label"
@@ -91,11 +93,14 @@
 
                     <ul *ngIf="activitieslist && activitieslist.length > 0"
                       style="list-style-type: none; padding-left: 0px; margin-top: 10px; height: 35px;">
-                      <li *ngFor="let a of activitieslist; let i = index" id="elementActivity{{i}}"
-                        (click)="showRemoveActivity(i)" style="height:35px;margin-bottom:10px; background-color:#FFF4ED; color:black; line-height: 35px; padding-left:15px; float:left;
+                      <li *ngFor="let a of activitieslist; let i = index" id="elementActivity{{i}}" role="button"
+                        tabindex="0" (click)="showRemoveActivity(i)" (keydown.enter)="showRemoveActivity(i)"
+                        (keydown.space)="showRemoveActivity(i); $event.preventDefault()" style="height:35px;margin-bottom:10px; background-color:#FFF4ED; line-height: 35px; padding-left:15px; float:left;
                         clear:left; word-wrap:break-word; border-radius: 4px; color:#716B66;padding-right: 15px;">
                         {{a.name}}
-                        <mat-icon id="showremove{{i}}" (click)="removeActivity(i)"
+                        <mat-icon id="showremove{{i}}" role="button" tabindex="0" (click)="removeActivity(i)"
+                          (keydown.enter)="removeActivity(i)"
+                          (keydown.space)="removeActivity(i); $event.preventDefault()"
                           style="cursor:pointer; margin-left:10px; display:none; padding:5px;line-height: 35px;">close
                         </mat-icon>
                       </li>
@@ -216,11 +221,14 @@
 
                     <ul *ngIf="competencieslist && competencieslist.length > 0"
                       style="list-style-type: none; padding-left: 0px; margin-top: 10px; height: 35px;">
-                      <li *ngFor="let a of activitieslist; let i = index" id="elemenComp{{i}}"
-                        (click)="showRemoveCompetency(i)" style="height:35px;margin-bottom:10px; background-color:#FFF4ED; color:black; line-height: 35px; padding-left:15px; float:left;
+                      <li *ngFor="let a of activitieslist; let i = index" id="elemenComp{{i}}" role="button"
+                        tabindex="0" (click)="showRemoveCompetency(i)" (keydown.enter)="showRemoveCompetency(i)"
+                        (keydown.space)="showRemoveCompetency(i); $event.preventDefault()" style="height:35px;margin-bottom:10px; background-color:#FFF4ED; line-height: 35px; padding-left:15px; float:left;
                       clear:left; word-wrap:break-word; border-radius: 4px; color:#716B66;padding-right: 15px;">
                         {{a.name}}
-                        <mat-icon id="showremoveComp{{i}}" (click)="removeCompetency(i)"
+                        <mat-icon id="showremoveComp{{i}}" role="button" tabindex="0" (click)="removeCompetency(i)"
+                          (keydown.enter)="removeCompetency(i)"
+                          (keydown.space)="removeCompetency(i); $event.preventDefault()"
                           style="cursor:pointer; margin-left:10px; display:none; padding:5px;line-height: 35px;">close
                         </mat-icon>
                       </li>

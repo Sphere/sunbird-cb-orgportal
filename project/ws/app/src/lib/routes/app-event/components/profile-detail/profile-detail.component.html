@@ -102,7 +102,11 @@
           <div class="userdetailHead">
             <p
               class="text-md ws-mat-primary-text cursor-pointer font-semibold text-md"
+              role="button"
+              tabindex="0"
               (click)="openDialog()"
+              (keydown.enter)="openDialog()"
+              (keydown.space)="openDialog(); $event.preventDefault()"
             >
               See All
             </p>

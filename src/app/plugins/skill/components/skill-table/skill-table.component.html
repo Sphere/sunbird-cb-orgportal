@@ -54,7 +54,9 @@
           {{col.displayName}}
         </mat-header-cell>
 
-        <mat-cell *matCellDef="let element" (click)="onRowClick(element)">
+        <mat-cell *matCellDef="let element" role="button" tabindex="0" (click)="onRowClick(element)"
+          (keydown.enter)="onRowClick(element)"
+          (keydown.space)="onRowClick(element); $event.preventDefault()">
           <span *ngIf="col.isList" class="h-400-r-14-l color-87 textclass">
             <div innerHTML="{{element[col.key]}}"></div>
           </span>
@@ -106,7 +108,9 @@
       </ng-container>
 
       <mat-header-row *matHeaderRowDef="getFinalColumns()"></mat-header-row>
-      <mat-row *matRowDef="let row; columns: getFinalColumns();" (click)="selection.toggle(row);">
+      <mat-row *matRowDef="let row; columns: getFinalColumns();" role="button" tabindex="0"
+        (click)="selection.toggle(row);" (keydown.enter)="selection.toggle(row);"
+        (keydown.space)="selection.toggle(row); $event.preventDefault()">
       </mat-row>
     </mat-table>
   </div>

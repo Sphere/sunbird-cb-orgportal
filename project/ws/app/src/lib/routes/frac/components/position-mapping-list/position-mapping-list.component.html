@@ -15,7 +15,8 @@
           <div class="search-box">
             <input placeholder="Search by name, code" [(ngModel)]="searchTerm"
               (input)="onSearchChange()" (keyup.enter)="onSearchSubmit()" />
-            <mat-icon (click)="onSearchSubmit()">search</mat-icon>
+            <mat-icon role="button" tabindex="0" (click)="onSearchSubmit()" (keydown.enter)="onSearchSubmit()"
+              (keydown.space)="onSearchSubmit(); $event.preventDefault()">search</mat-icon>
           </div>
         </div>
       </div>
@@ -31,11 +32,15 @@
 
       <ng-container *ngIf="!isLoading">
         <div class="role-item" *ngFor="let r of filteredRoles; trackBy: trackByCode"
-          [class.selected]="selectedPositionCode === r.code"
-          (click)="roleSelectedHandler(r)">
+          [class.selected]="selectedPositionCode === r.code" role="option" tabindex="0"
+          [attr.aria-selected]="selectedPositionCode === r.code"
+          (click)="roleSelectedHandler(r)" (keydown.enter)="roleSelectedHandler(r)"
+          (keydown.space)="roleSelectedHandler(r); $event.preventDefault()">
           <div class="expanded-card">
 
-            <div class="header-row" (click)="onHeaderClick(r, $event)">
+            <div class="header-row" role="button" tabindex="0" (click)="onHeaderClick(r, $event)"
+              (keydown.enter)="onHeaderClick(r, $any($event))"
+              (keydown.space)="onHeaderClick(r, $any($event)); $event.preventDefault()">
               <div class="exp-code">{{ r.title }}</div>
               <!-- <div class="exp-title">{{ r.title || r.description || '-' }}</div> -->
               <!-- Expand arrow (show only when levels are valid) -->

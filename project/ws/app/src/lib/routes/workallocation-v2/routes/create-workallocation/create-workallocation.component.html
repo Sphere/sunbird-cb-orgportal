@@ -16,7 +16,9 @@
                             class="flex flex-1 flex-center filter max-height-60 flex-wrap margin-left-xs margin-right-xs">
                             <a href="javascript:void(0)" class="filter-option" [ngClass]="{'ws-mat-accent-border-active' : selectedTab === 'officer',
                                         'ws-mat-accent-border font-medium':selectedTab !== 'officer'}"
-                                (click)="filterComp(officer,'officer')" role="button">
+                                (click)="filterComp(officer,'officer')" role="button" tabindex="0"
+                                (keydown.enter)="filterComp(officer,'officer')"
+                                (keydown.space)="filterComp(officer,'officer'); $event.preventDefault()">
                                 <span class="mat-body-2 in-margin"
                                     [ngClass]="{'font-bold-i' : selectedTab === 'officer'}">
                                     Officer</span>
@@ -24,20 +26,26 @@
                             <a href="javascript:void(0)" class="filter-option"
                                 [ngClass]="{'ws-mat-accent-border-active' : selectedTab === 'activities',
                                                                 'ws-mat-accent-border font-medium':selectedTab !== 'activities'}"
-                                (click)="filterComp(activities,'activities')" role="button">
+                                (click)="filterComp(activities,'activities')" role="button" tabindex="0"
+                                (keydown.enter)="filterComp(activities,'activities')"
+                                (keydown.space)="filterComp(activities,'activities'); $event.preventDefault()">
                                 <span class="mat-body-2 in-margin"
                                     [ngClass]="{'font-bold-i' : selectedTab === 'activities'}">Activities</span>
                             </a>
                             <a href="javascript:void(0)" class="filter-option"
                                 [ngClass]="{'ws-mat-accent-border-active' : selectedTab === 'competencies',
                                                                         'ws-mat-accent-border font-medium':selectedTab !== 'competencies'}"
-                                (click)="filterComp(competencies,'competencies')" role="button">
+                                (click)="filterComp(competencies,'competencies')" role="button" tabindex="0"
+                                (keydown.enter)="filterComp(competencies,'competencies')"
+                                (keydown.space)="filterComp(competencies,'competencies'); $event.preventDefault()">
                                 <span class="mat-body-2 in-margin"
                                     [ngClass]="{'font-bold-i' : selectedTab === 'competencies'}">Competencies</span>
                             </a>
                             <a href="javascript:void(0)" class="filter-option"
                                 [ngClass]="{'ws-mat-accent-border-active' : selectedTab === 'competencyDetails','ws-mat-accent-border font-medium':selectedTab !== 'competencyDetails'}"
-                                (click)="filterComp(competencyDetails,'competencyDetails')" role="button">
+                                (click)="filterComp(competencyDetails,'competencyDetails')" role="button" tabindex="0"
+                                (keydown.enter)="filterComp(competencyDetails,'competencyDetails')"
+                                (keydown.space)="filterComp(competencyDetails,'competencyDetails'); $event.preventDefault()">
                                 <span class="mat-body-2 in-margin"
                                     [ngClass]="{'font-bold-i' : selectedTab === 'competencyDetails'}">Competency
                                     details</span>

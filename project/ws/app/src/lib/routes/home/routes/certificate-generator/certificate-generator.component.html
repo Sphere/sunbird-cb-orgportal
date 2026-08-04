@@ -27,7 +27,10 @@
     <div class="certificate-sidebar">
       <div class="scrollable-thumbnails">
         <div *ngFor="let cert of certificates; let i = index" [class.selected]="i === selectedCertIndex"
-          (click)="selectCertificate(i)">
+          role="button" tabindex="0"
+          (click)="selectCertificate(i)"
+          (keydown.enter)="selectCertificate(i)"
+          (keydown.space)="selectCertificate(i); $event.preventDefault()">
           <img [src]="cert.templateLogo" [alt]="cert.templateName">
         </div>
       </div>

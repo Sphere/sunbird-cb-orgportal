@@ -135,7 +135,11 @@
         class="dot"
         [ngClass]="{ active: j === currentIndex }"
         *ngFor="let slide of bannerTemplates; let j = index"
+        role="button"
+        tabindex="0"
         (click)="slideTo(j)"
+        (keydown.enter)="slideTo(j)"
+        (keydown.space)="slideTo(j); $event.preventDefault()"
       ></span>
     </div>
     <div class="image-box__overlay"></div>
@@ -218,7 +222,11 @@
         class="dot"
         [ngClass]="{ active: j === currentIndex }"
         *ngFor="let slide of bannerTemplates; let j = index"
+        role="button"
+        tabindex="0"
         (click)="slideTo(j)"
+        (keydown.enter)="slideTo(j)"
+        (keydown.space)="slideTo(j); $event.preventDefault()"
       ></span>
     </div>
     <div class="image-box__overlay"></div>

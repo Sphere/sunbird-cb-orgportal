@@ -17,17 +17,22 @@
             (click)="filter('underreview')" role="button">Under review</a> -->
           <a href="javascript:void(0)" class="filter-option" [ngClass]="{'ws-mat-accent-border-active' : currentFilter === 'active',
               'ws-mat-accent-border font-medium':currentFilter !== 'active'}" mat-button (click)="filter('active')"
-            role="button">Active</a>
+            (keydown.enter)="filter('active')" (keydown.space)="filter('active'); $event.preventDefault()"
+            tabindex="0" role="button">Active</a>
           <a href="javascript:void(0)" class="filter-option" [ngClass]="{'ws-mat-accent-border-active' : currentFilter === 'inactive',
                           'ws-mat-accent-border font-medium':currentFilter !== 'inactive'}" mat-button
-            (click)="filter('inactive')" role="button">Inactive</a>
+            (click)="filter('inactive')" (keydown.enter)="filter('inactive')"
+            (keydown.space)="filter('inactive'); $event.preventDefault()" tabindex="0" role="button">Inactive</a>
           <!-- <a href="javascript:void(0)" class="filter-option" [ngClass]="{'ws-mat-accent-border-active' : currentFilter === 'blocked',
                           'ws-mat-accent-border font-medium':currentFilter !== 'blocked'}" mat-button
             (click)="filter('blocked')" role="button">Blocked</a> -->
           <a href="javascript:void(0)" class="filter-option" [ngClass]="{'ws-mat-accent-border-active' : currentFilter === 'upload',
 
                                                   'ws-mat-accent-border font-medium':currentFilter !== 'upload'}"
-            mat-button (click)="filter('upload'); tabTelemetry('upload', 2)" role="button">File uploads</a>
+            mat-button (click)="filter('upload'); tabTelemetry('upload', 2)"
+            (keydown.enter)="filter('upload'); tabTelemetry('upload', 2)"
+            (keydown.space)="filter('upload'); tabTelemetry('upload', 2); $event.preventDefault()"
+            tabindex="0" role="button">File uploads</a>
         </div>
       </div>
       <a class="flex items-center" (click)="filterTable()">

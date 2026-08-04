@@ -1,4 +1,5 @@
-<mat-card class="animate-tile" [ngStyle]="{ 'border-top': data.color, padding: '5px' }" (click)="goToView()">
+<mat-card class="animate-tile" [ngStyle]="{ 'border-top': data.color, padding: '5px' }" role="button" tabindex="0"
+  (click)="goToView()" (keydown.enter)="goToView()" (keydown.space)="goToView(); $event.preventDefault()">
   <div class="my-tile">
     <div style="font-size: 12px;height: 20px;">
       <span class="text-{{ data?.source?.toLowerCase() }}">{{ data.source }}</span>

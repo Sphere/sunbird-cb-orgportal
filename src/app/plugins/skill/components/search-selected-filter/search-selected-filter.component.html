@@ -4,7 +4,9 @@
       <span class="text-capitalize">{{filter.label}} :&nbsp;</span>
       <a class="filter label mt-8 mr-2 py-0 label-background">
         {{filter.item}}
-        <mat-icon (click)="changeFilter(filter.label)" class="close-icon">close</mat-icon>
+        <mat-icon (click)="changeFilter(filter.label)" role="button" tabindex="0"
+          (keydown.enter)="changeFilter(filter.label)"
+          (keydown.space)="changeFilter(filter.label); $event.preventDefault()" class="close-icon">close</mat-icon>
       </a>
     </div>
   </ng-container>

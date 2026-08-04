@@ -204,30 +204,22 @@ export class SocialComponent implements OnInit, OnDestroy {
     return item.identifier
   }
   toggleBestResults() {
-    try {
-      this.query = !this.query
-      this.searchRequestObject.postKind = this.query ? 'Query' : 'Blog'
-      this.searchRequestObject.pageNo = 0
-      this.router.navigate([], {
-        queryParams: { social: this.searchRequestObject.postKind },
-        queryParamsHandling: 'merge',
-        relativeTo: this.activated.parent,
-      })
-    } catch (e) {
-      throw e
-    }
+    this.query = !this.query
+    this.searchRequestObject.postKind = this.query ? 'Query' : 'Blog'
+    this.searchRequestObject.pageNo = 0
+    this.router.navigate([], {
+      queryParams: { social: this.searchRequestObject.postKind },
+      queryParamsHandling: 'merge',
+      relativeTo: this.activated.parent,
+    }).catch(e => { throw e })
   }
 
   sortOrder(type: string) {
-    try {
-      this.router.navigate([], {
-        queryParams: { sort: type },
-        queryParamsHandling: 'merge',
-        relativeTo: this.activated.parent,
-      })
-    } catch (e) {
-      throw e
-    }
+    this.router.navigate([], {
+      queryParams: { sort: type },
+      queryParamsHandling: 'merge',
+      relativeTo: this.activated.parent,
+    }).catch(e => { throw e })
   }
   closeFilter(value: boolean) {
     this.sideNavBarOpened = value

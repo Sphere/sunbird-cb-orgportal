@@ -31,10 +31,15 @@
 
       <ng-container *ngIf="!isLoading">
         <div class="role-item" *ngFor="let r of filteredRoles; trackBy: trackByCode"
-          [class.selected]="selectedRoleCode === r.code" (click)="roleSelectedHandler(r)">
+          [class.selected]="selectedRoleCode === r.code" role="option" tabindex="0"
+          [attr.aria-selected]="selectedRoleCode === r.code"
+          (click)="roleSelectedHandler(r)" (keydown.enter)="roleSelectedHandler(r)"
+          (keydown.space)="roleSelectedHandler(r); $event.preventDefault()">
           <div class="expanded-card">
 
-            <div class="header-row" (click)="onHeaderClick(r, $event)">
+            <div class="header-row" role="button" tabindex="0" (click)="onHeaderClick(r, $event)"
+              (keydown.enter)="onHeaderClick(r, $any($event))"
+              (keydown.space)="onHeaderClick(r, $any($event)); $event.preventDefault()">
               <div class="exp-code">{{ r.code }}</div>
               <div class="exp-title">{{ r.title }}</div>
               <!-- Expand arrow (show only when levels are valid) -->

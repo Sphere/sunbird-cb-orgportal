@@ -159,15 +159,11 @@ export class KnowledgeComponent implements OnInit, OnDestroy {
     })
   }
   sortOrder(type: string) {
-    try {
-      this.router.navigate([], {
-        queryParams: { sort: type },
-        queryParamsHandling: 'merge',
-        relativeTo: this.activated.parent,
-      })
-    } catch (e) {
-      throw e
-    }
+    this.router.navigate([], {
+      queryParams: { sort: type },
+      queryParamsHandling: 'merge',
+      relativeTo: this.activated.parent,
+    }).catch(e => { throw e })
   }
   closeFilter(value: boolean) {
     this.sideNavBarOpened = value

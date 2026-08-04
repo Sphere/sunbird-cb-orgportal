@@ -30,7 +30,8 @@
           </mat-autocomplete>
         </form>
       </div>
-      <div (click)="search()" class="flex items-center justify-center w-16 cursor-pointer">
+      <div (click)="search()" (keydown.enter)="search()" (keydown.space)="search(); $event.preventDefault()"
+        role="button" tabindex="0" class="flex items-center justify-center w-16 cursor-pointer">
         <mat-icon>search</mat-icon>
       </div>
     </div>

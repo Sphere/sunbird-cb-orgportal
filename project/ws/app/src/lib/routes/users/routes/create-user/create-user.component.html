@@ -103,6 +103,8 @@
                     </label>
                     <mat-selection-list id="roles" formControlName="roles" #roles>
                       <mat-list-option *ngFor="let role of rolesList" (click)="modifyUserRoles(role)"
+                        (keydown.enter)="modifyUserRoles(role)"
+                        (keydown.space)="modifyUserRoles(role); $event.preventDefault()"
                         [selected]="role.roleName==='PUBLIC'" [disabled]="role.roleName==='PUBLIC'"
                         [value]="role.roleName">
                         {{role.roleName}}

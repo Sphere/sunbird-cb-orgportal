@@ -140,7 +140,8 @@
       </div>
 
       <div class="pv-accordion" *ngFor="let comp of data.competencyRows">
-        <div class="pv-accordion__header" (click)="toggleCompetency(comp)"
+        <div class="pv-accordion__header" role="button" tabindex="0" (click)="toggleCompetency(comp)"
+          (keydown.enter)="toggleCompetency(comp)" (keydown.space)="toggleCompetency(comp); $event.preventDefault()"
           [class.pv-accordion__header--open]="isCompetencyExpanded(comp)">
           <span class="pv-chip pv-chip--index">#{{ comp.index }}</span>
           <span class="pv-chip pv-chip--code">{{ comp.code }}</span>

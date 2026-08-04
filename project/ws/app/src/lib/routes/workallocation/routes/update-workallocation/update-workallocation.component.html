@@ -204,7 +204,10 @@
                                                                             (keypress)="onSearchActivity($event)"
                                                                             (keyup)="onSearchActivity($event)" />
                                                                         <span class="addbtn blue-color-text"
+                                                                            role="button" tabindex="0"
                                                                             (click)="addActivity()"
+                                                                            (keydown.enter)="addActivity()"
+                                                                            (keydown.space)="addActivity(); $event.preventDefault()"
                                                                             *ngIf="newAllocationForm.value.rolelist[0].childNodes">Add</span>
                                                                     </mat-form-field>
                                                                 </div>
@@ -213,9 +216,15 @@
                                                                     *ngIf="activitieslist && activitieslist.length > 0">
                                                                     <h3>Associated activities</h3>
                                                                     <p><span *ngFor="let a of activitieslist; let i = index"
-                                                                            (click)="showRemoveActivity(i)">{{a.name}}
-                                                                            <mat-icon id="showremove{{i}}"
-                                                                                (click)="removeActivity(i)">close
+                                                                            role="button" tabindex="0"
+                                                                            (click)="showRemoveActivity(i)"
+                                                                            (keydown.enter)="showRemoveActivity(i)"
+                                                                            (keydown.space)="showRemoveActivity(i); $event.preventDefault()">{{a.name}}
+                                                                            <mat-icon id="showremove{{i}}" role="button"
+                                                                                tabindex="0"
+                                                                                (click)="removeActivity(i)"
+                                                                                (keydown.enter)="removeActivity(i)"
+                                                                                (keydown.space)="removeActivity(i); $event.preventDefault()">close
                                                                             </mat-icon>
                                                                         </span></p>
                                                                 </div>

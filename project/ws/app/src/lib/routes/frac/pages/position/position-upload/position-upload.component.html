@@ -88,7 +88,8 @@
       </div>
       <div class="manage-header-actions">
         <div class="language-dropdown manage-language-dropdown" [class.disabled]="isLanguageDropdownDisabled()"
-          (click)="toggleDropdown()">
+          role="button" tabindex="0" (click)="toggleDropdown()" (keydown.enter)="toggleDropdown()"
+          (keydown.space)="toggleDropdown(); $event.preventDefault()">
           <div class="dropdown-main">
             <div class="label-container">
               <div class="label">{{ uiConfig.labels.language }}</div>
@@ -99,7 +100,9 @@
             </div>
           </div>
           <div class="dropdown-list" *ngIf="isOpen && !isLanguageDropdownDisabled()" (click)="$event.stopPropagation()">
-            <div class="dropdown-item" *ngFor="let lang of languages" (click)="selectLanguage(lang, $event)">
+            <div class="dropdown-item" *ngFor="let lang of languages" role="button" tabindex="0"
+              (click)="selectLanguage(lang, $event)" (keydown.enter)="selectLanguage(lang, $any($event))"
+              (keydown.space)="selectLanguage(lang, $any($event)); $event.preventDefault()">
               {{ lang.label }}
             </div>
           </div>
@@ -232,7 +235,9 @@
           </button>
         </div>
 
-        <div class="language-dropdown" [class.disabled]="isLanguageDropdownDisabled()" (click)="toggleDropdown()">
+        <div class="language-dropdown" [class.disabled]="isLanguageDropdownDisabled()" role="button" tabindex="0"
+          (click)="toggleDropdown()" (keydown.enter)="toggleDropdown()"
+          (keydown.space)="toggleDropdown(); $event.preventDefault()">
           <div class="dropdown-main">
             <div class="label-container">
               <div class="label">{{ uiConfig.labels.language }}</div>
@@ -243,7 +248,9 @@
             </div>
           </div>
           <div class="dropdown-list" *ngIf="isOpen && !isLanguageDropdownDisabled()" (click)="$event.stopPropagation()">
-            <div class="dropdown-item" *ngFor="let lang of languages" (click)="selectLanguage(lang, $event)">
+            <div class="dropdown-item" *ngFor="let lang of languages" role="button" tabindex="0"
+              (click)="selectLanguage(lang, $event)" (keydown.enter)="selectLanguage(lang, $any($event))"
+              (keydown.space)="selectLanguage(lang, $any($event)); $event.preventDefault()">
               {{ lang.label }}
             </div>
           </div>

@@ -22,7 +22,9 @@
       </div>
 
       <div class="dropdown-list" *ngIf="isOpen" (click)="$event.stopPropagation()">
-        <div *ngFor="let lang of languages" class="dropdown-item" (click)="selectLanguage(lang, $event)">
+        <div *ngFor="let lang of languages" class="dropdown-item" role="button" tabindex="0"
+          (click)="selectLanguage(lang, $event)" (keydown.enter)="selectLanguage(lang, $any($event))"
+          (keydown.space)="selectLanguage(lang, $any($event)); $event.preventDefault()">
           {{ lang.label }}
         </div>
       </div>

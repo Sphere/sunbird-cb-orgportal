@@ -370,7 +370,7 @@
 
     .ws-active-route-menu {
       background-color: $colorBlack040 !important;
-      font: bold 14px Lato !important;
+      font: bold 14px Lato, sans-serif !important;
 
       &::after {
         content: '';

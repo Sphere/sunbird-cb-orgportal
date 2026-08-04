@@ -29,7 +29,9 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let event of filteredEvents" (click)="navigateToEvent(event)">
+        <tr *ngFor="let event of filteredEvents" role="button" tabindex="0" (click)="navigateToEvent(event)"
+          (keydown.enter)="navigateToEvent(event)"
+          (keydown.space)="navigateToEvent(event); $event.preventDefault()">
           <td>{{ event.name }}</td>
           <td>{{ event.date | date: 'dd-MM-yyyy' }}</td>
           <td>{{ event.location }}</td>

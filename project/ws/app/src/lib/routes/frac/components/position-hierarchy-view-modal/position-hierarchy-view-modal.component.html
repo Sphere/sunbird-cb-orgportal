@@ -45,7 +45,8 @@
   <div class="phv-tree" *ngIf="hasMapping">
     <!-- Role Row -->
     <div class="phv-role-block" *ngFor="let role of roles">
-      <div class="phv-role-row" (click)="toggleRole(role.code)"
+      <div class="phv-role-row" role="button" tabindex="0" (click)="toggleRole(role.code)"
+        (keydown.enter)="toggleRole(role.code)" (keydown.space)="toggleRole(role.code); $event.preventDefault()"
         [class.phv-role-row--expanded]="isRoleExpanded(role.code)">
         <div class="phv-row-left">
           <span class="phv-type-badge phv-badge-role">Role</span>
@@ -74,7 +75,9 @@
 
         <!-- Activity Row -->
         <div class="phv-activity-block" *ngFor="let activity of getActivities(role)">
-          <div class="phv-activity-row" (click)="toggleActivity(role.code, activity.code)"
+          <div class="phv-activity-row" role="button" tabindex="0" (click)="toggleActivity(role.code, activity.code)"
+            (keydown.enter)="toggleActivity(role.code, activity.code)"
+            (keydown.space)="toggleActivity(role.code, activity.code); $event.preventDefault()"
             [class.phv-activity-row--expanded]="isActivityExpanded(role.code, activity.code)">
             <div class="phv-row-left">
               <span class="phv-type-badge phv-badge-activity">Activity</span>

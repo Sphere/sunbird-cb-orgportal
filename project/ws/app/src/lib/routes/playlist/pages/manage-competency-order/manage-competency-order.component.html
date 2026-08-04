@@ -49,7 +49,10 @@
                 [cdkDropListDisabled]="isViewOnly">
                 <div *ngFor="let competency of filteredCompetencies()" cdkDrag class="competency-item"
                     [class.selected]="selectedCompetency() === competency"
-                    [class.complete]="isCompetencyComplete(competency)" (click)="onSelectCompetency(competency)">
+                    [class.complete]="isCompetencyComplete(competency)" role="option" tabindex="0"
+                    [attr.aria-selected]="selectedCompetency() === competency"
+                    (click)="onSelectCompetency(competency)" (keydown.enter)="onSelectCompetency(competency)"
+                    (keydown.space)="onSelectCompetency(competency); $event.preventDefault()">
 
                     <!-- Drag Handle -->
                     <div class="drag-handle" cdkDragHandle>

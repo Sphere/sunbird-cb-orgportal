@@ -96,7 +96,8 @@
             <th>Submit to</th>
             <th>Submission from</th>
           </tr>
-          <tr *ngFor="let d of filteredData" class="data-row" (click)="edit(d.id)">
+          <tr *ngFor="let d of filteredData" class="data-row" role="button" tabindex="0" (click)="edit(d.id)"
+            (keydown.enter)="edit(d.id)" (keydown.space)="edit(d.id); $event.preventDefault()">
             <td [attr.rowspan]="(d && d.roles) ? (d.roles.length+1) : 1 ">
               <div class="initials">
                 <ws-app-initial-avatar [name]="d.userName">
@@ -121,7 +122,7 @@
             <td colspan="4">
               <ul>
                 <li *ngFor="let rc of d.roleCompetencyList">
-                  <table>
+                  <table role="presentation">
                     <tr>
                       <td class="table-role">
                         <b *ngIf="rc.roleDetails.name">{{rc.roleDetails.name}}</b>
@@ -134,7 +135,7 @@
                         </div>
                       </td>
                       <td class="table-activity">
-                        <table>
+                        <table role="presentation">
                           <tr *ngFor="let a of rc.roleDetails.childNodes">
                             <td class="activityname">
                               <span *ngIf="a.description">{{a.description}}</span>

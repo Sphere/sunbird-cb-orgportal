@@ -17,15 +17,11 @@ export class ItemTileComponent implements OnInit {
     return typeof input === 'string'
   }
   goToView() {
-    try {
-      this.route.navigate(
-        [`/app/igot/khub/view/${this.data.category}/${this.data.itemId}/${this.data.source}`],
-        {
-          relativeTo: this.activated.parent,
-        },
-      )
-    } catch (e) {
-      throw e
-    }
+    this.route.navigate(
+      [`/app/igot/khub/view/${this.data.category}/${this.data.itemId}/${this.data.source}`],
+      {
+        relativeTo: this.activated.parent,
+      },
+    ).catch(e => { throw e })
   }
 }

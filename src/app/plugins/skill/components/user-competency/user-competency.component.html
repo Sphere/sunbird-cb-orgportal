@@ -49,7 +49,10 @@
               </ng-container>
               <ng-template #addLevel>
                 <div
+                  role="button" tabindex="0"
                   (click)="$event.stopPropagation(); openProficiencyLevelDialog(proficiency?.displayLevel, competencies)"
+                  (keydown.enter)="$event.stopPropagation(); openProficiencyLevelDialog(proficiency?.displayLevel, competencies)"
+                  (keydown.space)="$event.stopPropagation(); openProficiencyLevelDialog(proficiency?.displayLevel, competencies); $event.preventDefault()"
                   class="boxPaddingText box level pointer-events">
                   <!-- <div class="boxPaddingText box level pointer-events"> -->
                   <span>{{proficiency?.displayLevel}}</span>

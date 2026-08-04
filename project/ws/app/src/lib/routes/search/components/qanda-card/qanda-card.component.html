@@ -22,18 +22,18 @@
     <div class="question-section width-expand">
       <div class="flex flex-between">
         <a [routerLink]="['/app/social/qna/' + item.id]">
-          <h2 *ngIf="item.highlight.title" class="mat-primary-text question-text" aria-label="Question title"
-            [innerHTML]="item.body || item.title || 'Untitled'"></h2>
+          <h2 *ngIf="item.highlight.title" class="mat-primary-text question-text"><span
+              [innerHTML]="item.body || item.title || 'Untitled'"></span></h2>
           <h2 *ngIf="!item.highlight.title && item.title" class="mat-primary-text question-text">
             {{ item.title | pipeLimitTo: 120 }}
           </h2>
           <h2 *ngIf="!item.highlight.title && !item.title" class="mat-primary-text question-text">
             {{ item.abstract | pipeLimitTo: 120 }}
           </h2>
-          <h2 *ngIf="!item.title && !item.abstract && item.highlight.body" class="mat-primary-text question-text"
-            aria-label="Question title" [innerHTML]="item.highlight.body[0] || 'Untitled'"></h2>
-          <h2 *ngIf="!item.title && !item.abstract && !item.highlight.body" class="mat-primary-text question-text"
-            aria-label="Question title" [innerHTML]="item.body || 'Untitled'"></h2>
+          <h2 *ngIf="!item.title && !item.abstract && item.highlight.body" class="mat-primary-text question-text"><span
+              [innerHTML]="item.highlight.body[0] || 'Untitled'"></span></h2>
+          <h2 *ngIf="!item.title && !item.abstract && !item.highlight.body" class="mat-primary-text question-text"><span
+              [innerHTML]="item.body || 'Untitled'"></span></h2>
         </a>
         <!--[matMenuTriggerFor]="editMenu"  -->
         <mat-icon *ngIf="userId === item.postCreator.postCreatorId" class="cursor-pointer" role="button"

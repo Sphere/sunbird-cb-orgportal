@@ -92,7 +92,7 @@
           <tr
             *ngFor="let d of data | filter: term | paginate: { itemsPerPage: 5, currentPage: p, totalItems: data.length }"
             class="data-row">
-            <td aria-rowspan="d.roles.length+1">
+            <td [attr.aria-rowspan]="d.roles.length + 1">
               <div class="initials">
                 <ws-app-initial-avatar [name]="d.userName">
                 </ws-app-initial-avatar>
@@ -107,10 +107,11 @@
                 </div> -->
               </div>
             </td>
-            <td colspan="4" (click)="viewAllocation(d)">
+            <td colspan="4" role="button" tabindex="0" (click)="viewAllocation(d)"
+              (keydown.enter)="viewAllocation(d)" (keydown.space)="viewAllocation(d); $event.preventDefault()">
               <ul>
                 <li *ngFor="let rc of d.roleCompetencyList">
-                  <table>
+                  <table role="presentation">
                     <tr>
                       <td class="table-role">
                         <b *ngIf="rc.roleDetails.name">{{rc.roleDetails.name}}</b>
@@ -120,7 +121,7 @@
                         </div> -->
                       </td>
                       <td class="table-activity">
-                        <table>
+                        <table role="presentation">
                           <tr *ngFor="let a of rc.roleDetails.childNodes">
                             <td class="activityname">
                               <span *ngIf="a.description">{{a.description}}</span>

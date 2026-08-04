@@ -461,15 +461,11 @@ export class LearningComponent implements OnInit, OnDestroy {
     return item.identifier
   }
   sortOrder(type: string) {
-    try {
-      this.router.navigate([], {
-        queryParams: { sort: type },
-        queryParamsHandling: 'merge',
-        relativeTo: this.activated.parent,
-      })
-    } catch (e) {
-      throw e
-    }
+    this.router.navigate([], {
+      queryParams: { sort: type },
+      queryParamsHandling: 'merge',
+      relativeTo: this.activated.parent,
+    }).catch(e => { throw e })
   }
   getSortType(sort: string): { [key: string]: 'asc' | 'desc' }[] {
     try {
@@ -490,17 +486,13 @@ export class LearningComponent implements OnInit, OnDestroy {
   }
 
   searchLanguage(type: string) {
-    try {
-      this.router.navigate([], {
-        queryParams: { lang: type },
-        queryParamsHandling: 'merge',
-        relativeTo: this.activated.parent,
-      }).then(() => {
-        this.expandToPrefLang = false
-      })
-    } catch (e) {
-      throw e
-    }
+    this.router.navigate([], {
+      queryParams: { lang: type },
+      queryParamsHandling: 'merge',
+      relativeTo: this.activated.parent,
+    }).then(() => {
+      this.expandToPrefLang = false
+    }).catch(e => { throw e })
   }
 
   didYouMeanSearch(query: string) {

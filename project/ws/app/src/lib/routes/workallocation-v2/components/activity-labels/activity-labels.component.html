@@ -99,7 +99,8 @@
           </span>
         </div>
         <div *ngIf="i !==0 " class="flex flex-1 flex-column margin-r-2px relative">
-          <div class="flex absolute del cursor-pointer" (click)="deleteGrp(i)"
+          <div class="flex absolute del cursor-pointer" role="button" tabindex="0" (click)="deleteGrp(i)"
+            (keydown.enter)="deleteGrp(i)" (keydown.space)="deleteGrp(i); $event.preventDefault()"
             [hidden]="((canshowName === -1 && !grp.get('groupName').value) || !(canshowName === i && activeGroupIdx === i)) ">
             <span class="flex mat-caption f-white m-auto">
               <mat-icon class="flex f-white">delete</mat-icon>
@@ -109,7 +110,9 @@
           <div class="flex flex-1 group-background margin-b-2px del-focus" (focusout)="hideName()">
             <span
               [hidden]="!((canshowName === -1 && !grp.get('groupName').value) || !(canshowName === i && activeGroupIdx === i)) "
-              (click)="showName(i)" class="flex margin-left-m  margin-top-m mat-subheading-2 break-a">
+              role="button" tabindex="0" (click)="showName(i)" (keydown.enter)="showName(i)"
+              (keydown.space)="showName(i); $event.preventDefault()"
+              class="flex margin-left-m  margin-top-m mat-subheading-2 break-a">
               {{grp.get('groupName').value || 'Untitled role'}}
             </span>
             <!-- *ngIf="canshowName === i && activeGroupIdx === i" -->
@@ -135,7 +138,8 @@
           <div class="flex flex-1  group-background" (focusout)="hide()">
             <span
               *ngIf="(canshow === -1 && !grp.get('groupDescription').value) || !(canshow === i && activeGroupIdx === i)"
-              (click)="show(i)" class="flex padding-xs margin-top-m break-a">
+              role="button" tabindex="0" (click)="show(i)" (keydown.enter)="show(i)"
+              (keydown.space)="show(i); $event.preventDefault()" class="flex padding-xs margin-top-m break-a">
               <span class="mat-body-2" *ngIf="grp.get('groupDescription').value">
                 {{grp.get('groupDescription').value}}
               </span>
@@ -287,7 +291,9 @@
                     </mat-form-field>
                   </div> -->
                   <div *ngIf="i === 0" class="flex margin-auto">
-                    <mat-icon class="cursor-pointer ws-mat-black60-text" (click)="deleteSingleActivity(i,gaIdx)">delete
+                    <mat-icon class="cursor-pointer ws-mat-black60-text" role="button" tabindex="0"
+                      (click)="deleteSingleActivity(i,gaIdx)" (keydown.enter)="deleteSingleActivity(i,gaIdx)"
+                      (keydown.space)="deleteSingleActivity(i,gaIdx); $event.preventDefault()">delete
                     </mat-icon>
                   </div>
                 </div>

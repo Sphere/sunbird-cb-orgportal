@@ -39,8 +39,11 @@
                             <div *ngIf="loadingOrganizations()" class="multi-select-option disabled">Loading...</div>
                             <div *ngIf="!loadingOrganizations() && filteredOrganizations().length === 0"
                                 class="multi-select-option disabled">No Organisation found</div>
-                            <div *ngFor="let org of filteredOrganizations()" class="multi-select-option"
-                                (mousedown)="$event.preventDefault()" (click)="selectOrg(org.value)">
+                            <div *ngFor="let org of filteredOrganizations()" class="multi-select-option" role="option"
+                                [attr.aria-selected]="filterForm.controls.orgId.value === org.value"
+                                tabindex="0" (mousedown)="$event.preventDefault()" (click)="selectOrg(org.value)"
+                                (keydown.enter)="selectOrg(org.value)"
+                                (keydown.space)="selectOrg(org.value); $event.preventDefault()">
                                 {{ org.label }}
                             </div>
                         </div>
@@ -66,8 +69,10 @@
                         </div>
                         <div class="multi-select-panel" *ngIf="positionDropdownOpen()">
                             <span *ngIf="loadingPositions()" class="multi-select-option disabled">Loading...</span>
-                            <label *ngFor="let pos of positions()" class="multi-select-option"
-                                (mousedown)="$event.preventDefault()" (click)="toggleRole(pos.value)">
+                            <label *ngFor="let pos of positions()" class="multi-select-option" tabindex="0"
+                                (mousedown)="$event.preventDefault()" (click)="toggleRole(pos.value)"
+                                (keydown.enter)="toggleRole(pos.value)"
+                                (keydown.space)="toggleRole(pos.value); $event.preventDefault()">
                                 <input type="checkbox" [checked]="isRoleSelected(pos.value)"
                                     (change)="toggleRole(pos.value)" (click)="$event.stopPropagation()">
                                 {{ pos.label }}
