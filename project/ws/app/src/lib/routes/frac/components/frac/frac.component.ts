@@ -25,9 +25,9 @@ export class FracComponent implements OnInit, OnDestroy, AfterViewInit {
   iframeSrc: SafeResourceUrl | null = null
   @ViewChild(CustomSnackbarComponent) snackbar!: CustomSnackbarComponent
   constructor(
-    private sanitizerService: SanitizerService,
-    private fracService: FracService,
-    private snackService: CustomSnackbarService
+    private readonly sanitizerService: SanitizerService,
+    private readonly fracService: FracService,
+    private readonly snackService: CustomSnackbarService
   ) { }
 
   /**

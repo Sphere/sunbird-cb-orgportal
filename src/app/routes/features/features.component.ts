@@ -26,19 +26,19 @@ export class FeaturesComponent implements OnInit, OnDestroy {
   queryControl = new UntypedFormControl(this.activateRoute.snapshot.queryParamMap.get('q'))
   private readonly featuresConfig: IGroupWithFeatureWidgets[] = []
   featureGroups: IGroupWithFeatureWidgets[] | null = null
-  private responseSubscription: Subscription | null = null
+  private readonly responseSubscription: Subscription | null = null
   isTourGuideAvailable = false
   isXSmall = false
   pageNavbar: Partial<NsPage.INavBackground> = this.configurationSvc.pageNavBar
   private queryChangeSubs: Subscription | null = null
   constructor(
-    private dialog: MatDialog,
-    private router: Router,
-    private activateRoute: ActivatedRoute,
-    private configurationSvc: ConfigurationsService,
-    private tour: CustomTourService,
-    private respondSvc: SubapplicationRespondService,
-    private valueSvc: ValueService,
+    private readonly dialog: MatDialog,
+    private readonly router: Router,
+    private readonly activateRoute: ActivatedRoute,
+    private readonly configurationSvc: ConfigurationsService,
+    private readonly tour: CustomTourService,
+    private readonly respondSvc: SubapplicationRespondService,
+    private readonly valueSvc: ValueService,
     // private accessService: AccessControlService,
 
   ) {

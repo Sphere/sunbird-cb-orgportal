@@ -22,13 +22,13 @@ const API_END_POINTS = {
 })
 export class EventService {
 
-  private eventSource = new BehaviorSubject<any>(null)
+  private readonly eventSource = new BehaviorSubject<any>(null)
   currentEvent = this.eventSource.asObservable()
 
-  private userData = new BehaviorSubject<any>(null)
+  private readonly userData = new BehaviorSubject<any>(null)
   currentUserData = this.userData.asObservable()
 
-  constructor(private http: HttpClient) { }
+  constructor(private readonly http: HttpClient) { }
 
   getAllEvents(): Observable<any> {
     return this.http.get<any>(API_END_POINTS.GET_ALL_EVENTS).pipe(

@@ -1,18 +1,21 @@
-import { Component, OnInit, ViewEncapsulation } from '@angular/core'
+import { Component, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core'
 import { UntypedFormControl } from '@angular/forms'
 import { ActivatedRoute, Router } from '@angular/router'
 import { ConfigurationsService, NsPage } from '@sunbird-cb/utils'
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators'
+import { Subject } from 'rxjs'
+import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators'
 import { ISearchAutoComplete, ISearchQuery, ISuggestedFilters } from '../../models/search.model'
 import { SearchServService } from '../../services/search-serv.service'
 @Component({
+  standalone: false,
   selector: 'ws-app-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
   // tslint:disable-next-line
   encapsulation: ViewEncapsulation.None,
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, OnDestroy {
+  private readonly destroy$ = new Subject<void>()
 
   query: UntypedFormControl = new UntypedFormControl('')
   pageNavbar: Partial<NsPage.INavBackground> = this.configSvc.pageNavBar
@@ -24,10 +27,10 @@ export class HomeComponent implements OnInit {
   languageSearch: string[] = []
   suggestedFilters: ISuggestedFilters[] = []
   constructor(
-    private configSvc: ConfigurationsService,
-    private router: Router,
-    private route: ActivatedRoute,
-    private searchSvc: SearchServService,
+    private readonly configSvc: ConfigurationsService,
+    private readonly router: Router,
+    private readonly route: ActivatedRoute,
+    private readonly searchSvc: SearchServService,
   ) {
     const isAutoCompleteAllowed = this.route.snapshot.data.pageData.data.search.isAutoCompleteAllowed
     if (typeof isAutoCompleteAllowed === 'undefined' ||
@@ -35,6 +38,7 @@ export class HomeComponent implements OnInit {
       this.query.valueChanges.pipe(
         debounceTime(200),
         distinctUntilChanged(),
+        takeUntil(this.destroy$),
       ).subscribe(q => {
         this.searchQuery.q = q
         this.getAutoCompleteResults()
@@ -111,8 +115,13 @@ export class HomeComponent implements OnInit {
     })
   }
 
+  ngOnDestroy() {
+    this.destroy$.next()
+    this.destroy$.complete()
+  }
+
   ngOnInit() {
-    this.route.queryParamMap.subscribe(queryParam => {
+    this.route.queryParamMap.pipe(takeUntil(this.destroy$)).subscribe(queryParam => {
       if (queryParam.has('q')) {
         this.searchQuery.q = queryParam.get('q') || ''
       } else {

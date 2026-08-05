@@ -48,7 +48,7 @@ import * as _ from 'lodash'
   ],
 })
 export class ActivityLabelsComponent implements OnInit, OnDestroy, AfterViewInit {
-  private unsubscribe = new Subject<void>()
+  private readonly unsubscribe = new Subject<void>()
   @Input() editData!: any
   labels: NSWatActivity.IActivity[] = []
   groups: NSWatActivity.IActivityGroup[] = []
@@ -62,11 +62,11 @@ export class ActivityLabelsComponent implements OnInit, OnDestroy, AfterViewInit
   canshowName = 1
   canshow = -1
   constructor(
-    private changeDetector: ChangeDetectorRef,
-    private formBuilder: UntypedFormBuilder,
-    private allocateSrvc: AllocationService,
-    private watStore: WatStoreService,
-    private snackBar: MatSnackBar,
+    private readonly changeDetector: ChangeDetectorRef,
+    private readonly formBuilder: UntypedFormBuilder,
+    private readonly allocateSrvc: AllocationService,
+    private readonly watStore: WatStoreService,
+    private readonly snackBar: MatSnackBar,
     public dialog: MatDialog,
     // private appRef: ApplicationRef
   ) {

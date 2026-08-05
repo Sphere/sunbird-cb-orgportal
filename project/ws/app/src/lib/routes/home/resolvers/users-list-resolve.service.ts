@@ -10,7 +10,7 @@ import _ from 'lodash';
 @Injectable()
 export class UsersListResolve
    {
-  constructor(private usersService: UsersService, @SkipSelf() private configSvc: ConfigurationsService) { }
+  constructor(private readonly usersService: UsersService, @SkipSelf() private readonly configSvc: ConfigurationsService) { }
 
   resolve(
     _route: ActivatedRouteSnapshot,

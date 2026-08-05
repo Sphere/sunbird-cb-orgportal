@@ -62,10 +62,10 @@ interface MappingSearchResponseShape {
 export class MapRoleActivitiesComponent implements OnInit, OnDestroy {
 
   constructor(
-    private snackbar: CustomSnackbarService,
-    private fracApiService: FracApiService,
-    private dialog: MatDialog,
-    private router: Router,
+    private readonly snackbar: CustomSnackbarService,
+    private readonly fracApiService: FracApiService,
+    private readonly dialog: MatDialog,
+    private readonly router: Router,
   ) { }
 
   // language
@@ -107,9 +107,9 @@ export class MapRoleActivitiesComponent implements OnInit, OnDestroy {
   activitySearchTerm = ''
   searchResetKey = 0
 
-  private roleSearch$ = new Subject<string>()
-  private activitySearch$ = new Subject<string>()
-  private destroy$ = new Subject<void>()
+  private readonly roleSearch$ = new Subject<string>()
+  private readonly activitySearch$ = new Subject<string>()
+  private readonly destroy$ = new Subject<void>()
   private readonly roleMappingCache = new Map<string, RoleActivityDetail[]>()
   private readonly roleDraftStore = new Map<string, RoleActivityDetail[]>()
   private readonly clearedRoleDraftKeys = new Set<string>()

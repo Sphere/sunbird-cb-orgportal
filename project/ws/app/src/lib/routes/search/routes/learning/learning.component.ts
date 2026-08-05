@@ -82,13 +82,13 @@ export class LearningComponent implements OnInit, OnDestroy {
     },
   }
   constructor(
-    private activated: ActivatedRoute,
-    private router: Router,
-    private valueSvc: ValueService,
-    private searchServ: SearchServService,
-    private configSvc: ConfigurationsService,
+    private readonly activated: ActivatedRoute,
+    private readonly router: Router,
+    private readonly valueSvc: ValueService,
+    private readonly searchServ: SearchServService,
+    private readonly configSvc: ConfigurationsService,
     // private trainingSvc: TrainingService,
-    private utilitySvc: UtilityService,
+    private readonly utilitySvc: UtilityService,
   ) { }
 
   getActiveLocale() {

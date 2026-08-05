@@ -10,7 +10,7 @@ import { NSProfileDataV2 } from '../models/profile-v2.model'
 @Injectable()
 export class WorkflowHistoryResolve
    {
-  constructor(private usersService: UsersService, private configSvc: ConfigurationsService) { }
+  constructor(private readonly usersService: UsersService, private readonly configSvc: ConfigurationsService) { }
 
   resolve(
     _route: ActivatedRouteSnapshot,

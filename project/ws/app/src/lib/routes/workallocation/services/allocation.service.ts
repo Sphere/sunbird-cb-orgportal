@@ -18,7 +18,7 @@ const API_END_POINTS = {
   providedIn: 'root',
 })
 export class AllocationService {
-  constructor(private http: HttpClient) { }
+  constructor(private readonly http: HttpClient) { }
 
   onSearchUser(val: any): Observable<any> {
     return this.http.get<any>(`${API_END_POINTS.SEARCH_USER}/${val}`)

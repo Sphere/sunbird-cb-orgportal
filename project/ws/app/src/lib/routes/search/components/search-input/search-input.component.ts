@@ -1,20 +1,22 @@
-import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild, ViewEncapsulation } from '@angular/core'
+import { Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild, ViewEncapsulation } from '@angular/core'
 import { UntypedFormControl } from '@angular/forms'
 import { ActivatedRoute, Router } from '@angular/router'
 import { ConfigurationsService } from '@sunbird-cb/utils'
-import { Observable } from 'rxjs'
-import { debounceTime, distinctUntilChanged, startWith, switchMap } from 'rxjs/operators'
+import { Observable, Subject } from 'rxjs'
+import { debounceTime, distinctUntilChanged, startWith, switchMap, takeUntil } from 'rxjs/operators'
 import { ISearchAutoComplete } from '../../models/search.model'
 import { SearchServService } from '../../services/search-serv.service'
 
 @Component({
+  standalone: false,
   selector: 'ws-app-search-input',
   templateUrl: './search-input.component.html',
   styleUrls: ['./search-input.component.scss'],
   // tslint:disable-next-line
   encapsulation: ViewEncapsulation.None,
 })
-export class SearchInputComponent implements OnInit {
+export class SearchInputComponent implements OnInit, OnDestroy {
+  private readonly destroy$ = new Subject<void>()
   @Input() placeHolder = ''
   @Input() ref = ''
   @Output() closed: EventEmitter<boolean> = new EventEmitter()
@@ -34,11 +36,11 @@ export class SearchInputComponent implements OnInit {
   lang = ''
 
   constructor(
-    private activated: ActivatedRoute,
-    private router: Router,
-    private searchServSvc: SearchServService,
-    private configSvc: ConfigurationsService,
-    private route: ActivatedRoute,
+    private readonly activated: ActivatedRoute,
+    private readonly router: Router,
+    private readonly searchServSvc: SearchServService,
+    private readonly configSvc: ConfigurationsService,
+    private readonly route: ActivatedRoute,
   ) {
     const isAutoCompleteAllowed = this.route.snapshot.data.searchPageData.data.search.isAutoCompleteAllowed
     if (typeof isAutoCompleteAllowed === 'undefined' ||
@@ -46,6 +48,7 @@ export class SearchInputComponent implements OnInit {
       this.queryControl.valueChanges.pipe(
         debounceTime(200),
         distinctUntilChanged(),
+        takeUntil(this.destroy$),
       ).subscribe(q => {
         this.getSearchAutoCompleteResults(q)
       })
@@ -56,7 +59,7 @@ export class SearchInputComponent implements OnInit {
     if (this.searchInputElem.nativeElement) {
       this.searchInputElem.nativeElement.activated()
     }
-    this.activated.queryParamMap.subscribe(queryParam => {
+    this.activated.queryParamMap.pipe(takeUntil(this.destroy$)).subscribe(queryParam => {
       if (queryParam.has('q')) {
         this.queryControl.setValue(queryParam.get('q') || 'all')
       } else {
@@ -82,6 +85,11 @@ export class SearchInputComponent implements OnInit {
       this.languageSearch.splice(1, 0, this.preferredLanguages)
     }
   }
+  ngOnDestroy() {
+    this.destroy$.next()
+    this.destroy$.complete()
+  }
+
   swapRemove(langArray: string[], from: number, to: number) {
     langArray.splice(to, 0, langArray[from])
     langArray.splice(from + 1, 1)

@@ -52,10 +52,10 @@ interface ActivityMappingSearchResponseShape {
 })
 export class MapActivityCompetenciesComponent implements OnInit, OnDestroy {
   constructor(
-    private snackbar: CustomSnackbarService,
-    private fracApiService: FracApiService,
-    private dialog: MatDialog,
-    private router: Router,
+    private readonly snackbar: CustomSnackbarService,
+    private readonly fracApiService: FracApiService,
+    private readonly dialog: MatDialog,
+    private readonly router: Router,
   ) { }
 
   readonly uiConfig = FRAC_UI_CONFIG
@@ -94,9 +94,9 @@ export class MapActivityCompetenciesComponent implements OnInit, OnDestroy {
   competencySearchTerm = ''
   searchResetKey = 0
 
-  private activitySearch$ = new Subject<string>()
-  private competencySearch$ = new Subject<string>()
-  private destroy$ = new Subject<void>()
+  private readonly activitySearch$ = new Subject<string>()
+  private readonly competencySearch$ = new Subject<string>()
+  private readonly destroy$ = new Subject<void>()
   private readonly activityMappingCache = new Map<string, ActivityCompetencyDetail[]>()
   private readonly activityDraftStore = new Map<string, ActivityCompetencyDetail[]>()
   private readonly clearedActivityDraftKeys = new Set<string>()

@@ -15,7 +15,7 @@ const API_END_POINTS = {
   providedIn: 'root',
 })
 export class SearchApiService {
-  constructor(private http: HttpClient, private keycloakSvc: KeycloakService) { }
+  constructor(private readonly http: HttpClient, private readonly keycloakSvc: KeycloakService) { }
   getSearchResults(request: ISocialSearchRequest): Observable<ISocialSearchResult> {
     return this.http.post<ISocialSearchResult>(API_END_POINTS.SOCIAL_VIEW_SEARCH_RESULT, request)
   }

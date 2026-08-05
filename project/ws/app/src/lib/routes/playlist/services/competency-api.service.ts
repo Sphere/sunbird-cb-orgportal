@@ -83,7 +83,7 @@ interface CompetencySearchPayload {
 export class CompetencyApiService {
     private readonly API_BASE = '/apis/proxies/v8/entity/v1'
 
-    constructor(private http: HttpClient) { }
+    constructor(private readonly http: HttpClient) { }
 
     /**
      * Retrieves the master list of competencies filtered by language.

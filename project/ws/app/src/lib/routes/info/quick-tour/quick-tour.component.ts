@@ -24,7 +24,7 @@ export class QuickTourComponent implements OnInit {
     widgetType: 'player',
   }
 
-  constructor(private configSvc: ConfigurationsService) { }
+  constructor(private readonly configSvc: ConfigurationsService) { }
 
   ngOnInit() {
 

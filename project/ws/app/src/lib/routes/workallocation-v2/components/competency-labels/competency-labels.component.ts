@@ -26,7 +26,7 @@ import { DialogConfirmComponent } from '../../../../../../../../../src/app/compo
 })
 export class CompetencyLabelsComponent implements OnInit, OnDestroy, AfterViewInit {
   private activitySubscription: any
-  private unsubscribe = new Subject<void>()
+  private readonly unsubscribe = new Subject<void>()
   labels: NSWatCompetency.ICompActivity[] = []
   groups: NSWatActivity.IActivityGroup[] = []
   @Input() editData!: any
@@ -41,13 +41,13 @@ export class CompetencyLabelsComponent implements OnInit, OnDestroy, AfterViewIn
   filteredCompetenciesV1 = new BehaviorSubject<any[]>([])
 
   constructor(
-    private changeDetector: ChangeDetectorRef,
-    private formBuilder: UntypedFormBuilder,
-    private allocateSrvc: AllocationService,
-    private watStore: WatStoreService,
-    private snackBar: MatSnackBar,
+    private readonly changeDetector: ChangeDetectorRef,
+    private readonly formBuilder: UntypedFormBuilder,
+    private readonly allocateSrvc: AllocationService,
+    private readonly watStore: WatStoreService,
+    private readonly snackBar: MatSnackBar,
     public dialog: MatDialog,
-    private activated: ActivatedRoute,
+    private readonly activated: ActivatedRoute,
     // @Inject(DOCUMENT) private document: Document
   ) {
   }

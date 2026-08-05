@@ -25,11 +25,11 @@ export class ProfileDetailComponent implements OnInit, OnDestroy {
   screenSubscription: Subscription | null = null
   // speakerName: string | null = ''
   constructor(
-    private activatedRoute: ActivatedRoute,
-    private appEventSvc: EventService,
-    private dialog: MatDialog,
-    private valSvc: ValueService,
-    private router: Router,
+    private readonly activatedRoute: ActivatedRoute,
+    private readonly appEventSvc: EventService,
+    private readonly dialog: MatDialog,
+    private readonly valSvc: ValueService,
+    private readonly router: Router,
   ) {
     const navigation = this.router.getCurrentNavigation()
     if (navigation) {

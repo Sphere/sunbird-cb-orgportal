@@ -32,9 +32,9 @@ export class PositionHierarchyViewModalComponent {
   private readonly collator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' })
 
   constructor(
-    private dialogRef: MatDialogRef<PositionHierarchyViewModalComponent>,
+    private readonly dialogRef: MatDialogRef<PositionHierarchyViewModalComponent>,
     @Inject(MAT_DIALOG_DATA) public data: PositionHierarchyViewModalData,
-    private router: Router,
+    private readonly router: Router,
   ) { }
 
   get roles(): MappedRole[] {

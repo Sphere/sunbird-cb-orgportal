@@ -66,11 +66,11 @@ export class SocialComponent implements OnInit, OnDestroy {
     },
   }
   constructor(
-    private activated: ActivatedRoute,
-    private router: Router,
-    private authSvc: SearchApiService,
-    private valueSvc: ValueService,
-    private searchSrv: SearchServService,
+    private readonly activated: ActivatedRoute,
+    private readonly router: Router,
+    private readonly authSvc: SearchApiService,
+    private readonly valueSvc: ValueService,
+    private readonly searchSrv: SearchServService,
   ) { }
 
   ngOnInit() {

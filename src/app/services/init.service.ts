@@ -33,17 +33,17 @@ const endpoint = {
   providedIn: 'root',
 })
 export class InitService {
-  private baseUrl = 'assets/configurations'
+  private readonly baseUrl = 'assets/configurations'
   constructor(
-    private logger: LoggerService,
-    private configSvc: ConfigurationsService,
-    private authSvc: AuthKeycloakService,
-    private widgetResolverService: WidgetResolverService,
-    private settingsSvc: BtnSettingsService,
-    private userPreference: UserPreferenceService,
-    private http: HttpClient,
+    private readonly logger: LoggerService,
+    private readonly configSvc: ConfigurationsService,
+    private readonly authSvc: AuthKeycloakService,
+    private readonly widgetResolverService: WidgetResolverService,
+    private readonly settingsSvc: BtnSettingsService,
+    private readonly userPreference: UserPreferenceService,
+    private readonly http: HttpClient,
 
-    @Inject(APP_BASE_HREF) private baseHref: string,
+    @Inject(APP_BASE_HREF) private readonly baseHref: string,
     sanitizerSvc: SanitizerService,
     iconRegistry: MatIconRegistry,
   ) {

@@ -29,10 +29,10 @@ export class ListEventComponent implements OnInit, AfterViewInit, OnDestroy {
     departmentID: any
 
     constructor(
-        private router: Router,
-        private eventSvc: EventsService,
-        private configSvc: ConfigurationsService,
-        private activeRoute: ActivatedRoute,
+        private readonly router: Router,
+        private readonly eventSvc: EventsService,
+        private readonly configSvc: ConfigurationsService,
+        private readonly activeRoute: ActivatedRoute,
     ) {
         this.math = Math
         if (this.configSvc.userProfile) {

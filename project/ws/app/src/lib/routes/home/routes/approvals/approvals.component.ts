@@ -36,10 +36,10 @@ export class ApprovalsComponent implements OnInit, OnDestroy {
   }
 
   constructor(
-    private router: Router,
-    private apprService: ApprovalsService,
-    private activeRouter: ActivatedRoute,
-    private snackbar: MatSnackBar) {
+    private readonly router: Router,
+    private readonly apprService: ApprovalsService,
+    private readonly activeRouter: ActivatedRoute,
+    private readonly snackbar: MatSnackBar) {
     if (this.activeRouter.parent && this.activeRouter.parent.snapshot.data.configService.unMappedUser.channel
     ) {
       this.departName = _.get(this.activeRouter, 'parent.snapshot.data.configService.unMappedUser.channel')

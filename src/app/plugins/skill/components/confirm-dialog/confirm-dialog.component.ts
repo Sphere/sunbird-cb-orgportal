@@ -23,7 +23,7 @@ interface IPopData {
 export class ConfirmDialogComponent implements OnInit {
 
   constructor(
-    private dialogRef: MatDialogRef<ConfirmDialogComponent>,
+    private readonly dialogRef: MatDialogRef<ConfirmDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: IPopData,
   ) {
   }

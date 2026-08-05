@@ -57,9 +57,9 @@ export class AllocationActionsComponent implements OnInit {
   compatecnyLevel: any
 
   constructor(
-    private allocateSrvc: AllocationService,
-    private fb: UntypedFormBuilder,
-    private dialogRef: MatDialogRef<AllocationActionsComponent>,
+    private readonly allocateSrvc: AllocationService,
+    private readonly fb: UntypedFormBuilder,
+    private readonly dialogRef: MatDialogRef<AllocationActionsComponent>,
     @Inject(MAT_DIALOG_DATA) public selectedUser: any
   ) {
 

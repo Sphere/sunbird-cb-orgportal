@@ -15,9 +15,9 @@ export class IframeLoaderComponent implements OnInit {
   iframeUrl: string | null = null
   iframeType: string | null = null
   constructor(
-    private sanitizerService: SanitizerService,
-    private activatedRoute: ActivatedRoute,
-    private appEventSvc: EventService,
+    private readonly sanitizerService: SanitizerService,
+    private readonly activatedRoute: ActivatedRoute,
+    private readonly appEventSvc: EventService,
   ) { }
 
   ngOnInit() {

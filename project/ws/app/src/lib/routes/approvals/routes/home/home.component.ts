@@ -34,8 +34,8 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
   constructor(
     // private configSvc: ConfigurationsService,
-    private activeRoute: ActivatedRoute,
-    private router: Router,
+    private readonly activeRoute: ActivatedRoute,
+    private readonly router: Router,
     // private needApprService: NeedApprovalsService
   ) {
     // this.getDepartment()

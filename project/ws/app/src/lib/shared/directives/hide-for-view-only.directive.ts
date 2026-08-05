@@ -28,10 +28,10 @@ export class HideForViewOnlyDirective implements OnInit {
   private initialized = false
 
   constructor(
-    private templateRef: TemplateRef<unknown>,
-    private viewContainer: ViewContainerRef,
-    private access: FeatureAccessService,
-    @Optional() @Inject(FEATURE_KEY) private feature: FeatureKey | null,
+    private readonly templateRef: TemplateRef<unknown>,
+    private readonly viewContainer: ViewContainerRef,
+    private readonly access: FeatureAccessService,
+    @Optional() @Inject(FEATURE_KEY) private readonly feature: FeatureKey | null,
   ) {}
 
   /**

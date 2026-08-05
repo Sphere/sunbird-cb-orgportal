@@ -3,7 +3,6 @@ import { Injectable } from '@angular/core'
 import { ConfigurationsService } from '@sunbird-cb/utils'
 import { Observable, of } from 'rxjs'
 import { catchError, retry, map } from 'rxjs/operators'
-import { NsContentStripMultiple } from '../content-strip-multiple/content-strip-multiple.model'
 import { NsContent } from './widget-content.model'
 import { NSSearch } from './widget-search.model'
 
@@ -39,8 +38,8 @@ const API_END_POINTS = {
 })
 export class WidgetContentService {
   constructor(
-    private http: HttpClient,
-    private configSvc: ConfigurationsService
+    private readonly http: HttpClient,
+    private readonly configSvc: ConfigurationsService
   ) { }
 
   isResource(primaryCategory: string) {
@@ -201,7 +200,7 @@ export class WidgetContentService {
   }
   searchRegionRecommendation(
     req: NSSearch.ISearchOrgRegionRecommendationRequest,
-  ): Observable<NsContentStripMultiple.IContentStripResponseApi> {
+  ): Observable<any> {
     req.query = req.query || ''
     req.preLabelValue =
       (req.preLabelValue || '') +
@@ -210,7 +209,7 @@ export class WidgetContentService {
       ...req.filters,
       labels: [req.preLabelValue || ''],
     }
-    return this.http.post<NsContentStripMultiple.IContentStripResponseApi>(
+    return this.http.post<any>(
       API_END_POINTS.CONTENT_SEARCH_REGION_RECOMMENDATION,
       { request: req },
     )

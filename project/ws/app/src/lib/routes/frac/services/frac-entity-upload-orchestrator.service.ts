@@ -21,7 +21,7 @@ export interface UploadBaselineState {
 
 @Injectable({ providedIn: 'root' })
 export class FracEntityUploadOrchestratorService {
-  constructor(private configSvc: ConfigurationsService) { }
+  constructor(private readonly configSvc: ConfigurationsService) { }
 
   /**
    * Returns client-aware languages from config with FRAC defaults as fallback.

@@ -6,7 +6,7 @@ const apiEndPoint = '/apis/protected/v8/event-external/'
 @Injectable()
 export class EventService {
   bannerisEnabled = new BehaviorSubject<boolean>(true)
-  constructor(private http: HttpClient) { }
+  constructor(private readonly http: HttpClient) { }
 
   getEventData(): Observable<any> {
     return this.http.get(apiEndPoint)

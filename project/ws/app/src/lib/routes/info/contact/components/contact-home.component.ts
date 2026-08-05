@@ -10,7 +10,7 @@ export class ContactHomeComponent implements OnInit {
   contactUsMail = ''
   pageNavbar: Partial<NsPage.INavBackground> = this.configSvc.pageNavBar
 
-  constructor(private configSvc: ConfigurationsService) {}
+  constructor(private readonly configSvc: ConfigurationsService) {}
 
   ngOnInit() {
     if (this.configSvc.instanceConfig) {

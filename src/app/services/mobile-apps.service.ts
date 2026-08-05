@@ -26,7 +26,7 @@ declare var window: IWindowMobileAppModified
 })
 export class MobileAppsService {
   constructor(
-    private navigateSvc: NavigationExternalService,
+    private readonly navigateSvc: NavigationExternalService,
   ) { }
 
   init() {

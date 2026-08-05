@@ -10,7 +10,7 @@ import { NSProfileDataV2 } from '../../users/models/profile-v2.model'
 @Injectable()
 export class UserResolve
    {
-  constructor(private usersSvc: UsersService, private configSvc: ConfigurationsService) { }
+  constructor(private readonly usersSvc: UsersService, private readonly configSvc: ConfigurationsService) { }
 
   resolve(
     _route: ActivatedRouteSnapshot,

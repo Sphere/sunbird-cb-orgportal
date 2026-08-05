@@ -41,14 +41,14 @@ export class TncComponent implements OnInit, OnDestroy {
   }
   expectedUrl = ''
   constructor(
-    private activatedRoute: ActivatedRoute,
-    private router: Router,
-    private http: HttpClient,
-    private loggerSvc: LoggerService,
-    private configSvc: ConfigurationsService,
-    private tncProtectedSvc: TncAppResolverService,
-    private tncPublicSvc: TncPublicResolverService,
-    private globals: Globals,
+    private readonly activatedRoute: ActivatedRoute,
+    private readonly router: Router,
+    private readonly http: HttpClient,
+    private readonly loggerSvc: LoggerService,
+    private readonly configSvc: ConfigurationsService,
+    private readonly tncProtectedSvc: TncAppResolverService,
+    private readonly tncPublicSvc: TncPublicResolverService,
+    private readonly globals: Globals,
   ) {}
 
   ngOnInit() {

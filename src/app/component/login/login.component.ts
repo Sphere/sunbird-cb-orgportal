@@ -27,9 +27,9 @@ export class LoginComponent implements OnInit, OnDestroy {
   private subscriptionLogin: Subscription | null = null
 
   constructor(
-    private activateRoute: ActivatedRoute,
-    private configSvc: ConfigurationsService,
-    private sanitizerSvc: SanitizerService,
+    private readonly activateRoute: ActivatedRoute,
+    private readonly configSvc: ConfigurationsService,
+    private readonly sanitizerSvc: SanitizerService,
   ) {
     const instanceConfig = this.configSvc.instanceConfig
     if (instanceConfig) {

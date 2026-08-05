@@ -10,7 +10,7 @@ import { NSProfileDataV2 } from '../models/profile-v2.model'
 @Injectable()
 export class WorkflowResolve
    {
-  constructor(private needApprService: NeedApprovalsService, private configSvc: ConfigurationsService) { }
+  constructor(private readonly needApprService: NeedApprovalsService, private readonly configSvc: ConfigurationsService) { }
 
   resolve(
     _route: ActivatedRouteSnapshot,

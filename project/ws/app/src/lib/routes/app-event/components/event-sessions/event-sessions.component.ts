@@ -20,9 +20,9 @@ export class EventSessionsComponent implements OnInit, OnDestroy {
   private currentSubscription: Subscription | null = null
 
   constructor(
-    private activatedRoute: ActivatedRoute,
-    private appEventSvc: EventService,
-    private changeDetector: ChangeDetectorRef,
+    private readonly activatedRoute: ActivatedRoute,
+    private readonly appEventSvc: EventService,
+    private readonly changeDetector: ChangeDetectorRef,
   ) { }
 
   ngOnInit() {

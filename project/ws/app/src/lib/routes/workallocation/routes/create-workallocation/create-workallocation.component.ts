@@ -71,10 +71,10 @@ export class CreateWorkallocationComponent implements OnInit {
   showAddNewRole = false
 
   constructor(
-    private exportAsService: ExportAsService, private snackBar: MatSnackBar,
-    private fb: UntypedFormBuilder, private allocateSrvc: AllocationService,
-    private router: Router, public dialog: MatDialog,
-    private configSvc: ConfigurationsService) {
+    private readonly exportAsService: ExportAsService, private readonly snackBar: MatSnackBar,
+    private readonly fb: UntypedFormBuilder, private readonly allocateSrvc: AllocationService,
+    private readonly router: Router, public dialog: MatDialog,
+    private readonly configSvc: ConfigurationsService) {
     this.selectedIndex = 0
     this.newAllocationForm = this.fb.group({
       fname: ['', Validators.required],

@@ -11,8 +11,8 @@ export class LoginRootComponent implements OnInit {
 
   @ViewChild(LoginRootDirective, { static: true }) wsLoginRoot!: LoginRootDirective
   constructor(
-    private componentFactoryResolver: ComponentFactoryResolver,
-    private loginRootSvc: LoginRootService,
+    private readonly componentFactoryResolver: ComponentFactoryResolver,
+    private readonly loginRootSvc: LoginRootService,
   ) { }
 
   loadComponent() {

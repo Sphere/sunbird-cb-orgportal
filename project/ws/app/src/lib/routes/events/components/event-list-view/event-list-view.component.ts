@@ -46,8 +46,8 @@ export class EventListViewComponent implements OnInit, AfterViewInit, OnChanges 
   dialogRef: any
 
   constructor(
-    private router: Router,
-    private matDialog: MatDialog,
+    private readonly router: Router,
+    private readonly matDialog: MatDialog,
   ) {
     this.dataSource = new MatTableDataSource<any>()
     this.actionsClick = new EventEmitter()

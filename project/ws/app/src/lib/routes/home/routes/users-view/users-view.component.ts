@@ -69,18 +69,18 @@ export class UsersViewComponent implements OnInit, OnDestroy {
   }
   constructor(
     public dialog: MatDialog,
-    private route: ActivatedRoute,
-    private router: Router,
-    private snackBar: MatSnackBar,
-    private events: EventService,
-    private loaderService: LoaderService,
+    private readonly route: ActivatedRoute,
+    private readonly router: Router,
+    private readonly snackBar: MatSnackBar,
+    private readonly events: EventService,
+    private readonly loaderService: LoaderService,
     // private telemetrySvc: TelemetryService,
     // private configSvc: ConfigurationsService,
     // private discussService: DiscussService,
     // private configSvc: ConfigurationsService,
     // private networkV2Service: NetworkV2Service,
     // private profileV2Svc: ProfileV2Service
-    private usersService: UsersService
+    private readonly usersService: UsersService
   ) {
     this.Math = Math
     this.configSvc = this.route.parent && this.route.parent.snapshot.data.configService

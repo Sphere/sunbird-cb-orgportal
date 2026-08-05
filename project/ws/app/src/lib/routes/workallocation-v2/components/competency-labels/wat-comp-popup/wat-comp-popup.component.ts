@@ -50,7 +50,7 @@ export class WatCompPopupComponent implements OnInit {
   constructor(
     public dialogRef: MatDialogRef<WatCompPopupComponent>,
     @Inject(MAT_DIALOG_DATA) public data: IWatCompPopupData,
-    private formBuilder: UntypedFormBuilder) {
+    private readonly formBuilder: UntypedFormBuilder) {
     this.watForm = new UntypedFormGroup({})
 
     this.watForm = this.formBuilder.group({

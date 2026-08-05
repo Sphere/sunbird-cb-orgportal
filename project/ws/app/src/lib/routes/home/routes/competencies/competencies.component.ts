@@ -19,9 +19,9 @@ export class CompetenciesComponent implements OnInit, OnDestroy {
 
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator | undefined
 
-  constructor(private route: ActivatedRoute,
-              private router: Router,
-              private usersService: UsersService, @Self() private utilityService: UtilityService) { }
+  constructor(private readonly route: ActivatedRoute,
+              private readonly router: Router,
+              private readonly usersService: UsersService, @Self() private readonly utilityService: UtilityService) { }
 
   ngOnInit() {
     this.topBarConfig = {

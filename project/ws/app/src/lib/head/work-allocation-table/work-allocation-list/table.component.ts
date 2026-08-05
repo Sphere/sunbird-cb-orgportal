@@ -53,10 +53,10 @@ export class WorkAllocationTableComponent implements OnInit, OnChanges {
   @ViewChild(MatSort, { static: true }) sort?: MatSort
   selection = new SelectionModel<any>(true, [])
   constructor(
-    private router: Router, public dialog: MatDialog,
-    private activatedRoute: ActivatedRoute,
-    private createMDOService: CreateMDOService,
-    private snackBar: MatSnackBar, private wrkAllocServ: WorkallocationService) {
+    private readonly router: Router, public dialog: MatDialog,
+    private readonly activatedRoute: ActivatedRoute,
+    private readonly createMDOService: CreateMDOService,
+    private readonly snackBar: MatSnackBar, private readonly wrkAllocServ: WorkallocationService) {
     this.dataSource = new MatTableDataSource<any>()
     this.actionsClick = new EventEmitter()
     this.clicked = new EventEmitter()

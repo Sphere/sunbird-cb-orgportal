@@ -58,7 +58,7 @@ export class UsersUploadComponent implements OnInit, AfterViewInit, OnDestroy {
   downloadSampleFilePath = ''
   downloadAsFileName = ''
   rootOrgId!: any
-  private baseUrl = 'assets/common'
+  private readonly baseUrl = 'assets/common'
 
   objDataSource = new MatTableDataSource<any>()
   @ViewChild(MatPaginator, { static: false }) paginator: MatPaginator | null = null
@@ -72,10 +72,10 @@ export class UsersUploadComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   constructor(
-    private fb: UntypedFormBuilder,
-    private fileService: FileService,
-    private snackBar: MatSnackBar,
-    private route: ActivatedRoute,
+    private readonly fb: UntypedFormBuilder,
+    private readonly fileService: FileService,
+    private readonly snackBar: MatSnackBar,
+    private readonly route: ActivatedRoute,
   ) {
     this.rootOrgId = _.get(this.route.snapshot.parent, 'data.configService.unMappedUser.rootOrg.rootOrgId')
     this.dataSource = new MatTableDataSource(this.bulkUploadData)

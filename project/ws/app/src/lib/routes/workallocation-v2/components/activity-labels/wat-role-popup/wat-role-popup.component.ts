@@ -39,7 +39,7 @@ export class WatRolePopupComponent implements OnInit {
   constructor(
     public dialogRef: MatDialogRef<WatRolePopupComponent>,
     @Inject(MAT_DIALOG_DATA) public data: IWatRolePopupData,
-    private formBuilder: UntypedFormBuilder) {
+    private readonly formBuilder: UntypedFormBuilder) {
     this.watForm = new UntypedFormGroup({})
     this.watForm = this.formBuilder.group({
       acDetail: this.formBuilder.array([]),

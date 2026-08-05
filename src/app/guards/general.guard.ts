@@ -10,9 +10,9 @@ import _ from 'lodash'
 })
 export class GeneralGuard {
   constructor(
-    private router: Router,
-    private configSvc: ConfigurationsService,
-    private authSvc: AuthKeycloakService,
+    private readonly router: Router,
+    private readonly configSvc: ConfigurationsService,
+    private readonly authSvc: AuthKeycloakService,
   ) { }
 
   async canActivate(

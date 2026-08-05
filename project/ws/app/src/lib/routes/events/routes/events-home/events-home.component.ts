@@ -47,10 +47,10 @@ export class EventsHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
   constructor(
-    private valueSvc: ValueService,
-    private router: Router,
-    private activeRoute: ActivatedRoute,
-    private configService: ConfigurationsService
+    private readonly valueSvc: ValueService,
+    private readonly router: Router,
+    private readonly activeRoute: ActivatedRoute,
+    private readonly configService: ConfigurationsService
   ) {
     if (this.configService.userRoles) {
       this.myRoles = this.configService.userRoles

@@ -22,8 +22,8 @@ export class LearningCardComponent implements OnInit, OnChanges {
    */
   description = ''
   constructor(
-    private events: EventService,
-    private configSvc: ConfigurationsService,
+    private readonly events: EventService,
+    private readonly configSvc: ConfigurationsService,
   ) { }
 
   ngOnInit() {

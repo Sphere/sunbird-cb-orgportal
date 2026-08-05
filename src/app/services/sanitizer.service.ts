@@ -5,7 +5,7 @@ import { DomSanitizer, SafeResourceUrl, SafeScript, SafeStyle, SafeUrl } from '@
   providedIn: 'root',
 })
 export class SanitizerService {
-  constructor(private domSanitizer: DomSanitizer) { }
+  constructor(private readonly domSanitizer: DomSanitizer) { }
 
   /**
    * Relative paths (e.g. 'mdo-assets/icons/pin.svg', '/frac') and http(s) URLs

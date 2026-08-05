@@ -27,9 +27,9 @@ export class FaqHomeComponent implements OnInit, OnDestroy {
   private subscriptionFAQ: Subscription | null = null
   private subscriptionActiveFAQ: Subscription | null = null
   constructor(
-    private route: ActivatedRoute,
-    private valueSvc: ValueService,
-    private configSvc: ConfigurationsService,
+    private readonly route: ActivatedRoute,
+    private readonly valueSvc: ValueService,
+    private readonly configSvc: ConfigurationsService,
   ) { }
   ngOnInit() {
     this.subscriptionFAQ = this.route.data.subscribe(data => {

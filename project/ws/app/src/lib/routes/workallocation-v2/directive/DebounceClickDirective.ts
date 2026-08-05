@@ -20,7 +20,7 @@ export class DebounceClickDirective implements OnInit, OnDestroy {
   @Output()
   debounceClick = new EventEmitter()
 
-  private clicks = new Subject()
+  private readonly clicks = new Subject()
   private subscription!: Subscription
 
   constructor() { }

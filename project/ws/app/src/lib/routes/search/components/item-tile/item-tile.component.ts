@@ -10,7 +10,7 @@ export class ItemTileComponent implements OnInit {
   @Input() data: any
   ref = 'home'
   topics: string[] = []
-  constructor(private activated: ActivatedRoute, private route: Router) { }
+  constructor(private readonly activated: ActivatedRoute, private readonly route: Router) { }
 
   ngOnInit() { }
   isString(input: any) {

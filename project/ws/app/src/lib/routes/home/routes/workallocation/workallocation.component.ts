@@ -48,8 +48,8 @@ export class WorkallocationComponent implements OnInit, OnDestroy {
     }
   }
 
-  constructor(private exportAsService: ExportAsService, private router: Router, private wrkAllocServ: WorkallocationService,
-    private workallocationSrvc: WorkallocationService, private activeRoute: ActivatedRoute,
+  constructor(private readonly exportAsService: ExportAsService, private readonly router: Router, private readonly wrkAllocServ: WorkallocationService,
+    private readonly workallocationSrvc: WorkallocationService, private readonly activeRoute: ActivatedRoute,
     public dialog: MatDialog) {
     const paramsMap = this.activeRoute.snapshot.params.tab
     if (paramsMap === 'Published') {

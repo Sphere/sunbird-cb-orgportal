@@ -34,16 +34,13 @@
   align-items: center;
 
   .count {
-    color: #000000;
     font-family: Roboto, sans-serif;
-    font-weight: 400;
     font-size: 64px;
 
 
   }
 
   .count-label {
-    color: #000000;
     font-family: Roboto, sans-serif;
     font-weight: 400;
     font-size: 24px;
@@ -53,7 +50,6 @@
 }
 
 .add-btn {
-  margin-top: 10px;
   color: #1C5D95;
   padding: 5px 10px;
   font-family: Roboto, sans-serif;
@@ -86,14 +82,9 @@
 
 
 .certificate-text-enabled {
-  font-family: Roboto, sans-serif;
-  font-weight: 400;
-  font-size: 14px;
   line-height: 16.41px;
   letter-spacing: -2%;
-  color: #1C5D95;
   display: flex;
-  gap: 10px;
   align-items: center;
   border: none;
   background: inherit;

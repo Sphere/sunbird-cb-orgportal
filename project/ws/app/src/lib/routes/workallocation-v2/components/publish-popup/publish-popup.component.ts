@@ -24,11 +24,11 @@ export class PublishPopupComponent implements OnInit {
   signedPDF: any
   draftPDF: any
 
-  constructor(private uploadService: UploadFileService, private router: Router,
+  constructor(private readonly uploadService: UploadFileService, private readonly router: Router,
     // tslint:disable-next-line:align
-    private dialogRef: MatDialogRef<PublishPopupComponent>,
+    private readonly dialogRef: MatDialogRef<PublishPopupComponent>,
     // tslint:disable-next-line:align
-    private configSvc: ConfigurationsService,
+    private readonly configSvc: ConfigurationsService,
     // tslint:disable-next-line:align
     @Inject(MAT_DIALOG_DATA) data: any) {
     this.workorderData = data.data

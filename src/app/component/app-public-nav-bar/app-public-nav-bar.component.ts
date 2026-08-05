@@ -13,7 +13,7 @@ export class AppPublicNavBarComponent implements OnInit {
   logo = ''
   appName = ''
   navBar: Partial<NsPage.INavBackground> | null = null
-  constructor(private sanitizerSvc: SanitizerService, private configSvc: ConfigurationsService) { }
+  constructor(private readonly sanitizerSvc: SanitizerService, private readonly configSvc: ConfigurationsService) { }
 
   public get showPublicNavbar(): boolean {
     return true

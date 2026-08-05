@@ -8,8 +8,8 @@ import { ConfigurationsService } from '@sunbird-cb/utils'
 })
 export class EmptyRouteGuard {
   constructor(
-    private router: Router,
-    private configSvc: ConfigurationsService,
+    private readonly router: Router,
+    private readonly configSvc: ConfigurationsService,
   ) { }
   canActivate(
     _next: ActivatedRouteSnapshot,

@@ -24,9 +24,9 @@ export class CardDetailsComponent implements OnInit, AfterViewChecked {
   navigationExtras: NavigationExtras = {}
 
   constructor(
-    private changeDetector: ChangeDetectorRef,
-    private route: ActivatedRoute,
-    private router: Router,
+    private readonly changeDetector: ChangeDetectorRef,
+    private readonly route: ActivatedRoute,
+    private readonly router: Router,
   ) { }
 
   ngOnInit() {

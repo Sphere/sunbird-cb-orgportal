@@ -35,7 +35,7 @@ export class AboutVideoComponent implements OnInit {
       },
     }
 
-  constructor(private configSvc: ConfigurationsService) { }
+  constructor(private readonly configSvc: ConfigurationsService) { }
 
   ngOnInit() {
     if (this.configSvc.instanceConfig) {

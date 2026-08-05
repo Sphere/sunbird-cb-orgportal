@@ -8,8 +8,8 @@ import { Observable } from 'rxjs'
 })
 export class LoginGuard {
   constructor(
-    private router: Router,
-    private configSvc: ConfigurationsService,
+    private readonly router: Router,
+    private readonly configSvc: ConfigurationsService,
   ) { }
   canActivate(
     next: ActivatedRouteSnapshot,

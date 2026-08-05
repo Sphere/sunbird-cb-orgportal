@@ -15,7 +15,7 @@ export interface UnsavedChangesModalData {
 })
 export class UnsavedChangesModalComponent {
   constructor(
-    private dialogRef: MatDialogRef<UnsavedChangesModalComponent>,
+    private readonly dialogRef: MatDialogRef<UnsavedChangesModalComponent>,
     @Inject(MAT_DIALOG_DATA) public data: UnsavedChangesModalData,
   ) { }
 

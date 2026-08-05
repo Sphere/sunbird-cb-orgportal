@@ -58,12 +58,12 @@ export class CreateWorkallocationComponent implements OnInit, AfterViewInit, OnD
 
   // tslinr=t
   constructor(
-    private watStore: WatStoreService,
-    private allocateSrvc: AllocationService,
-    private snackBar: MatSnackBar,
-    private router: Router,
-    private route: ActivatedRoute,
-    @Inject(DOCUMENT) private document: Document,
+    private readonly watStore: WatStoreService,
+    private readonly allocateSrvc: AllocationService,
+    private readonly snackBar: MatSnackBar,
+    private readonly router: Router,
+    private readonly route: ActivatedRoute,
+    @Inject(DOCUMENT) private readonly document: Document,
     public dialog: MatDialog,
   ) {
     this.route.params.subscribe(params => {

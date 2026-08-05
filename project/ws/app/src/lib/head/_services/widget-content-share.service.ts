@@ -4,7 +4,7 @@ import { Observable } from 'rxjs'
 import { ConfigurationsService } from '@sunbird-cb/utils'
 import { NsContent } from './widget-content.model'
 import { NsShare } from './widget-share.model'
-import { ICommon } from '@sunbird-cb/collection/lib/_models/common.model'
+interface ICommon { shareMessage: string }
 
 const API_END_POINTS = {
   USER_SHARE: `/apis/protected/v8/user/share`,
@@ -17,7 +17,7 @@ const API_END_POINTS = {
 export class WidgetContentShareService {
   baseUrl = this.configSvc.sitePath
 
-  constructor(private http: HttpClient, private configSvc: ConfigurationsService) { }
+  constructor(private readonly http: HttpClient, private readonly configSvc: ConfigurationsService) { }
 
   fetchConfigFile(): Observable<ICommon> {
     return this.http.get<ICommon>(`${this.baseUrl}/feature/common.json`).pipe()

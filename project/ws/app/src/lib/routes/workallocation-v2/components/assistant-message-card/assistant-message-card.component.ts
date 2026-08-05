@@ -60,7 +60,7 @@ export class AssistantMessageCardComponent implements OnInit, OnDestroy {
     },
   }
 
-  constructor(private watStore: WatStoreService) {
+  constructor(private readonly watStore: WatStoreService) {
   }
 
   ngOnInit() {

@@ -20,9 +20,9 @@ export class UsersComponent implements OnInit, AfterViewInit, OnDestroy {
   data2: any
   role: any
   roleName: string | undefined
-  private defaultSideNavBarOpenedSubscription: any
+  private readonly defaultSideNavBarOpenedSubscription: any
 
-  constructor(private usersSvc: UsersService, private router: Router, private route: ActivatedRoute) { }
+  constructor(private readonly usersSvc: UsersService, private readonly router: Router, private readonly route: ActivatedRoute) { }
   ngOnInit() {
     const url = this.router.url.split('/')
     this.role = url[url.length - 2]

@@ -16,7 +16,7 @@ export class PublicContactComponent implements OnInit, OnDestroy {
   pageNavbar: Partial<NsPage.INavBackground> = this.configSvc.pageNavBar
   private subscriptionContact: Subscription | null = null
 
-  constructor(private configSvc: ConfigurationsService, private activateRoute: ActivatedRoute) { }
+  constructor(private readonly configSvc: ConfigurationsService, private readonly activateRoute: ActivatedRoute) { }
 
   ngOnInit() {
     this.subscriptionContact = this.activateRoute.data.subscribe(data => {

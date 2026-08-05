@@ -31,10 +31,10 @@ export class AboutHomeComponent implements OnInit, OnDestroy {
   videoLink: SafeResourceUrl | null = null
 
   constructor(
-    private breakpointObserver: BreakpointObserver,
-    private sanitizerService: SanitizerService,
-    private configSvc: ConfigurationsService,
-    private activateRoute: ActivatedRoute,
+    private readonly breakpointObserver: BreakpointObserver,
+    private readonly sanitizerService: SanitizerService,
+    private readonly configSvc: ConfigurationsService,
+    private readonly activateRoute: ActivatedRoute,
   ) { }
 
   ngOnInit() {

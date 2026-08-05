@@ -14,9 +14,9 @@ import { UntypedFormControl, Validators } from '@angular/forms'
 })
 export class LangSelectComponent implements OnInit {
   constructor(
-    private configSvc: ConfigurationsService,
-    private router: Router,
-    private userPrefSvc: UserPreferenceService,
+    private readonly configSvc: ConfigurationsService,
+    private readonly router: Router,
+    private readonly userPrefSvc: UserPreferenceService,
   ) {}
   userName = ''
   selectedLang = ''

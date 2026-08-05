@@ -22,11 +22,11 @@ export class HomeComponent implements OnInit, OnDestroy {
   public screenSizeIsLtMedium = false
   sideNavBarOpened = true
   role: any
-  constructor(private valueSvc: ValueService,
+  constructor(private readonly valueSvc: ValueService,
     // tslint:disable-next-line:align
-    private router: Router,
+    private readonly router: Router,
     // tslint:disable-next-line:align
-    private activeRoute: ActivatedRoute,
+    private readonly activeRoute: ActivatedRoute,
   ) {
     if (_.get(this.activeRoute, 'snapshot.data.configService.userRoles')) {
       this.myRoles = _.get(this.activeRoute, 'snapshot.data.configService.userRoles')

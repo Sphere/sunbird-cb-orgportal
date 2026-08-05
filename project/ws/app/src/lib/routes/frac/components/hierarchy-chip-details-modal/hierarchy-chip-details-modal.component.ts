@@ -21,7 +21,7 @@ export interface HierarchyChipDetailsModalData {
 })
 export class HierarchyChipDetailsModalComponent {
   constructor(
-    private dialogRef: MatDialogRef<HierarchyChipDetailsModalComponent>,
+    private readonly dialogRef: MatDialogRef<HierarchyChipDetailsModalComponent>,
     @Inject(MAT_DIALOG_DATA) public data: HierarchyChipDetailsModalData,
   ) { }
 

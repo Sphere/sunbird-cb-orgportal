@@ -48,10 +48,10 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
   constructor(
-    private valueSvc: ValueService,
-    private router: Router,
-    private activeRoute: ActivatedRoute,
-    private configService: ConfigurationsService,
+    private readonly valueSvc: ValueService,
+    private readonly router: Router,
+    private readonly activeRoute: ActivatedRoute,
+    private readonly configService: ConfigurationsService,
     // private menuConfig: MenuConfigService
   ) {
     if (_.get(this.activeRoute, 'snapshot.data.configService.userRoles')) {

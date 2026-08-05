@@ -52,14 +52,14 @@ interface UploadEmptyStateConfig {
 })
 export class PositionUploadComponent implements OnInit, OnDestroy {
 
-  private editTracker: FracEditTracker
+  private readonly editTracker: FracEditTracker
   constructor(
-    private dialog: MatDialog,
-    private fracApiService: FracApiService,
-    private tableTransformUtil: TableTransformUtil,
-    private activatedRoute: ActivatedRoute,
-    private router: Router,
-    private uploadOrchestrator: FracEntityUploadOrchestratorService,
+    private readonly dialog: MatDialog,
+    private readonly fracApiService: FracApiService,
+    private readonly tableTransformUtil: TableTransformUtil,
+    private readonly activatedRoute: ActivatedRoute,
+    private readonly router: Router,
+    private readonly uploadOrchestrator: FracEntityUploadOrchestratorService,
   ) {
     this.editTracker = new FracEditTracker(this.uploadOrchestrator)
   }
@@ -144,13 +144,13 @@ export class PositionUploadComponent implements OnInit, OnDestroy {
 
   // ============= INTERNAL STATE =============
 
-  private searchTrigger$ = new Subject<UploadSearchTriggerPayload>()
+  private readonly searchTrigger$ = new Subject<UploadSearchTriggerPayload>()
   private searchSubscription: Subscription | null = null
-  private destroy$ = new Subject<void>()
+  private readonly destroy$ = new Subject<void>()
   private hierarchyLoadSubscription: Subscription | null = null
-  private hierarchyAggregateCache = new Map<string, PositionHierarchyAggregate>()
-  private hierarchyRawResponseCache = new Map<string, import('../../../models/frac-api.models').FracHierarchyResponse>()
-  private hierarchyInFlightRequestMap = new Map<
+  private readonly hierarchyAggregateCache = new Map<string, PositionHierarchyAggregate>()
+  private readonly hierarchyRawResponseCache = new Map<string, import('../../../models/frac-api.models').FracHierarchyResponse>()
+  private readonly hierarchyInFlightRequestMap = new Map<
     string,
     Observable<{
       aggregate: PositionHierarchyAggregate

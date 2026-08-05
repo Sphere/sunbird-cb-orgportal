@@ -28,10 +28,10 @@ export class PublicAboutComponent implements OnInit, OnDestroy {
   videoLink: SafeResourceUrl | null = null
 
   constructor(
-    private breakpointObserver: BreakpointObserver,
-    private sanitizerSvc: SanitizerService,
-    private configSvc: ConfigurationsService,
-    private activateRoute: ActivatedRoute,
+    private readonly breakpointObserver: BreakpointObserver,
+    private readonly sanitizerSvc: SanitizerService,
+    private readonly configSvc: ConfigurationsService,
+    private readonly activateRoute: ActivatedRoute,
   ) { }
 
   ngOnInit() {

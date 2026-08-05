@@ -48,8 +48,8 @@ export class WorkAllocationPopUpComponent implements OnInit, OnChanges {
   selection = new SelectionModel<any>(true, [])
 
   constructor(
-    private router: Router, private ren: Renderer2,
-    public dialogRef: MatDialogRef<WorkAllocationPopUpComponent>, private workallocationSrvc: WorkallocationService,
+    private readonly router: Router, private readonly ren: Renderer2,
+    public readonly dialogRef: MatDialogRef<WorkAllocationPopUpComponent>, private readonly workallocationSrvc: WorkallocationService,
     @Inject(MAT_DIALOG_DATA) public dialogData: any) {
     this.dataSource = new MatTableDataSource<any>()
     this.actionsClick = new EventEmitter()

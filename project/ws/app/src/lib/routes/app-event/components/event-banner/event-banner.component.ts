@@ -29,9 +29,9 @@ export class EventBannerComponent implements OnDestroy, OnChanges, OnInit {
   private currentSubscription: Subscription | null = null
 
   constructor(
-    private router: Router,
-    private route: ActivatedRoute,
-    private changeDetector: ChangeDetectorRef,
+    private readonly router: Router,
+    private readonly route: ActivatedRoute,
+    private readonly changeDetector: ChangeDetectorRef,
   ) { }
 
   ngOnChanges() {

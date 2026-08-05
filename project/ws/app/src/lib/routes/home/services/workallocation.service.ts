@@ -17,7 +17,7 @@ const API_END_POINTS = {
   providedIn: 'root',
 })
 export class WorkallocationService {
-  constructor(private http: HttpClient, private configService: ConfigurationsService
+  constructor(private readonly http: HttpClient, private readonly configService: ConfigurationsService
   ) { }
   getTime(dateString: number) {
     const time = new Date(dateString)

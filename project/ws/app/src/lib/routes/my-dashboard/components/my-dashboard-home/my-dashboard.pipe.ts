@@ -4,7 +4,7 @@ import { SanitizerService } from 'src/app/services/sanitizer.service'
 
 @Pipe({ name: 'safeUrl' })
 export class SafeUrlPipe implements PipeTransform {
-  constructor(private sanitizerService: SanitizerService) { }
+  constructor(private readonly sanitizerService: SanitizerService) { }
 
   transform(url: string): SafeResourceUrl {
     return this.sanitizerService.trustResourceUrl(url)

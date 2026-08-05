@@ -1,35 +1,39 @@
-import { Component, OnInit } from '@angular/core'
+import { Component, OnInit, OnDestroy } from '@angular/core'
 import { SafeUrl } from '@angular/platform-browser'
 import {
   ConfigurationsService,
   NsPage,
 } from '@sunbird-cb/utils'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
+import { MatDialog } from '@angular/material/dialog'
 import { AppTourDialogComponent } from '@sunbird-cb/collection'
 import { Router, ActivatedRoute } from '@angular/router'
-import { SanitizerService } from 'src/app/services/sanitizer.service'
 import { Globals } from '../../globals'
+import { Subject } from 'rxjs'
+import { takeUntil } from 'rxjs/operators'
+import { SanitizerService } from 'src/app/services/sanitizer.service'
 
 @Component({
+  standalone: false,
   selector: 'ws-app-setup-done',
   templateUrl: './setup-done.component.html',
   styleUrls: ['./setup-done.component.scss'],
 })
-export class SetupDoneComponent implements OnInit {
+export class SetupDoneComponent implements OnInit, OnDestroy {
+  private readonly destroy$ = new Subject<void>()
   appIcon: SafeUrl | null = null
   pageNavbar: Partial<NsPage.INavBackground> = this.configSvc.pageNavBar
   badges: any | null = null
   constructor(
-    private configSvc: ConfigurationsService,
-    private route: ActivatedRoute,
-    private sanitizerService: SanitizerService,
-    private matDialog: MatDialog,
-    private router: Router,
-    private globals: Globals,
+    private readonly configSvc: ConfigurationsService,
+    private readonly route: ActivatedRoute,
+    private readonly sanitizerService: SanitizerService,
+    private readonly matDialog: MatDialog,
+    private readonly router: Router,
+    private readonly globals: Globals,
   ) { }
 
   ngOnInit() {
-    this.route.data.subscribe(data => {
+    this.route.data.pipe(takeUntil(this.destroy$)).subscribe(async data => {
       this.badges = data.badges.data
     })
     if (this.configSvc.instanceConfig) {
@@ -37,6 +41,11 @@ export class SetupDoneComponent implements OnInit {
         this.configSvc.instanceConfig.logos.thumpsUp || '',
       )
     }
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next()
+    this.destroy$.complete()
   }
 
   finishSetup() {

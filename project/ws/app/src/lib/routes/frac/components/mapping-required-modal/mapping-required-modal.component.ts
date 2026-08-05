@@ -18,7 +18,7 @@ export interface MappingRequiredModalData {
 })
 export class MappingRequiredModalComponent {
   constructor(
-    private dialogRef: MatDialogRef<MappingRequiredModalComponent>,
+    private readonly dialogRef: MatDialogRef<MappingRequiredModalComponent>,
     @Inject(MAT_DIALOG_DATA) public data: MappingRequiredModalData,
   ) { }
 

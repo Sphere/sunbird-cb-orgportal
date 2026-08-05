@@ -10,7 +10,7 @@ import { NsAutoComplete } from '@sunbird-cb/collection'
 export class PeopleComponent implements OnInit {
 
   constructor(
-    private router: Router,
+    private readonly router: Router,
   ) { }
 
   selectedUser(user: NsAutoComplete.IUserAutoComplete) {

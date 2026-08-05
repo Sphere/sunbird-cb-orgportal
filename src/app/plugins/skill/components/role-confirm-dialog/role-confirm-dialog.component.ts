@@ -9,7 +9,7 @@ import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALO
 export class RoleConfirmDialogComponent implements OnInit {
 
   constructor(
-    private dialogRef: MatDialogRef<RoleConfirmDialogComponent>,
+    private readonly dialogRef: MatDialogRef<RoleConfirmDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
   ) {
   }

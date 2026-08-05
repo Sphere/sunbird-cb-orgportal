@@ -45,11 +45,11 @@ export class CreateUserComponent implements OnInit, OnDestroy {
   }
 
   constructor(
-    private router: Router,
-    private activeRoute: ActivatedRoute,
-    private snackBar: MatSnackBar,
-    private usersSvc: UsersService,
-    private valueSvc: ValueService) {
+    private readonly router: Router,
+    private readonly activeRoute: ActivatedRoute,
+    private readonly snackBar: MatSnackBar,
+    private readonly usersSvc: UsersService,
+    private readonly valueSvc: ValueService) {
     this.configService = this.activeRoute.snapshot.data.configService
     if (this.configService.userRoles) {
       this.myRoles = this.configService.userRoles

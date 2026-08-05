@@ -44,11 +44,11 @@ export class MobileAppHomeComponent implements OnInit, OnDestroy {
   pageNavbar: Partial<NsPage.INavBackground> = this.configSvc.pageNavBar
 
   constructor(
-    private sanitizerSvc: SanitizerService,
-    private route: ActivatedRoute,
-    private matPlatform: Platform,
-    private mobileService: MobileAppsService,
-    private configSvc: ConfigurationsService,
+    private readonly sanitizerSvc: SanitizerService,
+    private readonly route: ActivatedRoute,
+    private readonly matPlatform: Platform,
+    private readonly mobileService: MobileAppsService,
+    private readonly configSvc: ConfigurationsService,
   ) { }
 
   ngOnInit() {

@@ -32,7 +32,7 @@ const API_END_POINTS = {
   providedIn: 'root',
 })
 export class UsersService {
-  constructor(private http: HttpClient) { }
+  constructor(private readonly http: HttpClient) { }
   getAllUsers(filter: object): Observable<any> {
     return this.http.post<any>(`${API_END_POINTS.GET_ALL_USERS}`, filter).pipe(map(res => _.get(res, 'result.response')))
   }

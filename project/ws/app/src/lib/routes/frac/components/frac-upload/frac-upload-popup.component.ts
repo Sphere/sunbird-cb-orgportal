@@ -19,7 +19,7 @@ export class FracUploadPopupComponent implements OnInit {
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public config: UploadPopupConfig,
-    private dialogRef: MatDialogRef<FracUploadPopupComponent, UploadPopupResult>
+    private readonly dialogRef: MatDialogRef<FracUploadPopupComponent, UploadPopupResult>
   ) { }
 
   /**

@@ -11,18 +11,16 @@ export class PublicLogoutComponent implements OnInit, OnDestroy {
   contactPage: any
   platform = 'Learner'
   panelOpenState = false
-  private subscriptionContact: Subscription | null = null
+  private readonly subscriptionContact: Subscription | null = null
   http: any
   redirectUrl: string | undefined
 
   constructor() { }
 
   ngOnInit() {
-    try {
-      this.deleteAllCookies().catch(() => { })
-    } catch {
-      // swallow synchronous errors from deleteAllCookies too
-    }
+    new Promise<void | Promise<void>>(resolve => {
+      resolve(this.deleteAllCookies())
+    }).catch(() => { })
   }
 
   ngOnDestroy() {

@@ -60,10 +60,10 @@ export class KnowledgeComponent implements OnInit, OnDestroy {
     },
   }
   constructor(
-    private activated: ActivatedRoute,
-    private router: Router,
-    private valueSvc: ValueService,
-    private searchServ: SearchServService,
+    private readonly activated: ActivatedRoute,
+    private readonly router: Router,
+    private readonly valueSvc: ValueService,
+    private readonly searchServ: SearchServService,
   ) { }
 
   ngOnInit() {
