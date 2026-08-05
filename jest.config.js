@@ -3,10 +3,15 @@ module.exports = {
   setupFilesAfterEnv: ['<rootDir>/setup-jest.ts'],
   roots: ['<rootDir>/src', '<rootDir>/project'],
   testPathIgnorePatterns: ['/node_modules/', '/dist/'],
+  transformIgnorePatterns: [
+    'node_modules/(?!.*\\.mjs$|keycloak-js|keycloak-angular|ngx-export-as|html2pdf\\.js|jspdf|fflate|fast-png)',
+  ],
   moduleNameMapper: {
     '^src/(.*)$': '<rootDir>/src/$1',
     '^@ws/app/(.*)$': '<rootDir>/project/ws/app/$1',
     '^@ws/app$': '<rootDir>/project/ws/app',
+    '^keycloak-angular$': '<rootDir>/__mocks__/keycloak-angular.js',
+    '^keycloak-js$': '<rootDir>/__mocks__/keycloak-js.js',
   },
   collectCoverage: true,
   coverageDirectory: '<rootDir>/coverage/mdo',

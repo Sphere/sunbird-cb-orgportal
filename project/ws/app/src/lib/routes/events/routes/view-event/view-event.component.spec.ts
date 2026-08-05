@@ -155,4 +155,32 @@ describe('ViewEventComponent', () => {
       expect(event.target.src).toBe('/assets/instances/eagle/app_logos/aastar-logo.svg')
     })
   })
+
+  describe('ngOnDestroy', () => {
+    it('should complete the destroy$ subject', () => {
+      setup()
+      const nextSpy = jest.spyOn((component as any).destroy$, 'next')
+      const completeSpy = jest.spyOn((component as any).destroy$, 'complete')
+      component.ngOnDestroy()
+      expect(nextSpy).toHaveBeenCalled()
+      expect(completeSpy).toHaveBeenCalled()
+    })
+  })
+
+  describe('constructor edge cases', () => {
+    it('should skip wfHistory push when updateFieldValues is not a string', () => {
+      const wfHistoryData = {
+        group1: [{ inWorkflow: false, createdOn: Date.now(), updateFieldValues: { already: 'object' } }],
+      }
+      setup(basicProfile, wfHistoryData)
+      routerEvents$.next(new NavigationEnd(1, '/a', '/a'))
+      expect(component.wfHistory.length).toBe(0)
+    })
+
+    it('should ignore non-NavigationEnd router events', () => {
+      setup()
+      expect(() => routerEvents$.next({ type: 'other' } as any)).not.toThrow()
+      expect(component.fullname).toBe('')
+    })
+  })
 })

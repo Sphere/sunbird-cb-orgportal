@@ -65,6 +65,17 @@ describe('MappingUserTableComponent', () => {
       expect(nextSpy).toHaveBeenCalledWith('abc')
     })
 
+    it('should emit searchByEnterKey and skip fetchUserList when search string is empty', done => {
+      const emitSpy = jest.spyOn(component.searchByEnterKey, 'emit')
+      component.ngOnInit()
+      component.keyup('')
+      setTimeout(() => {
+        expect(component.userAutoCompleteService.fetchUserList).not.toHaveBeenCalled()
+        expect(emitSpy).toHaveBeenCalledWith('')
+        done()
+      }, 1100)
+    })
+
     it('should call fetchUserList and update dataSource when a search string is entered', done => {
       (component.userAutoCompleteService.fetchUserList as jest.Mock).mockReturnValue(of([{ id: 9 }]))
       component.ngOnInit()

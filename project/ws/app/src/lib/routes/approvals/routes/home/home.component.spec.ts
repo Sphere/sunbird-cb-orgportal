@@ -80,6 +80,123 @@ describe('HomeComponent (approvals)', () => {
       expect(component.profileData.length).toBe(1)
       expect(component.profileDataKeys.length).toBe(1)
     })
+
+    it('should not push into wfHistory when fields array is empty', () => {
+      const wfHistoryData = {
+        g: [{ inWorkflow: false, createdOn: Date.now(), updateFieldValues: JSON.stringify([]) }],
+      }
+      setup(undefined, wfHistoryData)
+      routerEvents$.next(new NavigationEnd(1, '/a', '/a'))
+      expect(component.wfHistory.length).toBe(0)
+    })
+
+    it('should skip entries where updateFieldValues is not a string', () => {
+      const wfHistoryData = {
+        g: [{ inWorkflow: false, createdOn: Date.now(), updateFieldValues: { already: 'object' } }],
+      }
+      setup(undefined, wfHistoryData)
+      routerEvents$.next(new NavigationEnd(1, '/a', '/a'))
+      expect(component.wfHistory.length).toBe(0)
+    })
+
+    it('should default fromValue, comment and action to null when absent', () => {
+      const wfHistoryData = {
+        g: [
+          {
+            inWorkflow: false,
+            createdOn: Date.now(),
+            updateFieldValues: JSON.stringify([
+              { fieldKey: 'fk1', toValue: { k1: 'v' } },
+            ]),
+          },
+        ],
+      }
+      setup(undefined, wfHistoryData)
+      routerEvents$.next(new NavigationEnd(1, '/a', '/a'))
+      expect(component.wfHistory.length).toBe(1)
+      expect(component.wfHistory[0].fromValue).toBeNull()
+      expect(component.wfHistory[0].comment).toBeNull()
+      expect(component.wfHistory[0].action).toBeNull()
+    })
+
+    it('should set fieldName and fieldKey to null when no matching profileData/profileDataKeys entry is found', () => {
+      const wfHistoryData = {
+        g: [
+          {
+            inWorkflow: false,
+            createdOn: Date.now(),
+            updateFieldValues: JSON.stringify([
+              { fieldKey: 'unknown-key', toValue: { unknownLabel: 'v' }, fromValue: { unknownLabel: 'o' } },
+            ]),
+          },
+        ],
+      }
+      setup(undefined, wfHistoryData)
+      routerEvents$.next(new NavigationEnd(1, '/a', '/a'))
+      expect(component.wfHistory.length).toBe(1)
+      expect(component.wfHistory[0].fieldName).toBeNull()
+      expect(component.wfHistory[0].fieldKey).toBeNull()
+    })
+
+    it('should fall back to {} for feildNameObj/feildKeyObj when profileData/profileDataKeys are falsy', () => {
+      const wfHistoryData = {
+        g: [
+          {
+            inWorkflow: false,
+            createdOn: Date.now(),
+            updateFieldValues: JSON.stringify([
+              { fieldKey: 'fk1', toValue: { k1: 'v' }, fromValue: { k1: 'o' } },
+            ]),
+          },
+        ],
+      }
+      setup(undefined, wfHistoryData, of({ pageData: { data: { profileData: null, profileDataKey: null } } }))
+      routerEvents$.next(new NavigationEnd(1, '/a', '/a'))
+      expect(component.wfHistory.length).toBe(1)
+      expect(component.wfHistory[0].fieldName).toBeUndefined()
+      expect(component.wfHistory[0].fieldKey).toBeUndefined()
+    })
+
+    it('should default workflowData to {} when result.data is falsy, yielding empty fullname', () => {
+      activeRouteMock = {
+        snapshot: {
+          data: {
+            workflowData: { data: { result: { data: null } } },
+            workflowHistoryData: { data: { result: { data: {} } } },
+          },
+        },
+        data: of({ pageData: { data: { profileData: [], profileDataKey: [] } } }),
+      }
+      routerEvents$ = new Subject()
+      routerMock = { events: routerEvents$.asObservable() }
+      component = new HomeComponent(activeRouteMock, routerMock)
+      routerEvents$.next(new NavigationEnd(1, '/a', '/a'))
+      expect(component.fullname).toBe('')
+    })
+
+    it('should default wfHistoryDatas to {} when workflowHistoryData.data.result.data is falsy', () => {
+      activeRouteMock = {
+        snapshot: {
+          data: {
+            workflowData: { data: { result: { data: [{ userInfo: { first_name: 'A', last_name: 'B' } }] } } },
+            workflowHistoryData: { data: { result: { data: null } } },
+          },
+        },
+        data: of({ pageData: { data: { profileData: [], profileDataKey: [] } } }),
+      }
+      routerEvents$ = new Subject()
+      routerMock = { events: routerEvents$.asObservable() }
+      component = new HomeComponent(activeRouteMock, routerMock)
+      expect(() => routerEvents$.next(new NavigationEnd(1, '/a', '/a'))).not.toThrow()
+      expect(component.wfHistory.length).toBe(0)
+    })
+
+    it('should ignore non-NavigationEnd router events', () => {
+      setup()
+      const initialFullname = component.fullname
+      expect(() => routerEvents$.next({ type: 'other' } as any)).not.toThrow()
+      expect(component.fullname).toBe(initialFullname)
+    })
   })
 
   describe('ngOnInit', () => {

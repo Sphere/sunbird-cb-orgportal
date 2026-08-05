@@ -1,4 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing'
+import { QueryList, ElementRef } from '@angular/core'
+import { Subject } from 'rxjs'
 
 import { UploadActivityListTableComponent } from './upload-activity-list-table.component'
 
@@ -193,6 +195,148 @@ describe('UploadActivityListTableComponent', () => {
       component.data = new Array(200).fill({ code: 'A' })
       component.ngOnChanges({ data: {} as any })
       expect(component.fillerRows).toEqual([])
+    })
+  })
+
+  describe('applyDefaultSort / resolveDefaultSortKey', () => {
+    it('should do nothing when sorting is disabled', () => {
+      component.enableSorting = false
+      ;(component as any).sort = { direction: '' }
+      expect(() => (component as any).applyDefaultSort()).not.toThrow()
+    })
+
+    it('should do nothing when there is no sort instance', () => {
+      component.enableSorting = true
+      ;(component as any).sort = null
+      expect(() => (component as any).applyDefaultSort()).not.toThrow()
+    })
+
+    it('should do nothing when sort already has a direction', () => {
+      component.enableSorting = true
+      const sortChangeEmit = jest.fn()
+      ;(component as any).sort = { direction: 'asc', sortChange: { emit: sortChangeEmit } }
+      ;(component as any).applyDefaultSort()
+      expect(sortChangeEmit).not.toHaveBeenCalled()
+    })
+
+    it('should default-sort by code when a code column exists', () => {
+      component.enableSorting = true
+      component.activeColumns = [{ key: 'name', label: 'Name' }, { key: 'code', label: 'Code' }]
+      const sortChangeEmit = jest.fn()
+      const sortObj: any = { direction: '', active: '', sortChange: { emit: sortChangeEmit } }
+      ;(component as any).sort = sortObj
+      ;(component as any).applyDefaultSort()
+      expect(sortObj.active).toBe('code')
+      expect(sortObj.direction).toBe('asc')
+      expect(sortChangeEmit).toHaveBeenCalledWith({ active: 'code', direction: 'asc' })
+    })
+
+    it('should fall back to the first active column when there is no code column', () => {
+      component.enableSorting = true
+      component.activeColumns = [{ key: 'foo', label: 'Foo' }]
+      const sortChangeEmit = jest.fn()
+      const sortObj: any = { direction: '', active: '', sortChange: { emit: sortChangeEmit } }
+      ;(component as any).sort = sortObj
+      ;(component as any).applyDefaultSort()
+      expect(sortObj.active).toBe('foo')
+    })
+
+    it('should not sort when there are no active columns', () => {
+      component.enableSorting = true
+      component.activeColumns = []
+      const sortChangeEmit = jest.fn()
+      const sortObj: any = { direction: '', active: '', sortChange: { emit: sortChangeEmit } }
+      ;(component as any).sort = sortObj
+      ;(component as any).applyDefaultSort()
+      expect(sortChangeEmit).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('syncHeaderHeight', () => {
+    it('should do nothing when header row is not found', () => {
+      const hostEl: ElementRef<HTMLElement> = (component as any).hostEl
+      jest.spyOn(hostEl.nativeElement, 'querySelector').mockReturnValue(null)
+      expect(() => (component as any).syncHeaderHeight()).not.toThrow()
+    })
+
+    it('should do nothing when measured height is 0', () => {
+      const hostEl: ElementRef<HTMLElement> = (component as any).hostEl
+      jest.spyOn(hostEl.nativeElement, 'querySelector').mockReturnValue({
+        getBoundingClientRect: () => ({ height: 0 }),
+      } as any)
+      expect(() => (component as any).syncHeaderHeight()).not.toThrow()
+    })
+
+    it('should set the CSS variable on the container when height is positive', () => {
+      const hostEl: ElementRef<HTMLElement> = (component as any).hostEl
+      const setPropertySpy = jest.fn()
+      jest.spyOn(hostEl.nativeElement, 'querySelector').mockImplementation((selector: string) => {
+        if (selector.includes('mat-mdc-header-row')) {
+          return { getBoundingClientRect: () => ({ height: 42 }) } as any
+        }
+        return { style: { setProperty: setPropertySpy } } as any
+      })
+      ;(component as any).syncHeaderHeight()
+      expect(setPropertySpy).toHaveBeenCalledWith('--table-header-height', '42px')
+    })
+  })
+
+  describe('syncLoadingColumnWidths', () => {
+    it('should do nothing when there are no header cells', () => {
+      component.headerCells = undefined as any
+      expect(() => (component as any).syncLoadingColumnWidths()).not.toThrow()
+      component.headerCells = new QueryList<ElementRef<HTMLElement>>()
+      expect(() => (component as any).syncLoadingColumnWidths()).not.toThrow()
+    })
+
+    it('should measure and store header cell widths', () => {
+      const cell = { nativeElement: { getBoundingClientRect: () => ({ width: 88.4 }) } } as any
+      const list = new QueryList<ElementRef<HTMLElement>>()
+      ;(list as any).reset([cell])
+      component.headerCells = list
+      ;(component as any).syncLoadingColumnWidths()
+      expect(component.loadingColumnWidths).toEqual([88])
+    })
+  })
+
+  describe('ngAfterViewInit scheduled work', () => {
+    it('should sync widths and header height after view init timers run', () => {
+      jest.useFakeTimers()
+      const attachSpy = jest.spyOn(component as any, 'attachTableControllers')
+      const widthSpy = jest.spyOn(component as any, 'syncLoadingColumnWidths')
+      const heightSpy = jest.spyOn(component as any, 'syncHeaderHeight')
+
+      component.ngAfterViewInit()
+      jest.runAllTimers()
+
+      expect(attachSpy).toHaveBeenCalled()
+      expect(widthSpy).toHaveBeenCalled()
+      expect(heightSpy).toHaveBeenCalled()
+      jest.useRealTimers()
+    })
+
+    it('should re-sync widths and header height when headerCells change', () => {
+      const changes$ = new Subject<void>()
+      component.headerCells = { changes: changes$.asObservable() } as any
+      const widthSpy = jest.spyOn(component as any, 'syncLoadingColumnWidths')
+      const heightSpy = jest.spyOn(component as any, 'syncHeaderHeight')
+
+      component.ngAfterViewInit()
+      changes$.next()
+
+      expect(widthSpy).toHaveBeenCalled()
+      expect(heightSpy).toHaveBeenCalled()
+    })
+
+    it('should trigger scheduled width sync from ngOnChanges', () => {
+      jest.useFakeTimers()
+      const widthSpy = jest.spyOn(component as any, 'syncLoadingColumnWidths')
+      const heightSpy = jest.spyOn(component as any, 'syncHeaderHeight')
+      component.ngOnChanges({ data: {} as any })
+      jest.runAllTimers()
+      expect(widthSpy).toHaveBeenCalled()
+      expect(heightSpy).toHaveBeenCalled()
+      jest.useRealTimers()
     })
   })
 })

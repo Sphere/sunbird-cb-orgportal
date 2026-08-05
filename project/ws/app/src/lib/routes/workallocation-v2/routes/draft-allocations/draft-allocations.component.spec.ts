@@ -117,4 +117,23 @@ describe('DraftAllocationsComponent', () => {
     createComponent()
     expect(() => component.ngOnDestroy()).not.toThrow()
   })
+
+  it('should not set queryParams when status param is absent', () => {
+    createComponent()
+    queryParamMap$.next({ has: () => false, get: () => null })
+    expect(component.queryParams).toBeUndefined()
+  })
+
+  it('should default workorderID to empty string when param missing', () => {
+    createComponent()
+    params$.next({})
+    expect(component.workorderID).toBe('')
+  })
+
+  it('filteredData should match by reverse substring', () => {
+    createComponent()
+    component.data = [{ userName: 'Al' }]
+    component.term = 'Alice'
+    expect(component.filteredData).toEqual([{ userName: 'Al' }])
+  })
 })
