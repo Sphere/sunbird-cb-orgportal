@@ -12,20 +12,23 @@
   </div>
 
   <div class="header-tools">
-    <div class="language-dropdown header-language-dropdown" (click)="toggleDropdown()" (keydown.enter)="toggleDropdown()" (keydown.space)="toggleDropdown(); $event.preventDefault()" role="button" tabindex="0">
-      <div class="dropdown-main">
-        <div class="label-container">
-          <div class="label">Language</div>
-          <div class="selected">{{ getLangLabel(selectedLanguage) }}</div>
+    <div class="language-dropdown header-language-dropdown">
+      <button type="button" style="all: unset; display: contents; cursor: pointer;" (click)="toggleDropdown()">
+        <div class="dropdown-main">
+          <div class="label-container">
+            <div class="label">Language</div>
+            <div class="selected">{{ getLangLabel(selectedLanguage) }}</div>
+          </div>
+          <mat-icon>{{ isOpen ? 'expand_less' : 'expand_more' }}</mat-icon>
         </div>
-        <mat-icon>{{ isOpen ? 'expand_less' : 'expand_more' }}</mat-icon>
-      </div>
+      </button>
 
       <div class="dropdown-list" *ngIf="isOpen" (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()" (keydown.space)="$event.stopPropagation()">
-        <div *ngFor="let lang of languages" class="dropdown-item" role="button" tabindex="0"
-          (click)="selectLanguage(lang, $event)" (keydown.enter)="selectLanguage(lang, $any($event))"
-          (keydown.space)="selectLanguage(lang, $any($event)); $event.preventDefault()">
-          {{ lang.label }}
+        <div *ngFor="let lang of languages" class="dropdown-item">
+          <button type="button" style="all: unset; display: contents; cursor: pointer;"
+            (click)="selectLanguage(lang, $event)">
+            {{ lang.label }}
+          </button>
         </div>
       </div>
     </div>

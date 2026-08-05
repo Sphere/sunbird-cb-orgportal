@@ -9,7 +9,6 @@ import { ITableData } from '@sunbird-cb/collection/lib/ui-org-table/interface/in
 @Component({
   selector: 'ws-app-users',
   templateUrl: './users.component.html',
-  styleUrls: ['./users.component.scss'],
 })
 
 export class UsersComponent implements OnInit, AfterViewInit, OnDestroy {

@@ -12,21 +12,20 @@
   </div>
 
   <div class="header-tools">
-    <div class="language-dropdown header-language-dropdown" (click)="toggleDropdown()" (keydown.enter)="toggleDropdown()" (keydown.space)="toggleDropdown(); $event.preventDefault()" role="button" tabindex="0">
-      <div class="dropdown-main">
+    <div class="language-dropdown header-language-dropdown">
+      <button type="button" class="dropdown-main" (click)="toggleDropdown()">
         <div class="label-container">
           <div class="label">Language</div>
           <div class="selected">{{ getLangLabel(selectedLanguage) }}</div>
         </div>
         <mat-icon>{{ isOpen ? 'expand_less' : 'expand_more' }}</mat-icon>
-      </div>
+      </button>
 
       <div class="dropdown-list" *ngIf="isOpen" (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()" (keydown.space)="$event.stopPropagation()">
-        <div *ngFor="let lang of languages" class="dropdown-item" role="button" tabindex="0"
-          (click)="selectLanguage(lang, $event)" (keydown.enter)="selectLanguage(lang, $any($event))"
-          (keydown.space)="selectLanguage(lang, $any($event)); $event.preventDefault()">
+        <button type="button" *ngFor="let lang of languages" class="dropdown-item"
+          (click)="selectLanguage(lang, $event)">
           {{ lang.label }}
-        </div>
+        </button>
       </div>
     </div>
   </div>

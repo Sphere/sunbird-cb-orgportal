@@ -18,6 +18,7 @@ table {
 .button-row {
   display: table-cell;
   justify-content: flex-end;
+  text-align: end;
 }
 
 .button-row .mat-button-base {
@@ -34,10 +35,7 @@ th.mat-header-cell {
 }
 
 ws-app-home input {
-  line-height: 1.5
-}
-
-ws-app-home input {
+  line-height: 1.5;
   padding-left: .5rem !important;
 }
 

@@ -18,11 +18,13 @@
   <div class="activity-wrapper">
     <div class="header-strip">
       <div class="check-header"></div>
-      <div class="code-label" style="cursor: pointer; display: flex; align-items: center;" role="button" tabindex="0"
-        (click)="toggleSort()" (keydown.enter)="toggleSort()" (keydown.space)="toggleSort(); $event.preventDefault()">
-        Code &amp; Name
-        <mat-icon style="font-size: 16px; margin-left: 4px;"
-          *ngIf="sortDirection">{{ sortDirection === 'asc' ? 'arrow_downward' : 'arrow_upward' }}</mat-icon>
+      <div class="code-label" style="display: flex; align-items: center;">
+        <button type="button" style="all: unset; display: contents; cursor: pointer;"
+          (click)="toggleSort()">
+          Code &amp; Name
+          <mat-icon style="font-size: 16px; margin-left: 4px;"
+            *ngIf="sortDirection">{{ sortDirection === 'asc' ? 'arrow_downward' : 'arrow_upward' }}</mat-icon>
+        </button>
       </div>
     </div>
 

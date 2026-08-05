@@ -85,14 +85,16 @@
     margin-top: 16px;
   }
 
+  position: relative;
 }
 
 /* Top header bar */
 .header-container {
   display: flex;
-  background-color: #f3f8fd;
   justify-content: space-between;
-  padding: 8px 48px;
+
+  background-color: #F3F8FD;
+  padding: 8px 48px 8px 48px;
 }
 
 .back-nav-btn {
@@ -123,10 +125,8 @@
 }
 
 .save-btn {
-  background: #1c5d95 !important;
   border: none !important;
   border-radius: 50px !important;
-  color: #fff !important;
   font-size: 14px !important;
   font-family: Roboto, sans-serif !important;
   padding: 8px 32px !important;
@@ -171,16 +171,17 @@
   &:hover:disabled {
     background: #BFBFBF !important;
   }
+
+  background: #1c5d95 !important;
+  color: white !important;
+
+  &:hover {
+    background: #174b7d !important;
+  }
 }
 
 .btn-spinner {
   margin-right: 6px;
-}
-
-.app-btn.icon {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
 }
 
 :host ::ng-deep .unsaved-changes-dialog .mat-mdc-dialog-surface {
@@ -273,6 +274,7 @@
     width: 100%;
     height: 44px;
     padding: 6px 16px;
+    margin: 0;
     background: #fff;
     border: 1px solid #E1DFDF;
     border-radius: 6px;
@@ -280,6 +282,9 @@
     align-items: center;
     justify-content: space-between;
     cursor: pointer;
+    font: inherit;
+    text-align: inherit;
+    color: inherit;
     transition: box-shadow 0.2s ease, border-color 0.2s ease;
     gap: 12px;
 
@@ -331,8 +336,16 @@
     overflow: hidden;
 
     .dropdown-item {
+      display: block;
+      width: 100%;
       padding: 10px 16px;
+      margin: 0;
+      border: none;
+      background: none;
       font-size: 14px;
+      font-family: inherit;
+      text-align: inherit;
+      color: inherit;
       cursor: pointer;
       transition: background-color 0.2s ease;
 
@@ -435,6 +448,10 @@
   }
 
   &.icon {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+
     padding: 6px 16px !important;
 
     &.blue {
@@ -479,17 +496,6 @@
 }
 
 
-//top header bar
-.header-container {
-    display: flex;
-    background-color: #F3F8FD;
-    justify-content: space-between;
-    padding: 8px 48px 8px 48px;
-
-
-}
-
-
 .home-chip {
 
     padding: 5px 16px;
@@ -510,20 +516,6 @@
     font-size: 16px;
     font-family: Roboto, sans-serif;
     font-weight: 400;
-  }
-}
-
-.save-btn {
-    background: #1c5d95 !important;
-    border-radius: 50px;
-    color: white !important;
-    font-size: 14px;
-    font-family: Roboto, sans-serif;
-    padding: 8px 32px;
-    text-transform: none;
-
-  &:hover {
-    background: #174b7d !important;
   }
 }
 
@@ -743,11 +735,6 @@
     font-size: 13px;
     font-weight: 500;
   }
-}
-
-// Make parent relative for overlay positioning
-.upload-container {
-  position: relative;
 }
 
 @keyframes upload-orbit-spin {

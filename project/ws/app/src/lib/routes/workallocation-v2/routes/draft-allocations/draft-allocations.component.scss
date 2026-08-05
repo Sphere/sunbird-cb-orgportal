@@ -194,12 +194,19 @@ a:not([href]):not([tabindex]) {
         margin-bottom: 10px;
         padding-bottom: 10px;
 
-        table {
+        .role-activity-grid {
+          display: flex;
+          flex-direction: column;
           width: 100%;
         }
 
-        td {
-          border-bottom: 0 !important
+        .role-activity-row {
+          display: flex;
+        }
+
+        .table-role,
+        .table-activity {
+          border-bottom: 0 !important;
         }
 
         .table-role {
@@ -242,7 +249,7 @@ a:not([href]):not([tabindex]) {
             }
           }
 
-          td.submittd {
+          .submittd {
             width: 24% !important;
             padding: 0.3em 0.6em;
           }

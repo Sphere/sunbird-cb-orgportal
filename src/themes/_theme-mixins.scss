@@ -118,7 +118,7 @@
     // .mat-tab-group
     .mat-tab-nav-bar,
     .mat-form-field-outline-thick .mat-ink-bar {
-      background-color: $colorAccentLight !important;
+      background-color: $colorPrimaryDark !important;
     }
 
     .mat-ink-bar {
@@ -172,11 +172,6 @@
           border-color: $colorPrimaryLight !important;
         }
       }
-    }
-
-    .mat-tab-nav-bar,
-    .mat-form-field-outline-thick .mat-ink-bar {
-      background-color: $colorPrimaryDark !important;
     }
 
     .entity-container {

@@ -36,10 +36,10 @@
         </button>
       </div>
 
-      <div class="language-dropdown" [class.disabled]="isLanguageDropdownDisabled()" role="button" tabindex="0"
-        (click)="toggleDropdown()" (keydown.enter)="toggleDropdown()"
-        (keydown.space)="toggleDropdown(); $event.preventDefault()" *ngIf="routeMode === 'manage'">
-        <div class="dropdown-main">
+      <div class="language-dropdown" [class.disabled]="isLanguageDropdownDisabled()"
+        *ngIf="routeMode === 'manage'">
+        <button type="button" class="dropdown-main" [disabled]="isLanguageDropdownDisabled()"
+          (click)="toggleDropdown()">
           <div class="label-container">
             <div class="label">{{ uiConfig.labels.language }}</div>
             <div class="selected">{{ uploadOrchestrator.getLabelForKey(selectedLanguage) }}</div>
@@ -47,14 +47,13 @@
           <div class="icon">
             <mat-icon>{{ isOpen ? 'expand_less' : 'expand_more' }}</mat-icon>
           </div>
-        </div>
+        </button>
 
         <div class="dropdown-list" *ngIf="isOpen && !isLanguageDropdownDisabled()" (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()" (keydown.space)="$event.stopPropagation()">
-          <div class="dropdown-item" *ngFor="let lang of languages" role="button" tabindex="0"
-            (click)="selectLanguage(lang, $event)" (keydown.enter)="selectLanguage(lang, $any($event))"
-            (keydown.space)="selectLanguage(lang, $any($event)); $event.preventDefault()">
+          <button type="button" class="dropdown-item" *ngFor="let lang of languages"
+            (click)="selectLanguage(lang, $event)">
             {{ lang.label }}
-          </div>
+          </button>
         </div>
       </div>
     </div>
@@ -93,7 +92,7 @@
 
   <!-- Loading Overlay with Custom Spinner -->
   <div class="loading-overlay" *ngIf="isUploading" [class.show]="isUploading">
-    <div class="upload-loader-card" role="status" aria-live="polite">
+    <output class="upload-loader-card" aria-live="polite">
       <div class="upload-loader-illustration">
         <div class="upload-loader-orbit"></div>
         <div class="upload-loader-badge">
@@ -104,7 +103,7 @@
       <p class="loading-subtext">{{ uiConfig.labels.uploadLoaderSubtext }}</p>
       <div class="loading-progress" aria-hidden="true"><span></span></div>
       <p class="loading-hint">Please keep this window open.</p>
-    </div>
+    </output>
   </div>
 
   <div class="table-section">

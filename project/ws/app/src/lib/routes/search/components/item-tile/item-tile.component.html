@@ -1,5 +1,5 @@
-<mat-card class="animate-tile" [ngStyle]="{ 'border-top': data.color, padding: '5px' }" role="button" tabindex="0"
-  (click)="goToView()" (keydown.enter)="goToView()" (keydown.space)="goToView(); $event.preventDefault()">
+<mat-card class="animate-tile" [ngStyle]="{ 'border-top': data.color, padding: '5px' }">
+  <button type="button" style="all: unset; display: contents; cursor: pointer;" (click)="goToView()">
   <div class="my-tile">
     <div style="font-size: 12px;height: 20px;">
       <span class="text-{{ data?.source?.toLowerCase() }}">{{ data.source }}</span>
@@ -95,4 +95,5 @@
       </a>
     </div>
   </div>
+  </button>
 </mat-card>

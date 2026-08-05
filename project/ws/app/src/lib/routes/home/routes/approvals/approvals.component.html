@@ -12,10 +12,9 @@
     <mat-card-content>
       <div class="flex flex-1 flex-column margin-fix">
         <div class="flex flex-1 filter max-height-60">
-          <a href="javascript:void(0)" class="filter-option" [ngClass]="{'ws-mat-accent-border-active' : currentFilter === 'toapprove',
+          <button type="button" class="filter-option" [ngClass]="{'ws-mat-accent-border-active' : currentFilter === 'toapprove',
               'ws-mat-accent-border font-medium':currentFilter !== 'toapprove'}" mat-button
-            (click)="filter('toapprove')" (keydown.enter)="filter('toapprove')"
-            (keydown.space)="filter('toapprove'); $event.preventDefault()" tabindex="0" role="button">To approve</a>
+            (click)="filter('toapprove')">To approve</button>
           <!-- <a href="javascript:void(0)" class="filter-option" [ngClass]="{'ws-mat-accent-border-active' : currentFilter === 'userflags',
               'ws-mat-accent-border font-medium':currentFilter !== 'userflags'}" mat-button
             (click)="filter('userflags')" role="button">User flags</a> -->

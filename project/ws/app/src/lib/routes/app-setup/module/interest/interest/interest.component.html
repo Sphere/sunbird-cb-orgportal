@@ -9,12 +9,12 @@
     [onHover]='true'>
     <div class="concept mat-subheading-1 padding-bottom-xs"
       [ngClass]="{ 'ws-mat-primary-border-bottom-bolder': i === selectedContent  , 'ws-mat-primary-text':isInterestAdded(concept)}"
-      role="button" tabindex="0"
-      (click)=" selectInterest(i)" (keydown.enter)="selectInterest(i)"
-      (keydown.space)="selectInterest(i); $event.preventDefault()" *ngFor="let concept of interestsData ; index as i">
-      <ng-container>{{ concept }}</ng-container>
+      *ngFor="let concept of interestsData ; index as i">
+      <button type="button" style="all: unset; display: contents; cursor: pointer;" (click)="selectInterest(i)">
+        <ng-container>{{ concept }}</ng-container>
 
-      <mat-icon class="item-icon" [ngClass]="isInterestAdded(concept) ? 'show' : 'hide'">done</mat-icon>
+        <mat-icon class="item-icon" [ngClass]="isInterestAdded(concept) ? 'show' : 'hide'">done</mat-icon>
+      </button>
     </div>
   </ws-utils-horizontal-scroller>
   <div *ngIf="fetchStatus === 'fetching'" class="margin-top-s text-center">

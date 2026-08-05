@@ -11,7 +11,6 @@ import { UtilityService } from '../../services/utility.service'
   standalone: false,
   selector: 'ws-app-self-assessment',
   templateUrl: './self-assessment.component.html',
-  styleUrls: ['./self-assessment.component.scss'],
   providers: [UtilityService],
 })
 export class SelfAssessmentComponent implements OnInit, OnDestroy {

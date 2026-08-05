@@ -4,7 +4,6 @@ import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALO
 @Component({
   selector: 'ws-app-player-dialog',
   templateUrl: './player-dialog.component.html',
-  styleUrls: ['./player-dialog.component.scss'],
 })
 export class PlayerDialogComponent implements OnInit {
 

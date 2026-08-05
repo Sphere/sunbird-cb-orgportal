@@ -9,7 +9,6 @@ import { takeUntil } from 'rxjs/operators'
   standalone: false,
   selector: 'ws-app-app-event',
   templateUrl: './app-event.component.html',
-  styleUrls: ['./app-event.component.scss'],
 })
 export class AppEventComponent implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>()

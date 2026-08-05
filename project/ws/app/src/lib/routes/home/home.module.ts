@@ -15,6 +15,7 @@ import { MatLegacyDialogModule as MatDialogModule } from '@angular/material/lega
 import { MatLegacySelectModule as MatSelectModule } from '@angular/material/legacy-select'
 import { MatLegacyInputModule as MatInputModule } from '@angular/material/legacy-input'
 import { MatLegacyButtonModule as MatButtonModule } from '@angular/material/legacy-button'
+import { MatNativeDateModule } from '@angular/material/core'
 import { MatSidenavModule } from '@angular/material/sidenav'
 import { MatLegacyChipsModule as MatChipsModule } from '@angular/material/legacy-chips'
 import { MatLegacyProgressSpinnerModule as MatProgressSpinnerModule } from '@angular/material/legacy-progress-spinner'
@@ -95,6 +96,8 @@ import { MatDatepickerModule } from '@angular/material/datepicker'
         FormsModule,
         ReactiveFormsModule,
         MatInputModule,
+        MatDatepickerModule,
+        MatNativeDateModule,
         MatDialogModule,
         MatButtonModule,
         MatSidenavModule,

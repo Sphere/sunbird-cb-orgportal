@@ -22,12 +22,13 @@
 
         <!-- Header Columns -->
         <div class="header-bar grid-row">
-          <div class="cell label-cell" style="cursor: pointer; display: flex; align-items: center;" role="button"
-            tabindex="0" (click)="toggleSort()" (keydown.enter)="toggleSort()"
-            (keydown.space)="toggleSort(); $event.preventDefault()">
-            {{ headerConfig.codeLabel }}
-            <mat-icon style="font-size: 16px; margin-left: 4px;"
-              *ngIf="sortDirection">{{ sortDirection === 'asc' ? 'arrow_downward' : 'arrow_upward' }}</mat-icon>
+          <div class="cell label-cell" style="display: flex; align-items: center;">
+            <button type="button" style="all: unset; display: contents; cursor: pointer;"
+              (click)="toggleSort()">
+              {{ headerConfig.codeLabel }}
+              <mat-icon style="font-size: 16px; margin-left: 4px;"
+                *ngIf="sortDirection">{{ sortDirection === 'asc' ? 'arrow_downward' : 'arrow_upward' }}</mat-icon>
+            </button>
           </div>
 
           <div class="cell level-cell" *ngFor="let lvl of headerConfig.levels">

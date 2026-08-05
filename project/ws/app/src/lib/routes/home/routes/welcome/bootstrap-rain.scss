@@ -3402,18 +3402,15 @@
 .bootstrap-rain .dropend .dropdown-toggle::after {
   display: inline-block;
   margin-left: 0.255em;
-  vertical-align: 0.255em;
   content: "";
   border-top: 0.3em solid transparent;
   border-right: 0;
   border-bottom: 0.3em solid transparent;
   border-left: 0.3em solid;
+  vertical-align: 0;
 }
 .bootstrap-rain .dropend .dropdown-toggle:empty::after {
   margin-left: 0;
-}
-.bootstrap-rain .dropend .dropdown-toggle::after {
-  vertical-align: 0;
 }
 .bootstrap-rain .dropstart .dropdown-menu[data-bs-popper] {
   top: 0;
@@ -3423,28 +3420,22 @@
   margin-right: 0.125rem;
 }
 .bootstrap-rain .dropstart .dropdown-toggle::after {
-  display: inline-block;
   margin-left: 0.255em;
   vertical-align: 0.255em;
   content: "";
-}
-.bootstrap-rain .dropstart .dropdown-toggle::after {
   display: none;
 }
 .bootstrap-rain .dropstart .dropdown-toggle::before {
   display: inline-block;
   margin-right: 0.255em;
-  vertical-align: 0.255em;
   content: "";
   border-top: 0.3em solid transparent;
   border-right: 0.3em solid;
   border-bottom: 0.3em solid transparent;
+  vertical-align: 0;
 }
 .bootstrap-rain .dropstart .dropdown-toggle:empty::after {
   margin-left: 0;
-}
-.bootstrap-rain .dropstart .dropdown-toggle::before {
-  vertical-align: 0;
 }
 .bootstrap-rain .dropdown-divider {
   height: 0;
@@ -4306,6 +4297,7 @@
   background-color: #fff;
   border: 1px solid #dee2e6;
   transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  padding: 0.375rem 0.75rem;
 }
 @media (prefers-reduced-motion: reduce) {
   .bootstrap-rain .page-link {
@@ -4339,9 +4331,6 @@
   pointer-events: none;
   background-color: #fff;
   border-color: #dee2e6;
-}
-.bootstrap-rain .page-link {
-  padding: 0.375rem 0.75rem;
 }
 .bootstrap-rain .page-item:first-child .page-link {
   border-top-left-radius: 0.25rem;
@@ -5214,7 +5203,6 @@
   font-style: normal;
   font-weight: 400;
   line-height: 1.5;
-  text-align: left;
   text-align: start;
   text-decoration: none;
   text-shadow: none;
@@ -5322,7 +5310,6 @@
   font-style: normal;
   font-weight: 400;
   line-height: 1.5;
-  text-align: left;
   text-align: start;
   text-decoration: none;
   text-shadow: none;

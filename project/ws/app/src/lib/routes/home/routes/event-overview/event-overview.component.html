@@ -32,14 +32,11 @@
       </button>
 
       <div *ngIf="selectedEvent?.selectedTemplate"
-        role="button" tabindex="0"
-        (click)="!isDownloading && downloadCertificates()"
-        (keydown.enter)="!isDownloading && downloadCertificates()"
-        (keydown.space)="!isDownloading && downloadCertificates(); $event.preventDefault()"
         [style.cursor]="isDownloading ? 'not-allowed' : 'pointer'"
         [style.opacity]="isDownloading ? '0.6' : '1'">
         <img [src]="selectedEvent.selectedTemplate.templateLogo" alt="Selected Certificate">
-        <button class="certificate-text-enabled" [disabled]="isDownloading">
+        <button type="button" class="certificate-text-enabled" [disabled]="isDownloading"
+          (click)="!isDownloading && downloadCertificates()">
           <mat-spinner *ngIf="isDownloading" diameter="16" style="display:inline-block; margin-right:6px;"></mat-spinner>
           <mat-icon *ngIf="!isDownloading">download</mat-icon>
           {{ isDownloading ? 'Generating...' : 'Download Certificates' }}

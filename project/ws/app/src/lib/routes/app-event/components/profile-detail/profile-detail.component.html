@@ -103,13 +103,10 @@
             <span
               class="text-md ws-mat-primary-text cursor-pointer font-semibold text-md"
               style="display: block;"
-              role="button"
-              tabindex="0"
-              (click)="openDialog()"
-              (keydown.enter)="openDialog()"
-              (keydown.space)="openDialog(); $event.preventDefault()"
             >
-              See All
+              <button type="button" style="all: unset; display: contents; cursor: pointer;" (click)="openDialog()">
+                See All
+              </button>
             </span>
           </div>
         </div>

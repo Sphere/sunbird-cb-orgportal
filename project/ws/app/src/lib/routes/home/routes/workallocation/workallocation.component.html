@@ -9,18 +9,15 @@
   <mat-card-content>
     <div class="flex flex-1">
       <div class="flex flex-1 filter max-height-60">
-        <a href="javascript:void(0)" class="filter-option" [ngClass]="{'ws-mat-accent-border-active' : currentFilter === 'Draft',
-          'ws-mat-accent-border font-medium':currentFilter !== 'Draft'}" mat-button (click)="filter('Draft')"
-          (keydown.enter)="filter('Draft')" (keydown.space)="filter('Draft'); $event.preventDefault()"
-          tabindex="0" role="button">Drafts</a>
-        <a href="javascript:void(0)" class="filter-option" [ngClass]="{'ws-mat-accent-border-active' : currentFilter === 'Published',
-          'ws-mat-accent-border font-medium':currentFilter !== 'Published'}" mat-button (click)="filter('Published')"
-          (keydown.enter)="filter('Published')" (keydown.space)="filter('Published'); $event.preventDefault()"
-          tabindex="0" role="button">Published</a>
-        <a href="javascript:void(0)" class="filter-option" [ngClass]="{'ws-mat-accent-border-active' : currentFilter === 'Archived',
-          'ws-mat-accent-border font-medium':currentFilter !== 'Archived'}" mat-button (click)="filter('Archived')"
-          (keydown.enter)="filter('Archived')" (keydown.space)="filter('Archived'); $event.preventDefault()"
-          tabindex="0" role="button">Archived</a>
+        <button type="button" class="filter-option" [ngClass]="{'ws-mat-accent-border-active' : currentFilter === 'Draft',
+          'ws-mat-accent-border font-medium':currentFilter !== 'Draft'}" mat-button
+          (click)="filter('Draft')">Drafts</button>
+        <button type="button" class="filter-option" [ngClass]="{'ws-mat-accent-border-active' : currentFilter === 'Published',
+          'ws-mat-accent-border font-medium':currentFilter !== 'Published'}" mat-button
+          (click)="filter('Published')">Published</button>
+        <button type="button" class="filter-option" [ngClass]="{'ws-mat-accent-border-active' : currentFilter === 'Archived',
+          'ws-mat-accent-border font-medium':currentFilter !== 'Archived'}" mat-button
+          (click)="filter('Archived')">Archived</button>
       </div>
     </div>
     <ng-container>

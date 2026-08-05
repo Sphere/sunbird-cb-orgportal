@@ -96,35 +96,37 @@
             <th>Submit to</th>
             <th>Submission from</th>
           </tr>
-          <tr *ngFor="let d of filteredData" class="data-row" role="button" tabindex="0" (click)="edit(d.id)"
-            (keydown.enter)="edit(d.id)" (keydown.space)="edit(d.id); $event.preventDefault()">
+          <tr *ngFor="let d of filteredData" class="data-row">
             <td [attr.rowspan]="(d && d.roles) ? (d.roles.length+1) : 1 ">
-              <div class="initials">
-                <ws-app-initial-avatar [name]="d.userName">
-                </ws-app-initial-avatar>
-              </div>
-              <div class="min-h">
-                <b class="username">{{d.userName}}</b>
-                <div>
-                  {{ d.userPosition }}
+              <button type="button" style="all: unset; display: contents; cursor: pointer;" (click)="edit(d.id)">
+                <div class="initials">
+                  <ws-app-initial-avatar [name]="d.userName">
+                  </ws-app-initial-avatar>
                 </div>
-                <!-- <div class="margin-top-s margin-bottom-s">
-                  <mat-icon>more_horiz_outlined</mat-icon>
-                </div> -->
-                <div class="error mat-body-2">
-                  <mat-icon *ngIf="d.errorCount > 0">info</mat-icon> <b *ngIf="d.errorCount > 0">{{d.errorCount}}
-                    errors</b>
-                  <mat-icon *ngIf="d.progress > 0"></mat-icon> <b *ngIf="d.progress > 0">{{d.progress}}% progress</b>
+                <div class="min-h">
+                  <b class="username">{{d.userName}}</b>
+                  <div>
+                    {{ d.userPosition }}
+                  </div>
+                  <!-- <div class="margin-top-s margin-bottom-s">
+                    <mat-icon>more_horiz_outlined</mat-icon>
+                  </div> -->
+                  <div class="error mat-body-2">
+                    <mat-icon *ngIf="d.errorCount > 0">info</mat-icon> <b *ngIf="d.errorCount > 0">{{d.errorCount}}
+                      errors</b>
+                    <mat-icon *ngIf="d.progress > 0"></mat-icon> <b *ngIf="d.progress > 0">{{d.progress}}% progress</b>
+                  </div>
                 </div>
-              </div>
+              </button>
             </td>
             <!-- <td colspan="4" (click)="viewAllocation(d)"> -->
             <td colspan="4">
+              <button type="button" style="all: unset; display: contents; cursor: pointer;" (click)="edit(d.id)">
               <ul>
                 <li *ngFor="let rc of d.roleCompetencyList">
-                  <table role="presentation">
-                    <tr>
-                      <td class="table-role">
+                  <div class="role-activity-grid">
+                    <div class="role-activity-row">
+                      <div class="table-role">
                         <b *ngIf="rc.roleDetails.name">{{rc.roleDetails.name}}</b>
                         <b *ngIf="!rc.roleDetails.name" class="color-40">Untitled Role</b>
                         <div class="margin-top-xs">
@@ -133,15 +135,15 @@
                             <span *ngIf="!c.name" class="compname"> - </span>
                           </span>
                         </div>
-                      </td>
-                      <td class="table-activity">
-                        <table role="presentation">
-                          <tr *ngFor="let a of rc.roleDetails.childNodes">
-                            <td class="activityname">
+                      </div>
+                      <div class="table-activity">
+                        <div class="role-activity-grid">
+                          <div class="role-activity-row" *ngFor="let a of rc.roleDetails.childNodes">
+                            <div class="activityname">
                               <span *ngIf="a.description">{{a.description}}</span>
                               <span *ngIf="!a.description"> - </span>
-                            </td>
-                            <td class="submittd">
+                            </div>
+                            <div class="submittd">
                               <span class="initials" *ngIf="a.submittedToName && !a.submittedToId">
                                 <mat-icon class="ws-mat-default-text veralign-btm">sports_score</mat-icon>
                               </span>
@@ -150,8 +152,8 @@
                                 </ws-app-initial-avatar>
                               </span>
                               {{a.submittedToName}}
-                            </td>
-                            <td class="submittd">
+                            </div>
+                            <div class="submittd">
                               <span class="initials" *ngIf="a.submittedFromName && !a.submittedFromId">
                                 <mat-icon class="ws-mat-default-text veralign-btm">sports_score</mat-icon>
                               </span>
@@ -161,14 +163,15 @@
                                 </ws-app-initial-avatar>
                               </span>
                               {{a.submittedFromName}}
-                            </td>
-                          </tr>
-                        </table>
-                      </td>
-                    </tr>
-                  </table>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </li>
               </ul>
+              </button>
             </td>
           </tr>
         </table>

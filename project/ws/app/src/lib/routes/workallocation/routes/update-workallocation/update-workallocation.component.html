@@ -203,29 +203,23 @@
                                                                             class="form-input" autocomplete="off"
                                                                             (keypress)="onSearchActivity($event)"
                                                                             (keyup)="onSearchActivity($event)" />
-                                                                        <span class="addbtn blue-color-text"
-                                                                            role="button" tabindex="0"
+                                                                        <button type="button" class="addbtn blue-color-text"
+                                                                            style="border: none; background: none; padding: 0; font: inherit; text-align: inherit; display: inline; cursor: pointer;"
                                                                             (click)="addActivity()"
-                                                                            (keydown.enter)="addActivity()"
-                                                                            (keydown.space)="addActivity(); $event.preventDefault()"
-                                                                            *ngIf="newAllocationForm.value.rolelist[0].childNodes">Add</span>
+                                                                            *ngIf="newAllocationForm.value.rolelist[0].childNodes">Add</button>
                                                                     </mat-form-field>
                                                                 </div>
 
                                                                 <div class="activitieslist margin-bottom-m"
                                                                     *ngIf="activitieslist && activitieslist.length > 0">
                                                                     <h3>Associated activities</h3>
-                                                                    <p><span *ngFor="let a of activitieslist; let i = index"
-                                                                            role="button" tabindex="0"
-                                                                            (click)="showRemoveActivity(i)"
-                                                                            (keydown.enter)="showRemoveActivity(i)"
-                                                                            (keydown.space)="showRemoveActivity(i); $event.preventDefault()">{{a.name}}
-                                                                            <mat-icon id="showremove{{i}}" role="button"
-                                                                                tabindex="0"
-                                                                                (click)="removeActivity(i)"
-                                                                                (keydown.enter)="removeActivity(i)"
-                                                                                (keydown.space)="removeActivity(i); $event.preventDefault()">close
-                                                                            </mat-icon>
+                                                                    <p><span *ngFor="let a of activitieslist; let i = index">
+                                                                            <button type="button" style="all: unset; display: contents; cursor: pointer;"
+                                                                                (click)="showRemoveActivity(i)">{{a.name}}</button>
+                                                                            <button type="button" id="showremove{{i}}" style="all: unset; display: contents; cursor: pointer;"
+                                                                                (click)="removeActivity(i)">
+                                                                                <mat-icon>close</mat-icon>
+                                                                            </button>
                                                                         </span></p>
                                                                 </div>
                                                                 <p *ngIf="showRAerror" class="mat-error ss">Add both

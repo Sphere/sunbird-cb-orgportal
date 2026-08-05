@@ -34,44 +34,42 @@
 
       <ng-container *ngIf="!isLoading">
         <div class="activity-item" *ngFor="let a of filteredActivities; trackBy: trackByCode"
-          [class.selected]="selectedActivityCode === a.code" role="button" tabindex="0"
-          [attr.aria-pressed]="selectedActivityCode === a.code"
-          (click)="activitySelectedHandler(a)" (keydown.enter)="activitySelectedHandler(a)"
-          (keydown.space)="activitySelectedHandler(a); $event.preventDefault()">
-          <div class="expanded-card">
+          [class.selected]="selectedActivityCode === a.code">
+            <div class="expanded-card">
 
-            <!-- Row header -->
-            <div class="header-row" role="button" tabindex="0" (click)="onHeaderClick(a, $event)"
-              (keydown.enter)="onHeaderClick(a, $any($event))"
-              (keydown.space)="onHeaderClick(a, $any($event)); $event.preventDefault()">
-              <div class="exp-code">{{ a.code }}</div>
-              <div class="exp-title">{{ a.title }}</div>
+              <!-- Row header -->
+              <div class="header-row">
+                <button type="button" style="all: unset; display: contents; cursor: pointer;"
+                  [attr.aria-pressed]="selectedActivityCode === a.code" (click)="onHeaderClick(a, $event)">
+                  <div class="exp-code">{{ a.code }}</div>
+                  <div class="exp-title">{{ a.title }}</div>
 
-              <!-- Expand arrow (show only when levels are valid) -->
-              <mat-icon *ngIf="a.competencyDetails?.length > 0 && hasValidLevels(a)" class="arrow">
-                {{ expanded === a ? 'expand_less' : 'expand_more' }}
-              </mat-icon>
-            </div>
-
-            <!-- Expanded competency list -->
-            <div *ngIf="expanded === a && hasValidLevels(a)" class="competency-section">
-              <div class="competency-row" *ngFor="let c of getSortedCompetencies(a)">
-
-                <!-- Show row only if levels are present -->
-                <ng-container *ngIf="c.levels?.trim()">
-                  <div class="rect-lg">
-                    <div class="label">{{ c.code }} - {{ c.label }}</div>
-                  </div>
-
-                  <div class="rect-sm">
-                    <div class="level">{{ c.levels }}</div>
-                  </div>
-                </ng-container>
-
+                  <!-- Expand arrow (show only when levels are valid) -->
+                  <mat-icon *ngIf="a.competencyDetails?.length > 0 && hasValidLevels(a)" class="arrow">
+                    {{ expanded === a ? 'expand_less' : 'expand_more' }}
+                  </mat-icon>
+                </button>
               </div>
-            </div>
 
-          </div>
+              <!-- Expanded competency list -->
+              <div *ngIf="expanded === a && hasValidLevels(a)" class="competency-section">
+                <div class="competency-row" *ngFor="let c of getSortedCompetencies(a)">
+
+                  <!-- Show row only if levels are present -->
+                  <ng-container *ngIf="c.levels?.trim()">
+                    <div class="rect-lg">
+                      <div class="label">{{ c.code }} - {{ c.label }}</div>
+                    </div>
+
+                    <div class="rect-sm">
+                      <div class="level">{{ c.levels }}</div>
+                    </div>
+                  </ng-container>
+
+                </div>
+              </div>
+
+            </div>
         </div>
       </ng-container>
 

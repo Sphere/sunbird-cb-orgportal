@@ -14,7 +14,6 @@ import { FeedbackSnackbarComponent } from '../feedback-snackbar/feedback-snackba
   standalone: false,
   selector: 'ws-widget-btn-content-feedback-dialog-v2',
   templateUrl: './btn-content-feedback-dialog-v2.component.html',
-  styleUrls: ['./btn-content-feedback-dialog-v2.component.scss'],
 })
 export class BtnContentFeedbackDialogV2Component implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>()

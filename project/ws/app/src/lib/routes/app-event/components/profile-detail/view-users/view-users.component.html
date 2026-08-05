@@ -24,8 +24,9 @@
       <mat-icon>search</mat-icon>
     </div>
     <div *ngIf="searchControl.value" class="flex items-center justify-center w-16 cursor-pointer">
-      <mat-icon role="button" tabindex="0" (click)="clear()" (keydown.enter)="clear()"
-        (keydown.space)="clear(); $event.preventDefault()">close</mat-icon>
+      <button type="button" style="all: unset; display: contents; cursor: pointer;" (click)="clear()">
+        <mat-icon>close</mat-icon>
+      </button>
     </div>
   </div>
   <div class="mt-4">

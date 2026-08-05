@@ -54,16 +54,17 @@
           {{col.displayName}}
         </mat-header-cell>
 
-        <mat-cell *matCellDef="let element" role="button" tabindex="0" (click)="onRowClick(element)"
-          (keydown.enter)="onRowClick(element)"
-          (keydown.space)="onRowClick(element); $event.preventDefault()">
-          <span *ngIf="col.isList" class="h-400-r-14-l color-87 textclass">
-            <div innerHTML="{{element[col.key]}}"></div>
-          </span>
-          <span [ngClass]="{'text-enable': col.status === 'enable'}" *ngIf="!col.isList"
-            class="h-400-r-14-l  textclass">
-            {{element[col.key]}} {{col.isList}}
-          </span>
+        <mat-cell *matCellDef="let element">
+          <button type="button" style="all: unset; display: contents; cursor: pointer;"
+            (click)="onRowClick(element)">
+            <span *ngIf="col.isList" class="h-400-r-14-l color-87 textclass">
+              <div innerHTML="{{element[col.key]}}"></div>
+            </span>
+            <span [ngClass]="{'text-enable': col.status === 'enable'}" *ngIf="!col.isList"
+              class="h-400-r-14-l  textclass">
+              {{element[col.key]}} {{col.isList}}
+            </span>
+          </button>
         </mat-cell>
       </ng-container>
       <ng-container matColumnDef="select">
@@ -109,9 +110,8 @@
       </ng-container>
 
       <mat-header-row *matHeaderRowDef="getFinalColumns()"></mat-header-row>
-      <mat-row *matRowDef="let row; columns: getFinalColumns();" role="button" tabindex="0"
-        (click)="selection.toggle(row);" (keydown.enter)="selection.toggle(row);"
-        (keydown.space)="selection.toggle(row); $event.preventDefault()">
+      <mat-row *matRowDef="let row; columns: getFinalColumns();"
+        (click)="selection.toggle(row);">
       </mat-row>
     </mat-table>
   </div>

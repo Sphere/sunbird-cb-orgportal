@@ -46,10 +46,11 @@
                                                     <div class="flex-1" *ngIf="selectedUser">
                                                         <div class="officer-card">
                                                             <div class="bg-grey">
-                                                                <mat-icon class="close-icon" role="button"
-                                                                    tabindex="0" (click)="removeSelectedUSer()"
-                                                                    (keydown.enter)="removeSelectedUSer()"
-                                                                    (keydown.space)="removeSelectedUSer(); $event.preventDefault()">close</mat-icon>
+                                                                <button type="button"
+                                                                    style="all: unset; display: contents; cursor: pointer;"
+                                                                    (click)="removeSelectedUSer()">
+                                                                    <mat-icon class="close-icon">close</mat-icon>
+                                                                </button>
                                                             </div>
                                                             <div class="padding-m userdata">
                                                                 <p class="letter-color">

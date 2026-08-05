@@ -11,7 +11,6 @@ const FRAC_LOCAL_FALLBACK_PATH = '/frac'
 @Component({
   selector: 'ws-app-frac',
   templateUrl: './frac.component.html',
-  styleUrls: ['./frac.component.scss'],
 })
 
 export class FracComponent implements OnInit, OnDestroy, AfterViewInit {

@@ -7,6 +7,7 @@
   max-width: 99%;
   margin-left: auto!important;
   margin-right: auto!important;
+  @extend %page-center;
 }
 
 .buton {
@@ -68,11 +69,11 @@
 }
 
 .sticky {
+  // z-index: 10;
+  // width: 100%;
   position: sticky;
   top: calc(#{$mat-toolbar-gt-xs});
   overflow: hidden;
-  // z-index: 10;
-  // width: 100%;
 }
 
 .text-box {
@@ -132,13 +133,17 @@
 
 .filter {
   .filter-option {
-    margin: $size-xs $size-m;
+    margin: $size-s $size-s;
     /* border-bottom: darkslateblue; */
     border-radius: 0;
     border-bottom-width: 2px;
     border-top-width: 0;
     border-left-width: 0;
     border-right-width: 0;
+  }
+
+  .filter-option:first-child {
+    margin-left: 0;
   }
 }
 
@@ -155,9 +160,6 @@
   flex-wrap: wrap;
   margin-top: 0;
   margin-bottom: 1rem;
-}
-
-.pagination {
   display: flex;
   padding-left: 0;
   list-style: none;
@@ -197,14 +199,6 @@ a:not([href]):not([tabindex]) {
   cursor: auto;
   background-color: #fff;
   border-color: #dee2e6;
-}
-
-.container-balanced {
-  @extend %page-center;
-}
-
-.flex-3 {
-  flex: 3;
 }
 
 .flex-update {
@@ -252,22 +246,6 @@ a:not([href]):not([tabindex]) {
   }
 }
 
-.filter {
-  .filter-option {
-    margin: $size-s $size-s;
-    /* border-bottom: darkslateblue; */
-    border-radius: 0;
-    border-bottom-width: 2px;
-    border-top-width: 0;
-    border-left-width: 0;
-    border-right-width: 0;
-  }
-
-  .filter-option:first-child {
-    margin-left: 0;
-  }
-}
-
 .recent-tabs {
   box-shadow: none !important;
   border-radius: unset;
@@ -279,62 +257,6 @@ a:not([href]):not([tabindex]) {
 }
 
 .appr-text-label{
-  display: block;
-  font-weight: 700;
-}
-
-.field-key{
-  display: block;
-  padding:5px 10px;
-  font-size: 14px;
-  color: #999999;
-  font-weight:400;
-}
-
-.field-name{
-  display: block;
-  padding:5px 10px;
-  font-size: 14px;
-  font-weight:700;
-}
-
-.field-change{
-  display: block;
-  padding:5px 10px;
-  font-size: 14px;
-  color: #d9d9d9;
-  font-weight:400;
-}
-
-.field-date{
-  display: block;
-  padding:5px 10px;
-  font-size: 14px;
-  color: #999999;
-  font-weight:400;
-}
-
-.change-log-wrapper{
-  border-bottom: 1px solid #ebe5e5;
-}
-
-.appr-section-heading{
-  font-size: 20px;
-  font-family: 'Montserrat', sans-serif;
-  font-weight: 600;
-}
-
-.appr-text-field{
-  width: 272px;
-  border: 1px solid #DDDDDD;
-  border-radius: 4px;
-  padding: 9px;
-  font-family: 'Lato', sans-serif;
-  font-size: 14px;
-  font-weight: 400;
-}
-
-.appr-text-label{
   width: 100%;
   padding-bottom: 10px;
   margin-bottom: 0;
@@ -342,61 +264,6 @@ a:not([href]):not([tabindex]) {
   display: block;
   font: 700 14px Lato, sans-serif;
 }
-
-
-
-::ng-deep .mat-grid-tile .mat-figure {
-  display:block !important; /* or whichever you need */
-}
-
-.radio-btn{
-  border: 2px solid #DDDDDD;
-  padding: 5px 15px;
-  border-radius: 4px;
-  margin-right: 15px;
-}
-
-textarea {
-  resize: none;
-}
-
-.needs-appr-count-text{
-  border-radius: 100px 4px 4px 100px;
-  padding: 0 12px;
-  font-size: 18px;
-  float: right;
-}
-
-.pending-icon{
-  position: absolute;
-  right: 170px;
-}
-
-
-.sticky {
-  position: sticky;
-  top: calc(#{$mat-toolbar-gt-xs});
-  overflow: hidden;
-}
-
-::ng-deep .mat-radio-label-content{
-  font-family: 'Lato', sans-serif;
-  font-size: 14px;
-  font-weight: 400;
-}
-
-.header-text{
-  font-family: 'Montserrat', sans-serif;
-  font-weight: 600;
-  font-size: 16px;
-}
-
-.middle-heading{
-  font-weight: 600;
-    font-family: "Montserrat", sans-serif;
-    font-size:16px
-}
-
 
 .field-key{
   display: block;
@@ -430,6 +297,69 @@ textarea {
 .change-log-wrapper{
   border-bottom: 1px solid #ebe5e5;
 }
+
+.appr-section-heading{
+  font-size: 20px;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+}
+
+.appr-text-field{
+  width: 272px;
+  border: 1px solid #DDDDDD;
+  border-radius: 4px;
+  padding: 9px;
+  font-family: 'Lato', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+::ng-deep .mat-grid-tile .mat-figure {
+  display:block !important; /* or whichever you need */
+}
+
+.radio-btn{
+  border: 2px solid #DDDDDD;
+  padding: 5px 15px;
+  border-radius: 4px;
+  margin-right: 15px;
+}
+
+textarea {
+  resize: none;
+}
+
+.needs-appr-count-text{
+  border-radius: 100px 4px 4px 100px;
+  padding: 0 12px;
+  font-size: 18px;
+  float: right;
+}
+
+.pending-icon{
+  position: absolute;
+  right: 170px;
+}
+
+
+::ng-deep .mat-radio-label-content{
+  font-family: 'Lato', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.header-text{
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.middle-heading{
+  font-weight: 600;
+    font-family: "Montserrat", sans-serif;
+    font-size:16px
+}
+
 
 .change-log-text{
   display: block;

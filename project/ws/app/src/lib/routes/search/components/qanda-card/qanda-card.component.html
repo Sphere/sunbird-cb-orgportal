@@ -39,10 +39,12 @@
               aria-hidden="true" [innerHTML]="item.body || 'Untitled'"></span></h2>
         </a>
         <!--[matMenuTriggerFor]="editMenu"  -->
-        <mat-icon *ngIf="userId === item.postCreator.postCreatorId" class="cursor-pointer" role="button" tabindex="0"
-          [matMenuTriggerFor]="editMenu" #editMenuTrigger="matMenuTrigger"
+        <button *ngIf="userId === item.postCreator.postCreatorId" type="button"
+          style="all: unset; display: contents; cursor: pointer;"
           (keydown.enter)="editMenuTrigger.openMenu()"
-          (keydown.space)="editMenuTrigger.openMenu(); $event.preventDefault()">more_vertical</mat-icon>
+          (keydown.space)="editMenuTrigger.openMenu(); $event.preventDefault()">
+          <mat-icon class="cursor-pointer" [matMenuTriggerFor]="editMenu" #editMenuTrigger="matMenuTrigger">more_vertical</mat-icon>
+        </button>
       </div>
       <mat-menu #editMenu="matMenu">
         <ng-template matMenuContent>
