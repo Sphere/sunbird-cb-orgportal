@@ -18,19 +18,14 @@ describe('FracResponseParserUtil', () => {
     expect((parsed?.params as any)?.errmsg).toBe('Duplicate entity')
   })
 
-  // Known bug: parseApiResponse's nestedCandidates includes `normalized.text`, so when
-  // a candidate is itself a Blob, it picks up the `.text` method reference (a function)
-  // instead of calling it. That function gets stringified into params.errmsg, and
-  // readErrorPayload's dedicated Blob-reading branch never got the input in the first
-  // place (parseApiResponse recurses into the Blob before the async .text() branch runs).
-  it('should read blob error payload (currently returns stringified Blob.text method, not the parsed JSON)', async () => {
+  it('should read and parse a Blob error payload', async () => {
     const blob = new Blob([
       JSON.stringify({ responseCode: 'CLIENT_ERROR', params: { errmsg: 'invalid file' } }),
     ], { type: 'application/json' })
 
     const parsed = await FracResponseParserUtil.readErrorPayload({ error: blob })
-    expect(parsed?.responseCode).toBeUndefined()
-    expect(typeof parsed?.params?.errmsg).toBe('string')
+    expect(parsed?.responseCode).toBe('CLIENT_ERROR')
+    expect(parsed?.params?.errmsg).toBe('invalid file')
   })
 
   it('should resolve blob payload returned in next handler', async () => {

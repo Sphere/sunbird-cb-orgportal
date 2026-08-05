@@ -109,8 +109,7 @@ export class SkillTableComponent implements OnInit, OnChanges {
   }
   applyFilter(filterValue: any) {
     if (filterValue) {
-      let fValue = filterValue.trim()
-      fValue = filterValue.toLowerCase()
+      const fValue = filterValue.trim().toLowerCase()
       this.dataSource.filter = fValue
     } else {
       this.dataSource.filter = ''

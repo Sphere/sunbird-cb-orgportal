@@ -7,17 +7,6 @@ import { ListEventComponent } from './list-event.component'
 import { EventsService } from '../../services/events.service'
 import { createSpyObj } from 'src/test-utils/create-spy-obj'
 
-// Under this repo's tsconfig.spec.json (esModuleInterop: true), a namespace import
-// (`import * as moment from 'moment'`) is only left callable by TypeScript's __importStar
-// helper when the required module carries an `__esModule` marker; otherwise it gets wrapped
-// in a plain (non-callable) object. Mark the real moment factory function accordingly so the
-// component's `moment(...)` calls keep working exactly as they do at runtime in the app.
-jest.mock('moment', () => {
-  const actualMoment = jest.requireActual('moment')
-  actualMoment.__esModule = true
-  return actualMoment
-})
-
 describe('ListEventComponent', () => {
   let component: ListEventComponent
   let fixture: ComponentFixture<ListEventComponent>

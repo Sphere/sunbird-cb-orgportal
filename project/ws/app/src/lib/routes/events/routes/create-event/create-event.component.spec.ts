@@ -1,13 +1,4 @@
 import { of, throwError } from 'rxjs'
-
-jest.mock('moment', () => {
-  const actualMoment = jest.requireActual('moment')
-  const fn: any = jest.fn((...args: any[]) => actualMoment(...args))
-  Object.assign(fn, actualMoment)
-  fn.__esModule = true
-  return fn
-})
-
 import { CreateEventComponent } from './create-event.component'
 
 describe('CreateEventComponent', () => {

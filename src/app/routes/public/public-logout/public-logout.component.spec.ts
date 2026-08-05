@@ -14,7 +14,7 @@ describe('PublicLogoutComponent', () => {
   })
 
   afterEach(() => {
-    window.location = originalLocation
+    window.location = originalLocation as any
     document.cookie.split(';').forEach(c => {
       const name = c.split('=')[0].trim()
       if (name) {

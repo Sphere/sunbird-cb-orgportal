@@ -27,6 +27,374 @@ describe('AssistantMessageCardComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy()
   })
+
+  describe('fetchFormsData', () => {
+    it('should set activityGroups and call validationsCombined when activities emitted with length', () => {
+      const spy = jest.spyOn(component, 'validationsCombined')
+      component.dataStructure = {}
+      const watStore: any = (component as any).watStore
+      watStore.getactivitiesGroup = of([{ activities: [] }])
+      component.fetchFormsData()
+      expect(component.dataStructure.activityGroups).toEqual([{ activities: [] }])
+      expect(spy).toHaveBeenCalled()
+    })
+
+    it('should not set activityGroups when activities emitted empty', () => {
+      const watStore: any = (component as any).watStore
+      watStore.getactivitiesGroup = of([])
+      component.dataStructure = {}
+      component.fetchFormsData()
+      expect(component.dataStructure.activityGroups).toBeUndefined()
+    })
+
+    it('should set compGroups when comp emitted with length', () => {
+      const watStore: any = (component as any).watStore
+      watStore.getcompetencyGroup = of([{ competincies: [] }])
+      component.dataStructure = {}
+      component.fetchFormsData()
+      expect(component.dataStructure.compGroups).toEqual([{ competincies: [] }])
+    })
+
+    it('should set compDetails when comp emitted with length', () => {
+      const watStore: any = (component as any).watStore
+      watStore.getUpdateCompGroupO = of([{ compLevel: '' }])
+      component.dataStructure = {}
+      component.fetchFormsData()
+      expect(component.dataStructure.compDetails).toEqual([{ compLevel: '' }])
+    })
+
+    it('should not set compDetails when comp emitted is null', () => {
+      const watStore: any = (component as any).watStore
+      watStore.getUpdateCompGroupO = of(null)
+      component.dataStructure = {}
+      component.fetchFormsData()
+      expect(component.dataStructure.compDetails).toBeUndefined()
+    })
+
+    it('should set officerFormData whenever officer emitted', () => {
+      const watStore: any = (component as any).watStore
+      watStore.getOfficerGroup = of({ officerName: 'abc' })
+      component.dataStructure = {}
+      component.fetchFormsData()
+      expect(component.dataStructure.officerFormData).toEqual({ officerName: 'abc' })
+    })
+  })
+
+  describe('progressColor', () => {
+    it('should return red for progress <= 30', () => {
+      jest.spyOn(component, 'calculatePercentage').mockReturnValue(10)
+      expect(component.progressColor()).toBe('#D13924')
+    })
+    it('should return orange for progress between 30 and 70', () => {
+      jest.spyOn(component, 'calculatePercentage').mockReturnValue(50)
+      expect(component.progressColor()).toBe('#E99E38')
+    })
+    it('should return green for progress between 70 and 100', () => {
+      jest.spyOn(component, 'calculatePercentage').mockReturnValue(90)
+      expect(component.progressColor()).toBe('#1D8923')
+    })
+    it('should return empty string for progress above 100', () => {
+      jest.spyOn(component, 'calculatePercentage').mockReturnValue(150)
+      expect(component.progressColor()).toBe('')
+    })
+  })
+
+  describe('validationsCombined', () => {
+    it('should group messages by type and set error count', () => {
+      jest.spyOn(component, 'individualValidations').mockReturnValue([
+        { _type: 'error', type: 'officer', counts: 0, label: 'x' },
+        { _type: 'warning', type: 'officer', counts: 0, label: 'y' },
+      ] as any)
+      const watStore: any = (component as any).watStore
+      component.validationsCombined()
+      expect(component.validations.error.length).toBe(1)
+      expect(component.validations.warning.length).toBe(1)
+      expect(watStore.setErrorCount).toHaveBeenCalledWith(1)
+    })
+  })
+
+  describe('individualValidations', () => {
+    it('should call all sub-validators when data present', () => {
+      component.dataStructure = {
+        officerFormData: { officerName: '' },
+        activityGroups: [{ activities: [] }],
+        compGroups: [{ competincies: [] }],
+        compDetails: [{ compLevel: '' }],
+      }
+      const spyOfficer = jest.spyOn(component, 'calculateOfficerErrors')
+      const spyActivity = jest.spyOn(component, 'calculateActivityError')
+      const spyComp = jest.spyOn(component, 'calculateCompError')
+      const spyCompDetails = jest.spyOn(component, 'calculateCompDetailsError')
+      component.individualValidations()
+      expect(spyOfficer).toHaveBeenCalled()
+      expect(spyActivity).toHaveBeenCalled()
+      expect(spyComp).toHaveBeenCalled()
+      expect(spyCompDetails).toHaveBeenCalled()
+    })
+
+    it('should return empty array when no dataStructure fields set', () => {
+      component.dataStructure = {}
+      const result = component.individualValidations()
+      expect(result).toEqual([])
+    })
+  })
+
+  describe('calculateOfficerErrors', () => {
+    it('should flag officer name empty when position or description filled', () => {
+      const result = component.calculateOfficerErrors({ officerName: '', position: 'p', positionDescription: 'd' })
+      expect(result.some(r => r.label === 'Officer name is empty')).toBe(true)
+    })
+    it('should flag position missing when officerName or positionDescription filled', () => {
+      const result = component.calculateOfficerErrors({ officerName: 'o', position: '', positionDescription: 'd' })
+      expect(result.some(r => r.label === 'Postion missing')).toBe(true)
+    })
+    it('should flag position description missing', () => {
+      const result = component.calculateOfficerErrors({ officerName: 'o', position: 'p', positionDescription: '' })
+      expect(result.some(r => r.label === 'Position description missing')).toBe(true)
+    })
+    it('should return empty array when all fields filled', () => {
+      const result = component.calculateOfficerErrors({ officerName: 'o', position: 'p', positionDescription: 'd' })
+      expect(result).toEqual([])
+    })
+    it('should handle null data gracefully', () => {
+      const result = component.calculateOfficerErrors(null)
+      expect(result).toEqual([])
+    })
+  })
+
+  describe('calculateActivityError', () => {
+    it('should flag unmapped activities and role level issues', () => {
+      const data = [
+        { activities: [{ activityDescription: '', assignedTo: '' }] },
+        {
+          groupName: '',
+          groupDescription: '',
+          activities: [],
+        },
+      ]
+      const result = component.calculateActivityError(data)
+      expect(result.some(r => r.label === 'Unmapped activities')).toBe(true)
+      expect(result.some(r => r.label === 'No activities mapped')).toBe(true)
+      expect(result.some(r => r.label === 'Role label missing')).toBe(true)
+      expect(result.some(r => r.label === 'Role description missing')).toBe(true)
+    })
+
+    it('should flag untitled role name and activity issues inside roles', () => {
+      const data = [
+        { activities: [] },
+        {
+          groupName: 'Untitled role',
+          groupDescription: 'desc',
+          activities: [{ activityDescription: '', assignedTo: '' }],
+        },
+      ]
+      const result = component.calculateActivityError(data)
+      expect(result.some(r => r.label === 'Role label missing')).toBe(true)
+      expect(result.some(r => r.label === 'Activity description missing')).toBe(true)
+      expect(result.some(r => r.label === 'Submit to is missing')).toBe(true)
+    })
+
+    it('should return empty result when everything filled', () => {
+      const data = [
+        { activities: [] },
+        {
+          groupName: 'Role A',
+          groupDescription: 'desc',
+          activities: [{ activityDescription: 'd', assignedTo: 'x' }],
+        },
+      ]
+      const result = component.calculateActivityError(data)
+      expect(result).toEqual([])
+    })
+  })
+
+  describe('calculateCompError', () => {
+    it('should flag unmapped competencies and missing details', () => {
+      const data = [
+        { competincies: [{ compDescription: '', compName: '' }] },
+        { competincies: [] },
+      ]
+      const result = component.calculateCompError(data)
+      expect(result.some(r => r.label === 'Unmapped competencies')).toBe(true)
+      expect(result.some(r => r.label === 'No competencies mapped')).toBe(true)
+      expect(result.some(r => r.label === 'Competency label missing')).toBe(true)
+      expect(result.some(r => r.label === 'Competency description missing')).toBe(true)
+    })
+
+    it('should flag missing comp desc/name within roles', () => {
+      const data = [
+        { competincies: [] },
+        { competincies: [{ compDescription: '', compName: '' }] },
+      ]
+      const result = component.calculateCompError(data)
+      expect(result.some(r => r.label === 'Competency label missing')).toBe(true)
+      expect(result.some(r => r.label === 'Competency description missing')).toBe(true)
+    })
+
+    it('should return empty when all fields present', () => {
+      const data = [
+        { competincies: [] },
+        { competincies: [{ compDescription: 'd', compName: 'n' }] },
+      ]
+      const result = component.calculateCompError(data)
+      expect(result).toEqual([])
+    })
+  })
+
+  describe('calculateCompDetailsError', () => {
+    it('should flag missing level/type/area', () => {
+      const data = [{ compLevel: '', compType: '', compArea: '' }]
+      const result = component.calculateCompDetailsError(data)
+      expect(result.some(r => r.label === 'Competency level missing')).toBe(true)
+      expect(result.some(r => r.label === 'Competency type missing')).toBe(true)
+      expect(result.some(r => r.label === 'Competency area missing')).toBe(true)
+    })
+    it('should return empty array for empty data', () => {
+      expect(component.calculateCompDetailsError([])).toEqual([])
+    })
+    it('should return empty array for undefined data', () => {
+      expect(component.calculateCompDetailsError(undefined)).toEqual([])
+    })
+  })
+
+  describe('calculatePercentage', () => {
+    it('should compute combined progress and set current progress in store', () => {
+      component.dataStructure = {
+        officerFormData: { officerName: 'o', position: 'p', positionDescription: 'd' },
+        activityGroups: [{ activities: [] }, { groupName: 'Role', groupDescription: 'd', activities: [{ activityDescription: 'd', assignedTo: 'x' }] }],
+        compGroups: [{ competincies: [] }, { competincies: [{ compDescription: 'd', compName: 'n' }] }],
+        compDetails: [{ compLevel: 'l', compType: 't', compArea: 'a' }],
+      }
+      const watStore: any = (component as any).watStore
+      const progress = component.calculatePercentage()
+      expect(typeof progress).toBe('number')
+      expect(watStore.setCurrentProgress).toHaveBeenCalledWith(progress)
+    })
+
+    it('should return 0 when dataStructure is empty', () => {
+      component.dataStructure = {}
+      const progress = component.calculatePercentage()
+      expect(progress).toBe(0)
+    })
+
+    it('should catch errors during final sum and return 0', () => {
+      component.dataStructure = {
+        officerFormData: { officerName: 'o' },
+      }
+      const originalIsNaN = global.isNaN
+      // tslint:disable-next-line: no-any
+      ;(global as any).isNaN = () => { throw new Error('boom') }
+      const result = component.calculatePercentage()
+      global.isNaN = originalIsNaN
+      expect(result).toBe(0)
+    })
+  })
+
+  describe('calculateOfficerProgress', () => {
+    it('should sum weighted progress for filled fields', () => {
+      const result = component.calculateOfficerProgress({ officerName: 'o', position: 'p', positionDescription: 'd' })
+      expect(result).toBe(100)
+    })
+    it('should return 0 for empty data', () => {
+      expect(component.calculateOfficerProgress({})).toBe(0)
+    })
+    it('should handle null data', () => {
+      expect(component.calculateOfficerProgress(null)).toBe(0)
+    })
+  })
+
+  describe('calculateActivityProgress', () => {
+    it('should compute progress for roles with activities', () => {
+      const data = [
+        { activities: [] },
+        {
+          groupName: 'Role A',
+          groupDescription: 'desc',
+          activities: [{ activityDescription: 'd', assignedTo: 'x' }],
+        },
+      ]
+      const result = component.calculateActivityProgress(data)
+      expect(result).toBeGreaterThan(0)
+    })
+
+    it('should handle untitled role name not adding label percent', () => {
+      const data = [
+        { activities: [] },
+        {
+          groupName: 'Untitled role',
+          groupDescription: '',
+          activities: [{ activityDescription: '', assignedTo: '' }],
+        },
+      ]
+      const result = component.calculateActivityProgress(data)
+      expect(typeof result).toBe('number')
+    })
+
+    it('should return 100 when progress reaches near maximum', () => {
+      const roles = Array.from({ length: 1 }).map(() => ({
+        groupName: 'Role',
+        groupDescription: 'desc',
+        activities: [{ activityDescription: 'd', assignedTo: 'x' }],
+      }))
+      const data = [{ activities: [] }, ...roles]
+      const result = component.calculateActivityProgress(data)
+      expect(result).toBeLessThanOrEqual(100)
+    })
+  })
+
+  describe('calculateCompProgress', () => {
+    it('should compute progress across competency roles', () => {
+      const data = [
+        { competincies: [] },
+        { competincies: [{ compDescription: 'd', compName: 'n' }] },
+      ]
+      const result = component.calculateCompProgress(data)
+      expect(result).toBeGreaterThan(0)
+    })
+
+    it('should return 0 when no roles beyond unmapped section', () => {
+      const data = [{ competincies: [] }]
+      const result = component.calculateCompProgress(data)
+      expect(result).toBe(0)
+    })
+  })
+
+  describe('calculateCompDetailsProgress', () => {
+    it('should compute progress across compDetails fields', () => {
+      const data = [{ compLevel: 'l', compType: 't', compArea: 'a' }]
+      const result = component.calculateCompDetailsProgress(data)
+      expect(result).toBe(100)
+    })
+    it('should return 0 for empty data', () => {
+      expect(component.calculateCompDetailsProgress([])).toBe(0)
+    })
+    it('should return 0 for undefined data', () => {
+      expect(component.calculateCompDetailsProgress(undefined)).toBe(0)
+    })
+  })
+
+  describe('currentProgress getter', () => {
+    it('should call calculatePercentage', () => {
+      const spy = jest.spyOn(component, 'calculatePercentage').mockReturnValue(42)
+      expect(component.currentProgress).toBe(42)
+      expect(spy).toHaveBeenCalled()
+    })
+  })
+
+  describe('ngOnDestroy', () => {
+    it('should unsubscribe all subscriptions', () => {
+      component.ngOnInit()
+      const activitySpy = jest.spyOn((component as any).activitySubscription, 'unsubscribe')
+      const groupSpy = jest.spyOn((component as any).groupSubscription, 'unsubscribe')
+      const officerSpy = jest.spyOn((component as any).officerFormSubscription, 'unsubscribe')
+      const compDetailsSpy = jest.spyOn((component as any).compDetailsSubscription, 'unsubscribe')
+      component.ngOnDestroy()
+      expect(activitySpy).toHaveBeenCalled()
+      expect(groupSpy).toHaveBeenCalled()
+      expect(officerSpy).toHaveBeenCalled()
+      expect(compDetailsSpy).toHaveBeenCalled()
+    })
+  })
 })
 
 describe('AssistantMessageCardComponent (unit, mocked store)', () => {

@@ -1,21 +1,6 @@
 import { WsEvents } from '@sunbird-cb/utils'
 import { NsContent } from './widget-content.model'
 
-// The source file imports two modules that do not exist anywhere in the repo
-// ('../collection.config' and '../_models/player-media.model'). They are only
-// used for a constant and a type, respectively, so we provide virtual mocks
-// to allow the module under test to be loaded in isolation.
-jest.mock(
-  '../collection.config',
-  () => ({
-    ROOT_WIDGET_CONFIG: {
-      player: { _type: 'player' },
-    },
-  }),
-  { virtual: true },
-)
-jest.mock('../_models/player-media.model', () => ({}), { virtual: true })
-
 // Avoid pulling in the real video.js player implementation / its plugins.
 let lastPlayerInstance: any
 jest.mock('video.js', () => {

@@ -38,16 +38,11 @@ describe('FracApiErrorNormalizerInterceptor', () => {
   })
 
   // NOTE: this interceptor calls throwError(() => value) at every catchError
-  // branch — the RxJS 7 factory-function overload. This project runs RxJS
-  // 6.5.5 (see package.json), where throwError(x) treats x as the error
-  // value directly rather than invoking it as a factory. As a result, every
-  // error this interceptor emits is the *function* `() => value`, not the
-  // underlying error/HttpErrorResponse. These specs assert that actual,
-  // currently-shipping behavior rather than the presumably-intended one, so
-  // a future RxJS 7 upgrade (or a fix to use throwError(x) directly) will
-  // surface as a clear, intentional test failure here instead of silently
-  // "just working" without anyone noticing the change.
-  it('should currently emit a thunk function (not the real error) for a non-FRAC endpoint', () => {
+  // branch — the RxJS 7 factory-function overload. This project now runs
+  // RxJS 7.8.2 (see package.json), where throwError(fn) correctly invokes
+  // the factory and throws its result, so subscribers receive the real
+  // error/HttpErrorResponse rather than the function itself.
+  it('should emit the real error (not a thunk) for a non-FRAC endpoint', () => {
     let error: any
     httpClient.get('/apis/other/endpoint').subscribe({ error: err => (error = err) })
 
@@ -56,11 +51,11 @@ describe('FracApiErrorNormalizerInterceptor', () => {
       { status: 500, statusText: 'Server Error' },
     )
 
-    expect(typeof error).toBe('function')
-    expect(error()).toBeDefined()
+    expect(typeof error).not.toBe('function')
+    expect(error).toBeDefined()
   })
 
-  it('should currently emit a thunk function (not the normalized error) for a FRAC JSON error payload', () => {
+  it('should emit the normalized error (not a thunk) for a FRAC JSON error payload', () => {
     let error: any
     httpClient.get('/apis/proxies/v8/entity/v1/search').subscribe({ error: err => (error = err) })
 
@@ -69,12 +64,8 @@ describe('FracApiErrorNormalizerInterceptor', () => {
       { status: 400, statusText: 'Bad Request' },
     )
 
-    expect(typeof error).toBe('function')
-    // The thunk still closes over the correctly-normalized error, so callers
-    // that happen to invoke it as a function would see the right shape —
-    // but rxjs delivers the thunk itself as the error, not its result.
-    const normalized = error()
-    expect(normalized.error.responseCode).toBe('CLIENT_ERROR')
+    expect(typeof error).not.toBe('function')
+    expect(error.error.responseCode).toBe('CLIENT_ERROR')
   })
 
   it('should match the alternate FRAC API path pattern (api/v1/frac/entity)', () => {
@@ -86,7 +77,7 @@ describe('FracApiErrorNormalizerInterceptor', () => {
       { status: 400, statusText: 'Bad Request' },
     )
 
-    expect(typeof error).toBe('function')
-    expect(error().error.responseCode).toBe('CLIENT_ERROR')
+    expect(typeof error).not.toBe('function')
+    expect(error.error.responseCode).toBe('CLIENT_ERROR')
   })
 })

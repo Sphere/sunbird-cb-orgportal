@@ -140,7 +140,7 @@ export class UsersViewComponent implements OnInit, OnDestroy {
       // case 'blocked':
       //   return this.blockedUsers()
       default:
-        return []
+        return [] as any[]
     }
 
   }

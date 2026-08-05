@@ -4,6 +4,7 @@ import { HideForViewOnlyDirective } from './hide-for-view-only.directive'
 import { FeatureAccessService, FEATURE_KEY } from '../access/feature-access'
 
 @Component({
+  imports: [HideForViewOnlyDirective],
   template: `
     <button *appHideForViewOnly class="mutation-btn">Delete</button>
     <button *appHideForViewOnly="false" class="non-mutation-btn">Navigate</button>
@@ -19,8 +20,7 @@ describe('HideForViewOnlyDirective', () => {
     mockAccess = { isViewOnly: jest.fn().mockReturnValue(isViewOnly) }
 
     TestBed.configureTestingModule({
-      declarations: [TestHostComponent],
-      imports: [HideForViewOnlyDirective],
+      imports: [TestHostComponent, HideForViewOnlyDirective],
       providers: [
         { provide: FeatureAccessService, useValue: mockAccess },
         { provide: FEATURE_KEY, useValue: 'frac' },

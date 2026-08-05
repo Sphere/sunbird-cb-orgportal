@@ -66,7 +66,7 @@ export class EventsHomeComponent implements OnInit, AfterViewInit, OnDestroy {
           _.set(leftData, 'widgetData.userRoles', this.myRoles)
           this.widgetData = leftData
         } else {
-          this.widgetData = this.activeRoute.snapshot.data.pageData.data.menus
+          this.widgetData = this.activeRoute.snapshot.data.pageData.data?.menus
         }
       }
     })

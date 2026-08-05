@@ -4,6 +4,7 @@ import { DisableForViewOnlyDirective } from './disable-for-view-only.directive'
 import { FeatureAccessService, FEATURE_KEY } from '../access/feature-access'
 
 @Component({
+  imports: [DisableForViewOnlyDirective],
   template: `<input type="checkbox" appDisableForViewOnly [disabled]="externalDisabled" />`,
 })
 class TestHostComponent {
@@ -18,8 +19,7 @@ describe('DisableForViewOnlyDirective', () => {
     mockAccess = { isViewOnly: jest.fn().mockReturnValue(isViewOnly) }
 
     TestBed.configureTestingModule({
-      declarations: [TestHostComponent],
-      imports: [DisableForViewOnlyDirective],
+      imports: [TestHostComponent, DisableForViewOnlyDirective],
       providers: [
         { provide: FeatureAccessService, useValue: mockAccess },
         { provide: FEATURE_KEY, useValue: 'frac' },
@@ -50,8 +50,7 @@ describe('DisableForViewOnlyDirective', () => {
   it('should not re-enable a control that was already disabled via [disabled] when not view-only', () => {
     mockAccess = { isViewOnly: jest.fn().mockReturnValue(false) }
     TestBed.configureTestingModule({
-      declarations: [TestHostComponent],
-      imports: [DisableForViewOnlyDirective],
+      imports: [TestHostComponent, DisableForViewOnlyDirective],
       providers: [
         { provide: FeatureAccessService, useValue: mockAccess },
         { provide: FEATURE_KEY, useValue: 'frac' },

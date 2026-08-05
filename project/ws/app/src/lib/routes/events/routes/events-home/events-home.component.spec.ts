@@ -16,7 +16,8 @@ describe('EventsHomeComponent', () => {
     },
   })
 
-  const setup = (routeData: any = {}, userRoles: Set<string> | undefined = new Set()) => {
+  const setup = (routeData: any = {}, ...userRolesArg: [Set<string> | undefined] | []) => {
+    const userRoles = userRolesArg.length ? userRolesArg[0] : new Set<string>()
     routerEvents$ = new Subject()
     valueSvcMock = {
       isLtMedium$: of(false),
@@ -63,13 +64,14 @@ describe('EventsHomeComponent', () => {
       expect((component.widgetData as any).widgetData.logo).toBe(true)
     })
 
-    it('should set widgetData to menus when pageData.data is falsy', () => {
+    it('should set widgetData to undefined when pageData.data is falsy', () => {
       setup({
         pageData: {
           data: undefined,
         },
       })
-      expect(() => routerEvents$.next(new NavigationEnd(1, '/app/events/bar', '/app/events/bar'))).toThrow()
+      expect(() => routerEvents$.next(new NavigationEnd(1, '/app/events/bar', '/app/events/bar'))).not.toThrow()
+      expect(component.widgetData).toBeUndefined()
     })
   })
 

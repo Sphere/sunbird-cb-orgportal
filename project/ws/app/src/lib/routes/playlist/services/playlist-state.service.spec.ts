@@ -115,8 +115,8 @@ describe('PlaylistStateService', () => {
   })
 
   describe('selected & ordered courses (per context)', () => {
-    const course1 = { id: 'c1' } as SelectableCourse
-    const course2 = { id: 'c2' } as SelectableCourse
+    const course1 = { id: 'c1' } as unknown as SelectableCourse
+    const course2 = { id: 'c2' } as unknown as SelectableCourse
 
     it('default to empty arrays', () => {
       expect(service.getSelectedCourses()).toEqual([])

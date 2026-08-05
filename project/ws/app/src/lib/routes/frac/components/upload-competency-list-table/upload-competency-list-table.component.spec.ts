@@ -96,7 +96,7 @@ describe('UploadCompetencyListTableComponent', () => {
     it('should subscribe to headerCells changes when present', () => {
       fixture.detectChanges()
       const subscribeSpy = jest.fn()
-      ;(component as any).headerCells = { changes: { subscribe: subscribeSpy } }
+      ;(component as any).headerCells = { changes: { pipe: () => ({ subscribe: subscribeSpy }) } }
       component.ngAfterViewInit()
       expect(subscribeSpy).toHaveBeenCalled()
     })

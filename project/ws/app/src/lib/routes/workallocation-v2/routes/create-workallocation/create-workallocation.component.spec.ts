@@ -461,7 +461,7 @@ describe('CreateWorkallocationComponent', () => {
       }
       const result = component.getUnmappedActivity()
       expect(result.length).toBe(1)
-      expect(result[0].id).toBe('a1')
+      expect((result[0] as any).id).toBe('a1')
     })
 
     it('returns empty array when no activityGroups for unmapped activity', () => {
@@ -477,7 +477,7 @@ describe('CreateWorkallocationComponent', () => {
       }
       const result = component.getUnmappedCompetency()
       expect(result.length).toBe(1)
-      expect(result[0].name).toBe('Comp1')
+      expect((result[0] as any).name).toBe('Comp1')
     })
 
     it('returns empty array when no compGroups for unmapped competency', () => {

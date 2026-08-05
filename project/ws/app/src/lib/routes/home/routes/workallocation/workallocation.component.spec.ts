@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing'
 import { NO_ERRORS_SCHEMA } from '@angular/core'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
-import { MatLegacyMenuModule } from '@angular/material/legacy-menu'
+import { MatDialog } from '@angular/material/dialog'
+import { MatMenuModule } from '@angular/material/menu'
 import { Router, ActivatedRoute } from '@angular/router'
 import { ExportAsService } from 'ngx-export-as'
 import { of, throwError } from 'rxjs'
@@ -36,7 +36,7 @@ describe('WorkallocationComponent', () => {
 
     await TestBed.configureTestingModule({
       declarations: [WorkallocationComponent],
-      imports: [MatLegacyMenuModule],
+      imports: [MatMenuModule],
       providers: [
         { provide: ExportAsService, useValue: mockExportAsService },
         { provide: Router, useValue: mockRouter },

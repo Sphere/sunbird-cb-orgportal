@@ -18,7 +18,11 @@ export class PublicLogoutComponent implements OnInit, OnDestroy {
   constructor() { }
 
   ngOnInit() {
-    this.deleteAllCookies().catch(() => { })
+    try {
+      this.deleteAllCookies().catch(() => { })
+    } catch {
+      // swallow synchronous errors from deleteAllCookies too
+    }
   }
 
   ngOnDestroy() {

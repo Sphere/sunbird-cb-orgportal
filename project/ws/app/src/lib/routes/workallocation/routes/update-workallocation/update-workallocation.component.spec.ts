@@ -1,4 +1,4 @@
-import { UntypedFormBuilder } from '@angular/forms'
+import { UntypedFormArray, UntypedFormBuilder } from '@angular/forms'
 import { of } from 'rxjs'
 import { createSpyObj } from 'src/test-utils/create-spy-obj'
 
@@ -333,14 +333,14 @@ describe('UpdateWorkallocationComponent', () => {
     })
 
     it('should set showRAerror true for non-zero index when name or activities missing', () => {
-      component.newAllocationForm.get('rolelist')!.at(0).patchValue({ name: '', childNodes: '' })
+      (component.newAllocationForm.get('rolelist') as UntypedFormArray).at(0).patchValue({ name: '', childNodes: '' })
       component.activitieslist = []
       component.addRolesActivity(1)
       expect(component.showRAerror).toBe(true)
     })
 
     it('should create a new role entry for non-zero index when name and activities present', () => {
-      component.newAllocationForm.get('rolelist')!.at(0).patchValue({ name: 'NewRole', childNodes: '' })
+      (component.newAllocationForm.get('rolelist') as UntypedFormArray).at(0).patchValue({ name: 'NewRole', childNodes: '' })
       component.activitieslist = [{ name: 'Act1' }]
       component.ralist = []
       component.addRolesActivity(1)
@@ -359,8 +359,8 @@ describe('UpdateWorkallocationComponent', () => {
     })
 
     it('should push a formatted activity when selectedActivity is falsy and childNodes has value', () => {
-      component.selectedActivity = undefined
-      component.newAllocationForm.get('rolelist')!.at(0).patchValue({ childNodes: 'MyActivity' })
+      component.selectedActivity = undefined;
+      (component.newAllocationForm.get('rolelist') as UntypedFormArray).at(0).patchValue({ childNodes: 'MyActivity' })
       component.activitieslist = []
       component.addActivity()
       expect(component.activitieslist.length).toBe(1)
@@ -376,8 +376,8 @@ describe('UpdateWorkallocationComponent', () => {
     })
 
     it('should not push when childNodes empty', () => {
-      component.selectedActivity = undefined
-      component.newAllocationForm.get('rolelist')!.at(0).patchValue({ childNodes: '' })
+      component.selectedActivity = undefined;
+      (component.newAllocationForm.get('rolelist') as UntypedFormArray).at(0).patchValue({ childNodes: '' })
       component.activitieslist = []
       component.addActivity()
       expect(component.activitieslist.length).toBe(0)
@@ -415,13 +415,13 @@ describe('UpdateWorkallocationComponent', () => {
     })
 
     it('should archive a row: remove from ralist, mark archived, and add to archivedlist', () => {
-      const row = { name: 'RoleA' }
+      const row: any = { name: 'RoleA' }
       component.ralist = [row]
       component.archivedlist = []
       component.buttonClick('Archive', row)
       expect(component.ralist).toEqual([])
       expect(row.isArchived).toBe(true)
-      expect(typeof (row as any).archivedAt).toBe('number')
+      expect(typeof row.archivedAt).toBe('number')
       expect(component.archivedlist).toEqual([row])
     })
 
