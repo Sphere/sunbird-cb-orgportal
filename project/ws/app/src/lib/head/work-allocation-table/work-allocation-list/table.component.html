@@ -23,7 +23,8 @@
                     (click)="selection.toggle(element)" (keydown.enter)="selection.toggle(element)"
                     (keydown.space)="selection.toggle(element); $event.preventDefault()" [ngClass]="{
                             'min-wid':col.displayName === 'Work order'}">
-                    <mat-radio-button *ngIf="col.displayName==='Work order'" (click)="selectWorkOrder(element)">
+                    <mat-radio-button *ngIf="col.displayName==='Work order'" (click)="selectWorkOrder(element)"
+                        (keydown.enter)="selectWorkOrder(element)">
                     </mat-radio-button>
                     <span *ngIf="!col.isList && element[col.key]!='Download'" class="flex textclass mat-body-2">
 

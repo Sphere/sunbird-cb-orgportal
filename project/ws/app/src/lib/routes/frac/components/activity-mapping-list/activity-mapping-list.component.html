@@ -34,8 +34,8 @@
 
       <ng-container *ngIf="!isLoading">
         <div class="activity-item" *ngFor="let a of filteredActivities; trackBy: trackByCode"
-          [class.selected]="selectedActivityCode === a.code" role="option" tabindex="0"
-          [attr.aria-selected]="selectedActivityCode === a.code"
+          [class.selected]="selectedActivityCode === a.code" role="button" tabindex="0"
+          [attr.aria-pressed]="selectedActivityCode === a.code"
           (click)="activitySelectedHandler(a)" (keydown.enter)="activitySelectedHandler(a)"
           (keydown.space)="activitySelectedHandler(a); $event.preventDefault()">
           <div class="expanded-card">

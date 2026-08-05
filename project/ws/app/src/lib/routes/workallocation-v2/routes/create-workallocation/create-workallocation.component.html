@@ -145,7 +145,8 @@
             <mat-card class="wi sticky-right-section-content margin-top-s">
                 <div class="flex flex-1 flex-column ">
                     <div class="flex flex-1 filter max-height-60 min-height35">
-                        <a href="javascript:void(0)" class="filter-option ws-mat-accent-border-active" role="button">
+                        <a href="javascript:void(0)" class="filter-option ws-mat-accent-border-active" role="button"
+                            (keydown.enter)="$event.preventDefault()" (keydown.space)="$event.preventDefault()">
                             <span class="mat-body-2 in-margin font-bold-i"> Assistant</span>
                         </a>
                     </div>

@@ -49,8 +49,8 @@
                 [cdkDropListDisabled]="isViewOnly">
                 <div *ngFor="let competency of filteredCompetencies()" cdkDrag class="competency-item"
                     [class.selected]="selectedCompetency() === competency"
-                    [class.complete]="isCompetencyComplete(competency)" role="option" tabindex="0"
-                    [attr.aria-selected]="selectedCompetency() === competency"
+                    [class.complete]="isCompetencyComplete(competency)" role="button" tabindex="0"
+                    [attr.aria-pressed]="selectedCompetency() === competency"
                     (click)="onSelectCompetency(competency)" (keydown.enter)="onSelectCompetency(competency)"
                     (keydown.space)="onSelectCompetency(competency); $event.preventDefault()">
 

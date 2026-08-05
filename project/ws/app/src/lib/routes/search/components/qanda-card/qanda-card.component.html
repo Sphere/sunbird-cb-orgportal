@@ -23,7 +23,8 @@
       <div class="flex flex-between">
         <a [routerLink]="['/app/social/qna/' + item.id]">
           <h2 *ngIf="item.highlight.title" class="mat-primary-text question-text"><span
-              [innerHTML]="item.body || item.title || 'Untitled'"></span></h2>
+              style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;">{{ item.title || 'Untitled' }}</span><span
+              aria-hidden="true" [innerHTML]="item.body || item.title || 'Untitled'"></span></h2>
           <h2 *ngIf="!item.highlight.title && item.title" class="mat-primary-text question-text">
             {{ item.title | pipeLimitTo: 120 }}
           </h2>
@@ -31,13 +32,17 @@
             {{ item.abstract | pipeLimitTo: 120 }}
           </h2>
           <h2 *ngIf="!item.title && !item.abstract && item.highlight.body" class="mat-primary-text question-text"><span
-              [innerHTML]="item.highlight.body[0] || 'Untitled'"></span></h2>
+              style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;">{{ item.abstract || 'Untitled' }}</span><span
+              aria-hidden="true" [innerHTML]="item.highlight.body[0] || 'Untitled'"></span></h2>
           <h2 *ngIf="!item.title && !item.abstract && !item.highlight.body" class="mat-primary-text question-text"><span
-              [innerHTML]="item.body || 'Untitled'"></span></h2>
+              style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;">{{ item.abstract || 'Untitled' }}</span><span
+              aria-hidden="true" [innerHTML]="item.body || 'Untitled'"></span></h2>
         </a>
         <!--[matMenuTriggerFor]="editMenu"  -->
-        <mat-icon *ngIf="userId === item.postCreator.postCreatorId" class="cursor-pointer" role="button"
-          [matMenuTriggerFor]="editMenu">more_vertical</mat-icon>
+        <mat-icon *ngIf="userId === item.postCreator.postCreatorId" class="cursor-pointer" role="button" tabindex="0"
+          [matMenuTriggerFor]="editMenu" #editMenuTrigger="matMenuTrigger"
+          (keydown.enter)="editMenuTrigger.openMenu()"
+          (keydown.space)="editMenuTrigger.openMenu(); $event.preventDefault()">more_vertical</mat-icon>
       </div>
       <mat-menu #editMenu="matMenu">
         <ng-template matMenuContent>

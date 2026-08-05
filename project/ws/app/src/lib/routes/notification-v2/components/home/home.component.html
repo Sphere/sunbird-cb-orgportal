@@ -25,10 +25,10 @@
 
     <ul class="list-none p-0 mb-4 mat-toolbar">
       <ng-container *ngFor="let notification of actionNotifications">
-        <li matRipple class="p-4 cursor-pointer" tabindex="0" (click)="onClickNotification(notification)"
-          (keydown.enter)="onClickNotification(notification)"
-          (keydown.space)="onClickNotification(notification); $event.preventDefault()">
-          <a href="javascript:void(0)" class="flex flex-between">
+        <li matRipple class="p-4 cursor-pointer">
+          <a href="javascript:void(0)" class="flex flex-between" (click)="onClickNotification(notification)"
+            (keydown.enter)="onClickNotification(notification)"
+            (keydown.space)="onClickNotification(notification); $event.preventDefault()">
             <div class="flex flex-col flex-center w-1/10">
               <ws-app-notification-event [notificationEvent]="notification.eventId"></ws-app-notification-event>
             </div>
@@ -63,10 +63,10 @@
 
     <ul class="list-none p-0 mat-toolbar">
       <ng-container *ngFor="let notification of infoNotifications">
-        <li matRipple class="p-4 cursor-pointer" tabindex="0" (click)="onClickNotification(notification)"
-          (keydown.enter)="onClickNotification(notification)"
-          (keydown.space)="onClickNotification(notification); $event.preventDefault()">
-          <a href="javascript:void(0)" class="flex flex-between">
+        <li matRipple class="p-4 cursor-pointer">
+          <a href="javascript:void(0)" class="flex flex-between" (click)="onClickNotification(notification)"
+            (keydown.enter)="onClickNotification(notification)"
+            (keydown.space)="onClickNotification(notification); $event.preventDefault()">
             <div class="flex flex-col flex-center">
               <ws-app-notification-event [notificationEvent]="notification.eventId"></ws-app-notification-event>
             </div>

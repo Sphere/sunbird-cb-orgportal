@@ -36,7 +36,8 @@
       <mat-expansion-panel class="w-full panel" hideToggle (opened)="panelOpenState[i] = true"
         (closed)="panelOpenState[i] = false">
         <mat-expansion-panel-header class="flex flex-between items-center panel-header w-full"
-          (click)="$event.preventDefault()">
+          (click)="$event.preventDefault()" (keydown.enter)="$event.preventDefault()"
+          (keydown.space)="$event.preventDefault()">
           <mat-panel-title class="flex items-center w-full box leftMostBox">
             <span>{{competencies.title}}</span>
           </mat-panel-title>

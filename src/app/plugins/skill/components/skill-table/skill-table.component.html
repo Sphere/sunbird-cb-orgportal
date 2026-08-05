@@ -74,7 +74,8 @@
           <label class="select-label" for="select-all-checkbox">Select All</label>
         </mat-header-cell>
         <mat-cell *matCellDef="let row">
-          <mat-checkbox (click)="$event.stopPropagation();" (change)="$event ? selectRow($event, row) : null"
+          <mat-checkbox (click)="$event.stopPropagation();" (keydown.enter)="$event.stopPropagation()"
+            (keydown.space)="$event.stopPropagation()" (change)="$event ? selectRow($event, row) : null"
             (change)="$event ? selection.toggle(row) : null" [checked]="selection.isSelected(row)">
           </mat-checkbox>
         </mat-cell>

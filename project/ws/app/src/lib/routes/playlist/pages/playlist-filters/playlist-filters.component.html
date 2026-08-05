@@ -30,6 +30,7 @@
                         </div>
                         <div class="multi-select-panel org-panel" *ngIf="orgDropdownOpen()">
                             <div class="org-search-row" (click)="$event.stopPropagation()"
+                                (keydown.enter)="$event.stopPropagation()" (keydown.space)="$event.stopPropagation()"
                                 (mousedown)="$event.preventDefault()">
                                 <input class="org-search-input" type="text" placeholder="Search Organisation..."
                                     [value]="orgSearchTerm()"
@@ -39,8 +40,8 @@
                             <div *ngIf="loadingOrganizations()" class="multi-select-option disabled">Loading...</div>
                             <div *ngIf="!loadingOrganizations() && filteredOrganizations().length === 0"
                                 class="multi-select-option disabled">No Organisation found</div>
-                            <div *ngFor="let org of filteredOrganizations()" class="multi-select-option" role="option"
-                                [attr.aria-selected]="filterForm.controls.orgId.value === org.value"
+                            <div *ngFor="let org of filteredOrganizations()" class="multi-select-option" role="button"
+                                [attr.aria-pressed]="filterForm.controls.orgId.value === org.value"
                                 tabindex="0" (mousedown)="$event.preventDefault()" (click)="selectOrg(org.value)"
                                 (keydown.enter)="selectOrg(org.value)"
                                 (keydown.space)="selectOrg(org.value); $event.preventDefault()">
@@ -69,12 +70,13 @@
                         </div>
                         <div class="multi-select-panel" *ngIf="positionDropdownOpen()">
                             <span *ngIf="loadingPositions()" class="multi-select-option disabled">Loading...</span>
-                            <label *ngFor="let pos of positions()" class="multi-select-option" tabindex="0"
+                            <label *ngFor="let pos of positions()" class="multi-select-option"
                                 (mousedown)="$event.preventDefault()" (click)="toggleRole(pos.value)"
                                 (keydown.enter)="toggleRole(pos.value)"
                                 (keydown.space)="toggleRole(pos.value); $event.preventDefault()">
                                 <input type="checkbox" [checked]="isRoleSelected(pos.value)"
-                                    (change)="toggleRole(pos.value)" (click)="$event.stopPropagation()">
+                                    (change)="toggleRole(pos.value)" (click)="$event.stopPropagation()"
+                                    (keydown.enter)="$event.stopPropagation()" (keydown.space)="$event.stopPropagation()">
                                 {{ pos.label }}
                             </label>
                         </div>

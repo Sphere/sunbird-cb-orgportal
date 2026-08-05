@@ -100,8 +100,9 @@
             </p>
           </div>
           <div class="userdetailHead">
-            <p
+            <span
               class="text-md ws-mat-primary-text cursor-pointer font-semibold text-md"
+              style="display: block;"
               role="button"
               tabindex="0"
               (click)="openDialog()"
@@ -109,7 +110,7 @@
               (keydown.space)="openDialog(); $event.preventDefault()"
             >
               See All
-            </p>
+            </span>
           </div>
         </div>
         <ws-app-card-details

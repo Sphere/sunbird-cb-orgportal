@@ -20,7 +20,7 @@
         <mat-icon>{{ isOpen ? 'expand_less' : 'expand_more' }}</mat-icon>
       </div>
 
-      <div class="dropdown-list" *ngIf="isOpen" (click)="$event.stopPropagation()">
+      <div class="dropdown-list" *ngIf="isOpen" (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()" (keydown.space)="$event.stopPropagation()">
         <div *ngFor="let lang of languages" class="dropdown-item" role="button" tabindex="0"
           (click)="selectLanguage(lang, $event)" (keydown.enter)="selectLanguage(lang, $any($event))"
           (keydown.space)="selectLanguage(lang, $any($event)); $event.preventDefault()">

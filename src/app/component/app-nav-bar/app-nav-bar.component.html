@@ -50,6 +50,7 @@
         </ng-container>
       </ng-container>
       <a role="button" matRipple class="flex items-center flex-col px-2 box-sizing-box" routerLink="/app/home" active
+        (keydown.space)="$event.preventDefault(); $any($event.target).click()"
         routerLinkActive="ws-mat-accent-text">
         <ng-container *ngIf="!appBottomIcon">
           <mat-icon>home</mat-icon>
@@ -107,9 +108,9 @@
         type: 'mat-menu-item'
       }
     }"></ws-widget-btn-feature>
-  <div mat-menu-item *ngIf="isTourGuideAvailable" (click)="startTour()">
+  <button mat-menu-item *ngIf="isTourGuideAvailable" type="button" (click)="startTour()">
     <mat-icon>help</mat-icon>
     <span class="ml-2">Tour Guide</span>
-  </div>
+  </button>
 
 </mat-menu>

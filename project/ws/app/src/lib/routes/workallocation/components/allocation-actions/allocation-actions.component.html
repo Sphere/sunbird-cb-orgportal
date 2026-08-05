@@ -93,11 +93,10 @@
 
                     <ul *ngIf="activitieslist && activitieslist.length > 0"
                       style="list-style-type: none; padding-left: 0px; margin-top: 10px; height: 35px;">
-                      <li *ngFor="let a of activitieslist; let i = index" id="elementActivity{{i}}" role="button"
-                        tabindex="0" (click)="showRemoveActivity(i)" (keydown.enter)="showRemoveActivity(i)"
-                        (keydown.space)="showRemoveActivity(i); $event.preventDefault()" style="height:35px;margin-bottom:10px; background-color:#FFF4ED; line-height: 35px; padding-left:15px; float:left;
+                      <li *ngFor="let a of activitieslist; let i = index" id="elementActivity{{i}}" style="height:35px;margin-bottom:10px; background-color:#FFF4ED; line-height: 35px; padding-left:15px; float:left;
                         clear:left; word-wrap:break-word; border-radius: 4px; color:#716B66;padding-right: 15px;">
-                        {{a.name}}
+                        <span role="button" tabindex="0" (click)="showRemoveActivity(i)" (keydown.enter)="showRemoveActivity(i)"
+                          (keydown.space)="showRemoveActivity(i); $event.preventDefault()">{{a.name}}</span>
                         <mat-icon id="showremove{{i}}" role="button" tabindex="0" (click)="removeActivity(i)"
                           (keydown.enter)="removeActivity(i)"
                           (keydown.space)="removeActivity(i); $event.preventDefault()"
@@ -221,11 +220,10 @@
 
                     <ul *ngIf="competencieslist && competencieslist.length > 0"
                       style="list-style-type: none; padding-left: 0px; margin-top: 10px; height: 35px;">
-                      <li *ngFor="let a of activitieslist; let i = index" id="elemenComp{{i}}" role="button"
-                        tabindex="0" (click)="showRemoveCompetency(i)" (keydown.enter)="showRemoveCompetency(i)"
-                        (keydown.space)="showRemoveCompetency(i); $event.preventDefault()" style="height:35px;margin-bottom:10px; background-color:#FFF4ED; line-height: 35px; padding-left:15px; float:left;
+                      <li *ngFor="let a of activitieslist; let i = index" id="elemenComp{{i}}" style="height:35px;margin-bottom:10px; background-color:#FFF4ED; line-height: 35px; padding-left:15px; float:left;
                       clear:left; word-wrap:break-word; border-radius: 4px; color:#716B66;padding-right: 15px;">
-                        {{a.name}}
+                        <span role="button" tabindex="0" (click)="showRemoveCompetency(i)" (keydown.enter)="showRemoveCompetency(i)"
+                          (keydown.space)="showRemoveCompetency(i); $event.preventDefault()">{{a.name}}</span>
                         <mat-icon id="showremoveComp{{i}}" role="button" tabindex="0" (click)="removeCompetency(i)"
                           (keydown.enter)="removeCompetency(i)"
                           (keydown.space)="removeCompetency(i); $event.preventDefault()"

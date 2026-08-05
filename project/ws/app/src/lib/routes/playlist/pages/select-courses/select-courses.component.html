@@ -68,6 +68,7 @@
                         <td class="checkbox-col">
                             <label class="custom-checkbox">
                                 <input type="checkbox" (click)="$event.stopPropagation()"
+                                    (keydown.enter)="$event.stopPropagation()" (keydown.space)="$event.stopPropagation()"
                                     (change)="onSelectionChange(row, $event)" [checked]="selection.isSelected(row)"
                                     appDisableForViewOnly>
                                 <span class="checkmark"></span>

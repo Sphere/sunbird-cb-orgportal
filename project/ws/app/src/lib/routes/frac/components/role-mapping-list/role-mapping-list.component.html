@@ -31,8 +31,8 @@
 
       <ng-container *ngIf="!isLoading">
         <div class="role-item" *ngFor="let r of filteredRoles; trackBy: trackByCode"
-          [class.selected]="selectedRoleCode === r.code" role="option" tabindex="0"
-          [attr.aria-selected]="selectedRoleCode === r.code"
+          [class.selected]="selectedRoleCode === r.code" role="button" tabindex="0"
+          [attr.aria-pressed]="selectedRoleCode === r.code"
           (click)="roleSelectedHandler(r)" (keydown.enter)="roleSelectedHandler(r)"
           (keydown.space)="roleSelectedHandler(r); $event.preventDefault()">
           <div class="expanded-card">
