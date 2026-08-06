@@ -1,18 +1,18 @@
 <div class="report-viewer">
 
-  <div class="report-viewer__header" *ngIf="!errorType">
-    <h2 class="report-viewer__title">MNC CNE Attendance Sync</h2>
-    <span class="report-viewer__updated" *ngIf="lastUpdated">
-      Last updated: {{ lastUpdated | date: 'dd MMM yyyy, h:mm a' }}
-    </span>
-  </div>
+  <!--
+    No title or "last updated" here on purpose: the report HTML already renders its own
+    heading and generation timestamp, so repeating them duplicated the same information.
+  -->
 
-  <div class="report-viewer__state" *ngIf="isMetaLoading || isReportLoading">
+  <!--
+    Shown only while the metadata probe is in flight. The report itself is NOT gated behind
+    a spinner: it is several megabytes and renders progressively, and hiding it until an
+    iframe `load` event meant a stuck spinner whenever that event did not fire.
+  -->
+  <div class="report-viewer__state" *ngIf="isMetaLoading">
     <mat-spinner [diameter]="40"></mat-spinner>
-    <p class="report-viewer__state-text">
-      <ng-container *ngIf="isMetaLoading">Checking report availability&hellip;</ng-container>
-      <ng-container *ngIf="!isMetaLoading">Loading report &mdash; this may take a moment.</ng-container>
-    </p>
+    <p class="report-viewer__state-text">Loading report&hellip;</p>
   </div>
 
   <div class="report-viewer__state" *ngIf="errorType === 'forbidden'">
@@ -34,9 +34,7 @@
   <iframe *ngIf="iframeSrc"
           title="MNC CNE Attendance Sync"
           class="report-viewer__frame"
-          [class.report-viewer__frame--hidden]="isReportLoading"
           sandbox="allow-scripts"
-          [src]="iframeSrc"
-          (load)="onReportLoaded()"></iframe>
+          [src]="iframeSrc"></iframe>
 
 </div>

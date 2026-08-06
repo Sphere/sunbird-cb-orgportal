@@ -15,12 +15,9 @@ export type TReportError = 'forbidden' | 'generic'
 export class ReportViewerComponent implements OnInit, OnDestroy {
 
   iframeSrc: SafeResourceUrl | null = null
-  lastUpdated: string | null = null
 
   /** True while the cheap metadata probe is in flight. */
   isMetaLoading = true
-  /** True from the moment the iframe src is set until the iframe fires `load`. */
-  isReportLoading = false
   errorType: TReportError | null = null
 
   private metaSubscription: Subscription | null = null
@@ -48,10 +45,10 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
   loadReport(): void {
     this.resetState()
     this.metaSubscription = this.reportViewerSvc.getReportMeta().subscribe(
-      meta => {
-        this.lastUpdated = (meta && meta.lastModified) || null
+      () => {
+        // The response body is not needed — this call exists so an authorization or
+        // storage failure surfaces as a handled state before the iframe src is bound.
         this.isMetaLoading = false
-        this.isReportLoading = true
         this.setIframeSource(this.reportViewerSvc.getReportContentUrl())
       },
       (error: HttpErrorResponse) => {
@@ -61,16 +58,9 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
     )
   }
 
-  /** Bound to the iframe's `load` event — the report body runs to several megabytes. */
-  onReportLoaded(): void {
-    this.isReportLoading = false
-  }
-
   private resetState(): void {
     this.iframeSrc = null
-    this.lastUpdated = null
     this.isMetaLoading = true
-    this.isReportLoading = false
     this.errorType = null
   }
 
