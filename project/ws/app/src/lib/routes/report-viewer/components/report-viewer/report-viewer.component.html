@@ -1,0 +1,42 @@
+<div class="report-viewer">
+
+  <div class="report-viewer__header" *ngIf="!errorType">
+    <h2 class="report-viewer__title">MNC CNE Attendance Sync</h2>
+    <span class="report-viewer__updated" *ngIf="lastUpdated">
+      Last updated: {{ lastUpdated | date: 'dd MMM yyyy, h:mm a' }}
+    </span>
+  </div>
+
+  <div class="report-viewer__state" *ngIf="isMetaLoading || isReportLoading">
+    <mat-spinner [diameter]="40"></mat-spinner>
+    <p class="report-viewer__state-text">
+      <ng-container *ngIf="isMetaLoading">Checking report availability&hellip;</ng-container>
+      <ng-container *ngIf="!isMetaLoading">Loading report &mdash; this may take a moment.</ng-container>
+    </p>
+  </div>
+
+  <div class="report-viewer__state" *ngIf="errorType === 'forbidden'">
+    <mat-icon class="report-viewer__state-icon">lock</mat-icon>
+    <p class="report-viewer__state-text">You don't have access to this report.</p>
+  </div>
+
+  <div class="report-viewer__state" *ngIf="errorType === 'generic'">
+    <mat-icon class="report-viewer__state-icon">error_outline</mat-icon>
+    <p class="report-viewer__state-text">The report could not be loaded.</p>
+    <button mat-stroked-button color="primary" (click)="loadReport()">Retry</button>
+  </div>
+
+  <!--
+    sandbox="allow-scripts" without allow-same-origin is deliberate: it forces an opaque
+    origin, so the report cannot reach the portal's DOM or cookies. Safe here because the
+    report is self-contained and uses no storage, cookies or parent-frame access.
+  -->
+  <iframe *ngIf="iframeSrc"
+          title="MNC CNE Attendance Sync"
+          class="report-viewer__frame"
+          [class.report-viewer__frame--hidden]="isReportLoading"
+          sandbox="allow-scripts"
+          [src]="iframeSrc"
+          (load)="onReportLoaded()"></iframe>
+
+</div>
