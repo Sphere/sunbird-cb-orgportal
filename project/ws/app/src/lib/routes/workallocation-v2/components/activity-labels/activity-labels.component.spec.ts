@@ -626,4 +626,127 @@ describe('ActivityLabelsComponent', () => {
       expect(component.groupList.length).toBe(before)
     })
   })
+
+  describe('groupActivityList', () => {
+    it('returns an empty FormArray when the group at activeGroupIdx does not exist', () => {
+      component.ngOnInit()
+      component.activeGroupIdx = 99
+      expect(component.groupActivityList.length).toBe(0)
+    })
+  })
+
+  describe('trackByFn with a truthy index', () => {
+    it('still returns item.value.localId', () => {
+      component.ngOnInit()
+      const item = component.groupList.at(0)
+      const result = component.trackByFn(1, item as any)
+      expect(result).toBe(item.value.localId)
+    })
+  })
+
+  describe('grpArray / getControls getters', () => {
+    it('grpArray returns groupsArray when activityForm is set', () => {
+      component.ngOnInit()
+      expect(component.grpArray).toBe(component.activityForm.get('groupsArray'))
+      expect(component.getControls).toBe(component.grpArray!.controls)
+    })
+
+    it('grpArray returns null and getControls returns [] when activityForm is not set', () => {
+      component.activityForm = undefined as any
+      expect(component.grpArray).toBeNull()
+      expect(component.getControls).toEqual([])
+    })
+  })
+
+  describe('getActivityForm', () => {
+    it('returns a JSON stringified inspection of groupsArray value', () => {
+      component.ngOnInit()
+      const result = component.getActivityForm
+      expect(typeof result).toBe('string')
+      expect(() => JSON.parse(result)).not.toThrow()
+    })
+  })
+
+  describe('createActivityControl', () => {
+    beforeEach(() => component.ngOnInit())
+
+    it('pushes a new control onto labelsArray using provided localId', () => {
+      const before = component.labelsList.length
+      component.createActivityControl({
+        localId: 99,
+        activityId: 'a1',
+        activityName: 'Activity 1',
+        activityDescription: 'desc',
+        assignedTo: 'user',
+        assignedToId: 'u1',
+        assignedToEmail: 'u1@test.com',
+        submissionFrom: 'from',
+        submissionFromId: 'f1',
+        submissionFromEmail: 'f1@test.com',
+      } as any)
+      expect(component.labelsList.length).toBe(before + 1)
+      expect(component.labelsList.at(before).get('localId')!.value).toBe(99)
+    })
+
+    it('falls back to watStore.getID when localId is not provided', () => {
+      const before = component.labelsList.length
+      component.createActivityControl({
+        activityId: 'a2',
+        activityName: 'Activity 2',
+      } as any)
+      expect(component.labelsList.length).toBe(before + 1)
+      expect(component.labelsList.at(before).get('localId')!.value).toBe(idCounter)
+    })
+  })
+
+  describe('createGroupControl', () => {
+    beforeEach(() => component.ngOnInit())
+
+    it('pushes a new group control onto groupsArray using provided localId and activities', () => {
+      const before = component.groupList.length
+      component.createGroupControl({
+        localId: 55,
+        groupId: 'g1',
+        groupName: 'Group 1',
+        groupDescription: 'gdesc',
+        activities: [{ localId: 1, activityId: 'a1' }],
+      } as any)
+      expect(component.groupList.length).toBe(before + 1)
+      expect(component.groupList.at(before).get('localId')!.value).toBe(55)
+    })
+
+    it('falls back to watStore.getID when localId is not provided', () => {
+      const before = component.groupList.length
+      component.createGroupControl({
+        groupId: 'g2',
+        groupName: 'Group 2',
+        activities: [],
+      } as any)
+      expect(component.groupList.length).toBe(before + 1)
+      expect(component.groupList.at(before).get('localId')!.value).toBe(idCounter)
+    })
+  })
+
+  describe('createActivtyControl', () => {
+    it('maps each activity to a form array, falling back to getID when localId missing', () => {
+      component.ngOnInit()
+      const result = component.createActivtyControl([
+        { localId: 7, activityId: 'a1' } as any,
+        { activityId: 'a2' } as any,
+      ])
+      expect(result.length).toBe(2)
+      expect(result[0].at(0).value.localId).toBe(7)
+      expect(result[1].at(0).value.localId).toBe(idCounter)
+    })
+  })
+
+  describe('submitResult', () => {
+    it('does nothing when passed a truthy value', () => {
+      expect(() => component.submitResult({ some: 'form' })).not.toThrow()
+    })
+
+    it('does nothing when passed a falsy value', () => {
+      expect(() => component.submitResult(undefined)).not.toThrow()
+    })
+  })
 })

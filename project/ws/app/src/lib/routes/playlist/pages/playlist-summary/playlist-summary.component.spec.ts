@@ -421,6 +421,110 @@ describe('PlaylistSummaryComponent', () => {
     })
   })
 
+  describe('branch coverage for fallback defaults', () => {
+    it('onViewSearch falls back to empty defaults when orgName/role/playlistId are missing', () => {
+      component.ngOnInit()
+      component.filters.set({ orgId: 'org1', orgName: undefined, role: undefined, language: 'en' } as any)
+      stateMock.getExistingSearchPlaylist.mockReturnValue({
+        dataSource: { payload: { q: 'abc' } },
+        playlistId: undefined,
+      })
+      component.onViewSearch()
+      const [, options] = dialogMock.open.mock.calls[dialogMock.open.mock.calls.length - 1]
+      expect(options.data.orgName).toBe('')
+      expect(options.data.roles).toEqual([])
+      expect(options.data.playlistId).toBe('')
+    })
+
+    it('onViewCourse falls back to empty defaults when orgName/role/playlistId are missing', async () => {
+      component.ngOnInit()
+      component.filters.set({ orgId: 'org1', orgName: undefined, role: undefined, language: 'en' } as any)
+      stateMock.getExistingPlaylist.mockReturnValue({
+        dataSource: { payload: [] },
+        playlistId: undefined,
+      })
+      await component.onViewCourse()
+      const [, options] = dialogMock.open.mock.calls[dialogMock.open.mock.calls.length - 1]
+      expect(options.data.orgName).toBe('')
+      expect(options.data.roles).toEqual([])
+      expect(options.data.playlistId).toBe('')
+    })
+
+    it('onViewCompetency falls back to empty defaults when orgName/role/playlistId are missing', () => {
+      component.ngOnInit()
+      component.filters.set({ orgId: 'org1', orgName: undefined, role: undefined, language: 'en' } as any)
+      stateMock.getExistingCompetencyPlaylist.mockReturnValue({
+        dataSource: { payload: [] },
+        playlistId: undefined,
+      })
+      component.onViewCompetency()
+      const [, options] = dialogMock.open.mock.calls[dialogMock.open.mock.calls.length - 1]
+      expect(options.data.orgName).toBe('')
+      expect(options.data.roles).toEqual([])
+      expect(options.data.playlistId).toBe('')
+    })
+
+    it('buildCompetencyRows falls back on missing level fields, code and name', () => {
+      component.ngOnInit()
+      stateMock.getExistingCompetencyPlaylist.mockReturnValue({
+        dataSource: {
+          payload: [
+            {
+              id: 'id-only',
+              levels: [
+                {},
+              ],
+            },
+          ],
+        },
+        playlistId: 'pl-x',
+      })
+      component.onViewCompetency()
+      const [, options] = dialogMock.open.mock.calls[dialogMock.open.mock.calls.length - 1]
+      const row = options.data.competencyRows[0]
+      expect(row.code).toBe('')
+      expect(row.name).toBe('')
+      expect(row.levels[0].level).toBe('')
+      expect(row.levels[0].name).toBe('')
+      expect(row.levels[0].courseId).toBe('')
+    })
+
+    it('buildCompetencyRows falls back to comp.code for name when name missing but code present', () => {
+      component.ngOnInit()
+      stateMock.getExistingCompetencyPlaylist.mockReturnValue({
+        dataSource: {
+          payload: [
+            { code: 'C9', levels: [] },
+          ],
+        },
+        playlistId: 'pl-y',
+      })
+      component.onViewCompetency()
+      const [, options] = dialogMock.open.mock.calls[dialogMock.open.mock.calls.length - 1]
+      expect(options.data.competencyRows[0].name).toBe('C9')
+    })
+
+    it('normalizeCompetencyPayload returns null when wrapped value has neither id nor code', () => {
+      component.ngOnInit()
+      stateMock.getExistingCompetencyPlaylist.mockReturnValue({
+        dataSource: {
+          payload: [
+            { wrapper: { other: 'field' } },
+          ],
+        },
+        playlistId: 'pl-z',
+      })
+      component.onViewCompetency()
+      const [, options] = dialogMock.open.mock.calls[dialogMock.open.mock.calls.length - 1]
+      expect(options.data.competencyRows).toEqual([])
+    })
+
+    it('compareLevels falls back to localeCompare when a value does not resolve to a finite number', () => {
+      const result = (component as any).compareLevels('1.2.3', '5')
+      expect(result).toBeLessThan(0)
+    })
+  })
+
   describe('getRoleDisplay', () => {
     it('returns empty string when no filters', () => {
       component.filters.set(null)

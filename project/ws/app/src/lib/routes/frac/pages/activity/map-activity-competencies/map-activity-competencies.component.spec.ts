@@ -416,11 +416,44 @@ describe('MapActivityCompetenciesComponent', () => {
     expect((component as any).isSelectionUnchangedFromCache()).toBe(false)
   })
 
+  it('should sort multi-entry signatures when comparing cache with current selection', () => {
+    component.selectedActivity = { code: 'A1', title: 'Activity 1' } as any
+    const key = (component as any).buildMappingCacheKey('A1')
+    ;(component as any).activityMappingCache.set(key, [
+      { code: 'C2', label: 'Comp2', levels: 'L2,L1' },
+      { code: 'C1', label: 'Comp1', levels: 'L3,L1' },
+    ])
+    component.selectedMap = {
+      C2: ['C2_L2', 'C2_L1'],
+      C1: ['C1_L3', 'C1_L1'],
+    }
+    expect((component as any).isSelectionUnchangedFromCache()).toBe(true)
+  })
+
+  it('should detect a changed multi-entry selection against the cache', () => {
+    component.selectedActivity = { code: 'A1', title: 'Activity 1' } as any
+    const key = (component as any).buildMappingCacheKey('A1')
+    ;(component as any).activityMappingCache.set(key, [
+      { code: 'C2', label: 'Comp2', levels: 'L2,L1' },
+      { code: 'C1', label: 'Comp1', levels: 'L3,L1' },
+    ])
+    component.selectedMap = {
+      C2: ['C2_L2'],
+      C1: ['C1_L3', 'C1_L1'],
+    }
+    expect((component as any).isSelectionUnchangedFromCache()).toBe(false)
+  })
+
   it('should parse blank, comma, range and invalid-range levels strings', () => {
     expect((component as any).parseLevelsString('   ')).toEqual([])
     expect((component as any).parseLevelsString('L1,L2')).toEqual(['L1', 'L2'])
     expect((component as any).parseLevelsString('L1-L3')).toEqual(['L1', 'L2', 'L3'])
     expect((component as any).parseLevelsString('LX-LY')).toEqual([])
+  })
+
+  it('should numerically sort comma-separated levels in extractCompetencyLevels regardless of input order', () => {
+    expect((component as any).extractCompetencyLevels('L3,L1,L2')).toEqual([1, 2, 3])
+    expect((component as any).extractCompetencyLevels('L1,L3,L2')).toEqual([1, 2, 3])
   })
 
   it('should load mappings from the activityDraftStore when present', () => {
@@ -641,6 +674,28 @@ describe('MapActivityCompetenciesComponent', () => {
     expect(component.updatedActivities.find((a: any) => a.code === code)?.title).toBe('From Activities List')
   })
 
+  it('should fall back to filteredActivities metadata as a last resort in syncUpdatedActivitiesFromDraftStore', () => {
+    const code = 'A2'
+    const key = (component as any).buildMappingCacheKey(code)
+    component.activitiesData = []
+    component.activities = []
+    component.filteredActivities = [{ code, title: 'From Filtered List' } as any]
+    ;(component as any).activityDraftStore.set(key, [{ code: 'C1', label: '', levels: 'L1' }])
+    ;(component as any).syncUpdatedActivitiesFromDraftStore()
+    expect(component.updatedActivities.find((a: any) => a.code === code)?.title).toBe('From Filtered List')
+  })
+
+  it('should fall back to the code itself when no metadata is found anywhere', () => {
+    const code = 'A3'
+    const key = (component as any).buildMappingCacheKey(code)
+    component.activitiesData = []
+    component.activities = []
+    component.filteredActivities = []
+    ;(component as any).activityDraftStore.set(key, [{ code: 'C1', label: '', levels: 'L1' }])
+    ;(component as any).syncUpdatedActivitiesFromDraftStore()
+    expect(component.updatedActivities.find((a: any) => a.code === code)?.title).toBe(code)
+  })
+
   it('should navigate home when the result modal closes after a successful save with redirectOnClose', () => {
     const router = TestBed.inject(Router)
     const dialog = TestBed.inject(MatDialog)
@@ -648,5 +703,233 @@ describe('MapActivityCompetenciesComponent', () => {
     ;(dialog.open as jest.Mock).mockReturnValue({ afterClosed: () => of(undefined) })
     ;(component as any).showResultModal({ type: 'success', title: 't', message: 'm' }, true)
     expect(router.navigateByUrl).toHaveBeenCalled()
+  })
+
+  describe('additional branch coverage', () => {
+    it('falls back to an empty competencyDetails array when the re-matched activity in fetchActivities has none cached', () => {
+      const fracApiService = TestBed.inject(FracApiService)
+      component.selectedActivity = { code: 'A1', title: 'Activity 1' } as any
+      ;(fracApiService.searchEntities as jest.Mock).mockReturnValue(
+        of({ result: { entity: [{ code: 'A1', name: 'Activity 1' }] } }),
+      )
+      ;(component as any).fetchActivities('')
+      expect(component.selectedActivity?.code).toBe('A1')
+      expect(component.selectedActivity?.competencyDetails).toEqual([])
+    })
+
+    it('skips entries with missing code or levels when restoring the selected map', () => {
+      const activity = {
+        code: 'A1',
+        title: 'Activity 1',
+        competencyDetails: [
+          { code: '', label: 'NoCode', levels: 'L1' },
+          { code: 'C2', label: 'NoLevels', levels: '' },
+          { code: 'C3', label: 'Valid', levels: 'L1' },
+        ],
+      } as any
+      ;(component as any).restoreSelectedMapFromActivity(activity)
+      expect(component.selectedMap['C3']).toEqual(['C3_L1'])
+      expect(component.selectedMap['C2']).toBeUndefined()
+    })
+
+    it('handles a cached entry with blank levels when computing the cache signature', () => {
+      component.selectedActivity = { code: 'A1', title: 'Activity 1' } as any
+      const key = (component as any).buildMappingCacheKey('A1')
+      ;(component as any).activityMappingCache.set(key, [{ code: 'C1', label: 'Comp', levels: '' }])
+      component.selectedMap = {}
+      expect((component as any).isSelectionUnchangedFromCache()).toBe(false)
+    })
+
+    it('treats a level key without an underscore as-is when computing the current signature', () => {
+      component.selectedActivity = { code: 'A1', title: 'Activity 1' } as any
+      const key = (component as any).buildMappingCacheKey('A1')
+      ;(component as any).activityMappingCache.set(key, [])
+      component.selectedMap = { C1: ['NoUnderscoreLevel'] }
+      expect((component as any).isSelectionUnchangedFromCache()).toBe(false)
+    })
+
+    it('falls back to an empty array for draft/cached-competencies get() misses even when has() is true', () => {
+      const activity = { code: 'A1', title: 'Activity 1' } as any
+      const key = (component as any).buildMappingCacheKey('A1')
+      const draftStore = (component as any).activityDraftStore
+      jest.spyOn(draftStore, 'has').mockReturnValue(true)
+      jest.spyOn(draftStore, 'get').mockReturnValue(undefined)
+      const cachedCompMap = (component as any).activityMappedCompetenciesCache
+      jest.spyOn(cachedCompMap, 'get').mockReturnValue(undefined)
+      ;(component as any).loadSelectedActivityMappings(activity)
+      expect(component.competencyData).toEqual([])
+      expect(key).toBeTruthy()
+    })
+
+    it('falls back to an empty array for activityMappingCache get() misses even when has() is true', () => {
+      const activity = { code: 'A1', title: 'Activity 1' } as any
+      const mappingCache = (component as any).activityMappingCache
+      jest.spyOn(mappingCache, 'has').mockReturnValue(true)
+      jest.spyOn(mappingCache, 'get').mockReturnValue(undefined)
+      const cachedCompMap = (component as any).activityMappedCompetenciesCache
+      jest.spyOn(cachedCompMap, 'get').mockReturnValue(undefined)
+      ;(component as any).loadSelectedActivityMappings(activity)
+      expect(component.competencyData).toEqual([])
+    })
+
+    it('applies mapped details only to the matching activity and leaves others untouched across all three lists', () => {
+      component.activitiesData = [{ code: 'A1', title: 'One' }, { code: 'A2', title: 'Two' }] as any
+      component.activities = [{ code: 'A1', title: 'One' }, { code: 'A2', title: 'Two' }] as any
+      component.filteredActivities = [{ code: 'A1', title: 'One' }, { code: 'A2', title: 'Two' }] as any
+      component.selectedActivity = { code: 'A1', title: 'One' } as any
+      ;(component as any).applyMappedDetailsToActivity(
+        { code: 'A1', title: 'One' } as any,
+        [{ code: 'C1', label: 'Comp', levels: 'L1' }],
+      )
+      expect(component.activitiesData.find((a: any) => a.code === 'A2')).toEqual({ code: 'A2', title: 'Two' })
+      expect(component.activities.find((a: any) => a.code === 'A2')).toEqual({ code: 'A2', title: 'Two' })
+      expect(component.filteredActivities.find((a: any) => a.code === 'A2')).toEqual({ code: 'A2', title: 'Two' })
+    })
+
+    it('defaults entityType/entityCode/entityName and non-array competencies when extracting mapped competency details', () => {
+      const res = {
+        result: [{
+          childHierarchy: [
+            { entityType: 'competency', competencies: 'not-an-array' },
+          ],
+        }],
+      }
+      const result = (component as any).extractMappedCompetencyDetails(res)
+      expect(result).toEqual([])
+    })
+
+    it('defaults entityType/entityCode/entityName and non-array competencies when extracting mapped competency rows', () => {
+      const res = {
+        result: [{
+          childHierarchy: [
+            { entityType: 'competency' },
+          ],
+        }],
+      }
+      const result = (component as any).extractMappedCompetencyRows(res)
+      expect(result).toEqual([])
+    })
+
+    it('returns an empty array from extractLevelNumbers when input is not an array', () => {
+      expect((component as any).extractLevelNumbers(undefined)).toEqual([])
+    })
+
+    it('returns an empty string from formatMappedLevels when there are no normalized levels', () => {
+      expect((component as any).formatMappedLevels([])).toBe('')
+    })
+
+    it('skips an empty raw selection when transforming selected competencies', () => {
+      component.selectedMap = { C1: [] }
+      ;(component as any).transformSelectedCompetencies()
+      expect(component.selectedCompetencies).toEqual([])
+    })
+
+    it('does nothing in refreshActivitiesState when there is no selected activity', () => {
+      component.selectedActivity = null
+      expect(() => (component as any).refreshActivitiesState()).not.toThrow()
+    })
+
+    it('falls back to an empty competencyDetails array in refreshActivitiesState when the activity has none', () => {
+      component.selectedActivity = { code: 'A1', title: 'One' } as any
+      component.activitiesData = [{ code: 'A1', title: 'One' }, { code: 'A2', title: 'Two' }] as any
+      component.activities = [{ code: 'A1', title: 'One' }, { code: 'A2', title: 'Two' }] as any
+      component.filteredActivities = [{ code: 'A1', title: 'One' }, { code: 'A2', title: 'Two' }] as any
+      ;(component as any).refreshActivitiesState()
+      expect(component.selectedActivity?.competencyDetails).toEqual([])
+      expect(component.activitiesData.find((a: any) => a.code === 'A2')).toEqual({ code: 'A2', title: 'Two' })
+    })
+
+    it('skips draft entries with a blank competency code and continues when building the payload', () => {
+      const key = (component as any).buildMappingCacheKey('A1')
+      ;(component as any).activityDraftStore.set(key, [
+        { code: '', label: 'blank', levels: 'L1' },
+        { code: 'C1', label: 'valid', levels: 'L1' },
+      ])
+      const payload = (component as any).buildPayload()
+      expect(payload.length).toBe(1)
+      expect(payload[0].childEntityCode).toBe('C1')
+    })
+
+    it('returns an empty array from extractCompetencyLevels when levels is blank', () => {
+      expect((component as any).extractCompetencyLevels('')).toEqual([])
+    })
+
+    it('returns an empty array from cloneActivityDetails when details is undefined', () => {
+      expect((component as any).cloneActivityDetails(undefined as any)).toEqual([])
+    })
+
+    it('defaults label/levels to blank strings in cloneActivityDetails when missing', () => {
+      const result = (component as any).cloneActivityDetails([{ code: 'C1' }])
+      expect(result).toEqual([{ code: 'C1', label: '', levels: '' }])
+    })
+
+    it('uses an HTTP status-less error and non-blank raw message when building the failure modal data', async () => {
+      const result = await (component as any).buildMappingFailureModalData({ message: 'Server error' }, 'fallback msg')
+      expect(result.message).toBe('Server error')
+      expect(result.type).toBe('error')
+    })
+
+    it('renders the detail line without brackets when a mapped competency has blank levels on save success', () => {
+      const fracApiService = TestBed.inject(FracApiService)
+      const dialog = TestBed.inject(MatDialog)
+      ;(dialog.open as jest.Mock).mockReturnValue({ afterClosed: () => of(undefined) })
+      ;(fracApiService.mapEntity as jest.Mock).mockReturnValue(of({}))
+
+      // C1 is checked with a level code that has no underscore, so sortLevels filters it out and
+      // buildLevelString yields a blank levels string, exercising the falsy branch of the ternary.
+      component.selectedActivity = { code: 'A1', title: 'Activity 1', competencyDetails: [{ code: 'C1', label: 'Comp 1', levels: '' }] } as any
+      component.competencyData = [{ code: 'C1', label: 'Comp 1', levels: [] } as any, { code: 'C2', label: 'Comp 2', levels: [] } as any]
+      component.onCheck({ code: 'C1', level: 'C1', checked: true } as any)
+      component.onCheck({ code: 'C2', level: 'C2_L1', checked: true } as any)
+
+      component.onAddCompetencyToActivity()
+
+      expect(dialog.open).toHaveBeenCalled()
+      const args = (dialog.open as jest.Mock).mock.calls[0][1]
+      expect(args.data.errorDetails).toContain('A1 <=> C1\n')
+      expect(args.data.errorDetails).toContain('A1 <=> C2 [L1]')
+    })
+
+    it('defaults activityCode to empty string in the save-success detail lines when selectedActivity is falsy', () => {
+      const fracApiService = TestBed.inject(FracApiService)
+      const dialog = TestBed.inject(MatDialog)
+      ;(dialog.open as jest.Mock).mockReturnValue({ afterClosed: () => of(undefined) })
+
+      component.selectedActivity = { code: 'A1', title: 'Activity 1', competencyDetails: [] } as any
+      component.competencyData = [{ code: 'C1', label: 'Comp 1', levels: [] } as any]
+      component.onCheck({ code: 'C1', level: 'C1_L1', checked: true } as any)
+
+      // clear selectedActivity right as the mapEntity observable emits, simulating a race with a concurrent reset
+      ;(fracApiService.mapEntity as jest.Mock).mockImplementation(() => {
+        component.selectedActivity = null
+        return of({})
+      })
+
+      component.onAddCompetencyToActivity()
+
+      expect(dialog.open).toHaveBeenCalled()
+      const args = (dialog.open as jest.Mock).mock.calls[0][1]
+      expect(args.data.errorDetails).toBeUndefined()
+    })
+
+    it('treats an entityType-less hierarchy child as not a competency when extracting mapped competency details', () => {
+      const response = {
+        result: [
+          { childHierarchy: [{ entityType: undefined, entityCode: 'C1', entityName: 'Comp 1', competencies: [] }] },
+        ],
+      }
+      const result = (component as any).extractMappedCompetencyDetails(response)
+      expect(result).toEqual([])
+    })
+
+    it('treats an entityType-less hierarchy child as not a competency when extracting mapped competency rows', () => {
+      const response = {
+        result: [
+          { childHierarchy: [{ entityType: undefined, entityCode: 'C1', entityName: 'Comp 1', competencies: [] }] },
+        ],
+      }
+      const result = (component as any).extractMappedCompetencyRows(response)
+      expect(result).toEqual([])
+    })
   })
 })

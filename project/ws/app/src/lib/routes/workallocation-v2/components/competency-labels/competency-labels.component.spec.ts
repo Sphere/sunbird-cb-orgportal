@@ -104,6 +104,19 @@ describe('CompetencyLabelsComponent', () => {
       activitiesGroupSubject.next([{ groupId: 'g0' }, { groupId: 'g1' }])
       expect(watStoreMock.setgetcompetencyGroup).toHaveBeenCalled()
     })
+
+    it('should add a new group for a later index when the group does not yet exist at that slot', () => {
+      component.editData = {
+        list: [
+          { roleDetails: { localId: 'r1', id: 'role1', name: 'Role One', description: 'desc' }, competencyDetails: [] },
+          { roleDetails: { localId: 'r2', id: 'role2', name: 'Role Two', description: 'desc2' }, competencyDetails: [] },
+        ],
+      }
+      component.ngOnInit()
+      // groups.length must equal grpData.length+1 (3) for loop to run over both items
+      activitiesGroupSubject.next([{ groupId: 'g0' }, { groupId: 'g1' }, { groupId: 'g2' }])
+      expect(component.groupList.length).toBeGreaterThanOrEqual(2)
+    })
   })
 
   describe('initListen', () => {
@@ -116,6 +129,19 @@ describe('CompetencyLabelsComponent', () => {
         }, 600)
       })
       component.addNewGroup()
+    })
+
+    it('should skip setgetcompetencyGroup when any compName is an object', async () => {
+      jest.useFakeTimers()
+      component.ngOnInit()
+      watStoreMock.setgetcompetencyGroup.mockClear()
+      component.addNewGroup()
+      const compGroup = component.groupcompetencyList.at(0) as any
+      compGroup.patchValue({ compName: { name: 'objName' } })
+      jest.advanceTimersByTime(600)
+      await Promise.resolve()
+      expect(watStoreMock.setgetcompetencyGroup).not.toHaveBeenCalled()
+      jest.useRealTimers()
     })
   })
 
@@ -267,6 +293,15 @@ describe('CompetencyLabelsComponent', () => {
     })
   })
 
+  describe('submitResult', () => {
+    it('should not throw when qualityForm is truthy', () => {
+      expect(() => component.submitResult({ some: 'form' })).not.toThrow()
+    })
+    it('should not throw when qualityForm is falsy', () => {
+      expect(() => component.submitResult(null)).not.toThrow()
+    })
+  })
+
   describe('addNewLabel', () => {
     it('should add a new label control', () => {
       component.createForm()
@@ -360,6 +395,50 @@ describe('CompetencyLabelsComponent', () => {
       expect(patched.roleName).toBe('Role1')
       expect(patched.roleDescription).toBe('Desc1')
     })
+
+    it('should add missing groups mid-loop when the groupList is shorter than the groups array by more than one', () => {
+      component.createForm()
+      component.groups = [
+        { groupId: 'g0', localId: 'l0' },
+        { groupId: 'g1', groupName: 'Role1', groupDescription: 'Desc1', localId: 'l1' },
+        { groupId: 'g2', groupName: 'Role2', groupDescription: 'Desc2', localId: 'l2' },
+      ] as any
+      const before = component.groupList.length
+      component.updateForm()
+      expect(component.groupList.length).toBeGreaterThan(before)
+      const patched = component.groupList.at(2).value
+      expect(patched.roleName).toBe('Role2')
+    })
+  })
+
+  describe('createActivityControl / createGroupControl / createActivtyControl (legacy unused helpers)', () => {
+    it('createActivityControl pushes a new control onto labelsArray', () => {
+      component.createForm()
+      const before = component.labelsList.length
+      component.createActivityControl({
+        compId: 'c1', compName: 'n1', compDescription: 'd1', compLevel: 'l1',
+        compType: 't1', compArea: 'a1', compSource: 's1',
+      } as any)
+      expect(component.labelsList.length).toBe(before + 1)
+    })
+
+    it('createGroupControl pushes a new control onto groupsArray using createActivtyControl', () => {
+      component.createForm()
+      const before = component.groupList.length
+      component.createGroupControl({
+        roleId: 'r1', roleName: 'Role', roleDescription: 'desc',
+        competincies: [{ compId: 'c1', compName: 'n1', compDescription: 'd1' } as any],
+      } as any)
+      expect(component.groupList.length).toBe(before + 1)
+    })
+
+    it('createActivtyControl maps activities into form arrays', () => {
+      const result = component.createActivtyControl([
+        { compId: 'c1', compName: 'n1', compDescription: 'd1' } as any,
+      ])
+      expect(result.length).toBe(1)
+      expect(result[0].length).toBe(1)
+    })
   })
 
   describe('filterUsers', () => {
@@ -449,6 +528,88 @@ describe('CompetencyLabelsComponent', () => {
       })
       expect(() => component.competencySelected({ option: { value: {} } }, 0)).not.toThrow()
       expect(dialogMock.open).toHaveBeenCalled()
+    })
+
+    it('should take the else branch and use getUpdateCompGroupById metadata when compName has an id and name.id is absent', () => {
+      const compGroup = component.groupcompetencyList.at(0) as any
+      compGroup.patchValue({
+        compName: { name: 'objName', id: 'existing-id' },
+        localId: 'lid2',
+        compId: 'cid2',
+        compDescription: 'desc2',
+        compSource: 'srcX',
+      })
+      const afterClosedSubject = new Subject<any>()
+      dialogMock.open.mockReturnValue({
+        componentInstance: {},
+        afterClosed: () => afterClosedSubject.asObservable(),
+      })
+      expect(() => component.competencySelected({ option: { value: {} } }, 0)).not.toThrow()
+      expect(watStoreMock.getUpdateCompGroupById).toHaveBeenCalledWith('lid2')
+      expect(dialogMock.open).toHaveBeenCalled()
+    })
+  })
+
+  describe('competencySelected additional branch coverage', () => {
+    beforeEach(() => {
+      component.createForm()
+      component.selectedCompIdx = 0
+    })
+
+    it('takes the else branch of if(localOd) when localId is falsy, using event.option.value as dialog data', () => {
+      const compGroup = component.groupcompetencyList.at(0) as any
+      compGroup.patchValue({ localId: '' })
+      const afterClosedSubject = new Subject<any>()
+      dialogMock.open.mockReturnValue({
+        componentInstance: {},
+        afterClosed: () => afterClosedSubject.asObservable(),
+      })
+      component.competencySelected({ option: { value: { name: 'directVal' } } }, 0)
+      expect(dialogMock.open).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({
+        data: { name: 'directVal' },
+      }))
+    })
+
+    it('falls back to watStore.getID for localId when compName.localId and localId are both absent', () => {
+      const compGroup = component.groupcompetencyList.at(0) as any
+      compGroup.patchValue({ compName: { name: 'objName', id: '' }, localId: undefined, compId: 'cid1' })
+      const afterClosedSubject = new Subject<any>()
+      dialogMock.open.mockReturnValue({
+        componentInstance: {},
+        afterClosed: () => afterClosedSubject.asObservable(),
+      })
+      expect(() => component.competencySelected({ option: { value: {} } }, 0)).not.toThrow()
+    })
+
+    it('patches empty-string fallbacks when newVal is missing all optional fields on confirm', () => {
+      const afterClosedSubject = new Subject<any>()
+      dialogMock.open.mockReturnValue({
+        componentInstance: {},
+        afterClosed: () => afterClosedSubject.asObservable(),
+      })
+      component.competencySelected({ option: { value: {} } }, 0)
+      afterClosedSubject.next({ ok: true, data: {} })
+      const patched = component.groupcompetencyList.at(0).value
+      expect(patched.compId).toBe('')
+      expect(patched.compDescription).toBe('')
+      expect(patched.compName).toBe('')
+      expect(patched.compSource).toBe('')
+      expect(patched.compType).toBe('')
+      expect(patched.compArea).toBe('')
+      expect(patched.levelList).toEqual([])
+      expect(patched.localId).toBeTruthy()
+    })
+
+    it('patches compName as empty string when cancelled data has no name', () => {
+      const afterClosedSubject = new Subject<any>()
+      dialogMock.open.mockReturnValue({
+        componentInstance: {},
+        afterClosed: () => afterClosedSubject.asObservable(),
+      })
+      component.competencySelected({ option: { value: {} } }, 0)
+      afterClosedSubject.next({ ok: false, data: {} })
+      const patched = component.groupcompetencyList.at(0).value
+      expect(patched.compName).toBe('')
     })
   })
 

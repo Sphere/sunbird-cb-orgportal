@@ -42,6 +42,7 @@ describe('PositionUploadComponent', () => {
       'searchEntityHierarchy',
     ])
     mockFracApiService.searchEntities.mockReturnValue(of({ result: { entity: [] } }) as any)
+    mockFracApiService.searchEntityHierarchy.mockReturnValue(of({ result: [] }) as any)
 
     mockTableTransformUtil = createSpyObj('TableTransformUtil', ['transformResponseToTableConfig'])
     mockTableTransformUtil.transformResponseToTableConfig.mockImplementation((rows: any) => ({
@@ -573,6 +574,16 @@ describe('PositionUploadComponent', () => {
       component.onViewPosition({ code: 'p2', name: 'Position Two' } as any)
       expect(mockDialog.open).toHaveBeenCalled()
     })
+
+    it('falls back to the raw cached response when fetch fails but a cached entry exists', () => {
+      component.ngOnInit()
+      const cacheKey = (component as any).getHierarchyCacheKey('P3', 'en')
+      const cachedRaw = { result: [{ code: 'P3' }] }
+      ;(component as any).hierarchyRawResponseCache.set(cacheKey, cachedRaw)
+      mockFracApiService.searchEntityHierarchy.mockReturnValue(throwError(() => new Error('fail')))
+      component.onViewPosition({ code: 'p3', name: 'Position Three' } as any)
+      expect(mockDialog.open).toHaveBeenCalled()
+    })
   })
 
   describe('onViewEdit', () => {
@@ -600,6 +611,129 @@ describe('PositionUploadComponent', () => {
   describe('resolveDefaultLanguage via languages getter', () => {
     it('exposes languages from the orchestrator', () => {
       expect(component.languages).toBe(mockOrchestrator.languages)
+    })
+  })
+
+  describe('additional branch coverage', () => {
+    it('onSearchEnter is a no-op when filter controls are disabled', () => {
+      component.routeMode = 'upload'
+      const nextSpy = jest.spyOn((component as any).searchTrigger$, 'next')
+      component.onSearchEnter()
+      expect(nextSpy).not.toHaveBeenCalled()
+    })
+
+    it('loadHierarchyCountsForCardPositions clears hierarchy maps when not in card mode', () => {
+      component.routeMode = 'manage'
+      ;(component as any).loadHierarchyCountsForCardPositions([{ code: 'P1' }] as any, 'en')
+      expect(component.positionHierarchyCountMap).toEqual({})
+      expect(component.positionHierarchyDetailMap).toEqual({})
+    })
+
+    it('loadHierarchyCountsForCardPositions clears state when there are no valid positions', () => {
+      component.routeMode = 'card'
+      ;(component as any).loadHierarchyCountsForCardPositions([{ code: '' }, {}] as any, 'en')
+      expect(component.positionHierarchyCountMap).toEqual({})
+      expect(component.positionCountLoadingSet.size).toBe(0)
+    })
+
+    it('loadHierarchyCountsForCardPositions seeds the map with cached aggregates before the refresh resolves', () => {
+      component.routeMode = 'card'
+      const cacheKey = (component as any).getHierarchyCacheKey('P1', 'en')
+      const aggregate = { counts: { role: 1, activity: 2, competency: 3 }, details: { role: [], activity: [], competency: [] } }
+      ;(component as any).hierarchyAggregateCache.set(cacheKey, aggregate)
+      const pending = new Subject<any>()
+      mockFracApiService.searchEntityHierarchy.mockReturnValue(pending.asObservable())
+      ;(component as any).loadHierarchyCountsForCardPositions([{ code: 'P1' }] as any, 'en')
+      expect(component.positionHierarchyCountMap['P1']).toBe(aggregate.counts)
+    })
+
+    it('loadHierarchyCountsForCardPositions ignores a stale resolved request from a superseded call', () => {
+      component.routeMode = 'card'
+      const pending = new Subject<any>()
+      mockFracApiService.searchEntityHierarchy.mockReturnValue(pending.asObservable())
+      ;(component as any).loadHierarchyCountsForCardPositions([{ code: 'P1' }] as any, 'en')
+      mockFracApiService.searchEntityHierarchy.mockReturnValue(of({ result: [] }))
+      ;(component as any).loadHierarchyCountsForCardPositions([{ code: 'P2' }] as any, 'en')
+      pending.next({ result: [] })
+      pending.complete()
+      expect(component.positionHierarchyCountMap['P2']).toBeDefined()
+    })
+
+    it('onRemoveClicked warns and skips when the delete payload cannot be generated', () => {
+      component.selectedRows = [{ code: undefined } as any]
+      mockDialog.open.mockReturnValue({ afterClosed: () => of('continue') })
+      component.onRemoveClicked()
+      expect(mockFracApiService.deleteEntity).not.toHaveBeenCalled()
+    })
+
+    it('uploadFile falls back to a count of 1 when there are no success codes or result count', async () => {
+      mockFracApiService.uploadFile = jest.fn().mockReturnValue(
+        of({ responseCode: 'OK', result: {} }),
+      ) as any
+      component.uploadFile(new File([''], 'f.csv'))
+      await Promise.resolve()
+      await Promise.resolve()
+      await Promise.resolve()
+      expect(mockDialog.open).toHaveBeenCalled()
+      const dialogData = mockDialog.open.mock.calls[mockDialog.open.mock.calls.length - 1][1].data
+      expect(dialogData.count).toBe(1)
+    })
+
+    it('uploadFile uses the result count when uploadedCodes are absent', async () => {
+      mockFracApiService.uploadFile = jest.fn().mockReturnValue(
+        of({ responseCode: 'OK', result: { count: 5 } }),
+      ) as any
+      component.uploadFile(new File([''], 'f.csv'))
+      await Promise.resolve()
+      await Promise.resolve()
+      await Promise.resolve()
+      const dialogData = mockDialog.open.mock.calls[mockDialog.open.mock.calls.length - 1][1].data
+      expect(dialogData.count).toBe(5)
+    })
+
+    it('uploadFile shows a failure modal when the upload response indicates failure', done => {
+      mockFracApiService.uploadFile = jest.fn().mockReturnValue(
+        of({ responseCode: 'CLIENT_ERROR', result: {} }),
+      ) as any
+      component.uploadFile(new File([''], 'f.csv'))
+      setTimeout(() => {
+        expect(mockDialog.open).toHaveBeenCalled()
+        done()
+      }, 0)
+    })
+
+    it('showResultModal redirects to a given URL on close when redirectToUrl is set and result succeeded', () => {
+      mockDialog.open.mockReturnValue({ afterClosed: () => of(undefined) })
+      ;(component as any).showResultModal({ type: 'success', title: 'T', message: 'M' }, false, false, '/custom-url')
+      expect(mockRouter.navigateByUrl).toHaveBeenCalledWith('/custom-url')
+    })
+
+    it('showResultModal redirects home on close when redirectOnClose is set and result succeeded', () => {
+      mockDialog.open.mockReturnValue({ afterClosed: () => of(undefined) })
+      ;(component as any).showResultModal({ type: 'success', title: 'T', message: 'M' }, false, true)
+      expect(mockRouter.navigateByUrl).toHaveBeenCalledWith(FRAC_ROUTES.homeDashboard)
+    })
+
+    it('fetchHierarchyAggregate returns the cached aggregate when not forcing a refresh', () => {
+      const cacheKey = (component as any).getHierarchyCacheKey('P1', 'en')
+      const aggregate = { counts: { role: 1, activity: 0, competency: 0 }, details: { role: [], activity: [], competency: [] } }
+      const rawResponse = { result: [] }
+      ;(component as any).hierarchyAggregateCache.set(cacheKey, aggregate)
+      ;(component as any).hierarchyRawResponseCache.set(cacheKey, rawResponse)
+      mockFracApiService.searchEntityHierarchy.mockClear()
+      let emitted: any
+      ;(component as any).fetchHierarchyAggregate('P1', 'en', false).subscribe((v: any) => { emitted = v })
+      expect(emitted).toEqual({ aggregate, response: rawResponse })
+      expect(mockFracApiService.searchEntityHierarchy).not.toHaveBeenCalled()
+    })
+
+    it('fetchHierarchyAggregate reuses an in-flight request for the same cache key', () => {
+      const subject = new Subject<any>()
+      mockFracApiService.searchEntityHierarchy.mockReturnValue(subject.asObservable())
+      const first = (component as any).fetchHierarchyAggregate('P1', 'en', true)
+      const second = (component as any).fetchHierarchyAggregate('P1', 'en', true)
+      expect(second).toBe(first)
+      expect(mockFracApiService.searchEntityHierarchy).toHaveBeenCalledTimes(1)
     })
   })
 })

@@ -82,6 +82,29 @@ describe('request-util', () => {
         yearOfPassing: '2012',
       })
     })
+
+    it('should fall back to existing academic record when courseDegree is not set', () => {
+      const userProfileData = {
+        academics: [{ type: 'XII_STANDARD', nameOfInstitute: 'Old XII School', yearOfPassing: '2007' }],
+      }
+      const result = getClass12({}, userProfileData)
+      expect(result).toEqual({
+        nameOfQualification: '',
+        type: 'XII_STANDARD',
+        nameOfInstitute: 'Old XII School',
+        yearOfPassing: '2007',
+      })
+    })
+
+    it('should default to empty strings when nothing is available', () => {
+      const result = getClass12({}, { academics: [] })
+      expect(result).toEqual({
+        nameOfQualification: '',
+        type: 'XII_STANDARD',
+        nameOfInstitute: '',
+        yearOfPassing: '',
+      })
+    })
   })
 
   describe('getDegree', () => {
@@ -166,6 +189,20 @@ describe('request-util', () => {
       expect(result).toHaveLength(4)
       expect(result.map((r: any) => r.type)).toEqual(['X_STANDARD', 'XII_STANDARD', 'GRADUATE', 'POSTGRADUATE'])
     })
+
+    it('should map XII_STANDARD and POSTGRADUATE academics array entries by type', () => {
+      const data = {
+        academics: [
+          { type: 'XII_STANDARD', nameOfInstitute: 'School C', yearOfPassing: '2002' },
+          { type: 'POSTGRADUATE', nameOfInstitute: 'College D', yearOfPassing: '2012' },
+        ],
+      }
+      const result = populateAcademics(data)
+      expect(result).toEqual([
+        { nameOfQualification: '', type: 'XII_STANDARD', nameOfInstitute: 'School C', yearOfPassing: '2002' },
+        { nameOfQualification: '', type: 'POSTGRADUATE', nameOfInstitute: 'College D', yearOfPassing: '2012' },
+      ])
+    })
   })
 
   describe('getOrganisationsHistory', () => {
@@ -199,6 +236,45 @@ describe('request-util', () => {
       expect(org.designation).toBe('Manager')
       expect(org.profession).toBe('Admin')
       expect(org.location).toBe('Town')
+      expect(org.subcentre).toBe('S1')
+    })
+
+    it('should default all professionalDetails-derived fields to empty string when professionalDetails is absent', () => {
+      const [org] = getOrganisationsHistory({}, {})
+      expect(org.orgType).toBe('')
+      expect(org.professionOtherSpecify).toBe('')
+      expect(org.orgOtherSpecify).toBe('')
+      expect(org.designation).toBe('')
+      expect(org.profession).toBe('')
+      expect(org.location).toBe('')
+      expect(org.doj).toBe('')
+      expect(org.block).toBe('')
+      expect(org.subcentre).toBe('')
+      expect(org.osid).toBeUndefined()
+    })
+
+    it('should default subcentre to empty string when professionalDetails[0] exists but subcentre is falsy', () => {
+      const userProfileData = { professionalDetails: [{}] }
+      const [org] = getOrganisationsHistory({}, userProfileData)
+      expect(org.subcentre).toBeUndefined()
+    })
+
+    it('should fall back professionOtherSpecify and orgOtherSpecify to professionalDetails entry', () => {
+      const userProfileData = {
+        professionalDetails: [
+          { professionOtherSpecify: 'Other Prof', orgOtherSpecify: 'Other Org' },
+        ],
+      }
+      const [org] = getOrganisationsHistory({}, userProfileData)
+      expect(org.professionOtherSpecify).toBe('Other Prof')
+      expect(org.orgOtherSpecify).toBe('Other Org')
+    })
+
+    it('should use form-provided professionOtherSpecify and orgOtherSpecify when present', () => {
+      const form = { professionOtherSpecify: 'Form Prof', orgOtherSpecify: 'Form Org' }
+      const [org] = getOrganisationsHistory(form, {})
+      expect(org.professionOtherSpecify).toBe('Form Prof')
+      expect(org.orgOtherSpecify).toBe('Form Org')
     })
   })
 
@@ -252,6 +328,66 @@ describe('request-util', () => {
       expect(result.profileReq.personalDetails.firstname).toBe('New')
       expect(result.profileReq.personalDetails.surname).toBe('User')
       expect(result.profileReq.personalDetails.primaryEmail).toBe('old@example.com')
+    })
+
+    it('should prefer existing personalDetails osName/browserName/userCookie when already set', () => {
+      const userProfileData = {
+        personalDetails: {
+          firstname: 'Old', middlename: '', surname: 'Name', about: '', photo: 'NaN - NaN - NaN', dob: '',
+          nationality: '', domicileMedium: '', regNurseRegMidwifeNumber: '', gender: '', maritalStatus: '',
+          knownLanguages: [], mobile: '', telephone: '', primaryEmail: 'old@example.com', postalAddress: '',
+          pincode: '', osName: 'Android', browserName: 'Chrome', userCookie: 'existing-cookie',
+        },
+        nationalUniqueId: '', doctorRegNumber: '', instituteName: '', nursingCouncil: '', category: '', countryCode: '',
+        academics: [{ type: 'GRADUATE', nameOfInstitute: 'Test University', yearOfPassing: '2015' }],
+        employmentDetails: {
+          service: 'svc', cadre: 'cadre', allotmentYearOfService: 'undefined', dojOfService: '15-06-2020',
+          payType: 'pt', civilListNo: 'cl', employeeCode: 'ec', officialPostalAddress: 'opa', pinCode: 'pc',
+        },
+        professionalDetails: [{}],
+        skills: { additionalSkills: 'skill', certificateDetails: 'cert' },
+        interests: { professional: 'prof', hobbies: 'hobby' },
+      }
+      const form = {}
+      const userAgent = { OS: 'iOS', browserName: 'Safari' }
+      const result = constructReq('user-2', form, userProfileData, userAgent, 'new-cookie')
+      expect(result.profileReq.personalDetails.osName).toBe('Android')
+      expect(result.profileReq.personalDetails.browserName).toBe('Chrome')
+      expect(result.profileReq.personalDetails.userCookie).toBe('existing-cookie')
+      expect(result.profileReq.personalDetails.photo).toBeUndefined()
+      expect(result.profileReq.employmentDetails.allotmentYearOfService).toBeUndefined()
+      expect(result.profileReq.employmentDetails.dojOfService).toBeInstanceOf(Date)
+    })
+
+    it('should use form-provided academics, skills and interests when courseDegree is set', () => {
+      const userProfileData = {
+        personalDetails: {
+          firstname: '', middlename: '', surname: '', about: '', photo: '', dob: '', nationality: '',
+          domicileMedium: '', regNurseRegMidwifeNumber: '', gender: '', maritalStatus: '', knownLanguages: [],
+          mobile: '', telephone: '', primaryEmail: '', postalAddress: '', pincode: '', osName: '', browserName: '', userCookie: '',
+        },
+        nationalUniqueId: '', doctorRegNumber: '', instituteName: '', nursingCouncil: '', category: '', countryCode: '',
+        academics: [],
+        employmentDetails: {},
+        professionalDetails: [{}],
+        skills: {},
+        interests: {},
+      }
+      const form = {
+        courseDegree: true,
+        schoolName10: 'S10', yop10: '2010', schoolName12: 'S12', yop12: '2012',
+        degreeName: 'Deg', degreeInstitute: 'DegInst', yopDegree: '2015',
+        postDegreeName: 'PGDeg', postDegreeInstitute: 'PGInst', yopPostDegree: '2018',
+        skillAquiredDesc: 'form-skill', certificationDesc: 'form-cert',
+        professional: 'form-professional', hobbies: 'form-hobby',
+      }
+      const userAgent = { OS: 'iOS', browserName: 'Safari' }
+      const result = constructReq('user-3', form, userProfileData, userAgent, 'cookie')
+      expect(result.profileReq.academics).toHaveLength(4)
+      expect(result.profileReq.skills.additionalSkills).toBe('form-skill')
+      expect(result.profileReq.skills.certificateDetails).toBe('form-cert')
+      expect(result.profileReq.interests.professional).toBe('form-professional')
+      expect(result.profileReq.interests.hobbies).toBe('form-hobby')
     })
   })
 })

@@ -211,5 +211,107 @@ describe('ListEventComponent', () => {
       const midnight = new Date(2021, 0, 1, 0, 0)
       expect(component.formatTimeAmPm(midnight)).toBe('12:00 am')
     })
+
+    it('formatTimeAmPm should keep minutes as-is when >= 10', () => {
+      const date = new Date(2021, 0, 1, 15, 45)
+      expect(component.formatTimeAmPm(date)).toBe('3:45 pm')
+    })
+
+    const buildEvent = (overrides: any) => ({
+      createdFor: ['dep-1'],
+      name: 'Some Event Name Here',
+      startDate: '2000-01-01',
+      startTime: '0900+0530',
+      endDate: '2000-01-02',
+      endTime: '1000+0530',
+      duration: 0,
+      createdOn: '2000-01-01T00:00:00Z',
+      creatorDetails: undefined,
+      appIcon: null,
+      ...overrides,
+    })
+
+    it('setEventListData: duration 0h 0m yields "---"', () => {
+      component.departmentID = 'dep-1'
+      component.setEventListData({ result: { Event: { 0: buildEvent({ duration: 0 }) } } })
+      expect(component.eventData.pastEvents[0].eventDuration).toBe('---')
+    })
+
+    it('setEventListData: duration 0h non-zero minutes', () => {
+      component.departmentID = 'dep-1'
+      component.setEventListData({ result: { Event: { 0: buildEvent({ duration: 45 }) } } })
+      expect(component.eventData.pastEvents[0].eventDuration).toBe('45 minutes')
+    })
+
+    it('setEventListData: duration exactly 1 hour, 0 minutes', () => {
+      component.departmentID = 'dep-1'
+      component.setEventListData({ result: { Event: { 0: buildEvent({ duration: 60 }) } } })
+      expect(component.eventData.pastEvents[0].eventDuration).toBe('1 hour')
+    })
+
+    it('setEventListData: duration multiple hours, 0 minutes', () => {
+      component.departmentID = 'dep-1'
+      component.setEventListData({ result: { Event: { 0: buildEvent({ duration: 120 }) } } })
+      expect(component.eventData.pastEvents[0].eventDuration).toBe('2 hours')
+    })
+
+    it('setEventListData: duration exactly 1 hour with minutes', () => {
+      component.departmentID = 'dep-1'
+      component.setEventListData({ result: { Event: { 0: buildEvent({ duration: 75 }) } } })
+      expect(component.eventData.pastEvents[0].eventDuration).toBe('1 hour 15 minutes')
+    })
+
+    it('setEventListData: duration multiple hours with minutes', () => {
+      component.departmentID = 'dep-1'
+      component.setEventListData({ result: { Event: { 0: buildEvent({ duration: 150 }) } } })
+      expect(component.eventData.pastEvents[0].eventDuration).toBe('2 hours 30 minutes')
+    })
+
+    it('setEventListData: creatorDetails as a JSON string array with a single person', () => {
+      component.departmentID = 'dep-1'
+      component.setEventListData({
+        result: { Event: { 0: buildEvent({ creatorDetails: JSON.stringify([{ id: 'u1' }]) }) } },
+      })
+      expect(component.eventData.pastEvents[0].eventjoined).toBe('1 person')
+    })
+
+    it('setEventListData: creatorDetails as a JSON string array with multiple people', () => {
+      component.departmentID = 'dep-1'
+      component.setEventListData({
+        result: { Event: { 0: buildEvent({ creatorDetails: JSON.stringify([{ id: 'u1' }, { id: 'u2' }]) }) } },
+      })
+      expect(component.eventData.pastEvents[0].eventjoined).toBe('2 people')
+    })
+
+    it('setEventListData: creatorDetails undefined falls back to " --- " for joined count', () => {
+      component.departmentID = 'dep-1'
+      component.setEventListData({ result: { Event: { 0: buildEvent({ creatorDetails: undefined }) } } })
+      expect(component.eventData.pastEvents[0].eventjoined).toBe(' --- ')
+    })
+
+    it('setEventListData: appIcon present is used as eventThumbnail', () => {
+      component.departmentID = 'dep-1'
+      component.setEventListData({ result: { Event: { 0: buildEvent({ appIcon: '/some/icon.png' }) } } })
+      expect(component.eventData.pastEvents[0].eventThumbnail).toBe('/some/icon.png')
+    })
+
+    it('setEventListData: appIcon absent falls back to default thumbnail', () => {
+      component.departmentID = 'dep-1'
+      component.setEventListData({ result: { Event: { 0: buildEvent({ appIcon: null }) } } })
+      expect(component.eventData.pastEvents[0].eventThumbnail).toBe('/assets/icons/Events_default.png')
+    })
+
+    it('setEventListData: buckets an event as upcoming when its end date is in the future', () => {
+      component.departmentID = 'dep-1'
+      component.setEventListData({
+        result: {
+          Event: {
+            0: buildEvent({ endDate: '2999-01-02', endTime: '1000+0530' }),
+          },
+        },
+      })
+      expect(component.eventData.upcomingEvents).toHaveLength(1)
+      expect(component.eventData.pastEvents).toEqual([])
+    })
   })
 })

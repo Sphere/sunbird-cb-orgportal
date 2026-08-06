@@ -199,6 +199,64 @@ describe('common.util', () => {
       expect(result[0].code).toBe('ROLEUNDERUNKNOWN')
     })
 
+    it('handles missing entityCode and entityType on nodes', () => {
+      const response: any = {
+        result: {
+          entityType: 'ROLE',
+          entityName: 'NoCode',
+          children: [
+            { entityName: 'Untyped child', children: [] },
+          ],
+        },
+      }
+      const result = buildPositionMappingTree(response)
+      expect(result[0].code).toBe('')
+    })
+
+    it('uses code fallback for name when activity/competency name is empty', () => {
+      const response: any = {
+        result: {
+          entityType: 'ROLE',
+          entityCode: 'role1',
+          entityName: 'Role',
+          children: [
+            {
+              entityType: 'ACTIVITY',
+              entityCode: 'act1',
+              children: [
+                { entityType: 'COMPETENCY', entityCode: 'comp1', competencies: [{ level: 'L1' }] },
+              ],
+            },
+          ],
+        },
+      }
+      const result = buildPositionMappingTree(response)
+      expect(result[0].activities[0].name).toBe('ACT1')
+      expect(result[0].activities[0].competencies[0].name).toBe('COMP1')
+    })
+
+    it('returns empty levels when competency node has no competencies array', () => {
+      const response: any = {
+        result: {
+          entityType: 'ROLE',
+          entityCode: 'r',
+          entityName: 'R',
+          children: [
+            {
+              entityType: 'ACTIVITY',
+              entityCode: 'a',
+              entityName: 'A',
+              children: [
+                { entityType: 'COMPETENCY', entityCode: 'c', entityName: 'C' },
+              ],
+            },
+          ],
+        },
+      }
+      const result = buildPositionMappingTree(response)
+      expect(result[0].activities[0].competencies[0].levels).toEqual([])
+    })
+
     it('handles competency node whose competencies array has non-object entries', () => {
       const response: any = {
         result: {
@@ -296,6 +354,49 @@ describe('common.util', () => {
       expect(result[0].children).toEqual([])
       expect(result[0].name).toBe('Updated')
     })
+
+    it('handles null/undefined code on original and edited rows (?? fallback)', () => {
+      const original = [{ code: null, name: 'Comp' }]
+      const edited = [{ code: null, name: 'Updated' }]
+      const result = transformCompetencyForUpdate(original, edited)
+      expect(result[0].name).toBe('Updated')
+    })
+
+    it('falls back to original code/name/etc when edited fields are undefined', () => {
+      const original = [{ code: 'c1', name: 'Old', description: 'OldDesc', type: 't1', status: 's1', children: [] }]
+      const edited = [{ code: 'c1' }]
+      const result = transformCompetencyForUpdate(original, edited)
+      expect(result[0]).toMatchObject({ code: 'c1', name: 'Old', description: 'OldDesc', type: 't1', status: 's1' })
+    })
+
+    it('leaves unmatched existing children untouched and keeps partial name-only update', () => {
+      const original = [
+        {
+          code: 'c1',
+          name: 'Comp',
+          children: [
+            { level: 'L1', name: 'OldL1' },
+            { level: 'L9', name: 'Untouched' },
+          ],
+        },
+      ]
+      const edited = [{ code: 'c1', level_L1_description: 'NewDesc' }]
+      const result = transformCompetencyForUpdate(original, edited)
+      const children = result[0].children as any[]
+      const l9 = children.find(c => c.level === 'L9')
+      const l1 = children.find(c => c.level === 'L1')
+      expect(l9.name).toBe('Untouched')
+      expect(l1.name).toBe('OldL1')
+      expect(l1.description).toBe('NewDesc')
+    })
+
+    it('handles children entries missing a level field', () => {
+      const original = [{ code: 'c1', name: 'Comp', children: [{ name: 'NoLevel' }] }]
+      const edited = [{ code: 'c1', level_L1_label: 'New' }]
+      const result = transformCompetencyForUpdate(original, edited)
+      const children = result[0].children as any[]
+      expect(children.some(c => c.level === 'L1')).toBe(true)
+    })
   })
 
   describe('transformCompetencies', () => {
@@ -350,6 +451,20 @@ describe('common.util', () => {
       const input: any = [{ code: 'c3', name: 'Comp3' }]
       const result = transformCompetencies(input)
       expect(result[0].levels).toEqual([])
+    })
+
+    it('handles null code/name and child without level/levelId/entityCode', () => {
+      const input: any = [
+        {
+          code: null,
+          name: null,
+          children: [{}],
+        },
+      ]
+      const result = transformCompetencies(input)
+      expect(result[0].code).toBe('')
+      expect(result[0].label).toBe('')
+      expect(result[0].levels[0]).toEqual({ level: 'L', code: '' })
     })
   })
 

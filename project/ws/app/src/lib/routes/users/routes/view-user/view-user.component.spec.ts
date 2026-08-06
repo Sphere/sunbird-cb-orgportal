@@ -394,4 +394,92 @@ describe('ViewUserComponent', () => {
       expect(dialogMock.open).not.toHaveBeenCalled()
     })
   })
+
+  describe('getDateFromText', () => {
+    it('should return empty string when dateString is falsy', () => {
+      setup()
+      expect((component as any).getDateFromText('')).toBe('')
+    })
+
+    it('should return a Date when dateString is provided', () => {
+      setup()
+      const result = (component as any).getDateFromText('15-06-2020')
+      expect(result).toBeInstanceOf(Date)
+    })
+  })
+
+  describe('constructFormFromRegistry', () => {
+    const academics = {
+      X_STANDARD: { schoolName10: 'S10', yop10: '2010' },
+      XII_STANDARD: { schoolName12: 'S12', yop12: '2012' },
+      degree: [],
+      postDegree: [],
+    }
+
+    it('should set orgOthersField false and professionOtherField false when values are not "Others"', () => {
+      setup()
+      const data = {
+        personalDetails: { firstname: 'A', officialEmail: '' },
+        interests: null,
+      }
+      const organisation = { orgType: 'Government', profession: 'Nurse' }
+      ;(component as any).constructFormFromRegistry(data, academics, organisation)
+      expect(component.orgOthersField).toBe(false)
+      expect(component.professionOtherField).toBe(false)
+      expect(component.isOfficialEmail).toBe(false)
+    })
+
+    it('should set orgOthersField true and professionOtherField true when values are "Others"', () => {
+      setup()
+      const data = {
+        personalDetails: { firstname: 'A', officialEmail: 'a@b.com' },
+        interests: { professional: 'p', hobbies: 'h' },
+      }
+      const organisation = { orgType: 'Others', profession: 'Others' }
+      ;(component as any).constructFormFromRegistry(data, academics, organisation)
+      expect(component.orgOthersField).toBe(true)
+      expect(component.professionOtherField).toBe(true)
+      expect(component.isOfficialEmail).toBe(true)
+    })
+  })
+
+  describe('filterPrimaryEmailType', () => {
+    it('should set isOfficialEmail true when officialEmail is present', () => {
+      setup()
+      const result = (component as any).filterPrimaryEmailType({ personalDetails: { officialEmail: 'x@y.com' } })
+      expect(component.isOfficialEmail).toBe(true)
+      expect(result).toBe(component.ePrimaryEmailType.OFFICIAL)
+    })
+
+    it('should set isOfficialEmail false when officialEmail is absent', () => {
+      setup()
+      ;(component as any).filterPrimaryEmailType({ personalDetails: { officialEmail: '' } })
+      expect(component.isOfficialEmail).toBe(false)
+    })
+  })
+
+  describe('assignPrimaryEmailTypeCheckBox', () => {
+    it('should set isOfficialEmail true when primaryEmailType is OFFICIAL', () => {
+      setup()
+      ;(component as any).assignPrimaryEmailTypeCheckBox(component.ePrimaryEmailType.OFFICIAL)
+      expect(component.isOfficialEmail).toBe(true)
+    })
+
+    it('should set isOfficialEmail false when primaryEmailType is not OFFICIAL', () => {
+      setup()
+      ;(component as any).assignPrimaryEmailTypeCheckBox(component.ePrimaryEmailType.PERSONAL)
+      expect(component.isOfficialEmail).toBe(false)
+    })
+  })
+
+  describe('ngOnDestroy', () => {
+    it('should complete the destroy$ subject', () => {
+      setup()
+      const nextSpy = jest.spyOn((component as any).destroy$, 'next')
+      const completeSpy = jest.spyOn((component as any).destroy$, 'complete')
+      component.ngOnDestroy()
+      expect(nextSpy).toHaveBeenCalled()
+      expect(completeSpy).toHaveBeenCalled()
+    })
+  })
 })

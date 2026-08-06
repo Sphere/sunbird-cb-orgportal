@@ -485,6 +485,30 @@ describe('CreateWorkallocationComponent', () => {
       component.dataStructure = {}
       expect(component.getUnmappedCompetency()).toEqual([])
     })
+
+    it('filters out competency entries with no name/description in getUnmappedCompetency', () => {
+      createComponent({})
+      component.dataStructure = {
+        compGroups: [{ competincies: [{ localId: 2 }] }],
+      }
+      const result = component.getUnmappedCompetency()
+      expect(result).toEqual([])
+    })
+
+    it('filters out role competency entries with no name/description in getRoles', () => {
+      createComponent({})
+      component.dataStructure = {
+        activityGroups: [
+          { groupName: 'unmapped', activities: [] },
+          { groupName: 'role1', groupDescription: 'roleDesc', activities: [] },
+        ],
+        compGroups: [
+          { roleName: 'role1', competincies: [{ localId: 5 }] },
+        ],
+      }
+      const roles = component.getRoles
+      expect(roles[0].competencyDetails).toEqual([])
+    })
   })
 
   describe('saveWAT', () => {
@@ -565,6 +589,24 @@ describe('CreateWorkallocationComponent', () => {
         expect(allocateSrvc.updateAllocationV2).toHaveBeenCalled()
         expect(snackBar.open).toHaveBeenCalledWith('Work order updated successfully!', 'X', { duration: 5000 })
         expect(watStore.clear).toHaveBeenCalled()
+        done()
+      }, 600)
+    })
+
+    it('navigates and reloads document when reload flag is set on updateWat', done => {
+      createComponent({ workorder: 'wo-1' })
+      component.dataStructure = {
+        officerFormData: { user: { userId: 'u1' }, officerName: 'Alice', positionObj: { id: 'p1' } },
+      }
+      component.editDataStruct = { id: 'wat-1', createdBy: 'admin', createdByName: 'Admin' }
+      component.updateWat(true, true, true)
+      setTimeout(() => {
+        expect(router.navigate).toHaveBeenCalledWith([
+          '/app/workallocation/update',
+          watStore.getworkOrderId,
+          watStore.getOfficerId,
+        ])
+        expect(document.location.reload).toHaveBeenCalled()
         done()
       }, 600)
     })

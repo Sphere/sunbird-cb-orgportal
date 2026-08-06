@@ -267,6 +267,73 @@ describe('SelectCompetenciesComponent', () => {
     expect(mockRouter.navigate).toHaveBeenCalledWith([PLAYLIST_ROUTES.HOME_SUMMARY])
   })
 
+  it('should sort preselected competencies by playlist payload order when both preselected', async () => {
+    mockState.getExistingCompetencyCodes.mockReturnValue(['C1', 'C2'])
+    mockState.getExistingCompetencyPlaylist.mockReturnValue({
+      dataSource: { payload: [{ code: 'C2', index: 0 }, { code: 'C1', index: 1 }] },
+    } as any)
+    mockCompetencyApi.getCompetencyListByLanguage.mockReturnValue(of([
+      rawCompetency({ id: 1, code: 'C1', name: 'Alpha' }),
+      rawCompetency({ id: 2, code: 'C2', name: 'Beta' }),
+    ]) as any)
+    await configureTestingModule()
+    fixture.detectChanges()
+
+    const codes = component.allCompetencies().map(c => c.code)
+    expect(codes[0]).toBe('C2')
+    expect(codes[1]).toBe('C1')
+  })
+
+  it('should fall back to name comparison when codes are equal', async () => {
+    mockCompetencyApi.getCompetencyListByLanguage.mockReturnValue(of([
+      rawCompetency({ id: 1, code: 'SAME', name: 'Zeta' }),
+      rawCompetency({ id: 2, code: 'SAME', name: 'Alpha' }),
+    ]) as any)
+    await configureTestingModule()
+    fixture.detectChanges()
+
+    const names = component.allCompetencies().map(c => c.name)
+    expect(names[0]).toBe('Alpha')
+    expect(names[1]).toBe('Zeta')
+  })
+
+  it('should use arrayIndex fallback when payload item has no numeric index', async () => {
+    mockState.getExistingCompetencyPlaylist.mockReturnValue({
+      dataSource: { payload: [{ code: 'C1' }] },
+    } as any)
+    await configureTestingModule()
+    fixture.detectChanges()
+
+    expect((component as any).preselectedCompetencyOrderMap.get('C1')).toBe(0)
+  })
+
+  it('should fall back to default levels when children is undefined', async () => {
+    mockCompetencyApi.getCompetencyListByLanguage.mockReturnValue(of([
+      rawCompetency({ id: 9, code: 'C9', name: 'Nine', children: undefined }),
+    ]) as any)
+    await configureTestingModule()
+    fixture.detectChanges()
+
+    const comp = component.allCompetencies().find(c => c.code === 'C9')
+    expect(comp?.levels && comp.levels.length).toBeGreaterThan(0)
+  })
+
+  it('should handle saved selections with missing code/id gracefully', async () => {
+    mockState.getSelectedCompetencies.mockReturnValue([{ code: '', id: '' } as any])
+    await configureTestingModule()
+    expect(() => fixture.detectChanges()).not.toThrow()
+  })
+
+  it('should treat items with missing code/name as empty strings when sorting', async () => {
+    mockCompetencyApi.getCompetencyListByLanguage.mockReturnValue(of([
+      rawCompetency({ id: 1, code: '', name: '' }),
+      rawCompetency({ id: 2, code: '', name: '' }),
+    ]) as any)
+    await configureTestingModule()
+    expect(() => fixture.detectChanges()).not.toThrow()
+    expect(component.allCompetencies().length).toBe(2)
+  })
+
   it('onAssignCourses should save selected competencies and navigate', async () => {
     await configureTestingModule()
     fixture.detectChanges()

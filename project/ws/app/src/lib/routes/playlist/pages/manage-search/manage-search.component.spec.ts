@@ -18,6 +18,24 @@ jest.mock('@angular/core/rxjs-interop', () => ({
   takeUntilDestroyed: () => (source: any) => source,
 }))
 
+const mockAceEditor = {
+  setTheme: jest.fn(),
+  getSession: jest.fn().mockReturnValue({ setMode: jest.fn(), setUseWrapMode: jest.fn() }),
+  setOptions: jest.fn(),
+  setReadOnly: jest.fn(),
+  setValue: jest.fn(),
+  getValue: jest.fn().mockReturnValue(''),
+  on: jest.fn(),
+  $blockScrolling: 0,
+}
+
+jest.mock('brace', () => ({
+  edit: jest.fn(() => mockAceEditor),
+}))
+jest.mock('brace/ext/language_tools', () => ({}), { virtual: true })
+jest.mock('brace/mode/json', () => ({}), { virtual: true })
+jest.mock('brace/theme/chrome', () => ({}), { virtual: true })
+
 import { inject } from '@angular/core'
 
 describe('ManageSearchComponent', () => {
@@ -132,6 +150,28 @@ describe('ManageSearchComponent', () => {
     it('does nothing when the editor element ref is not present', () => {
       expect(() => component.ngAfterViewInit()).not.toThrow()
     })
+
+    it('initializes the ace editor when the element ref is present', () => {
+      jest.clearAllMocks()
+      ;(component as any).jsonEditorRef = { nativeElement: {} }
+      component.ngAfterViewInit()
+      expect(mockAceEditor.setTheme).toHaveBeenCalledWith('ace/theme/chrome')
+      expect(mockAceEditor.setOptions).toHaveBeenCalled()
+      expect(mockAceEditor.setReadOnly).toHaveBeenCalledWith(false)
+      expect(mockAceEditor.setValue).toHaveBeenCalledWith(component.jsonText(), -1)
+      expect(mockAceEditor.on).toHaveBeenCalledWith('change', expect.any(Function))
+    })
+
+    it('routes editor change events through onJsonChange', () => {
+      jest.clearAllMocks()
+      ;(component as any).jsonEditorRef = { nativeElement: {} }
+      component.ngAfterViewInit()
+      const onSpy = mockAceEditor.on as jest.Mock
+      const changeHandler = onSpy.mock.calls[0][1]
+      mockAceEditor.getValue.mockReturnValue('{"x":1}')
+      changeHandler()
+      expect(component.jsonText()).toBe('{"x":1}')
+    })
   })
 
   describe('ngOnDestroy', () => {
@@ -212,6 +252,13 @@ describe('ManageSearchComponent', () => {
       component.jsonText.set('{not valid')
       await component.onSave()
       expect(playlistApiMock.savePlaylist).not.toHaveBeenCalled()
+    })
+
+    it('sets a validation error when the JSON is valid but not an object', async () => {
+      component.jsonText.set('[1,2,3]')
+      await component.onSave()
+      expect(playlistApiMock.savePlaylist).not.toHaveBeenCalled()
+      expect(component.validationError()).toBe('Payload must be a JSON object.')
     })
 
     it('does nothing and sets a validation error when dataSource.type is not "query"', async () => {

@@ -478,6 +478,19 @@ describe('MapRolePositionComponent', () => {
       component.selectedPosition = null
       expect(() => (component as any).validateAndApplyPositionRoleMappings()).not.toThrow()
     })
+
+    it('handles error from the outer findRolesMissingActivityMapping subscription', () => {
+      const position = { code: 'P1', title: 'P1', roleDetails: [] }
+      component.selectedPosition = position
+      component.selectedRoleMap = { R1: true }
+      component.rolesData = [{ code: 'R1', title: 'Role One' }]
+      jest.spyOn(component as any, 'findRolesMissingActivityMapping').mockReturnValue(
+        throwError(() => new Error('outer failure'))
+      )
+      component.onAddRoleToPosition()
+      expect(snackbar.error).toHaveBeenCalledWith('Unable to validate role activity mappings. Please try again.')
+      expect((component as any).isValidatingRoleMappings).toBe(false)
+    })
   })
 
   describe('persistPositionRoleMappings error handling', () => {
@@ -543,6 +556,205 @@ describe('MapRolePositionComponent', () => {
       ;(component as any).setPositionDraft('P1', [])
       expect(component.updatedPositions).toEqual([])
       expect((component as any).clearedPositionDraftKeys.has((component as any).buildPositionMappingKey('P1'))).toBe(true)
+    })
+  })
+
+  describe('additional branch coverage', () => {
+    it('debounced role search stream eventually calls fetchRoles', done => {
+      component.ngOnInit()
+      fracApiService.searchEntities.mockClear()
+      ;(component as any).roleSearch$.next('deb')
+      setTimeout(() => {
+        expect(fracApiService.searchEntities).toHaveBeenCalledWith('role', 'deb', 'en')
+        done()
+      }, 600)
+    })
+
+    it('applyRoutePositionSelection returns early once already auto-selected', () => {
+      ;(component as any).hasAutoSelectedRoutePosition = true
+      ;(component as any).routePositionCode = 'P1'
+      const spy = jest.spyOn(component, 'onPositionSelected')
+      ;(component as any).applyRoutePositionSelection([{ code: 'P1', title: 'P1' }], '')
+      expect(spy).not.toHaveBeenCalled()
+    })
+
+    it('applyRoutePositionSelection marks auto-selected without re-selecting when a position is already selected', () => {
+      ;(component as any).routePositionCode = 'P1'
+      component.selectedPosition = { code: 'OTHER', title: 'Other' }
+      const spy = jest.spyOn(component, 'onPositionSelected')
+      ;(component as any).applyRoutePositionSelection([{ code: 'P1', title: 'P1' }], '')
+      expect(spy).not.toHaveBeenCalled()
+      expect((component as any).hasAutoSelectedRoutePosition).toBe(true)
+    })
+
+    it('ignores a stale error response if selectedPosition changed before it arrived', () => {
+      const subject = new Subject<any>()
+      fracApiService.searchEntityMapping.mockReturnValue(subject.asObservable())
+      const position = { code: 'P1', title: 'Position 1' }
+      component.onPositionSelected(position)
+      component.selectedPosition = { code: 'OTHER', title: 'Other' }
+      subject.error(new Error('late error'))
+      expect(snackbar.error).not.toHaveBeenCalled()
+    })
+
+    it('keeps the searched role list instead of showing all mapped roles when a role search term is active', () => {
+      component.roleSearchTerm = 'abc'
+      component.selectedPosition = { code: 'P1', title: 'Position 1' }
+      const nextSpy = jest.spyOn((component as any).roleSearch$, 'next')
+      ;(component as any).applyMappedRolesToPosition(
+        { code: 'P1', title: 'Position 1' },
+        [{ code: 'R1', label: 'Role One' }],
+      )
+      expect(nextSpy).toHaveBeenCalledWith('abc')
+    })
+
+    it('persists via API when an empty selection actually clears a previously cached mapping', () => {
+      const position = { code: 'P1', title: 'P1', roleDetails: [{ code: 'R1', label: 'Role One' }] }
+      component.selectedPosition = position
+      ;(component as any).positionRoleMappingCache.set(
+        (component as any).buildPositionMappingKey('P1'),
+        [{ code: 'R1', label: 'Role One' }],
+      )
+      component.selectedRoleMap = {}
+      fracApiService.mapEntity.mockReturnValue(of({}))
+      component.onAddRoleToPosition()
+      expect(fracApiService.mapEntity).toHaveBeenCalled()
+      expect(component.hasUnsavedChanges).toBe(false)
+    })
+
+    it('shows success message directly when empty selection produces no payload', () => {
+      const position = { code: 'P1', title: 'P1', roleDetails: [] }
+      component.selectedPosition = position
+      component.selectedRoleMap = {}
+      component.selectedRoleSummary = []
+      jest.spyOn(component as any, 'buildPayload').mockReturnValue([])
+      ;(component as any).validateAndApplyPositionRoleMappings()
+      expect(snackbar.success).toHaveBeenCalledWith('Position–Role selection updated.')
+    })
+
+    it('shows success message directly when a validated selection produces no payload', () => {
+      const position = { code: 'P1', title: 'P1', roleDetails: [] }
+      component.selectedPosition = position
+      component.selectedRoleMap = { R1: true }
+      component.rolesData = [{ code: 'R1', title: 'Role One' }]
+      fracApiService.searchEntityMapping.mockReturnValue(
+        of({ result: [{ childHierarchy: [{ entityType: 'Activity', entityCode: 'A1' }] }] }),
+      )
+      jest.spyOn(component as any, 'buildPayload').mockReturnValue([])
+      component.onAddRoleToPosition()
+      expect(snackbar.success).toHaveBeenCalledWith('Position–Role selection updated.')
+    })
+
+    it('treats a non-activity child as not mapped in hasMappedActivityLevels', () => {
+      const position = { code: 'P1', title: 'P1', roleDetails: [] }
+      component.selectedPosition = position
+      component.selectedRoleMap = { R1: true }
+      component.rolesData = [{ code: 'R1', title: 'Role One' }]
+      fracApiService.searchEntityMapping.mockReturnValue(
+        of({ result: [{ childHierarchy: [{ entityType: 'Role', entityCode: 'R9' }] }] }),
+      )
+      component.onAddRoleToPosition()
+      expect(snackbar.warning).toHaveBeenCalledWith('Some selected roles are missing activity mapping.')
+    })
+
+    it('removes deselected roles and updates existing role labels on a partial change', () => {
+      const position = { code: 'P1', title: 'P1', roleDetails: [{ code: 'R1', label: 'Old Label' }, { code: 'R2', label: 'Stale' }] }
+      component.selectedPosition = position
+      component.selectedRoleMap = { R1: true }
+      component.rolesData = [{ code: 'R1', title: 'New Label' }]
+      fracApiService.searchEntityMapping.mockReturnValue(
+        of({ result: [{ childHierarchy: [{ entityType: 'Activity', entityCode: 'A1' }] }] }),
+      )
+      fracApiService.mapEntity.mockReturnValue(of({}))
+      component.onAddRoleToPosition()
+      expect(component.selectedPosition!.roleDetails).toEqual([{ code: 'R1', label: 'New Label' }])
+    })
+
+    it('dedupes duplicate role pairs in buildPayload', () => {
+      const key = (component as any).buildPositionMappingKey('P1')
+      ;(component as any).positionDraftStore.set(key, [{ code: 'R1', label: 'A' }, { code: 'R1', label: 'A' }])
+      const payload = (component as any).buildPayload()
+      expect(payload.filter((p: any) => p.parentEntityCode === 'P1').length).toBe(1)
+    })
+
+    it('skips cleared positions in buildPayload when they already have mappings', () => {
+      ;(component as any).setPositionDraft('P1', [{ code: 'R1', label: 'A' }])
+      const key = (component as any).buildPositionMappingKey('P1')
+      ;(component as any).clearedPositionDraftKeys.add(key)
+      const payload = (component as any).buildPayload()
+      const clearedOnly = payload.filter((p: any) => p.parentEntityCode === 'P1' && !p.childEntityCode)
+      expect(clearedOnly.length).toBe(0)
+    })
+
+    it('getHydratedPositionRoleDetails returns cloned draft details when present', () => {
+      ;(component as any).setPositionDraft('P1', [{ code: 'R1', label: 'Draft Role' }])
+      fracApiService.searchEntities.mockReturnValue(
+        of({ result: { entity: [positionApiEntity('P1', 'Position 1')] } }),
+      )
+      ;(component as any).fetchPositions('')
+      expect(component.positions[0].roleDetails).toEqual([{ code: 'R1', label: 'Draft Role' }])
+    })
+
+    it('getHydratedPositionRoleDetails returns cloned cached details when no draft exists', () => {
+      const key = (component as any).buildPositionMappingKey('P1')
+      ;(component as any).positionRoleMappingCache.set(key, [{ code: 'R2', label: 'Cached Role' }])
+      fracApiService.searchEntities.mockReturnValue(
+        of({ result: { entity: [positionApiEntity('P1', 'Position 1')] } }),
+      )
+      ;(component as any).fetchPositions('')
+      expect(component.positions[0].roleDetails).toEqual([{ code: 'R2', label: 'Cached Role' }])
+    })
+
+    it('applyPositionDetailsToCollections only updates the matching position in a multi-position list', () => {
+      fracApiService.searchEntities.mockReturnValue(
+        of({ result: { entity: [positionApiEntity('P1', 'Position 1'), positionApiEntity('P2', 'Position 2')] } }),
+      )
+      ;(component as any).fetchPositions('')
+      fracApiService.searchEntityMapping.mockReturnValue(
+        of({ result: [{ childHierarchy: [{ entityType: 'Role', entityCode: 'R1', entityName: 'Role One' }] }] }),
+      )
+      component.onPositionSelected(component.positions[0])
+      const other = component.positions.find(p => p.code === 'P2')
+      expect(other!.roleDetails || []).toEqual([])
+      const updated = component.positions.find(p => p.code === 'P1')
+      expect(updated!.roleDetails).toEqual([{ code: 'R1', label: 'Role One' }])
+    })
+
+    it('syncUpdatedPositionsFromDraftStore falls back to positions/filteredPositions metadata', () => {
+      component.positionsData = []
+      component.positions = [{ code: 'P1', title: 'From Positions List' }]
+      component.filteredPositions = []
+      ;(component as any).setPositionDraft('P1', [{ code: 'R1', label: 'Role One' }])
+      expect(component.updatedPositions[0].title).toBe('From Positions List')
+    })
+
+    it('syncUpdatedPositionsFromDraftStore falls back to filteredPositions metadata as last resort', () => {
+      component.positionsData = []
+      component.positions = []
+      component.filteredPositions = [{ code: 'P1', title: 'From Filtered List' }]
+      ;(component as any).setPositionDraft('P1', [{ code: 'R1', label: 'Role One' }])
+      expect(component.updatedPositions[0].title).toBe('From Filtered List')
+    })
+
+    it('syncUpdatedPositionsFromDraftStore falls back to code when no metadata found anywhere', () => {
+      component.positionsData = []
+      component.positions = []
+      component.filteredPositions = []
+      ;(component as any).setPositionDraft('PX', [{ code: 'R1', label: 'Role One' }])
+      expect(component.updatedPositions[0].title).toBe('PX')
+    })
+
+    it('showResultModal redirects home when redirectOnClose is true and result is success', () => {
+      dialog.open.mockReturnValue({ afterClosed: () => of(undefined) })
+      ;(component as any).showResultModal({ type: 'success', title: 'T', message: 'M' }, true)
+      expect(router.navigateByUrl).toHaveBeenCalledWith('/app/home/frac/dashboard')
+    })
+
+    it('showResultModal does not redirect when redirectOnClose is true but result is not success', () => {
+      dialog.open.mockReturnValue({ afterClosed: () => of(undefined) })
+      router.navigateByUrl.mockClear()
+      ;(component as any).showResultModal({ type: 'error', title: 'T', message: 'M' }, true)
+      expect(router.navigateByUrl).not.toHaveBeenCalled()
     })
   })
 
