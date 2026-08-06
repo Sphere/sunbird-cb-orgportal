@@ -13,6 +13,24 @@ export class MenuConfigService {
      */
     private readonly localMenus = [
         {
+            name: 'MNC Attendance Report',
+            key: 'mncAttendanceReport',
+            fragment: false,
+            render: true,
+            badges: {
+                enabled: false,
+                uri: ''
+            },
+            enabled: true,
+            routerLink: '/app/home/mnc-attendance-report',
+            // Lowercase: the left-menu widget matches against the lowercased userRoles set.
+            requiredRoles: ['mnc_report_viewer'],
+        },
+        // Playlist and Competency are left disabled deliberately. mergeMenus() was switched
+        // off entirely until now, so neither has ever been rendered from here — their real
+        // menu entries come from the host-served page config. Enabling them as a side effect
+        // of turning mergeMenus back on would surface duplicate/unreviewed nav items.
+        {
             name: 'Playlist',
             key: 'playlist',
             fragment: false,
@@ -21,7 +39,7 @@ export class MenuConfigService {
                 enabled: false,
                 uri: ''
             },
-            enabled: true,
+            enabled: false,
             routerLink: '/app/home/playlist/filters',
             requiredRoles: ['admin', 'mdo_admin', 'wat_member'],
         },
@@ -34,7 +52,7 @@ export class MenuConfigService {
                 enabled: false,
                 uri: ''
             },
-            enabled: true,
+            enabled: false,
             routerLink: '/app/home/competency/summary',
             requiredRoles: ['admin', 'mdo_admin', 'wat_member'],
         },

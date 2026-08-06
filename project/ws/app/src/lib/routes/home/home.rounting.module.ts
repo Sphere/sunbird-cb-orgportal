@@ -20,6 +20,7 @@ import { EventDetailsComponent } from './routes/event-details/event-details.comp
 import { EventOverviewComponent } from './routes/event-overview/event-overview.component'
 import { ParticipantsComponent } from './routes/participants/participants.component'
 import { CertificateGeneratorComponent } from './routes/certificate-generator/certificate-generator.component'
+import { GeneralGuard } from '../../../../../../../src/app/guards/general.guard'
 
 const routes: Routes = [
   {
@@ -119,6 +120,16 @@ const routes: Routes = [
         path: 'frac',
         loadChildren: () =>
           import('../frac/frac.module').then((m) => m.FracModule),
+      },
+      {
+        // Role name MUST be lowercase — GeneralGuard tests a lowercased Set without
+        // lowercasing the input, so an uppercase entry silently never matches.
+        // This gate is for UX; the backend 403 is the real access control.
+        path: 'mnc-attendance-report',
+        loadChildren: () =>
+          import('../report-viewer/report-viewer.module').then((m) => m.ReportViewerModule),
+        canActivate: [GeneralGuard],
+        data: { requiredRoles: ['mnc_report_viewer'] },
       }
     ],
   },
