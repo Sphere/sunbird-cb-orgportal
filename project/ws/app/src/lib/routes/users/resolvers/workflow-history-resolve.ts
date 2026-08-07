@@ -5,7 +5,7 @@ import { map, catchError } from 'rxjs/operators'
 import { } from '@sunbird-cb/collection'
 import { ConfigurationsService, IResolveResponse } from '@sunbird-cb/utils'
 import { UsersService } from '../services/users.service'
-import { NSProfileDataV2 } from '../models/profile-v2.model'
+import { NSProfileDataV2 } from '../../home/models/profile-v2.model'
 
 @Injectable()
 export class WorkflowHistoryResolve

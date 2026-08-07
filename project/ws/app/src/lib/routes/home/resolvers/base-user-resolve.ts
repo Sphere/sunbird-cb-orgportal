@@ -1,16 +1,16 @@
-import { Injectable } from '@angular/core'
-import { ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router'
+import { ActivatedRouteSnapshot, Resolve, RouterStateSnapshot } from '@angular/router'
 import { Observable, of } from 'rxjs'
 import { map, catchError } from 'rxjs/operators'
-import { } from '@sunbird-cb/collection'
 import { ConfigurationsService, IResolveResponse } from '@sunbird-cb/utils'
-import { UsersService } from '../services/users.service'
-import { NSProfileDataV2 } from '../../home/models/profile-v2.model'
+import { NSProfileDataV2 } from '../models/profile-v2.model'
 
-@Injectable()
-export class WorkflowHistoryResolve
-   {
-  constructor(private readonly usersService: UsersService, private readonly configSvc: ConfigurationsService) { }
+export interface IUserByIdService {
+  getUserById(userid: string): Observable<any>
+}
+
+export abstract class BaseUserResolve implements Resolve<IResolveResponse<NSProfileDataV2.IProfile>> {
+  protected abstract readonly usersSvc: IUserByIdService
+  constructor(protected readonly configSvc: ConfigurationsService) { }
 
   resolve(
     _route: ActivatedRouteSnapshot,
@@ -29,7 +29,7 @@ export class WorkflowHistoryResolve
     } else {
       userId = this.configSvc.userProfile && this.configSvc.userProfile.userId || ''
     }
-    return this.usersService.getWfHistoryByAppId(userId).pipe(
+    return this.usersSvc.getUserById(userId).pipe(
       map(data => ({ data, error: null })),
       catchError(error => of({ error, data: null })),
     )

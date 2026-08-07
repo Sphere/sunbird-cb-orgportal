@@ -1,37 +1,12 @@
 import { Injectable } from '@angular/core'
-import { ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router'
-import { Observable, of } from 'rxjs'
-import { map, catchError } from 'rxjs/operators'
 import { } from '@sunbird-cb/collection'
-import { ConfigurationsService, IResolveResponse } from '@sunbird-cb/utils'
+import { ConfigurationsService } from '@sunbird-cb/utils'
 import { UsersService } from '../services/users.service'
-import { NSProfileDataV2 } from '../../users/models/profile-v2.model'
+import { BaseUserResolve } from '../../home/resolvers/base-user-resolve'
 
 @Injectable()
-export class UserResolve
-   {
-  constructor(private readonly usersSvc: UsersService, private readonly configSvc: ConfigurationsService) { }
-
-  resolve(
-    _route: ActivatedRouteSnapshot,
-    _state: RouterStateSnapshot,
-  ): Observable<IResolveResponse<NSProfileDataV2.IProfile>> {
-    const path = _route.routeConfig && _route.routeConfig.path
-    let userId = ''
-    if (path !== 'me') {
-      userId = _route.params.userId
-      if (!userId) {
-        userId = _route.queryParams.userId
-      }
-      if (!userId) {
-        userId = this.configSvc.userProfile && this.configSvc.userProfile.userId || ''
-      }
-    } else {
-      userId = this.configSvc.userProfile && this.configSvc.userProfile.userId || ''
-    }
-    return this.usersSvc.getUserById(userId).pipe(
-      map(data => ({ data, error: null })),
-      catchError(error => of({ error, data: null })),
-    )
+export class UserResolve extends BaseUserResolve {
+  constructor(protected readonly usersSvc: UsersService, configSvc: ConfigurationsService) {
+    super(configSvc)
   }
 }
