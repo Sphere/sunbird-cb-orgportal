@@ -33,7 +33,7 @@ import { SwUpdate } from '@angular/service-worker'
 import { environment } from '../../../environments/environment'
 import { interval, concat, timer, Subject } from 'rxjs'
 import { DialogConfirmComponent } from '../dialog-confirm/dialog-confirm.component'
-import { MatDialog } from '@angular/material/dialog'
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
 // import { MatDialog } from '@angular/material/dialog'
 // import { DialogConfirmComponent } from '../dialog-confirm/dialog-confirm.component'
 

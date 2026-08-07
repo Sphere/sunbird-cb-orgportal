@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, HostListener, ElementRef } from '@angular/core'
-import { MatDialog } from '@angular/material/dialog'
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
 import { PageEvent } from '@angular/material/paginator'
 import { Router } from '@angular/router'
 import { Subject } from 'rxjs'

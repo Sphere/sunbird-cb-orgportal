@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, SimpleChanges, OnChanges } from '@angular/core'
-import { MatDialog, MatDialogConfig } from '@angular/material/dialog'
+import { MatLegacyDialog as MatDialog, MatLegacyDialogConfig as MatDialogConfig } from '@angular/material/legacy-dialog'
 import { Router, ActivatedRoute } from '@angular/router'
 /* tslint:disable */
 import _ from 'lodash'
