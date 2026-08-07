@@ -3,7 +3,7 @@ import { CdkDrag, CdkDragDrop, moveItemInArray, transferArrayItem } from '@angul
 import { UntypedFormArray, UntypedFormBuilder, UntypedFormControl, UntypedFormGroup } from '@angular/forms'
 // import { debounceTime } from 'rxjs/operators'
 import { inspect } from 'util'
-import { AllocationService } from '../../../workallocation/services/allocation.service'
+import { AllocationService } from '../../services/allocation.service'
 import { debounceTime, first, map, switchMap, takeUntil } from 'rxjs/operators'
 import { BehaviorSubject, Observable, Subject } from 'rxjs'
 import { WatStoreService } from '../../services/wat.store.service'

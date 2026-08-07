@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core'
 import { UntypedFormGroup, Validators, UntypedFormBuilder, UntypedFormArray, UntypedFormControl } from '@angular/forms'
-import { AllocationService } from '../../services/allocation.service'
+import { AllocationService } from '../../../workallocation-v2/services/allocation.service'
 import { Router } from '@angular/router'
 import { ExportAsService, ExportAsConfig } from 'ngx-export-as'
 import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'

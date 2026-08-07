@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild, ElementRef, Inject } from '@angular/core'
 import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog'
 import { UntypedFormGroup, Validators, UntypedFormBuilder, UntypedFormControl } from '@angular/forms'
-import { AllocationService } from '../../services/allocation.service'
+import { AllocationService } from '../../../workallocation-v2/services/allocation.service'
 import { MatLegacyTabGroup as MatTabGroup } from '@angular/material/legacy-tabs'
 
 @Component({

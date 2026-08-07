@@ -3,7 +3,7 @@ import { UntypedFormGroup, Validators, UntypedFormBuilder, UntypedFormArray, Unt
 import { ExportAsService, ExportAsConfig } from 'ngx-export-as'
 import { ActivatedRoute, Router } from '@angular/router'
 import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
-import { AllocationService } from '../../services/allocation.service'
+import { AllocationService } from '../../../workallocation-v2/services/allocation.service'
 import { ConfigurationsService } from '@sunbird-cb/utils'
 
 @Component({
