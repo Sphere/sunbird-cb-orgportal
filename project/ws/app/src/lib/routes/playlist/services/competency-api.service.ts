@@ -33,8 +33,8 @@ interface RawLevelDesc {
 
 /** Raw entity item as returned by /entity/v1/search */
 interface RawEntityItem {
-    entityId?: number
-    id?: number
+    entityId?: any
+    id?: any
     name?: string
     code?: string
     description?: string
@@ -209,7 +209,7 @@ export class CompetencyApiService {
         }))
 
         return {
-            id: Number(entity?.entityId ?? entity?.id ?? 0),
+            id: entity?.entityId || entity?.id || 0,
             type: 'competency',
             name: String(entity?.name || '').trim(),
             description: String(entity?.description || '').trim(),

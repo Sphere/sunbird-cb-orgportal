@@ -13,7 +13,7 @@ import { PLAYLIST_COMPETENCY_DEFAULTS } from '../constants/playlist.constants'
 // ---------------------------------------------------------------------------
 
 interface ExistingCompetencyItem {
-    id?: number
+    id?: any
     code?: string
     createdDate?: string
     createdBy?: string
@@ -38,7 +38,7 @@ export interface CompetencyLevelPayload {
 }
 
 export interface CompetencyPayloadItem {
-    id: number
+    id: any
     code: string
     name: string | undefined
     description: string
@@ -131,7 +131,7 @@ export function buildCompetencyData(
     const existingCompetency = findExistingCompetency(code, comp.id, existingPlaylist)
 
     return {
-        id: parseInt(comp.id, 10),
+        id: comp.id || 10,
         code,
         name: comp.name,
         description: comp.description || '',
