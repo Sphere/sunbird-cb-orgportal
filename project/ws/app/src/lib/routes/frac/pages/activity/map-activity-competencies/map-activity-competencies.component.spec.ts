@@ -1,4 +1,5 @@
 import { of, throwError, Subject } from 'rxjs'
+import { fakeAsync, tick } from '@angular/core/testing'
 import { createSpyObj } from 'src/test-utils/create-spy-obj'
 
 import { MapActivityCompetenciesComponent } from './map-activity-competencies.component'
@@ -312,37 +313,36 @@ describe('MapActivityCompetenciesComponent', () => {
     })
   })
 
-  it('should trigger fetchActivities through the debounced activitySearch$ stream', () => {
-    jest.useFakeTimers()
+  it('should trigger fetchActivities through the debounced activitySearch$ stream', fakeAsync(() => {
+    // debounceTime schedules via zone.js-patched timers, which jest's fake timers
+    // don't reliably intercept alongside Angular's zone — Angular's own fakeAsync/tick
+    // is the supported way to advance RxJS-scheduled ticks inside a zone-aware spec.
+    ;(component as any).setupSearchStreams()
     const spy = jest.spyOn(component as any, 'fetchActivities')
     component.onActivitySearch('debounced-term')
-    jest.advanceTimersByTime(600)
+    tick(600)
     expect(spy).toHaveBeenCalledWith('debounced-term')
-    jest.useRealTimers()
-  })
+  }))
 
-  it('should clear competencies via the debounced competencySearch$ stream when no activity is selected', () => {
-    jest.useFakeTimers()
+  it('should clear competencies via the debounced competencySearch$ stream when no activity is selected', fakeAsync(() => {
+    ;(component as any).setupSearchStreams()
     component.selectedActivity = null
     component.competencyData = [{ code: 'C1', label: 'Comp', levels: [] } as any]
     ;(component as any).competencySearch$.next('term')
-    jest.advanceTimersByTime(600)
+    tick(600)
     expect(component.competencyData).toEqual([])
-    jest.useRealTimers()
-  })
+  }))
 
-  it('should call fetchCompetencies through the debounced competencySearch$ stream when an activity is selected', () => {
-    jest.useFakeTimers()
+  it('should call fetchCompetencies through the debounced competencySearch$ stream when an activity is selected', fakeAsync(() => {
+    ;(component as any).setupSearchStreams()
     component.selectedActivity = { code: 'A1', title: 'Activity 1' } as any
     const spy = jest.spyOn(component as any, 'fetchCompetencies')
     ;(component as any).competencySearch$.next('java')
-    jest.advanceTimersByTime(600)
+    tick(600)
     expect(spy).toHaveBeenCalledWith('java')
-    jest.useRealTimers()
-  })
+  }))
 
   it('should populate competencyData and levels on a successful fetchCompetencies call', () => {
-    const fracApiService = TestBed.inject(FracApiService)
     ;(fracApiService.searchEntities as jest.Mock).mockReturnValue(
       of({ result: { entity: [{ code: 'C1', name: 'Comp 1', levels: [{ levelNumber: 1 }] }] } }),
     )
@@ -352,7 +352,6 @@ describe('MapActivityCompetenciesComponent', () => {
   })
 
   it('should clear the selected activity in fetchActivities when it disappears from results with no search keyword', () => {
-    const fracApiService = TestBed.inject(FracApiService)
     component.selectedActivity = { code: 'GONE', title: 'Gone Activity' } as any
     ;(fracApiService.searchEntities as jest.Mock).mockReturnValue(
       of({ result: { entity: [{ code: 'OTHER', name: 'Other Activity' }] } }),
@@ -364,7 +363,6 @@ describe('MapActivityCompetenciesComponent', () => {
   })
 
   it('should keep the missing selected activity untouched in fetchActivities when a search keyword is present', () => {
-    const fracApiService = TestBed.inject(FracApiService)
     component.selectedActivity = { code: 'GONE', title: 'Gone Activity' } as any
     ;(fracApiService.searchEntities as jest.Mock).mockReturnValue(
       of({ result: { entity: [{ code: 'OTHER', name: 'Other Activity' }] } }),
@@ -374,7 +372,6 @@ describe('MapActivityCompetenciesComponent', () => {
   })
 
   it('should re-apply mapped details to the selected activity when it is still present in fetchActivities results', () => {
-    const fracApiService = TestBed.inject(FracApiService)
     component.selectedActivity = { code: 'A1', title: 'Activity 1', competencyDetails: [{ code: 'C1', label: 'Comp', levels: 'L1' }] } as any
     const key = (component as any).buildMappingCacheKey('A1')
     ;(component as any).activityMappingCache.set(key, [{ code: 'C1', label: 'Comp', levels: 'L1' }])
@@ -387,7 +384,6 @@ describe('MapActivityCompetenciesComponent', () => {
   })
 
   it('should skip loading mappings when reselecting the same activity that already has mappings', () => {
-    const fracApiService = TestBed.inject(FracApiService)
     const activity = { code: 'A1', title: 'Activity 1' } as any
     component.onActivitySelected(activity)
     ;(component as any).activityMappingCache.set((component as any).buildMappingCacheKey('A1'), [])
@@ -477,7 +473,6 @@ describe('MapActivityCompetenciesComponent', () => {
   })
 
   it('should not re-issue a request for a mapping already in flight for the same key', () => {
-    const fracApiService = TestBed.inject(FracApiService)
     const activity = { code: 'A1', title: 'Activity 1' } as any
     const key = (component as any).buildMappingCacheKey('A1')
     ;(component as any).activeMappingRequestKey = key
@@ -489,7 +484,6 @@ describe('MapActivityCompetenciesComponent', () => {
   })
 
   it('should ignore a stale searchEntityMapping success response for a different selected activity', () => {
-    const fracApiService = TestBed.inject(FracApiService)
     ;(fracApiService.searchEntityMapping as jest.Mock).mockReturnValue(of({}))
     const activity = { code: 'A1', title: 'Activity 1' } as any
     component.selectedActivity = { code: 'DIFFERENT', title: 'Different' } as any
@@ -498,7 +492,6 @@ describe('MapActivityCompetenciesComponent', () => {
   })
 
   it('should ignore a stale searchEntityMapping error response for a different selected activity', () => {
-    const fracApiService = TestBed.inject(FracApiService)
     ;(fracApiService.searchEntityMapping as jest.Mock).mockReturnValue(
       new (require('rxjs').Observable)((subscriber: any) => subscriber.error(new Error('boom'))),
     )
@@ -509,7 +502,6 @@ describe('MapActivityCompetenciesComponent', () => {
   })
 
   it('should log and clear mappings when searchEntityMapping errors for the currently selected activity', () => {
-    const fracApiService = TestBed.inject(FracApiService)
     ;(fracApiService.searchEntityMapping as jest.Mock).mockReturnValue(
       new (require('rxjs').Observable)((subscriber: any) => subscriber.error(new Error('boom'))),
     )
@@ -533,14 +525,13 @@ describe('MapActivityCompetenciesComponent', () => {
     component.selectedActivity = { code: 'A1', title: 'Activity 1' } as any
     component.selectedMap = { C1: ['C1_L1'] }
     component.competencyData = [{ code: 'C1', label: 'Comp 1', levels: [] } as any]
-    const dialog = TestBed.inject(MatDialog)
     ;(dialog.open as jest.Mock).mockReturnValue({ afterClosed: () => of(undefined) })
+    ;(fracApiService.mapEntity as jest.Mock).mockReturnValue(of({}))
     component.onAddCompetencyToActivity()
     expect(component.selectedActivity?.competencyDetails).toBeDefined()
   })
 
   it('should warn with no-changes-detected when the current selection matches the cache', () => {
-    const snackbar = TestBed.inject(CustomSnackbarService)
     const activity = { code: 'A1', title: 'Activity 1', competencyDetails: [{ code: 'C1', label: 'Comp', levels: 'L1' }] } as any
     component.selectedActivity = activity
     const key = (component as any).buildMappingCacheKey('A1')
@@ -551,8 +542,6 @@ describe('MapActivityCompetenciesComponent', () => {
   })
 
   it('should show a success snackbar without calling mapEntity when the payload is empty', () => {
-    const snackbar = TestBed.inject(CustomSnackbarService)
-    const fracApiService = TestBed.inject(FracApiService)
     ;(fracApiService.mapEntity as jest.Mock).mockClear()
     // empty activity code means getCodeFromKey() yields a falsy code, so buildPayload() stays empty
     component.selectedActivity = { code: '', title: 'Activity 1', competencyDetails: [{ code: 'C1', label: 'Comp', levels: 'L1' }] } as any
@@ -697,8 +686,6 @@ describe('MapActivityCompetenciesComponent', () => {
   })
 
   it('should navigate home when the result modal closes after a successful save with redirectOnClose', () => {
-    const router = TestBed.inject(Router)
-    const dialog = TestBed.inject(MatDialog)
     ;(router.navigateByUrl as jest.Mock).mockClear()
     ;(dialog.open as jest.Mock).mockReturnValue({ afterClosed: () => of(undefined) })
     ;(component as any).showResultModal({ type: 'success', title: 't', message: 'm' }, true)
@@ -707,7 +694,6 @@ describe('MapActivityCompetenciesComponent', () => {
 
   describe('additional branch coverage', () => {
     it('falls back to an empty competencyDetails array when the re-matched activity in fetchActivities has none cached', () => {
-      const fracApiService = TestBed.inject(FracApiService)
       component.selectedActivity = { code: 'A1', title: 'Activity 1' } as any
       ;(fracApiService.searchEntities as jest.Mock).mockReturnValue(
         of({ result: { entity: [{ code: 'A1', name: 'Activity 1' }] } }),
@@ -870,8 +856,6 @@ describe('MapActivityCompetenciesComponent', () => {
     })
 
     it('renders the detail line without brackets when a mapped competency has blank levels on save success', () => {
-      const fracApiService = TestBed.inject(FracApiService)
-      const dialog = TestBed.inject(MatDialog)
       ;(dialog.open as jest.Mock).mockReturnValue({ afterClosed: () => of(undefined) })
       ;(fracApiService.mapEntity as jest.Mock).mockReturnValue(of({}))
 
@@ -891,8 +875,6 @@ describe('MapActivityCompetenciesComponent', () => {
     })
 
     it('defaults activityCode to empty string in the save-success detail lines when selectedActivity is falsy', () => {
-      const fracApiService = TestBed.inject(FracApiService)
-      const dialog = TestBed.inject(MatDialog)
       ;(dialog.open as jest.Mock).mockReturnValue({ afterClosed: () => of(undefined) })
 
       component.selectedActivity = { code: 'A1', title: 'Activity 1', competencyDetails: [] } as any

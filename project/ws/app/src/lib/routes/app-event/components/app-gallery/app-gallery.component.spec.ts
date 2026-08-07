@@ -1,7 +1,8 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing'
 import { NO_ERRORS_SCHEMA } from '@angular/core'
 import { ActivatedRoute } from '@angular/router'
-import { of } from 'rxjs'
+import { of, Subject } from 'rxjs'
+import { ValueService } from '@sunbird-cb/utils'
 
 import { AppGalleryComponent } from './app-gallery.component'
 
@@ -16,6 +17,10 @@ describe('AppGalleryComponent', () => {
         {
           provide: ActivatedRoute,
           useValue: { data: of({ eventdata: { data: { Home: {}, Gallery: [] } } }) },
+        },
+        {
+          provide: ValueService,
+          useValue: { isLtMedium$: new Subject<boolean>() },
         },
       ],
       schemas: [NO_ERRORS_SCHEMA],

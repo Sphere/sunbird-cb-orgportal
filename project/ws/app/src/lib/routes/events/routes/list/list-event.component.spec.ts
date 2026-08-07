@@ -1,3 +1,9 @@
+jest.mock('moment', () => {
+  const actualMoment = jest.requireActual('moment')
+  Object.defineProperty(actualMoment, '__esModule', { value: true })
+  return actualMoment
+})
+
 import { ComponentFixture, TestBed } from '@angular/core/testing'
 import { NO_ERRORS_SCHEMA } from '@angular/core'
 import { Router, ActivatedRoute } from '@angular/router'

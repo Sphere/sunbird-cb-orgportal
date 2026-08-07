@@ -1,10 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing'
 import { NO_ERRORS_SCHEMA } from '@angular/core'
+import { ReactiveFormsModule } from '@angular/forms'
 import { HttpClientTestingModule } from '@angular/common/http/testing'
 import { MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA, MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog'
+import { MatLegacySelectModule as MatSelectModule } from '@angular/material/legacy-select'
+import { MatLegacyInputModule as MatInputModule } from '@angular/material/legacy-input'
+import { MatDatepickerModule } from '@angular/material/datepicker'
+import { MatNativeDateModule } from '@angular/material/core'
+import { NoopAnimationsModule } from '@angular/platform-browser/animations'
+import { of } from 'rxjs'
 import { createSpyObj } from 'src/test-utils/create-spy-obj'
 
 import { EventModalComponent } from './event-modal.component'
+import { EventService } from '../../services/event.service'
 
 describe('EventModalComponent', () => {
   let component: EventModalComponent
@@ -66,6 +74,7 @@ describe('EventModalComponent', () => {
 
   it('should create event when form is valid and not in edit mode', () => {
     const eventService = TestBed.inject(EventService)
+    const createSpy = jest.spyOn(eventService, 'createEvent').mockReturnValue(of({}))
     ;(component as any).userData = { userId: 'u1' }
     component.eventForm.patchValue({
       eventName: 'Test Event',
@@ -76,12 +85,13 @@ describe('EventModalComponent', () => {
     })
     const closeSpy = jest.spyOn(component.dialogRef, 'close')
     component.onSave()
-    expect(eventService.createEvent).toHaveBeenCalled()
+    expect(createSpy).toHaveBeenCalled()
     expect(closeSpy).toHaveBeenCalled()
   })
 
   it('should default eventDescription to NA when blank/whitespace', () => {
     const eventService = TestBed.inject(EventService)
+    const createSpy = jest.spyOn(eventService, 'createEvent').mockReturnValue(of({}))
     ;(component as any).userData = { userId: 'u1' }
     component.eventForm.patchValue({
       eventName: 'Test Event',
@@ -91,7 +101,7 @@ describe('EventModalComponent', () => {
       certificateType: 'type1',
     })
     component.onSave()
-    expect(eventService.createEvent).toHaveBeenCalledWith(
+    expect(createSpy).toHaveBeenCalledWith(
       expect.objectContaining({ eventDescription: 'NA' })
     )
   })
@@ -99,7 +109,7 @@ describe('EventModalComponent', () => {
   it('should log error when createEvent fails', () => {
     const eventService = TestBed.inject(EventService)
     const consoleSpy = jest.spyOn(console, 'error').mockImplementation()
-    ;(eventService.createEvent as jest.Mock).mockReturnValueOnce(
+    jest.spyOn(eventService, 'createEvent').mockReturnValueOnce(
       new (require('rxjs').Observable)((subscriber: any) => subscriber.error('fail'))
     )
     ;(component as any).userData = { userId: 'u1' }
@@ -117,6 +127,7 @@ describe('EventModalComponent', () => {
 
   it('should edit event when in edit mode', () => {
     const eventService = TestBed.inject(EventService)
+    const editSpy = jest.spyOn(eventService, 'editEvent').mockReturnValue(of({}))
     ;(component as any).userData = { userId: 'u1' }
     ;(component as any).isEditMode = true
     ;(component as any).data = { event: { eventId: 'e1' } }
@@ -129,7 +140,7 @@ describe('EventModalComponent', () => {
     })
     const closeSpy = jest.spyOn(component.dialogRef, 'close')
     component.onSave()
-    expect(eventService.editEvent).toHaveBeenCalledWith(
+    expect(editSpy).toHaveBeenCalledWith(
       expect.objectContaining({ eventId: 'e1' })
     )
     expect(closeSpy).toHaveBeenCalled()
@@ -138,7 +149,7 @@ describe('EventModalComponent', () => {
   it('should log error when editEvent fails', () => {
     const eventService = TestBed.inject(EventService)
     const consoleSpy = jest.spyOn(console, 'error').mockImplementation()
-    ;(eventService.editEvent as jest.Mock).mockReturnValueOnce(
+    jest.spyOn(eventService, 'editEvent').mockReturnValueOnce(
       new (require('rxjs').Observable)((subscriber: any) => subscriber.error('fail'))
     )
     ;(component as any).userData = { userId: 'u1' }
@@ -164,7 +175,14 @@ describe('EventModalComponent - edit mode init', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [EventModalComponent],
-      imports: [ReactiveFormsModule, MatSelectModule, MatInputModule, MatDatepickerModule, MatNativeDateModule],
+      imports: [
+        ReactiveFormsModule,
+        MatSelectModule,
+        MatInputModule,
+        MatDatepickerModule,
+        MatNativeDateModule,
+        NoopAnimationsModule,
+      ],
       providers: [
         { provide: MatDialogRef, useValue: { close: jest.fn() } },
         {

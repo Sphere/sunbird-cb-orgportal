@@ -4,6 +4,7 @@ import { HideForViewOnlyDirective } from './hide-for-view-only.directive'
 import { FeatureAccessService, FEATURE_KEY } from '../access/feature-access'
 
 @Component({
+  standalone: true,
   imports: [HideForViewOnlyDirective],
   template: `
     <button *appHideForViewOnly class="mutation-btn">Delete</button>

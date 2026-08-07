@@ -4,6 +4,7 @@ import { DisableForViewOnlyDirective } from './disable-for-view-only.directive'
 import { FeatureAccessService, FEATURE_KEY } from '../access/feature-access'
 
 @Component({
+  standalone: true,
   imports: [DisableForViewOnlyDirective],
   template: `<input type="checkbox" appDisableForViewOnly [disabled]="externalDisabled" />`,
 })

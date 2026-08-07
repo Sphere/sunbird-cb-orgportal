@@ -1,6 +1,6 @@
 import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing'
 import { NO_ERRORS_SCHEMA } from '@angular/core'
-import { MatDialog } from '@angular/material/dialog'
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
 import { Router, ActivatedRoute } from '@angular/router'
 import { of } from 'rxjs'
 import { ConfigurationsService } from '@sunbird-cb/utils'

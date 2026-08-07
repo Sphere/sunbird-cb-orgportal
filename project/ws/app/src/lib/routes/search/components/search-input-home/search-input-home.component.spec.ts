@@ -1,14 +1,20 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
+import { waitForAsync as async, ComponentFixture, TestBed } from '@angular/core/testing'
 
 import { NO_ERRORS_SCHEMA } from '@angular/core'
-import { ActivatedRoute } from '@angular/router'
+import { ReactiveFormsModule } from '@angular/forms'
+import { ActivatedRoute, Router } from '@angular/router'
 import { of } from 'rxjs'
 import { HttpClientTestingModule } from '@angular/common/http/testing'
 import { KeycloakService } from 'keycloak-angular'
+import { ConfigurationsService } from '@sunbird-cb/utils'
 import { createSpyObj } from 'src/test-utils/create-spy-obj'
 import { MatLegacyAutocompleteModule as MatAutocompleteModule } from '@angular/material/legacy-autocomplete'
 import { MatLegacyMenuModule as MatMenuModule } from '@angular/material/legacy-menu'
+import { MatLegacyFormFieldModule as MatFormFieldModule } from '@angular/material/legacy-form-field'
+import { MatLegacyInputModule as MatInputModule } from '@angular/material/legacy-input'
+import { provideNoopAnimations } from '@angular/platform-browser/animations'
 import { SearchInputHomeComponent } from './search-input-home.component'
+import { SearchServService } from '../../services/search-serv.service'
 
 describe('SearchInputComponent', () => {
   let component: SearchInputHomeComponent

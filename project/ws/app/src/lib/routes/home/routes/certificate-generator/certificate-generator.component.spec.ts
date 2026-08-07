@@ -1,9 +1,11 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing'
 
 import { NO_ERRORS_SCHEMA } from '@angular/core'
-import { ActivatedRoute } from '@angular/router'
+import { ActivatedRoute, Router } from '@angular/router'
 import { of } from 'rxjs'
 import { HttpClientTestingModule } from '@angular/common/http/testing'
+import { ConfigurationsService } from '@sunbird-cb/utils'
+import { EventService } from '../../services/event.service'
 import { CertificateGeneratorComponent } from './certificate-generator.component'
 
 describe('CertificateGeneratorComponent', () => {
@@ -24,6 +26,10 @@ describe('CertificateGeneratorComponent', () => {
             snapshot: { paramMap: { get: () => null }, queryParamMap: { get: () => null }, data: {}, params: {} },
             parent: { data: of({ eventdata: { data: {} } }), params: of({}) },
           },
+        },
+        {
+          provide: Router,
+          useValue: { navigate: jest.fn() },
         },
       ],
       schemas: [NO_ERRORS_SCHEMA],

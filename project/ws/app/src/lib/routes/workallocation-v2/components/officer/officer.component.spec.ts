@@ -3,7 +3,9 @@ import { NO_ERRORS_SCHEMA } from '@angular/core'
 import { MatLegacyAutocompleteModule } from '@angular/material/legacy-autocomplete'
 import { TextFieldModule } from '@angular/cdk/text-field'
 import { HttpClientTestingModule } from '@angular/common/http/testing'
+import { of } from 'rxjs'
 import { WatStoreService } from '../../services/wat.store.service'
+import { AllocationService } from '../../services/allocation.service'
 
 import { OfficerComponent } from './officer.component'
 
@@ -11,11 +13,26 @@ describe('OfficerComponent', () => {
   let component: OfficerComponent
   let fixture: ComponentFixture<OfficerComponent>
 
+  const mockWatStore = {
+    setOfficerGroup: jest.fn(),
+  }
+
+  const mockAllocationService = {
+    onSearchUser: jest.fn().mockReturnValue(of({ result: { response: { content: [] } } })),
+    onSearchPosition: jest.fn().mockReturnValue(of({ responseData: [] })),
+  }
+
   beforeEach(async(() => {
+    mockWatStore.setOfficerGroup.mockClear()
+    mockAllocationService.onSearchUser.mockClear()
+    mockAllocationService.onSearchPosition.mockClear()
     TestBed.configureTestingModule({
       declarations: [OfficerComponent],
       imports: [HttpClientTestingModule, MatLegacyAutocompleteModule, TextFieldModule],
-      providers: [WatStoreService],
+      providers: [
+        { provide: WatStoreService, useValue: mockWatStore },
+        { provide: AllocationService, useValue: mockAllocationService },
+      ],
       schemas: [NO_ERRORS_SCHEMA],
     })
     .compileComponents()

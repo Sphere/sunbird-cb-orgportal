@@ -1,5 +1,6 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing'
 import { NO_ERRORS_SCHEMA } from '@angular/core'
+import { Router } from '@angular/router'
 import { RouterTestingModule } from '@angular/router/testing'
 import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
 import { createSpyObj } from 'src/test-utils/create-spy-obj'
@@ -12,7 +13,7 @@ describe('EventListViewComponent', () => {
   let router: any
   let matDialog: any
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [EventListViewComponent],
       imports: [RouterTestingModule],
@@ -204,8 +205,9 @@ describe('EventListViewComponent', () => {
 
   describe('onCreateClick', () => {
     it('navigates to the create-event route', () => {
+      const navigateSpy = jest.spyOn(router, 'navigate')
       component.onCreateClick()
-      expect(router.navigate).toHaveBeenCalledWith(['/app/events/create-event'])
+      expect(navigateSpy).toHaveBeenCalledWith(['/app/events/create-event'])
     })
   })
 

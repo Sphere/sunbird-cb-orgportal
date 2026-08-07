@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing'
 import { NO_ERRORS_SCHEMA } from '@angular/core'
-import { MatDialog } from '@angular/material/dialog'
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
 import { MatMenuModule } from '@angular/material/menu'
 import { Router, ActivatedRoute } from '@angular/router'
 import { ExportAsService } from 'ngx-export-as'

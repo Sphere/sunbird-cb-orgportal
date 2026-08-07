@@ -1,13 +1,32 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing'
 
 import { NO_ERRORS_SCHEMA } from '@angular/core'
-import { ActivatedRoute } from '@angular/router'
+import { ReactiveFormsModule } from '@angular/forms'
+import { ActivatedRoute, Router } from '@angular/router'
+import { provideNoopAnimations } from '@angular/platform-browser/animations'
 import { of } from 'rxjs'
 import { HttpClientTestingModule } from '@angular/common/http/testing'
 import { KeycloakService } from 'keycloak-angular'
 import { createSpyObj } from 'src/test-utils/create-spy-obj'
 import { MatLegacyMenuModule as MatMenuModule } from '@angular/material/legacy-menu'
+import { ValueService } from '@sunbird-cb/utils'
+import { SearchApiService } from '../../apis/search-api.service'
+import { SearchServService } from '../../services/search-serv.service'
 import { SocialComponent } from './social.component'
+
+const mockSearchApiService = {
+  userId: 'user-1',
+}
+
+const mockValueService = {
+  isLtMedium$: of(false),
+}
+
+const mockSearchServService = {
+  updateSelectedFiltersSet: jest.fn().mockReturnValue({ filterSet: new Set(), filterReset: false }),
+  fetchSocialSearchUsers: jest.fn().mockReturnValue(of({ total: 0, result: [], filters: [] })),
+  handleFilters: jest.fn().mockReturnValue({ filtersRes: [] }),
+}
 
 describe('SocialComponent', () => {
   let component: SocialComponent
@@ -25,7 +44,7 @@ describe('SocialComponent', () => {
           useValue: {
             data: of({ pageData: { data: {} }, eventdata: { data: {} } }),
             paramMap: of({ get: () => null }),
-            queryParamMap: of({ get: () => null }),
+            queryParamMap: of({ has: () => false, get: () => null }),
             params: of({}),
             snapshot: { paramMap: { get: () => null }, queryParamMap: { get: () => null }, data: {}, params: {} },
             parent: { data: of({ eventdata: { data: {} } }), params: of({}) },

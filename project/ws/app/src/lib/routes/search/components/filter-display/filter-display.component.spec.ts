@@ -1,39 +1,51 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing'
 
 import { NO_ERRORS_SCHEMA } from '@angular/core'
-import { ActivatedRoute } from '@angular/router'
+import { ActivatedRoute, Router } from '@angular/router'
 import { of } from 'rxjs'
 import { HttpClientTestingModule } from '@angular/common/http/testing'
 import { KeycloakService } from 'keycloak-angular'
+import { ConfigurationsService } from '@sunbird-cb/utils'
 import { createSpyObj } from 'src/test-utils/create-spy-obj'
 import { FilterDisplayComponent } from './filter-display.component'
+import { SearchServService } from '../../services/search-serv.service'
 
 describe('FilterDisplayComponent', () => {
   let component: FilterDisplayComponent
   let fixture: ComponentFixture<FilterDisplayComponent>
+  let mockSearchServService: jest.Mocked<SearchServService>
+  let mockRouter: jest.Mocked<Router>
+  let mockActivatedRoute: any
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
+    mockSearchServService = createSpyObj('SearchServService', ['translateSearchFilters'])
+    mockSearchServService.translateSearchFilters.mockResolvedValue({})
+
+    mockRouter = createSpyObj('Router', ['navigate'])
+
+    mockActivatedRoute = {
+      data: of({ pageData: { data: {} }, eventdata: { data: {} } }),
+      paramMap: of({ get: () => null }),
+      queryParamMap: of({ has: () => false, get: () => null }),
+      params: of({}),
+      snapshot: { paramMap: { get: () => null }, queryParamMap: { get: () => null }, data: {}, params: {} },
+      parent: {
+        data: of({ eventdata: { data: {} } }),
+        params: of({}),
+        snapshot: { data: { searchPageData: { data: { search: { tabs: [] } } } } },
+      },
+    }
+
     TestBed.configureTestingModule({
       declarations: [FilterDisplayComponent],
     imports: [HttpClientTestingModule],
     providers: [
         { provide: 'environment', useValue: {} },
         { provide: KeycloakService, useValue: createSpyObj('KeycloakService', ['getKeycloakInstance']) },
-        {
-          provide: ActivatedRoute,
-          useValue: {
-            data: of({ pageData: { data: {} }, eventdata: { data: {} } }),
-            paramMap: of({ get: () => null }),
-            queryParamMap: of({ get: () => null }),
-            params: of({}),
-            snapshot: { paramMap: { get: () => null }, queryParamMap: { get: () => null }, data: {}, params: {} },
-            parent: {
-              data: of({ eventdata: { data: {} } }),
-              params: of({}),
-              snapshot: { data: { searchPageData: { data: { search: { tabs: [] } } } } },
-            },
-          },
-        },
+        { provide: Router, useValue: mockRouter },
+        { provide: SearchServService, useValue: mockSearchServService },
+        { provide: ConfigurationsService, useValue: { userPreference: null } },
+        { provide: ActivatedRoute, useValue: mockActivatedRoute },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents()

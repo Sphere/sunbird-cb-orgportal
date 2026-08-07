@@ -1,11 +1,14 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing'
 import { NO_ERRORS_SCHEMA } from '@angular/core'
-import { RouterTestingModule } from '@angular/router/testing'
+import { ActivatedRoute, Router } from '@angular/router'
 import { HttpClientTestingModule } from '@angular/common/http/testing'
 import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
+import { of } from 'rxjs'
 import { createSpyObj } from 'src/test-utils/create-spy-obj'
 
 import { UserCompetencyComponent } from './user-competency.component'
+import { UsersService } from '../../services/users.service'
+import { CompetencyService } from '../../services/competency.service'
 
 describe('UserCompetencyComponent', () => {
   let component: UserCompetencyComponent
@@ -14,9 +17,30 @@ describe('UserCompetencyComponent', () => {
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       declarations: [UserCompetencyComponent],
-      imports: [RouterTestingModule, HttpClientTestingModule],
+      imports: [HttpClientTestingModule],
       providers: [
         { provide: MatDialog, useValue: createSpyObj('MatDialog', ['open']) },
+        { provide: Router, useValue: createSpyObj('Router', ['navigate']) },
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              paramMap: {
+                get: jest.fn(),
+              },
+            },
+          },
+        },
+        { provide: UsersService, useValue: createSpyObj('UsersService', ['getUserById']) },
+        {
+          provide: CompetencyService,
+          useValue: createSpyObj('CompetencyService', [
+            'getAllEntity',
+            'getUserPassbook',
+            'formatedUserCompetency',
+            'updatePassbook',
+          ]),
+        },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     })
@@ -26,6 +50,13 @@ describe('UserCompetencyComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(UserCompetencyComponent)
     component = fixture.componentInstance
+    const usersSvc: any = TestBed.inject(UsersService)
+    usersSvc.getUserById.mockReturnValue(of({}))
+    const competencySvc: any = TestBed.inject(CompetencyService)
+    competencySvc.getAllEntity.mockReturnValue(of({}))
+    competencySvc.getUserPassbook.mockReturnValue(of({}))
+    competencySvc.formatedUserCompetency.mockReturnValue([])
+    competencySvc.updatePassbook.mockReturnValue(of(null))
     fixture.detectChanges()
   })
 

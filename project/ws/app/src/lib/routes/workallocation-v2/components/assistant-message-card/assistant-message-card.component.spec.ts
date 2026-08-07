@@ -1,6 +1,6 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing'
 import { NO_ERRORS_SCHEMA } from '@angular/core'
-import { BehaviorSubject } from 'rxjs'
+import { BehaviorSubject, of } from 'rxjs'
 import { WatStoreService } from '../../services/wat.store.service'
 
 import { AssistantMessageCardComponent } from './assistant-message-card.component'
@@ -9,10 +9,19 @@ describe('AssistantMessageCardComponent', () => {
   let component: AssistantMessageCardComponent
   let fixture: ComponentFixture<AssistantMessageCardComponent>
 
+  const buildMockWatStore = () => ({
+    getactivitiesGroup: of([]),
+    getcompetencyGroup: of([]),
+    getUpdateCompGroupO: of(null),
+    getOfficerGroup: of(null),
+    setErrorCount: jest.fn(),
+    setCurrentProgress: jest.fn(),
+  })
+
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       declarations: [AssistantMessageCardComponent],
-      providers: [WatStoreService],
+      providers: [{ provide: WatStoreService, useValue: buildMockWatStore() }],
       schemas: [NO_ERRORS_SCHEMA],
     })
       .compileComponents()

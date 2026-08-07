@@ -2,9 +2,11 @@ import { async, ComponentFixture, TestBed } from '@angular/core/testing'
 import { NO_ERRORS_SCHEMA } from '@angular/core'
 import { HttpClientTestingModule } from '@angular/common/http/testing'
 import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
+import { of } from 'rxjs'
 import { createSpyObj } from 'src/test-utils/create-spy-obj'
 
 import { SkillTableComponent } from './skill-table.component'
+import { UserAutoCompleteService } from '../../services/user-auto-complete.service'
 
 describe('MappingUserTableComponent', () => {
   let component: SkillTableComponent
@@ -16,6 +18,7 @@ describe('MappingUserTableComponent', () => {
       imports: [HttpClientTestingModule],
       providers: [
         { provide: MatDialog, useValue: createSpyObj('MatDialog', ['open']) },
+        { provide: UserAutoCompleteService, useValue: createSpyObj('UserAutoCompleteService', ['fetchUserList']) },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     })
