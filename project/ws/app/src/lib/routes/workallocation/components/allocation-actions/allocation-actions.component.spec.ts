@@ -6,7 +6,7 @@ import { of } from 'rxjs'
 import { createSpyObj } from 'src/test-utils/create-spy-obj'
 
 import { AllocationActionsComponent } from './allocation-actions.component'
-import { AllocationService } from '../../services/allocation.service'
+import { AllocationService } from '../../../workallocation-v2/services/allocation.service'
 
 describe('AllocationActionsComponent', () => {
   let component: AllocationActionsComponent
