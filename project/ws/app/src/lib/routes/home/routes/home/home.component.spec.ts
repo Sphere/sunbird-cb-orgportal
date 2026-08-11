@@ -9,6 +9,7 @@ describe('HomeComponent', () => {
   let routerMock: any
   let activeRouteMock: any
   let configServiceMock: any
+  let menuConfigMock: any
 
   const buildActiveRoute = (data: any = {}) => ({
     snapshot: {
@@ -31,8 +32,11 @@ describe('HomeComponent', () => {
     configServiceMock = {
       userProfile: { departmentName: 'OldDept' },
     }
+    menuConfigMock = {
+      mergeMenus: (apiMenus: any[]) => apiMenus,
+    }
 
-    component = new HomeComponent(valueSvcMock, routerMock, activeRouteMock, configServiceMock)
+    component = new HomeComponent(valueSvcMock, routerMock, activeRouteMock, configServiceMock, menuConfigMock)
   }
 
   describe('constructor', () => {

@@ -1,8 +1,9 @@
 import { HttpErrorResponse } from '@angular/common/http'
 import { Component, OnDestroy, OnInit } from '@angular/core'
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser'
+import { SafeResourceUrl } from '@angular/platform-browser'
 import { Subscription } from 'rxjs'
 import { ReportViewerService } from '../../services/report-viewer.service'
+import { SanitizerService } from '../../../../../../../../../src/app/services/sanitizer.service'
 
 export type TReportError = 'forbidden' | 'generic'
 
@@ -23,7 +24,7 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
   private metaSubscription: Subscription | null = null
 
   constructor(
-    private domSanitizer: DomSanitizer,
+    private readonly sanitizerService: SanitizerService,
     private reportViewerSvc: ReportViewerService,
   ) { }
 
@@ -66,6 +67,6 @@ export class ReportViewerComponent implements OnInit, OnDestroy {
 
   /** Sanitizes the report URL before binding it in the template. */
   private setIframeSource(url: string): void {
-    this.iframeSrc = this.domSanitizer.bypassSecurityTrustResourceUrl(url)
+    this.iframeSrc = this.sanitizerService.trustResourceUrl(url)
   }
 }
