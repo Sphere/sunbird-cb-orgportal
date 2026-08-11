@@ -1,59 +1,89 @@
-import { HttpClientTestingModule } from '@angular/common/http/testing'
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
-import { ActivatedRoute } from '@angular/router'
-import { UtilityService } from '../../../home/services/utility.service'
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing'
+import { NO_ERRORS_SCHEMA } from '@angular/core'
+import { ActivatedRoute, Router } from '@angular/router'
 import { of, Subject } from 'rxjs'
-import { KeycloakService } from 'keycloak-angular'
-import { createSpyObj } from 'src/test-utils/create-spy-obj'
-import { MatLegacyMenuModule as MatMenuModule } from '@angular/material/legacy-menu'
+import { MatMenuModule } from '@angular/material/menu'
 
 import { LearningComponent } from './learning.component'
+import { SearchServService } from '../../services/search-serv.service'
+import { ConfigurationsService, ValueService, UtilityService } from '@sunbird-cb/utils'
 
 describe('LearningComponent', () => {
   let component: LearningComponent
   let fixture: ComponentFixture<LearningComponent>
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule, MatMenuModule],
-      declarations: [LearningComponent],
-      providers: [
-        { provide: 'environment', useValue: {} },
-        { provide: KeycloakService, useValue: createSpyObj('KeycloakService', ['getKeycloakInstance']) },
-        UtilityService,
-        {
-          provide: ActivatedRoute,
-          useValue: {
-            snapshot: {
-              data: {
-                pageroute: 'learning',
-                pageData: {
-                  data: {
-                    search: {
-                      tabs: [
-                        {
-                          titleKey: 'learning',
-                          phraseSearch: true,
-                          isStandAlone: true,
-                          acrossPreferredLang: false,
-                          searchQuery: { filters: {} },
-                        },
-                      ],
-                    },
-                  },
-                },
-              },
-              queryParamMap: {
-                get: () => null,
-              },
+  const mockPageData = {
+    data: {
+      search: {
+        tabs: [
+          {
+            titleKey: 'learning',
+            phraseSearch: false,
+            isStandAlone: false,
+            acrossPreferredLang: false,
+            searchQuery: {
+              filters: {},
             },
-            queryParamMap: of({
-              has: () => false,
-              get: () => null,
-            }),
-            parent: null,
           },
-        },
+        ],
+        visibleFilters: {},
+        excludeSourceFields: [],
+      },
+    },
+  }
+
+  const mockActivatedRoute = {
+    snapshot: {
+      queryParams: {},
+      queryParamMap: { has: () => false, get: () => null },
+      data: { pageData: mockPageData, pageroute: 'learning' },
+      params: {},
+    },
+    queryParamMap: of({ has: () => false, get: () => null }),
+    parent: null,
+  }
+
+  const mockSearchServService = {
+    searchConfig: null,
+    translateSearchFilters: jest.fn().mockResolvedValue({}),
+    formatFilterForSearch: jest.fn().mockReturnValue(''),
+    updateSelectedFiltersSet: jest.fn().mockReturnValue({ filterSet: new Set(), filterReset: false }),
+    handleFilters: jest.fn().mockReturnValue({ filtersRes: [], concept: [] }),
+    getLanguageSearchIndex: jest.fn().mockReturnValue('en'),
+    getLearning: jest.fn().mockReturnValue(of({ totalHits: 0, result: [], filters: [], filtersUsed: [], notVisibleFilters: [] })),
+    raiseSearchEvent: jest.fn(),
+    raiseSearchResponseEvent: jest.fn(),
+  }
+
+  const mockConfigurationsService = {
+    activeLocale: { locals: ['en'] },
+    userPreference: null,
+    pageNavBar: {},
+    isIntranetAllowed: true,
+    restrictedFeatures: null,
+    prefChangeNotifier: new Subject<void>(),
+  }
+
+  const mockValueService = {
+    isLtMedium$: of(false),
+  }
+
+  const mockUtilityService = {
+    isMobile: false,
+  }
+
+  beforeEach(waitForAsync(() => {
+    TestBed.configureTestingModule({
+      imports: [MatMenuModule],
+      declarations: [LearningComponent],
+      schemas: [NO_ERRORS_SCHEMA],
+      providers: [
+        { provide: ActivatedRoute, useValue: mockActivatedRoute },
+        { provide: Router, useValue: { navigate: jest.fn(), navigateByUrl: jest.fn(), events: of() } },
+        { provide: SearchServService, useValue: mockSearchServService },
+        { provide: ConfigurationsService, useValue: mockConfigurationsService },
+        { provide: ValueService, useValue: mockValueService },
+        { provide: UtilityService, useValue: mockUtilityService },
       ],
     }).compileComponents()
   }))

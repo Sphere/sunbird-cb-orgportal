@@ -1,31 +1,35 @@
+const { pathsToModuleNameMapper } = require('ts-jest')
+const { compilerOptions } = require('./tsconfig.json')
+
+globalThis.ngJest = {
+  skipNgcc: true,
+  tsconfig: 'tsconfig.spec.json',
+}
+
+/** @type {import('@jest/types').Config.InitialOptions} */
 module.exports = {
   preset: 'jest-preset-angular',
   setupFilesAfterEnv: ['<rootDir>/setup-jest.ts'],
-  roots: ['<rootDir>/src', '<rootDir>/project'],
-  testPathIgnorePatterns: ['/node_modules/', '/dist/'],
-  transformIgnorePatterns: [
-    'node_modules/(?!.*\\.mjs$|keycloak-js|keycloak-angular|ngx-export-as|html2pdf\\.js|jspdf|fflate|fast-png)',
-  ],
-  moduleNameMapper: {
-    '^src/(.*)$': '<rootDir>/src/$1',
-    '^@ws/app/(.*)$': '<rootDir>/project/ws/app/$1',
-    '^@ws/app$': '<rootDir>/project/ws/app',
-    '^keycloak-angular$': '<rootDir>/__mocks__/keycloak-angular.js',
-    '^keycloak-js$': '<rootDir>/__mocks__/keycloak-js.js',
-  },
-  collectCoverage: true,
-  coverageDirectory: '<rootDir>/coverage/mdo',
-  coverageReporters: ['html', 'lcov', 'text-summary'],
   collectCoverageFrom: [
-    'src/**/*.ts',
-    'project/**/*.ts',
+    'src/app/**/*.ts',
+    'project/ws/**/*.ts',
     '!**/*.spec.ts',
     '!**/*.module.ts',
-    '!**/*api.ts',
-    '!**/polyfills.ts',
-    '!src/main.ts',
-    '!src/test.ts',
-    '!src/environments/**',
-    '!src/mdo-assets/**',
+    '!**/*.d.ts',
+    '!**/public-api.ts',
+    '!**/index.ts',
+    '!**/*.model.ts',
+    '!**/environments/**',
+    '!**/*.routing.ts',
+    '!**/*-routing.module.ts',
   ],
+  coveragePathIgnorePatterns: ['/node_modules/', '/dist/', '/out-tsc/'],
+  transformIgnorePatterns: [
+    '/node_modules/(?!.*\\.mjs$|keycloak-js/|keycloak-angular/)',
+  ],
+  moduleNameMapper: {
+    ...pathsToModuleNameMapper(compilerOptions.paths || {}, { prefix: '<rootDir>/' }),
+    '^@ws/app$': '<rootDir>/project/ws/app/src/public-api.ts',
+    '^src/(.*)$': '<rootDir>/src/$1',
+  },
 }

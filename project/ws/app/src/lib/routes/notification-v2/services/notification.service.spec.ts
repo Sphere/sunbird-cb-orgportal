@@ -1,17 +1,18 @@
 import { createSpyObj } from 'src/test-utils/create-spy-obj'
+import { Router } from '@angular/router'
 
 import { NotificationService } from './notification.service'
 import { ENotificationEvent, INotification } from '../models/notifications.model'
 
 describe('NotificationService', () => {
   let service: NotificationService
-  let router: ReturnType<typeof createSpyObj>
+  let router: jest.Mocked<Router>
 
   const notification = (eventId: ENotificationEvent, targetData: any = {}): INotification =>
     ({ eventId, targetData } as any)
 
   beforeEach(() => {
-    router = createSpyObj('Router', ['navigate'])
+    router = createSpyObj<Router>('Router', ['navigate'])
     service = new NotificationService(router as any)
   })
 

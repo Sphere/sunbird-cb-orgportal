@@ -1,30 +1,35 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing'
 import { NO_ERRORS_SCHEMA } from '@angular/core'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
+import { MatDialog } from '@angular/material/dialog'
 import { ConfigurationsService } from '@sunbird-cb/utils'
 
 import { AppSetupHomeComponent } from './app-setup-home.component'
-import { createSpyObj } from 'src/test-utils/create-spy-obj'
 
 describe('AppSetupHomeComponent', () => {
   let component: AppSetupHomeComponent
   let fixture: ComponentFixture<AppSetupHomeComponent>
 
-  beforeEach(async(() => {
+  const mockConfigurationsService = {
+    activeLocale: null,
+    instanceConfig: {
+      introVideo: { en: '' },
+    },
+    userUrl: '',
+    pageNavBar: {},
+  }
+
+  const mockMatDialog = {
+    open: jest.fn(),
+  }
+
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [AppSetupHomeComponent],
-      schemas: [NO_ERRORS_SCHEMA],
       providers: [
-        { provide: MatDialog, useValue: createSpyObj('MatDialog', ['open']) },
-        {
-          provide: ConfigurationsService,
-          useValue: {
-            activeLocale: null,
-            instanceConfig: { introVideo: { en: '' } },
-            userUrl: '',
-          },
-        },
+        { provide: ConfigurationsService, useValue: mockConfigurationsService },
+        { provide: MatDialog, useValue: mockMatDialog },
       ],
+      schemas: [NO_ERRORS_SCHEMA],
     })
     .compileComponents()
   }))

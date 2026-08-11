@@ -32,12 +32,12 @@
                     <span *ngIf="col.isList" class="h-400-r-14-l color-87 textclass">
                         <div innerHTML="{{element[col.key]}}"></div>
                     </span>
-                    <span *ngIf="!col.isList && col.key != 'eventThumbnail'" class="h-400-r-14-l color-87 textclass">
+                    <span *ngIf="!col.isList && col.key !== 'eventThumbnail'" class="h-400-r-14-l color-87 textclass">
                         {{element[col.key]}} {{col.isList}}
                     </span>
                     <span *ngIf="!col.isList && col.key == 'eventThumbnail'" class="h-400-r-14-l color-87 textclass">
-                        <span *ngIf="element[col.key] != undefined"
-                            role="button" tabindex="0" (click)="showImageDialog(element[col.key])"
+                        <span *ngIf="element[col.key] != undefined" role="button" tabindex="0"
+                            (click)="showImageDialog(element[col.key])"
                             (keydown.enter)="showImageDialog(element[col.key])"
                             (keydown.space)="showImageDialog(element[col.key]); $event.preventDefault()">
                             <img src="{{element[col.key]}}" height="50" alt="Event thumbnail">
@@ -60,16 +60,12 @@
                 </mat-cell>
             </ng-container>
             <mat-header-row *matHeaderRowDef="getFinalColumns()"></mat-header-row>
-            <mat-row
-                *matRowDef="let row; columns: getFinalColumns();"
-                role="button" tabindex="0"
-                (click)="selection.toggle(row);"
-                (keydown.enter)="selection.toggle(row);"
+            <mat-row *matRowDef="let row; columns: getFinalColumns();" role="button" tabindex="0"
+                (click)="selection.toggle(row);" (keydown.enter)="selection.toggle(row);"
                 (keydown.space)="selection.toggle(row); $event.preventDefault()">
             </mat-row>
             <div *ngIf="dataSource.filteredData.length <= 0">
-                <mat-row *matRowDef="let row; columns: getFinalColumns();"
-                    role="button" tabindex="0"
+                <mat-row *matRowDef="let row; columns: getFinalColumns();" role="button" tabindex="0"
                     (click)="selection.toggle(row); onRowClick(row)"
                     (keydown.enter)="selection.toggle(row); onRowClick(row)"
                     (keydown.space)="selection.toggle(row); onRowClick(row); $event.preventDefault()">
@@ -78,13 +74,9 @@
             </div>
         </mat-table>
     </div>
-    <div *ngIf="dataSource.filteredData.length <= 0" 
-        class="h-600-s-20-m color-60 text-center">
+    <div *ngIf="dataSource.filteredData.length <= 0" class="h-600-s-20-m color-60 text-center">
         No result found
     </div>
-    <mat-paginator 
-        [length]="length" 
-        [pageSize]="pageSize" 
-        [pageSizeOptions]="pageSizeOptions">
+    <mat-paginator [length]="length" [pageSize]="pageSize" [pageSizeOptions]="pageSizeOptions">
     </mat-paginator>
 </div>

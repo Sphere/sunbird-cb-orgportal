@@ -1,9 +1,12 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing'
 import { NO_ERRORS_SCHEMA } from '@angular/core'
-import { HttpClientTestingModule } from '@angular/common/http/testing'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
+import { ReactiveFormsModule, FormsModule, UntypedFormBuilder } from '@angular/forms'
+import { MatDialog } from '@angular/material/dialog'
+import { MatAutocompleteModule } from '@angular/material/autocomplete'
+import { MatInputModule } from '@angular/material/input'
+import { MatFormFieldModule } from '@angular/material/form-field'
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations'
 import { of } from 'rxjs'
-import { createSpyObj } from 'src/test-utils/create-spy-obj'
 
 import { SkillTableComponent } from './skill-table.component'
 import { UserAutoCompleteService } from '../../services/user-auto-complete.service'
@@ -12,13 +15,22 @@ describe('MappingUserTableComponent', () => {
   let component: SkillTableComponent
   let fixture: ComponentFixture<SkillTableComponent>
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [SkillTableComponent],
-      imports: [HttpClientTestingModule],
+      imports: [ReactiveFormsModule, FormsModule, MatAutocompleteModule, MatInputModule, MatFormFieldModule, BrowserAnimationsModule],
       providers: [
-        { provide: MatDialog, useValue: createSpyObj('MatDialog', ['open']) },
-        { provide: UserAutoCompleteService, useValue: createSpyObj('UserAutoCompleteService', ['fetchUserList']) },
+        UntypedFormBuilder,
+        {
+          provide: MatDialog,
+          useValue: { open: jest.fn().mockReturnValue({ afterClosed: () => of(undefined) }) },
+        },
+        {
+          provide: UserAutoCompleteService,
+          useValue: {
+            fetchUserList: jest.fn().mockReturnValue(of([])),
+          },
+        },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     })

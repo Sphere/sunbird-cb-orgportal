@@ -8,8 +8,8 @@ import { AllocationService } from '../../services/allocation.service'
 import { debounceTime, map, switchMap, takeUntil } from 'rxjs/operators'
 import { Observable, Subject } from 'rxjs'
 import { WatStoreService } from '../../services/wat.store.service'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { MatDialog } from '@angular/material/dialog'
+import { MatSnackBar } from '@angular/material/snack-bar'
 import { animate, keyframes, state, style, transition, trigger } from '@angular/animations'
 import { WatRolePopupComponent } from './wat-role-popup/wat-role-popup.component'
 import { DialogConfirmComponent } from 'src/app/component/dialog-confirm/dialog-confirm.component'
@@ -18,6 +18,7 @@ import * as _ from 'lodash'
 // tslint:enable
 
 @Component({
+  standalone: false,
   selector: 'ws-app-activity-labels',
   templateUrl: './activity-labels.component.html',
   styleUrls: ['./activity-labels.component.scss'],

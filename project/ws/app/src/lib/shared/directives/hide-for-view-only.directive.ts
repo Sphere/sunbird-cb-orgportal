@@ -18,6 +18,7 @@ import { FeatureAccessService, FEATURE_KEY, FeatureKey } from '../access/feature
  *     -> hidden for view-only users only when the expression is true,
  *        so navigation actions in the same *ngFor stay visible.
  */
+// eslint-disable-next-line @angular-eslint/directive-selector
 @Directive({
   selector: '[appHideForViewOnly]',
   standalone: true,
@@ -40,6 +41,7 @@ export class HideForViewOnlyDirective implements OnInit {
    * may not fire for a value-less attribute, so the initial render happens in
    * ngOnInit; this only re-renders on later value changes.
    */
+  // eslint-disable-next-line @angular-eslint/no-input-rename
   @Input('appHideForViewOnly')
   set appHideForViewOnly(value: boolean | '') {
     this.isMutation = value === '' || value === undefined ? true : Boolean(value)

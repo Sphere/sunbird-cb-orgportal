@@ -139,7 +139,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       this.languageSearch = this.languageSearch.sort((a: string, b: string) => a.localeCompare(b))
       this.swapRemove(this.languageSearch, this.languageSearch.indexOf('all'), 0)
       if (this.preferredLanguages && this.preferredLanguages.split(',').length > 1) {
-      this.languageSearch.splice(1, 0, this.preferredLanguages)
+        this.languageSearch.splice(1, 0, this.preferredLanguages)
       }
     })
     this.searchSvc.getSearchConfig().then(res => {

@@ -51,7 +51,7 @@
                 </ws-app-initial-avatar>
                 <span *ngIf="!col.isList" [ngClass]="{
                             'mat-button':col.displayName === 'Work orders',
-                            'mat-body-2':col.displayName != 'Work orders',
+                            'mat-body-2':col.displayName !== 'Work orders',
                             'ws-mat-red-text':col.displayName === 'Errors' }">
                     {{element[col.key]}} {{col.isList}}
                 </span>

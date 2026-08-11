@@ -1,11 +1,10 @@
-import { HttpClientTestingModule } from '@angular/common/http/testing'
 import { ComponentFixture, TestBed } from '@angular/core/testing'
 import { ActivatedRoute, Router } from '@angular/router'
 import { ValueService } from '@sunbird-cb/utils'
 import { Subject, of } from 'rxjs'
 import { KeycloakService } from 'keycloak-angular'
 import { createSpyObj } from 'src/test-utils/create-spy-obj'
-import { MatLegacyMenuModule as MatMenuModule } from '@angular/material/legacy-menu'
+import { MatMenuModule } from '@angular/material/menu'
 
 import { KnowledgeComponent } from './knowledge.component'
 import { SearchServService } from '../../services/search-serv.service'
@@ -14,19 +13,19 @@ describe('KnowledgeComponent', () => {
   let component: KnowledgeComponent
   let fixture: ComponentFixture<KnowledgeComponent>
   let queryParamMap$: Subject<any>
-  let router: ReturnType<typeof createSpyObj>
-  let searchServ: ReturnType<typeof createSpyObj>
+  let router: jest.Mocked<Router>
+  let searchServ: jest.Mocked<SearchServService>
 
   const build = () => {
     queryParamMap$ = new Subject<any>()
-    router = createSpyObj('Router', ['navigate'])
+    router = createSpyObj<Router>('Router', ['navigate'])
     router.navigate.mockReturnValue(Promise.resolve(true))
-    searchServ = createSpyObj('SearchServService', ['formatFilterForSearch', 'updateSelectedFiltersSet'])
+    searchServ = createSpyObj<SearchServService>('SearchServService', ['formatFilterForSearch', 'updateSelectedFiltersSet'])
     searchServ.formatFilterForSearch.mockReturnValue('formatted')
     searchServ.updateSelectedFiltersSet.mockReturnValue({ filterSet: new Set(['a']), filterReset: true })
 
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule, MatMenuModule],
+      imports: [MatMenuModule],
       declarations: [KnowledgeComponent],
       providers: [
         { provide: 'environment', useValue: {} },

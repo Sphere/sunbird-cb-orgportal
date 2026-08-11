@@ -4,6 +4,7 @@ import { UploadPopupConfig, UploadPopupResult } from '../../models/upload-popup-
 import { FRAC_UI_CONFIG } from '../../models/ui.config.model'
 
 @Component({
+  standalone: false,
   selector: 'ws-app-frac-upload',
   templateUrl: './frac-upload-popup.component.html',
   styleUrls: ['./frac-upload-popup.component.scss']

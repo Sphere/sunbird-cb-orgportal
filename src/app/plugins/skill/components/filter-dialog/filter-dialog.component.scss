@@ -1,24 +1,86 @@
-::ng-deep .mat-form-field-flex>.mat-form-field-infix {
-  padding: 0.75em 0px !important;
-  border-top: 0.5em solid transparent;
+@import 'ws-design-system-v2';
+
+.filter-dialog-content {
+  padding: $v2-space-3;
+  min-width: 440px;
+  max-width: 780px;
 }
 
-
-.p-30 {
-  padding: 30px;
+.dialog-title {
+  @include v2-modal-title;
+  margin: 0 0 $v2-space-3;
+  padding-bottom: $v2-space-2;
+  border-bottom: 1px solid $v2-color-border;
 }
 
-.p-s-10 {
-  padding: 0px 10px;
+// ── Filter rows ──────────────────────────────────────────────────────────────
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $v2-space-2;
+  margin-bottom: $v2-space-2;
 }
 
-.applyBtn {
-  padding: 0px 30px;
-  border-radius: 20px;
-  border-radius: 50px;
-  border: none;
-  width: 104px;
-  height: 35px;
-  background: #0075B7 !important;
-  color: white !important;
+.filter-field {
+  flex: 1 1 180px;
+  min-width: 160px;
+  display: flex;
+  flex-direction: column;
+}
+
+// ── Labels ───────────────────────────────────────────────────────────────────
+.field-label {
+  @include v2-form-label;
+}
+
+// ── Native select ────────────────────────────────────────────────────────────
+.select-wrapper {
+  @include v2-custom-select-wrapper;
+}
+
+.select-input {
+  @include v2-input-field;
+  width: 100%;
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 36px;
+  cursor: pointer;
+  background: $v2-color-card;
+}
+
+.select-chevron {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+}
+
+// ── Text inputs ───────────────────────────────────────────────────────────────
+.field-input {
+  @include v2-input-field;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+// ── Footer ────────────────────────────────────────────────────────────────────
+.dialog-footer {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: $v2-space-2;
+  padding-top: $v2-space-2;
+  border-top: 1px solid $v2-color-border;
+}
+
+.apply-btn {
+  @include v2-btn-primary;
+  min-width: 104px;
+}
+
+// ── Responsive ────────────────────────────────────────────────────────────────
+@media (max-width: 600px) {
+  .filter-dialog-content { min-width: unset; padding: $v2-space-2; }
+  .filter-field { flex: 1 1 100%; }
 }

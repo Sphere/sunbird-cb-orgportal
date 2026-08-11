@@ -6,6 +6,7 @@ import { WatStoreService } from '../../services/wat.store.service'
 // tslint:enable
 
 @Component({
+  standalone: false,
   selector: 'ws-app-assistant-message-card',
   templateUrl: './assistant-message-card.component.html',
   styleUrls: ['./assistant-message-card.component.scss'],

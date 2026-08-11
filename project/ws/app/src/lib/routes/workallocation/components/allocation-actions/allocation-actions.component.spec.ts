@@ -1,7 +1,8 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing'
 import { NO_ERRORS_SCHEMA } from '@angular/core'
 import { HttpClientTestingModule } from '@angular/common/http/testing'
-import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog'
+import { ReactiveFormsModule } from '@angular/forms'
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog'
 import { of } from 'rxjs'
 import { createSpyObj } from 'src/test-utils/create-spy-obj'
 
@@ -11,8 +12,8 @@ import { AllocationService } from '../../../workallocation-v2/services/allocatio
 describe('AllocationActionsComponent', () => {
   let component: AllocationActionsComponent
   let fixture: ComponentFixture<AllocationActionsComponent>
-  let allocateSrvc: ReturnType<typeof createSpyObj>
-  let dialogRef: ReturnType<typeof createSpyObj>
+  let allocateSrvc: any
+  let dialogRef: any
 
   const selectedUser = {
     userData: {
@@ -22,15 +23,15 @@ describe('AllocationActionsComponent', () => {
     department_name: 'Dept',
   }
 
-  beforeEach(async(() => {
-    allocateSrvc = createSpyObj('AllocationService', [
+  beforeEach(waitForAsync(() => {
+    allocateSrvc = createSpyObj<any>('AllocationService', [
       'onSearchRole', 'onSearchActivity', 'onSearchCompetency', 'createAllocation',
     ])
-    dialogRef = createSpyObj('MatDialogRef', ['close'])
+    dialogRef = createSpyObj<any>('MatDialogRef', ['close'])
 
     TestBed.configureTestingModule({
       declarations: [AllocationActionsComponent],
-      imports: [HttpClientTestingModule],
+      imports: [HttpClientTestingModule, ReactiveFormsModule],
       providers: [
         { provide: AllocationService, useValue: allocateSrvc },
         { provide: MatDialogRef, useValue: dialogRef },

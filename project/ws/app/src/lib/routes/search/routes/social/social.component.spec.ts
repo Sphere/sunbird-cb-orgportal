@@ -1,57 +1,57 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
-
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing'
 import { NO_ERRORS_SCHEMA } from '@angular/core'
-import { ReactiveFormsModule } from '@angular/forms'
 import { ActivatedRoute, Router } from '@angular/router'
-import { provideNoopAnimations } from '@angular/platform-browser/animations'
 import { of } from 'rxjs'
-import { HttpClientTestingModule } from '@angular/common/http/testing'
-import { KeycloakService } from 'keycloak-angular'
-import { createSpyObj } from 'src/test-utils/create-spy-obj'
-import { MatLegacyMenuModule as MatMenuModule } from '@angular/material/legacy-menu'
+import { ReactiveFormsModule } from '@angular/forms'
+import { MatMenuModule } from '@angular/material/menu'
+import { provideNoopAnimations } from '@angular/platform-browser/animations'
+
 import { ValueService } from '@sunbird-cb/utils'
 import { SearchApiService } from '../../apis/search-api.service'
 import { SearchServService } from '../../services/search-serv.service'
 import { SocialComponent } from './social.component'
 
-const mockSearchApiService = {
-  userId: 'user-1',
-}
-
-const mockValueService = {
-  isLtMedium$: of(false),
-}
-
-const mockSearchServService = {
-  updateSelectedFiltersSet: jest.fn().mockReturnValue({ filterSet: new Set(), filterReset: false }),
-  fetchSocialSearchUsers: jest.fn().mockReturnValue(of({ total: 0, result: [], filters: [] })),
-  handleFilters: jest.fn().mockReturnValue({ filtersRes: [] }),
-}
-
 describe('SocialComponent', () => {
   let component: SocialComponent
   let fixture: ComponentFixture<SocialComponent>
 
-  beforeEach(async(() => {
+  const mockActivatedRoute = {
+    snapshot: {
+      queryParams: {},
+      data: {},
+      params: {},
+    },
+    queryParamMap: of({ has: () => false, get: () => null }),
+    parent: null,
+  }
+
+  const mockSearchApiService = {
+    userId: 'test-user-id',
+  }
+
+  const mockSearchServService = {
+    updateSelectedFiltersSet: jest.fn().mockReturnValue({ filterSet: new Set(), filterReset: false }),
+    handleFilters: jest.fn().mockReturnValue({ filtersRes: [], concept: [] }),
+    fetchSocialSearchUsers: jest.fn().mockReturnValue(of({ total: 0, result: [], filters: [] })),
+  }
+
+  const mockValueService = {
+    isLtMedium$: of(false),
+  }
+
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [SocialComponent],
-    imports: [HttpClientTestingModule, MatMenuModule],
-    providers: [
-        { provide: 'environment', useValue: {} },
-        { provide: KeycloakService, useValue: createSpyObj('KeycloakService', ['getKeycloakInstance']) },
-        {
-          provide: ActivatedRoute,
-          useValue: {
-            data: of({ pageData: { data: {} }, eventdata: { data: {} } }),
-            paramMap: of({ get: () => null }),
-            queryParamMap: of({ has: () => false, get: () => null }),
-            params: of({}),
-            snapshot: { paramMap: { get: () => null }, queryParamMap: { get: () => null }, data: {}, params: {} },
-            parent: { data: of({ eventdata: { data: {} } }), params: of({}) },
-          },
-        },
-      ],
+      imports: [ReactiveFormsModule, MatMenuModule],
       schemas: [NO_ERRORS_SCHEMA],
+      providers: [
+        provideNoopAnimations(),
+        { provide: ActivatedRoute, useValue: mockActivatedRoute },
+        { provide: Router, useValue: { navigate: jest.fn(), navigateByUrl: jest.fn(), events: of() } },
+        { provide: SearchApiService, useValue: mockSearchApiService },
+        { provide: SearchServService, useValue: mockSearchServService },
+        { provide: ValueService, useValue: mockValueService },
+      ],
     }).compileComponents()
   }))
 

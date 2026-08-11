@@ -34,6 +34,7 @@ interface UploadEmptyStateConfig {
 }
 
 @Component({
+  standalone: false,
   selector: 'ws-app-role-upload',
   templateUrl: './role-upload.component.html',
   styleUrls: ['./role-upload.component.scss']

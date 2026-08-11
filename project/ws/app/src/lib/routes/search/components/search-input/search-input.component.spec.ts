@@ -5,10 +5,10 @@ import { ActivatedRoute, Router } from '@angular/router'
 import { provideNoopAnimations } from '@angular/platform-browser/animations'
 import { of } from 'rxjs'
 import { ConfigurationsService } from '@sunbird-cb/utils'
-import { MatLegacyMenuModule as MatMenuModule } from '@angular/material/legacy-menu'
-import { MatLegacyAutocompleteModule as MatAutocompleteModule } from '@angular/material/legacy-autocomplete'
-import { MatLegacyFormFieldModule as MatFormFieldModule } from '@angular/material/legacy-form-field'
-import { MatLegacyInputModule as MatInputModule } from '@angular/material/legacy-input'
+import { MatMenuModule } from '@angular/material/menu'
+import { MatAutocompleteModule } from '@angular/material/autocomplete'
+import { MatFormFieldModule } from '@angular/material/form-field'
+import { MatInputModule } from '@angular/material/input'
 
 import { SearchServService } from '../../services/search-serv.service'
 import { SearchInputComponent } from './search-input.component'
@@ -51,8 +51,8 @@ describe('SearchInputComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      imports: [ReactiveFormsModule, MatMenuModule, MatAutocompleteModule, MatFormFieldModule, MatInputModule],
       declarations: [SearchInputComponent],
+      imports: [ReactiveFormsModule, MatMenuModule, MatAutocompleteModule, MatFormFieldModule, MatInputModule],
       schemas: [NO_ERRORS_SCHEMA],
       providers: [
         provideNoopAnimations(),

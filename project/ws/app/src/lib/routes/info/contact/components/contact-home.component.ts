@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core'
 import { ConfigurationsService, NsPage } from '@sunbird-cb/utils'
 
 @Component({
+  standalone: false,
   selector: 'ws-app-contact-home',
   templateUrl: './contact-home.component.html',
   styleUrls: ['./contact-home.component.scss'],

@@ -14,7 +14,8 @@
       <span *ngIf="searchRequest?.lang?.split(',').length > 1"><span>across your preferred languages</span>
         <span>:&nbsp;</span><span class="cursor-pointer ws-mat-primary-text" role="button" tabindex="0"
           *ngFor="let lang of searchRequest?.lang?.split(',')" (click)="searchLanguage(lang)"
-          (keydown.enter)="searchLanguage(lang)" (keydown.space)="searchLanguage(lang); $event.preventDefault()">{{lang | uppercase}}
+          (keydown.enter)="searchLanguage(lang)" (keydown.space)="searchLanguage(lang); $event.preventDefault()">{{lang
+          | uppercase}}
         </span>
       </span>
       <ng-container *ngIf="searchResults?.doYouMean || searchResults?.queryUsed">
@@ -22,14 +23,12 @@
         <span *ngIf="searchResults?.doYouMean"><span>Did you mean</span><span>&nbsp;“</span><span
             [innerHTML]="searchResults?.doYouMean" (click)="didYouMeanSearch(searchResults?.doYouMean)"
             (keydown.enter)="didYouMeanSearch(searchResults?.doYouMean)"
-            (keydown.space)="didYouMeanSearch(searchResults?.doYouMean); $event.preventDefault()"
-            role="button" tabindex="0"
-            class="cursor-pointer ws-mat-primary-text cursor-pointer"></span>”
+            (keydown.space)="didYouMeanSearch(searchResults?.doYouMean); $event.preventDefault()" role="button"
+            tabindex="0" class="cursor-pointer ws-mat-primary-text cursor-pointer"></span>”
           ?</span>
         <span *ngIf="searchResults?.queryUsed"><span>Showing results
             for</span><span>&nbsp;“</span>{{searchResults?.queryUsed}}”. <span>Search instead for</span>
-          <span>&nbsp;“</span><span class="cursor-pointer ws-mat-primary-text cursor-pointer"
-            role="button" tabindex="0"
+          <span>&nbsp;“</span><span class="cursor-pointer ws-mat-primary-text cursor-pointer" role="button" tabindex="0"
             (click)="searchInsteadFor()" (keydown.enter)="searchInsteadFor()"
             (keydown.space)="searchInsteadFor(); $event.preventDefault()">{{searchRequestObject.query}}</span>”.</span>
       </ng-container>
@@ -85,8 +84,8 @@
           Loading...
         </h2> -->
       </div>
-      <button mat-raised-button class="width-1-1" (click)="getResults()" *ngIf="searchRequestStatus != 'done'"
-        [hidden]="searchRequestStatus === 'fetching'">
+      <button mat-raised-button class="width-1-1" (click)="getResults()" *ngIf="searchRequestStatus !== 'done'"
+        [hidden]="searchRequestStatus === 'fetching'" accesskey="+">
         <mat-icon>add</mat-icon>
         <ng-container i18n="search: more results">View More</ng-container>
       </button>

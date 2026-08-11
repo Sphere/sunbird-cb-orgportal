@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing'
 import { NO_ERRORS_SCHEMA } from '@angular/core'
 import { ConfigurationsService } from '@sunbird-cb/utils'
 
@@ -8,21 +8,24 @@ describe('QuickTourComponent', () => {
   let component: QuickTourComponent
   let fixture: ComponentFixture<QuickTourComponent>
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [QuickTourComponent],
+      schemas: [NO_ERRORS_SCHEMA],
       providers: [
         {
           provide: ConfigurationsService,
           useValue: {
             pageNavBar: {},
-            instanceConfig: { tourVideo: { en: '' }, details: { appName: '' } },
+            instanceConfig: {
+              tourVideo: { en: 'https://example.com/video.mp4' },
+              details: { appName: '' },
+            },
+            activeLocale: null,
           },
         },
       ],
-      schemas: [NO_ERRORS_SCHEMA],
-    })
-    .compileComponents()
+    }).compileComponents()
   }))
 
   beforeEach(() => {

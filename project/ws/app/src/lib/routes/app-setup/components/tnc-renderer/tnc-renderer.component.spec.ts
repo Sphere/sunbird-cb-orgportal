@@ -1,19 +1,22 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
-import { NO_ERRORS_SCHEMA } from '@angular/core'
-import { PipeSafeSanitizerPipe } from '@sunbird-cb/utils'
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing'
+import { NO_ERRORS_SCHEMA, Pipe, PipeTransform } from '@angular/core'
 
 import { TncRendererComponent } from './tnc-renderer.component'
+
+@Pipe({ name: 'pipeSafeSanitizer', standalone: false })
+class MockPipeSafeSanitizer implements PipeTransform {
+  transform(value: any): any { return value }
+}
 
 describe('TncRendererComponent', () => {
   let component: TncRendererComponent
   let fixture: ComponentFixture<TncRendererComponent>
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [TncRendererComponent, PipeSafeSanitizerPipe],
+      declarations: [TncRendererComponent, MockPipeSafeSanitizer],
       schemas: [NO_ERRORS_SCHEMA],
-    })
-    .compileComponents()
+    }).compileComponents()
   }))
 
   beforeEach(() => {

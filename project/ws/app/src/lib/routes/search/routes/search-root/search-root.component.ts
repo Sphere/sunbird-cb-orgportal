@@ -21,10 +21,10 @@ export class SearchRootComponent implements OnInit, OnDestroy {
   }
   route = 'learning'
   searchRequest: {
-    query: string;
-    filters: { [type: string]: string[] };
-    social?: string;
-    sort?: string;
+    query: string
+    filters: { [type: string]: string[] }
+    social?: string
+    sort?: string
   } = {
       query: '',
       filters: {},

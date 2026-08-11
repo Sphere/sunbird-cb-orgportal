@@ -1,18 +1,15 @@
-import { waitForAsync as async, ComponentFixture, TestBed } from '@angular/core/testing'
-
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing'
 import { NO_ERRORS_SCHEMA } from '@angular/core'
-import { ReactiveFormsModule } from '@angular/forms'
 import { ActivatedRoute, Router } from '@angular/router'
 import { of } from 'rxjs'
-import { HttpClientTestingModule } from '@angular/common/http/testing'
-import { KeycloakService } from 'keycloak-angular'
-import { ConfigurationsService } from '@sunbird-cb/utils'
-import { createSpyObj } from 'src/test-utils/create-spy-obj'
-import { MatLegacyAutocompleteModule as MatAutocompleteModule } from '@angular/material/legacy-autocomplete'
-import { MatLegacyMenuModule as MatMenuModule } from '@angular/material/legacy-menu'
-import { MatLegacyFormFieldModule as MatFormFieldModule } from '@angular/material/legacy-form-field'
-import { MatLegacyInputModule as MatInputModule } from '@angular/material/legacy-input'
+import { ReactiveFormsModule } from '@angular/forms'
+import { MatAutocompleteModule } from '@angular/material/autocomplete'
+import { MatFormFieldModule } from '@angular/material/form-field'
+import { MatInputModule } from '@angular/material/input'
+import { MatMenuModule } from '@angular/material/menu'
 import { provideNoopAnimations } from '@angular/platform-browser/animations'
+
+import { ConfigurationsService } from '@sunbird-cb/utils'
 import { SearchInputHomeComponent } from './search-input-home.component'
 import { SearchServService } from '../../services/search-serv.service'
 
@@ -20,25 +17,46 @@ describe('SearchInputComponent', () => {
   let component: SearchInputHomeComponent
   let fixture: ComponentFixture<SearchInputHomeComponent>
 
-  beforeEach(async(() => {
+  const mockSearchData = {
+    search: {
+      isAutoCompleteAllowed: false,
+      languageSearch: ['all', 'en'],
+    },
+  }
+
+  const mockActivatedRoute = {
+    snapshot: {
+      queryParams: { q: '' },
+      data: {},
+      params: {},
+    },
+    queryParamMap: of({ has: () => false, get: () => null }),
+    parent: null,
+  }
+
+  const mockSearchServService = {
+    getLanguageSearchIndex: jest.fn().mockReturnValue('en'),
+    searchAutoComplete: jest.fn().mockResolvedValue([]),
+    getSearchConfig: jest.fn().mockResolvedValue(mockSearchData),
+  }
+
+  const mockConfigurationsService = {
+    activeLocale: { locals: ['en'] },
+    userPreference: null,
+  }
+
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [SearchInputHomeComponent],
-    imports: [HttpClientTestingModule, MatAutocompleteModule, MatMenuModule],
-    providers: [
-        { provide: 'environment', useValue: {} },
-        { provide: KeycloakService, useValue: createSpyObj('KeycloakService', ['getKeycloakInstance']) },
-        {
-          provide: ActivatedRoute,
-          useValue: {
-            data: of({ pageData: { data: {} }, eventdata: { data: {} } }),
-            paramMap: of({ get: () => null }),
-            params: of({}),
-            snapshot: { paramMap: { get: () => null }, queryParamMap: { get: () => null }, data: {}, params: {}, queryParams: {} },
-            parent: { data: of({ eventdata: { data: {} } }), params: of({}) },
-          },
-        },
-      ],
+      imports: [ReactiveFormsModule, MatAutocompleteModule, MatFormFieldModule, MatInputModule, MatMenuModule],
       schemas: [NO_ERRORS_SCHEMA],
+      providers: [
+        provideNoopAnimations(),
+        { provide: ActivatedRoute, useValue: mockActivatedRoute },
+        { provide: Router, useValue: { navigate: jest.fn(), navigateByUrl: jest.fn(), events: of() } },
+        { provide: SearchServService, useValue: mockSearchServService },
+        { provide: ConfigurationsService, useValue: mockConfigurationsService },
+      ],
     }).compileComponents()
   }))
 

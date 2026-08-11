@@ -3,7 +3,7 @@ import { ActivatedRoute, Router, Event, NavigationEnd } from '@angular/router'
 // import moment from 'moment'
 import { UntypedFormGroup, UntypedFormControl, Validators, UntypedFormBuilder } from '@angular/forms'
 import { UsersService } from '../../services/users.service'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { MatSnackBar } from '@angular/material/snack-bar'
 // tslint:disable-next-line
 import _ from 'lodash'
 import { EventService } from '@sunbird-cb/utils'
@@ -11,7 +11,7 @@ import { Subject, Subscription } from 'rxjs'
 import { takeUntil } from 'rxjs/operators'
 import { TelemetryEvents } from '../../../../head/_services/telemetry.event.model'
 import { RoleConfirmDialogComponent } from '../../../../../../../../../src/app/plugins/skill/components/role-confirm-dialog/role-confirm-dialog.component'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
+import { MatDialog } from '@angular/material/dialog'
 import { constructReq } from './request-util'
 import { NsUserProfileDetails } from '../models/NsUserProfile'
 
@@ -28,8 +28,8 @@ export class ViewUserComponent implements OnInit, AfterViewInit, OnDestroy {
     private readonly fb: UntypedFormBuilder,
     // private cd: ChangeDetectorRef,
 
-              private readonly usersSvc: UsersService,
-              public dialog: MatDialog,
+    private readonly usersSvc: UsersService,
+    public dialog: MatDialog,
     // tslint:disable-next-line:align
     private readonly snackBar: MatSnackBar) {
 
@@ -420,7 +420,7 @@ export class ViewUserComponent implements OnInit, AfterViewInit, OnDestroy {
       hobbies: data.interests ? data.interests.hobbies : '',
 
     },
-                                          {
+      {
         emitEvent: true,
       })
     this.loadDob = true

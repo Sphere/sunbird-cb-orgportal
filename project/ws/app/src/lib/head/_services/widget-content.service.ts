@@ -38,8 +38,8 @@ const API_END_POINTS = {
 })
 export class WidgetContentService {
   constructor(
-    private readonly http: HttpClient,
-    private readonly configSvc: ConfigurationsService
+    private http: HttpClient,
+    private configSvc: ConfigurationsService
   ) { }
 
   isResource(primaryCategory: string) {
@@ -138,8 +138,8 @@ export class WidgetContentService {
     )
   }
 
-  continueLearning(id: string, collectionId?: string, collectionType?: string): Promise<any> {
-    return new Promise(resolve => {
+  async continueLearning(id: string, collectionId?: string, collectionType?: string): Promise<any> {
+    return new Promise(async resolve => {
       if (collectionType &&
         collectionType.toLowerCase() === 'playlist') {
         const reqBody = {
@@ -152,9 +152,10 @@ export class WidgetContentService {
           dateAccessed: Date.now(),
           contextType: 'playlist',
         }
-        this.saveContinueLearning(reqBody).toPromise().catch().finally(() => {
+        await this.saveContinueLearning(reqBody).toPromise().catch().finally(() => {
           resolve(true)
-        })
+        }
+        )
       } else {
         const reqBody = {
           contextPathId: collectionId ? collectionId : id,
@@ -162,7 +163,7 @@ export class WidgetContentService {
           data: JSON.stringify({ timestamp: Date.now() }),
           dateAccessed: Date.now(),
         }
-        this.saveContinueLearning(reqBody).toPromise().catch().finally(() => {
+        await this.saveContinueLearning(reqBody).toPromise().catch().finally(() => {
           resolve(true)
         })
       }

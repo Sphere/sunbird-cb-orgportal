@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing'
 import { NO_ERRORS_SCHEMA } from '@angular/core'
 import { ActivatedRoute } from '@angular/router'
 import { HttpClientTestingModule } from '@angular/common/http/testing'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { MatSnackBar } from '@angular/material/snack-bar'
 import { of } from 'rxjs'
 import { createSpyObj } from 'src/test-utils/create-spy-obj'
 import { FileService } from '../../services/upload.service'
@@ -12,16 +12,16 @@ import { UsersUploadComponent } from './users-upload.component'
 describe('UsersUploadComponent', () => {
   let component: UsersUploadComponent
   let fixture: ComponentFixture<UsersUploadComponent>
-  let fileService: ReturnType<typeof createSpyObj>
-  let snackBar: ReturnType<typeof createSpyObj>
+  let fileService: { [key: string]: jest.Mock }
+  let snackBar: { [key: string]: jest.Mock }
 
   const build = (routeOverrides: any = {}) => {
     fileService = createSpyObj('FileService', [
       'isLoading', 'getBulkUploadDataV1', 'validateFile', 'upload', 'download', 'downloadFile',
-    ])
-    fileService.isLoading.mockReturnValue(of(false))
-    fileService.getBulkUploadDataV1.mockResolvedValue({})
-    snackBar = createSpyObj('MatSnackBar', ['open'])
+    ] as any)
+    fileService['isLoading'].mockReturnValue(of(false))
+    fileService['getBulkUploadDataV1'].mockResolvedValue({})
+    snackBar = createSpyObj('MatSnackBar', ['open'] as any)
 
     TestBed.configureTestingModule({
       declarations: [UsersUploadComponent],

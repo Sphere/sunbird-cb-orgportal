@@ -20,7 +20,6 @@ describe('RoleUploadComponent', () => {
     queryParams$ = new BehaviorSubject<Record<string, string>>({ mode: 'upload' })
     mockFracApiService = createSpyObj('FracApiService', ['searchEntities', 'uploadFile', 'updateEntity', 'deleteEntity'])
     mockFracApiService.searchEntities.mockReturnValue(of({ result: { entity: [] } }) as any)
-
     await TestBed.configureTestingModule({
       declarations: [RoleUploadComponent],
       providers: [
@@ -31,8 +30,7 @@ describe('RoleUploadComponent', () => {
         {
           provide: TableTransformUtil,
           useValue: createSpyObj('TableTransformUtil', ['transformResponseToTableConfig']),
-        },
-        { provide: ActivatedRoute, useValue: { queryParams: queryParams$.asObservable() } },
+        },        { provide: ActivatedRoute, useValue: { queryParams: queryParams$.asObservable() } },
         { provide: ConfigurationsService, useValue: { instanceConfig: {} } },
       ],
       schemas: [NO_ERRORS_SCHEMA],

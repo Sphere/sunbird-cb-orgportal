@@ -52,7 +52,7 @@ export class FileService implements OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe((response: ArrayBuffer) => {
         return this.saveFile(response)
-      },         error => {
+      }, error => {
         return error
       })
   }

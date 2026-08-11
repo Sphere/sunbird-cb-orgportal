@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testin
 import { NO_ERRORS_SCHEMA } from '@angular/core'
 import { RouterTestingModule } from '@angular/router/testing'
 import { HttpClientTestingModule } from '@angular/common/http/testing'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
+import { MatDialog } from '@angular/material/dialog'
 import { ActivatedRoute, Router } from '@angular/router'
 import {
   ConfigurationsService, SubapplicationRespondService, ValueService, LogoutComponent,
@@ -16,11 +16,11 @@ import { FeaturesComponent } from './features.component'
 describe('FeaturesComponent', () => {
   let component: FeaturesComponent
   let fixture: ComponentFixture<FeaturesComponent>
-  let dialog: ReturnType<typeof createSpyObj>
-  let router: ReturnType<typeof createSpyObj>
+  let dialog: any
+  let router: any
   let configSvc: any
-  let tour: ReturnType<typeof createSpyObj>
-  let respondSvc: ReturnType<typeof createSpyObj>
+  let tour: any
+  let respondSvc: any
   let queryParamMap: { get: jest.Mock }
 
   const feature = (overrides: any = {}) => ({

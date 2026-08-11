@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing'
 import { NO_ERRORS_SCHEMA } from '@angular/core'
 import { HttpClientTestingModule } from '@angular/common/http/testing'
-import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog'
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog'
 import { of, throwError } from 'rxjs'
 import { createSpyObj } from 'src/test-utils/create-spy-obj'
 
@@ -11,12 +11,12 @@ import { EventService } from '../../services/event.service'
 describe('AddParticipantsComponent', () => {
   let component: AddParticipantsComponent
   let fixture: ComponentFixture<AddParticipantsComponent>
-  let dialogRef: ReturnType<typeof createSpyObj>
-  let eventService: ReturnType<typeof createSpyObj>
+  let dialogRef: jest.Mocked<{ close: (...args: any[]) => void }>
+  let eventService: jest.Mocked<{ addParticipants: (...args: any[]) => any }>
 
   const build = (data = { eventId: 'test-event', eventType: false }) => {
-    dialogRef = createSpyObj('MatDialogRef', ['close'])
-    eventService = createSpyObj('EventService', ['addParticipants'])
+    dialogRef = createSpyObj<{ close: (...args: any[]) => void }>('MatDialogRef', ['close'])
+    eventService = createSpyObj<{ addParticipants: (...args: any[]) => any }>('EventService', ['addParticipants'])
 
     TestBed.configureTestingModule({
       declarations: [AddParticipantsComponent],

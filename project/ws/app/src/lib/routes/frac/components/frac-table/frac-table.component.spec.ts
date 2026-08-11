@@ -1,20 +1,22 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { NO_ERRORS_SCHEMA } from '@angular/core'
 import { Subject } from 'rxjs';
 
-import { FracTableComponent } from './frac-table.component';
+import { FracTableComponent } from './frac-table.component'
 
 describe('FracTableComponent', () => {
-  let component: FracTableComponent;
-  let fixture: ComponentFixture<FracTableComponent>;
+  let component: FracTableComponent
+  let fixture: ComponentFixture<FracTableComponent>
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [FracTableComponent]
-    });
-    fixture = TestBed.createComponent(FracTableComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
+      declarations: [FracTableComponent],
+      schemas: [NO_ERRORS_SCHEMA]
+    })
+    fixture = TestBed.createComponent(FracTableComponent)
+    component = fixture.componentInstance
+    fixture.detectChanges()
+  })
 
   it('should create', () => {
     expect(component).toBeTruthy();

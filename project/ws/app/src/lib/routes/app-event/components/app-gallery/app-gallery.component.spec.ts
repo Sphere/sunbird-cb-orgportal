@@ -1,26 +1,41 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing'
 import { NO_ERRORS_SCHEMA } from '@angular/core'
 import { ActivatedRoute } from '@angular/router'
-import { of, Subject } from 'rxjs'
-import { ValueService } from '@sunbird-cb/utils'
+import { of, BehaviorSubject } from 'rxjs'
 
 import { AppGalleryComponent } from './app-gallery.component'
+import { ValueService } from '@sunbird-cb/utils'
 
 describe('AppGalleryComponent', () => {
   let component: AppGalleryComponent
   let fixture: ComponentFixture<AppGalleryComponent>
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [AppGalleryComponent],
       providers: [
         {
           provide: ActivatedRoute,
-          useValue: { data: of({ eventdata: { data: { Home: {}, Gallery: [] } } }) },
+          useValue: {
+            data: of({
+              eventdata: {
+                data: {
+                  Home: { EventName: 'Test Event' },
+                  Gallery: [],
+                  SessionCards: { Sessions: {} },
+                },
+              },
+            }),
+            snapshot: { params: {}, queryParams: {}, data: {} },
+            params: of({}),
+            queryParams: of({}),
+          },
         },
         {
           provide: ValueService,
-          useValue: { isLtMedium$: new Subject<boolean>() },
+          useValue: {
+            isLtMedium$: new BehaviorSubject<boolean>(false),
+          },
         },
       ],
       schemas: [NO_ERRORS_SCHEMA],

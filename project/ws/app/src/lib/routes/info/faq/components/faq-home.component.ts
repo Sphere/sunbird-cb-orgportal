@@ -7,6 +7,7 @@ import { ValueService, ConfigurationsService, EFeatures, NsPage } from '@sunbird
 import { IFAQ, IContent } from '../faq.model'
 
 @Component({
+  standalone: false,
   selector: 'ws-app-faq-home',
   templateUrl: './faq-home.component.html',
   styleUrls: ['./faq-home.component.scss'],

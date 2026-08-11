@@ -1,10 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing'
-
 import { NO_ERRORS_SCHEMA } from '@angular/core'
 import { ActivatedRoute, Router, NavigationEnd } from '@angular/router'
+import { MatDialog } from '@angular/material/dialog'
 import { Subject, of } from 'rxjs'
 import { HttpClientTestingModule } from '@angular/common/http/testing'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
 import { createSpyObj } from 'src/test-utils/create-spy-obj'
 import { EventDetailsComponent } from './event-details.component'
 import { EventService } from '../../services/event.service'
@@ -16,8 +15,8 @@ describe('EventDetailsComponent', () => {
   let paramMap$: Subject<any>
   let url$: Subject<any>
   let routerEvents$: Subject<any>
-  let dialog: ReturnType<typeof createSpyObj>
-  let eventService: ReturnType<typeof createSpyObj>
+  let dialog: jest.Mocked<{ open: (...args: any[]) => any }>
+  let eventService: jest.Mocked<{ getEventById: (...args: any[]) => any, updateEvent: (...args: any[]) => any }>
   let route: any
 
   const build = () => {

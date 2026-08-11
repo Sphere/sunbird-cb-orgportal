@@ -46,6 +46,7 @@ interface ActivityMappingSearchResponseShape {
 }
 
 @Component({
+  standalone: false,
   selector: 'ws-app-map-activitiy-competencies',
   templateUrl: './map-activity-competencies.component.html',
   styleUrls: ['./map-activity-competencies.component.scss'],

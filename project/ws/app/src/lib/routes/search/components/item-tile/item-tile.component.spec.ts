@@ -1,40 +1,48 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
-
-import { NO_ERRORS_SCHEMA } from '@angular/core'
-import { ActivatedRoute } from '@angular/router'
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing'
+import { NO_ERRORS_SCHEMA, Pipe, PipeTransform } from '@angular/core'
+import { ActivatedRoute, Router } from '@angular/router'
 import { of } from 'rxjs'
-import { HttpClientTestingModule } from '@angular/common/http/testing'
-import { PipeLimitToPipe } from '@sunbird-cb/utils'
+
 import { ItemTileComponent } from './item-tile.component'
+
+@Pipe({ name: 'pipeLimitTo', standalone: false })
+class MockPipeLimitTo implements PipeTransform {
+  transform(value: any, limit: number): any {
+    if (!value) { return value }
+    return Array.isArray(value) ? value.slice(0, limit) : value
+  }
+}
 
 describe('ItemTileComponent', () => {
   let component: ItemTileComponent
   let fixture: ComponentFixture<ItemTileComponent>
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [ItemTileComponent, PipeLimitToPipe],
-    imports: [HttpClientTestingModule],
-    providers: [
+      declarations: [ItemTileComponent, MockPipeLimitTo],
+      schemas: [NO_ERRORS_SCHEMA],
+      providers: [
         {
           provide: ActivatedRoute,
           useValue: {
-            data: of({ pageData: { data: {} }, eventdata: { data: {} } }),
-            paramMap: of({ get: () => null }),
+            queryParams: of({}),
             params: of({}),
-            snapshot: { paramMap: { get: () => null }, queryParamMap: { get: () => null }, data: {}, params: {} },
-            parent: { data: of({ eventdata: { data: {} } }), params: of({}) },
+            snapshot: { params: {}, queryParams: {}, data: {} },
+            parent: null,
           },
         },
+        {
+          provide: Router,
+          useValue: { navigate: jest.fn(), navigateByUrl: jest.fn(), events: of() },
+        },
       ],
-      schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents()
   }))
 
   beforeEach(() => {
     fixture = TestBed.createComponent(ItemTileComponent)
     component = fixture.componentInstance
-    component.data = { color: '', itemType: '' }
+    component.data = { itemType: '', title: '', description: '', category: '', itemId: '', source: '' }
     fixture.detectChanges()
   })
 

@@ -1,6 +1,6 @@
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core'
-import { MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA, MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog'
+import { MatSnackBar } from '@angular/material/snack-bar'
 import { UntypedFormGroup, UntypedFormControl, Validators } from '@angular/forms'
 import { TSendStatus, TFetchStatus } from '@sunbird-cb/utils'
 import { Subject } from 'rxjs'
@@ -16,7 +16,7 @@ import { FeedbackSnackbarComponent } from '../feedback-snackbar/feedback-snackba
   templateUrl: './btn-content-feedback-dialog-v2.component.html',
 })
 export class BtnContentFeedbackDialogV2Component implements OnInit, OnDestroy {
-  private readonly destroy$ = new Subject<void>()
+  private destroy$ = new Subject<void>()
   positiveFeedbackSendStatus: TSendStatus
   negativeFeedbackSendStatus: TSendStatus
   singleFeedbackSendStatus: TSendStatus
@@ -27,9 +27,9 @@ export class BtnContentFeedbackDialogV2Component implements OnInit, OnDestroy {
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public content: NsContent.IContent,
-    private readonly dialogRef: MatDialogRef<BtnContentFeedbackDialogV2Component>,
-    private readonly feedbackApi: FeedbackService,
-    private readonly snackbar: MatSnackBar,
+    private dialogRef: MatDialogRef<BtnContentFeedbackDialogV2Component>,
+    private feedbackApi: FeedbackService,
+    private snackbar: MatSnackBar,
   ) {
     this.positiveFeedbackSendStatus = 'none'
     this.negativeFeedbackSendStatus = 'none'

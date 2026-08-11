@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing'
 import { NO_ERRORS_SCHEMA } from '@angular/core'
 import { ConfigurationsService } from '@sunbird-cb/utils'
 
@@ -8,7 +8,7 @@ describe('AboutVideoComponent', () => {
   let component: AboutVideoComponent
   let fixture: ComponentFixture<AboutVideoComponent>
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [AboutVideoComponent],
       providers: [
@@ -16,13 +16,17 @@ describe('AboutVideoComponent', () => {
           provide: ConfigurationsService,
           useValue: {
             pageNavBar: {},
-            instanceConfig: { introVideo: { en: '' }, details: { appName: '' } },
+            instanceConfig: {
+              introVideo: { en: '' },
+              details: { appName: 'Test App' },
+            },
+            userPreference: null,
+            restrictedFeatures: null,
           },
         },
       ],
       schemas: [NO_ERRORS_SCHEMA],
-    })
-    .compileComponents()
+    }).compileComponents()
   }))
 
   beforeEach(() => {

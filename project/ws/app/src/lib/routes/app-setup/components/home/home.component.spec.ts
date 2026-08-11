@@ -12,12 +12,12 @@ describe('HomeComponent', () => {
   let fixture: ComponentFixture<HomeComponent>
   let routerEvents$: Subject<any>
   let configSvc: any
-  let sanitizerService: ReturnType<typeof createSpyObj>
+  let sanitizerService: jest.Mocked<SanitizerService>
 
   const build = (instanceConfig: any = undefined) => {
     routerEvents$ = new Subject<any>()
     configSvc = { instanceConfig }
-    sanitizerService = createSpyObj('SanitizerService', ['trustResourceUrl'])
+    sanitizerService = createSpyObj<SanitizerService>('SanitizerService', ['trustResourceUrl'])
     sanitizerService.trustResourceUrl.mockImplementation((u: string) => u)
 
     TestBed.configureTestingModule({

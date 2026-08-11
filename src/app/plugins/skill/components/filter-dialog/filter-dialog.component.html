@@ -1,141 +1,176 @@
-<div class="example-container margin-top-m p-30">
+<div class="filter-dialog-content">
+  <form [formGroup]="filterForm" class="filter-form">
 
-  <form [formGroup]="filterForm" class="container-balanced filterControls">
-    <!-- #region (header)-->
-    <div class="flex flex-1 custom">
-      <div class="flex-2 p-s-10">
-        <h1>Apply Filters</h1>
-      </div>
-    </div>
-    <!-- #endregion -->
+    <h2 class="dialog-title">Apply Filters</h2>
 
-    <!-- #region (Role, State, Sub Center, Designation)-->
-    <div class="flex flex-1 custom">
-      <div class="flex-2 w-full p-s-10">
-        <mat-form-field class="w-full" appearance="outline">
-          <mat-label>Select Role</mat-label>
-          <mat-select formControlName="role">
+    <!-- Row 1: Role (always visible) + State / SubCenter / Designation (non-user only) -->
+    <div class="filter-row">
+
+      <div class="filter-field">
+        <label for="filter-role" class="field-label">Select Role</label>
+        <div class="select-wrapper">
+          <select id="filter-role" class="select-input" formControlName="role">
+            <option value="">All roles</option>
             <ng-container *ngFor="let role of rolesList">
-              <mat-option [value]="role.value">{{role.displayText}}</mat-option>
+              <option [value]="role.value">{{role.displayText}}</option>
             </ng-container>
-          </mat-select>
-        </mat-form-field>
+          </select>
+          <span class="select-chevron" aria-hidden="true">
+            <svg width="12" height="8" viewBox="0 0 12 8" fill="none">
+              <path d="M1 1l5 5 5-5" stroke="#666" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </span>
+        </div>
       </div>
 
-      <div class="flex-2 w-full p-s-10" *ngIf="!isUser">
-        <mat-form-field class="w-full" appearance="outline">
-          <mat-label>Select State</mat-label>
-          <mat-select (selectionChange)="stateSelect($event.value)" formControlName="state">
+      <div class="filter-field" *ngIf="!isUser">
+        <label for="filter-state" class="field-label">Select State</label>
+        <div class="select-wrapper">
+          <select id="filter-state" class="select-input" formControlName="state"
+            (change)="stateSelect(filterForm.value.state)">
+            <option value="">All states</option>
             <ng-container *ngFor="let state of states">
-              <mat-option [value]="state.name">{{state.name}}</mat-option>
+              <option [value]="state.name">{{state.name}}</option>
             </ng-container>
-          </mat-select>
-        </mat-form-field>
+          </select>
+          <span class="select-chevron" aria-hidden="true">
+            <svg width="12" height="8" viewBox="0 0 12 8" fill="none">
+              <path d="M1 1l5 5 5-5" stroke="#666" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </span>
+        </div>
       </div>
 
-      <div class="flex-2 w-full p-s-10" *ngIf="!isUser">
-        <mat-form-field class="w-full" appearance="outline">
-          <mat-label>Select Sub Center</mat-label>
-          <mat-select formControlName="subCenter">
-            <ng-container *ngFor="let subCenter of subCentersList">
-              <mat-option [value]="subCenter.value">{{subCenter.displayText}}</mat-option>
+      <div class="filter-field" *ngIf="!isUser">
+        <label for="filter-subcenter" class="field-label">Select Sub Center</label>
+        <div class="select-wrapper">
+          <select id="filter-subcenter" class="select-input" formControlName="subCenter">
+            <option value="">All sub centers</option>
+            <ng-container *ngFor="let sc of subCentersList">
+              <option [value]="sc.value">{{sc.displayText}}</option>
             </ng-container>
-          </mat-select>
-        </mat-form-field>
+          </select>
+          <span class="select-chevron" aria-hidden="true">
+            <svg width="12" height="8" viewBox="0 0 12 8" fill="none">
+              <path d="M1 1l5 5 5-5" stroke="#666" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </span>
+        </div>
       </div>
 
-      <div class="flex-2 w-full p-s-10" *ngIf="!isUser">
-        <mat-form-field class="w-full" appearance="outline">
-          <mat-label>Select Designation</mat-label>
-          <mat-select formControlName="designation">
-            <ng-container *ngFor="let designation of designationsList">
-              <mat-option [value]="designation.value">{{designation.displayText}}</mat-option>
+      <div class="filter-field" *ngIf="!isUser">
+        <label for="filter-designation" class="field-label">Select Designation</label>
+        <div class="select-wrapper">
+          <select id="filter-designation" class="select-input" formControlName="designation">
+            <option value="">All designations</option>
+            <ng-container *ngFor="let d of designationsList">
+              <option [value]="d.value">{{d.displayText}}</option>
             </ng-container>
-          </mat-select>
-        </mat-form-field>
+          </select>
+          <span class="select-chevron" aria-hidden="true">
+            <svg width="12" height="8" viewBox="0 0 12 8" fill="none">
+              <path d="M1 1l5 5 5-5" stroke="#666" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </span>
+        </div>
       </div>
+
     </div>
-    <!-- #endregion -->
 
-    <!-- #region (City, Competency, Block)-->
-    <div class="flex flex-1 custom" *ngIf="!isUser">
+    <!-- Row 2: City / Competency / Block / Activity (non-user only) -->
+    <div class="filter-row" *ngIf="!isUser">
 
-      <div class="flex-2 w-full p-s-10">
-        <mat-form-field class="w-full" appearance="outline">
-          <mat-label>Select City</mat-label>
-          <mat-select formControlName="city">
+      <div class="filter-field">
+        <label for="filter-city" class="field-label">Select City</label>
+        <div class="select-wrapper">
+          <select id="filter-city" class="select-input" formControlName="city">
+            <option value="">All cities</option>
             <ng-container *ngFor="let city of disticts">
-              <mat-option [value]="city">{{city}}</mat-option>
+              <option [value]="city">{{city}}</option>
             </ng-container>
-          </mat-select>
-        </mat-form-field>
+          </select>
+          <span class="select-chevron" aria-hidden="true">
+            <svg width="12" height="8" viewBox="0 0 12 8" fill="none">
+              <path d="M1 1l5 5 5-5" stroke="#666" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </span>
+        </div>
       </div>
 
-      <div class="flex-2 w-full p-s-10" *ngIf="!isUser">
-        <mat-form-field class="w-full" appearance="outline">
-          <mat-label>Select Competency</mat-label>
-          <mat-select formControlName="competency">
-            <ng-container *ngFor="let competency of competencysList">
-              <mat-option [value]="competency.value">{{competency.displayText}}</mat-option>
+      <div class="filter-field">
+        <label for="filter-competency" class="field-label">Select Competency</label>
+        <div class="select-wrapper">
+          <select id="filter-competency" class="select-input" formControlName="competency">
+            <option value="">All competencies</option>
+            <ng-container *ngFor="let c of competencysList">
+              <option [value]="c.value">{{c.displayText}}</option>
             </ng-container>
-          </mat-select>
-        </mat-form-field>
+          </select>
+          <span class="select-chevron" aria-hidden="true">
+            <svg width="12" height="8" viewBox="0 0 12 8" fill="none">
+              <path d="M1 1l5 5 5-5" stroke="#666" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </span>
+        </div>
       </div>
 
-      <div class="flex-2 w-full p-s-10" *ngIf="!isUser">
-        <mat-form-field class="w-full" appearance="outline">
-          <mat-label>Select Block</mat-label>
-          <mat-select formControlName="block">
-            <ng-container *ngFor="let block of blocksList">
-              <mat-option [value]="block.value">{{block.displayText}}</mat-option>
+      <div class="filter-field">
+        <label for="filter-block" class="field-label">Select Block</label>
+        <div class="select-wrapper">
+          <select id="filter-block" class="select-input" formControlName="block">
+            <option value="">All blocks</option>
+            <ng-container *ngFor="let b of blocksList">
+              <option [value]="b.value">{{b.displayText}}</option>
             </ng-container>
-          </mat-select>
-        </mat-form-field>
+          </select>
+          <span class="select-chevron" aria-hidden="true">
+            <svg width="12" height="8" viewBox="0 0 12 8" fill="none">
+              <path d="M1 1l5 5 5-5" stroke="#666" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </span>
+        </div>
       </div>
 
-      <div class="flex-2 w-full p-s-10" *ngIf="!isUser">
-        <mat-form-field class="w-full" appearance="outline">
-          <mat-label>Activity</mat-label>
-          <mat-select formControlName="block">
-            <ng-container *ngFor="let Activit of activitsList">
-              <mat-option [value]="Activit.value">{{Activit.displayText}}</mat-option>
+      <div class="filter-field">
+        <label for="filter-activity" class="field-label">Activity</label>
+        <div class="select-wrapper">
+          <select id="filter-activity" class="select-input" formControlName="block">
+            <option value="">All activities</option>
+            <ng-container *ngFor="let a of activitsList">
+              <option [value]="a.value">{{a.displayText}}</option>
             </ng-container>
-          </mat-select>
-        </mat-form-field>
+          </select>
+          <span class="select-chevron" aria-hidden="true">
+            <svg width="12" height="8" viewBox="0 0 12 8" fill="none">
+              <path d="M1 1l5 5 5-5" stroke="#666" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </span>
+        </div>
       </div>
+
     </div>
-    <!-- #endregion -->
 
-    <!-- #region (email, phone number)-->
-    <div class="flex flex-1 custom">
-      <!-- #region (eamil)-->
-      <div class="flex-2 w-full p-s-10">
-        <mat-form-field appearance="outline" class="w-full">
-          <mat-label>Email</mat-label>
-          <input matInput formControlName="emails" #subTitle maxlength="500" i18n-placeholder
-            placeholder="Enter email here" />
-        </mat-form-field>
-      </div>
-      <!-- #endregion -->
+    <!-- Row 3: Email + Phone Number -->
+    <div class="filter-row">
 
-      <div class="flex-2 w-full p-s-10">
-        <mat-form-field appearance="outline" class="w-full">
-          <mat-label>Phone Number</mat-label>
-          <input matInput formControlName="phoneNumber" #subTitle maxlength="500" i18n-placeholder
-            placeholder="Enter Phone number here" />
-        </mat-form-field>
+      <div class="filter-field">
+        <label for="filter-email" class="field-label">Email</label>
+        <input id="filter-email" type="email" class="field-input" formControlName="emails"
+          placeholder="Enter email here" />
       </div>
+
+      <div class="filter-field">
+        <label for="filter-phone" class="field-label">Phone Number</label>
+        <input id="filter-phone" type="tel" class="field-input" formControlName="phoneNumber"
+          placeholder="Enter phone number here" />
+      </div>
+
     </div>
-    <!-- #endregion -->
 
-    <!-- #region (Buttons) Footer-->
-    <div class="flex flex-1 custom">
-      <div class="p-s-10">
-        <button class="applyBtn" type="submit" mat-raised-button (click)="submit()">
-          Apply
-        </button>
-      </div>
+    <!-- Footer -->
+    <div class="dialog-footer">
+      <button type="button" class="apply-btn" (click)="submit()">Apply</button>
     </div>
-    <!-- #endregion -->
+
   </form>
 </div>

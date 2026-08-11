@@ -1,5 +1,5 @@
 import { Component, HostBinding, Input, OnInit } from '@angular/core'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
+import { MatDialog } from '@angular/material/dialog'
 import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
 import { BtnContentFeedbackDialogV2Component } from '../btn-content-feedback-dialog-v2/btn-content-feedback-dialog-v2.component'
 import { ConfigurationsService } from '@sunbird-cb/utils'
@@ -17,7 +17,7 @@ export class BtnContentFeedbackV2Component extends WidgetBaseComponent
   @HostBinding('id')
   public id = 'v2-feedbak-content'
   isFeedbackEnabled = false
-  constructor(private readonly dialog: MatDialog, private readonly configSvc: ConfigurationsService) {
+  constructor(private dialog: MatDialog, private configSvc: ConfigurationsService) {
     super()
   }
 

@@ -3,12 +3,13 @@ import { Component, OnDestroy, OnInit } from '@angular/core'
 import { ActivatedRoute, Router } from '@angular/router'
 import { ApprovalsService } from '../../services/approvals.service'
 import moment from 'moment'
-import { ITableData } from '@sunbird-cb/collection/lib/ui-org-table/interface/interfaces'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { ITableData } from '../../../ui-org-table.model'
+import { MatSnackBar } from '@angular/material/snack-bar'
 /* tslint:disable */
 import _ from 'lodash'
 /* tslint:enable */
 @Component({
+  standalone: false,
   selector: 'ws-app-approvals',
   templateUrl: './approvals.component.html',
   styleUrls: ['./approvals.component.scss'],

@@ -1,19 +1,66 @@
 <div class="container">
   <h1 class="page-title">Events</h1>
-  <h2>Manage Events</h2>
+  <h2 class="page-subtitle">Manage Events</h2>
 
   <div class="header">
     <h3>Events</h3>
     <button class="create-btn" (click)="openEventModal()">Create New Event</button>
   </div>
 
-  <!-- Search and Filter -->
+  <!-- Search + Filter row -->
   <div class="participants-header">
     <input type="text" placeholder="Search by name, location, registration type" [(ngModel)]="searchQuery"
       (input)="filterEvents()" class="search-input" />
-    <button class="filter-btn">
-      <mat-icon class="material-icons-outlined">filter_alt</mat-icon> Filter
-    </button>
+
+    <div class="filter-wrapper">
+      <button class="filter-btn" [class.filter-active]="activeFilterCount > 0" (click)="toggleFilter()">
+        <mat-icon class="material-icons-outlined">filter_alt</mat-icon>
+        Filter
+        <span class="filter-badge" *ngIf="activeFilterCount > 0">{{ activeFilterCount }}</span>
+      </button>
+
+      <!-- Floating filter dropdown -->
+      <div class="filter-dropdown" *ngIf="filterPanelOpen">
+        <div class="filter-dropdown-header">
+          <span class="filter-dropdown-title">Filters</span>
+          <button type="button" class="filter-clear-all" *ngIf="activeFilterCount > 0" (click)="clearAllFilters()">
+            Clear all
+          </button>
+        </div>
+
+        <div class="filter-section" *ngIf="uniqueStatuses.length > 0">
+          <div class="filter-section-label">Status</div>
+          <div class="filter-chips">
+            <button type="button" class="filter-chip" *ngFor="let s of uniqueStatuses"
+              [class.active]="activeStatusFilter === s" (click)="setStatusFilter(s)">
+              {{ s }}
+            </button>
+          </div>
+        </div>
+
+        <div class="filter-section" *ngIf="uniqueRegistrationTypes.length > 0">
+          <div class="filter-section-label">Registration Type</div>
+          <div class="filter-chips">
+            <button type="button" class="filter-chip" *ngFor="let t of uniqueRegistrationTypes"
+              [class.active]="activeTypeFilter === t" (click)="setTypeFilter(t)">
+              {{ t }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Active filter tags -->
+  <div class="active-filters" *ngIf="activeFilterCount > 0">
+    <span class="active-filter-tag" *ngIf="activeStatusFilter">
+      Status: {{ activeStatusFilter }}
+      <button type="button" class="tag-remove" (click)="setStatusFilter('')">&#x2715;</button>
+    </span>
+    <span class="active-filter-tag" *ngIf="activeTypeFilter">
+      Type: {{ activeTypeFilter }}
+      <button type="button" class="tag-remove" (click)="setTypeFilter('')">&#x2715;</button>
+    </span>
   </div>
 
   <!-- Events Table -->
@@ -30,15 +77,24 @@
       </thead>
       <tbody>
         <tr *ngFor="let event of filteredEvents" role="button" tabindex="0" (click)="navigateToEvent(event)"
-          (keydown.enter)="navigateToEvent(event)"
-          (keydown.space)="navigateToEvent(event); $event.preventDefault()">
+          (keydown.enter)="navigateToEvent(event)" (keydown.space)="navigateToEvent(event); $event.preventDefault()">
           <td>{{ event.name }}</td>
-          <td>{{ event.date | date: 'dd-MM-yyyy' }}</td>
+          <td class="nowrap">{{ event.date | date: 'dd-MM-yyyy' }}</td>
           <td>{{ event.location }}</td>
           <td>{{ event.registrationType }}</td>
-          <td>{{ event.status }}</td>
+          <td>
+            <span class="status-chip" [class]="'status-chip status-' + (event.status || 'unknown')">
+              {{ event.status || '—' }}
+            </span>
+          </td>
+        </tr>
+        <tr *ngIf="filteredEvents.length === 0">
+          <td colspan="5" class="empty-row">No events found</td>
         </tr>
       </tbody>
     </table>
+    <mat-paginator *ngIf="filteredEvents.length > pageSize" [length]="filteredEvents.length" [pageSize]="pageSize"
+      [pageSizeOptions]="pageSizeOptions" [pageIndex]="currentPage" (page)="onPageChange($event)" showFirstLastButtons>
+    </mat-paginator>
   </div>
 </div>

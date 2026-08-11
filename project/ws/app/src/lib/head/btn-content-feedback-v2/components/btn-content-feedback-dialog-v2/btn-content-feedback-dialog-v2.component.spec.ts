@@ -1,8 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing'
 import { NO_ERRORS_SCHEMA } from '@angular/core'
 import { HttpClientTestingModule } from '@angular/common/http/testing'
-import { MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA, MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog'
+import { MatSnackBar } from '@angular/material/snack-bar'
 import { of, throwError } from 'rxjs'
 import { createSpyObj } from 'src/test-utils/create-spy-obj'
 
@@ -12,15 +12,17 @@ import { FeedbackService } from '../../services/feedback.service'
 describe('BtnContentFeedbackDialogV2Component', () => {
   let component: BtnContentFeedbackDialogV2Component
   let fixture: ComponentFixture<BtnContentFeedbackDialogV2Component>
-  let dialogRef: ReturnType<typeof createSpyObj>
-  let snackbar: ReturnType<typeof createSpyObj>
-  let feedbackApi: ReturnType<typeof createSpyObj>
+  let dialogRef: jest.Mocked<Pick<MatDialogRef<BtnContentFeedbackDialogV2Component>, 'close'>>
+  let snackbar: jest.Mocked<Pick<MatSnackBar, 'open' | 'openFromComponent'>>
+  let feedbackApi: jest.Mocked<Pick<FeedbackService, 'getFeedbackConfig' | 'submitContentFeedback'>>
 
   const build = (content: any = { identifier: 'c1' }) => {
-    dialogRef = createSpyObj('MatDialogRef', ['close'])
-    snackbar = createSpyObj('MatSnackBar', ['open', 'openFromComponent'])
-    feedbackApi = createSpyObj('FeedbackService', ['getFeedbackConfig', 'submitContentFeedback'])
-    feedbackApi.getFeedbackConfig.mockReturnValue(of({}))
+    dialogRef = createSpyObj<Pick<MatDialogRef<BtnContentFeedbackDialogV2Component>, 'close'>>('MatDialogRef', ['close'])
+    snackbar = createSpyObj<Pick<MatSnackBar, 'open' | 'openFromComponent'>>('MatSnackBar', ['open', 'openFromComponent'])
+    feedbackApi = createSpyObj<Pick<FeedbackService, 'getFeedbackConfig' | 'submitContentFeedback'>>(
+      'FeedbackService', ['getFeedbackConfig', 'submitContentFeedback'],
+    )
+    feedbackApi.getFeedbackConfig.mockReturnValue(of({} as any))
 
     TestBed.configureTestingModule({
       declarations: [BtnContentFeedbackDialogV2Component],
@@ -53,7 +55,7 @@ describe('BtnContentFeedbackDialogV2Component', () => {
   describe('ngOnInit', () => {
     it('should mark config fetch done on success', () => {
       build()
-      feedbackApi.getFeedbackConfig.mockReturnValue(of({ questions: [] }))
+      feedbackApi.getFeedbackConfig.mockReturnValue(of({ questions: [] } as any))
       component.ngOnInit()
       expect(component.configFetchStatus).toBe('done')
       expect(component.feedbackConfig).toEqual({ questions: [] })

@@ -1,13 +1,18 @@
 import { TestBed } from '@angular/core/testing'
-import { HttpClientTestingModule } from '@angular/common/http/testing'
+import { provideHttpClient } from '@angular/common/http'
+import { provideHttpClientTesting } from '@angular/common/http/testing'
 
 import { EventResolverService } from './event-resolver.service'
 import { EventService } from './event.service'
 
 describe('EventResolverService', () => {
   beforeEach(() => TestBed.configureTestingModule({
-    imports: [HttpClientTestingModule],
-    providers: [EventResolverService, EventService],
+    providers: [
+      EventResolverService,
+      EventService,
+      provideHttpClient(),
+      provideHttpClientTesting(),
+    ],
   }))
 
   it('should be created', () => {

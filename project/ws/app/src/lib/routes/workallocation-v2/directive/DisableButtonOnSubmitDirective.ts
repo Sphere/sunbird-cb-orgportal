@@ -3,6 +3,7 @@ import { Directive, ElementRef, HostListener } from '@angular/core'
 const DISABLE_TIME = 1500
 
 @Directive({
+  standalone: false,
   selector: 'button[n-submit]',
 })
 export class DisableButtonOnSubmitDirective {

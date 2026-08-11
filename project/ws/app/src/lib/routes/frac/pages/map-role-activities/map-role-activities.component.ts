@@ -55,6 +55,7 @@ interface MappingSearchResponseShape {
 }
 
 @Component({
+  standalone: false,
   selector: 'ws-app-map-role-activities',
   templateUrl: './map-role-activities.component.html',
   styleUrls: ['./map-role-activities.component.scss'],

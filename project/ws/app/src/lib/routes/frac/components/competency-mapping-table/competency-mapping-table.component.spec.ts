@@ -1,19 +1,21 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing'
+import { NO_ERRORS_SCHEMA } from '@angular/core'
 
-import { CompetencyMappingTableComponent } from './competency-mapping-table.component';
+import { CompetencyMappingTableComponent } from './competency-mapping-table.component'
 
 describe('CompetencyMappingTableComponent', () => {
-  let component: CompetencyMappingTableComponent;
-  let fixture: ComponentFixture<CompetencyMappingTableComponent>;
+  let component: CompetencyMappingTableComponent
+  let fixture: ComponentFixture<CompetencyMappingTableComponent>
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [CompetencyMappingTableComponent]
-    });
-    fixture = TestBed.createComponent(CompetencyMappingTableComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
+      declarations: [CompetencyMappingTableComponent],
+      schemas: [NO_ERRORS_SCHEMA]
+    })
+    fixture = TestBed.createComponent(CompetencyMappingTableComponent)
+    component = fixture.componentInstance
+    fixture.detectChanges()
+  })
 
   it('should create', () => {
     expect(component).toBeTruthy();

@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, HostListener, ViewChild, ElementRef } fro
 import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms'
 import { ActivatedRoute, Router, Event, NavigationEnd } from '@angular/router'
 import { UsersService } from '../../services/users.service'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { MatSnackBar } from '@angular/material/snack-bar'
 import { ILeftMenu } from '@sunbird-cb/collection'
 import { NsWidgetResolver } from '@sunbird-cb/resolver'
 import { ValueService } from '@sunbird-cb/utils'
@@ -10,6 +10,7 @@ import { ValueService } from '@sunbird-cb/utils'
 import _ from 'lodash'
 /* tslint:enable */
 @Component({
+  standalone: false,
   selector: 'ws-app-create-user',
   templateUrl: './create-user.component.html',
   styleUrls: ['./create-user.component.scss'],

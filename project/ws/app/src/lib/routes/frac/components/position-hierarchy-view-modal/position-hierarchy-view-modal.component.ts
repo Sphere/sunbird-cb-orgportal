@@ -18,6 +18,7 @@ export interface PositionHierarchyViewModalData {
  * Side effect: the "Edit Mapping" button closes the dialog and navigates to the mapping page.
  */
 @Component({
+  standalone: false,
   selector: 'ws-app-position-hierarchy-view-modal',
   templateUrl: './position-hierarchy-view-modal.component.html',
   styleUrls: ['./position-hierarchy-view-modal.component.scss'],

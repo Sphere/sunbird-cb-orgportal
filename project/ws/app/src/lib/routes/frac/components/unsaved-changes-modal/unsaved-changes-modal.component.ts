@@ -9,6 +9,7 @@ export interface UnsavedChangesModalData {
 }
 
 @Component({
+  standalone: false,
   selector: 'ws-app-unsaved-changes-modal',
   templateUrl: './unsaved-changes-modal.component.html',
   styleUrls: ['./unsaved-changes-modal.component.scss'],

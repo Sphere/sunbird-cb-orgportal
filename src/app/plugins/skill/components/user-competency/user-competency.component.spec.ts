@@ -1,45 +1,58 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing'
 import { NO_ERRORS_SCHEMA } from '@angular/core'
+import { MatDialog } from '@angular/material/dialog'
 import { ActivatedRoute, Router } from '@angular/router'
-import { HttpClientTestingModule } from '@angular/common/http/testing'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
 import { of } from 'rxjs'
-import { createSpyObj } from 'src/test-utils/create-spy-obj'
 
 import { UserCompetencyComponent } from './user-competency.component'
-import { UsersService } from '../../services/users.service'
 import { CompetencyService } from '../../services/competency.service'
+import { UsersService } from '../../services/users.service'
 
 describe('UserCompetencyComponent', () => {
   let component: UserCompetencyComponent
   let fixture: ComponentFixture<UserCompetencyComponent>
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [UserCompetencyComponent],
-      imports: [HttpClientTestingModule],
       providers: [
-        { provide: MatDialog, useValue: createSpyObj('MatDialog', ['open']) },
-        { provide: Router, useValue: createSpyObj('Router', ['navigate']) },
+        {
+          provide: MatDialog,
+          useValue: { open: jest.fn().mockReturnValue({ afterClosed: () => of(undefined) }) },
+        },
+        {
+          provide: Router,
+          useValue: { navigate: jest.fn(), navigateByUrl: jest.fn(), events: of() },
+        },
         {
           provide: ActivatedRoute,
           useValue: {
             snapshot: {
-              paramMap: {
-                get: jest.fn(),
-              },
+              paramMap: { get: jest.fn().mockReturnValue(null) },
+              params: {},
+              queryParams: {},
+              data: {},
             },
+            queryParams: of({}),
+            params: of({}),
+            data: of({}),
           },
         },
-        { provide: UsersService, useValue: createSpyObj('UsersService', ['getUserById']) },
         {
           provide: CompetencyService,
-          useValue: createSpyObj('CompetencyService', [
-            'getAllEntity',
-            'getUserPassbook',
-            'formatedUserCompetency',
-            'updatePassbook',
-          ]),
+          useValue: {
+            getAllEntity: jest.fn().mockReturnValue(of({ result: { response: [] } })),
+            getFormatedData: jest.fn().mockReturnValue([]),
+            getUserPassbook: jest.fn().mockReturnValue(of({ result: { content: [] } })),
+            updatePassbook: jest.fn().mockReturnValue(of({})),
+            formatedUserCompetency: jest.fn().mockReturnValue([]),
+          },
+        },
+        {
+          provide: UsersService,
+          useValue: {
+            getUserById: jest.fn().mockReturnValue(of({})),
+          },
         },
       ],
       schemas: [NO_ERRORS_SCHEMA],

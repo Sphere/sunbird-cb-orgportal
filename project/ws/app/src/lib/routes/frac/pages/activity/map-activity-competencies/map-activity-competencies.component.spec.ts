@@ -1,5 +1,6 @@
 import { of, throwError, Subject } from 'rxjs'
 import { fakeAsync, tick } from '@angular/core/testing'
+import { Router } from '@angular/router'
 import { createSpyObj } from 'src/test-utils/create-spy-obj'
 
 import { MapActivityCompetenciesComponent } from './map-activity-competencies.component'
@@ -8,18 +9,18 @@ import { FracApiService } from '../../../services/frac-api.service'
 
 describe('MapActivityCompetenciesComponent', () => {
   let component: MapActivityCompetenciesComponent
-  let snackbar: ReturnType<typeof createSpyObj>
-  let fracApiService: ReturnType<typeof createSpyObj>
-  let dialog: ReturnType<typeof createSpyObj>
-  let router: ReturnType<typeof createSpyObj>
+  let snackbar: jest.Mocked<CustomSnackbarService>
+  let fracApiService: jest.Mocked<FracApiService>
+  let dialog: { open: jest.Mock }
+  let router: jest.Mocked<Router>
 
   const activityEntity = (code: string, name: string) => ({ code, name })
 
   const buildComponent = () => {
-    snackbar = createSpyObj('CustomSnackbarService', ['warning', 'success'])
+    snackbar = createSpyObj<CustomSnackbarService>('CustomSnackbarService', ['warning', 'success'])
     fracApiService = createSpyObj<FracApiService>('FracApiService', ['searchEntities', 'searchEntityMapping', 'mapEntity'])
-    dialog = createSpyObj('MatDialog', ['open'])
-    router = createSpyObj('Router', ['navigateByUrl'])
+    dialog = { open: jest.fn() }
+    router = createSpyObj<Router>('Router', ['navigateByUrl'])
 
     fracApiService.searchEntities.mockReturnValue(of({ result: { entity: [] } }))
     fracApiService.searchEntityMapping.mockReturnValue(of({ result: [] }))

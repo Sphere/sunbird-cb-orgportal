@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing'
 import { NO_ERRORS_SCHEMA, ElementRef } from '@angular/core'
 import { Router } from '@angular/router'
 import { HttpClientTestingModule } from '@angular/common/http/testing'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
+import { MatDialog } from '@angular/material/dialog'
 import { of, throwError } from 'rxjs'
 import { createSpyObj } from 'src/test-utils/create-spy-obj'
 
@@ -14,10 +14,10 @@ import { EventModalComponent } from '../event-modal/event-modal.component'
 describe('EventDashboardComponent', () => {
   let component: EventDashboardComponent
   let fixture: ComponentFixture<EventDashboardComponent>
-  let eventService: ReturnType<typeof createSpyObj>
-  let userService: ReturnType<typeof createSpyObj>
-  let dialog: ReturnType<typeof createSpyObj>
-  let router: ReturnType<typeof createSpyObj>
+  let eventService: jest.Mocked<{ updateEvent: (...args: any[]) => any, setUserData: (...args: any[]) => any, getAllEvents: (...args: any[]) => any }>
+  let userService: jest.Mocked<{ getAllUsers: (...args: any[]) => any }>
+  let dialog: jest.Mocked<{ open: (...args: any[]) => any }>
+  let router: jest.Mocked<{ navigate: (...args: any[]) => any }>
 
   beforeEach(async () => {
     eventService = createSpyObj('EventService', ['updateEvent', 'setUserData', 'getAllEvents'])

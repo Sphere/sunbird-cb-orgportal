@@ -1,24 +1,28 @@
 import { WorkallocationService } from './../../../routes/home/services/workallocation.service'
 import {
-  Component, OnInit, Output, EventEmitter, ViewChild, OnChanges, SimpleChanges, Inject, Renderer2,
+  Component, OnInit, OnDestroy, Output, EventEmitter, ViewChild, OnChanges, SimpleChanges, Inject, Renderer2,
 } from '@angular/core'
 import { SelectionModel } from '@angular/cdk/collections'
-import { MatLegacyTableDataSource as MatTableDataSource } from '@angular/material/legacy-table'
-import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog'
-import { MatLegacyPaginator as MatPaginator } from '@angular/material/legacy-paginator'
+import { MatTableDataSource } from '@angular/material/table'
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog'
+import { MatPaginator } from '@angular/material/paginator'
 import { MatSort } from '@angular/material/sort'
 import * as _ from 'lodash'
 import { Router } from '@angular/router'
+import { Subject } from 'rxjs'
+import { takeUntil } from 'rxjs/operators'
 import { ITableData, IColums } from '../interface/interfaces'
 
 interface IUser { fullname: string; email: string, userId: string }
 
 @Component({
+  standalone: false,
   selector: 'ws-widget-ui-user-table-pop-up',
   templateUrl: './pop-up.component.html',
   styleUrls: ['./pop-up.component.scss'],
 })
-export class WorkAllocationPopUpComponent implements OnInit, OnChanges {
+export class WorkAllocationPopUpComponent implements OnInit, OnChanges, OnDestroy {
+  private readonly destroy$ = new Subject<void>()
   tableData!: ITableData | undefined
   data!: IUser[] | undefined
   @Output() clicked?: EventEmitter<any>
@@ -58,6 +62,11 @@ export class WorkAllocationPopUpComponent implements OnInit, OnChanges {
 
   }
 
+  ngOnDestroy() {
+    this.destroy$.next()
+    this.destroy$.complete()
+  }
+
   ngOnInit() {
     if (this.tableData) {
       this.displayedColumns = this.tableData.columns
@@ -89,13 +98,13 @@ export class WorkAllocationPopUpComponent implements OnInit, OnChanges {
     this.length = this.dataSource.data.length
   }
   getdeptUsers() {
-    this.workallocationSrvc.getAllUsers().subscribe(res => {
+    this.workallocationSrvc.getAllUsers().pipe(takeUntil(this.destroy$)).subscribe(res => {
       this.departmentName = res.result.response.channel
       this.departmentID = res.result.response.rootOrgId
     })
   }
   goToNewWat() {
-    this.workallocationSrvc.addWAT(this.currentCheckedValue, this.departmentID).subscribe(res => {
+    this.workallocationSrvc.addWAT(this.currentCheckedValue, this.departmentID).pipe(takeUntil(this.destroy$)).subscribe(res => {
       if (res.result.data.id) {
         this.dialogRef.close()
         this.router.navigate([`app/workallocation/drafts/${res.result.data.id}`])
@@ -104,7 +113,7 @@ export class WorkAllocationPopUpComponent implements OnInit, OnChanges {
 
   }
   goToCopyWat() {
-    this.workallocationSrvc.copyWAT(this.currentCheckedValue2, this.currentCheckedValue).subscribe(res => {
+    this.workallocationSrvc.copyWAT(this.currentCheckedValue2, this.currentCheckedValue).pipe(takeUntil(this.destroy$)).subscribe(res => {
       if (res.result.data.id) {
         this.dialogRef.close()
         this.router.navigate([`app/workallocation/drafts/${res.result.data.id}`])
@@ -150,7 +159,7 @@ export class WorkAllocationPopUpComponent implements OnInit, OnChanges {
   getAllUserByKey() {
     const currentStatus = 'Published'
     const finalData: any[] = []
-    this.workallocationSrvc.fetchWAT(currentStatus).subscribe(res => {
+    this.workallocationSrvc.fetchWAT(currentStatus).pipe(takeUntil(this.destroy$)).subscribe(res => {
       if (res.result.data) {
         res.result.data.forEach((element: any) => {
           const watData = {

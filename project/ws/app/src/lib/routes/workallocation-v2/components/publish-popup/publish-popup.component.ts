@@ -1,15 +1,19 @@
-import { Component, OnInit, Inject, ViewChild } from '@angular/core'
+import { Component, OnInit, OnDestroy, Inject, ViewChild } from '@angular/core'
 import { Router } from '@angular/router'
-import { MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA, MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog'
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog'
 import { UntypedFormGroup } from '@angular/forms'
 import { UploadFileService } from '../../services/uploadfile.service'
 import { ConfigurationsService } from '@sunbird-cb/utils'
+import { Subject } from 'rxjs'
+import { takeUntil } from 'rxjs/operators'
 @Component({
+  standalone: false,
   selector: 'ws-app-publish-popup',
   templateUrl: './publish-popup.component.html',
   styleUrls: ['./publish-popup.component.scss'],
 })
-export class PublishPopupComponent implements OnInit {
+export class PublishPopupComponent implements OnInit, OnDestroy {
+  private readonly destroy$ = new Subject<void>()
   @ViewChild('file', { static: false }) file: any
   public files: Set<File> = new Set()
   progress: any
@@ -33,9 +37,14 @@ export class PublishPopupComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) data: any) {
     this.workorderData = data.data
 
-    this.uploadService.getProfile().subscribe((userdata: any) => {
+    this.uploadService.getProfile().pipe(takeUntil(this.destroy$)).subscribe((userdata: any) => {
       this.userData = userdata.result.response
     })
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next()
+    this.destroy$.complete()
   }
 
   ngOnInit() { }
@@ -79,18 +88,18 @@ export class PublishPopupComponent implements OnInit {
       },
     }
     // start the upload and save the progress map
-    this.progress = this.uploadService.crreateAsset(request).subscribe((res: any) => {
+    this.progress = this.uploadService.crreateAsset(request).pipe(takeUntil(this.destroy$)).subscribe((res: any) => {
       const contentID = res.result.identifier
       const formData: FormData = new FormData()
       formData.append('data', this.uploadedFile)
 
-      this.uploadService.uploadFile(contentID, formData).subscribe((fdata: any) => {
+      this.uploadService.uploadFile(contentID, formData).pipe(takeUntil(this.destroy$)).subscribe((fdata: any) => {
         const artifactUrl = fdata.result.artifactUrl
         this.workorderData.signedPdfLink = artifactUrl
         // this.workorderData.publishedPdfLink = artifactUrl
         const req = this.workorderData
 
-        this.uploadService.updateWorkOrder(req).subscribe((fres: any) => {
+        this.uploadService.updateWorkOrder(req).pipe(takeUntil(this.destroy$)).subscribe((fres: any) => {
           if (fres.result.message === 'Successful') {
             this.uploading = false
           }
@@ -104,7 +113,7 @@ export class PublishPopupComponent implements OnInit {
   }
 
   compareFiles() {
-    this.uploadService.getDraftPDF(this.workorderData.id).subscribe((fileurl: any) => {
+    this.uploadService.getDraftPDF(this.workorderData.id).pipe(takeUntil(this.destroy$)).subscribe((fileurl: any) => {
       this.comparePDF = true
       const file = new Blob([fileurl], { type: 'application/pdf' })
       const fileURL = URL.createObjectURL(file)
@@ -121,7 +130,7 @@ export class PublishPopupComponent implements OnInit {
     this.workorderData.status = 'Published'
     const req = this.workorderData
 
-    this.uploadService.updateWorkOrder(req).subscribe((fres: any) => {
+    this.uploadService.updateWorkOrder(req).pipe(takeUntil(this.destroy$)).subscribe((fres: any) => {
       if (fres) {
         this.uploadSuccessful = true
       }

@@ -1,12 +1,13 @@
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core'
 import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms'
-import { MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA, MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog'
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog'
 import { Subscription } from 'rxjs'
 import { take } from 'rxjs/operators'
 import { EventService } from '../../services/event.service'
 import { IEventData } from '../../interface/events'
 
 @Component({
+  standalone: false,
   selector: 'ws-app-event-modal',
   templateUrl: './event-modal.component.html',
   styleUrls: ['./event-modal.component.scss'],
@@ -18,10 +19,10 @@ export class EventModalComponent implements OnInit, OnDestroy {
   private userSubscription!: Subscription
 
   constructor(
-    public dialogRef: MatDialogRef<EventModalComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: any,
-    private fb: UntypedFormBuilder,
-    private eventService: EventService
+    public readonly dialogRef: MatDialogRef<EventModalComponent>,
+    @Inject(MAT_DIALOG_DATA) public readonly data: any,
+    private readonly fb: UntypedFormBuilder,
+    private readonly eventService: EventService
   ) { }
 
   ngOnInit(): void {
@@ -64,7 +65,7 @@ export class EventModalComponent implements OnInit, OnDestroy {
 
   onSave(): void {
 
-    let formatedDate = this.formatDate(this.eventForm.value.eventDate)
+    const formatedDate = this.formatDate(this.eventForm.value.eventDate)
     console.log('formatedDate', formatedDate)
 
 
@@ -82,25 +83,21 @@ export class EventModalComponent implements OnInit, OnDestroy {
       if (this.isEditMode) {
 
         eventData.eventId = this.data.event.eventId
-        this.eventService.editEvent(eventData).subscribe(
-          response => {
+        this.eventService.editEvent(eventData).subscribe({
+          next: response => {
             console.log('Edit Event updated successfully:', response)
             this.dialogRef.close(response)
           },
-          error => {
-            console.error('Error updating event:', error)
-          }
-        )
+          error: error => console.error('Error updating event:', error),
+        })
       } else {
-        this.eventService.createEvent(eventData).subscribe(
-          response => {
+        this.eventService.createEvent(eventData).subscribe({
+          next: response => {
             console.log('Event created successfully:', response)
             this.dialogRef.close(response)
           },
-          error => {
-            console.error('Error creating event:', error)
-          }
-        )
+          error: error => console.error('Error creating event:', error),
+        })
       }
     }
   }

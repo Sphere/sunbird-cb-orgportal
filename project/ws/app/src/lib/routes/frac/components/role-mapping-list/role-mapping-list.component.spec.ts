@@ -1,19 +1,21 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing'
+import { NO_ERRORS_SCHEMA } from '@angular/core'
 
-import { RoleMappingListComponent } from './role-mapping-list.component';
+import { RoleMappingListComponent } from './role-mapping-list.component'
 
 describe('RoleMappingListComponent', () => {
-  let component: RoleMappingListComponent;
-  let fixture: ComponentFixture<RoleMappingListComponent>;
+  let component: RoleMappingListComponent
+  let fixture: ComponentFixture<RoleMappingListComponent>
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [RoleMappingListComponent]
-    });
-    fixture = TestBed.createComponent(RoleMappingListComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
+      declarations: [RoleMappingListComponent],
+      schemas: [NO_ERRORS_SCHEMA]
+    })
+    fixture = TestBed.createComponent(RoleMappingListComponent)
+    component = fixture.componentInstance
+    fixture.detectChanges()
+  })
 
   it('should create', () => {
     expect(component).toBeTruthy();

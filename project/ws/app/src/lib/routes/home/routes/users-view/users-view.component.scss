@@ -1,288 +1,394 @@
-@import 'ws-common';
-@import 'ws-vars';
-@import 'ws-mixins';
+@import 'ws-design-system-v2';
 
-.buton {
+:host {
   display: flex;
-  border: 1px solid;
   flex: 1;
-  background: red;
-  align-content: center;
-  text-align: center;
-}
-
-.flex-4 {
-  flex: 4;
-}
-
-.mob {
-  @include breakpoint-xs {
-    bottom: 0 !important;
-    position: unset !important;
-  }
-}
-
-.font-medium {
-  font-weight: 500 !important;
-}
-
-.bottom-fix {
-  bottom: 1.5rem;
-  position: absolute;
-}
-
-.view-more {
-  display: flex;
-  align-items: center;
-  text-align: center;
-  border: 1px solid;
-
-  .icon {
-    $icon-size: 24px;
-    font-size: $icon-size;
-    width: $icon-size;
-    height: $icon-size;
-    border: 1px solid;
-    border-radius: 50%;
-    padding: 8px;
-    margin-bottom: 8px;
-    margin-right: $size-s;
-  }
-}
-
-.view-all {
-  display: flex;
-  margin: 0 auto;
-  // border: 1px solid;
-  // font-weight: 500;
-  box-shadow: 0px 10px 30px #99999933;
-  /*#99999933*/
-  border-radius: 8px;
-}
-
-
-
-.text-box {
-  display: flex;
-  border: 1px solid;
-  flex: 3;
-  align-content: center;
-  text-align: center;
-}
-
-.margin-fix {
-  @include breakpoint-xs {
-    margin: 0 $size-l 0 $size-l;
-  }
-
-  @include breakpoint-s {
-    margin: 0 $size-l 0 $size-l;
-  }
-}
-
-.overflow {
-  // @include breakpoint-xs {
-  //   width: 10em;
-  //   // outline: 1px solid #000;
-  //   margin: 0 0 2em 0;
-  //   text-overflow: ellipsis !important;
-  //   __<<ngThemingMigrationEscapedComment1>>__
-  //   white-space: nowrap;
-  //   overflow: hidden;
-  // }
-  overflow: hidden;
-}
-
-.custom {
-
-  // height: 48px;
-  // max-height: 48px;
-  @include breakpoint-xs {
-    flex-direction: column;
-  }
-
-  @include breakpoint-s {
-    flex-direction: column;
-  }
-}
-
-.discuss-border {
-  border-radius: 4px;
-  /*.75rem;*/
-  border: 1px solid #DEDFE0;
-  flex: 1;
-  // max-width: 500px;
-  /* border-color: #cecece;*/
-}
-
-.discuss .mat-form-field-wrapper {
-  padding-bottom: 0px;
-
-  .mat-form-field-infix {
-    border-top-width: 5px !important;
-    padding: 0px;
-    padding-bottom: 5px;
-  }
-
-}
-
-
-.flex-3 {
-  flex: 3;
-}
-
-.filter {
-  .filter-option {
-    margin: $size-xs $size-m;
-    /* border-bottom: darkslateblue; */
-    border-radius: 0;
-    border-bottom-width: 2px;
-    border-top-width: 0;
-    border-left-width: 0;
-    border-right-width: 0;
-  }
-}
-
-.max-height-60 {
-  max-height: 60px;
-}
-
-.height-48 {
-  max-height: 48px;
-}
-
-.pagination {
-  justify-content: center;
-  flex-wrap: wrap;
-  margin-top: 0;
-  margin-bottom: 1rem;
-}
-
-.pagination {
-  display: flex;
-  padding-left: 0;
-  list-style: none;
-  border-radius: .25rem;
-}
-
-.page-item.active .page-link {
-  z-index: 1;
-  color: #fff;
-  background-color: #0074B6;
-  border-color: #0074B6;
-}
-
-a:not([href]):not([tabindex]) {
-  color: inherit;
-  text-decoration: none;
-}
-
-.page-link {
-  position: relative;
-  display: block;
-  padding: .5rem .75rem;
-  margin-left: -1px;
-  line-height: 1.25;
-  color: #0074B6;
-  background-color: #fff;
-  border: 1px solid #dee2e6;
-
-  &.separator {
-    font-size: 20px;
-  }
-}
-
-.page-item.disabled .page-link {
-  color: #6c757d;
-  pointer-events: none;
-  cursor: auto;
-  background-color: #fff;
-  border-color: #dee2e6;
-}
-
-.container-balanced {
-  @extend %page-center;
-}
-
-.flex-3 {
-  flex: 3;
-}
-
-.flex-update {
-  flex-direction: row;
-
-  @include breakpoint-xs {
-    flex-direction: row;
-  }
-
-  @include breakpoint-s {
-    flex-direction: row;
-  }
-}
-
-.flex-custom {
-  display: flex;
-
-  // @include breakpoint-xs {
   flex-direction: column;
-  // }
 }
 
-.flex-custom-m {
-  @include breakpoint-xs {
-    flex-direction: column;
-  }
+// ── Page container ──────────────────────────────────────────────────────────
+.users-page {
+  @include v2-page-container;
+  gap: 0; // override default gap; spacing controlled per section
+  width: 100%; // margin:0 auto (from mixin) overrides flex stretch in a column host; force full width
+  box-sizing: border-box;
 }
 
-.example-header-image {
-  width: auto;
-  height: auto;
+// ── Page title ──────────────────────────────────────────────────────────────
+.page-header {
+  margin-bottom: $v2-space-2;
 }
 
-.margin-0 {
+.page-title {
+  @include v2-page-title;
   margin: 0;
 }
 
-.pad-4 {
-  padding: 0 0 0 $size-s;
+// ── Tab bar ──────────────────────────────────────────────────────────────────
+.users-tabs {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  border-bottom: 1px solid $v2-color-border;
+  margin-bottom: $v2-space-2;
 }
 
-.mobile-margin {
-  @include breakpoint-xs {
-    margin-top: $size-s;
+.tab-link {
+  display: inline-flex;
+  align-items: center;
+  height: 44px;
+  padding: 0 $v2-space-2;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px; // overlap the container border-bottom
+  color: $v2-color-text-secondary;
+  font-family: $v2-font-family;
+  font-size: $v2-font-body;
+  font-weight: 400;
+  cursor: pointer;
+  transition: $v2-transition;
+  text-decoration: none;
+  white-space: nowrap;
+
+  &:hover { color: $v2-color-primary; }
+
+  &.tab-active {
+    color: $v2-color-primary;
+    border-bottom-color: $v2-color-primary;
+    font-weight: 600;
+  }
+
+  &:first-child { padding-left: 0; }
+}
+
+// ── Filter trigger ───────────────────────────────────────────────────────────
+.filter-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: $v2-space-1;
+}
+
+.filter-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 36px;
+  padding: 0 10px 0 0;
+  background: none;
+  border: none;
+  color: $v2-color-text;
+  font-family: $v2-font-family;
+  font-size: $v2-font-caption;
+  cursor: pointer;
+  transition: $v2-transition;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: $v2-color-text-secondary;
+  }
+
+  &:hover {
+    color: $v2-color-primary;
+
+    mat-icon { color: $v2-color-primary; }
   }
 }
 
-.filter {
-  .filter-option {
-    margin: $size-s $size-s;
-    /* border-bottom: darkslateblue; */
-    border-radius: 0;
-    border-bottom-width: 2px;
-    border-top-width: 0;
-    border-left-width: 0;
-    border-right-width: 0;
+// ── ws-widget-org-user-table overrides ──────────────────────────────────────
+::ng-deep ws-widget-org-user-table {
+  display: block;
+  width: 100%;
+
+  // Outer wrapper — stretch full width, remove library's top margin
+  .example-container,
+  .example-container.margin-top-m {
+    width: 100% !important;
+    margin-top: 0 !important;
   }
 
-  .filter-option:first-child {
-    margin-left: 0;
+  // The bordered table+toolbar box
+  .example-table-container {
+    @include v2-table-container;
+    width: 100%;
+    box-sizing: border-box;
+    overflow: auto;
+  }
+
+  // ── Toolbar row ────────────────────────────────────────────────────────────
+  // .container wraps the flex row with search + buttons
+  .container {
+    width: 100%;
+    box-sizing: border-box;
+    padding: $v2-space-1 $v2-space-2;
+    border-bottom: 1px solid $v2-color-border;
+  }
+
+  // Inner flex row: library uses .flex-1 (search) + .flex-2.right-align (buttons)
+  // Override the 1:2 ratio so search expands and buttons stay auto-width
+  .flex.flex-1.custom {
+    display: flex !important;
+    align-items: center !important;
+    width: 100%;
+    gap: $v2-space-2;
+  }
+
+  // Search area — take all remaining space
+  .flex-1 {
+    flex: 1 1 0 !important;
+    min-width: 0;
+  }
+
+  // Button area — shrink to button width only
+  .flex-2.right-align {
+    flex: 0 0 auto !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: $v2-space-1 !important;
+    text-align: left !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  // ── Search box ──────────────────────────────────────────────────────────────
+  .sinput {
+    display: flex;
+    align-items: center;
+    height: 40px;
+    width: 100%;
+    border: 1px solid $v2-color-border;
+    border-radius: $v2-radius-button;
+    padding: 0 12px;
+    background: $v2-color-card;
+    box-sizing: border-box;
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      color: $v2-color-text-secondary;
+      margin-right: 6px;
+      flex-shrink: 0;
+    }
+
+    input {
+      flex: 1;
+      min-width: 0;
+      border: none;
+      outline: none;
+      background: transparent;
+      font-family: $v2-font-family;
+      font-size: $v2-font-caption;
+      color: $v2-color-text;
+
+      &::placeholder { color: $v2-color-text-secondary; }
+    }
+  }
+
+  // ── Buttons ──────────────────────────────────────────────────────────────────
+  .create-btn { @include v2-btn-primary; }
+  .upload-btn { @include v2-btn-secondary; }
+
+  // ── Table header ─────────────────────────────────────────────────────────────
+  mat-header-row {
+    background: $v2-color-table-header-bg !important;
+    min-height: 40px !important;
+    border-bottom: 1px solid $v2-color-border !important;
+  }
+
+  mat-header-cell {
+    font-family: $v2-font-family !important;
+    font-size: $v2-font-caption !important;
+    font-weight: 600 !important;
+    color: $v2-color-text !important;
+    white-space: nowrap !important;
+    padding: 0 16px !important;
+    border: none !important;
+  }
+
+  // ── Table rows ───────────────────────────────────────────────────────────────
+  mat-row {
+    min-height: 40px !important;
+    border-bottom: 1px solid $v2-color-border !important;
+    cursor: pointer;
+    transition: background $v2-transition;
+
+    &:hover { background: #f9fbff !important; }
+    &:last-child { border-bottom: none !important; }
+  }
+
+  mat-cell {
+    font-family: $v2-font-family !important;
+    font-size: $v2-font-caption !important;
+    color: $v2-color-text !important;
+    padding: 0 16px !important;
+    border: none !important;
+
+    li { color: $v2-color-text; }
+  }
+
+  // ── Paginator ────────────────────────────────────────────────────────────────
+  mat-paginator {
+    background: transparent !important;
+    border-top: 1px solid $v2-color-border !important;
+
+    .mat-mdc-paginator-container {
+      display: flex !important;
+      flex-wrap: nowrap !important;
+      justify-content: flex-end !important;
+      align-items: center !important;
+      padding: 0 $v2-space-2 !important;
+      min-height: 48px !important;
+      gap: 8px !important;
+    }
+
+    .mat-mdc-paginator-page-size {
+      display: flex !important;
+      align-items: center !important;
+      gap: 8px !important;
+      margin: 0 !important;
+    }
+
+    .mat-mdc-paginator-range-actions {
+      display: flex !important;
+      align-items: center !important;
+      gap: 4px !important;
+      margin: 0 !important;
+    }
+
+    .mat-mdc-paginator-range-label,
+    .mat-mdc-paginator-page-size-label {
+      font-family: $v2-font-family !important;
+      font-size: $v2-font-caption !important;
+      color: $v2-color-text-secondary !important;
+      white-space: nowrap !important;
+      margin: 0 !important;
+    }
+
+    // Native <select> — strip all browser chrome, apply design-system look
+    select {
+      appearance: none !important;
+      -webkit-appearance: none !important;
+      height: 28px !important;
+      min-width: 52px !important;
+      border: 1px solid $v2-color-border !important;
+      border-radius: 6px !important;
+      padding: 0 24px 0 10px !important;
+      font-family: $v2-font-family !important;
+      font-size: $v2-font-caption !important;
+      color: $v2-color-text !important;
+      background-color: $v2-color-card !important;
+      // Inline chevron SVG
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24'%3E%3Cpath fill='%236b7a8d' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E") !important;
+      background-repeat: no-repeat !important;
+      background-position: right 4px center !important;
+      cursor: pointer !important;
+      outline: none !important;
+      line-height: 28px !important;
+
+      &:focus { border-color: $v2-color-primary !important; }
+    }
+
+    // Navigation icon buttons
+    .mat-mdc-icon-button {
+      width: 32px !important;
+      height: 32px !important;
+      padding: 0 !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      border-radius: 50% !important;
+      color: $v2-color-text-secondary !important;
+      transition: background $v2-transition !important;
+
+      &:hover:not([disabled]) {
+        background: $v2-color-primary-tint !important;
+        color: $v2-color-primary !important;
+      }
+
+      &[disabled] { opacity: 0.35 !important; }
+    }
   }
 }
 
-.recent-tabs {
-  box-shadow: none !important;
-  border-radius: unset;
-  background: inherit !important;
+// ── No-data row — standalone ::ng-deep so it can't be overridden by mat-cell ──
+// (Must be outside the ws-widget-org-user-table block to win the specificity race)
+::ng-deep ws-widget-org-user-table .mat-no-data-row > td,
+::ng-deep ws-widget-org-user-table .mat-mdc-no-data-row > td,
+::ng-deep ws-widget-org-user-table tr[class*="no-data"] > td {
+  text-align: center !important;
+  padding: 40px 24px !important;
+  color: $v2-color-text-secondary !important;
+  font-family: $v2-font-family !important;
+  font-size: $v2-font-caption !important;
+  width: 100% !important;
+  display: table-cell !important;
 }
 
-.no-shadow {
-  box-shadow: none !important;
+// ── Skeleton loading ─────────────────────────────────────────────────────────
+.table-skeleton {
+  @include v2-table-container;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
-.mat-card-title{
-  margin-left: -31px !important;
+.skeleton-toolbar {
+  display: flex;
+  align-items: center;
+  gap: $v2-space-1;
+  padding: $v2-space-1 $v2-space-2;
+  border-bottom: 1px solid $v2-color-border;
 }
 
-::ng-deep.mat-header-cell .mat-icon {
-  padding-left: 0.3em !important;
+.skeleton-search {
+  @include v2-shimmer;
+  flex: 1;
+  height: 36px;
+  border-radius: $v2-radius-button;
+}
+
+.skeleton-btn {
+  @include v2-shimmer;
+  width: 96px;
+  height: 36px;
+  border-radius: $v2-radius-button;
+}
+
+.skeleton-header-row {
+  display: flex;
+  align-items: center;
+  height: 40px;
+  padding: 0 16px;
+  gap: 12px;
+  background: $v2-color-table-header-bg;
+  border-bottom: 1px solid $v2-color-border;
+}
+
+.skeleton-data-row {
+  display: flex;
+  align-items: center;
+  height: 40px;
+  padding: 0 16px;
+  gap: 12px;
+  border-bottom: 1px solid $v2-color-border;
+
+  &:last-child { border-bottom: none; }
+}
+
+.skeleton-cell {
+  @include v2-shimmer;
+  height: 14px;
+  flex: 1;
+
+  &.sk-wide  { flex: 1.5; }
+  &.sk-narrow { flex: 0.7; }
+}
+
+// ── Responsive ───────────────────────────────────────────────────────────────
+@media (max-width: 768px) {
+  .users-tabs { overflow-x: auto; }
+  .tab-link { font-size: $v2-font-caption; padding: 0 $v2-space-1; }
 }

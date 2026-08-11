@@ -1,10 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing'
-
 import { NO_ERRORS_SCHEMA } from '@angular/core'
 import { ActivatedRoute, Router } from '@angular/router'
 import { Subject, of, throwError } from 'rxjs'
 import { HttpClientTestingModule } from '@angular/common/http/testing'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { MatSnackBar } from '@angular/material/snack-bar'
 import { createSpyObj } from 'src/test-utils/create-spy-obj'
 import { BtnPlaylistService, WidgetContentService, NsPlaylist } from '@sunbird-cb/collection'
 import { HorizontalScrollerModule } from '@sunbird-cb/utils'
@@ -13,22 +12,22 @@ import { InterestComponent } from './interest.component'
 describe('InterestComponent', () => {
   let component: InterestComponent
   let fixture: ComponentFixture<InterestComponent>
-  let playlistSvc: ReturnType<typeof createSpyObj>
-  let contentSvc: ReturnType<typeof createSpyObj>
-  let snackbar: ReturnType<typeof createSpyObj>
-  let router: ReturnType<typeof createSpyObj>
+  let playlistSvc: { [key: string]: jest.Mock }
+  let contentSvc: { [key: string]: jest.Mock }
+  let snackbar: { [key: string]: jest.Mock }
+  let router: { [key: string]: jest.Mock }
   let playlists$: Subject<any>
 
   const build = (pageData: any = { topic: ['c1', 'c2'] }) => {
     playlists$ = new Subject<any>()
     playlistSvc = createSpyObj('BtnPlaylistService', [
       'getAllPlaylists', 'deletePlaylistContent', 'addPlaylistContent', 'upsertPlaylist',
-    ])
-    playlistSvc.getAllPlaylists.mockReturnValue(playlists$.asObservable())
-    contentSvc = createSpyObj('WidgetContentService', ['fetchMultipleContent'])
-    contentSvc.fetchMultipleContent.mockReturnValue(of([]))
-    snackbar = createSpyObj('MatSnackBar', ['open'])
-    router = createSpyObj('Router', ['navigate'])
+    ] as any)
+    playlistSvc['getAllPlaylists'].mockReturnValue(playlists$.asObservable())
+    contentSvc = createSpyObj('WidgetContentService', ['fetchMultipleContent'] as any)
+    contentSvc['fetchMultipleContent'].mockReturnValue(of([]))
+    snackbar = createSpyObj('MatSnackBar', ['open'] as any)
+    router = createSpyObj('Router', ['navigate'] as any)
 
     TestBed.configureTestingModule({
       declarations: [InterestComponent],

@@ -1,4 +1,4 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing'
 import { NO_ERRORS_SCHEMA } from '@angular/core'
 import { BehaviorSubject, of } from 'rxjs'
 import { WatStoreService } from '../../services/wat.store.service'
@@ -18,7 +18,7 @@ describe('AssistantMessageCardComponent', () => {
     setCurrentProgress: jest.fn(),
   })
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [AssistantMessageCardComponent],
       providers: [{ provide: WatStoreService, useValue: buildMockWatStore() }],

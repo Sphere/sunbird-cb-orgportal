@@ -9,6 +9,7 @@ import { ILeftMenu } from '@sunbird-cb/collection'
 /* tslint:enable */
 
 @Component({
+  standalone: false,
   selector: 'ws-app-events-home',
   templateUrl: './events-home.component.html',
   styleUrls: ['./events-home.component.scss'],

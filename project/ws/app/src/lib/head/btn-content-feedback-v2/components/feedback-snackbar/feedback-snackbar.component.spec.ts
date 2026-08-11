@@ -1,6 +1,6 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing'
 import { NO_ERRORS_SCHEMA } from '@angular/core'
-import { MAT_LEGACY_SNACK_BAR_DATA as MAT_SNACK_BAR_DATA } from '@angular/material/legacy-snack-bar'
+import { MAT_SNACK_BAR_DATA } from '@angular/material/snack-bar'
 
 import { FeedbackSnackbarComponent } from './feedback-snackbar.component'
 
@@ -8,7 +8,7 @@ describe('FeedbackSnackbarComponent', () => {
   let component: FeedbackSnackbarComponent
   let fixture: ComponentFixture<FeedbackSnackbarComponent>
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [FeedbackSnackbarComponent],
       providers: [

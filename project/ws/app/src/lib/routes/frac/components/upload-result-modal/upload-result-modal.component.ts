@@ -29,6 +29,7 @@ interface MappingGroup {
 }
 
 @Component({
+  standalone: false,
   selector: 'ws-app-upload-result-modal',
   templateUrl: './upload-result-modal.component.html',
   styleUrls: ['./upload-result-modal.component.scss']

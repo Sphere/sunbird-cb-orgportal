@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing'
-
 import { NO_ERRORS_SCHEMA } from '@angular/core'
 import { ActivatedRoute, Router } from '@angular/router'
 import { of } from 'rxjs'
@@ -15,8 +14,8 @@ describe('CertificateGeneratorComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [CertificateGeneratorComponent],
-    imports: [HttpClientTestingModule],
-    providers: [
+      imports: [HttpClientTestingModule],
+      providers: [
         {
           provide: ActivatedRoute,
           useValue: {
@@ -27,9 +26,17 @@ describe('CertificateGeneratorComponent', () => {
             parent: { data: of({ eventdata: { data: {} } }), params: of({}) },
           },
         },
+        { provide: Router, useValue: { navigate: jest.fn(), navigateByUrl: jest.fn(), events: of() } },
         {
-          provide: Router,
-          useValue: { navigate: jest.fn() },
+          provide: EventService,
+          useValue: {
+            currentEvent: of(null),
+            generateCertificates: jest.fn().mockReturnValue(of({})),
+          },
+        },
+        {
+          provide: ConfigurationsService,
+          useValue: { instanceConfig: null, pageNavBar: {} },
         },
       ],
       schemas: [NO_ERRORS_SCHEMA],

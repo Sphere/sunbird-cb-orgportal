@@ -1,29 +1,29 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, discardPeriodicTasks } from '@angular/core/testing'
-import { NO_ERRORS_SCHEMA, ApplicationRef } from '@angular/core'
+import { NO_ERRORS_SCHEMA } from '@angular/core'
 import {
   Router, NavigationStart, NavigationEnd, NavigationCancel, NavigationError,
 } from '@angular/router'
 import { SwUpdate } from '@angular/service-worker'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
+import { MatDialog } from '@angular/material/dialog'
 import { ConfigurationsService, ValueService, LoggerService } from '@sunbird-cb/utils'
 import { BreadcrumbsOrgService } from '@sunbird-cb/collection'
 import { BehaviorSubject, Subject, of } from 'rxjs'
 import { createSpyObj } from 'src/test-utils/create-spy-obj'
 
-import { RootComponent } from './root.component'
-import { RootService } from './root.service'
 import { MobileAppsService } from '../../services/mobile-apps.service'
+import { RootService } from './root.service'
+import { RootComponent } from './root.component'
 import { environment } from '../../../environments/environment'
 
 describe('RootComponent', () => {
   let component: RootComponent
   let fixture: ComponentFixture<RootComponent>
   let routerEvents$: Subject<any>
-  let dialog: ReturnType<typeof createSpyObj>
-  let swUpdate: ReturnType<typeof createSpyObj>
-  let mobileAppsSvc: ReturnType<typeof createSpyObj>
+  let dialog: any
+  let swUpdate: any
+  let mobileAppsSvc: any
   let rootSvc: RootService
-  let btnBackSvc: ReturnType<typeof createSpyObj>
+  let btnBackSvc: any
 
   const build = (swUpdateIsEnabled = false) => {
     routerEvents$ = new Subject<any>()

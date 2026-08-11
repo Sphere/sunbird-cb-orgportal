@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing'
-import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing'
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing'
+import { provideHttpClient } from '@angular/common/http'
 
 import { NotificationApiService } from './notification-api.service'
 import { ENotificationType } from '../models/notifications.model'
@@ -11,8 +12,11 @@ describe('NotificationApiService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
-      providers: [NotificationApiService],
+      providers: [
+        NotificationApiService,
+        provideHttpClient(),
+        provideHttpClientTesting(),
+      ],
     })
     service = TestBed.inject(NotificationApiService)
     httpMock = TestBed.inject(HttpTestingController)

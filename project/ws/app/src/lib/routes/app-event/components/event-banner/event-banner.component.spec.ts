@@ -1,31 +1,48 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
-
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing'
 import { NO_ERRORS_SCHEMA } from '@angular/core'
 import { ActivatedRoute, Router } from '@angular/router'
 import { of } from 'rxjs'
+
 import { HttpClientTestingModule } from '@angular/common/http/testing'
 import { EventBannerComponent } from './event-banner.component'
+
+const mockEventData = {
+  Home: {
+    EventImageURL: ['', 'https://example.com/image.jpg'],
+  },
+  SessionCards: {
+    Sessions: {},
+  },
+}
 
 describe('EventBannerComponent', () => {
   let component: EventBannerComponent
   let fixture: ComponentFixture<EventBannerComponent>
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [EventBannerComponent],
-    imports: [HttpClientTestingModule],
-    providers: [
+      imports: [HttpClientTestingModule],
+      providers: [
         {
           provide: ActivatedRoute,
           useValue: {
             data: of({ pageData: { data: {} }, eventdata: { data: {} } }),
             paramMap: of({ get: () => null }),
             params: of({}),
-            snapshot: { paramMap: { get: () => null }, queryParamMap: { get: () => null }, data: {}, params: {} },
+            queryParams: of({}),
+            snapshot: { paramMap: { get: () => null }, queryParamMap: { get: () => null }, data: {}, params: {}, queryParams: {} },
             parent: { data: of({ eventdata: { data: {} } }), params: of({}) },
           },
         },
-        { provide: Router, useValue: { navigate: jest.fn() } },
+        {
+          provide: Router,
+          useValue: {
+            navigate: jest.fn(),
+            navigateByUrl: jest.fn(),
+            events: of(),
+          },
+        },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     })
@@ -35,7 +52,7 @@ describe('EventBannerComponent', () => {
   beforeEach(() => {
     fixture = TestBed.createComponent(EventBannerComponent)
     component = fixture.componentInstance
-    component.data = { SessionCards: { Sessions: {} }, Home: { EventImageURL: ['', ''] } }
+    component.data = mockEventData
     fixture.detectChanges()
   })
 

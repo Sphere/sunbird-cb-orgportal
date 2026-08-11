@@ -8,10 +8,10 @@ import { SearchApiService } from './search-api.service'
 describe('SearchApiService', () => {
   let service: SearchApiService
   let httpMock: HttpTestingController
-  let keycloakSvc: ReturnType<typeof createSpyObj>
+  let keycloakSvc: jest.Mocked<KeycloakService>
 
   beforeEach(() => {
-    keycloakSvc = createSpyObj('KeycloakService', ['getKeycloakInstance'])
+    keycloakSvc = createSpyObj<KeycloakService>('KeycloakService', ['getKeycloakInstance'])
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
       providers: [{ provide: KeycloakService, useValue: keycloakSvc }],
@@ -47,12 +47,12 @@ describe('SearchApiService', () => {
     })
 
     it('should return tokenParsed.sub when present', () => {
-      keycloakSvc.getKeycloakInstance.mockReturnValue({ tokenParsed: { sub: 'u1' } })
+      keycloakSvc.getKeycloakInstance.mockReturnValue({ tokenParsed: { sub: 'u1' } } as any)
       expect(service.userId).toBe('u1')
     })
 
     it('should fall back to idTokenParsed.sub when tokenParsed is missing', () => {
-      keycloakSvc.getKeycloakInstance.mockReturnValue({ idTokenParsed: { sub: 'u2' } })
+      keycloakSvc.getKeycloakInstance.mockReturnValue({ idTokenParsed: { sub: 'u2' } } as any)
       expect(service.userId).toBe('u2')
     })
   })

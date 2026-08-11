@@ -9,6 +9,7 @@ import { FracService } from '../../services/frac.service'
 const FRAC_LOCAL_FALLBACK_PATH = '/frac'
 
 @Component({
+  standalone: false,
   selector: 'ws-app-frac',
   templateUrl: './frac.component.html',
 })

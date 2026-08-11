@@ -1,8 +1,9 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
-
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing'
 import { NO_ERRORS_SCHEMA } from '@angular/core'
 import { ActivatedRoute } from '@angular/router'
 import { of } from 'rxjs'
+import { BreakpointObserver } from '@angular/cdk/layout'
+import { ConfigurationsService } from '@sunbird-cb/utils'
 import { HttpClientTestingModule } from '@angular/common/http/testing'
 import { AboutHomeComponent } from './about-home.component'
 
@@ -10,25 +11,34 @@ describe('AboutHomeComponent', () => {
   let component: AboutHomeComponent
   let fixture: ComponentFixture<AboutHomeComponent>
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [AboutHomeComponent],
-    imports: [HttpClientTestingModule],
-    providers: [
+      imports: [HttpClientTestingModule],
+      providers: [
+        {
+          provide: BreakpointObserver,
+          useValue: { observe: jest.fn().mockReturnValue(of({ matches: false })) },
+        },
+        {
+          provide: ConfigurationsService,
+          useValue: { pageNavBar: {}, instanceConfig: null },
+        },
         {
           provide: ActivatedRoute,
           useValue: {
             data: of({ pageData: { data: {} }, eventdata: { data: {} } }),
             paramMap: of({ get: () => null }),
             params: of({}),
-            snapshot: { paramMap: { get: () => null }, queryParamMap: { get: () => null }, data: {}, params: {} },
+            queryParams: of({}),
+            snapshot: { paramMap: { get: () => null }, queryParamMap: { get: () => null }, data: {}, params: {}, queryParams: {} },
             parent: { data: of({ eventdata: { data: {} } }), params: of({}) },
           },
         },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     })
-    .compileComponents()
+      .compileComponents()
   }))
 
   beforeEach(() => {

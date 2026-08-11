@@ -478,13 +478,13 @@ describe('InitService', () => {
       expect(logoutMock).toHaveBeenCalled()
     })
 
-    it('throws "Invalid user" and clears userProfile when the http call fails', async () => {
+    it('rethrows the error and clears userProfile when the http call fails', async () => {
       const service: any = createService()
       configSvc.instanceConfig = buildInstanceConfig({ disablePidCheck: false })
       configSvc.userProfile = { userId: 'stale' }
       httpGetMock.mockReturnValue(throwError(() => new Error('network error')))
 
-      await expect(service.fetchStartUpDetails()).rejects.toThrow('Invalid user')
+      await expect(service.fetchStartUpDetails()).rejects.toThrow('network error')
       expect(configSvc.userProfile).toBeNull()
     })
   })

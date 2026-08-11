@@ -1,6 +1,6 @@
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core'
 import { UntypedFormControl } from '@angular/forms'
-import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog'
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog'
 import { SelectionModel } from '@angular/cdk/collections'
 import { MatTableDataSource } from '@angular/material/table'
 import { Subject } from 'rxjs'
@@ -15,7 +15,7 @@ export interface IParticipantElement {
 }
 
 @Component({
-  standalone: false,
+    standalone: false,
     selector: 'ws-app-participants',
     templateUrl: './participants.component.html',
     styleUrls: ['./participants.component.scss'],

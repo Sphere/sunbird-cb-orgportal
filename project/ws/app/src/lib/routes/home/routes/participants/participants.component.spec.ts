@@ -1,6 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing'
-
-import { NO_ERRORS_SCHEMA } from '@angular/core'
+import { ElementRef, NO_ERRORS_SCHEMA } from '@angular/core'
 import { ActivatedRoute } from '@angular/router'
 import { Subject, of, throwError } from 'rxjs'
 import { HttpClientTestingModule } from '@angular/common/http/testing'
@@ -11,7 +10,7 @@ import { EventService } from '../../services/event.service'
 describe('ParticipantsComponent', () => {
   let component: ParticipantsComponent
   let fixture: ComponentFixture<ParticipantsComponent>
-  let eventService: ReturnType<typeof createSpyObj>
+  let eventService: jest.Mocked<{ getParticipants: (...args: any[]) => any, getUserProfile: (...args: any[]) => any }> & { currentEvent: any }
   let params$: Subject<any>
   let currentEvent$: Subject<any>
 
@@ -31,6 +30,7 @@ describe('ParticipantsComponent', () => {
           provide: ActivatedRoute,
           useValue: { parent: { params: params$.asObservable() } },
         },
+        { provide: ElementRef, useValue: { nativeElement: { contains: () => true } } },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents()
@@ -62,7 +62,7 @@ describe('ParticipantsComponent', () => {
       ]))
       component.fetchParticipants('e1')
       expect(component.participants).toEqual([
-        { firstName: 'John', lastName: '', place: '', userId: '', certificateStatus: 'success' },
+        { firstName: 'John', lastName: '', place: '', userId: '', isNonQr: false, certificateStatus: 'success' },
       ])
     })
 

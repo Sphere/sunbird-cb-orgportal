@@ -12,6 +12,7 @@ export interface MappingRequiredModalData {
 }
 
 @Component({
+  standalone: false,
   selector: 'ws-app-mapping-required-modal',
   templateUrl: './mapping-required-modal.component.html',
   styleUrls: ['./mapping-required-modal.component.scss'],

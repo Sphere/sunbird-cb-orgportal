@@ -34,6 +34,7 @@ interface UploadEmptyStateConfig {
 }
 
 @Component({
+  standalone: false,
   selector: 'ws-app-activity-upload',
   templateUrl: './activity-upload.component.html',
   styleUrls: ['./activity-upload.component.scss']

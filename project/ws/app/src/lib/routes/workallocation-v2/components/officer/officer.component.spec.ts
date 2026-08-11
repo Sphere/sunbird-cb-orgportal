@@ -1,13 +1,16 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing'
 import { NO_ERRORS_SCHEMA } from '@angular/core'
-import { MatLegacyAutocompleteModule } from '@angular/material/legacy-autocomplete'
+import { ReactiveFormsModule } from '@angular/forms'
+import { MatAutocompleteModule } from '@angular/material/autocomplete'
+import { MatInputModule } from '@angular/material/input'
+import { MatFormFieldModule } from '@angular/material/form-field'
 import { TextFieldModule } from '@angular/cdk/text-field'
 import { HttpClientTestingModule } from '@angular/common/http/testing'
 import { of } from 'rxjs'
-import { WatStoreService } from '../../services/wat.store.service'
-import { AllocationService } from '../../services/allocation.service'
 
 import { OfficerComponent } from './officer.component'
+import { AllocationService } from '../../services/allocation.service'
+import { WatStoreService } from '../../services/wat.store.service'
 
 describe('OfficerComponent', () => {
   let component: OfficerComponent
@@ -15,6 +18,9 @@ describe('OfficerComponent', () => {
 
   const mockWatStore = {
     setOfficerGroup: jest.fn(),
+    getOfficerGroup: of({}),
+    setCurrentProgress: jest.fn(),
+    setErrorCount: jest.fn(),
   }
 
   const mockAllocationService = {
@@ -22,13 +28,20 @@ describe('OfficerComponent', () => {
     onSearchPosition: jest.fn().mockReturnValue(of({ responseData: [] })),
   }
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     mockWatStore.setOfficerGroup.mockClear()
     mockAllocationService.onSearchUser.mockClear()
     mockAllocationService.onSearchPosition.mockClear()
     TestBed.configureTestingModule({
       declarations: [OfficerComponent],
-      imports: [HttpClientTestingModule, MatLegacyAutocompleteModule, TextFieldModule],
+      imports: [
+        HttpClientTestingModule,
+        ReactiveFormsModule,
+        MatAutocompleteModule,
+        MatInputModule,
+        MatFormFieldModule,
+        TextFieldModule,
+      ],
       providers: [
         { provide: WatStoreService, useValue: mockWatStore },
         { provide: AllocationService, useValue: mockAllocationService },

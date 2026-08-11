@@ -4,24 +4,24 @@ import { Router } from '@angular/router'
 import { ConfigurationsService } from '@sunbird-cb/utils'
 import { of, throwError } from 'rxjs'
 import { createSpyObj } from 'src/test-utils/create-spy-obj'
-import { NotificationApiService } from '../../services/notification-api.service'
-import { NotificationService } from '../../services/notification.service'
 
 import { HomeComponent } from './home.component'
+import { NotificationApiService } from '../../services/notification-api.service'
+import { NotificationService } from '../../services/notification.service'
 
 describe('HomeComponent', () => {
   let component: HomeComponent
   let fixture: ComponentFixture<HomeComponent>
-  let notificationApi: ReturnType<typeof createSpyObj>
-  let notificationSvc: ReturnType<typeof createSpyObj>
-  let router: ReturnType<typeof createSpyObj>
+  let notificationApi: jest.Mocked<NotificationApiService>
+  let notificationSvc: jest.Mocked<NotificationService>
+  let router: jest.Mocked<Router>
 
   const build = () => {
-    notificationApi = createSpyObj('NotificationApiService', [
+    notificationApi = createSpyObj<NotificationApiService>('NotificationApiService', [
       'getNotifications', 'updateNotificationSeenStatus', 'getCount',
     ])
-    notificationSvc = createSpyObj('NotificationService', ['mapRoute'])
-    router = createSpyObj('Router', ['navigate'])
+    notificationSvc = createSpyObj<NotificationService>('NotificationService', ['mapRoute'])
+    router = createSpyObj<Router>('Router', ['navigate'])
     notificationApi.getNotifications.mockReturnValue(of({ data: [], page: undefined }))
     notificationApi.getCount.mockReturnValue(of(0))
 
@@ -31,7 +31,14 @@ describe('HomeComponent', () => {
         { provide: NotificationApiService, useValue: notificationApi },
         { provide: NotificationService, useValue: notificationSvc },
         { provide: Router, useValue: router },
-        { provide: ConfigurationsService, useValue: { pageNavBar: {} } },
+        {
+          provide: ConfigurationsService,
+          useValue: {
+            pageNavBar: {},
+            instanceConfig: {},
+            baseUrl: '',
+          },
+        },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents()
@@ -53,7 +60,7 @@ describe('HomeComponent', () => {
   describe('fetchActionNotifications', () => {
     it('should append data and store the next page on success', () => {
       build()
-      notificationApi.getNotifications.mockReturnValue(of({ data: [{ id: 1 }], page: 'p2' }))
+      notificationApi.getNotifications.mockReturnValue(of({ data: [{ id: 1 }], page: 'p2' } as any))
       component.fetchActionNotifications()
       expect(component.actionNotifications).toContainEqual({ id: 1 })
       expect(component.actionNotificationsNextPage).toBe('p2')
@@ -70,7 +77,7 @@ describe('HomeComponent', () => {
   describe('fetchInfoNotifications', () => {
     it('should append data and store the next page on success', () => {
       build()
-      notificationApi.getNotifications.mockReturnValue(of({ data: [{ id: 2 }], page: 'p3' }))
+      notificationApi.getNotifications.mockReturnValue(of({ data: [{ id: 2 }], page: 'p3' } as any))
       component.fetchInfoNotifications()
       expect(component.infoNotifications).toContainEqual({ id: 2 })
       expect(component.infoNotificationsNextPage).toBe('p3')

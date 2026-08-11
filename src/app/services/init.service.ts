@@ -243,7 +243,6 @@ export class InitService {
           }
 
         } else {
-
           this.authSvc.logout()
         }
         const details = {
@@ -261,7 +260,7 @@ export class InitService {
         return details
       } catch (e) {
         this.configSvc.userProfile = null
-        throw new Error('Invalid user')
+        throw e
       }
     } else {
       return { group: [], profileDetailsStatus: true, roles: new Set(['Public']), tncStatus: true, isActive: true }

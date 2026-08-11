@@ -498,33 +498,33 @@ export class CompetencyUploadComponent implements OnInit, OnDestroy {
     this.fracApiService.uploadFile(file, language).subscribe({
       next: (res) => {
         void (async () => {
-        fracLogger.debug('Competency upload completed', res)
+          fracLogger.debug('Competency upload completed', res)
 
-        this.isUploading = false
-        const parsedRes = await FracResponseParserUtil.resolveApiPayload(res)
-        this.apiResponse = parsedRes
+          this.isUploading = false
+          const parsedRes = await FracResponseParserUtil.resolveApiPayload(res)
+          this.apiResponse = parsedRes
 
-        const normalizedResponse = FracResponseParserUtil.parseApiResponse(parsedRes)
-        const resultObject = (normalizedResponse?.result || {}) as Record<string, unknown>
-        const uploadedCodes = FracResponseParserUtil.getSuccessCodes(parsedRes, 'competency')
-        if (FracResponseParserUtil.isUploadSuccessful(parsedRes, 'competency')) {
-          const uploadedCount = uploadedCodes.length || Number(resultObject.count || 0) || 0
+          const normalizedResponse = FracResponseParserUtil.parseApiResponse(parsedRes)
+          const resultObject = (normalizedResponse?.result || {}) as Record<string, unknown>
+          const uploadedCodes = FracResponseParserUtil.getSuccessCodes(parsedRes, 'competency')
+          if (FracResponseParserUtil.isUploadSuccessful(parsedRes, 'competency')) {
+            const uploadedCount = uploadedCodes.length || Number(resultObject.count || 0) || 0
 
-          this.selectedRows = []
-          this.editRows = []
-          this.isEditing = false
+            this.selectedRows = []
+            this.editRows = []
+            this.isEditing = false
 
-          const successData: UploadResultData = {
-            type: 'success',
-            title: 'Upload Successful',
-            message: 'Your competency data has been uploaded successfully.',
-            count: uploadedCount || 1
+            const successData: UploadResultData = {
+              type: 'success',
+              title: 'Upload Successful',
+              message: 'Your competency data has been uploaded successfully.',
+              count: uploadedCount || 1
+            }
+            this.showResultModal(successData, false, FRAC_ROUTES.competencyManage)
+          } else {
+            fracLogger.warn('Upload API returned a failure payload', parsedRes)
+            this.showResultModal(FracUploadHelper.createFailureModalData(parsedRes), false)
           }
-          this.showResultModal(successData, false, FRAC_ROUTES.competencyManage)
-        } else {
-          fracLogger.warn('Upload API returned a failure payload', parsedRes)
-          this.showResultModal(FracUploadHelper.createFailureModalData(parsedRes), false)
-        }
         })()
       },
       error: (err) => {

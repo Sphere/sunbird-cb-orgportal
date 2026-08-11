@@ -1,53 +1,61 @@
 import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing'
-
 import { NO_ERRORS_SCHEMA } from '@angular/core'
 import { ActivatedRoute, Router } from '@angular/router'
 import { of } from 'rxjs'
-import { HttpClientTestingModule } from '@angular/common/http/testing'
-import { KeycloakService } from 'keycloak-angular'
 import { ConfigurationsService } from '@sunbird-cb/utils'
-import { createSpyObj } from 'src/test-utils/create-spy-obj'
 import { FilterDisplayComponent } from './filter-display.component'
 import { SearchServService } from '../../services/search-serv.service'
 
 describe('FilterDisplayComponent', () => {
   let component: FilterDisplayComponent
   let fixture: ComponentFixture<FilterDisplayComponent>
-  let mockSearchServService: jest.Mocked<SearchServService>
-  let mockRouter: jest.Mocked<Router>
-  let mockActivatedRoute: any
+
+  const mockActivatedRoute = {
+    queryParamMap: of({ has: () => false, get: () => null }),
+    parent: {
+      snapshot: {
+        data: {
+          searchPageData: {
+            data: {
+              search: {
+                tabs: [],
+              },
+            },
+          },
+        },
+      },
+    },
+    snapshot: {
+      params: {},
+      queryParams: {},
+      data: {},
+    },
+  }
+
+  const mockSearchServService = {
+    translateSearchFilters: jest.fn().mockResolvedValue({}),
+    formatFilterForSearch: jest.fn().mockReturnValue(''),
+    updateSelectedFiltersSet: jest.fn().mockReturnValue({ filterSet: new Set(), filterReset: false }),
+    handleFilters: jest.fn().mockReturnValue({ filtersRes: [], concept: [] }),
+    getLanguageSearchIndex: jest.fn().mockReturnValue('en'),
+  }
+
+  const mockConfigurationsService = {
+    userPreference: null,
+    activeLocale: null,
+    pageNavBar: {},
+  }
 
   beforeEach(waitForAsync(() => {
-    mockSearchServService = createSpyObj('SearchServService', ['translateSearchFilters'])
-    mockSearchServService.translateSearchFilters.mockResolvedValue({})
-
-    mockRouter = createSpyObj('Router', ['navigate'])
-
-    mockActivatedRoute = {
-      data: of({ pageData: { data: {} }, eventdata: { data: {} } }),
-      paramMap: of({ get: () => null }),
-      queryParamMap: of({ has: () => false, get: () => null }),
-      params: of({}),
-      snapshot: { paramMap: { get: () => null }, queryParamMap: { get: () => null }, data: {}, params: {} },
-      parent: {
-        data: of({ eventdata: { data: {} } }),
-        params: of({}),
-        snapshot: { data: { searchPageData: { data: { search: { tabs: [] } } } } },
-      },
-    }
-
     TestBed.configureTestingModule({
       declarations: [FilterDisplayComponent],
-    imports: [HttpClientTestingModule],
-    providers: [
-        { provide: 'environment', useValue: {} },
-        { provide: KeycloakService, useValue: createSpyObj('KeycloakService', ['getKeycloakInstance']) },
-        { provide: Router, useValue: mockRouter },
-        { provide: SearchServService, useValue: mockSearchServService },
-        { provide: ConfigurationsService, useValue: { userPreference: null } },
-        { provide: ActivatedRoute, useValue: mockActivatedRoute },
-      ],
       schemas: [NO_ERRORS_SCHEMA],
+      providers: [
+        { provide: ActivatedRoute, useValue: mockActivatedRoute },
+        { provide: Router, useValue: { navigate: jest.fn(), navigateByUrl: jest.fn(), events: of() } },
+        { provide: SearchServService, useValue: mockSearchServService },
+        { provide: ConfigurationsService, useValue: mockConfigurationsService },
+      ],
     }).compileComponents()
   }))
 

@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing'
 import { NO_ERRORS_SCHEMA } from '@angular/core'
-import { MatLegacyMenuModule as MatMenuModule } from '@angular/material/legacy-menu'
+import { MatMenuModule } from '@angular/material/menu'
 import { Router, NavigationStart, NavigationEnd } from '@angular/router'
 import { ConfigurationsService } from '@sunbird-cb/utils'
 import { CustomTourService } from '@sunbird-cb/collection'
@@ -14,8 +14,8 @@ describe('AppNavBarComponent', () => {
   let component: AppNavBarComponent
   let fixture: ComponentFixture<AppNavBarComponent>
   let configSvc: any
-  let tourService: ReturnType<typeof createSpyObj>
-  let sanitizerService: ReturnType<typeof createSpyObj>
+  let tourService: any
+  let sanitizerService: any
   let routerEvents$: Subject<any>
   let router: any
 
@@ -37,8 +37,8 @@ describe('AppNavBarComponent', () => {
     router = { events: routerEvents$.asObservable(), navigate: jest.fn() }
 
     TestBed.configureTestingModule({
-      declarations: [AppNavBarComponent],
       imports: [MatMenuModule],
+      declarations: [AppNavBarComponent],
       providers: [
         { provide: ConfigurationsService, useValue: configSvc },
         { provide: CustomTourService, useValue: tourService },
@@ -194,7 +194,7 @@ describe('AppNavBarComponent', () => {
     ;(window as any).location = { href: '' }
     component.logout()
     expect(window.location.href).toBe('/public/logout')
-    window.location = originalLocation
+    ;(window as any).location = originalLocation
   })
 
   describe('ngOnChanges', () => {

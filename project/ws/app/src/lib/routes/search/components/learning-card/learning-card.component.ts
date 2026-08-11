@@ -2,6 +2,7 @@ import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/cor
 import { NsContent } from '@sunbird-cb/collection'
 import { ConfigurationsService, EventService } from '@sunbird-cb/utils'
 @Component({
+  standalone: false,
   selector: 'ws-app-learning-card',
   templateUrl: './learning-card.component.html',
   styleUrls: ['./learning-card.component.scss'],

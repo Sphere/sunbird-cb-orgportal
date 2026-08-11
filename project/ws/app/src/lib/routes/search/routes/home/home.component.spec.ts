@@ -1,12 +1,11 @@
-import { HttpClientTestingModule } from '@angular/common/http/testing'
 import { ComponentFixture, TestBed, fakeAsync, tick } from '@angular/core/testing'
 import { ActivatedRoute, Router } from '@angular/router'
 import { ConfigurationsService } from '@sunbird-cb/utils'
-import { Subject, of } from 'rxjs'
+import { Subject } from 'rxjs'
 import { KeycloakService } from 'keycloak-angular'
 import { createSpyObj } from 'src/test-utils/create-spy-obj'
-import { MatLegacyMenuModule as MatMenuModule } from '@angular/material/legacy-menu'
-import { MatLegacyAutocompleteModule as MatAutocompleteModule } from '@angular/material/legacy-autocomplete'
+import { MatMenuModule } from '@angular/material/menu'
+import { MatAutocompleteModule } from '@angular/material/autocomplete'
 
 import { HomeComponent } from './home.component'
 import { SearchServService } from '../../services/search-serv.service'
@@ -14,8 +13,8 @@ import { SearchServService } from '../../services/search-serv.service'
 describe('HomeComponent', () => {
   let component: HomeComponent
   let fixture: ComponentFixture<HomeComponent>
-  let router: ReturnType<typeof createSpyObj>
-  let searchSvc: ReturnType<typeof createSpyObj>
+  let router: jest.Mocked<Router>
+  let searchSvc: jest.Mocked<SearchServService>
   let configSvc: any
   let queryParamMap$: Subject<any>
 
@@ -27,9 +26,9 @@ describe('HomeComponent', () => {
     parent?: any
   } = {}) => {
     queryParamMap$ = new Subject<any>()
-    router = createSpyObj('Router', ['navigate'])
+    router = createSpyObj<Router>('Router', ['navigate'])
     router.navigate.mockReturnValue(Promise.resolve(true))
-    searchSvc = createSpyObj('SearchServService', ['getLanguageSearchIndex', 'searchAutoComplete', 'getSearchConfig'])
+    searchSvc = createSpyObj<SearchServService>('SearchServService', ['getLanguageSearchIndex', 'searchAutoComplete', 'getSearchConfig'])
     searchSvc.getLanguageSearchIndex.mockImplementation((l: string) => l)
     searchSvc.searchAutoComplete.mockResolvedValue([])
     searchSvc.getSearchConfig.mockResolvedValue({ search: { suggestedFilters: [] } })
@@ -40,7 +39,7 @@ describe('HomeComponent', () => {
     }
 
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule, MatMenuModule, MatAutocompleteModule],
+      imports: [MatMenuModule, MatAutocompleteModule],
       declarations: [HomeComponent],
       providers: [
         { provide: 'environment', useValue: {} },
@@ -185,10 +184,10 @@ describe('HomeComponent', () => {
   describe('getAutoCompleteResults', () => {
     it('should populate autoCompleteResults on success', async () => {
       build()
-      searchSvc.searchAutoComplete.mockResolvedValue([{ term: 'x' }])
+      searchSvc.searchAutoComplete.mockResolvedValue([{ _source: { searchTerm: 'x' } }])
       component.getAutoCompleteResults()
       await Promise.resolve()
-      expect(component.autoCompleteResults).toEqual([{ term: 'x' }])
+      expect(component.autoCompleteResults).toEqual([{ _source: { searchTerm: 'x' } }])
     })
 
     it('should swallow errors', async () => {

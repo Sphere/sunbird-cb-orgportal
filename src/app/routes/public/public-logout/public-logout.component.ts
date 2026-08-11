@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core'
 import { Subscription } from 'rxjs'
 
 @Component({
+  standalone: false,
   selector: 'ws-public-logout',
   templateUrl: './public-logout.component.html',
   styleUrls: ['./public-logout.component.scss'],

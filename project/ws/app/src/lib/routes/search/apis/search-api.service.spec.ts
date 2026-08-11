@@ -1,15 +1,16 @@
 import { TestBed } from '@angular/core/testing'
-import { HttpClientTestingModule } from '@angular/common/http/testing'
-import { KeycloakService } from 'keycloak-angular'
-import { createSpyObj } from 'src/test-utils/create-spy-obj'
+import { provideHttpClient } from '@angular/common/http'
+import { provideHttpClientTesting } from '@angular/common/http/testing'
 
 import { SearchApiService } from './search-api.service'
+import { KeycloakService } from 'keycloak-angular'
 
 describe('SearchApiService', () => {
   beforeEach(() => TestBed.configureTestingModule({
-    imports: [HttpClientTestingModule],
     providers: [
-      { provide: KeycloakService, useValue: createSpyObj('KeycloakService', ['getKeycloakInstance']) },
+      provideHttpClient(),
+      provideHttpClientTesting(),
+      { provide: KeycloakService, useValue: { getKeycloakInstance: jest.fn().mockReturnValue(null) } },
     ],
   }))
 

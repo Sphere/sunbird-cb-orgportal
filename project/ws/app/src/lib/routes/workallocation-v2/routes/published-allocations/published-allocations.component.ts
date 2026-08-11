@@ -81,10 +81,7 @@ export class PublishedAllocationsComponent implements OnInit, OnDestroy, OnChang
     if (action === 'Download') {
       console.log('row data', row)
       this.downloaddata.push(row)
-      // ngx-export-as nests its own RxJS copy, whose Observable is structurally incompatible with
-      // this app's top-level RxJS typings for `takeUntil` — and this is a one-shot save triggered
-      // per click, not a long-lived subscription, so takeUntil cleanup isn't needed here anyway.
-      this.exportAsService.save(this.config, 'WorkAllocation').subscribe(() => {
+      this.exportAsService.save(this.config, 'WorkAllocation').pipe(takeUntil(this.destroy$)).subscribe(() => {
         // save started
       })
     } else if (action === 'Archive') {

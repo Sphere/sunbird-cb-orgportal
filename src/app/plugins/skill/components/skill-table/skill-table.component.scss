@@ -1,13 +1,64 @@
+@import 'ws-design-system-v2';
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+.example-container {
+  @include v2-table-container;
+  overflow: hidden;
+  margin-top: 0 !important;
+}
+
 .table-container {
   display: flex;
   flex-direction: column;
-  gap: 31px;
+  gap: 0;
+  overflow-x: auto;
+}
 
+// ── Toolbar row ────────────────────────────────────────────────────────────────
+.flex.flex-between.items-center {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $v2-space-1 $v2-space-2;
+  border-bottom: 1px solid $v2-color-border;
+  gap: $v2-space-2;
+  flex-wrap: wrap;
+}
+
+// ── Search input ───────────────────────────────────────────────────────────────
+.sinput {
+  display: block;
+  height: 40px;
+  width: 320px;
+  border: 1px solid $v2-color-border !important;
+  border-radius: $v2-radius-button;
+  padding: 0 36px 0 14px;
+  background: $v2-color-card;
+  box-sizing: border-box;
+  font-family: $v2-font-family;
+  font-size: $v2-font-caption;
+  color: $v2-color-text;
+  box-shadow: none !important;
+  flex: none;
+  outline: none;
+
+  &::placeholder { color: $v2-color-text-secondary; }
+  &:focus { border-color: $v2-color-primary !important; }
 }
 
 .search-icon {
   position: relative;
   right: 30px;
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: $v2-color-text-secondary;
+  flex-shrink: 0;
+  line-height: 1;
 }
 
 .sinput {
@@ -84,19 +135,194 @@
 }
 
 .filter {
-  color: #1C5D95;
+  color: $v2-color-primary;
+  cursor: pointer;
+
+  &:hover { opacity: 0.8; }
 }
 
 .filterText {
-  font-family: Roboto, sans-serif;
-  letter-spacing: -0.02em;
+  font-family: $v2-font-family;
+  font-size: $v2-font-caption;
+  color: $v2-color-primary;
 }
 
+// ── Select-all label ──────────────────────────────────────────────────────────
+.select-label {
+  font-family: $v2-font-family;
+  font-size: $v2-font-micro;
+  font-weight: 500;
+  color: $v2-color-text;
+  padding-left: 6px;
+}
+
+// ── Action buttons ─────────────────────────────────────────────────────────────
+.btn {
+  margin: 0;
+  height: 36px;
+  padding: 0 20px;
+  border-radius: $v2-radius-button;
+  border: 1px solid $v2-color-primary;
+  font-family: $v2-font-family;
+  font-size: $v2-font-caption;
+  font-weight: 500;
+  cursor: pointer;
+  transition: $v2-transition;
+
+  &.active {
+    background: $v2-color-primary;
+    color: #ffffff;
+
+    &:hover { background: $v2-color-primary-hover; border-color: $v2-color-primary-hover; }
+  }
+
+  &.inactive {
+    background: transparent;
+    color: $v2-color-text-secondary;
+    border-color: $v2-color-border;
+    cursor: not-allowed;
+  }
+}
+
+// ── Anchor action ─────────────────────────────────────────────────────────────
+.anchor-wrap {
+  font-family: $v2-font-family;
+  font-size: $v2-font-caption;
+  font-weight: 400;
+  text-decoration: underline !important;
+  cursor: pointer;
+
+  &.active { color: $v2-color-primary; }
+  &.inactive { color: $v2-color-text-secondary; cursor: not-allowed; }
+}
+
+// ── Table header ───────────────────────────────────────────────────────────────
+mat-header-row {
+  background: $v2-color-table-header-bg !important;
+  min-height: 40px !important;
+  border-bottom: 1px solid $v2-color-border !important;
+}
+
+mat-header-cell,
+.mat-header-cell {
+  background-color: $v2-color-table-header-bg !important;
+  font-family: $v2-font-family !important;
+  font-size: $v2-font-caption !important;
+  font-weight: 600 !important;
+  color: $v2-color-text !important;
+  padding: 0 16px !important;
+  border: none !important;
+  white-space: nowrap !important;
+}
+
+// ── Table rows ─────────────────────────────────────────────────────────────────
+mat-row {
+  min-height: 40px !important;
+  border-bottom: 1px solid $v2-color-border !important;
+  cursor: pointer;
+  transition: background $v2-transition;
+
+  &:hover { background: #f9fbff !important; }
+  &:last-child { border-bottom: none !important; }
+}
+
+mat-cell {
+  font-family: $v2-font-family !important;
+  font-size: $v2-font-caption !important;
+  color: $v2-color-text !important;
+  padding: 0 16px !important;
+  border: none !important;
+}
+
+// ── Special cells ─────────────────────────────────────────────────────────────
 .text-enable {
   color: #FBB855 !important;
-
 }
 
 .reset {
   text-decoration: underline !important;
+}
+
+.action-btn {
+  color: $v2-color-text-secondary;
+}
+
+// ── Paginator ─────────────────────────────────────────────────────────────────
+:host ::ng-deep mat-paginator {
+  background: transparent !important;
+  border-top: 1px solid $v2-color-border !important;
+
+  .mat-mdc-paginator-container {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    justify-content: flex-end !important;
+    align-items: center !important;
+    padding: 0 $v2-space-2 !important;
+    min-height: 48px !important;
+    gap: 8px !important;
+  }
+
+  .mat-mdc-paginator-page-size {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    margin: 0 !important;
+  }
+
+  .mat-mdc-paginator-range-actions {
+    display: flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    margin: 0 !important;
+  }
+
+  .mat-mdc-paginator-range-label,
+  .mat-mdc-paginator-page-size-label {
+    font-family: $v2-font-family !important;
+    font-size: $v2-font-caption !important;
+    color: $v2-color-text-secondary !important;
+    white-space: nowrap !important;
+    margin: 0 !important;
+  }
+
+  select {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    height: 28px !important;
+    min-width: 52px !important;
+    border: 1px solid $v2-color-border !important;
+    border-radius: 6px !important;
+    padding: 0 24px 0 10px !important;
+    font-family: $v2-font-family !important;
+    font-size: $v2-font-caption !important;
+    color: $v2-color-text !important;
+    background-color: $v2-color-card !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24'%3E%3Cpath fill='%236b7a8d' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 4px center !important;
+    cursor: pointer !important;
+    outline: none !important;
+    line-height: 28px !important;
+
+    &:focus { border-color: $v2-color-primary !important; }
+  }
+
+  .mat-mdc-icon-button {
+    width: 32px !important;
+    height: 32px !important;
+    padding: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 50% !important;
+    color: $v2-color-text-secondary !important;
+    transition: background $v2-transition !important;
+
+    &:hover:not([disabled]) {
+      background: $v2-color-primary-tint !important;
+      color: $v2-color-primary !important;
+    }
+
+    &[disabled] { opacity: 0.35 !important; }
+  }
 }

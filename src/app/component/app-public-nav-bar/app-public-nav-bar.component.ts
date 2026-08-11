@@ -4,6 +4,7 @@ import { ConfigurationsService, NsPage } from '@sunbird-cb/utils'
 import { SanitizerService } from '../../services/sanitizer.service'
 
 @Component({
+  standalone: false,
   selector: 'ws-app-public-nav-bar',
   templateUrl: './app-public-nav-bar.component.html',
   styleUrls: ['./app-public-nav-bar.component.scss'],

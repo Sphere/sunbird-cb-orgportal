@@ -96,7 +96,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         .pipe(takeUntil(this.destroy$))
         .subscribe(() => {
           notification.seen = true
-        },         noop)
+        }, noop)
     }
 
     this.notificationSvc.mapRoute(notification)

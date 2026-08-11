@@ -3,6 +3,7 @@ import { Router, ActivatedRoute } from '@angular/router'
 // tslint:disable-next-line
 import _ from 'lodash'
 @Component({
+  standalone: false,
   selector: 'ws-app-roles-access',
   templateUrl: './roles-access.component.html',
   styleUrls: ['./roles-access.component.scss'],

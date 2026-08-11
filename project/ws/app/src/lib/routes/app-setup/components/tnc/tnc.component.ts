@@ -18,6 +18,7 @@ import { TncPublicResolverService } from '../../../../../../../../../src/app/ser
 import { Globals } from '../../globals'
 
 @Component({
+  standalone: false,
   selector: 'ws-app-tnc',
   templateUrl: './tnc.component.html',
   styleUrls: ['./tnc.component.scss'],

@@ -1,11 +1,11 @@
 import { Component, OnDestroy, OnInit, Input, Output, EventEmitter, ViewChild, ChangeDetectorRef } from '@angular/core'
 import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms'
 import { EventsService } from '../../services/events.service'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { MatSnackBar } from '@angular/material/snack-bar'
 import { MatPaginator } from '@angular/material/paginator'
 import { MatSort } from '@angular/material/sort'
 import { ITableData } from '../../interfaces/interfaces'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
+import { MatDialog } from '@angular/material/dialog'
 import { ParticipantsComponent } from '../../components/participants/participants.component'
 import { SuccessComponent } from '../../components/success/success.component'
 import { Router, ActivatedRoute } from '@angular/router'
@@ -93,12 +93,12 @@ export class CreateEventComponent implements OnInit, OnDestroy {
   departmentID: any
 
   constructor(private readonly snackBar: MatSnackBar,
-              private readonly eventsSvc: EventsService,
-              private readonly matDialog: MatDialog,
-              private readonly router: Router,
-              private readonly configSvc: ConfigurationsService,
-              private readonly changeDetectorRefs: ChangeDetectorRef,
-              private readonly activeRoute: ActivatedRoute,
+    private readonly eventsSvc: EventsService,
+    private readonly matDialog: MatDialog,
+    private readonly router: Router,
+    private readonly configSvc: ConfigurationsService,
+    private readonly changeDetectorRefs: ChangeDetectorRef,
+    private readonly activeRoute: ActivatedRoute,
   ) {
     if (this.configSvc.userProfile) {
       this.userId = this.configSvc.userProfile.userId

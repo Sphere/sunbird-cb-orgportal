@@ -2,24 +2,24 @@ import { ComponentFixture, TestBed } from '@angular/core/testing'
 import { NO_ERRORS_SCHEMA } from '@angular/core'
 import { ActivatedRoute } from '@angular/router'
 import { HttpClientTestingModule } from '@angular/common/http/testing'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { MatSnackBar } from '@angular/material/snack-bar'
 import { Subject, of, throwError } from 'rxjs'
 import { createSpyObj } from 'src/test-utils/create-spy-obj'
-import { SignupAutoService } from './signup-auto.service'
 
 import { SignupAutoComponent } from './signup-auto.component'
+import { SignupAutoService } from './signup-auto.service'
 
 describe('SignupAutoComponent', () => {
   let component: SignupAutoComponent
   let fixture: ComponentFixture<SignupAutoComponent>
-  let snackBar: ReturnType<typeof createSpyObj>
-  let signupAutoService: ReturnType<typeof createSpyObj>
+  let snackBar: jest.Mocked<{ open: MatSnackBar['open'] }>
+  let signupAutoService: jest.Mocked<{ signup: SignupAutoService['signup'] }>
   let paramMap$: Subject<any>
 
   const build = () => {
     paramMap$ = new Subject<any>()
-    snackBar = createSpyObj('MatSnackBar', ['open'])
-    signupAutoService = createSpyObj('SignupAutoService', ['signup'])
+    snackBar = createSpyObj<{ open: MatSnackBar['open'] }>('MatSnackBar', ['open'])
+    signupAutoService = createSpyObj<{ signup: SignupAutoService['signup'] }>('SignupAutoService', ['signup'])
     signupAutoService.signup.mockReturnValue(of({ msg: '1005', email: 'a@b.com' }))
 
     TestBed.configureTestingModule({

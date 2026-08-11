@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing'
 import { NO_ERRORS_SCHEMA } from '@angular/core'
 import { HttpClientTestingModule } from '@angular/common/http/testing'
 import { ActivatedRoute, Router } from '@angular/router'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
+import { MatDialog } from '@angular/material/dialog'
 import { ValueService } from '@sunbird-cb/utils'
 import { Subject, of } from 'rxjs'
 
@@ -13,12 +13,12 @@ import { createSpyObj } from 'src/test-utils/create-spy-obj'
 describe('ProfileDetailComponent', () => {
   let component: ProfileDetailComponent
   let fixture: ComponentFixture<ProfileDetailComponent>
-  let dialog: ReturnType<typeof createSpyObj>
+  let dialog: jest.Mocked<MatDialog>
   let isLtMedium$: Subject<boolean>
   let parentData$: Subject<any>
 
   const build = (navigation: any = null, parent: any = { data: of({}) }) => {
-    dialog = createSpyObj('MatDialog', ['open'])
+    dialog = createSpyObj<MatDialog>('MatDialog', ['open'])
     isLtMedium$ = new Subject<boolean>()
     parentData$ = new Subject<any>()
 

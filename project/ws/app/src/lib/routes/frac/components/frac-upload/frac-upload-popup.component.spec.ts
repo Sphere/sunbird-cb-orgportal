@@ -8,7 +8,7 @@ import { FracUploadPopupComponent } from './frac-upload-popup.component'
 describe('FracUploadPopupComponent', () => {
   let component: FracUploadPopupComponent
   let fixture: ComponentFixture<FracUploadPopupComponent>
-  let dialogRef: ReturnType<typeof createSpyObj>
+  let dialogRef: any
   let alertSpy: jest.SpyInstance
 
   const build = (config: any = { title: 'Upload' }) => {

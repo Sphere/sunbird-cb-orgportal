@@ -158,7 +158,7 @@
                       <div class="flex flex-wrap mobile-break">
                         <div class="w-full profile-cols-full bg-grey" *ngFor="let academic of academicDetails">
 
-                          <ng-container *ngIf="academic.type == 'X_STANDARD'">
+                          <ng-container *ngIf="academic.type === 'X_STANDARD'">
                             <mat-grid-list cols="1" rowHeight="50px">
                               <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
                                 <span class="header-text">10th standard</span>
@@ -178,7 +178,7 @@
                             </mat-grid-list>
                           </ng-container>
 
-                          <ng-container *ngIf="academic.type == 'XII_STANDARD'">
+                          <ng-container *ngIf="academic.type === 'XII_STANDARD'">
                             <mat-grid-list cols="1" rowHeight="50px">
                               <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
                                 <span class="header-text">12th standard</span>
@@ -198,7 +198,7 @@
                             </mat-grid-list>
                           </ng-container>
 
-                          <ng-container *ngIf="academic.type == 'GRADUATE'">
+                          <ng-container *ngIf="academic.type === 'GRADUATE'">
                             <mat-grid-list cols="1" rowHeight="50px">
                               <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
                                 <span class="header-text">Graduation details</span>
@@ -223,7 +223,7 @@
                             </mat-grid-list>
                           </ng-container>
 
-                          <ng-container *ngIf="academic.type == 'POST_GRADUATE'">
+                          <ng-container *ngIf="academic.type === 'POST_GRADUATE'">
                             <mat-grid-list cols="1" rowHeight="50px">
                               <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
                                 <span class="header-text">Post graduation details</span>

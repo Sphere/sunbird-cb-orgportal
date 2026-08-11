@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing'
 import { NO_ERRORS_SCHEMA } from '@angular/core'
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing'
-import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog'
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog'
 import { createSpyObj } from 'src/test-utils/create-spy-obj'
 
 import { FilterDialogComponent } from './filter-dialog.component'
@@ -10,10 +10,10 @@ describe('FilterDialogComponent', () => {
   let component: FilterDialogComponent
   let fixture: ComponentFixture<FilterDialogComponent>
   let httpMock: HttpTestingController
-  let dialogRef: ReturnType<typeof createSpyObj>
+  let dialogRef: jest.Mocked<{ close: () => void }>
 
   const build = (data: any = {}) => {
-    dialogRef = createSpyObj('MatDialogRef', ['close'])
+    dialogRef = createSpyObj<{ close: () => void }>('MatDialogRef', ['close'])
     TestBed.configureTestingModule({
       declarations: [FilterDialogComponent],
       imports: [HttpClientTestingModule],

@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild, ViewEncapsulation } from '@angular/core'
+import { Component, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChange, SimpleChanges, ViewChild, ViewEncapsulation } from '@angular/core'
 import { UntypedFormControl } from '@angular/forms'
 import { ActivatedRoute, Router } from '@angular/router'
 import { ConfigurationsService } from '@sunbird-cb/utils'
@@ -15,7 +15,7 @@ import { SearchServService } from '../../services/search-serv.service'
   // tslint:disable-next-line
   encapsulation: ViewEncapsulation.None,
 })
-export class SearchInputHomeComponent implements OnInit, OnDestroy {
+export class SearchInputHomeComponent implements OnInit, OnChanges, OnDestroy {
   private readonly destroy$ = new Subject<void>()
   @Input() placeHolder = ''
   @Input() ref = ''
@@ -51,6 +51,9 @@ export class SearchInputHomeComponent implements OnInit, OnDestroy {
     // } else {
     // this.autoFilter();
     // }
+  }
+  ngOnChanges(changes: SimpleChanges): void {
+    throw new Error('Method not implemented.')
   }
   autoFilter() {
     if (this.route.snapshot.data.searchPageData) {
@@ -108,14 +111,14 @@ export class SearchInputHomeComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     // if (!this.activated.snapshot.data.searchPageData) {
-      this.searchServSvc.getSearchConfig().then(data => {
-        this.activated.snapshot.data = {
-          searchPageData: { data },
-        }
-      }).then(() => {
-        this.autoFilter()
-        this.init()
-      })
+    this.searchServSvc.getSearchConfig().then(data => {
+      this.activated.snapshot.data = {
+        searchPageData: { data },
+      }
+    }).then(() => {
+      this.autoFilter()
+      this.init()
+    })
     // } else {
     //   this.autoFilter();
     //   this.init();

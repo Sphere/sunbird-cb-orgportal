@@ -379,8 +379,7 @@ export class SearchServService {
           filters,
           locale,
         },
-        type: 'search',
-      },
+      } as any,
       from: 'search',
       to: 'telemetry',
     })

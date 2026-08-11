@@ -3,6 +3,7 @@ import { Router } from '@angular/router'
 import { NsAutoComplete } from '@sunbird-cb/collection'
 
 @Component({
+  standalone: false,
   selector: 'ws-app-people',
   templateUrl: './people.component.html',
   styleUrls: ['./people.component.scss'],

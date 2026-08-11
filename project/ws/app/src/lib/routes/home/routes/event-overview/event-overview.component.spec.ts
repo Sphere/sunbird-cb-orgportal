@@ -2,21 +2,27 @@ import { ComponentFixture, TestBed } from '@angular/core/testing'
 import { NO_ERRORS_SCHEMA } from '@angular/core'
 import { RouterTestingModule } from '@angular/router/testing'
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
+import { MatDialog } from '@angular/material/dialog'
 import { ActivatedRoute, Router } from '@angular/router'
 import { Subject, of, throwError } from 'rxjs'
 import { createSpyObj } from 'src/test-utils/create-spy-obj'
 
 import { EventOverviewComponent } from './event-overview.component'
 import { EventService } from '../../services/event.service'
+import { ConfigurationsService } from '@sunbird-cb/utils'
 
 describe('EventOverviewComponent', () => {
   let component: EventOverviewComponent
   let fixture: ComponentFixture<EventOverviewComponent>
   let httpMock: HttpTestingController
-  let eventService: ReturnType<typeof createSpyObj>
-  let dialog: ReturnType<typeof createSpyObj>
-  let router: ReturnType<typeof createSpyObj>
+  let eventService: jest.Mocked<{
+    getParticipants: (...args: any[]) => any
+    getEventById: (...args: any[]) => any
+    updateEvent: (...args: any[]) => any
+    downloadCertificates: (...args: any[]) => any
+  }> & { currentEvent: any }
+  let dialog: jest.Mocked<{ open: (...args: any[]) => any }>
+  let router: jest.Mocked<{ navigate: (...args: any[]) => any }>
   let currentEvent$: Subject<any>
 
   beforeEach(async () => {
@@ -36,6 +42,13 @@ describe('EventOverviewComponent', () => {
         { provide: EventService, useValue: eventService },
         { provide: Router, useValue: router },
         { provide: ActivatedRoute, useValue: {} },
+        {
+          provide: ConfigurationsService,
+          useValue: {
+            instanceConfig: {},
+            baseUrl: '',
+          },
+        },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     })

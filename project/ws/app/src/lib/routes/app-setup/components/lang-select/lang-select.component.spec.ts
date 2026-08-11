@@ -1,8 +1,7 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing'
 import { NO_ERRORS_SCHEMA } from '@angular/core'
-import { HttpClientTestingModule } from '@angular/common/http/testing'
-import { RouterTestingModule } from '@angular/router/testing'
 import { Router } from '@angular/router'
+import { of } from 'rxjs'
 import { ConfigurationsService, UserPreferenceService } from '@sunbird-cb/utils'
 
 import { LangSelectComponent } from './lang-select.component'
@@ -10,17 +9,25 @@ import { LangSelectComponent } from './lang-select.component'
 describe('LangSelectComponent', () => {
   let component: LangSelectComponent
   let fixture: ComponentFixture<LangSelectComponent>
-  let mockConfigurationsService: any
-  let mockRouter: { navigateByUrl: jest.Mock }
-  let mockUserPreferenceService: { saveUserPreference: jest.Mock }
+  const mockConfigurationsService = {
+    userProfile: null,
+    instanceConfig: null,
+    userUrl: '',
+    pageNavBar: {},
+  }
 
-  beforeEach(async(() => {
-    mockConfigurationsService = { userProfile: null, instanceConfig: null, userUrl: '' }
-    mockRouter = { navigateByUrl: jest.fn() }
-    mockUserPreferenceService = { saveUserPreference: jest.fn().mockResolvedValue(true) }
+  const mockUserPreferenceService = {
+    saveUserPreference: jest.fn().mockResolvedValue(undefined),
+  }
 
+  const mockRouter = {
+    navigate: jest.fn(),
+    navigateByUrl: jest.fn(),
+    events: of(),
+  }
+
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule, RouterTestingModule],
       declarations: [LangSelectComponent],
       providers: [
         { provide: ConfigurationsService, useValue: mockConfigurationsService },

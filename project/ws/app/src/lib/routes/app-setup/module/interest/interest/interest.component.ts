@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router'
 import { WidgetContentService, NsContent, BtnPlaylistService, NsPlaylist } from '@sunbird-cb/collection'
 import { TFetchStatus, NsPage, ConfigurationsService } from '@sunbird-cb/utils'
 import { UntypedFormControl } from '@angular/forms'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { MatSnackBar } from '@angular/material/snack-bar'
 import { Subject, Subscription } from 'rxjs'
 import { takeUntil } from 'rxjs/operators'
 // import { InterestService } from '../../../../profile/routes/interest/services/interest.service'
@@ -30,12 +30,12 @@ export class InterestComponent implements OnInit, OnDestroy {
   pageNavbar: Partial<NsPage.INavBackground> = this.configSvc.pageNavBar
   alreadyAddedInterest = new Set<string>()
   constructor(private readonly activateRoute: ActivatedRoute,
-              private readonly contentSvc: WidgetContentService,
-              private readonly playlistSvc: BtnPlaylistService,
-              private readonly configSvc: ConfigurationsService,
-              private readonly router: Router,
+    private readonly contentSvc: WidgetContentService,
+    private readonly playlistSvc: BtnPlaylistService,
+    private readonly configSvc: ConfigurationsService,
+    private readonly router: Router,
     // private interestSvc: InterestService,
-              private readonly snackbar: MatSnackBar) { }
+    private readonly snackbar: MatSnackBar) { }
   @ViewChild('createPlaylistSuccess', { static: true }) createPlaylistSuccessMessage!: ElementRef<any>
   @ViewChild('createPlaylistError', { static: true }) createPlaylistErrorMessage!: ElementRef<any>
   playlistsSubscription: Subscription | null = null

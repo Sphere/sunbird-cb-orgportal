@@ -1,27 +1,22 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing'
 import { NO_ERRORS_SCHEMA } from '@angular/core'
-import { HttpClientTestingModule } from '@angular/common/http/testing'
 
 import { FracComponent } from './frac.component'
 import { SanitizerService } from 'src/app/services/sanitizer.service'
 import { FracService } from '../../services/frac.service'
 import { CustomSnackbarService } from '../../services/custom-snackbar.service'
-import { createSpyObj } from 'src/test-utils/create-spy-obj'
-import { ConfigurationsService } from '@sunbird-cb/utils'
 
 describe('FracComponent', () => {
   let component: FracComponent
   let fixture: ComponentFixture<FracComponent>
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [FracComponent],
-      imports: [HttpClientTestingModule],
       providers: [
-        SanitizerService,
-        FracService,
-        { provide: ConfigurationsService, useValue: { baseUrl: '', instanceConfig: {} } },
-        { provide: CustomSnackbarService, useValue: createSpyObj('CustomSnackbarService', ['register']) },
+        { provide: SanitizerService, useValue: { trustResourceUrl: jest.fn().mockReturnValue('') } },
+        { provide: FracService, useValue: { fetchFrac: jest.fn().mockResolvedValue(null) } },
+        { provide: CustomSnackbarService, useValue: { register: jest.fn(), success: jest.fn(), error: jest.fn(), warning: jest.fn() } },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     })

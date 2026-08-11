@@ -1,5 +1,5 @@
-import { Component, Inject, OnInit } from '@angular/core'
-import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog'
+import { Component, Inject } from '@angular/core'
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog'
 
 interface IPopData {
   title: string
@@ -16,19 +16,17 @@ interface IPopData {
 }
 
 @Component({
+  standalone: false,
   selector: 'ws-confirm-dialog',
   templateUrl: './confirm-dialog.component.html',
   styleUrls: ['./confirm-dialog.component.scss'],
 })
-export class ConfirmDialogComponent implements OnInit {
+export class ConfirmDialogComponent {
 
   constructor(
     private readonly dialogRef: MatDialogRef<ConfirmDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: IPopData,
   ) {
-  }
-
-  ngOnInit() {
   }
 
   performAction(button: {

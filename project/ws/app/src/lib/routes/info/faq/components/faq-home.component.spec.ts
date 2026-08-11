@@ -1,9 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing'
-
 import { NO_ERRORS_SCHEMA } from '@angular/core'
 import { ActivatedRoute } from '@angular/router'
 import { ConfigurationsService, EFeatures, ValueService } from '@sunbird-cb/utils'
-import { Subject, of } from 'rxjs'
+import { Subject } from 'rxjs'
 import { HttpClientTestingModule } from '@angular/common/http/testing'
 import { FaqHomeComponent } from './faq-home.component'
 

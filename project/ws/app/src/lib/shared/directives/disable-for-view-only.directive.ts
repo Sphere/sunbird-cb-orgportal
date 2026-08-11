@@ -19,6 +19,7 @@ import { FeatureAccessService, FEATURE_KEY, FeatureKey } from '../access/feature
  * Usage: <input type="checkbox" appDisableForViewOnly ...>
  *        <mat-checkbox appDisableForViewOnly [disabled]="isReadOnly" ...>
  */
+// eslint-disable-next-line @angular-eslint/directive-selector
 @Directive({
   selector: '[appDisableForViewOnly]',
   standalone: true,

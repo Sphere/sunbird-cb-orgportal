@@ -12,12 +12,13 @@ import {
 } from '@sunbird-cb/utils'
 import { NsWidgetResolver } from '@sunbird-cb/resolver'
 import { ROOT_WIDGET_CONFIG, CustomTourService } from '@sunbird-cb/collection'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
+import { MatDialog } from '@angular/material/dialog'
 // import { AccessControlService } from '../../../../project/ws/author/src/public-api'
 interface IGroupWithFeatureWidgets extends NsAppsConfig.IGroup {
   featureWidgets: NsWidgetResolver.IRenderConfigWithTypedData<NsPage.INavLink>[]
 }
 @Component({
+  standalone: false,
   selector: 'ws-app-root-features',
   templateUrl: './features.component.html',
   styleUrls: ['./features.component.scss'],

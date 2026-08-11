@@ -2,14 +2,13 @@ import { ComponentFixture, TestBed } from '@angular/core/testing'
 import { NO_ERRORS_SCHEMA } from '@angular/core'
 import { ReactiveFormsModule } from '@angular/forms'
 import { HttpClientTestingModule } from '@angular/common/http/testing'
-import { MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA, MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog'
-import { MatLegacySelectModule as MatSelectModule } from '@angular/material/legacy-select'
-import { MatLegacyInputModule as MatInputModule } from '@angular/material/legacy-input'
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog'
+import { MatSelectModule } from '@angular/material/select'
+import { MatInputModule } from '@angular/material/input'
 import { MatDatepickerModule } from '@angular/material/datepicker'
 import { MatNativeDateModule } from '@angular/material/core'
 import { NoopAnimationsModule } from '@angular/platform-browser/animations'
 import { of } from 'rxjs'
-import { createSpyObj } from 'src/test-utils/create-spy-obj'
 
 import { EventModalComponent } from './event-modal.component'
 import { EventService } from '../../services/event.service'
@@ -21,17 +20,22 @@ describe('EventModalComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [EventModalComponent],
-      imports: [HttpClientTestingModule],
+      imports: [HttpClientTestingModule, ReactiveFormsModule],
       providers: [
-        { provide: MatDialogRef, useValue: createSpyObj('MatDialogRef', ['close']) },
-        { provide: MAT_DIALOG_DATA, useValue: {} },
+        { provide: MatDialogRef, useValue: { close: jest.fn() } },
+        { provide: MAT_DIALOG_DATA, useValue: null },
+        {
+          provide: EventService,
+          useValue: {
+            currentUserData: of(null),
+            createEvent: jest.fn().mockReturnValue(of({})),
+            editEvent: jest.fn().mockReturnValue(of({})),
+          },
+        },
       ],
       schemas: [NO_ERRORS_SCHEMA],
-    })
-    .compileComponents()
-  })
+    }).compileComponents()
 
-  beforeEach(() => {
     fixture = TestBed.createComponent(EventModalComponent)
     component = fixture.componentInstance
     fixture.detectChanges()
