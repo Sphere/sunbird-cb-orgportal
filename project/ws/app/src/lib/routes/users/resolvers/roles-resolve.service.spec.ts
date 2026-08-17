@@ -6,7 +6,7 @@ import { RolesService } from '../services/roles.service'
 
 describe('RolesResolver', () => {
   let resolver: RolesResolver
-  let rolesService: ReturnType<typeof createSpyObj>
+  let rolesService: jest.Mocked<RolesService>
 
   beforeEach(() => {
     rolesService = createSpyObj('RolesService', ['getAllRoles'])

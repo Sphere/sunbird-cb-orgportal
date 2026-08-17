@@ -1,10 +1,11 @@
+import { Router } from '@angular/router'
 import { createSpyObj } from 'src/test-utils/create-spy-obj'
 
 import { LoginGuard } from './login.guard'
 
 describe('LoginGuard', () => {
   let guard: LoginGuard
-  let router: ReturnType<typeof createSpyObj>
+  let router: jest.Mocked<Router>
   let configSvc: any
 
   const build = (config: any) => {

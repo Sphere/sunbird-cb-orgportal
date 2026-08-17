@@ -6,7 +6,7 @@ import { UserWorkService } from './user-work.service'
 
 describe('UserWorkResolverService', () => {
   let resolver: UserWorkResolverService
-  let userWorkService: ReturnType<typeof createSpyObj>
+  let userWorkService: jest.Mocked<UserWorkService>
 
   beforeEach(() => {
     userWorkService = createSpyObj('UserWorkService', ['fetchUserWorkAllocation'])

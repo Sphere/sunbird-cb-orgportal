@@ -6,7 +6,7 @@ import { UsersService } from '../services/users.service'
 
 describe('DepartmentResolve', () => {
   let resolver: DepartmentResolve
-  let usersService: ReturnType<typeof createSpyObj>
+  let usersService: jest.Mocked<UsersService>
 
   beforeEach(() => {
     usersService = createSpyObj('UsersService', ['getMyDepartment'])

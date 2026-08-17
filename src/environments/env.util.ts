@@ -3,6 +3,8 @@
  * Update this list when Jenkins/DevOps config is not yet set.
  */
 const DEFAULT_REQUIRED_ROLES: string[] = [
+  'MDO_ADMIN',
+  'MDO_DASHBOARD_VIEWER',
   'FRAC_ADMIN',
   'FRAC_READ',
   'PLAYLIST_ADMIN',

@@ -6,7 +6,7 @@ import { UsersService } from '../../users/services/users.service'
 
 describe('UsersListResolve', () => {
   let resolver: UsersListResolve
-  let usersService: ReturnType<typeof createSpyObj>
+  let usersService: jest.Mocked<UsersService>
   let configSvc: any
 
   beforeEach(() => {
