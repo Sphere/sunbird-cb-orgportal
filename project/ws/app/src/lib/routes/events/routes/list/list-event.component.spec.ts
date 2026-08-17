@@ -1,7 +1,6 @@
 jest.mock('moment', () => {
   const actualMoment = jest.requireActual('moment')
-  Object.defineProperty(actualMoment, '__esModule', { value: true })
-  return actualMoment
+  return { __esModule: true, default: actualMoment }
 })
 
 import { ComponentFixture, TestBed } from '@angular/core/testing'

@@ -1,3 +1,8 @@
+// ngx-export-as pulls in html2pdf.js, whose CJS bundle statically imports ESM jspdf
+// internals that Jest can't parse. Mock it out before the component (which imports
+// ExportAsService directly) gets loaded.
+jest.mock('ngx-export-as', () => ({ ExportAsService: jest.fn() }))
+
 import { ComponentFixture, TestBed } from '@angular/core/testing'
 import { NO_ERRORS_SCHEMA } from '@angular/core'
 import { MatDialog } from '@angular/material/dialog'
