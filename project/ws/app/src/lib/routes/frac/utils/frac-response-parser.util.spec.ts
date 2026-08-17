@@ -23,20 +23,6 @@ describe('FracResponseParserUtil', () => {
       JSON.stringify({ responseCode: 'CLIENT_ERROR', params: { errmsg: 'invalid file' } }),
     ], { type: 'application/json' })
 
-    // NOTE: FracResponseParserUtil.parseApiResponse's generic "nested candidate" scan also
-    // reads a Blob's own `.text` property (a function reference) as a candidate before
-    // readErrorPayload's dedicated Blob branch gets a chance to call `.text()`. That first,
-    // unintended access must be neutralized here (source file is out of scope for this fix)
-    // so the later legitimate `rawError.text()` call in readErrorPayload still works.
-    const originalText = blob.text.bind(blob)
-    let accessCount = 0
-    Object.defineProperty(blob, 'text', {
-      get: () => {
-        accessCount += 1
-        return accessCount === 1 ? undefined : originalText
-      },
-    })
-
     const parsed = await FracResponseParserUtil.readErrorPayload({ error: blob })
     expect(parsed?.responseCode).toBe('CLIENT_ERROR')
     expect(parsed?.params?.errmsg).toBe('invalid file')

@@ -566,10 +566,10 @@ describe('CompetencyLabelsComponent', () => {
       })
       component.competencySelected({ option: { value: { name: 'directVal' } } }, 0)
       // When localId is falsy, the component's `if (localOd)` branch is skipped entirely,
-      // so oldcompData stays null and the dialog only receives the fallback `children` list
-      // (event.option.value is not actually used as dialog data in this branch).
+      // so oldcompData stays null and `data: oldcompData ? {...} : event.option.value`
+      // falls through to using event.option.value directly as the dialog data.
       expect(dialogMock.open).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({
-        data: { children: ['L1', 'L2'] },
+        data: { name: 'directVal' },
       }))
     })
 

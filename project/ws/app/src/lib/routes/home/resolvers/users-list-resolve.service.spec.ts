@@ -25,7 +25,7 @@ describe('UsersListResolve', () => {
     usersService.getAllUsers.mockReturnValue(of({ result: 'ok' }))
     resolver.resolve({} as any, {} as any).subscribe(res => {
       expect(res).toEqual({ data: { result: 'ok' }, error: null })
-      const [filterObj] = usersService.getAllUsers.mock.calls[0]
+      const [filterObj] = usersService.getAllUsers.mock.calls[0] as [any]
       expect(filterObj.request.filters.rootOrgId).toBe('org-1')
       done()
     })
@@ -44,7 +44,7 @@ describe('UsersListResolve', () => {
     configSvc.unMappedUser = undefined
     usersService.getAllUsers.mockReturnValue(of({}))
     resolver.resolve({} as any, {} as any).subscribe(() => {
-      const [filterObj] = usersService.getAllUsers.mock.calls[0]
+      const [filterObj] = usersService.getAllUsers.mock.calls[0] as [any]
       expect(filterObj.request.filters.rootOrgId).toBeUndefined()
       done()
     })

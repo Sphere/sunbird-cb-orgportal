@@ -36,7 +36,7 @@ describe('LoginGuard', () => {
 
   it('should redirect to the decoded ref query param when authenticated', () => {
     build({ isAuthenticated: true })
-    router.parseUrl.mockReturnValue('parsed-tree')
+    router.parseUrl.mockReturnValue('parsed-tree' as any)
     const next = { queryParamMap: { has: () => true, get: () => encodeURIComponent('/app/x') } }
     const result = guard.canActivate(next as any, {} as any)
     expect(router.parseUrl).toHaveBeenCalledWith('/app/x')
