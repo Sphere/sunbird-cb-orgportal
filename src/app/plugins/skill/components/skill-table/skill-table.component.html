@@ -54,25 +54,29 @@
           {{col.displayName}}
         </mat-header-cell>
 
-        <mat-cell *matCellDef="let element" (click)="onRowClick(element)">
-          <span *ngIf="col.isList" class="h-400-r-14-l color-87 textclass">
-            <div innerHTML="{{element[col.key]}}"></div>
-          </span>
-          <span [ngClass]="{'text-enable': col.status === 'enable'}" *ngIf="!col.isList"
-            class="h-400-r-14-l  textclass">
-            {{element[col.key]}} {{col.isList}}
-          </span>
+        <mat-cell *matCellDef="let element">
+          <button type="button" style="all: unset; display: contents; cursor: pointer;"
+            (click)="onRowClick(element)">
+            <span *ngIf="col.isList" class="h-400-r-14-l color-87 textclass">
+              <div innerHTML="{{element[col.key]}}"></div>
+            </span>
+            <span [ngClass]="{'text-enable': col.status === 'enable'}" *ngIf="!col.isList"
+              class="h-400-r-14-l  textclass">
+              {{element[col.key]}} {{col.isList}}
+            </span>
+          </button>
         </mat-cell>
       </ng-container>
       <ng-container matColumnDef="select">
         <mat-header-cell *matHeaderCellDef class="h-400-r-14-l color-60">
-          <mat-checkbox (change)="$event ? toggleAllRows() : null" [checked]="selection.hasValue() && isAllSelected()"
+          <mat-checkbox id="select-all-checkbox" (change)="$event ? toggleAllRows() : null" [checked]="selection.hasValue() && isAllSelected()"
             [indeterminate]="selection.hasValue() && !isAllSelected()">
           </mat-checkbox>
-          <label class="select-label">Select All</label>
+          <label class="select-label" for="select-all-checkbox">Select All</label>
         </mat-header-cell>
         <mat-cell *matCellDef="let row">
-          <mat-checkbox (click)="$event.stopPropagation();" (change)="$event ? selectRow($event, row) : null"
+          <mat-checkbox (click)="$event.stopPropagation();" (keydown.enter)="$event.stopPropagation()"
+            (keydown.space)="$event.stopPropagation()" (change)="$event ? selectRow($event, row) : null"
             (change)="$event ? selection.toggle(row) : null" [checked]="selection.isSelected(row)">
           </mat-checkbox>
         </mat-cell>
@@ -106,7 +110,8 @@
       </ng-container>
 
       <mat-header-row *matHeaderRowDef="getFinalColumns()"></mat-header-row>
-      <mat-row *matRowDef="let row; columns: getFinalColumns();" (click)="selection.toggle(row);">
+      <mat-row *matRowDef="let row; columns: getFinalColumns();"
+        (click)="selection.toggle(row);">
       </mat-row>
     </mat-table>
   </div>

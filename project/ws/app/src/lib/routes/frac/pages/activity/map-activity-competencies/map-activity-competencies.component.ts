@@ -46,16 +46,17 @@ interface ActivityMappingSearchResponseShape {
 }
 
 @Component({
+  standalone: false,
   selector: 'ws-app-map-activitiy-competencies',
   templateUrl: './map-activity-competencies.component.html',
   styleUrls: ['./map-activity-competencies.component.scss'],
 })
 export class MapActivityCompetenciesComponent implements OnInit, OnDestroy {
   constructor(
-    private snackbar: CustomSnackbarService,
-    private fracApiService: FracApiService,
-    private dialog: MatDialog,
-    private router: Router,
+    private readonly snackbar: CustomSnackbarService,
+    private readonly fracApiService: FracApiService,
+    private readonly dialog: MatDialog,
+    private readonly router: Router,
   ) { }
 
   readonly uiConfig = FRAC_UI_CONFIG
@@ -94,9 +95,9 @@ export class MapActivityCompetenciesComponent implements OnInit, OnDestroy {
   competencySearchTerm = ''
   searchResetKey = 0
 
-  private activitySearch$ = new Subject<string>()
-  private competencySearch$ = new Subject<string>()
-  private destroy$ = new Subject<void>()
+  private readonly activitySearch$ = new Subject<string>()
+  private readonly competencySearch$ = new Subject<string>()
+  private readonly destroy$ = new Subject<void>()
   private readonly activityMappingCache = new Map<string, ActivityCompetencyDetail[]>()
   private readonly activityDraftStore = new Map<string, ActivityCompetencyDetail[]>()
   private readonly clearedActivityDraftKeys = new Set<string>()
@@ -405,9 +406,9 @@ export class MapActivityCompetenciesComponent implements OnInit, OnDestroy {
     const cachedSignature = cached
       .map(d => {
         const levels = this.parseLevelsString(d.levels || '')
-        return `${d.code}:${levels.sort().join(',')}`
+        return `${d.code}:${levels.sort((a, b) => a.localeCompare(b)).join(',')}`
       })
-      .sort()
+      .sort((a, b) => a.localeCompare(b))
       .join('|')
 
     // Build sorted signature from current selectedMap — strip the "CODE_" prefix from each level key
@@ -418,9 +419,9 @@ export class MapActivityCompetenciesComponent implements OnInit, OnDestroy {
           const underscoreIdx = lv.lastIndexOf('_')
           return underscoreIdx >= 0 ? lv.slice(underscoreIdx + 1) : lv
         })
-        return `${code}:${plainLevels.sort().join(',')}`
+        return `${code}:${plainLevels.sort((a, b) => a.localeCompare(b)).join(',')}`
       })
-      .sort()
+      .sort((a, b) => a.localeCompare(b))
       .join('|')
 
     return cachedSignature === currentSignature
@@ -762,13 +763,12 @@ export class MapActivityCompetenciesComponent implements OnInit, OnDestroy {
           }
           this.showResultModal(successData)
         },
-        error: async (err) => {
+        error: (err) => {
           this.isSaving = false
-          const failureData = await this.buildMappingFailureModalData(
+          this.buildMappingFailureModalData(
             err,
             'Failed to save activity to competency mapping.',
-          )
-          this.showResultModal(failureData)
+          ).then(failureData => this.showResultModal(failureData))
         },
       })
     } else {

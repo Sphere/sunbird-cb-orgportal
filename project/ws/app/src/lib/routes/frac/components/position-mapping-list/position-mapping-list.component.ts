@@ -2,6 +2,7 @@ import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChange
 import { FracPositionMappingItem } from '../../models/frac-mapping.models'
 
 @Component({
+  standalone: false,
   selector: 'app-position-mapping-list',
   templateUrl: './position-mapping-list.component.html',
   styleUrls: ['./position-mapping-list.component.scss']

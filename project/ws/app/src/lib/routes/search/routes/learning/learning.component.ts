@@ -11,6 +11,7 @@ interface IThing {
   prop?: string
 }
 @Component({
+  standalone: false,
   selector: 'ws-app-learning',
   templateUrl: './learning.component.html',
   styleUrls: ['./learning.component.scss'],
@@ -82,13 +83,13 @@ export class LearningComponent implements OnInit, OnDestroy {
     },
   }
   constructor(
-    private activated: ActivatedRoute,
-    private router: Router,
-    private valueSvc: ValueService,
-    private searchServ: SearchServService,
-    private configSvc: ConfigurationsService,
+    private readonly activated: ActivatedRoute,
+    private readonly router: Router,
+    private readonly valueSvc: ValueService,
+    private readonly searchServ: SearchServService,
+    private readonly configSvc: ConfigurationsService,
     // private trainingSvc: TrainingService,
-    private utilitySvc: UtilityService,
+    private readonly utilitySvc: UtilityService,
   ) { }
 
   getActiveLocale() {
@@ -222,7 +223,7 @@ export class LearningComponent implements OnInit, OnDestroy {
         this.activated.snapshot.data.pageData
       ) {
         this.routeComp = this.activated.snapshot.data.pageroute
-        this.activated.snapshot.data.pageData.data.search.tabs.map((cur: ISearchTab) => {
+        this.activated.snapshot.data.pageData.data.search.tabs.forEach((cur: ISearchTab) => {
           if (cur.titleKey === this.activated.snapshot.data.pageroute) {
             this.searchRequestObject.filters = cur.searchQuery.filters
           }
@@ -398,6 +399,15 @@ export class LearningComponent implements OnInit, OnDestroy {
             return
           } if (
             this.searchResults.totalHits === 0 &&
+            this.searchRequestObject.query.indexOf(' ') === -1 &&
+            this.searchRequestObject.instanceCatalog
+          ) {
+            this.searchRequestObject.pageNo = 0
+            this.searchRequestObject.instanceCatalog = false
+            this.getResults(true, didYouMean)
+            return
+          } else if (
+            this.searchResults.totalHits === 0 &&
             this.searchRequestObject.query.indexOf(' ') === -1
           ) {
             this.noContent = true
@@ -418,15 +428,6 @@ export class LearningComponent implements OnInit, OnDestroy {
             this.searchRequestObject.query.indexOf(' ') > -1 && this.applyPhraseSearch
           ) {
             this.searchRequestObject.pageNo = 0
-            this.getResults(true, didYouMean)
-            return
-          } else if (
-            this.searchResults.totalHits === 0 &&
-            this.searchRequestObject.query.indexOf(' ') === -1 &&
-            this.searchRequestObject.instanceCatalog
-          ) {
-            this.searchRequestObject.pageNo = 0
-            this.searchRequestObject.instanceCatalog = false
             this.getResults(true, didYouMean)
             return
           } else if (
@@ -461,15 +462,11 @@ export class LearningComponent implements OnInit, OnDestroy {
     return item.identifier
   }
   sortOrder(type: string) {
-    try {
-      this.router.navigate([], {
-        queryParams: { sort: type },
-        queryParamsHandling: 'merge',
-        relativeTo: this.activated.parent,
-      })
-    } catch (e) {
-      throw e
-    }
+    this.router.navigate([], {
+      queryParams: { sort: type },
+      queryParamsHandling: 'merge',
+      relativeTo: this.activated.parent,
+    }).catch(e => { throw e })
   }
   getSortType(sort: string): { [key: string]: 'asc' | 'desc' }[] {
     try {
@@ -490,17 +487,13 @@ export class LearningComponent implements OnInit, OnDestroy {
   }
 
   searchLanguage(type: string) {
-    try {
-      this.router.navigate([], {
-        queryParams: { lang: type },
-        queryParamsHandling: 'merge',
-        relativeTo: this.activated.parent,
-      }).then(() => {
-        this.expandToPrefLang = false
-      })
-    } catch (e) {
-      throw e
-    }
+    this.router.navigate([], {
+      queryParams: { lang: type },
+      queryParamsHandling: 'merge',
+      relativeTo: this.activated.parent,
+    }).then(() => {
+      this.expandToPrefLang = false
+    }).catch(e => { throw e })
   }
 
   didYouMeanSearch(query: string) {

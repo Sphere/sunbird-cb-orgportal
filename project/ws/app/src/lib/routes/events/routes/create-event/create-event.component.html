@@ -35,14 +35,14 @@
                                     <form class="create-event-form" [formGroup]="createEventForm">
                                         <div class="input-column px-2 ws-mat-accent-border mb-5 padding-top-l padding-bottom-l padding-right-xl padding-left-xl"
                                             id="eventInfo">
-                                            <label class="heading">Event details</label>
+                                            <span class="heading">Event details</span>
                                             <div class="input-wrapper margin-top-s">
                                                 <div class="image-box">
                                                     <mat-card class="mb-10 text-center margin-right-l"
                                                         [ngClass]="imageSrcURL ? 'button-row' : 'button-row-inline'">
                                                         <div class="item text-center">
                                                             <img class="imgicon display-block"
-                                                                src="/assets/icons/jpg.svg">
+                                                                src="/assets/icons/jpg.svg" alt="Cover placeholder">
                                                             <div id="thumbnail" class="deleteIcon" *ngIf="imageSrcURL">
                                                                 <a href="javascript:void(0);"
                                                                     (click)="removeSelectedFile()">
@@ -53,7 +53,7 @@
                                                                 (change)="onFileSelect($event);"
                                                                 accept="image/x-png,image/gif,image/jpeg" />
                                                             <img *ngIf="imageSrcURL" id="blah" [src]="imageSrcURL"
-                                                                alt="your image" />
+                                                                alt="Cover preview" />
                                                             <button *ngIf="!imageSrcURL" mat-stroked-button
                                                                 color="accent" type="button"
                                                                 class="caption dispaly-block mat-accent-border flex-auto-display"
@@ -94,7 +94,7 @@
                                                     i18n-aria-label aria-label="summary label">
                                                     Summary
                                                 </label>
-                                                <label class="sub_title">This will appear in the preview card</label>
+                                                <span class="sub_title">This will appear in the preview card</span>
                                                 <mat-form-field appearance="outline" class="margin-top-xs">
                                                     <textarea id="summary" matInput #summary formControlName="summary"
                                                         i18n-placeholder placeholder="Type here" i18n-aria-label
@@ -118,8 +118,8 @@
                                                     i18n-aria-label aria-label="description label">
                                                     Description
                                                 </label>
-                                                <label class="sub_title">Detailed description about the event. It will
-                                                    appear in <br /> the event details page</label>
+                                                <span class="sub_title">Detailed description about the event. It will
+                                                    appear in <br /> the event details page</span>
                                                 <mat-form-field appearance="outline" class="margin-top-xs">
                                                     <textarea id="description" matInput #description
                                                         formControlName="description" i18n-placeholder
@@ -160,7 +160,7 @@
                                                         Agenda fields cannot contain numbers and special characters except '
                                                     </mat-error> -->
                                                 </mat-form-field>
-                                                <label>Event type</label>
+                                                <span>Event type</span>
                                                 <div class="flex custom mt-5" fxLayout="row wrap">
                                                     <mat-card class="event_container padding-remove" fxLayout="row"
                                                         fxLayoutWrap>
@@ -171,9 +171,10 @@
                                                                 <mat-card-subtitle class="mat-body-2">
                                                                     <input type="radio" name="eventType" checked
                                                                         [value]="type.title"
+                                                                        [id]="'event-type-' + type.title"
                                                                         (change)="changeEventType($event)"
                                                                         [disabled]="type.disabled">
-                                                                    <label class="event_types">{{ type?.title }}</label>
+                                                                    <label class="event_types" [attr.for]="'event-type-' + type.title">{{ type?.title }}</label>
                                                                 </mat-card-subtitle>
                                                             </mat-card-header>
                                                             <mat-card-content class="event_type_desc">
@@ -186,7 +187,7 @@
                                         </div>
                                         <div class="input-column px-2 ws-mat-accent-border mb-5 padding-top-xl padding-bottom-l padding-right-xl padding-left-l"
                                             id="datetime">
-                                            <label class="heading">Date time</label>
+                                            <span class="heading">Date time</span>
                                             <div class="input-wrapper margin-top-s">
                                                 <label for="eventDate" class=" margin-remove-bottom form-label required"
                                                     i18n="Event Date label|Label which explains the user to enter event date"
@@ -295,7 +296,7 @@
                                         </div>
                                         <div class="input-column px-2 ws-mat-accent-border mb-5 padding-top-xl padding-bottom-l padding-right-xl padding-left-l"
                                             id="videoinfo">
-                                            <label class="heading">Video conferencing</label>
+                                            <span class="heading">Video conferencing</span>
                                             <div class="input-wrapper margin-top-s">
                                                 <label for="conferenceLink"
                                                     class=" margin-remove-bottom form-label required"
@@ -327,12 +328,12 @@
                                         </div>
                                         <div class="input-column px-2 ws-mat-accent-border mb-5 padding-top-xl padding-bottom-l padding-right-xl padding-left-l"
                                             id="presenter">
-                                            <label class="heading">Presenters</label>
+                                            <span class="heading">Presenters</span>
                                             <div class="input-wrapper margin-top-s">
-                                                <label class="form-label required"
+                                                <span class="form-label required"
                                                     aria-label="conferenceLink label mb-10 ws-mat-black60-text">
                                                     Presenters added are displayed in the event details page.
-                                                </label>
+                                                </span>
                                                 <div class="flex flex-1 custom button-row-add-user">
                                                     <button mat-stroked-button color="accent" type="button"
                                                         class="mat-accent-border flex-auto-display"
@@ -343,9 +344,9 @@
                                                 <div class="example-table-container" *ngIf="participantsArr.length > 0">
                                                     <table class="mat-body-2">
                                                         <tr>
-                                                            <td>Name</td>
-                                                            <td>Email</td>
-                                                            <td>Type</td>
+                                                            <th scope="col">Name</th>
+                                                            <th scope="col">Email</th>
+                                                            <th scope="col">Type</th>
                                                         </tr>
                                                         <tr *ngFor="let row of participantsArr">
                                                             <td>{{ row.firstname }} {{ row.lastname }}</td>

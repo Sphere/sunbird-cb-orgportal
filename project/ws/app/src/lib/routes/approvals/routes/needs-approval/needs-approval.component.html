@@ -3,7 +3,7 @@
   style="background: #FDECDE;">
   <div class="flex-custom">
     <mat-card-content class="margin-top-m margin-bottom-m margin-left-m margin-right-m">
-      <span class="mat-subheading-1 flex-4 mobile-margin appr-section-heading" role="link" tabindex="0"
+      <span class="mat-subheading-1 flex-4 mobile-margin appr-section-heading"
         *ngIf="needApprovalList.length>0">
         Needs approval
       </span>
@@ -15,10 +15,10 @@
           <div class="w-full profile-cols-full bg-grey" *ngIf="needApprovalList.length>0">
             <ng-container *ngFor="let field of needApprovalList">
               <div class="appr-label">
-                <label class="appr-text-label">{{field.label}}</label>
+                <label class="appr-text-label" for="value-input">{{field.label}}</label>
               </div>
               <div>
-                <input type="text" class="appr-text-field" [value]="field.value">
+                <input id="value-input" type="text" class="appr-text-field" [value]="field.value">
                 <button mat-icon-button aria-label="Reject" id="reject" (click)="onClickHandleWorkflow(field,'REJECT')">
                   <mat-icon class="reject">close</mat-icon>
                 </button>
@@ -32,13 +32,13 @@
           <div class="w-full profile-cols-full bg-grey" *ngIf="needApprovalList.length <= 0">
             <ng-container>
               <div class="appr-label" *ngIf="changeLog">
-                <label class="field-key">{{changeLog.fieldKey}}</label>
-                <label class="field-name">{{changeLog.fieldName}}</label>
-                <label class="field-name">Changed from {{changeLog.fromVal}} to {{changeLog.toVal}}</label>
-                <label class="change-date">15/12/2020 18:31</label>
+                <span class="field-key">{{changeLog.fieldKey}}</span>
+                <span class="field-name">{{changeLog.fieldName}}</span>
+                <span class="field-name">Changed from {{changeLog.fromVal}} to {{changeLog.toVal}}</span>
+                <span class="change-date">15/12/2020 18:31</span>
               </div>
               <div class="appr-label">
-                <label class="no-request-text">Currently there are no items pending approval</label>
+                <span class="no-request-text">Currently there are no items pending approval</span>
               </div>
             </ng-container>
           </div>

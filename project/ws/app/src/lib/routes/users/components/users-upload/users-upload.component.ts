@@ -2,16 +2,17 @@ import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, OnDestroy } fr
 import { UntypedFormBuilder, Validators } from '@angular/forms'
 import { FileService } from '../../services/upload.service'
 import { Observable } from 'rxjs'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { MatSnackBar } from '@angular/material/snack-bar'
 import { MatSort } from '@angular/material/sort'
-import { MatLegacyPaginator as MatPaginator } from '@angular/material/legacy-paginator'
-import { MatLegacyTableDataSource as MatTableDataSource } from '@angular/material/legacy-table'
+import { MatPaginator } from '@angular/material/paginator'
+import { MatTableDataSource } from '@angular/material/table'
 import { environment } from 'src/environments/environment'
 import { ActivatedRoute } from '@angular/router'
 // tslint:disable-next-line
 import _ from 'lodash'
 
 @Component({
+  standalone: false,
   selector: 'ws-app-users-upload',
   templateUrl: './users-upload.component.html',
   styleUrls: ['./users-upload.component.scss'],
@@ -58,7 +59,7 @@ export class UsersUploadComponent implements OnInit, AfterViewInit, OnDestroy {
   downloadSampleFilePath = ''
   downloadAsFileName = ''
   rootOrgId!: any
-  private baseUrl = 'assets/common'
+  private readonly baseUrl = 'assets/common'
 
   objDataSource = new MatTableDataSource<any>()
   @ViewChild(MatPaginator, { static: false }) paginator: MatPaginator | null = null
@@ -72,10 +73,10 @@ export class UsersUploadComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   constructor(
-    private fb: UntypedFormBuilder,
-    private fileService: FileService,
-    private snackBar: MatSnackBar,
-    private route: ActivatedRoute,
+    private readonly fb: UntypedFormBuilder,
+    private readonly fileService: FileService,
+    private readonly snackBar: MatSnackBar,
+    private readonly route: ActivatedRoute,
   ) {
     this.rootOrgId = _.get(this.route.snapshot.parent, 'data.configService.unMappedUser.rootOrg.rootOrgId')
     this.dataSource = new MatTableDataSource(this.bulkUploadData)

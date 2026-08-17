@@ -42,8 +42,7 @@
                                     <div class="flex-custom">
                                         <mat-card-content
                                             class="margin-top-m margin-bottom-m margin-left-m margin-right-m">
-                                            <span class="card-heading flex-4 mobile-margin appr-section-heading"
-                                                role="link" tabindex="0">
+                                            <span class="card-heading flex-4 mobile-margin appr-section-heading">
                                                 Officer
                                             </span>
 
@@ -159,8 +158,7 @@
                                     <div class="flex-custom">
                                         <mat-card-content
                                             class="margin-top-m margin-bottom-m margin-left-m margin-right-m">
-                                            <span class="card-heading flex-4 mobile-margin appr-section-heading"
-                                                role="link" tabindex="0">
+                                            <span class="card-heading flex-4 mobile-margin appr-section-heading">
                                                 Roles & activites
                                             </span>
 
@@ -205,20 +203,23 @@
                                                                             class="form-input" autocomplete="off"
                                                                             (keypress)="onSearchActivity($event)"
                                                                             (keyup)="onSearchActivity($event)" />
-                                                                        <span class="addbtn blue-color-text"
+                                                                        <button type="button" class="addbtn blue-color-text"
+                                                                            style="border: none; background: none; padding: 0; font: inherit; text-align: inherit; display: inline; cursor: pointer;"
                                                                             (click)="addActivity()"
-                                                                            *ngIf="newAllocationForm.value.rolelist[0].childNodes">Add</span>
+                                                                            *ngIf="newAllocationForm.value.rolelist[0].childNodes">Add</button>
                                                                     </mat-form-field>
                                                                 </div>
 
                                                                 <div class="activitieslist margin-bottom-m"
                                                                     *ngIf="activitieslist && activitieslist.length > 0">
                                                                     <h3>Associated activities</h3>
-                                                                    <p><span *ngFor="let a of activitieslist; let i = index"
-                                                                            (click)="showRemoveActivity(i)">{{a.name}}
-                                                                            <mat-icon id="showremove{{i}}"
-                                                                                (click)="removeActivity(i)">close
-                                                                            </mat-icon>
+                                                                    <p><span *ngFor="let a of activitieslist; let i = index">
+                                                                            <button type="button" style="all: unset; display: contents; cursor: pointer;"
+                                                                                (click)="showRemoveActivity(i)">{{a.name}}</button>
+                                                                            <button type="button" id="showremove{{i}}" style="all: unset; display: contents; cursor: pointer;"
+                                                                                (click)="removeActivity(i)">
+                                                                                <mat-icon>close</mat-icon>
+                                                                            </button>
                                                                         </span></p>
                                                                 </div>
                                                                 <p *ngIf="showRAerror" class="mat-error ss">Add both
@@ -292,8 +293,7 @@
                                     <div class="flex-custom">
                                         <mat-card-content
                                             class="margin-top-m margin-bottom-m margin-left-m margin-right-m">
-                                            <span class="card-heading flex-4 mobile-margin appr-section-heading"
-                                                role="link" tabindex="0">
+                                            <span class="card-heading flex-4 mobile-margin appr-section-heading">
                                                 Archived
                                             </span>
                                             <div class="margin-top-m new-mobile">
@@ -341,8 +341,8 @@
         <div class="flex-1 similar-sidebar">
             <ng-container id="changelog">
                 <div>
-                    <label class="change-log-text margin-top-l margin-bottom-l margin-left-m margin-right-m">Similar
-                        items</label>
+                    <span class="change-log-text margin-top-l margin-bottom-l margin-left-m margin-right-m">Similar
+                        items</span>
                     <div class="w-full similarUsersList" *ngIf="similarRoles && similarRoles.length > 0">
                         <div class="suser-card" *ngFor="let role of similarRoles">
                             <div class="padding-top-m padding-bottom-xs padding-left-s padding-right-s">
@@ -377,11 +377,11 @@
                     </div>
                     <div id="loader"></div>
                     <div class="no-request-text margin-m">
-                        <label *ngIf="!similarPositions && !similarActivities && !similarRoles">System will recommend
-                            similar items to avoid duplication</label>
-                        <label *ngIf="nosimilarRoles && similarRoles.length === 0">No roles found</label>
-                        <label *ngIf="nosimilarPositions && similarPositions.length === 0">No position found</label>
-                        <label *ngIf="nosimilarActivities && similarActivities.length === 0">No activity found</label>
+                        <span *ngIf="!similarPositions && !similarActivities && !similarRoles">System will recommend
+                            similar items to avoid duplication</span>
+                        <span *ngIf="nosimilarRoles && similarRoles.length === 0">No roles found</span>
+                        <span *ngIf="nosimilarPositions && similarPositions.length === 0">No position found</span>
+                        <span *ngIf="nosimilarActivities && similarActivities.length === 0">No activity found</span>
                     </div>
                 </div>
             </ng-container>

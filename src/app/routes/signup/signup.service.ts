@@ -12,7 +12,7 @@ const API_END_POINTS = {
 })
 export class SignupService {
 
-  constructor(private http: HttpClient) { }
+  constructor(private readonly http: HttpClient) { }
 
   signup(data: any): Observable<any> {
     return this.http.post<any>(API_END_POINTS.USER_SIGNUP, data).pipe(

@@ -51,4 +51,4 @@ testem.log
 .DS_Store
 Thumbs.db
 
-/src/assets
+/src/assets/env.js

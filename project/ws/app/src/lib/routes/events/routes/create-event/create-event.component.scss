@@ -47,7 +47,7 @@ textarea.mat-input-element {
   width: 130px;
   background: #0075B7 !important;
   color: white !important;
-  font-family: 'Lato';
+  font-family: 'Lato', sans-serif;
   font-weight: 700;
   font-size: 14px;
 }
@@ -128,10 +128,6 @@ mat-card.dull {
 }
 .button-row-add-user .mat-button-base {
   margin: 8px 16px 8px 0;
-}
-
-table {
-  width: 100%;
 }
 
 #coverPicture {
@@ -393,7 +389,6 @@ input[type=number] {
       border-right-style: none;
       /* border: 1px solid currentColor; */
       min-width: 8px;
-      border-right-style: none;
     }
 
     .mat-form-field-outline-gap {
@@ -423,7 +418,6 @@ input[type=number] {
     }
 
     .mat-form-field-outline-gap {
-      border-width: 1px;
       border: 1px solid currentColor;
       border-radius: 4px;
       border-left-style: none;
@@ -431,7 +425,6 @@ input[type=number] {
     }
 
     .mat-form-field-outline-end {
-      border-width: 1px;
       border-radius: 0 4px 4px 0;
       border: 1px solid currentColor;
       border-left-style: none;
@@ -440,19 +433,13 @@ input[type=number] {
 
   ::ng-deep .mat-form-field-infix {
     padding: 0;
-    margin: 0;
+    margin: 8px 0 0 0;
     border: none;
   }
 
   ::ng-deep .mat-form-field-flex {
     min-height: 40px;
     align-items: center;
-  }
-
-  ::ng-deep .mat-form-field-infix {
-    padding: 0;
-    margin: 8px 0 0 0;
-    border: none;
   }
 }
 
@@ -461,13 +448,13 @@ input[type=number] {
   font-size: 14px;
   margin-bottom: .5rem;
   font-weight: 700;
-  font-family: 'Lato';
+  font-family: 'Lato', sans-serif;
 }
 
 .form-input {
   font-size: 14px;
   font-weight: 400;
-  font-family: 'Lato';
+  font-family: 'Lato', sans-serif;
 }
 
 input.mat-input-element {
@@ -506,7 +493,7 @@ input.mat-input-element {
   }
 }
 
-::ng-deeptextarea.mat-input-element {
+::ng-deep textarea.mat-input-element {
   padding: 8px 0;
 }
 
@@ -694,7 +681,7 @@ input.mat-input-element {
 
 .heading{
   font-weight: 600;
-  font-family: 'Montserrat';
+  font-family: 'Montserrat', sans-serif;
   font-size: 20px;
   display: block;
   padding: 15px 0;

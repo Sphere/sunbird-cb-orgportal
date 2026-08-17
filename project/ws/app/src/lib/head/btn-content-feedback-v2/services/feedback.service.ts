@@ -18,7 +18,7 @@ export class FeedbackService {
   private readonly FEEDBACK_API_BASE = '/apis/protected/v8/user/feedbackV2'
   private readonly EVENT_NOTIFICATION = '/apis/protected/v8/user/share/content'
 
-  constructor(private http: HttpClient) { }
+  constructor(private readonly http: HttpClient) { }
 
   searchFeedback(query: IFeedbackSearchQuery): Observable<IFeedbackSearchResult> {
     return this.http.post<IFeedbackSearchResult>(`${this.FEEDBACK_API_BASE}/search`, query)

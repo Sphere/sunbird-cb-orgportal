@@ -66,7 +66,7 @@ export class ManageCompetencyOrderComponent implements OnInit {
     })
 
     // Cache for competency-specific courses: Map<competencyId, Course[]>
-    private competencyCoursesCache = new Map<string, Course[]>()
+    private readonly competencyCoursesCache = new Map<string, Course[]>()
     // Filtered courses per level for current competency: Map<level, Course[]>
     levelFilteredCourses = new Map<number, Course[]>()
 

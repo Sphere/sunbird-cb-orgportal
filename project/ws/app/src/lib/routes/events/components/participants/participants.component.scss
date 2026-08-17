@@ -8,7 +8,7 @@ table {
 .create-btn {
   background: #0075B7 !important;
   color: white !important;
-  font-family: 'Lato';
+  font-family: 'Lato', sans-serif;
   font-weight: 700;
   font-size: 14px;
 }
@@ -17,6 +17,7 @@ table {
 .button-row {
   display: table-cell;
   justify-content: flex-end;
+  text-align: end;
 }
 
 .button-row .mat-button-base {
@@ -33,10 +34,7 @@ th.mat-header-cell {
 }
 
 ws-app-home input {
-  line-height: 1.5
-}
-
-ws-app-home input {
+  line-height: 1.5;
   padding-left: .5rem !important;
 }
 

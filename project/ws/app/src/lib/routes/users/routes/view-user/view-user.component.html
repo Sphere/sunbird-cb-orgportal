@@ -26,7 +26,7 @@
                   class="flex flex-1 flex-column margin-left-m margin-bottom-m margin-right-m ws-mat-accent-border">
                   <div class="flex-custom">
                     <mat-card-content class="margin-top-m margin-bottom-m margin-left-m margin-right-m">
-                      <span class="mat-subheading-1 flex-4 mobile-margin appr-section-heading" role="link" tabindex="0">
+                      <span class="mat-subheading-1 flex-4 mobile-margin appr-section-heading">
                         Personal details
                       </span>
 
@@ -39,22 +39,22 @@
                                   <img [src]="basicInfo.photo" alt="User Avatar" (error)="changeToDefaultImg($event)">
                                 </mat-grid-tile> -->
                                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                  <label class="appr-text-label">First name</label>
-                                  <input formControlName="firstname" type="text" class="appr-text-field">
+                                  <label class="appr-text-label" for="firstname-input">First name</label>
+                                  <input id="firstname-input" formControlName="firstname" type="text" class="appr-text-field">
                                 </mat-grid-tile>
 
                                 <!-- <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                              <label class="appr-text-label">Middle Name</label>
-                              <input type="text"   [value]="basicInfo.middlename" class="appr-text-field">
+                              <label class="appr-text-label" for="middlename-input">Middle Name</label>
+                              <input id="middlename-input" type="text"   [value]="basicInfo.middlename" class="appr-text-field">
                             </mat-grid-tile> -->
 
                                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                  <label class="appr-text-label">Last name</label>
-                                  <input type="text" formControlName="surname" class="appr-text-field">
+                                  <label class="appr-text-label" for="surname-input">Last name</label>
+                                  <input id="surname-input" type="text" formControlName="surname" class="appr-text-field">
                                 </mat-grid-tile>
 
                                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                  <label class="appr-text-label">Date of Birth</label>
+                                  <span class="appr-text-label">Date of Birth</span>
                                   <ng-container *ngIf="loadDob; else withoutDob">
                                     <ws-dropdown-dob (dobValue)="dobData($event)"
                                       [dob]="updateUserDetailsForm.get('dob').value ">
@@ -67,14 +67,14 @@
                                 </mat-grid-tile>
 
                                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                  <label class="appr-text-label">Nationality</label>
-                                  <input formControlName="nationality" type="text" class="appr-text-field">
+                                  <label class="appr-text-label" for="nationality-input">Nationality</label>
+                                  <input id="nationality-input" formControlName="nationality" type="text" class="appr-text-field">
                                 </mat-grid-tile>
 
                                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                  <label class="appr-text-label">Gender</label>
+                                  <label class="appr-text-label" for="gender-input">Gender</label>
                                   <mat-form-field appearance="outline" class="field-fullwidth">
-                                    <mat-select formControlName="gender" i18n-placeholder placeholder="Gender">
+                                    <mat-select id="gender-input" formControlName="gender" i18n-placeholder placeholder="Gender">
                                       <mat-option value="Male" i18n>Male</mat-option>
                                       <mat-option value="Female" i18n>Female</mat-option>
                                       <mat-option value="Others" i18n>Others</mat-option>
@@ -84,13 +84,13 @@
                                 </mat-grid-tile>
 
                                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                  <label class="appr-text-label">Marital status</label>
+                                  <label class="appr-text-label" for="marital-status-input">Marital status</label>
                                   <!-- <mat-radio-group formControlName="maritalStatus" aria-label="Select an option">
                                     <mat-radio-button value="Single" class="radio-btn">Single</mat-radio-button>
                                     <mat-radio-button value="Married" class="radio-btn">Married</mat-radio-button>
                                   </mat-radio-group> -->
                                   <mat-form-field appearance="outline" class="field-fullwidth">
-                                    <mat-select formControlName="maritalStatus" i18n-placeholder
+                                    <mat-select id="marital-status-input" formControlName="maritalStatus" i18n-placeholder
                                       placeholder="Marital Status">
                                       <mat-option value="Single" i18n>Single</mat-option>
                                       <mat-option value="Married" i18n>Married</mat-option>
@@ -109,43 +109,43 @@
                                 </mat-grid-tile> -->
 
                                 <!-- <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                  <label class="appr-text-label">Domicile medium (Mother tongue)</label>
-                                  <input type="text" formControlName="domicileMedium" class="appr-text-field">
+                                  <label class="appr-text-label" for="domicile-medium-input">Domicile medium (Mother tongue)</label>
+                                  <input id="domicile-medium-input" type="text" formControlName="domicileMedium" class="appr-text-field">
                                 </mat-grid-tile>
 
                                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                  <label class="appr-text-label">Other languages known</label>
-                                  <input formControlName="knownLanguages" type="text" class="appr-text-field">
+                                  <label class="appr-text-label" for="known-languages-input">Other languages known</label>
+                                  <input id="known-languages-input" formControlName="knownLanguages" type="text" class="appr-text-field">
                                 </mat-grid-tile> -->
 
                                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                  <label class="appr-text-label">Mobile number</label>
-                                  <input type="text" formControlName="mobile" class="appr-text-field">
+                                  <label class="appr-text-label" for="mobile-input">Mobile number</label>
+                                  <input id="mobile-input" type="text" formControlName="mobile" class="appr-text-field">
                                 </mat-grid-tile>
 
                                 <!-- <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                  <label class="appr-text-label">Telephone number</label>
-                                  <input formControlName="telephone" type="text" class="appr-text-field">
+                                  <label class="appr-text-label" for="telephone-input">Telephone number</label>
+                                  <input id="telephone-input" formControlName="telephone" type="text" class="appr-text-field">
                                 </mat-grid-tile> -->
 
                                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                  <label class="appr-text-label">Primary email</label>
-                                  <input formControlName="primaryEmail" type="text" class="appr-text-field" readonly>
+                                  <label class="appr-text-label" for="primary-email-input">Primary email</label>
+                                  <input id="primary-email-input" formControlName="primaryEmail" type="text" class="appr-text-field" readonly>
                                 </mat-grid-tile>
 
                                 <!-- <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                  <label class="appr-text-label">Secondary email</label>
-                                  <input type="text" formControlName="secondaryEmail" class="appr-text-field">
+                                  <label class="appr-text-label" for="secondary-email-input">Secondary email</label>
+                                  <input id="secondary-email-input" type="text" formControlName="secondaryEmail" class="appr-text-field">
                                 </mat-grid-tile> -->
 
                                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                  <label class="appr-text-label">Postal address</label>
-                                  <textarea rows="3" formControlName="postalAddress" class="appr-text-field"></textarea>
+                                  <label class="appr-text-label" for="postal-address-input">Postal address</label>
+                                  <textarea id="postal-address-input" rows="3" formControlName="postalAddress" class="appr-text-field"></textarea>
                                 </mat-grid-tile>
 
                                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                  <label class="appr-text-label">Pin code</label>
-                                  <input type="text" formControlName="pincode" class="appr-text-field">
+                                  <label class="appr-text-label" for="pincode-input">Pin code</label>
+                                  <input id="pincode-input" type="text" formControlName="pincode" class="appr-text-field">
                                 </mat-grid-tile>
 
                               </mat-grid-list>
@@ -162,7 +162,7 @@
                   class="flex flex-1 flex-column margin-top-m margin-bottom-m margin-left-m margin-right-m ws-mat-accent-border">
                   <div class="flex-custom">
                     <mat-card-content class="margin-top-m margin-bottom-m margin-left-m margin-right-m">
-                      <span class="mat-subheading-1 flex-4 mobile-margin appr-section-heading" role="link" tabindex="0">
+                      <span class="mat-subheading-1 flex-4 mobile-margin appr-section-heading">
                         Academics
                       </span>
                       <div class="margin-top-xl new-mobile">
@@ -172,17 +172,17 @@
                             <ng-container>
                               <mat-grid-list cols="1" rowHeight="50px">
                                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                  <label class="header-text">10th standard</label>
+                                  <span class="header-text">10th standard</span>
                                 </mat-grid-tile>
                               </mat-grid-list>
                               <mat-grid-list cols="1" rowHeight="100px">
                                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                  <label class="appr-text-label">School name</label>
-                                  <input formControlName="schoolName10" type="text" class="appr-text-field">
+                                  <label class="appr-text-label" for="school-name10-input">School name</label>
+                                  <input id="school-name10-input" formControlName="schoolName10" type="text" class="appr-text-field">
                                 </mat-grid-tile>
                                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                  <label class="appr-text-label">Year of passing</label>
-                                  <input formControlName="yop10" type="text" class="appr-text-field">
+                                  <label class="appr-text-label" for="yop10-input">Year of passing</label>
+                                  <input id="yop10-input" formControlName="yop10" type="text" class="appr-text-field">
                                 </mat-grid-tile>
                               </mat-grid-list>
                             </ng-container>
@@ -190,17 +190,17 @@
                             <ng-container>
                               <mat-grid-list cols="1" rowHeight="50px">
                                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                  <label class="header-text">12th standard</label>
+                                  <span class="header-text">12th standard</span>
                                 </mat-grid-tile>
                               </mat-grid-list>
                               <mat-grid-list cols="1" rowHeight="100px">
                                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                  <label class="appr-text-label">School name</label>
-                                  <input type="text" formControlName="schoolName12" class="appr-text-field">
+                                  <label class="appr-text-label" for="school-name12-input">School name</label>
+                                  <input id="school-name12-input" type="text" formControlName="schoolName12" class="appr-text-field">
                                 </mat-grid-tile>
                                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                  <label class="appr-text-label">Year of passing</label>
-                                  <input type="text" class="appr-text-field" formControlName="yop12">
+                                  <label class="appr-text-label" for="yop12-input">Year of passing</label>
+                                  <input id="yop12-input" type="text" class="appr-text-field" formControlName="yop12">
                                 </mat-grid-tile>
                               </mat-grid-list>
                             </ng-container>
@@ -208,22 +208,22 @@
                             <ng-container>
                               <mat-grid-list cols="1" rowHeight="50px">
                                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                  <label class="header-text">Graduation details</label>
+                                  <span class="header-text">Graduation details</span>
                                 </mat-grid-tile>
                               </mat-grid-list>
                               <mat-grid-list cols="1" rowHeight="100px">
                                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                  <label class="appr-text-label">Degree</label>
-                                  <input type="text" class="appr-text-field" formControlName="degreeName">
+                                  <label class="appr-text-label" for="degree-name-input">Degree</label>
+                                  <input id="degree-name-input" type="text" class="appr-text-field" formControlName="degreeName">
                                 </mat-grid-tile>
 
                                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                  <label class="appr-text-label">Institute name</label>
-                                  <input type="text" class="appr-text-field" formControlName="degreeInstitute">
+                                  <label class="appr-text-label" for="degree-institute-input">Institute name</label>
+                                  <input id="degree-institute-input" type="text" class="appr-text-field" formControlName="degreeInstitute">
                                 </mat-grid-tile>
                                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                  <label class="appr-text-label">Year of passing</label>
-                                  <input type="text" class="appr-text-field" formControlName="yopDegree">
+                                  <label class="appr-text-label" for="yop-degree-input">Year of passing</label>
+                                  <input id="yop-degree-input" type="text" class="appr-text-field" formControlName="yopDegree">
                                 </mat-grid-tile>
                               </mat-grid-list>
                             </ng-container>
@@ -231,21 +231,21 @@
                             <ng-container>
                               <mat-grid-list cols="1" rowHeight="50px">
                                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                  <label class="header-text">Post graduation details</label>
+                                  <span class="header-text">Post graduation details</span>
                                 </mat-grid-tile>
                               </mat-grid-list>
                               <mat-grid-list cols="1" rowHeight="100px">
                                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                  <label class="appr-text-label">Degree</label>
-                                  <input type="text" class="appr-text-field" formControlName="postDegreeName">
+                                  <label class="appr-text-label" for="post-degree-name-input">Degree</label>
+                                  <input id="post-degree-name-input" type="text" class="appr-text-field" formControlName="postDegreeName">
                                 </mat-grid-tile>
                                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                  <label class="appr-text-label">Institute name</label>
-                                  <input type="text" class="appr-text-field" formControlName="postDegreeInstitute">
+                                  <label class="appr-text-label" for="post-degree-institute-input">Institute name</label>
+                                  <input id="post-degree-institute-input" type="text" class="appr-text-field" formControlName="postDegreeInstitute">
                                 </mat-grid-tile>
                                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                  <label class="appr-text-label">Year of passing</label>
-                                  <input type="text" class="appr-text-field" formControlName="yopPostDegree">
+                                  <label class="appr-text-label" for="yop-post-degree-input">Year of passing</label>
+                                  <input id="yop-post-degree-input" type="text" class="appr-text-field" formControlName="yopPostDegree">
                                 </mat-grid-tile>
                               </mat-grid-list>
                             </ng-container>
@@ -262,7 +262,7 @@
                   class="flex flex-1 flex-column margin-top-m margin-bottom-m margin-left-m margin-right-m ws-mat-accent-border">
                   <div class="flex-custom">
                     <mat-card-content class="margin-top-m margin-bottom-m margin-left-m margin-right-m">
-                      <span class="mat-subheading-1 flex-4 mobile-margin appr-section-heading" role="link" tabindex="0">
+                      <span class="mat-subheading-1 flex-4 mobile-margin appr-section-heading">
                         Professional details
                       </span>
                       <div class="margin-top-xl new-mobile">
@@ -271,11 +271,11 @@
                             <ng-container>
                               <mat-grid-list cols="1" rowHeight="100px">
                                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                  <label class="appr-text-label">Type of organisation</label>
+                                  <label class="appr-text-label" for="org-type-input">Type of organisation</label>
 
 
                                   <mat-form-field appearance="outline" class="field-fullwidth">
-                                    <mat-select formControlName="orgType" i18n-placeholder
+                                    <mat-select id="org-type-input" formControlName="orgType" i18n-placeholder
                                       placeholder="Type Of organisation">
                                       <mat-option value="Government" i18n>Government organisation</mat-option>
                                       <mat-option value="Non-Government" i18n>Non-government
@@ -285,26 +285,26 @@
                                 </mat-grid-tile>
 
                                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                  <label class="appr-text-label">MDO</label>
-                                  <input formControlName="orgName" type="text" class="appr-text-field">
+                                  <label class="appr-text-label" for="org-name-input">MDO</label>
+                                  <input id="org-name-input" formControlName="orgName" type="text" class="appr-text-field">
                                 </mat-grid-tile>
                                 <!-- <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                  <label class="appr-text-label">Industry</label>
-                                  <input type="text"
+                                  <label class="appr-text-label" for="industry-other-input">Industry</label>
+                                  <input id="industry-other-input" type="text"
                                     [value]="professionalDetails.industry || professionalDetails.industryOther || ''"
                                     class="appr-text-field">
                                 </mat-grid-tile> -->
                                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                  <label class="appr-text-label">Designation</label>
-                                  <input type="text" formControlName="designation" class="appr-text-field">
+                                  <label class="appr-text-label" for="designation-input">Designation</label>
+                                  <input id="designation-input" type="text" formControlName="designation" class="appr-text-field">
                                 </mat-grid-tile>
                                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                  <label class="appr-text-label">Location</label>
-                                  <input type="text" formControlName="location" class="appr-text-field">
+                                  <label class="appr-text-label" for="location-input">Location</label>
+                                  <input id="location-input" type="text" formControlName="location" class="appr-text-field">
                                 </mat-grid-tile>
                                 <!-- <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                  <label class="appr-text-label">Description</label>
-                                  <textarea rows="3"
+                                  <label class="appr-text-label" for="description-input">Description</label>
+                                  <textarea id="description-input" rows="3"
                                     [value]="professionalDetails.description ? professionalDetails.description : ''"
                                     class="appr-text-field"></textarea>
                                 </mat-grid-tile> -->
@@ -312,68 +312,68 @@
 
                               <!-- <mat-grid-list cols="1" rowHeight="50px" class="margin-top-xl">
                                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                  <label class="middle-heading">Other details for government employess (If
-                                    applicable)</label>
+                                  <span class="middle-heading">Other details for government employess (If
+                                    applicable)</span>
                                 </mat-grid-tile>
                               </mat-grid-list>
 
                               <mat-grid-list cols="2" rowHeight="100px">
                                 <mat-grid-tile [colspan]="2" [rowspan]="1" class="input-wrapper">
-                                  <label class="appr-text-label">Pay band (grade pay)</label>
-                                  <input type="text"
+                                  <label class="appr-text-label" for="pay-type-input">Pay band (grade pay)</label>
+                                  <input id="pay-type-input" type="text"
                                     [value]="employmentDetails && employmentDetails.payType ? employmentDetails.payType : ''"
                                     class="appr-text-field">
                                 </mat-grid-tile>
                                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                  <label class="appr-text-label">Service</label>
-                                  <input type="text"
+                                  <label class="appr-text-label" for="service-input">Service</label>
+                                  <input id="service-input" type="text"
                                     [value]="employmentDetails && employmentDetails.service ? employmentDetails.service : ''"
                                     class="appr-text-field">
                                 </mat-grid-tile>
                                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                  <label class="appr-text-label">Cadre</label>
-                                  <input type="text"
+                                  <label class="appr-text-label" for="cadre-input">Cadre</label>
+                                  <input id="cadre-input" type="text"
                                     [value]="employmentDetails && employmentDetails.cadre ? employmentDetails.cadre : ''"
                                     class="appr-text-field">
                                 </mat-grid-tile>
                                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                  <label class="appr-text-label">Allotment year of service</label>
-                                  <input type="text"
+                                  <label class="appr-text-label" for="allotment-year-of-service-input">Allotment year of service</label>
+                                  <input id="allotment-year-of-service-input" type="text"
                                     [value]="employmentDetails && employmentDetails.allotmentYearOfService ? employmentDetails.allotmentYearOfService : ''"
                                     class="appr-text-field">
                                 </mat-grid-tile>
                                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                  <label class="appr-text-label">Date of joining</label>
-                                  <input type="text"
+                                  <label class="appr-text-label" for="doj-of-service-input">Date of joining</label>
+                                  <input id="doj-of-service-input" type="text"
                                     [value]="employmentDetails && employmentDetails.dojOfService ? employmentDetails.dojOfService : ''"
                                     class="appr-text-field">
                                 </mat-grid-tile>
                                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                  <label class="appr-text-label">Civil list number</label>
-                                  <input type="text"
+                                  <label class="appr-text-label" for="civil-list-no-input">Civil list number</label>
+                                  <input id="civil-list-no-input" type="text"
                                     [value]="employmentDetails && employmentDetails.civilListNo ? employmentDetails.civilListNo : ''"
                                     class="appr-text-field">
                                 </mat-grid-tile>
                                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                  <label class="appr-text-label">Emplyee code</label>
-                                  <input type="text"
+                                  <label class="appr-text-label" for="employee-code-input">Emplyee code</label>
+                                  <input id="employee-code-input" type="text"
                                     [value]="employmentDetails && employmentDetails.employeeCode ? employmentDetails.employeeCode : ''"
                                     class="appr-text-field">
                                 </mat-grid-tile>
                                 <mat-grid-tile [colspan]="2" [rowspan]="1" class="input-wrapper">
-                                <label class="appr-text-label">Location</label>
-                                <input type="text"   [value]="professionalDetails.location"
+                                <label class="appr-text-label" for="location-input-2">Location</label>
+                                <input id="location-input-2" type="text"   [value]="professionalDetails.location"
                                   class="appr-text-field">
                               </mat-grid-tile>
                                 <mat-grid-tile [colspan]="2" [rowspan]="1" class="input-wrapper">
-                                  <label class="appr-text-label">Official postal address</label>
-                                  <textarea rows="3"
+                                  <label class="appr-text-label" for="official-postal-address-input">Official postal address</label>
+                                  <textarea id="official-postal-address-input" rows="3"
                                     [value]="employmentDetails && employmentDetails.officialPostalAddress ? employmentDetails.officialPostalAddress : ''"
                                     class="appr-text-field"></textarea>
                                 </mat-grid-tile>
                                 <mat-grid-tile [colspan]="2" [rowspan]="1" class="input-wrapper">
-                                  <label class="appr-text-label">Pin code</label>
-                                  <input type="text"
+                                  <label class="appr-text-label" for="pin-code-input">Pin code</label>
+                                  <input id="pin-code-input" type="text"
                                     [value]="employmentDetails && employmentDetails.pinCode ? employmentDetails.pinCode : ''"
                                     class="appr-text-field">
                                 </mat-grid-tile>
@@ -391,7 +391,7 @@
                   class="flex flex-1 flex-column margin-top-m margin-bottom-m margin-left-m margin-right-m ws-mat-accent-border">
                   <div class="flex-custom">
                     <mat-card-content class="margin-top-m margin-bottom-m margin-left-m margin-right-m">
-                      <span class="mat-subheading-1 flex-4 mobile-margin appr-section-heading" role="link" tabindex="0">
+                      <span class="mat-subheading-1 flex-4 mobile-margin appr-section-heading">
                         Certification and skills
                       </span>
                       <div class="margin-top-xl new-mobile">
@@ -400,34 +400,34 @@
                             <ng-container>
                               <mat-grid-list cols="1" rowHeight="50px">
                                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                  <label class="appr-text-label">Certification</label>
+                                  <span class="appr-text-label">Certification</span>
                                 </mat-grid-tile>
                               </mat-grid-list>
                               <mat-grid-list cols="1" rowHeight="150px">
                                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                  <label class="appr-text-label">Additional skill acquired/course completed</label>
-                                  <textarea rows="4" formControlName="skillAquiredDesc"
+                                  <label class="appr-text-label" for="skill-aquired-desc-input">Additional skill acquired/course completed</label>
+                                  <textarea id="skill-aquired-desc-input" rows="4" formControlName="skillAquiredDesc"
                                     class="appr-text-field"></textarea>
                                 </mat-grid-tile>
                                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                  <label class="appr-text-label">Provide certification details</label>
-                                  <textarea formControlName="certificationDesc" rows="4"
+                                  <label class="appr-text-label" for="certification-desc-input">Provide certification details</label>
+                                  <textarea id="certification-desc-input" formControlName="certificationDesc" rows="4"
                                     class="appr-text-field"></textarea>
                                 </mat-grid-tile>
                               </mat-grid-list>
                               <mat-grid-list cols="1" rowHeight="50px">
                                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                  <label class="appr-text-label">Skills</label>
+                                  <span class="appr-text-label">Skills</span>
                                 </mat-grid-tile>
                               </mat-grid-list>
                               <mat-grid-list cols="1" rowHeight="150px">
                                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                  <label class="appr-text-label">Professional interests</label>
-                                  <textarea rows="4" formControlName="professional" class="appr-text-field"></textarea>
+                                  <label class="appr-text-label" for="professional-input">Professional interests</label>
+                                  <textarea id="professional-input" rows="4" formControlName="professional" class="appr-text-field"></textarea>
                                 </mat-grid-tile>
                                 <mat-grid-tile [colspan]="1" [rowspan]="1" class="input-wrapper">
-                                  <label class="appr-text-label">Hobbies</label>
-                                  <textarea rows="4" formControlName="hobbies" class="appr-text-field"></textarea>
+                                  <label class="appr-text-label" for="hobbies-input">Hobbies</label>
+                                  <textarea id="hobbies-input" rows="4" formControlName="hobbies" class="appr-text-field"></textarea>
                                 </mat-grid-tile>
                               </mat-grid-list>
                             </ng-container>
@@ -449,7 +449,7 @@
                 class="flex flex-1 flex-column margin-top-m margin-bottom-m margin-left-m margin-right-m ws-mat-accent-border">
                 <div class="flex-custom">
                   <mat-card-content class="margin-top-m margin-bottom-m margin-left-m margin-right-m">
-                    <span class="mat-subheading-1 flex-4 mobile-margin appr-section-heading" role="link" tabindex="0">
+                    <span class="mat-subheading-1 flex-4 mobile-margin appr-section-heading">
                       Update roles
                     </span>
                     <div class="margin-top-xl new-mobile">
@@ -465,7 +465,10 @@
                                 </label>
                                 <mat-selection-list id="roles" formControlName="roles" #roles>
                                   <mat-list-option *ngFor="let role of rolesList"
-                                    (click)="modifyUserRoles(role.roleName)" [selected]="userRoles.has(role.roleName)"
+                                    (click)="modifyUserRoles(role.roleName)"
+                                    (keydown.enter)="modifyUserRoles(role.roleName)"
+                                    (keydown.space)="modifyUserRoles(role.roleName); $event.preventDefault()"
+                                    [selected]="userRoles.has(role.roleName)"
                                     [value]="role.roleName">
                                     {{role.roleName}}
                                   </mat-list-option>
@@ -501,23 +504,23 @@
     <div class="flex-1" style="border-left: 1px solid #0000000f;">
       <ng-container id="changelog">
         <div>
-          <label class="change-log-text margin-top-l margin-bottom-l margin-left-m margin-right-m">Change log</label>
+          <span class="change-log-text margin-top-l margin-bottom-l margin-left-m margin-right-m">Change log</span>
           <div class="w-full profile-cols-full bg-grey" *ngIf="wfHistory && wfHistory.length > 0">
             <div class="change-log-wrapper" *ngFor="let wfh of wfHistory">
               <div class="margin-top-l margin-bottom-l margin-left-m margin-right-m">
-                <label class=" field-key">{{wfh.fieldKey}}</label>
-                <label class="field-name">{{wfh.fieldName}}</label>
-                <label *ngIf="wfh.action === 'APPROVE'" class="field-change">Changed from {{'"'+ wfh.fromValue +'"'}}
+                <span class=" field-key">{{wfh.fieldKey}}</span>
+                <span class="field-name">{{wfh.fieldName}}</span>
+                <span *ngIf="wfh.action === 'APPROVE'" class="field-change">Changed from {{'"'+ wfh.fromValue +'"'}}
                   to
-                  {{'"'+ wfh.toValue +'"'}}</label>
-                <label *ngIf="wfh.action === 'REJECT'" class="field-change">{{wfh.fieldName}} was rejected with
-                  {{wfh.comment}}</label>
-                <label class="field-date">{{wfh.requestedon}}</label>
+                  {{'"'+ wfh.toValue +'"'}}</span>
+                <span *ngIf="wfh.action === 'REJECT'" class="field-change">{{wfh.fieldName}} was rejected with
+                  {{wfh.comment}}</span>
+                <span class="field-date">{{wfh.requestedon}}</span>
               </div>
             </div>
           </div>
           <div class="appr-label" *ngIf="wfHistory && wfHistory.length <= 0">
-            <label class="no-request-text">No updates yet</label>
+            <span class="no-request-text">No updates yet</span>
           </div>
         </div>
       </ng-container>
@@ -527,17 +530,17 @@
         <label class="appr-text-label">Change log</label>
         <div class="w-full profile-cols-full bg-grey" *ngIf="wfHistory && wfHistory.length > 0">
           <div class="change-log-wrapper" *ngFor="let wfh of wfHistory">
-            <label class=" field-key">{{wfh.fieldKey}}</label>
-            <label class="field-name">{{wfh.fieldName}}</label>
-            <label *ngIf="wfh.action === 'APPROVE'" class="field-change">Changed from {{'"'+ wfh.fromValue +'"'}} to
-              {{'"'+ wfh.toValue +'"'}}</label>
-            <label *ngIf="wfh.action === 'REJECT'" class="field-change">{{wfh.fieldName}} was rejected with
-              {{wfh.comment}}</label>
-            <label class="field-date">{{wfh.requestedon}}</label>
+            <span class=" field-key">{{wfh.fieldKey}}</span>
+            <span class="field-name">{{wfh.fieldName}}</span>
+            <span *ngIf="wfh.action === 'APPROVE'" class="field-change">Changed from {{'"'+ wfh.fromValue +'"'}} to
+              {{'"'+ wfh.toValue +'"'}}</span>
+            <span *ngIf="wfh.action === 'REJECT'" class="field-change">{{wfh.fieldName}} was rejected with
+              {{wfh.comment}}</span>
+            <span class="field-date">{{wfh.requestedon}}</span>
           </div>
         </div>
         <div class="appr-label" *ngIf="wfHistory && wfHistory.length <= 0">
-          <label class="no-request-text">No updates yet</label>
+          <span class="no-request-text">No updates yet</span>
         </div>
       </ng-container>
     </div> -->

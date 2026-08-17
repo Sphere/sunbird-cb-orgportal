@@ -1,26 +1,35 @@
+@import 'ws-design-system-v2';
+// ── Page container ─────────────────────────────────────────────────────────
 .container {
-  max-width: 1400px;
-  // margin: auto;
-  padding: 20px;
+  padding: $v2-content-padding;
+  max-width: $v2-content-max-width;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: $v2-space-3;
+  background-color: #ffffff;
 }
 
-.events-list {
-  margin-top: 20px;
-  // padding: 10px;
+// ── Page title / subtitle ──────────────────────────────────────────────────
+.page-title {
+  @include v2-page-title;
 }
 
+.page-subtitle {
+  @include v2-page-subtitle;
+}
 
+// ── Section header row ─────────────────────────────────────────────────────
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 0px;
-  border-bottom: 1px solid #ccc;
-  margin-bottom: 20px;
-}
+  padding-bottom: $v2-space-2;
+  border-bottom: 1px solid $v2-color-border;
 
-h3 {
-  margin: 0;
+  h3 {
+    @include v2-section-title;
+  }
 }
 
 .create-btn {
@@ -39,7 +48,7 @@ h3 {
 
 .page-title {
   color: #666666;
-  font-family: Roboto;
+  font-family: Roboto, sans-serif;
   font-size: 24px;
   font-weight: 400;
   margin-bottom: 10px;
@@ -60,37 +69,170 @@ h3 {
   margin-bottom: 15px;
 }
 
+// ── Search + filter row ────────────────────────────────────────────────────
 .participants-header {
   display: flex;
-  gap: 20px;
+  gap: $v2-space-2;
   align-items: center;
-  margin-bottom: 15px;
 }
 
 .search-input {
-  width: 35%;
-  padding: 8px;
-  border: none;
-  border-radius: 4px;
-  box-shadow: 0px 0px 4px 0px #00000026;
+  @include v2-search-field;
+  flex: 1;
+  max-width: 480px;
 }
 
-input:focus,
-textarea:focus {
-  outline: none !important;
+// ── Filter button + floating dropdown ─────────────────────────────────────
+.filter-wrapper {
+  position: relative;
 }
 
 .filter-btn {
-  background-color: transparent;
-  border: none;
-  color: #1C5D95;
-  cursor: pointer;
+  @include v2-btn-secondary;
+  height: 40px;
+  padding: 0 16px;
+  gap: 6px;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    line-height: 18px;
+  }
+
+  &.filter-active {
+    background: $v2-color-primary-tint;
+  }
+}
+
+.filter-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: $v2-color-primary;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+// Floating card that opens below the Filter button
+.filter-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 280px;
+  max-width: 360px;
+  background: #ffffff;
+  border: 1px solid $v2-color-border;
+  border-radius: $v2-radius-card-large;
+  box-shadow: $v2-shadow-dropdown;
+  padding: $v2-space-2;
+  z-index: 100;
+}
+
+.filter-dropdown-header {
   display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid $v2-color-border;
+}
+
+.filter-dropdown-title {
+  font-family: $v2-font-family;
+  font-size: $v2-font-caption;
+  font-weight: 600;
+  color: $v2-color-text;
+}
+
+.filter-clear-all {
+  font-family: $v2-font-family;
+  font-size: $v2-font-micro;
+  font-weight: 500;
+  color: $v2-color-primary;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+
+  &:hover { text-decoration: underline; }
+}
+
+.filter-section {
+  margin-bottom: 14px;
+
+  &:last-child { margin-bottom: 0; }
+}
+
+.filter-section-label {
+  font-family: $v2-font-family;
+  font-size: $v2-font-micro;
+  font-weight: 600;
+  color: $v2-color-text-secondary;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin-bottom: $v2-space-1;
+}
+
+.filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 12px;
+  border: 1px solid $v2-color-border;
+  border-radius: $v2-radius-button;
+  background: #ffffff;
+  color: $v2-color-text;
+  font-family: $v2-font-family;
+  font-size: $v2-font-micro;
+  font-weight: 500;
+  cursor: pointer;
+  transition: $v2-transition;
+
+  &:hover {
+    border-color: $v2-color-primary;
+    color: $v2-color-primary;
+    background: $v2-color-primary-tint;
+  }
+
+  &.active {
+    border-color: $v2-color-primary;
+    background: $v2-color-primary;
+    color: #ffffff;
+  }
+}
+
+// ── Active filter tags (shown below search row) ────────────────────────────
+.active-filters {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
   align-items: center;
 }
 
-.filter-btn mat-icon {
-  margin-right: 5px;
+.active-filter-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 10px 0 12px;
+  background: $v2-color-primary-tint;
+  border: 1px solid $v2-color-primary;
+  border-radius: $v2-radius-button;
+  color: $v2-color-primary;
+  font-family: $v2-font-family;
+  font-size: $v2-font-micro;
+  font-weight: 500;
 }
 
 .events-table {
@@ -111,7 +253,7 @@ table {
   padding: 14px;
   border-bottom: 1px solid #ddd;
   text-align: left;
-  font-family: Roboto;
+  font-family: Roboto, sans-serif;
   font-weight: 400;
   font-size: 16px;
 }
@@ -126,5 +268,212 @@ table {
 
 .events-table tr:hover {
   background-color: #f1f1f1;
+}
+.tag-remove {
+  background: none;
+  border: none;
   cursor: pointer;
+  color: $v2-color-primary;
+  font-size: $v2-font-caption;
+  line-height: 1;
+  padding: 0;
+  display: flex;
+  align-items: center;
+
+  &:hover { color: $v2-color-danger; }
+}
+
+// ── Events table ───────────────────────────────────────────────────────────
+.events-table {
+  @include v2-table-container;
+
+  table {
+    @include v2-table-inner;
+  }
+}
+
+.nowrap {
+  white-space: nowrap;
+}
+
+// ── Status chips inside table cells ───────────────────────────────────────
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  height: 22px;
+  padding: 0 10px;
+  border-radius: $v2-radius-button;
+  font-family: $v2-font-family;
+  font-size: $v2-font-micro;
+  font-weight: 500;
+  white-space: nowrap;
+  background: $v2-status-neutral-bg;
+  color: $v2-status-neutral-text;
+
+  &.status-completed, &.status-active {
+    background: $v2-status-success-bg;
+    color: $v2-status-success-text;
+  }
+
+  &.status-partial_failed {
+    background: $v2-status-warning-bg;
+    color: $v2-status-warning-text;
+  }
+
+  &.status-failed {
+    background: $v2-status-danger-bg;
+    color: $v2-status-danger-text;
+  }
+
+  &.status-pending {
+    background: $v2-status-info-bg;
+    color: $v2-status-info-text;
+  }
+
+  &.status-inactive {
+    background: $v2-status-neutral-bg;
+    color: $v2-status-neutral-text;
+  }
+}
+
+// ── Paginator ──────────────────────────────────────────────────────────────
+mat-paginator {
+  border-top: 1px solid $v2-color-border;
+  background: transparent;
+
+  // Container row
+  ::ng-deep .mat-mdc-paginator-container {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 10px 16px;
+    gap: 24px;
+    min-height: 48px;
+    flex-wrap: wrap;
+  }
+
+  // "Items per page" label + select group
+  ::ng-deep .mat-mdc-paginator-page-size {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+  }
+
+  ::ng-deep .mat-mdc-paginator-page-size-label {
+    font-family: $v2-font-family;
+    font-size: 13px;
+    color: $v2-color-text-secondary;
+    white-space: nowrap;
+  }
+
+  // Replace the MDC form-field chrome with a simple styled select
+  ::ng-deep .mat-mdc-paginator-page-size-select {
+    width: 72px;
+
+    // Hide MDC underline/outline chrome entirely
+    .mdc-notched-outline,
+    .mdc-line-ripple,
+    .mat-mdc-form-field-subscript-wrapper {
+      display: none !important;
+    }
+
+    .mat-mdc-select-trigger {
+      height: 32px;
+      border: 1px solid $v2-color-border;
+      border-radius: 6px;
+      padding: 0 8px;
+      background: #ffffff;
+      font-family: $v2-font-family;
+      font-size: 13px;
+      color: $v2-color-text;
+
+      &:hover { border-color: $v2-color-primary; }
+    }
+
+    .mat-mdc-select-arrow-wrapper { height: 32px; }
+
+    .mat-mdc-select-arrow {
+      color: $v2-color-text-secondary;
+    }
+
+    .mat-mdc-form-field-infix {
+      padding: 0;
+      min-height: unset;
+    }
+  }
+
+  // "X – Y of Z" range label
+  ::ng-deep .mat-mdc-paginator-range-label {
+    font-family: $v2-font-family;
+    font-size: 13px;
+    color: $v2-color-text-secondary;
+    margin: 0;
+    white-space: nowrap;
+  }
+
+  // Navigation button group
+  ::ng-deep .mat-mdc-paginator-range-actions {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    margin: 0;
+  }
+
+  // Each nav icon button
+  ::ng-deep .mat-mdc-icon-button {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    color: $v2-color-text-secondary;
+    transition: background 0.15s, color 0.15s;
+
+    // Remove MDC ripple/state-layer chrome
+    .mat-mdc-button-ripple,
+    .mat-mdc-button-persistent-ripple,
+    .mat-mdc-focus-indicator { display: none; }
+
+    &:hover:not([disabled]) {
+      background: $v2-color-primary-tint;
+      color: $v2-color-primary;
+    }
+
+    &[disabled] {
+      opacity: 0.35;
+      cursor: default;
+    }
+
+    mat-icon, .material-icons {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      line-height: 18px;
+    }
+  }
+}
+
+// ── Empty state row ────────────────────────────────────────────────────────
+.empty-row {
+  text-align: center;
+  color: $v2-color-text-secondary;
+  font-style: italic;
+  padding: 32px 16px;
+  height: auto;
+}
+
+// ── Responsive ─────────────────────────────────────────────────────────────
+@media (max-width: 768px) {
+  .container { padding: 24px; }
+  .search-input { max-width: 100%; }
+  .participants-header { flex-wrap: wrap; }
+  .filter-dropdown { right: unset; left: 0; }
+}
+
+@media (max-width: 480px) {
+  .container { padding: 16px; }
+  .header { flex-direction: column; align-items: flex-start; gap: $v2-space-2; }
 }

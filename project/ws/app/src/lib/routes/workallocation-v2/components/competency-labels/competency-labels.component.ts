@@ -3,12 +3,12 @@ import { CdkDrag, CdkDragDrop, moveItemInArray, transferArrayItem } from '@angul
 import { UntypedFormArray, UntypedFormBuilder, UntypedFormControl, UntypedFormGroup } from '@angular/forms'
 // import { debounceTime } from 'rxjs/operators'
 import { inspect } from 'util'
-import { AllocationService } from '../../../workallocation/services/allocation.service'
+import { AllocationService } from '../../services/allocation.service'
 import { debounceTime, first, map, switchMap, takeUntil } from 'rxjs/operators'
 import { BehaviorSubject, Observable, Subject } from 'rxjs'
 import { WatStoreService } from '../../services/wat.store.service'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { MatDialog } from '@angular/material/dialog'
+import { MatSnackBar } from '@angular/material/snack-bar'
 import { NSWatCompetency } from '../../models/competency-wat.model'
 import { NSWatActivity } from '../../models/activity-wot.model'
 // tslint:disable
@@ -20,13 +20,14 @@ import { DialogConfirmComponent } from '../../../../../../../../../src/app/compo
 // tslint:enable
 
 @Component({
+  standalone: false,
   selector: 'ws-app-competency-labels',
   templateUrl: './competency-labels.component.html',
   styleUrls: ['./competency-labels.component.scss'],
 })
 export class CompetencyLabelsComponent implements OnInit, OnDestroy, AfterViewInit {
   private activitySubscription: any
-  private unsubscribe = new Subject<void>()
+  private readonly unsubscribe = new Subject<void>()
   labels: NSWatCompetency.ICompActivity[] = []
   groups: NSWatActivity.IActivityGroup[] = []
   @Input() editData!: any
@@ -41,13 +42,13 @@ export class CompetencyLabelsComponent implements OnInit, OnDestroy, AfterViewIn
   filteredCompetenciesV1 = new BehaviorSubject<any[]>([])
 
   constructor(
-    private changeDetector: ChangeDetectorRef,
-    private formBuilder: UntypedFormBuilder,
-    private allocateSrvc: AllocationService,
-    private watStore: WatStoreService,
-    private snackBar: MatSnackBar,
+    private readonly changeDetector: ChangeDetectorRef,
+    private readonly formBuilder: UntypedFormBuilder,
+    private readonly allocateSrvc: AllocationService,
+    private readonly watStore: WatStoreService,
+    private readonly snackBar: MatSnackBar,
     public dialog: MatDialog,
-    private activated: ActivatedRoute,
+    private readonly activated: ActivatedRoute,
     // @Inject(DOCUMENT) private document: Document
   ) {
   }
@@ -108,7 +109,7 @@ export class CompetencyLabelsComponent implements OnInit, OnDestroy, AfterViewIn
             compLevel: _.get(numa, 'level') || '',
             compType: _.get(numa, 'additionalProperties.competencyType') || '',
             compArea: _.get(numa, 'additionalProperties.competencyArea') || '',
-            levelList: [_.get(numa, 'chield')] || [this.activated.snapshot.data.pageData.data.levels],
+            levelList: _.get(numa, 'chield') ? [_.get(numa, 'chield')] : [this.activated.snapshot.data.pageData.data.levels],
             compSource: _.get(numa, 'source') || 'WAT',
           }
         })
@@ -175,7 +176,7 @@ export class CompetencyLabelsComponent implements OnInit, OnDestroy, AfterViewIn
 
       if (targetContainerIndex === 0) {
         // means dropped to unmapped
-        let aaa = (oldArray as UntypedFormArray).at(event.previousIndex) as UntypedFormGroup
+        const aaa = (oldArray as UntypedFormArray).at(event.previousIndex) as UntypedFormGroup
 
         (oldArray as UntypedFormArray).at(event.previousIndex).patchValue({
           ...(aaa.value),
@@ -501,7 +502,7 @@ export class CompetencyLabelsComponent implements OnInit, OnDestroy, AfterViewIn
     const dialogRef = this.dialog.open(WatCompPopupComponent, {
       restoreFocus: false,
       disableClose: true,
-      data: { ...oldcompData, children } || event.option.value,
+      data: oldcompData ? { ...oldcompData, children } : event.option.value,
     })
     if (this.activated.snapshot.data && this.activated.snapshot.data.pageData) {
       dialogRef.componentInstance.defaultCompLevels = this.activated.snapshot.data.pageData

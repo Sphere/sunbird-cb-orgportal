@@ -15,7 +15,7 @@ const API_END_POINTS = {
   providedIn: 'root',
 })
 export class NeedApprovalsService {
-  constructor(private http: HttpClient) { }
+  constructor(private readonly http: HttpClient) { }
   fetchNeedApprovals(request: any): Observable<any> {
     return this.http.post<any>(API_END_POINTS.WORKFLOW_TO_APPROVE, request)
   }

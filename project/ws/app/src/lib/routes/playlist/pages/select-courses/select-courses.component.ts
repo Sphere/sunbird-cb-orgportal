@@ -30,7 +30,7 @@ export class SelectCoursesComponent implements OnInit {
 
     readonly loading = signal(false)
     readonly searchTerm = signal('')
-    private preselectedCourseOrderMap = new Map<string, number>()
+    private readonly preselectedCourseOrderMap = new Map<string, number>()
 
     private readonly router = inject(Router)
     private readonly route = inject(ActivatedRoute)

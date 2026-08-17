@@ -11,7 +11,7 @@ import { UsersService } from '../services/users.service'
 export class DepartmentResolve
    {
   constructor(
-    private usersService: UsersService,
+    private readonly usersService: UsersService,
     // private router: Router,
     // private authSvc: AuthKeycloakService
   ) { }

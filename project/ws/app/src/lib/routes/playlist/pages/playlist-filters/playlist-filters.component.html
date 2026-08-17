@@ -30,6 +30,7 @@
                         </div>
                         <div class="multi-select-panel org-panel" *ngIf="orgDropdownOpen()">
                             <div class="org-search-row" (click)="$event.stopPropagation()"
+                                (keydown.enter)="$event.stopPropagation()" (keydown.space)="$event.stopPropagation()"
                                 (mousedown)="$event.preventDefault()">
                                 <input class="org-search-input" type="text" placeholder="Search Organisation..."
                                     [value]="orgSearchTerm()"

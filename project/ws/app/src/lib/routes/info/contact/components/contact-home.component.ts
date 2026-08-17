@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core'
 import { ConfigurationsService, NsPage } from '@sunbird-cb/utils'
 
 @Component({
+  standalone: false,
   selector: 'ws-app-contact-home',
   templateUrl: './contact-home.component.html',
   styleUrls: ['./contact-home.component.scss'],
@@ -10,7 +11,7 @@ export class ContactHomeComponent implements OnInit {
   contactUsMail = ''
   pageNavbar: Partial<NsPage.INavBackground> = this.configSvc.pageNavBar
 
-  constructor(private configSvc: ConfigurationsService) {}
+  constructor(private readonly configSvc: ConfigurationsService) {}
 
   ngOnInit() {
     if (this.configSvc.instanceConfig) {

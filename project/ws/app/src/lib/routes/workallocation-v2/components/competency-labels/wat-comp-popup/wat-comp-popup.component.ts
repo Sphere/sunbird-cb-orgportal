@@ -1,8 +1,8 @@
 import { Component, Inject, Input, OnInit } from '@angular/core'
 import { UntypedFormArray, UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms'
-import { MatLegacyCheckboxChange as MatCheckboxChange } from '@angular/material/legacy-checkbox'
-import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog'
-import { MatLegacyRadioChange as MatRadioChange } from '@angular/material/legacy-radio'
+import { MatCheckboxChange } from '@angular/material/checkbox'
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog'
+import { MatRadioChange } from '@angular/material/radio'
 /* tslint:disable */
 import _ from 'lodash'
 /* tslint:enable */
@@ -35,6 +35,7 @@ export interface IChield {
  * @title Dialog Overview
  */
 @Component({
+  standalone: false,
   selector: 'ws-app-wat-comp-popup',
   templateUrl: './wat-comp-popup.component.html',
   styleUrls: ['./wat-comp-popup.component.scss'],
@@ -50,7 +51,7 @@ export class WatCompPopupComponent implements OnInit {
   constructor(
     public dialogRef: MatDialogRef<WatCompPopupComponent>,
     @Inject(MAT_DIALOG_DATA) public data: IWatCompPopupData,
-    private formBuilder: UntypedFormBuilder) {
+    private readonly formBuilder: UntypedFormBuilder) {
     this.watForm = new UntypedFormGroup({})
 
     this.watForm = this.formBuilder.group({
@@ -153,12 +154,12 @@ export class WatCompPopupComponent implements OnInit {
   }
   checkAll() {
     const onj = { isSelected: true }
-    this.getList.controls.map(value => value.setValue({ ...value.value, ...onj }))
+    this.getList.controls.forEach(value => value.setValue({ ...value.value, ...onj }))
   }
 
   deselectAll() {
     const onj = { isSelected: false }
-    this.getList.controls.map(value => value.setValue({ ...value.value, ...onj }))
+    this.getList.controls.forEach(value => value.setValue({ ...value.value, ...onj }))
     // this.setWatValues([...this.getList.controls.map(value => value.setValue(false))])
   }
   get checkedAllActivities() {

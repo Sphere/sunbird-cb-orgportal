@@ -17,7 +17,7 @@
         </div>
     </div>
     <div class="max-margin mat-subheading-1" *ngIf="this.dataSource.data.length>0">
-        <label>Copy from a published work order (optional)</label>
+        <span>Copy from a published work order (optional)</span>
         <ng-container>
             <div class="custom-table-nav container-balanced margin-top-xl margin-bottom-xl">
 
@@ -39,7 +39,7 @@
         <ng-container matColumnDef="{{col.key}}" *ngFor="let col of tableData!.columns">
             <mat-header-cell *matHeaderCellDef mat-sort-header> {{col.displayName}} </mat-header-cell>
             <mat-cell *matCellDef="let element">
-                <mat-radio-button #button (click)="checkState(button)" [value]="element"
+                <mat-radio-button #button (click)="checkState(button)" (keydown.enter)="checkState(button)" [value]="element"
                     *ngIf="col.displayName==='Work orders'">
                 </mat-radio-button>
                 <span *ngIf="col.isList" class="textclass" [matTooltip]="(element[col.key]).split('<br />').join(', ')">
@@ -51,14 +51,17 @@
                 </ws-app-initial-avatar>
                 <span *ngIf="!col.isList" [ngClass]="{
                             'mat-button':col.displayName === 'Work orders',
-                            'mat-body-2':col.displayName != 'Work orders',
+                            'mat-body-2':col.displayName !== 'Work orders',
                             'ws-mat-red-text':col.displayName === 'Errors' }">
                     {{element[col.key]}} {{col.isList}}
                 </span>
             </mat-cell>
         </ng-container>
         <mat-header-row *matHeaderRowDef="getFinalColumns()"></mat-header-row>
-        <mat-row *matRowDef="let row; columns: getFinalColumns();" (click)="selection.toggle(row); onRowClick(row)">
+        <mat-row *matRowDef="let row; columns: getFinalColumns();" role="button" tabindex="0"
+            (click)="selection.toggle(row); onRowClick(row)"
+            (keydown.enter)="selection.toggle(row); onRowClick(row)"
+            (keydown.space)="selection.toggle(row); onRowClick(row); $event.preventDefault()">
         </mat-row>
     </mat-table>
     <div class="no-information-found" *ngIf="dataSource.filteredData.length===0 && isSearched">No published work

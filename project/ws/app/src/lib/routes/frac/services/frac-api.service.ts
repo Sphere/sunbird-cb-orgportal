@@ -27,8 +27,8 @@ export class FracApiService {
   private readonly headers = new HttpHeaders({ 'Content-Type': 'application/json' })
 
   constructor(
-    private http: HttpClient,
-    private configSvc: ConfigurationsService,
+    private readonly http: HttpClient,
+    private readonly configSvc: ConfigurationsService,
   ) { }
 
   private get apiEndpoints() {

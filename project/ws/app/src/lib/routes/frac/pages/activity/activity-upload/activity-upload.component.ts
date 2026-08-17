@@ -34,20 +34,21 @@ interface UploadEmptyStateConfig {
 }
 
 @Component({
+  standalone: false,
   selector: 'ws-app-activity-upload',
   templateUrl: './activity-upload.component.html',
   styleUrls: ['./activity-upload.component.scss']
 })
 export class ActivityUploadComponent implements OnInit, OnDestroy {
 
-  private editTracker: FracEditTracker
+  private readonly editTracker: FracEditTracker
   constructor(
-    private dialog: MatDialog,
-    private fracApiService: FracApiService,
-    private tableTransformUtil: TableTransformUtil,
-    private activatedRoute: ActivatedRoute,
-    private router: Router,
-    private uploadOrchestrator: FracEntityUploadOrchestratorService,
+    private readonly dialog: MatDialog,
+    private readonly fracApiService: FracApiService,
+    private readonly tableTransformUtil: TableTransformUtil,
+    private readonly activatedRoute: ActivatedRoute,
+    private readonly router: Router,
+    private readonly uploadOrchestrator: FracEntityUploadOrchestratorService,
   ) {
     this.editTracker = new FracEditTracker(this.uploadOrchestrator)
   }
@@ -114,9 +115,9 @@ export class ActivityUploadComponent implements OnInit, OnDestroy {
 
   // ============= INTERNAL STATE =============
 
-  private searchTrigger$ = new Subject<UploadSearchTriggerPayload>()
+  private readonly searchTrigger$ = new Subject<UploadSearchTriggerPayload>()
   private searchSubscription: Subscription | null = null
-  private destroy$ = new Subject<void>()
+  private readonly destroy$ = new Subject<void>()
 
   // ============= LIFECYCLE =============
 
@@ -504,7 +505,8 @@ export class ActivityUploadComponent implements OnInit, OnDestroy {
 
     // Use actual upload method
     this.fracApiService.uploadFile(file, language).subscribe({
-      next: async (res) => {
+      next: (res) => {
+        void (async () => {
         fracLogger.debug('Activity upload completed', res)
 
         // ✅ Hide local loader
@@ -529,6 +531,7 @@ export class ActivityUploadComponent implements OnInit, OnDestroy {
         } else {
           this.showResultModal(FracUploadHelper.createFailureModalData(resolvedResponse), false)
         }
+        })()
       },
       error: (err) => {
         fracLogger.error('Activity upload failed', {

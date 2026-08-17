@@ -10,7 +10,7 @@ const API_END_POINTS = {
   providedIn: 'root',
 })
 export class RolesService {
-  constructor(private http: HttpClient) { }
+  constructor(private readonly http: HttpClient) { }
   getAllRoles(): Observable<any> {
     return this.http.get(API_END_POINTS.GET_ALL_ROLES)
   }

@@ -10,6 +10,7 @@ import { ILeftMenu } from '@sunbird-cb/collection'
 /* tslint:enable */
 
 @Component({
+  standalone: false,
   selector: 'ws-app-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
@@ -48,11 +49,11 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
   constructor(
-    private valueSvc: ValueService,
-    private router: Router,
-    private activeRoute: ActivatedRoute,
-    private configService: ConfigurationsService,
-    private menuConfig: MenuConfigService
+    private readonly valueSvc: ValueService,
+    private readonly router: Router,
+    private readonly activeRoute: ActivatedRoute,
+    private readonly configService: ConfigurationsService,
+    private readonly menuConfig: MenuConfigService
   ) {
     if (_.get(this.activeRoute, 'snapshot.data.configService.userRoles')) {
       this.myRoles = _.get(this.activeRoute, 'snapshot.data.configService.userRoles')
@@ -67,7 +68,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
         this.departmentName = fullProfile ? fullProfile.unMappedUser.channel : ''
 
         if (fullProfile) {
-          let leftData = _.get(this.activeRoute.snapshot, 'data.pageData.data.menus', [])
+          const leftData = _.get(this.activeRoute.snapshot, 'data.pageData.data.menus', [])
           // Ensure leftData.widgetData exists before filtering
           if (leftData.widgetData && Array.isArray(leftData.widgetData.menus)) {
             // Merge locally-configured menus (not yet in the page API) with the API menus
@@ -75,7 +76,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
             console.log('After merge:', leftData.widgetData.menus.map((m: any) => ({ name: m.name, key: m.key, routerLink: m.routerLink })))
             // Filter menus based on user roles
             leftData.widgetData.menus = leftData.widgetData.menus.filter((menu: { requiredRoles: any[] }) => {
-              if (this.myRoles.has('certificate_manager')) {
+              if (this.myRoles && this.myRoles.has('certificate_manager')) {
                 return menu.requiredRoles.includes('certificate_manager') // Keep only certificate_manager menus
               }
               return true // Keep all menus if the role is NOT "certificate_manager"

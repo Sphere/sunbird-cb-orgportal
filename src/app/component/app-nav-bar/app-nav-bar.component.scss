@@ -1,5 +1,17 @@
 @import 'ws-mixins';
 
+// Visual separation between the fixed top toolbar and the page body below it.
+// mat-elevation-z3 (set on the host template) is too subtle against a white body —
+// use the same shadow strength as other elevated surfaces in the design system
+// (search-box / dropdown-panel tokens), oriented downward for a header.
+mat-toolbar.mat-elevation-z3 {
+  background-color: #ffffff;
+  box-shadow: none !important;
+  border-bottom: 1px solid #e8ecf0;
+  height: 56px;
+  min-height: 56px;
+}
+
 .tourGuideBtn {
   padding: 10px 16px;
   display: flex;
@@ -169,6 +181,48 @@
   .search-small-logo {
     display: flex;
   }
+}
+
+.nav-icon-btn {
+  color: #555;
+  transition: color 150ms ease, background-color 150ms ease;
+
+  mat-icon { font-size: 22px; width: 22px; height: 22px; line-height: 22px; }
+
+  &:hover {
+    color: #1c5d95;
+    background-color: rgba(28, 93, 149, 0.08);
+  }
+
+  &.ws-active-nav-icon {
+    color: #1c5d95;
+  }
+}
+
+.profile-avatar-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #1c5d95;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin-left: 4px;
+  transition: box-shadow 150ms ease;
+
+  &:hover {
+    box-shadow: 0 2px 8px rgba(28, 93, 149, 0.32);
+  }
+}
+
+.profile-initials {
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  line-height: 1;
+  pointer-events: none;
 }
 
 // @media

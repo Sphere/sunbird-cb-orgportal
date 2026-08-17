@@ -11,7 +11,7 @@ import _ from 'lodash'
 @Injectable()
 export class RolesResolver
    {
-  constructor(private rolesService: RolesService) { }
+  constructor(private readonly rolesService: RolesService) { }
 
   resolve(
     _route: ActivatedRouteSnapshot,

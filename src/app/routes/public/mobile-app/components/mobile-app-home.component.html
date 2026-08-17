@@ -9,7 +9,7 @@
   <mat-tab-group *ngIf="mobileLinks" dynamicHeight mat-align-tabs="center" [selectedIndex]="selectedTabIndex">
     <mat-tab fragment="android" *ngIf="isAndriod">
       <ng-template mat-tab-label>
-        <span i18n="android tab" class="mat-body-2" accesskey="1">ANDROID</span>
+        <span i18n="android tab" class="mat-body-2">ANDROID</span>
       </ng-template>
       <ng-container *ngIf="mobileLinks?.appName && mobileLinks?.nameProvidedByClient">
         <h3 class="text-center margin-top-m">
@@ -40,7 +40,7 @@
             STORE</a>
 
           <a *ngIf="mobileLinks?.appsAndroidMirror && isAndroidPlayStoreLink" [href]="mobileLinks?.appsAndroidMirror"
-            class="margin-top-xs margin-left-s" mat-raised-button type="button" color="primary" accesskey="J" download>
+            class="margin-top-xs margin-left-s" mat-raised-button type="button" color="primary" download>
             <mat-icon>cloud_download</mat-icon>
             <span class="padding-left-xs" i18n="download android app">Download from our server</span>
             <sup>*</sup>
@@ -82,7 +82,7 @@
     </mat-tab>
     <mat-tab fragment="ios" *ngIf="isIos">
       <ng-template mat-tab-label>
-        <span i18n="ios tab" class="mat-body-2" accesskey="2">iOS</span>
+        <span i18n="ios tab" class="mat-body-2">iOS</span>
       </ng-template>
       <ng-container *ngIf="mobileLinks?.appName && mobileLinks?.nameProvidedByClient">
         <h3 class="text-center margin-top-m">

@@ -31,28 +31,31 @@
 
       <ng-container *ngIf="!isLoading">
         <div class="role-item" *ngFor="let r of filteredRoles; trackBy: trackByCode"
-          [class.selected]="selectedRoleCode === r.code" (click)="roleSelectedHandler(r)">
-          <div class="expanded-card">
+          [class.selected]="selectedRoleCode === r.code">
+            <div class="expanded-card">
 
-            <div class="header-row" (click)="onHeaderClick(r, $event)">
-              <div class="exp-code">{{ r.code }}</div>
-              <div class="exp-title">{{ r.title }}</div>
-              <!-- Expand arrow (show only when levels are valid) -->
-              <mat-icon *ngIf="r.activityDetails?.length > 0" class="arrow">
-                {{ expandedRoleCode === r.code ? 'expand_less' : 'expand_more' }}
-              </mat-icon>
-            </div>
+              <div class="header-row">
+                <button type="button" style="all: unset; display: contents; cursor: pointer;"
+                  [attr.aria-pressed]="selectedRoleCode === r.code" (click)="onHeaderClick(r, $event)">
+                  <div class="exp-code">{{ r.code }}</div>
+                  <div class="exp-title">{{ r.title }}</div>
+                  <!-- Expand arrow (show only when levels are valid) -->
+                  <mat-icon *ngIf="r.activityDetails?.length > 0" class="arrow">
+                    {{ expandedRoleCode === r.code ? 'expand_less' : 'expand_more' }}
+                  </mat-icon>
+                </button>
+              </div>
 
-            <!-- mapped activities under role -->
-            <div *ngIf="expandedRoleCode === r.code && r.activityDetails?.length" class="activity-section">
-              <div class="activity-row" *ngFor="let a of getSortedActivities(r)">
-                <div class="pill">
-                  <div class="activity-label">{{ a.code }} - {{ a.label }}</div>
+              <!-- mapped activities under role -->
+              <div *ngIf="expandedRoleCode === r.code && r.activityDetails?.length" class="activity-section">
+                <div class="activity-row" *ngFor="let a of getSortedActivities(r)">
+                  <div class="pill">
+                    <div class="activity-label">{{ a.code }} - {{ a.label }}</div>
+                  </div>
                 </div>
               </div>
-            </div>
 
-          </div>
+            </div>
         </div>
       </ng-container>
 

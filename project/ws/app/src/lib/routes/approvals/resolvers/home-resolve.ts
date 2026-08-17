@@ -5,12 +5,12 @@ import { map, catchError } from 'rxjs/operators'
 import { } from '@sunbird-cb/collection'
 import { ConfigurationsService, IResolveResponse } from '@sunbird-cb/utils'
 import { NeedApprovalsService } from '../services/need-approvals.service'
-import { NSProfileDataV2 } from '../models/profile-v2.model'
+import { NSProfileDataV2 } from '../../home/models/profile-v2.model'
 
 @Injectable()
 export class HomeResolve
    {
-  constructor(private needApprService: NeedApprovalsService, private configSvc: ConfigurationsService) { }
+  constructor(private readonly needApprService: NeedApprovalsService, private readonly configSvc: ConfigurationsService) { }
 
   resolve(
     _route: ActivatedRouteSnapshot,

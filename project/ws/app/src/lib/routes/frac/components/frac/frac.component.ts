@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild } from '@angular/core'
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser'
+import { SafeResourceUrl } from '@angular/platform-browser'
+import { SanitizerService } from 'src/app/services/sanitizer.service'
 import { IFrac } from '../../interfaces/frac.model'
 import { CustomSnackbarComponent } from '../custom-snackbar/custom-snackbar.component'
 import { CustomSnackbarService } from '../../services/custom-snackbar.service'
@@ -8,9 +9,9 @@ import { FracService } from '../../services/frac.service'
 const FRAC_LOCAL_FALLBACK_PATH = '/frac'
 
 @Component({
+  standalone: false,
   selector: 'ws-app-frac',
   templateUrl: './frac.component.html',
-  styleUrls: ['./frac.component.scss'],
 })
 
 export class FracComponent implements OnInit, OnDestroy, AfterViewInit {
@@ -24,9 +25,9 @@ export class FracComponent implements OnInit, OnDestroy, AfterViewInit {
   iframeSrc: SafeResourceUrl | null = null
   @ViewChild(CustomSnackbarComponent) snackbar!: CustomSnackbarComponent
   constructor(
-    private domSanitizer: DomSanitizer,
-    private fracService: FracService,
-    private snackService: CustomSnackbarService
+    private readonly sanitizerService: SanitizerService,
+    private readonly fracService: FracService,
+    private readonly snackService: CustomSnackbarService
   ) { }
 
   /**
@@ -61,6 +62,6 @@ export class FracComponent implements OnInit, OnDestroy, AfterViewInit {
 
   /** Sanitizes iframe URL before binding it in template. */
   private setIframeSource(url: string): void {
-    this.iframeSrc = this.domSanitizer.bypassSecurityTrustResourceUrl(url)
+    this.iframeSrc = this.sanitizerService.trustResourceUrl(url)
   }
 }

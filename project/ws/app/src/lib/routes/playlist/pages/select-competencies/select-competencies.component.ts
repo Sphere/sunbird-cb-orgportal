@@ -36,7 +36,7 @@ export class SelectCompetenciesComponent implements OnInit {
 
     readonly loading = signal(false)
     readonly searchTerm = signal('')
-    private preselectedCompetencyOrderMap = new Map<string, number>()
+    private readonly preselectedCompetencyOrderMap = new Map<string, number>()
 
     private readonly destroyRef = inject(DestroyRef)
     private readonly router = inject(Router)

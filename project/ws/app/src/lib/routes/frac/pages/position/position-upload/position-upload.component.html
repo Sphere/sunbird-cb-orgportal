@@ -44,7 +44,7 @@
     </div>
 
     <div class="loading-overlay" *ngIf="isUploading" [class.show]="isUploading">
-      <div class="upload-loader-card" role="status" aria-live="polite">
+      <output class="upload-loader-card" aria-live="polite">
         <div class="upload-loader-illustration">
           <div class="upload-loader-orbit"></div>
           <div class="upload-loader-badge">
@@ -55,7 +55,7 @@
         <p class="loading-subtext">{{ uiConfig.labels.uploadLoaderSubtext }}</p>
         <div class="loading-progress" aria-hidden="true"><span></span></div>
         <p class="loading-hint">Please keep this window open.</p>
-      </div>
+      </output>
     </div>
 
     <div class="table-section">
@@ -87,20 +87,24 @@
         </p>
       </div>
       <div class="manage-header-actions">
-        <div class="language-dropdown manage-language-dropdown" [class.disabled]="isLanguageDropdownDisabled()"
-          (click)="toggleDropdown()">
-          <div class="dropdown-main">
-            <div class="label-container">
-              <div class="label">{{ uiConfig.labels.language }}</div>
-              <div class="selected">{{ uploadOrchestrator.getLabelForKey(selectedLanguage) }}</div>
+        <div class="language-dropdown manage-language-dropdown" [class.disabled]="isLanguageDropdownDisabled()">
+          <button type="button" style="all: unset; display: contents; cursor: pointer;" (click)="toggleDropdown()">
+            <div class="dropdown-main">
+              <div class="label-container">
+                <div class="label">{{ uiConfig.labels.language }}</div>
+                <div class="selected">{{ uploadOrchestrator.getLabelForKey(selectedLanguage) }}</div>
+              </div>
+              <div class="icon">
+                <mat-icon>{{ isOpen ? 'expand_less' : 'expand_more' }}</mat-icon>
+              </div>
             </div>
-            <div class="icon">
-              <mat-icon>{{ isOpen ? 'expand_less' : 'expand_more' }}</mat-icon>
-            </div>
-          </div>
-          <div class="dropdown-list" *ngIf="isOpen && !isLanguageDropdownDisabled()" (click)="$event.stopPropagation()">
-            <div class="dropdown-item" *ngFor="let lang of languages" (click)="selectLanguage(lang, $event)">
-              {{ lang.label }}
+          </button>
+          <div class="dropdown-list" *ngIf="isOpen && !isLanguageDropdownDisabled()" (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()" (keydown.space)="$event.stopPropagation()">
+            <div class="dropdown-item" *ngFor="let lang of languages">
+              <button type="button" style="all: unset; display: contents; cursor: pointer;"
+                (click)="selectLanguage(lang, $event)">
+                {{ lang.label }}
+              </button>
             </div>
           </div>
         </div>
@@ -232,19 +236,25 @@
           </button>
         </div>
 
-        <div class="language-dropdown" [class.disabled]="isLanguageDropdownDisabled()" (click)="toggleDropdown()">
-          <div class="dropdown-main">
-            <div class="label-container">
-              <div class="label">{{ uiConfig.labels.language }}</div>
-              <div class="selected">{{ uploadOrchestrator.getLabelForKey(selectedLanguage) }}</div>
+        <div class="language-dropdown" [class.disabled]="isLanguageDropdownDisabled()">
+          <button type="button" style="all: unset; display: contents; cursor: pointer;"
+            (click)="toggleDropdown()">
+            <div class="dropdown-main">
+              <div class="label-container">
+                <div class="label">{{ uiConfig.labels.language }}</div>
+                <div class="selected">{{ uploadOrchestrator.getLabelForKey(selectedLanguage) }}</div>
+              </div>
+              <div class="icon">
+                <mat-icon>{{ isOpen ? 'expand_less' : 'expand_more' }}</mat-icon>
+              </div>
             </div>
-            <div class="icon">
-              <mat-icon>{{ isOpen ? 'expand_less' : 'expand_more' }}</mat-icon>
-            </div>
-          </div>
-          <div class="dropdown-list" *ngIf="isOpen && !isLanguageDropdownDisabled()" (click)="$event.stopPropagation()">
-            <div class="dropdown-item" *ngFor="let lang of languages" (click)="selectLanguage(lang, $event)">
-              {{ lang.label }}
+          </button>
+          <div class="dropdown-list" *ngIf="isOpen && !isLanguageDropdownDisabled()" (click)="$event.stopPropagation()" (keydown.enter)="$event.stopPropagation()" (keydown.space)="$event.stopPropagation()">
+            <div class="dropdown-item" *ngFor="let lang of languages">
+              <button type="button" style="all: unset; display: contents; cursor: pointer;"
+                (click)="selectLanguage(lang, $event)">
+                {{ lang.label }}
+              </button>
             </div>
           </div>
         </div>

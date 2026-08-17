@@ -15,7 +15,7 @@ const API_END_POINTS = {
   providedIn: 'root',
 })
 export class SearchApiService {
-  constructor(private http: HttpClient, private keycloakSvc: KeycloakService) { }
+  constructor(private readonly http: HttpClient, private readonly keycloakSvc: KeycloakService) { }
   getSearchResults(request: ISocialSearchRequest): Observable<ISocialSearchResult> {
     return this.http.post<ISocialSearchResult>(API_END_POINTS.SOCIAL_VIEW_SEARCH_RESULT, request)
   }
@@ -27,7 +27,7 @@ export class SearchApiService {
   get userId(): string | undefined {
     const kc = this.keycloakSvc.getKeycloakInstance()
     if (!kc) {
-      return
+      return undefined
     }
     return (kc.tokenParsed && kc.tokenParsed.sub) || (kc.idTokenParsed && kc.idTokenParsed.sub)
   }
