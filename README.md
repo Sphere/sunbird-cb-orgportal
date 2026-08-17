@@ -9,13 +9,13 @@ Angular-based MDO (Ministries, Departments, and Organisations) admin portal for 
 | Layer | Technology |
 |---|---|
 | Framework | Angular **20.3.x** (`@angular/build:application`, esbuild) |
-| Language | TypeScript **5.8.x** |
+| Language | TypeScript **5.9.x** |
 | UI Library | Angular Material **20.x** (MDC, M2 theming) |
 | State / Async | RxJS **7.8.x** |
 | Node | **≥ 20.19.0** (managed via [nvs](https://github.com/jasongin/nvs)) |
 | Package manager | npm **10.x** |
 | Unit tests | Jest + `jest-preset-angular` |
-| Linting | ESLint 9 + `@angular-eslint/21` |
+| Linting | ESLint 9 + `@angular-eslint/20` |
 | Sunbird libs | `@sunbird-cb/collection@0.0.9-ang-17-20`, `utils@0.0.1-ang-17-20`, `resolver@0.0.1-ang-17-20` |
 
 ---
@@ -210,6 +210,29 @@ Creates and manages learner playlists for an org, role/position, language, and o
 5. User assigns courses to levels
 6. Save payload = competency details + level data + course assignments + order
 7. On reorder auto-save (if all competencies complete) → final create / update
+
+---
+
+## Code Quality Gateway
+
+SonarCloud/SonarQube is the standardized quality gate for this repo, run via
+[`.github/workflows/build.yml`](.github/workflows/build.yml) on every push to
+`main`/`master`/`production` and on PR open/sync/reopen. Config:
+[`sonar-project.properties`](sonar-project.properties) (project key
+`sphere-cb-orgPortal`), scanning `src` + `project`, coverage from Jest's lcov report.
+
+⚠️ Known gaps in the current setup:
+- The workflow's `Test with coverage` step runs `npm test -- --watch=false --browsers=ChromeHeadless`
+  — stale Karma/Jasmine flags from the pre-Jest setup; Jest ignores `--browsers`, and
+  `continue-on-error: true` means a broken test step won't block the Sonar scan.
+- `sonar-project.properties` expects coverage at `coverage/mdo/lcov.info`; `npm run
+  test-coverage` (`jest --coverage`) writes to Jest's default `coverage/` dir instead.
+- The older `SonarQube analysis` + `Quality Gate` stages in [`Jenkinsfile`](Jenkinsfile)
+  are commented out — Sonar runs only through GitHub Actions now, not Jenkins.
+
+Current gate status/metrics aren't tracked here — see the per-release `📊 Sonar / Code
+Quality Report` section in `RELEASE_NOTES/release-X.Y.Z.md` (from `TEMPLATE.md` onward),
+or the [live dashboard](https://sonar.aastrika.org/dashboard?id=sphere-cb-orgPortal).
 
 ---
 

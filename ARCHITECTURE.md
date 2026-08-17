@@ -38,7 +38,7 @@
 
 ## 1. What is This App?
 
-**MDO-Fusion** is an **Angular 16 Organizational Learning Portal** built on the [Sunbird-CB](https://sunbird.org/) ecosystem. MDO stands for *Mission Delivery Organization* — the government bodies that use this portal.
+**MDO-Fusion** is an **Angular 20 Organizational Learning Portal** built on the [Sunbird-CB](https://sunbird.org/) ecosystem. MDO stands for *Mission Delivery Organization* — the government bodies that use this portal.
 
 | Feature | Purpose |
 |---|---|
@@ -60,11 +60,11 @@
 ┌─────────────────────────────────────────────────────────────────┐
 │                     FRONTEND (Browser)                          │
 │                                                                 │
-│  Angular 16.2.12          RxJS 6.5.4                           │
-│  Angular Material 16.2.14  Angular CDK (drag-drop, selection)  │
-│  Tailwind CSS              Angular Signals (preview)           │
+│  Angular 20.3.25          RxJS 7.8.2                           │
+│  Angular Material 20.2.14  Angular CDK (drag-drop, selection)  │
+│  Tailwind CSS              Angular Signals (Playlist module only)│
 │  D3.js / Chart.js          video.js                            │
-│  jsPDF                     ng2-ckeditor / ngx-quill            │
+│  jsPDF                     ngx-quill                           │
 │  Hammer.js (gestures)      Service Worker (PWA)                │
 └───────────────────────┬─────────────────────────────────────────┘
                         │ HTTPS
@@ -1566,21 +1566,27 @@ export const environment = {
 
 ## 16. Key Patterns & Conventions
 
-### 1. Standalone Components (Angular 16)
+### 1. Standalone Components — Playlist module only, not repo-wide
 
-The playlist filter page is `standalone: true` — no NgModule needed:
+All 9 Playlist components (pages + dialogs) are `standalone: true` — a deliberate,
+documented modernization (see `project/ws/app/src/lib/routes/docs/playlist/MIGRATION.md`
+PR-6). This is an isolated exception: FRAC, Home, and every other feature module in
+this repo remain NgModule-based with `standalone: false`, per the standing rule in
+CLAUDE.md. Do not standalone-ify other modules off the back of this example.
 
 ```typescript
 @Component({
   standalone: true,
   selector: 'app-playlist-filters',
-  imports: [CommonModule, ReactiveFormsModule, MatSelectModule, ...]
+  imports: [CommonModule, ReactiveFormsModule]
 })
 ```
 
-### 2. Angular Signals (Preview in Angular 16)
+### 2. Angular Signals — also Playlist-only
 
-All playlist components use `signal()` instead of class properties for reactive state:
+Playlist pages use `signal()`/`computed()` for local reactive state (MIGRATION.md
+PR-4). Elsewhere in the repo, components still use plain class properties + RxJS —
+this is existing shipped code for one module, not a repo-wide pattern to extend.
 
 ```typescript
 loading  = signal(false)           // writable signal
@@ -1684,9 +1690,9 @@ The playlist logger checks `window.isProduction` (set by the server) to suppress
 
 | Tool | Version |
 |---|---|
-| Node.js | 18.x |
-| npm | 9.x |
-| Angular CLI | 16.x — `npm i -g @angular/cli@16` |
+| Node.js | ≥ 20.19.0 (managed via nvs; current pin 20.20.1) |
+| npm | 10.x |
+| Angular CLI | 20.x (`@angular/build:application` esbuild builder) |
 | Git | any |
 
 ### Steps
@@ -1697,7 +1703,7 @@ git clone <repo-url>
 cd sunbird-cb-orgportal
 
 # 2. Install dependencies
-npm install
+npm install --legacy-peer-deps
 
 # 3. Configure the dev proxy
 # Edit proxy/localhost.proxy.json
@@ -1707,7 +1713,7 @@ npm install
 #   3. Open DevTools → Application → Cookies → copy connect.sid value
 
 # 4. Start dev server
-ng serve --proxy-config proxy/localhost.proxy.json
+npm start   # runs: ng serve --proxy-config proxy/localhost.proxy.json
 
 # 5. Open browser
 # http://localhost:4200
@@ -1719,8 +1725,8 @@ ng serve --proxy-config proxy/localhost.proxy.json
 # Development (default)
 ng serve --proxy-config proxy/localhost.proxy.json
 
-# Production build (outputs to /dist/)
-ng build --configuration=production
+# Production build (outputs to dist/www/en)
+npm run build   # runs: ng build --configuration=production
 ```
 
 ### Understanding the Environment at Runtime
@@ -1841,7 +1847,7 @@ Add a menu item in the home sidebar navigation config so users can reach the fea
 ┌─────────────────────────────────────────────────────────────────┐
 │                   MDO-Fusion: Key Facts                          │
 │                                                                 │
-│  Angular 16 SPA  │  Keycloak Auth  │  Signals + RxJS           │
+│  Angular 20 SPA  │  Keycloak Auth  │  NgModule-based, RxJS-driven state │
 │                                                                 │
 │  App starts: InitService → /api/user/v2/read → Keycloak        │
 │  Guard order: invalid-user → TNC → deleted → roles → features  │
@@ -1869,4 +1875,4 @@ Add a menu item in the home sidebar navigation config so users can reach the fea
 
 ---
 
-*Branch: stage-1 | Last updated: 2026-06-09*
+*Branch: fix/mergeng21Sonar | Last updated: 2026-08-17*

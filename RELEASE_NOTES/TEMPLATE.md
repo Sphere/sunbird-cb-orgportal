@@ -29,6 +29,23 @@ release change for users / org admins, and why does it matter?>
 
 - <change> (`<short-sha>`)
 
+## 📊 Sonar / Code Quality Report
+
+> Pull these numbers from the [live dashboard](https://sonar.aastrika.org/dashboard?id=sphere-cb-orgPortal)
+> at release-cut time — Sonar analyses on this project aren't tied to release tags, so this
+> section must be filled in fresh each release, not carried over from the previous one.
+
+| Metric | Value |
+|---|---|
+| Quality Gate | <PASS / FAIL — list failing condition(s)> |
+| New code coverage | <n>% (gate: ≥ 80%) |
+| New violations | <n> (gate: 0) |
+| New duplicated lines | <n>% (gate: ≤ 3%) |
+| Overall coverage | <n>% |
+| Bugs / Vulnerabilities | <n> / <n> |
+| Code smells | <n> |
+| Security hotspots reviewed | <n>% |
+
 ## ⚠️ Deploy notes & risk
 
 > Delete the lines that don't apply; keep this section honest — it's the part on-call reads.
