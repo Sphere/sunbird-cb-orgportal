@@ -1,0 +1,40 @@
+<div class="report-viewer">
+
+  <!--
+    No title or "last updated" here on purpose: the report HTML already renders its own
+    heading and generation timestamp, so repeating them duplicated the same information.
+  -->
+
+  <!--
+    Shown only while the metadata probe is in flight. The report itself is NOT gated behind
+    a spinner: it is several megabytes and renders progressively, and hiding it until an
+    iframe `load` event meant a stuck spinner whenever that event did not fire.
+  -->
+  <div class="report-viewer__state" *ngIf="isMetaLoading">
+    <mat-spinner [diameter]="40"></mat-spinner>
+    <p class="report-viewer__state-text">Loading report&hellip;</p>
+  </div>
+
+  <div class="report-viewer__state" *ngIf="errorType === 'forbidden'">
+    <mat-icon class="report-viewer__state-icon">lock</mat-icon>
+    <p class="report-viewer__state-text">You don't have access to this report.</p>
+  </div>
+
+  <div class="report-viewer__state" *ngIf="errorType === 'generic'">
+    <mat-icon class="report-viewer__state-icon">error_outline</mat-icon>
+    <p class="report-viewer__state-text">The report could not be loaded.</p>
+    <button mat-stroked-button color="primary" (click)="loadReport()">Retry</button>
+  </div>
+
+  <!--
+    sandbox="allow-scripts" without allow-same-origin is deliberate: it forces an opaque
+    origin, so the report cannot reach the portal's DOM or cookies. Safe here because the
+    report is self-contained and uses no storage, cookies or parent-frame access.
+  -->
+  <iframe *ngIf="iframeSrc"
+          title="MNC CNE Attendance Sync"
+          class="report-viewer__frame"
+          sandbox="allow-scripts"
+          [src]="iframeSrc"></iframe>
+
+</div>
