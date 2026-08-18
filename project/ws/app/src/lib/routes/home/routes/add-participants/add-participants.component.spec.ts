@@ -85,19 +85,44 @@ describe('AddParticipantsComponent', () => {
       build({ eventId: 'e1', eventType: false })
       component.participants = [{ firstName: '', phone: '123' } as any]
       component.validateParticipants()
+      // Row 2, not 1: index 0 is the first data row, which is sheet row 2 below the header.
       expect(component.validationErrors).toEqual([
-        'Row 1: First Name is required.',
-        'Row 1: Invalid Phone Number (must be 10 digits).',
+        'Row 2: First Name is required.',
+        'Row 2: Invalid Phone Number (must be 10 digits).',
       ])
       expect(component.isValidData).toBe(false)
     })
 
     it('should skip phone validation when eventType is true', () => {
       build({ eventId: 'e1', eventType: true })
-      component.participants = [{ firstName: 'John', phone: 'invalid' } as any]
+      component.participants = [{ firstName: 'John', lastName: 'Doe', phone: 'invalid' } as any]
       component.validateParticipants()
       expect(component.validationErrors).toEqual([])
       expect(component.isValidData).toBe(true)
+    })
+
+    it('should require lastName when eventType is true, as it is printed on the certificate', () => {
+      build({ eventId: 'e1', eventType: true })
+      component.participants = [{ firstName: 'John' } as any]
+      component.validateParticipants()
+      expect(component.validationErrors).toEqual(['Row 2: Last Name is required.'])
+      expect(component.isValidData).toBe(false)
+    })
+
+    it('should not require lastName when eventType is false', () => {
+      build({ eventId: 'e1', eventType: false })
+      component.participants = [{ firstName: 'John', phone: '1234567890' } as any]
+      component.validateParticipants()
+      expect(component.validationErrors).toEqual([])
+      expect(component.isValidData).toBe(true)
+    })
+
+    it('should reject a file with no participant rows', () => {
+      build({ eventId: 'e1', eventType: true })
+      component.participants = []
+      component.validateParticipants()
+      expect(component.validationErrors).toEqual(['The file has no participant rows.'])
+      expect(component.isValidData).toBe(false)
     })
 
     it('should mark valid data as valid', () => {
