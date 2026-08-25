@@ -1,4 +1,4 @@
-name: Build & Sonar Analysis
+name: Build
 
 on:
   push:
@@ -10,28 +10,29 @@ on:
     types: [opened, synchronize, reopened]
 
 jobs:
-  sonarcloud:
-    name: SonarCloud
+  sonarqube:
+    name: SonarQube
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Use Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
 
       - name: Install dependencies
         run: npm install --legacy-peer-deps
 
-      - name: Build
-        run: npm run build
-
-      - name: Test with coverage
-        continue-on-error: true
-        run: npm test -- --watch=false --browsers=ChromeHeadless
+      - name: Test and coverage
+        run: npm run test-coverage
 
       - name: SonarQube Scan
-        uses: sonarsource/sonarqube-scan-action@v3
+        uses: SonarSource/sonarqube-scan-action@v4
         env:
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
