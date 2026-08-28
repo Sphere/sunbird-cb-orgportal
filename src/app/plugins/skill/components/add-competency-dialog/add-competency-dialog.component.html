@@ -10,7 +10,8 @@
       <mat-form-field class="w-full" appearance="outline">
         <mat-label>Select Competency</mat-label>
         <mat-select formControlName="selectCompetency">
-          <input placeholder="Search Competency" matInput class="module-input" (keyup)="onKey($event.target.value)">
+          <input placeholder="Search Competency" matInput class="module-input" (keyup)="onKey($event.target.value)"
+            id="addCompetencySearch" aria-label="Search Competency">
           <ng-container *ngFor="let item of selectCompetencyList">
             <mat-option [value]="item.value">{{item.value}} - {{item.displayName}}</mat-option>
           </ng-container>
@@ -52,7 +53,7 @@
     <div class="flex flex-col mb-5">
       <mat-form-field appearance="outline" class="form-group">
         <input matInput [matDatepicker]="picker" formControlName="selectDate" autocomplete="off" placeholder="Add Date"
-          class="form-control" readonly (click)="picker.open()">
+          class="form-control" readonly (click)="picker.open()" id="addCompetencyDate" aria-label="Add Date">
         <mat-datepicker-toggle [for]="picker" id="datepicker-icon" class="date-picker"></mat-datepicker-toggle>
         <mat-datepicker #picker></mat-datepicker>
       </mat-form-field>

@@ -119,7 +119,7 @@ export class ManageCompetencyOrderComponent implements OnInit {
             const selectedId = Number.parseInt(c.id, 10)
             const existingComp = existingPayload.find(item =>
                 (selectedCode && String(item?.code || '').trim().toUpperCase() === selectedCode) ||
-                (!selectedCode && !isNaN(selectedId) && item?.id === selectedId)
+                (!selectedCode && !Number.isNaN(selectedId) && item?.id === selectedId)
             )
 
             // V2 format: index field determines position (0-based), displayOrder is 1-based

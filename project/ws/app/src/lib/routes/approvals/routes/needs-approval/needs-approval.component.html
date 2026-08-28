@@ -67,7 +67,7 @@
     <mat-dialog-content>
       <p class="appr-text margin-top-l">Please specify the reason for rejection</p>
       <textarea rows="4" [(ngModel)]="comment" placeholder="Type here" name="comment"
-        class="reject-reason-text"></textarea>
+        class="reject-reason-text" id="rejectReasonText" aria-label="Reason for rejection"></textarea>
     </mat-dialog-content>
     <mat-dialog-actions class="flex flex-wrap justify-end">
       <button mat-button class="goback-dialog-btn" matDialogClose>Go back</button>

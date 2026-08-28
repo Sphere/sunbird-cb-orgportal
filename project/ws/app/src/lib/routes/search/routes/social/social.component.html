@@ -42,7 +42,7 @@
         </h2> -->
       </div>
       <button mat-raised-button class="width-1-1" (click)="getResults()" *ngIf="searchRequestStatus !== 'done'"
-        [hidden]="searchRequestStatus === 'fetching'" accesskey="+">
+        [hidden]="searchRequestStatus === 'fetching'">
         <mat-icon>add</mat-icon>
         <ng-container i18n="search: more results">View More</ng-container>
       </button>

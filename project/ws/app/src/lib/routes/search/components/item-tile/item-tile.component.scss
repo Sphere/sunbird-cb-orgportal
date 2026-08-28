@@ -41,7 +41,7 @@ $color-cdg-tool: #28a9b2;
 //   text-align: justify;
 //   overflow-wrap: break-word;
 // }
-a {
+:host a {
   text-decoration: none;
   color: gray;
 }

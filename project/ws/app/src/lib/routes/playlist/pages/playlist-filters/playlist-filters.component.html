@@ -21,7 +21,7 @@
                 <div class="field-shell" [class.field-error]="hasError('orgId')">
                     <div class="select-wrapper">
                         <span class="select-label required">Organisation</span>
-                        <div class="custom-select multi-select-trigger" [class.open]="orgDropdownOpen()"
+                        <div class="custom-select multi-select-trigger" [class.open]="orgDropdownOpen()" role="button"
                             (click)="toggleOrgDropdown()" tabindex="0" (keydown.enter)="toggleOrgDropdown()"
                             (keydown.space)="toggleOrgDropdown(); $event.preventDefault()">
                             <span class="multi-select-value" [class.placeholder]="!selectedOrgLabel()">
@@ -59,7 +59,8 @@
                     <div class="select-wrapper">
                         <span class="select-label required">Position</span>
                         <div class="custom-select multi-select-trigger" [class.open]="positionDropdownOpen()"
-                            (click)="togglePositionDropdown()" tabindex="0" (keydown.enter)="togglePositionDropdown()"
+                            role="button" (click)="togglePositionDropdown()" tabindex="0"
+                            (keydown.enter)="togglePositionDropdown()"
                             (keydown.space)="togglePositionDropdown(); $event.preventDefault()">
                             <span class="multi-select-value" [class.placeholder]="selectedRoles.length === 0">
                                 {{ selectedRoles.length === 0 ? 'Select Position' : selectedRoles.join(', ') }}

@@ -88,7 +88,7 @@ export function findExistingCompetency(
         if (targetCode && itemCode && itemCode === targetCode) {
             return item
         }
-        if (!targetCode && !isNaN(compId) && item?.id === compId) return item
+        if (!targetCode && !Number.isNaN(compId) && item?.id === compId) return item
     }
     return null
 }
@@ -190,7 +190,7 @@ export function restoreSavedCourseAssignments(
         if (targetCode && itemCode) {
             return itemCode === targetCode
         }
-        return !isNaN(targetId) && item?.id === targetId
+        return !Number.isNaN(targetId) && item?.id === targetId
     })
 
     if (!existingComp || !existingComp['levels']) return
