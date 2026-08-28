@@ -7,6 +7,7 @@ import { takeUntil } from 'rxjs/operators'
 import { EventService } from '../../services/event.service'
 import { EventModalComponent } from '../event-modal/event-modal.component'
 import { WorkallocationService } from '../../services/workallocation.service'
+import { getUserIdFromProfile } from '../../../../../../../../../src/app/utils/user-profile-shape'
 
 @Component({
   standalone: false,
@@ -75,10 +76,16 @@ export class EventDashboardComponent implements OnInit, OnDestroy {
     this.userService.getAllUsers().pipe(takeUntil(this.destroy$)).subscribe({
       next: response => {
         const user = response.result.response
-        this.userId = user.userId
+        // Use the shared shape helper (userId -> id -> identifier). Spark's profile read
+        // exposes no top-level `userId`, so reading that field alone left this undefined:
+        // the events filter below then compared createdBy against undefined and matched
+        // nothing ("No events found"), and setUserData fed an undefined createdBy into
+        // event creation, which the API rejected as a missing required field.
+        const userId = getUserIdFromProfile(user) || ''
+        this.userId = userId
         this.userName = user.userName
         this.eventService.setUserData({
-          userId: user.userId,
+          userId,
           userName: user.userName,
         })
         this.fetchEvents()
