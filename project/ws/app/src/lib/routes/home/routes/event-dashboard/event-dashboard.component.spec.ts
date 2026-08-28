@@ -75,6 +75,36 @@ describe('EventDashboardComponent', () => {
       expect(component.currentPage).toBe(0)
     })
 
+    it('should carry templateId through the mapping so the status can reach ready', () => {
+      // Regression: statusLabel reads templateId, but the mapping originally dropped it, so
+      // every event with participants was stuck on "template pending" and "ready" was
+      // unreachable. Asserted through fetchEvents rather than by calling statusLabel with a
+      // hand-built object, which is what let the gap through.
+      component.userId = 'u1'
+      eventService.getAllEvents.mockReturnValue(of([
+        {
+          eventId: 'e1', eventName: 'E1', createdBy: 'u1', createdAt: '2024-01-01',
+          eventDate: '2024-02-01', eventType: 'registred without sphere',
+          participantCount: 5, templateId: 'WaterBirth',
+        },
+      ]))
+      component.fetchEvents()
+      expect(component.events[0].templateId).toBe('WaterBirth')
+      expect(component.statusLabel(component.events[0])).toBe('ready to download')
+    })
+
+    it('should report template pending through the mapping when no template is set', () => {
+      component.userId = 'u1'
+      eventService.getAllEvents.mockReturnValue(of([
+        {
+          eventId: 'e1', eventName: 'E1', createdBy: 'u1', createdAt: '2024-01-01',
+          eventDate: '2024-02-01', eventType: 'registred without sphere', participantCount: 5,
+        },
+      ]))
+      component.fetchEvents()
+      expect(component.statusLabel(component.events[0])).toBe('template pending')
+    })
+
     it('should log an error when fetching events fails', () => {
       eventService.getAllEvents.mockReturnValue(throwError(new Error('boom')))
       expect(() => component.fetchEvents()).not.toThrow()
@@ -130,14 +160,29 @@ describe('EventDashboardComponent', () => {
       expect(component.statusLabel({ participantCount: 12 })).toBe('template pending')
     })
 
-    it('should report ready when participants and a template are both present', () => {
-      expect(component.statusLabel({ participantCount: 12, templateId: 'WaterBirth' })).toBe('ready')
+    it('should not claim readiness for a registration-based event that was never generated', () => {
+      // status is written only by the generation run, so its absence means nothing was issued.
+      expect(component.statusLabel({
+        participantCount: 12, templateId: 'WaterBirth', registrationType: 'registred with sphere',
+      })).toBe('not generated')
+    })
+
+    it('should report ready to download for a no-registration event with a template', () => {
+      expect(component.statusLabel({
+        participantCount: 12, templateId: 'WaterBirth', registrationType: 'registred without sphere',
+      })).toBe('ready to download')
+    })
+
+    it('should always prefer the server status over any derived label', () => {
+      expect(component.statusLabel({
+        status: 'completed', participantCount: 0, registrationType: 'registred with sphere',
+      })).toBe('completed')
     })
 
     it('should skip the participant step when the backend does not send a count', () => {
       // participantCount is absent on older backends; do not claim "no participants".
       expect(component.statusLabel({})).toBe('template pending')
-      expect(component.statusLabel({ templateId: 'WaterBirth' })).toBe('ready')
+      expect(component.statusLabel({ templateId: 'WaterBirth' })).toBe('ready to download')
     })
 
     it('should build a css-safe class from the label', () => {

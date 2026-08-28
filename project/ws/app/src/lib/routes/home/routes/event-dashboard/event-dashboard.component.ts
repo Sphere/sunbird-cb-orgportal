@@ -121,6 +121,7 @@ export class EventDashboardComponent implements OnInit, OnDestroy {
           registrationType: event.eventType,
           eventType: event.eventType,
           status: event.status,
+          templateId: event.templateId,
           createdAt: new Date(event.createdAt),
         }))
         const byUser = mapped.filter((event: any) => event.organizer === this.userId)
@@ -205,9 +206,14 @@ export class EventDashboardComponent implements OnInit, OnDestroy {
    * step is skipped rather than reported wrongly as empty.
    */
   statusLabel(event: any): string {
+    // The server writes rc_events.status in exactly one place: the end of a certificate
+    // GENERATION run ('completed' when every participant succeeded, 'partial_failed'
+    // otherwise). It never means "downloaded" — no download is recorded anywhere, for
+    // either registration type.
     if (event?.status) {
       return event.status
     }
+
     const hasCount = typeof event?.participantCount === 'number'
     if (hasCount && event.participantCount === 0) {
       return 'no participants'
@@ -215,7 +221,17 @@ export class EventDashboardComponent implements OnInit, OnDestroy {
     if (!event?.templateId) {
       return 'template pending'
     }
-    return 'ready'
+
+    // Registration-based events get their status from the generation run. With no status,
+    // generation has not been run, so nothing has been issued yet — calling that "ready"
+    // would wrongly imply certificates exist.
+    if (event?.registrationType === 'registred with sphere') {
+      return 'not generated'
+    }
+
+    // No-registration events are rendered in the browser at download time, so a chosen
+    // template is all that is needed. There is still no record of issue or download.
+    return 'ready to download'
   }
 
   statusClass(event: any): string {
