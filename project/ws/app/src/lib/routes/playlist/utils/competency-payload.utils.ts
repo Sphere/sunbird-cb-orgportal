@@ -81,7 +81,7 @@ export function findExistingCompetency(
     if (!existingPlaylist?.dataSource?.payload) return null
 
     const targetCode = normalizeCode(competencyCode)
-    const compId = parseInt(competencyId, 10)
+    const compId = Number.parseInt(competencyId, 10)
 
     for (const item of existingPlaylist.dataSource.payload as ExistingCompetencyItem[]) {
         const itemCode = normalizeCode(item?.code)
@@ -183,7 +183,7 @@ export function restoreSavedCourseAssignments(
     if (!playlistPayload || !competency?.id || !competency.levels) return
 
     const targetCode = normalizeCode(competency.code)
-    const targetId = parseInt(competency.id, 10)
+    const targetId = Number.parseInt(competency.id, 10)
 
     const existingComp = playlistPayload.find(item => {
         const itemCode = normalizeCode(item?.code)

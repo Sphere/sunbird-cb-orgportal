@@ -437,8 +437,8 @@ export class MapActivityCompetenciesComponent implements OnInit, OnDestroy {
 
     if (levels.includes('-')) {
       const [start, end] = levels.split('-')
-      const startNum = parseInt(start.replace('L', ''), 10)
-      const endNum = parseInt(end.replace('L', ''), 10)
+      const startNum = Number.parseInt(start.replace('L', ''), 10)
+      const endNum = Number.parseInt(end.replace('L', ''), 10)
       if (isNaN(startNum) || isNaN(endNum)) return []
       const result: string[] = []
       for (let i = startNum; i <= endNum; i++) {

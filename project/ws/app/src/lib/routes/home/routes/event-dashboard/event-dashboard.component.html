@@ -10,7 +10,8 @@
   <!-- Search + Filter row -->
   <div class="participants-header">
     <input type="text" placeholder="Search by name, location, registration type" [(ngModel)]="searchQuery"
-      (input)="filterEvents()" class="search-input" />
+      (input)="filterEvents()" class="search-input" id="eventDashboardSearch"
+      aria-label="Search by name, location, registration type" />
 
     <div class="filter-wrapper">
       <button class="filter-btn" [class.filter-active]="activeFilterCount > 0" (click)="toggleFilter()">

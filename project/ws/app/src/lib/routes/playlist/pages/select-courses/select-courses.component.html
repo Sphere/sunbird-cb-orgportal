@@ -21,6 +21,7 @@
     <div class="search-container">
         <div class="custom-search-field">
             <input type="text" placeholder="Search by identifier, name, source" [value]="searchTerm()"
+                id="selectCoursesSearch" aria-label="Search by identifier, name, source"
                 (input)="searchTerm.set($any($event.target).value); onSearch()">
             <span class="search-icon">
                 <svg width="21" height="21" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">

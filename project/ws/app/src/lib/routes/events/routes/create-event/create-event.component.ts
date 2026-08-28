@@ -345,12 +345,9 @@ export class CreateEventComponent implements OnInit, OnDestroy {
       .set('minute', timeArr[1]).format('YYYYMMDDTHHmmss+0000')
 
     const startTimeArr = this.createEventForm.controls['eventTime'].value.split(':')
-    // tslint:disable-next-line:radix
-    const startMinutes = (startTimeArr[0] * 60) + parseInt(startTimeArr[1])
-    // tslint:disable-next-line:radix
-    const endMinutes = parseInt(this.createEventForm.controls['eventDurationHours'].value) * 60
-    // tslint:disable-next-line:radix
-    const totalMinutes = startMinutes + endMinutes + parseInt(this.createEventForm.controls['eventDurationMinutes'].value)
+    const startMinutes = (startTimeArr[0] * 60) + Number.parseInt(startTimeArr[1], 10)
+    const endMinutes = Number.parseInt(this.createEventForm.controls['eventDurationHours'].value, 10) * 60
+    const totalMinutes = startMinutes + endMinutes + Number.parseInt(this.createEventForm.controls['eventDurationMinutes'].value, 10)
     // tslint:disable-next-line:prefer-template
     const hours = (Math.floor(totalMinutes / 60) < 10) ? '0' + Math.floor(totalMinutes / 60) : Math.floor(totalMinutes / 60)
     const minutes = totalMinutes % 60

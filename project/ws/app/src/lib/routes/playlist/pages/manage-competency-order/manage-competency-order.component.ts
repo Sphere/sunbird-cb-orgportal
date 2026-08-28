@@ -116,7 +116,7 @@ export class ManageCompetencyOrderComponent implements OnInit {
         const comps = selected.map((c, arrayIndex) => {
             // Find existing competency data to get saved index/order
             const selectedCode = String(c.code || '').trim().toUpperCase()
-            const selectedId = parseInt(c.id, 10)
+            const selectedId = Number.parseInt(c.id, 10)
             const existingComp = existingPayload.find(item =>
                 (selectedCode && String(item?.code || '').trim().toUpperCase() === selectedCode) ||
                 (!selectedCode && !isNaN(selectedId) && item?.id === selectedId)
