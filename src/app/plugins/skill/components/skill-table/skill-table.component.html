@@ -112,7 +112,8 @@
 
       <mat-header-row *matHeaderRowDef="getFinalColumns()"></mat-header-row>
       <mat-row *matRowDef="let row; columns: getFinalColumns();"
-        (click)="selection.toggle(row);">
+        (click)="selection.toggle(row);" (keydown.enter)="selection.toggle(row);"
+        (keydown.space)="selection.toggle(row); $event.preventDefault()">
       </mat-row>
     </mat-table>
   </div>

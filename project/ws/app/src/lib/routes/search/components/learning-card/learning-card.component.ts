@@ -37,7 +37,7 @@ export class LearningCardComponent implements OnInit, OnChanges {
   ngOnChanges(changes: SimpleChanges) {
     for (const prop in changes) {
       if (prop === 'content' && this.content.description) {
-        this.content.description = this.content.description.replaceAll(/<br>/g, '')
+        this.content.description = this.content.description.replaceAll('<br>', '')
         this.description = this.content.description
       }
     }

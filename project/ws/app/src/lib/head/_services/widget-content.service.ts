@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http'
 import { Injectable } from '@angular/core'
 import { ConfigurationsService } from '@sunbird-cb/utils'
-import { Observable, of } from 'rxjs'
+import { firstValueFrom, Observable, of } from 'rxjs'
 import { catchError, retry, map } from 'rxjs/operators'
 import { NsContent } from './widget-content.model'
 import { NSSearch } from './widget-search.model'
@@ -151,7 +151,7 @@ export class WidgetContentService {
         dateAccessed: Date.now(),
         contextType: 'playlist',
       }
-      await this.saveContinueLearning(reqBody).toPromise().catch(() => undefined)
+      await firstValueFrom(this.saveContinueLearning(reqBody)).catch(() => undefined)
     } else {
       const reqBody = {
         contextPathId: collectionId ? collectionId : id,
@@ -159,7 +159,7 @@ export class WidgetContentService {
         data: JSON.stringify({ timestamp: Date.now() }),
         dateAccessed: Date.now(),
       }
-      await this.saveContinueLearning(reqBody).toPromise().catch(() => undefined)
+      await firstValueFrom(this.saveContinueLearning(reqBody)).catch(() => undefined)
     }
     return true
   }

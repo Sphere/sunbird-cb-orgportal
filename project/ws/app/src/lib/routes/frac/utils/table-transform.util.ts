@@ -239,7 +239,7 @@ export class TableTransformUtil {
 
   private formatKeyLabel(key: string): string {
     return key
-      .replaceAll(/_/g, ' ')
+      .replaceAll('_', ' ')
       .replaceAll(/([a-z])([A-Z])/g, '$1 $2')
       .replaceAll(/\b\w/g, char => char.toUpperCase())
   }

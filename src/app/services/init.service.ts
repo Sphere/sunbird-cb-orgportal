@@ -190,8 +190,8 @@ export class InitService {
   }
 
   get locale(): string {
-    return this.baseHref && this.baseHref.replaceAll(/\//g, '')
-      ? this.baseHref.replaceAll(/\//g, '')
+    return this.baseHref && this.baseHref.replaceAll('/', '')
+      ? this.baseHref.replaceAll('/', '')
       : 'en'
   }
 
