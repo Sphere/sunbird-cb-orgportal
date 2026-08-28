@@ -1,9 +1,6 @@
 <div class="container">
-  <h1 class="page-title">Events</h1>
-  <h2 class="page-subtitle">Manage Events</h2>
-
   <div class="header">
-    <h3>Events</h3>
+    <h1 class="page-title">Manage Events</h1>
     <button class="create-btn" (click)="openEventModal()">Create New Event</button>
   </div>
 
@@ -12,7 +9,7 @@
     <input type="text" placeholder="Search by name, location, registration type" [(ngModel)]="searchQuery"
       (input)="filterEvents()" class="search-input" />
 
-    <div class="filter-wrapper">
+    <div class="filter-wrapper" #filterWrapper>
       <button class="filter-btn" [class.filter-active]="activeFilterCount > 0" (click)="toggleFilter()">
         <mat-icon class="material-icons-outlined">filter_alt</mat-icon>
         Filter
@@ -76,16 +73,14 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let event of filteredEvents" role="button" tabindex="0" (click)="navigateToEvent(event)"
+        <tr *ngFor="let event of pagedEvents" role="button" tabindex="0" (click)="navigateToEvent(event)"
           (keydown.enter)="navigateToEvent(event)" (keydown.space)="navigateToEvent(event); $event.preventDefault()">
           <td>{{ event.name }}</td>
           <td class="nowrap">{{ event.date | date: 'dd-MM-yyyy' }}</td>
           <td>{{ event.location }}</td>
           <td>{{ event.registrationType }}</td>
           <td>
-            <span class="status-chip" [class]="'status-chip status-' + (event.status || 'unknown')">
-              {{ event.status || '—' }}
-            </span>
+            <span [class]="statusClass(event)">{{ statusLabel(event) }}</span>
           </td>
         </tr>
         <tr *ngIf="filteredEvents.length === 0">

@@ -82,18 +82,66 @@ describe('EventDashboardComponent', () => {
   })
 
   describe('onDocumentClick', () => {
-    it('should close the filter panel when the click is outside the element', () => {
+    // Containment is now tested against the filter wrapper rather than the component host,
+    // so a click anywhere else on the page closes the panel.
+    const setWrapper = (contains: boolean) => {
+      ;(component as any).filterWrapper = { nativeElement: { contains: () => contains } }
+    }
+
+    it('should close the filter panel when the click is outside the filter', () => {
       component.filterPanelOpen = true
-      ;(component as any).el.nativeElement.contains = () => false
+      setWrapper(false)
       component.onDocumentClick({ target: {} } as any)
       expect(component.filterPanelOpen).toBe(false)
     })
 
-    it('should keep the panel state when the click is inside the element', () => {
+    it('should keep the panel open when the click is inside the filter', () => {
       component.filterPanelOpen = true
-      ;(component as any).el.nativeElement.contains = () => true
+      setWrapper(true)
       component.onDocumentClick({ target: {} } as any)
       expect(component.filterPanelOpen).toBe(true)
+    })
+
+    it('should do nothing when the panel is already closed', () => {
+      component.filterPanelOpen = false
+      setWrapper(false)
+      component.onDocumentClick({ target: {} } as any)
+      expect(component.filterPanelOpen).toBe(false)
+    })
+
+    it('should close the panel on escape', () => {
+      component.filterPanelOpen = true
+      component.onEscape()
+      expect(component.filterPanelOpen).toBe(false)
+    })
+  })
+
+  describe('statusLabel', () => {
+    it('should use the server status when present', () => {
+      expect(component.statusLabel({ status: 'completed' })).toBe('completed')
+    })
+
+    it('should report no participants before anyone is uploaded', () => {
+      expect(component.statusLabel({ participantCount: 0 })).toBe('no participants')
+      expect(component.statusLabel({ participantCount: 0, templateId: 'WaterBirth' })).toBe('no participants')
+    })
+
+    it('should report template pending once participants exist but no template is chosen', () => {
+      expect(component.statusLabel({ participantCount: 12 })).toBe('template pending')
+    })
+
+    it('should report ready when participants and a template are both present', () => {
+      expect(component.statusLabel({ participantCount: 12, templateId: 'WaterBirth' })).toBe('ready')
+    })
+
+    it('should skip the participant step when the backend does not send a count', () => {
+      // participantCount is absent on older backends; do not claim "no participants".
+      expect(component.statusLabel({})).toBe('template pending')
+      expect(component.statusLabel({ templateId: 'WaterBirth' })).toBe('ready')
+    })
+
+    it('should build a css-safe class from the label', () => {
+      expect(component.statusClass({ participantCount: 0 })).toBe('status-chip status-no-participants')
     })
   })
 

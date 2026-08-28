@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, HostListener, ElementRef } from '@angular/core'
+import { Component, OnInit, OnDestroy, HostListener, ElementRef, ViewChild } from '@angular/core'
 import { MatDialog } from '@angular/material/dialog'
 import { PageEvent } from '@angular/material/paginator'
 import { Router } from '@angular/router'
@@ -24,6 +24,7 @@ export class EventDashboardComponent implements OnInit, OnDestroy {
   userId: string = ''
   userName: any
   filterPanelOpen = false
+  @ViewChild('filterWrapper') filterWrapper?: ElementRef<HTMLElement>
   activeStatusFilter = ''
   activeTypeFilter = ''
   pageSize = 10
@@ -51,15 +52,26 @@ export class EventDashboardComponent implements OnInit, OnDestroy {
     private readonly eventService: EventService,
     private readonly dialog: MatDialog,
     private readonly router: Router,
-    private readonly userService: WorkallocationService,
-    private readonly el: ElementRef
+    private readonly userService: WorkallocationService
   ) { }
 
+  // Close the filter panel on any click outside the filter itself. This previously tested
+  // containment against the whole component host, so clicking the table, the heading or
+  // anywhere else on the page still counted as "inside" and the panel never closed.
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
-    if (!this.el.nativeElement.contains(event.target)) {
+    if (!this.filterPanelOpen) {
+      return
+    }
+    const wrapper = this.filterWrapper?.nativeElement
+    if (wrapper && !wrapper.contains(event.target as Node)) {
       this.filterPanelOpen = false
     }
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    this.filterPanelOpen = false
   }
 
   ngOnDestroy() {
@@ -105,6 +117,7 @@ export class EventDashboardComponent implements OnInit, OnDestroy {
           location: event.eventPlace,
           date: new Date(event.eventDate),
           organizer: event.createdBy,
+          participantCount: event.participantCount,
           registrationType: event.eventType,
           eventType: event.eventType,
           status: event.status,
@@ -129,9 +142,17 @@ export class EventDashboardComponent implements OnInit, OnDestroy {
 
     dialogRef.afterClosed().pipe(takeUntil(this.destroy$)).subscribe({
       next: result => {
-        if (result) {
-          this.fetchEvents()
+        if (!result) {
+          return
         }
+        // Go straight into the new event's overview so the user can add participants and
+        // pick a certificate, rather than landing back on the list and having to find it.
+        const eventId = result.eventId || result.result?.eventId
+        if (eventId) {
+          this.router.navigate(['/app/home/event-dashboard', eventId])
+          return
+        }
+        this.fetchEvents()
       },
     })
   }
@@ -173,6 +194,33 @@ export class EventDashboardComponent implements OnInit, OnDestroy {
       const matchesType = !this.activeTypeFilter || event.registrationType === this.activeTypeFilter
       return matchesSearch && matchesStatus && matchesType
     })
+  }
+
+  /**
+   * No-registration events never receive a server-side status: their certificates are
+   * rendered in the browser and nothing is reported back, so `status` stays null and the
+   * column read as empty forever. Derive the next action instead of showing a blank cell.
+   *
+   * `participantCount` only exists on newer backends; when it is absent the participant
+   * step is skipped rather than reported wrongly as empty.
+   */
+  statusLabel(event: any): string {
+    if (event?.status) {
+      return event.status
+    }
+    const hasCount = typeof event?.participantCount === 'number'
+    if (hasCount && event.participantCount === 0) {
+      return 'no participants'
+    }
+    if (!event?.templateId) {
+      return 'template pending'
+    }
+    return 'ready'
+  }
+
+  statusClass(event: any): string {
+    const token = this.statusLabel(event).toLowerCase().replace(/[^a-z0-9]+/g, '-')
+    return `status-chip status-${token}`
   }
 
   onPageChange(event: PageEvent): void {
