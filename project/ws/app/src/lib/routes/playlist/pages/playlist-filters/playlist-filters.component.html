@@ -21,13 +21,12 @@
                 <div class="field-shell" [class.field-error]="hasError('orgId')">
                     <div class="select-wrapper">
                         <span class="select-label required">Organisation</span>
-                        <div class="custom-select multi-select-trigger" [class.open]="orgDropdownOpen()" role="button"
-                            (click)="toggleOrgDropdown()" tabindex="0" (keydown.enter)="toggleOrgDropdown()"
-                            (keydown.space)="toggleOrgDropdown(); $event.preventDefault()">
+                        <button type="button" class="custom-select multi-select-trigger"
+                            [class.open]="orgDropdownOpen()" (click)="toggleOrgDropdown()">
                             <span class="multi-select-value" [class.placeholder]="!selectedOrgLabel()">
                                 {{ selectedOrgLabel() || 'Select Organisation' }}
                             </span>
-                        </div>
+                        </button>
                         <div class="multi-select-panel org-panel" *ngIf="orgDropdownOpen()">
                             <div class="org-search-row" (click)="$event.stopPropagation()"
                                 (keydown.enter)="$event.stopPropagation()" (keydown.space)="$event.stopPropagation()"
@@ -40,10 +39,10 @@
                             <div *ngIf="loadingOrganizations()" class="multi-select-option disabled">Loading...</div>
                             <div *ngIf="!loadingOrganizations() && filteredOrganizations().length === 0"
                                 class="multi-select-option disabled">No Organisation found</div>
-                            <div *ngFor="let org of filteredOrganizations()" class="multi-select-option"
+                            <button type="button" *ngFor="let org of filteredOrganizations()" class="multi-select-option"
                                 (mousedown)="$event.preventDefault()" (click)="selectOrg(org.value)">
                                 {{ org.label }}
-                            </div>
+                            </button>
                         </div>
                         <span class="select-arrow">
                             <svg viewBox="0 0 16 16" fill="none">
@@ -58,16 +57,14 @@
                 <div class="field-shell" [class.field-error]="hasError('role')">
                     <div class="select-wrapper">
                         <span class="select-label required">Position</span>
-                        <div class="custom-select multi-select-trigger" [class.open]="positionDropdownOpen()"
-                            role="button" (click)="togglePositionDropdown()" tabindex="0"
-                            (keydown.enter)="togglePositionDropdown()"
-                            (keydown.space)="togglePositionDropdown(); $event.preventDefault()">
+                        <button type="button" class="custom-select multi-select-trigger"
+                            [class.open]="positionDropdownOpen()" (click)="togglePositionDropdown()">
                             <span class="multi-select-value" [class.placeholder]="selectedRoles.length === 0">
                                 {{ selectedRoles.length === 0 ? 'Select Position' : selectedRoles.join(', ') }}
                             </span>
-                        </div>
+                        </button>
                         <div class="multi-select-panel" *ngIf="positionDropdownOpen()">
-                            <label *ngIf="loadingPositions()" class="multi-select-option disabled">Loading...</label>
+                            <div *ngIf="loadingPositions()" class="multi-select-option disabled">Loading...</div>
                             <label *ngFor="let pos of positions()" class="multi-select-option"
                                 (mousedown)="$event.preventDefault()" (click)="toggleRole(pos.value)">
                                 <input type="checkbox" [checked]="isRoleSelected(pos.value)"

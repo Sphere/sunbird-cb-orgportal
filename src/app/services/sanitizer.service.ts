@@ -51,7 +51,7 @@ export class SanitizerService {
     if (!this.isHttpUrl(url)) {
       return this.domSanitizer.bypassSecurityTrustStyle('')
     }
-    const escaped = url.replace(/'/g, '%27')
+    const escaped = url.replaceAll(/'/g, '%27')
     return this.domSanitizer.bypassSecurityTrustStyle(`url('${escaped}')`)
   }
 

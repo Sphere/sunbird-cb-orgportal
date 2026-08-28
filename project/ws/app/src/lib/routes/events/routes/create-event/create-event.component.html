@@ -50,6 +50,7 @@
                                                                 </a>
                                                             </div>
                                                             <input type="file" id="coverPicture"
+                                                                aria-label="Cover picture"
                                                                 (change)="onFileSelect($event);"
                                                                 accept="image/x-png,image/gif,image/jpeg" />
                                                             <img *ngIf="imageSrcURL" id="blah" [src]="imageSrcURL"
@@ -222,7 +223,7 @@
                                                     When
                                                 </label>
                                                 <mat-form-field appearance="outline">
-                                                    <mat-select formControlName="eventTime" #eventTime
+                                                    <mat-select formControlName="eventTime" id="eventTime" #eventTime
                                                         [(ngModel)]="todayTime">
                                                         <mat-option *ngFor="let timeObj of timeArr"
                                                             [value]="timeObj.value">
@@ -261,7 +262,7 @@
                                                 <div class="dispaly-inlineflex">
                                                     <mat-form-field appearance="outline"
                                                         class="margin-right-l width-250 maxwidth-150">
-                                                        <mat-select formControlName="eventDurationHours" #eventDuration>
+                                                        <mat-select formControlName="eventDurationHours" id="eventDurationHours" #eventDuration>
                                                             <mat-option *ngFor="let hourObj of [0,1,2,3,4,5,6,7,8,9,10]"
                                                                 [value]="hourObj">
                                                                 {{hourObj}}
@@ -277,7 +278,7 @@
                                                     </mat-form-field>
                                                     <mat-form-field appearance="outline" class="maxwidth-150">
                                                         <mat-select formControlName="eventDurationMinutes"
-                                                            #eventDuration>
+                                                            id="eventDurationMinutes" #eventDuration>
                                                             <mat-option *ngFor="let minObj of [0,15,30,45,60]"
                                                                 [value]="minObj">
                                                                 {{minObj}}

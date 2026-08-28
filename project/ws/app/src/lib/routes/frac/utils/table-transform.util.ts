@@ -239,9 +239,9 @@ export class TableTransformUtil {
 
   private formatKeyLabel(key: string): string {
     return key
-      .replace(/_/g, ' ')
-      .replace(/([a-z])([A-Z])/g, '$1 $2')
-      .replace(/\b\w/g, char => char.toUpperCase())
+      .replaceAll(/_/g, ' ')
+      .replaceAll(/([a-z])([A-Z])/g, '$1 $2')
+      .replaceAll(/\b\w/g, char => char.toUpperCase())
   }
 
   private createEmptyTableConfig(): ITableConfig {

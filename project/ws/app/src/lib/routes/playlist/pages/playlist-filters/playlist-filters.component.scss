@@ -208,6 +208,10 @@
         outline: none;
         display: flex;
         align-items: flex-end;
+        text-align: left;
+        font: inherit;
+        appearance: none;
+        -webkit-appearance: none;
         transition: border-color 0.15s ease, box-shadow 0.15s ease;
 
         &:focus,
@@ -278,6 +282,10 @@
             align-items: center;
             gap: 10px;
             padding: 10px 16px;
+            width: 100%;
+            border: none;
+            background: none;
+            text-align: left;
             font-family: $v2-font-family;
             font-size: 14px;
             color: #202124;

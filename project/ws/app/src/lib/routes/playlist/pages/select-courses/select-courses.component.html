@@ -71,7 +71,7 @@
                                 <input type="checkbox" (click)="$event.stopPropagation()"
                                     (keydown.enter)="$event.stopPropagation()" (keydown.space)="$event.stopPropagation()"
                                     (change)="onSelectionChange(row, $event)" [checked]="selection.isSelected(row)"
-                                    appDisableForViewOnly>
+                                    [attr.aria-label]="'Select ' + row.name" appDisableForViewOnly>
                                 <span class="checkmark"></span>
                             </label>
                         </td>

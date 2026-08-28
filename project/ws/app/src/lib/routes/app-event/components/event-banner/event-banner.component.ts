@@ -77,7 +77,7 @@ export class EventBannerComponent implements OnDestroy, OnChanges, OnInit {
       this.allStartTimeData.push(this.data.SessionCards.Sessions[v].SessionStartTime)
     })
     this.allStartTimeData.forEach((sessionTime: string) => {
-      const diffDate = Date.parse(sessionTime) - Date.parse(Date())
+      const diffDate = Date.parse(sessionTime) - Date.parse(String(new Date()))
       // const days = Math.floor(diffDate / (1000 * 60 * 60 * 24))
       // const mins = Math.floor((diffDate / 1000 / 60) % 60)
       // const hours = Math.floor((diffDate / (1000 * 60 * 60)) % 24) + days * 24
