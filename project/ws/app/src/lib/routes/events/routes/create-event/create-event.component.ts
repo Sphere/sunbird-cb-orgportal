@@ -450,7 +450,11 @@ export class CreateEventComponent implements OnInit, OnDestroy {
   encodeToBase64(body: any) {
     const sString = JSON.stringify(body)
     const aUTF16CodeUnits = new Uint16Array(sString.length)
-    Array.prototype.forEach.call(aUTF16CodeUnits, (_el, idx, arr) => arr[idx] = sString.charCodeAt(idx))
+    // charAt(idx).codePointAt(0) is exactly equivalent to charCodeAt(idx) here, including for
+    // surrogate-pair halves: slicing to a single code unit first denies codePointAt the adjacent
+    // surrogate it needs to combine, so it always returns the raw UTF-16 code unit — required, since
+    // aUTF16CodeUnits is a Uint16Array of one entry per code unit, not per Unicode code point.
+    Array.prototype.forEach.call(aUTF16CodeUnits, (_el, idx, arr) => arr[idx] = sString.charAt(idx).codePointAt(0))
     return { data: btoa(new Uint8Array(aUTF16CodeUnits.buffer).reduce((data, byte) => data + String.fromCharCode(byte), '')) }
   }
 

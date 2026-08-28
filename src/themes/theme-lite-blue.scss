@@ -1,5 +1,5 @@
 @use '@angular/material' as mat;
-@import './theme-mixins';
+@use './theme-mixins' as mixins;
 
 $theme-primary: mat.m2-define-palette(mat.$m2-light-blue-palette);
 $theme-accent: mat.m2-define-palette(mat.$m2-blue-grey-palette);
@@ -9,12 +9,12 @@ $theme-warn: mat.m2-define-palette(mat.$m2-red-palette);
   &.day-mode {
     $theme: mat.m2-define-light-theme($theme-primary, $theme-accent, $theme-warn);
     @include mat.all-component-themes($theme);
-    @include theme-based-configurations($theme);
+    @include mixins.theme-based-configurations($theme);
   }
 
   &.night-mode {
     $theme: mat.m2-define-dark-theme($theme-primary, $theme-accent, $theme-warn);
     @include mat.all-component-themes($theme);
-    @include theme-based-configurations($theme);
+    @include mixins.theme-based-configurations($theme);
   }
 }

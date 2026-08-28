@@ -1,5 +1,5 @@
 @use '@angular/material' as mat;
-@import 'ws-vars';
+@use 'ws-vars' as vars;
 
 // Material 20: core() includes base styles (elevation, ripple, etc.). Include once.
 @include mat.core();
@@ -10,19 +10,19 @@
 // migration caused the font-size/line-height/alignment regressions seen app-wide. Match the original
 // (pre-migration) levels exactly so component CSS keeps the metrics it expects.
 $typography-config: mat.m2-define-typography-config(
-  $font-family: $font-family-lato,
-  $headline-1: mat.m2-define-typography-level(112px, 112px, 400, $font-family-montserrat),
-  $headline-2: mat.m2-define-typography-level(56px, 56px, 400, $font-family-montserrat),
-  $headline-3: mat.m2-define-typography-level(45px, 52px, 400, $font-family-montserrat),
-  $headline-4: mat.m2-define-typography-level(36px, 40px, 300, $font-family-montserrat),
-  $headline-5: mat.m2-define-typography-level(24px, 36px, 600, $font-family-montserrat),
-  $headline-6: mat.m2-define-typography-level(20px, 30px, 600, $font-family-montserrat),
-  $subtitle-1: mat.m2-define-typography-level(16px, 24px, 600, $font-family-montserrat),
-  $subtitle-2: mat.m2-define-typography-level(14px, 21px, 700, $font-family-lato),
-  $body-1: mat.m2-define-typography-level(16px, 24px, 400, $font-family-lato),
-  $body-2: mat.m2-define-typography-level(14px, 21px, 400, $font-family-lato),
-  $caption: mat.m2-define-typography-level(12px, 18px, 400, $font-family-lato),
-  $button: mat.m2-define-typography-level(14px, 21px, 700, $font-family-lato),
+  $font-family: vars.$font-family-lato,
+  $headline-1: mat.m2-define-typography-level(112px, 112px, 400, vars.$font-family-montserrat),
+  $headline-2: mat.m2-define-typography-level(56px, 56px, 400, vars.$font-family-montserrat),
+  $headline-3: mat.m2-define-typography-level(45px, 52px, 400, vars.$font-family-montserrat),
+  $headline-4: mat.m2-define-typography-level(36px, 40px, 300, vars.$font-family-montserrat),
+  $headline-5: mat.m2-define-typography-level(24px, 36px, 600, vars.$font-family-montserrat),
+  $headline-6: mat.m2-define-typography-level(20px, 30px, 600, vars.$font-family-montserrat),
+  $subtitle-1: mat.m2-define-typography-level(16px, 24px, 600, vars.$font-family-montserrat),
+  $subtitle-2: mat.m2-define-typography-level(14px, 21px, 700, vars.$font-family-lato),
+  $body-1: mat.m2-define-typography-level(16px, 24px, 400, vars.$font-family-lato),
+  $body-2: mat.m2-define-typography-level(14px, 21px, 400, vars.$font-family-lato),
+  $caption: mat.m2-define-typography-level(12px, 18px, 400, vars.$font-family-lato),
+  $button: mat.m2-define-typography-level(14px, 21px, 700, vars.$font-family-lato),
 );
 
 // A bare typography config can't drive `typography-hierarchy` on its own — it needs a full theme
@@ -49,8 +49,8 @@ html {
 .small-typography { font-size: 12px; }
 .large-typography { font-size: 16px; }
 .x-large-typography { font-size: 18px; }
-.custom-typography { font-family: $font-family-lato; }
-.x-small-custom-typography { font-size: 12px; font-family: $font-family-lato; }
-.small-custom-typography { font-size: 13px; font-family: $font-family-lato; }
-.large-custom-typography { font-size: 16px; font-family: $font-family-lato; }
-.x-large-custom-typography { font-size: 18px; font-family: $font-family-lato; }
+.custom-typography { font-family: vars.$font-family-lato; }
+.x-small-custom-typography { font-size: 12px; font-family: vars.$font-family-lato; }
+.small-custom-typography { font-size: 13px; font-family: vars.$font-family-lato; }
+.large-custom-typography { font-size: 16px; font-family: vars.$font-family-lato; }
+.x-large-custom-typography { font-size: 18px; font-family: vars.$font-family-lato; }

@@ -70,7 +70,8 @@
                                 (keydown.enter)="toggleRole(pos.value)"
                                 (keydown.space)="toggleRole(pos.value); $event.preventDefault()">
                                 <input type="checkbox" [checked]="isRoleSelected(pos.value)"
-                                    (change)="toggleRole(pos.value)" (click)="$event.stopPropagation()">
+                                    (change)="toggleRole(pos.value)" (click)="$event.stopPropagation()"
+                                    (keydown)="$event.stopPropagation()">
                                 {{ pos.label }}
                             </label>
                         </div>
