@@ -71,7 +71,10 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let participant of filteredParticipants()">
+        <tr class="skeleton-row" *ngFor="let row of skeletonRows" [hidden]="!isLoading">
+          <td [attr.colspan]="showCertificateStatus ? 4 : 3"><span class="skeleton-cell"></span></td>
+        </tr>
+        <tr *ngFor="let participant of (isLoading ? [] : filteredParticipants())">
           <td>{{ participant.firstName }}</td>
           <td>{{ participant.lastName }}</td>
           <td>{{ participant.place }}</td>
@@ -88,7 +91,7 @@
             </span>
           </td>
         </tr>
-        <tr *ngIf="filteredParticipants().length === 0">
+        <tr *ngIf="!isLoading && filteredParticipants().length === 0">
           <td [attr.colspan]="showCertificateStatus ? 4 : 3" class="empty-row">
             No participants match the current search / filter.
           </td>

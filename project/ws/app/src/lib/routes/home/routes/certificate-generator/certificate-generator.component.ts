@@ -116,7 +116,9 @@ export class CertificateGeneratorComponent implements OnInit, OnDestroy {
           console.error('Error updating event: non ', error)
         }
       )
-      // this.isGenerating = false // Hide loader
+      // Clear the busy flag before leaving: this path never called the generate API, and
+      // leaving it set left the button spinning if the user came back to this screen.
+      this.isGenerating = false
       this.navigateBack()
       return
     } else {

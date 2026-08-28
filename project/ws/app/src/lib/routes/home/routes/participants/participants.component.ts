@@ -17,6 +17,8 @@ export class ParticipantsComponent implements OnInit, OnDestroy {
   filterStatus = ''
   showFilterPanel = false
   participants: any[] = []
+  isLoading = true
+  readonly skeletonRows = [1, 2, 3, 4, 5]
   selectedEvent: any
   isExporting = false
   private routeSubscription!: Subscription
@@ -53,6 +55,7 @@ export class ParticipantsComponent implements OnInit, OnDestroy {
   }
 
   fetchParticipants(eventId: string): void {
+    this.isLoading = true
     this.eventService.getParticipants(eventId).subscribe({
       next: response => {
         this.participants = response.map((participant: any) => ({
@@ -63,8 +66,12 @@ export class ParticipantsComponent implements OnInit, OnDestroy {
           isNonQr: participant.userId === 'Non-QR-User',
           certificateStatus: participant.certificateGenerationStatus || null,
         }))
+        this.isLoading = false
       },
-      error: error => console.error('Error fetching participants:', error),
+      error: error => {
+        console.error('Error fetching participants:', error)
+        this.isLoading = false
+      },
     })
   }
 

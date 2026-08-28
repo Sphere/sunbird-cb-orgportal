@@ -28,6 +28,10 @@ export class EventOverviewComponent implements OnInit, OnDestroy {
   private eventSubscription!: Subscription
   nonRegistered = false
   isDownloading = false
+  // Certificates for no-registration events are rendered one per participant in the browser,
+  // so this can run for a long time. Track progress rather than showing a bare spinner.
+  downloadDone = 0
+  downloadTotal = 0
 
   constructor(
     private readonly dialog: MatDialog,
@@ -241,6 +245,8 @@ export class EventOverviewComponent implements OnInit, OnDestroy {
 
     try {
       const zip = new JSZip()
+      this.downloadDone = 0
+      this.downloadTotal = participants.length
       const templateUrl = this.selectedEvent.selectedTemplate.templateLogo
       // const templateUrl = "/mdo-assets/images/RMC-Online.svg"
 
@@ -266,11 +272,17 @@ export class EventOverviewComponent implements OnInit, OnDestroy {
         // Add the generated PDF to the ZIP file
         const fileName = `${participant.firstName}-${date}.pdf`
         zip.file(fileName, pdfBlob)
+        this.downloadDone += 1
+        // svg2pdf/jsPDF work is synchronous CPU, so without yielding the browser never gets
+        // a frame: the spinner freezes and the counter never updates until the whole run
+        // finishes. Handing control back each iteration keeps the UI responsive.
+        await new Promise((resolve) => setTimeout(resolve, 0))
         console.log(`Added ${fileName} to ZIP.`)
       }
 
       // Generate and download ZIP file
       const zipBlob = await zip.generateAsync({ type: 'blob' })
+      this.downloadTotal = 0
       saveAs(zipBlob, 'Certificates.zip')
       console.log('ZIP file downloaded successfully.')
     } catch (error) {

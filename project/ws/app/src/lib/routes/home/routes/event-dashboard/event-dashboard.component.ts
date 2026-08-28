@@ -23,6 +23,9 @@ export class EventDashboardComponent implements OnInit, OnDestroy {
   searchQuery = ''
   userId: string = ''
   userName: any
+  isLoading = true
+  readonly skeletonRows = [1, 2, 3, 4, 5]
+  readonly skeletonCells = [1, 2, 3, 4, 5]
   filterPanelOpen = false
   @ViewChild('filterWrapper') filterWrapper?: ElementRef<HTMLElement>
   activeStatusFilter = ''
@@ -102,7 +105,12 @@ export class EventDashboardComponent implements OnInit, OnDestroy {
         })
         this.fetchEvents()
       },
-      error: err => console.error('Error fetching user details:', err),
+      error: err => {
+        console.error('Error fetching user details:', err)
+        // fetchEvents is called from the success path, so without this the table would sit
+        // on its loading state forever when the profile call fails.
+        this.isLoading = false
+      },
     })
   }
 
@@ -128,8 +136,12 @@ export class EventDashboardComponent implements OnInit, OnDestroy {
         this.events = byUser.toSorted((a: any, b: any) => b.createdAt.getTime() - a.createdAt.getTime())
         this.filteredEvents = [...this.events]
         this.currentPage = 0
+        this.isLoading = false
       },
-      error: err => console.error('Error fetching events:', err),
+      error: err => {
+        console.error('Error fetching events:', err)
+        this.isLoading = false
+      },
     })
   }
 

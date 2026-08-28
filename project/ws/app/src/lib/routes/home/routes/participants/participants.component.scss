@@ -283,3 +283,11 @@ table {
   .search-input { width: 100%; }
   .cert-summary { flex-wrap: wrap; }
 }
+
+// ── Loading skeleton ───────────────────────────────────────────────────────
+.skeleton-row .skeleton-cell {
+  @include v2-shimmer;
+  display: block;
+  height: 12px;
+  width: 100%;
+}

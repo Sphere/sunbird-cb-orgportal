@@ -73,7 +73,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let event of pagedEvents" role="button" tabindex="0" (click)="navigateToEvent(event)"
+        <tr *ngFor="let event of (isLoading ? [] : pagedEvents)" role="button" tabindex="0" (click)="navigateToEvent(event)"
           (keydown.enter)="navigateToEvent(event)" (keydown.space)="navigateToEvent(event); $event.preventDefault()">
           <td>{{ event.name }}</td>
           <td class="nowrap">{{ event.date | date: 'dd-MM-yyyy' }}</td>
@@ -83,7 +83,10 @@
             <span [class]="statusClass(event)">{{ statusLabel(event) }}</span>
           </td>
         </tr>
-        <tr *ngIf="filteredEvents.length === 0">
+        <tr class="skeleton-row" *ngFor="let row of skeletonRows" [hidden]="!isLoading">
+          <td *ngFor="let cell of skeletonCells"><span class="skeleton-cell"></span></td>
+        </tr>
+        <tr *ngIf="!isLoading && filteredEvents.length === 0">
           <td colspan="5" class="empty-row">No events found</td>
         </tr>
       </tbody>
