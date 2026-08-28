@@ -4,17 +4,12 @@ import { Routes, RouterModule } from '@angular/router'
 import { HomeResolve } from './resolvers/home-resolve'
 import { AboutComponent } from './routes/about/about.component'
 import { HomeComponent } from './routes/home/home.component'
-import { UsersViewComponent } from './routes/users-view/users-view.component'
-import { RolesAccessComponent } from './routes/roles-access/roles-access.component'
 // import { PageResolve } from '@sunbird-cb/utils'
 import { ApprovalsComponent } from './routes/approvals/approvals.component'
 import { WorkallocationComponent } from './routes/workallocation/workallocation.component'
 import { WelcomeComponent } from './routes/welcome/welcome.component'
 import { ConfigResolveService } from './resolvers/config-resolve.service'
-import { UsersListResolve } from './resolvers/users-list-resolve.service'
-import { CompetenciesComponent } from './routes/competencies/competencies.component'
 import { SelfAssessmentComponent } from './routes/self-assessment/self-assessment.component'
-import { UserCompetencyComponent } from '../../../../../../../src/app/plugins/skill/components'
 import { EventDashboardComponent } from './routes/event-dashboard/event-dashboard.component'
 import { EventDetailsComponent } from './routes/event-details/event-details.component'
 import { EventOverviewComponent } from './routes/event-overview/event-overview.component'
@@ -42,19 +37,8 @@ const routes: Routes = [
         component: WelcomeComponent,
       },
       {
-        path: 'users',
-        component: UsersViewComponent,
-      },
-      {
         path: 'about',
         component: AboutComponent,
-      },
-      {
-        path: 'roles-access',
-        component: RolesAccessComponent,
-        resolve: {
-          usersList: UsersListResolve,
-        },
       },
       {
         path: 'approvals',
@@ -63,20 +47,6 @@ const routes: Routes = [
       {
         path: 'workallocation',
         component: WorkallocationComponent,
-      },
-      {
-        path: 'competencies',
-        component: CompetenciesComponent,
-        resolve: {
-          usersList: UsersListResolve,
-        },
-      },
-      {
-        path: 'competencies/:id',
-        component: UserCompetencyComponent,
-        resolve: {
-          usersList: UsersListResolve,
-        },
       },
       {
         path: 'self-assessment',
@@ -139,7 +109,6 @@ const routes: Routes = [
     HomeResolve,
     // DepartmentResolve,
     ConfigResolveService,
-    UsersListResolve,
   ],
 })
 export class HomeRoutingModule { }

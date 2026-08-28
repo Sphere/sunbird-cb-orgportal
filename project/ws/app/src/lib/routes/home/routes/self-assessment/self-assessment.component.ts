@@ -4,7 +4,7 @@ import { ActivatedRoute } from '@angular/router'
 import * as _ from 'lodash'
 import { Subject } from 'rxjs'
 import { map, takeUntil } from 'rxjs/operators'
-import { UsersService } from '../../../users/services/users.service'
+import { OrgUsersService } from '../../services/org-users.service'
 import { UtilityService } from '../../services/utility.service'
 
 @Component({
@@ -24,7 +24,7 @@ export class SelfAssessmentComponent implements OnInit, OnDestroy {
 
   constructor(
     private readonly route: ActivatedRoute,
-    private readonly usersService: UsersService,
+    private readonly usersService: OrgUsersService,
     @Self() private readonly utilityService: UtilityService
   ) { }
 

@@ -29,54 +29,6 @@
           ]
         },
         {
-          "name": "Users",
-          "key": "users",
-          "fragment": false,
-          "render": true,
-          "badges": {
-            "enabled": false,
-            "uri": ""
-          },
-          "enabled": true,
-          "routerLink": "/app/home/users",
-          "requiredRoles": [
-            "admin",
-            "mdo_admin"
-          ]
-        },
-        {
-          "name": "Roles and access",
-          "key": "roles-access",
-          "fragment": false,
-          "render": true,
-          "badges": {
-            "enabled": false,
-            "uri": ""
-          },
-          "enabled": true,
-          "routerLink": "/app/home/roles-access",
-          "requiredRoles": [
-            "admin",
-            "mdo_admin"
-          ]
-        },
-        {
-          "name": "Competencies",
-          "key": "competencies",
-          "fragment": false,
-          "render": true,
-          "badges": {
-            "enabled": false,
-            "uri": ""
-          },
-          "enabled": true,
-          "routerLink": "/app/home/competencies",
-          "requiredRoles": [
-            "admin",
-            "mdo_admin"
-          ]
-        },
-        {
           "name": "Events",
           "key": "events",
           "fragment": false,

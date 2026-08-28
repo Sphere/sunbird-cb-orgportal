@@ -29,10 +29,8 @@ import { InitResolver } from './resolvers/init-resolve.service'
 import { RouterModule } from '@angular/router'
 import { HomeRoutingModule } from './home.rounting.module'
 import { HomeComponent } from './routes/home/home.component'
-import { UsersViewComponent } from './routes/users-view/users-view.component'
 import { AvatarPhotoModule, BreadcrumbsOrgModule, LeftMenuModule, UIORGTableModule, ScrollspyLeftMenuModule } from '@sunbird-cb/collection'
 import { AboutComponent } from './routes/about/about.component'
-import { RolesAccessComponent } from './routes/roles-access/roles-access.component'
 import { ApprovalsComponent } from './routes/approvals/approvals.component'
 import { WorkallocationComponent } from './routes/workallocation/workallocation.component'
 import { ExportAsModule } from 'ngx-export-as'
@@ -41,8 +39,6 @@ import { NgxPaginationModule } from 'ngx-pagination'
 import { UIAdminTableModule } from '../../head/work-allocation-table/ui-admin-table.module'
 import { WelcomeComponent } from './routes/welcome/welcome.component'
 // import { RainDashboardsModule } from '@sunbird-cb/rain-dashboards'
-import { UsersModule } from '../users/users.module'
-import { CompetenciesComponent } from './routes/competencies/competencies.component'
 import { SkillModule } from '../../../../../../../src/app/plugins/skill'
 import { SelfAssessmentComponent } from './routes/self-assessment/self-assessment.component'
 import { EventDashboardComponent } from './routes/event-dashboard/event-dashboard.component'
@@ -57,13 +53,10 @@ import { MatDatepickerModule } from '@angular/material/datepicker'
 @NgModule({
     declarations: [
         HomeComponent,
-        UsersViewComponent,
         AboutComponent,
-        RolesAccessComponent,
         ApprovalsComponent,
         WorkallocationComponent,
         WelcomeComponent,
-        CompetenciesComponent,
         SelfAssessmentComponent,
         EventDashboardComponent,
         EventDetailsComponent,
@@ -120,7 +113,6 @@ import { MatDatepickerModule } from '@angular/material/datepicker'
         NgxPaginationModule,
         UIAdminTableModule,
         // RainDashboardsModule,
-        UsersModule,
         MatTableModule,
         SkillModule,
     ],
