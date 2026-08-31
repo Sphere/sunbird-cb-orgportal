@@ -455,7 +455,7 @@ export class CreateEventComponent implements OnInit, OnDestroy {
     // surrogate it needs to combine, so it always returns the raw UTF-16 code unit — required, since
     // aUTF16CodeUnits is a Uint16Array of one entry per code unit, not per Unicode code point.
     Array.prototype.forEach.call(aUTF16CodeUnits, (_el, idx, arr) => arr[idx] = sString.charAt(idx).codePointAt(0))
-    return { data: btoa(new Uint8Array(aUTF16CodeUnits.buffer).reduce((data, byte) => data + String.fromCharCode(byte), '')) }
+    return { data: btoa(new Uint8Array(aUTF16CodeUnits.buffer).reduce((data, byte) => data + String.fromCodePoint(byte), '')) }
   }
 
   private openSnackbar(primaryMsg: string, duration: number = 5000) {
