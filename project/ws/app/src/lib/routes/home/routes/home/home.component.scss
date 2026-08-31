@@ -19,17 +19,183 @@
 }
 
 .left-nav {
-  min-width: 288px;
-  // max-width: 240px;
-
-  // ::ng-deep.mat-drawer-inner-container {
-  //   overflow: visible;
-  // }
+  width: 260px;
+  min-width: 260px;
+  max-width: 260px;
+  overflow-x: hidden;
+  background: #f7f9fb;
+  border-right: 1px solid #e8ecf0;
+  display: flex;
+  flex-direction: column;
 
   @include breakpoint-xs {
+    width: 100%;
     min-width: 100%;
     max-width: none;
   }
+
+  ::ng-deep {
+    // ── Widget outer wrapper ──
+    // .min-wid ships as min-width:263px (wider than our 260px sidebar)
+    .min-wid {
+      min-width: 0 !important;
+      width: 100% !important;
+    }
+
+    // .menu-left ships as max-width:235px; margin:auto — centers the nav list inside
+    // the 260px sidebar leaving ~12px gaps on each side. Kill both so items fill edge-to-edge.
+    .menu-left {
+      max-width: none !important;
+      margin: 0 !important;
+      width: 100% !important;
+      box-sizing: border-box !important;
+      padding: 4px 0;
+    }
+
+    // Sidebar inner scroll container: kill horizontal scrollbar
+    .mat-drawer-inner-container {
+      overflow-x: hidden !important;
+    }
+
+    // ── Org logo / workspace card at top ──────────────────────────────
+    // Outer wrapper: uniform padding, separator, no auto-centering
+    .flex.flex-column.max-width {
+      padding: 14px 16px;
+      border-bottom: 1px solid #e8ecf0;
+      background: #ffffff;
+      margin: 0 !important;       // override margin-top-xs + m-auto
+      width: 100% !important;     // override max-width centering
+      box-sizing: border-box;
+    }
+
+    // The widget anchor is flex-column + items-center by default —
+    // switch to a horizontal row so logo and name sit side-by-side.
+    .flex.flex-column.max-width a {
+      display: flex !important;
+      flex-direction: row !important;   // override flex-column
+      align-items: center !important;
+      gap: 12px;
+      margin-top: 0 !important;         // override margin-top-l
+      padding: 0;
+      text-decoration: none;
+      cursor: default;
+    }
+
+    // Logo chip: compact square with rounded corners
+    .logo-cover,
+    .logo-cover.rounded-full {
+      width: 40px !important;
+      height: 40px !important;
+      min-width: 40px;
+      border-radius: 8px !important;   // override rounded-full
+      overflow: hidden;
+      border: 1px solid #c9d4e0;
+      background: #ffffff !important;  // match org section white background
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .logo-cover img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      border-radius: 0 !important;
+    }
+
+    // Org name beside the logo — single line, bold, truncated if long.
+    // min-width: 0 + flex: 1 are required so text-overflow works inside a flex row.
+    .mat-subheading-2 {
+      min-width: 0;
+      flex: 1;
+      font-size: 13px !important;
+      font-weight: 600 !important;
+      color: #1a2332 !important;
+      margin: 0 !important;             // override margin-top-m
+      line-height: 1.4 !important;
+      letter-spacing: 0.01em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    // ── Nav list ──────────────────────────────────────────────────────
+    a.mat-mdc-list-item {
+      padding-left: 16px !important;
+      padding-right: 16px !important;
+      min-height: 44px;
+      width: 100%;
+      box-sizing: border-box;
+      border-radius: 0;
+      transition: background-color 150ms ease;
+    }
+
+    // The primary-text span (or unscoped-content span in Material 20)
+    // wraps both the icon and the label span — make it flex so they sit
+    // side by side, not stacked or overlapping.
+    .mdc-list-item__primary-text,
+    .mat-mdc-list-item-unscoped-content {
+      display: flex !important;
+      align-items: center;
+      gap: 10px;
+      overflow: hidden;
+      width: 100%;
+    }
+
+    // Icon: reset the widget's own mr-2 class (would double-gap with flex gap above)
+    a.mat-mdc-list-item mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+      line-height: 20px;
+      flex-shrink: 0;
+      margin-right: 0 !important;  // override widget's mr-2
+      color: #6b7a8d;
+      transition: color 150ms ease;
+    }
+
+    // Label: reset the widget's padding-left-xs (gap above handles spacing).
+    // min-width: 0 + flex: 1 needed for text-overflow to work as a flex child.
+    a.mat-mdc-list-item .menu-text {
+      min-width: 0;
+      flex: 1;
+      padding-left: 0 !important;  // override widget's padding-left-xs
+      font-size: 14px;
+      font-weight: 400;
+      color: #374151;
+      letter-spacing: 0.01em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .mat-mdc-list-item-icon {
+      margin-right: 0;
+      color: #6b7a8d;
+    }
+
+    // ── Active state (global !important wins color; these handle structure) ──
+    a.mat-mdc-list-item.ws-active-route-menu {
+      border-left: 3px solid #1c5d95;
+      padding-left: 13px !important;
+
+      mat-icon {
+        color: #1c5d95;
+      }
+
+      .menu-text {
+        color: #1c5d95;
+        font-weight: 500;
+      }
+    }
+  }
+}
+
+.contain {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
 }
 
 .flex-3 {
@@ -73,14 +239,18 @@
 .sidenav {
   width: 20%;
   min-width: 250px;
-  // padding-left: $size-m;
   background: inherit;
   box-shadow: none;
-  // margin-bottom: 32px;
 }
 
+// mat-sidenav-content (.mat-drawer-content) is the scroll container in Material 20.
+// Material's own CSS sets overflow:auto on it; we pin the height to the viewport
+// minus the top navbar so scroll stays within this pane (no window-level scroll).
 .mat-drawer-content {
-  overflow: hidden !important;
+  position: relative;
+  height: calc(100vh - 105px);
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .nav-container {

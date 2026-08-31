@@ -1,8 +1,8 @@
 // import { untilDestroyed } from 'ngx-take-until-destroy'
 import { DOCUMENT } from '@angular/common'
 import { AfterViewInit, Component, ElementRef, HostListener, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { MatDialog } from '@angular/material/dialog'
+import { MatSnackBar } from '@angular/material/snack-bar'
 import { ActivatedRoute, Router } from '@angular/router'
 // tslint:disable
 import _ from 'lodash'
@@ -16,6 +16,7 @@ import { AllocationService } from '../../services/allocation.service'
 import { WatStoreService } from '../../services/wat.store.service'
 
 @Component({
+  standalone: false,
   selector: 'ws-app-create-workallocation',
   templateUrl: './create-workallocation.component.html',
   styleUrls: ['./create-workallocation.component.scss'],
@@ -58,12 +59,12 @@ export class CreateWorkallocationComponent implements OnInit, AfterViewInit, OnD
 
   // tslinr=t
   constructor(
-    private watStore: WatStoreService,
-    private allocateSrvc: AllocationService,
-    private snackBar: MatSnackBar,
-    private router: Router,
-    private route: ActivatedRoute,
-    @Inject(DOCUMENT) private document: Document,
+    private readonly watStore: WatStoreService,
+    private readonly allocateSrvc: AllocationService,
+    private readonly snackBar: MatSnackBar,
+    private readonly router: Router,
+    private readonly route: ActivatedRoute,
+    @Inject(DOCUMENT) private readonly document: Document,
     public dialog: MatDialog,
   ) {
     this.route.params.subscribe(params => {

@@ -1,6 +1,6 @@
 {
-  "/apis/*": {
-    "target": "https://org-aastrika-stage.tarento.com",
+  "/apis/**": {
+    "target": "https://org-sphere.aastrika.org",
     "secure": false,
     "logLevel": "debug",
     "changeOrigin": true,
@@ -8,10 +8,10 @@
       "/apis": "/apis"
     },
     "headers": {
-      "Cookie": "connect.sid=s%3Ae6rGCwNhTfYeYOp8EeAP5KbKTOEiyrVO.KdDykktYisE6SjCMY4AJoeFMBIyL6MmhwGnz%2B29BMFQ"
+      "Cookie": "connect.sid=s%3A9TPKzQY5TYW3G_ZSFLqmlNb8opX-Ib4J.YEkUW2%2F12cP9wLoSWPiwtswBfRIMesPR1hsRo2ZsNVM"
     }
   },
-  "/content-api/*": {
+  "/content-api/**": {
     "target": "http://localhost:3004",
     "secure": false,
     "logLevel": "debug",
@@ -20,7 +20,7 @@
       "/apis": ""
     }
   },
-  "/content-store/*": {
+  "/content-store/**": {
     "target": "http://localhost:3005",
     "secure": false,
     "logLevel": "debug",
@@ -29,7 +29,7 @@
       "/apis": ""
     }
   },
-  "/chat-bot/*": {
+  "/chat-bot/**": {
     "target": "http://localhost:3006",
     "secure": false,
     "logLevel": "debug",
@@ -38,7 +38,7 @@
       "/apis": ""
     }
   },
-  "/mobile-apps/*": {
+  "/mobile-apps/**": {
     "target": "http://localhost:3007",
     "secure": false,
     "logLevel": "debug",
@@ -47,17 +47,8 @@
       "/apis": ""
     }
   },
-  "/LA/*": {
+  "/LA/**": {
     "target": "http://localhost:3008",
-    "secure": false,
-    "logLevel": "debug",
-    "changeOrigin": true,
-    "pathRewrite": {
-      "/apis": ""
-    }
-  },
-  "/assets/*": {
-    "target": "https://org-aastrika-stage.tarento.com",
     "secure": false,
     "logLevel": "debug",
     "changeOrigin": true,

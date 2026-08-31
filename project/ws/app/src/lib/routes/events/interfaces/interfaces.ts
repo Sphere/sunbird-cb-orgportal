@@ -1,12 +1,12 @@
 export interface IColums {
-  displayName: String
-  key: String
+  displayName: string
+  key: string
   isList?: boolean
   prop?: string
 }
 export interface IAction {
-  name: String
-  icon: String
+  name: string
+  icon: string
   type: string
   disabled?: boolean
   label: string

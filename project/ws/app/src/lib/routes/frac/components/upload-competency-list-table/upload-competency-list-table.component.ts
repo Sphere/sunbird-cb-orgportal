@@ -6,11 +6,14 @@ import {
   ElementRef,
   QueryList,
   OnChanges,
+  OnDestroy,
   SimpleChanges,
   AfterViewInit,
   EventEmitter,
   Output,
 } from '@angular/core'
+import { Subject } from 'rxjs'
+import { takeUntil } from 'rxjs/operators'
 import { MatTableDataSource } from '@angular/material/table'
 import { MatPaginator } from '@angular/material/paginator'
 import { MatSort, Sort } from '@angular/material/sort'
@@ -21,11 +24,14 @@ import { FracTableCellValue, FracTableColumn, FracTableRow } from '../../models/
 type GridStyle = 'horizontal' | 'vertical' | 'both' | 'none'
 
 @Component({
+  standalone: false,
   selector: 'app-upload-competency-list-table',
   templateUrl: './upload-competency-list-table.component.html',
   styleUrls: ['./upload-competency-list-table.component.scss'],
 })
-export class UploadCompetencyListTableComponent implements OnChanges, AfterViewInit {
+export class UploadCompetencyListTableComponent implements OnChanges, AfterViewInit, OnDestroy {
+  private readonly destroy$ = new Subject<void>()
+
   // ============= INPUTS =============
 
   @Input() columns: FracTableColumn[] = []
@@ -122,10 +128,15 @@ export class UploadCompetencyListTableComponent implements OnChanges, AfterViewI
       this.syncHeaderHeight()
     })
 
-    this.headerCells?.changes.subscribe(() => {
+    this.headerCells?.changes.pipe(takeUntil(this.destroy$)).subscribe(() => {
       this.syncLoadingColumnWidths()
       this.syncHeaderHeight()
     })
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next()
+    this.destroy$.complete()
   }
 
   /**

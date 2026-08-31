@@ -1,6 +1,6 @@
 <div class="flex flex-4 flex-column ml-5">
   <mat-card-header class="flex-custom-m">
-    <div class="flex-1" role="link" tabindex="0">
+    <div class="flex-1">
       <div class="flex flex-1">
         <span class="h-600-s-20-m mt-10 mb-10 color-87">Work allocation tool</span>
       </div>
@@ -9,15 +9,15 @@
   <mat-card-content>
     <div class="flex flex-1">
       <div class="flex flex-1 filter max-height-60">
-        <a href="javascript:void(0)" class="filter-option" [ngClass]="{'ws-mat-accent-border-active' : currentFilter === 'Draft',
-          'ws-mat-accent-border font-medium':currentFilter !== 'Draft'}" mat-button (click)="filter('Draft')"
-          role="button">Drafts</a>
-        <a href="javascript:void(0)" class="filter-option" [ngClass]="{'ws-mat-accent-border-active' : currentFilter === 'Published',
-          'ws-mat-accent-border font-medium':currentFilter !== 'Published'}" mat-button (click)="filter('Published')"
-          role="button">Published</a>
-        <a href="javascript:void(0)" class="filter-option" [ngClass]="{'ws-mat-accent-border-active' : currentFilter === 'Archived',
-          'ws-mat-accent-border font-medium':currentFilter !== 'Archived'}" mat-button (click)="filter('Archived')"
-          role="button">Archived</a>
+        <button type="button" class="filter-option" [ngClass]="{'ws-mat-accent-border-active' : currentFilter === 'Draft',
+          'ws-mat-accent-border font-medium':currentFilter !== 'Draft'}" mat-button
+          (click)="filter('Draft')">Drafts</button>
+        <button type="button" class="filter-option" [ngClass]="{'ws-mat-accent-border-active' : currentFilter === 'Published',
+          'ws-mat-accent-border font-medium':currentFilter !== 'Published'}" mat-button
+          (click)="filter('Published')">Published</button>
+        <button type="button" class="filter-option" [ngClass]="{'ws-mat-accent-border-active' : currentFilter === 'Archived',
+          'ws-mat-accent-border font-medium':currentFilter !== 'Archived'}" mat-button
+          (click)="filter('Archived')">Archived</button>
       </div>
     </div>
     <ng-container>
@@ -28,7 +28,8 @@
               <div class=rsearch>
                 <mat-icon class="color-60 search-icon">search</mat-icon>
                 <input class="sinput color-60" type="Standard" label="searchVal"
-                  (ngModelChange)="searchBasedOnQurey($event)" [(ngModel)]="searchQuery" placeholder="Search">
+                  (ngModelChange)="searchBasedOnQurey($event)" [(ngModel)]="searchQuery" placeholder="Search"
+                  id="workAllocationSearch" aria-label="Search">
               </div>
             </div>
           </div>

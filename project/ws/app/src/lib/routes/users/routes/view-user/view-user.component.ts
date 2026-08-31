@@ -1,34 +1,37 @@
-import { AfterViewInit, Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core'
+import { AfterViewInit, Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core'
 import { ActivatedRoute, Router, Event, NavigationEnd } from '@angular/router'
 // import moment from 'moment'
 import { UntypedFormGroup, UntypedFormControl, Validators, UntypedFormBuilder } from '@angular/forms'
 import { UsersService } from '../../services/users.service'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { MatSnackBar } from '@angular/material/snack-bar'
 // tslint:disable-next-line
 import _ from 'lodash'
 import { EventService } from '@sunbird-cb/utils'
-import { Subscription } from 'rxjs'
+import { Subject, Subscription } from 'rxjs'
+import { takeUntil } from 'rxjs/operators'
 import { TelemetryEvents } from '../../../../head/_services/telemetry.event.model'
 import { RoleConfirmDialogComponent } from '../../../../../../../../../src/app/plugins/skill/components/role-confirm-dialog/role-confirm-dialog.component'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
+import { MatDialog } from '@angular/material/dialog'
 import { constructReq } from './request-util'
 import { NsUserProfileDetails } from '../models/NsUserProfile'
 
 @Component({
+  standalone: false,
   selector: 'ws-app-view-user',
   templateUrl: './view-user.component.html',
   styleUrls: ['./view-user.component.scss'],
 })
-export class ViewUserComponent implements OnInit, AfterViewInit {
-  constructor(private activeRoute: ActivatedRoute, private router: Router, private events: EventService,
+export class ViewUserComponent implements OnInit, AfterViewInit, OnDestroy {
+  private readonly destroy$ = new Subject<void>()
+  constructor(private readonly activeRoute: ActivatedRoute, private readonly router: Router, private readonly events: EventService,
     // tslint:disable-next-line:align
-    private fb: UntypedFormBuilder,
+    private readonly fb: UntypedFormBuilder,
     // private cd: ChangeDetectorRef,
 
-              private usersSvc: UsersService,
-              public dialog: MatDialog,
+    private readonly usersSvc: UsersService,
+    public dialog: MatDialog,
     // tslint:disable-next-line:align
-    private snackBar: MatSnackBar) {
+    private readonly snackBar: MatSnackBar) {
 
     this.updateUserDetailsForm = new UntypedFormGroup({
       firstname: new UntypedFormControl('', [Validators.required]),
@@ -98,150 +101,103 @@ export class ViewUserComponent implements OnInit, AfterViewInit {
       professional: new UntypedFormControl(),
       courseDegree: new UntypedFormControl(true),
     })
-    this.router.events.subscribe((event: Event) => {
+    this.router.events.pipe(takeUntil(this.destroy$)).subscribe((event: Event) => {
       if (event instanceof NavigationEnd) {
-        this.configSvc = this.activeRoute.snapshot.data.configService || {}
-        const profileDataAll = this.activeRoute.snapshot.data.profileData.data || {}
-        const profileData = profileDataAll.profileDetails
-
-        if (profileData) {
-          this.userID = profileDataAll.id
-          this.basicInfo = profileData.profileReq.personalDetails
-          if (this.basicInfo) {
-            this.fullname = `${this.basicInfo.firstname} ${this.basicInfo.surname}`
-          }
-          this.academicDetails = profileData.profileReq.academics
-          this.professionalDetails = profileData.profileReq.professionalDetails ? profileData.profileReq.professionalDetails[0] : []
-          this.employmentDetails = profileData.profileReq.employmentDetails
-          this.skillDetails = profileData.profileReq.skills
-          this.interests = profileData.profileReq.interests
-          this.userStatus = profileDataAll.isDeleted ? 'Inactive' : 'Active'
-        }
-        const userData = profileData ? profileData.profileReq : ''
-        this.userData = profileData ? profileData.profileReq : ''
-        const academics = this.populateAcademics(userData)
-        // this.setDegreeValuesArray(academics)
-        // this.setPostDegreeValuesArray(academics)
-        const organisations = this.populateOrganisationDetails(userData)
-        if (userData) {
-          this.constructFormFromRegistry(userData, academics, organisations)
-        }
-        const fullProfile = _.get(this.activeRoute.snapshot, 'data.configService')
-        this.department = fullProfile.unMappedUser.rootOrgId
-        this.departmentName = fullProfile ? fullProfile.unMappedUser.channel : ''
-        const orgLst = _.get(this.activeRoute.snapshot, 'data.rolesList.data.orgTypeList')
-        const filteredDept = _.compact(_.map(orgLst, ls => {
-          const f = _.filter(ls.flags, (fl: any) => fullProfile.unMappedUser.rootOrg[fl])
-          if (f && f.length > 0) {
-            return ls
-          }
-          return null
-        }))
-        /* tslint:disable-next-line */
-        const rolesListFull = _.uniq(_.map(_.compact(_.flatten(_.map(filteredDept, 'roles'))), rol => ({ roleName: rol, description: rol })))
-
-        rolesListFull.forEach((role: any) => {
-          if (!this.rolesList.some((item: any) => item.roleName === role.roleName)) {
-            this.rolesList.push(role)
-          }
-        })
-
-        const usrRoles = profileDataAll.roles
-        if (usrRoles && usrRoles.length > 0) {
-          usrRoles.forEach((role: any) => {
-            this.orguserRoles.push(role)
-            this.modifyUserRoles(role)
-          })
-        }
-
-        // if (this.department.active_users && this.department.active_users.length > 0) {
-        //   this.department.active_users.forEach((user: any) => {
-        //     if (this.userID === user.userId) {
-        //       this.userStatus = 'Active'
-        //       const usrRoles = user.roleInfo
-        //       usrRoles.forEach((role: any) => {
-        //         this.orguserRoles.push(role.roleName)
-        //         this.modifyUserRoles(role.roleName)
-        //       })
-        //     }
-        //   })
-        // }
-        // if (this.department.blocked_users && this.department.blocked_users.length > 0) {
-        //   this.department.blocked_users.forEach((user: any) => {
-        //     if (this.userID === user.userId) {
-        //       this.userStatus = 'Blocked'
-        //     }
-        //   })
-        // }
-        // if (this.department.inActive_users && this.department.inActive_users.length > 0) {
-        //   this.department.inActive_users.forEach((user: any) => {
-        //     if (this.userID === user.userId) {
-        //       this.userStatus = 'Inactive'
-        //     }
-        //   })
-        // }
-
-        // let wfHistoryDatas = this.activeRoute.snapshot.data.workflowHistoryData.data.result.data || {}
-        // const datas: any[] = Object.values(wfHistoryDatas)
-        // wfHistoryDatas = [].concat.apply([], datas)
-        // const wfHistoryData = wfHistoryDatas.filter((wfh: { inWorkflow: any }) => !wfh.inWorkflow)
-        // let currentdate: Date
-
-        this.activeRoute.data.subscribe(data => {
-          this.profileData = data.pageData.data.profileData ? data.pageData.data.profileData : []
-          this.profileDataKeys = data.pageData.data.profileDataKey ? data.pageData.data.profileDataKey : []
-        })
-
-        this.routeSubscription = this.activeRoute.queryParamMap.subscribe(qParamsMap => {
-          this.qpParam = qParamsMap.get('param')
-          this.qpPath = qParamsMap.get('path')
-          if (this.qpParam === 'MDOinfo') {
-            // tslint:disable-next-line:max-line-length
-            this.breadcrumbs = { titles: [{ title: 'Users', url: '/app/home/users' }, { title: this.userStatus, url: 'none' }, { title: 'MDO information', url: '/app/home/mdoinfo/leadership' }, { title: this.fullname, url: 'none' }] }
-          } else {
-            // tslint:disable-next-line:max-line-length
-            this.breadcrumbs = { titles: [{ title: 'Users', url: '/app/home/users' }, { title: this.userStatus, url: 'none' }, { title: this.fullname, url: 'none' }] }
-          }
-        })
-
-        // wfHistoryData.forEach((wfh: any) => {
-        //   currentdate = new Date(wfh.createdOn)
-        //   if (typeof wfh.updateFieldValues === 'string') {
-        //     const fields = JSON.parse(wfh.updateFieldValues)
-        //     let pendingwfh: any
-        //     let feildNameObj: any
-        //     let feildKeyObj: any
-        //     if (fields.length > 0) {
-        //       fields.forEach((field: any) => {
-        //         pendingwfh = field
-        //         const labelKey = Object.keys(field.toValue)[0]
-        //         const fieldKey = field.fieldKey
-        //         feildNameObj = this.profileData ? this.profileData.filter(userData => userData.key === labelKey)[0] : {}
-        //         feildKeyObj = this.profileDataKeys ? this.profileDataKeys.filter(userData => userData.key === fieldKey)[0] : {}
-        //       })
-        //       this.wfHistory.push({
-        //         fieldKey: feildKeyObj ? feildKeyObj.name : null,
-        //         requestedon: `${currentdate.getDate()}
-        //           ${moment(currentdate.getMonth() + 1, 'MM').format('MMM')}
-        //           ${currentdate.getFullYear()}
-        //           ${currentdate.getHours()} :
-        //           ${currentdate.getMinutes()} :
-        //           ${currentdate.getSeconds()}`,
-        //         toValue: pendingwfh.toValue ? pendingwfh.toValue[Object.keys(pendingwfh.toValue)[0]] : null,
-        //         fromValue: pendingwfh.fromValue ? pendingwfh.fromValue[Object.keys(pendingwfh.fromValue)[0]] : null,
-        //         fieldName: feildNameObj ? feildNameObj.name : null,
-        //         comment: wfh.comment ? wfh.comment : null,
-        //         action: wfh.action ? wfh.action : null,
-        //       })
-
-        //     }
-        //   }
-        // })
+        this.handleProfileNavigation()
       }
     })
 
     this.updateUserRoleForm = new UntypedFormGroup({
       roles: new UntypedFormControl('', [Validators.required]),
+    })
+  }
+
+  private handleProfileNavigation() {
+    this.configSvc = this.activeRoute.snapshot.data.configService || {}
+    const profileDataAll = this.activeRoute.snapshot.data.profileData.data || {}
+    const profileData = profileDataAll.profileDetails
+
+    this.populateProfileDetails(profileDataAll, profileData)
+
+    const userData = profileData ? profileData.profileReq : ''
+    this.userData = userData
+    const academics = this.populateAcademics(userData)
+    const organisations = this.populateOrganisationDetails(userData)
+    if (userData) {
+      this.constructFormFromRegistry(userData, academics, organisations)
+    }
+
+    this.buildRolesList()
+    this.populateUserRoles(profileDataAll)
+
+    this.subscribeToProfileData()
+    this.subscribeToBreadcrumbs()
+  }
+
+  private populateProfileDetails(profileDataAll: any, profileData: any) {
+    if (!profileData) {
+      return
+    }
+    this.userID = profileDataAll.id
+    this.basicInfo = profileData.profileReq.personalDetails
+    if (this.basicInfo) {
+      this.fullname = `${this.basicInfo.firstname} ${this.basicInfo.surname}`
+    }
+    this.academicDetails = profileData.profileReq.academics
+    this.professionalDetails = profileData.profileReq.professionalDetails ? profileData.profileReq.professionalDetails[0] : []
+    this.employmentDetails = profileData.profileReq.employmentDetails
+    this.skillDetails = profileData.profileReq.skills
+    this.interests = profileData.profileReq.interests
+    this.userStatus = profileDataAll.isDeleted ? 'Inactive' : 'Active'
+  }
+
+  private buildRolesList() {
+    const fullProfile = _.get(this.activeRoute.snapshot, 'data.configService')
+    this.department = fullProfile.unMappedUser.rootOrgId
+    this.departmentName = fullProfile ? fullProfile.unMappedUser.channel : ''
+    const orgLst = _.get(this.activeRoute.snapshot, 'data.rolesList.data.orgTypeList')
+    const filteredDept = _.compact(_.map(orgLst, ls => {
+      const f = _.filter(ls.flags, (fl: any) => fullProfile.unMappedUser.rootOrg[fl])
+      return f && f.length > 0 ? ls : null
+    }))
+    /* tslint:disable-next-line */
+    const rolesListFull = _.uniq(_.map(_.compact(_.flatten(_.map(filteredDept, 'roles'))), rol => ({ roleName: rol, description: rol })))
+
+    rolesListFull.forEach((role: any) => {
+      if (!this.rolesList.some((item: any) => item.roleName === role.roleName)) {
+        this.rolesList.push(role)
+      }
+    })
+  }
+
+  private populateUserRoles(profileDataAll: any) {
+    const usrRoles = profileDataAll.roles
+    if (usrRoles && usrRoles.length > 0) {
+      usrRoles.forEach((role: any) => {
+        this.orguserRoles.push(role)
+        this.modifyUserRoles(role)
+      })
+    }
+  }
+
+  private subscribeToProfileData() {
+    this.activeRoute.data.pipe(takeUntil(this.destroy$)).subscribe(data => {
+      this.profileData = data.pageData.data.profileData ? data.pageData.data.profileData : []
+      this.profileDataKeys = data.pageData.data.profileDataKey ? data.pageData.data.profileDataKey : []
+    })
+  }
+
+  private subscribeToBreadcrumbs() {
+    this.routeSubscription = this.activeRoute.queryParamMap.pipe(takeUntil(this.destroy$)).subscribe(qParamsMap => {
+      this.qpParam = qParamsMap.get('param')
+      this.qpPath = qParamsMap.get('path')
+      if (this.qpParam === 'MDOinfo') {
+        // tslint:disable-next-line:max-line-length
+        this.breadcrumbs = { titles: [{ title: 'Users', url: '/app/home/users' }, { title: this.userStatus, url: 'none' }, { title: 'MDO information', url: '/app/home/mdoinfo/leadership' }, { title: this.fullname, url: 'none' }] }
+      } else {
+        // tslint:disable-next-line:max-line-length
+        this.breadcrumbs = { titles: [{ title: 'Users', url: '/app/home/users' }, { title: this.userStatus, url: 'none' }, { title: this.fullname, url: 'none' }] }
+      }
     })
   }
   tabsData!: any[]
@@ -352,7 +308,7 @@ export class ViewUserComponent implements OnInit, AfterViewInit {
       postDegree: [],
     }
     if (data.academics && Array.isArray(data.academics)) {
-      data.academics.map((item: any) => {
+      data.academics.forEach((item: any) => {
         switch (item.type) {
           case 'X_STANDARD': academics.X_STANDARD.schoolName10 = item.nameOfInstitute
             academics.X_STANDARD.yop10 = item.yearOfPassing
@@ -464,7 +420,7 @@ export class ViewUserComponent implements OnInit, AfterViewInit {
       hobbies: data.interests ? data.interests.hobbies : '',
 
     },
-                                          {
+      {
         emitEvent: true,
       })
     this.loadDob = true
@@ -546,6 +502,11 @@ export class ViewUserComponent implements OnInit, AfterViewInit {
     this.elementPosition = this.menuElement.nativeElement.parentElement.offsetTop
   }
 
+  ngOnDestroy() {
+    this.destroy$.next()
+    this.destroy$.complete()
+  }
+
   modifyUserRoles(role: string) {
     if (this.userRoles.has(role)) {
       this.userRoles.delete(role)
@@ -607,7 +568,7 @@ export class ViewUserComponent implements OnInit, AfterViewInit {
       },
     }
 
-    this.usersSvc.updateProfileDetails(reqUpdate).subscribe(data => {
+    this.usersSvc.updateProfileDetails(reqUpdate).pipe(takeUntil(this.destroy$)).subscribe(data => {
       if (data) {
         // this.router.navigate('./app/users')
         // this.router.navigate(['/app/users', this.userID, 'details'])
@@ -637,7 +598,7 @@ export class ViewUserComponent implements OnInit, AfterViewInit {
         },
       }
 
-      this.usersSvc.addUserToDepartment(dreq).subscribe(dres => {
+      this.usersSvc.addUserToDepartment(dreq).pipe(takeUntil(this.destroy$)).subscribe(dres => {
         if (dres) {
           // this.openSnackbar('User role updated Successfully')
           const dialogRef = this.dialog.open(RoleConfirmDialogComponent, {
@@ -649,7 +610,7 @@ export class ViewUserComponent implements OnInit, AfterViewInit {
             panelClass: 'competencies',
             data: { user: this.fullname, role: form.value.roles },
           })
-          dialogRef.afterClosed().subscribe((response: any) => {
+          dialogRef.afterClosed().pipe(takeUntil(this.destroy$)).subscribe((response: any) => {
             if (response) {
               // this.updateUserRole(form)
               this.updateUserRoleForm.reset({ roles: '' })

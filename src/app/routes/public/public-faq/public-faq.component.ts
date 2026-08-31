@@ -5,6 +5,7 @@ import { Subscription } from 'rxjs'
 import { ValueService, ConfigurationsService, EFeatures, NsPage } from '@sunbird-cb/utils'
 
 @Component({
+  standalone: false,
   selector: 'ws-public-faq',
   templateUrl: './public-faq.component.html',
   styleUrls: ['./public-faq.component.scss'],
@@ -31,9 +32,9 @@ export class PublicFaqComponent implements OnInit, OnDestroy {
   ]
   paramSubscription: Subscription | null = null
   constructor(
-    private route: ActivatedRoute,
-    private valueSvc: ValueService,
-    private configSvc: ConfigurationsService,
+    private readonly route: ActivatedRoute,
+    private readonly valueSvc: ValueService,
+    private readonly configSvc: ConfigurationsService,
   ) {}
   ngOnInit() {
     if (this.configSvc.restrictedFeatures) {

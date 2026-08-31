@@ -1,0 +1,596 @@
+// ===========================================================================
+// MDO PORTAL DESIGN SYSTEM V2 — validated tokens and mixins.
+// Additive only: nothing in the existing app references these variables unless
+// a component opts in with @import 'ws-design-system-v2'.
+//
+// Validated reference implementations (copy these, don't reinvent):
+//   FRAC dashboard    → project/ws/app/src/lib/routes/frac/pages/frac-dashboard/
+//   FRAC position     → project/ws/app/src/lib/routes/frac/pages/position/position-upload/
+//   Playlist filters  → project/ws/app/src/lib/routes/playlist/pages/playlist-filters/
+//   FRAC table        → project/ws/app/src/lib/routes/frac/components/frac-table/
+//
+// Implementation note: every `@mixin v2-X` below is a thin wrapper around a
+// `%v2-X-placeholder` that holds the actual declarations, extended via
+// `@extend`. This is required so every nested selector (`&:hover`, `th, td`,
+// `mat-icon`, etc.) has a real scoping-root selector to attach to in the
+// source text itself — a bare `@mixin` body has no selector of its own, which
+// static CSS analysis (Sonar's "Missing scoping root" rule) flags. `@extend`
+// keeps every `@include v2-X;` call site elsewhere in the app completely
+// unchanged — this is a purely internal refactor.
+//
+// KNOWN ACCEPTED DEVIATION: `@extend` emits a placeholder's declarations once,
+// at the placeholder's position in THIS file (i.e. very early — before any
+// consuming component's own rules, since every consumer @imports this file
+// first). `@include` used to inject declarations inline at the exact call
+// site instead. This is styling-equivalent for every consumer EXCEPT the two
+// below, which each define the same selector twice in one file (a pre-existing
+// bug, not something this refactor introduces) and relied on the mixin's
+// `@include` landing textually later than the hand-written block to win the
+// cascade. Under `@extend`, the hand-written (now-first) block wins instead:
+//   - project/ws/.../home/routes/event-modal/event-modal.component.scss
+//     (.title, .subtext, .form-label, .creat-btn are each defined twice)
+//   - project/ws/.../home/routes/event-dashboard/event-dashboard.component.scss
+//     (.page-title is defined twice; .events-table is split but non-conflicting)
+// Fixing those two files' duplicate selectors was explicitly deferred — ask
+// before editing them if their rendered styles should be double-checked.
+//
+// (Do NOT swap this back to properties living directly in the `@mixin` body,
+// even wrapped in `& { }` — that changes Sass's declaration-ordering relative
+// to whatever a caller writes after the `@include`, which inverts the CSS
+// cascade for components that add their own overrides after including one of
+// these mixins — e.g. `.example-container { @include v2-table-container;
+// overflow: hidden; }` would end up with `overflow-x: auto` winning over
+// `overflow: hidden`. `@extend` avoids that failure mode entirely.)
+// ===========================================================================
+
+// ── Colors ──────────────────────────────────────────────────────────────
+$v2-color-primary:           #1c5d95;
+$v2-color-primary-hover:     #174e7f;
+$v2-color-primary-active:    #14446c;
+$v2-color-primary-tint:      #e9f3fb;
+$v2-color-primary-tint-strong: #eef4fb;
+
+$v2-color-bg:                #f8fafc;
+$v2-color-card:              #ffffff;
+$v2-color-border:            #e5e7eb;
+$v2-color-border-table:      #e0e0e0;   // FRAC table border (slightly darker)
+$v2-color-table-header-bg:   #dfedf9;   // FRAC table header (light blue)
+
+$v2-color-text:              #111827;
+$v2-color-text-secondary:    #6b7280;
+$v2-color-card-description:  #8a8787;   // frac-dashboard action-card paragraph (warmer than text-secondary)
+$v2-color-select-border:     #E1DFDF;   // playlist-filters + position-upload custom <select> border
+
+$v2-color-success:           #16a34a;
+$v2-color-warning:           #f59e0b;
+$v2-color-danger:            #dc2626;
+$v2-color-danger-btn:        #ca0000;   // matches FRAC's existing danger button outline exactly
+$v2-color-danger-btn-tint:   #ffe5e5;
+
+// Semantic status chip tokens — used in table cells and status badges
+$v2-status-success-bg:       #d1fae5;   // green-100
+$v2-status-success-text:     #065f46;   // green-900
+$v2-status-warning-bg:       #fef3c7;   // amber-100
+$v2-status-warning-text:     #92400e;   // amber-800
+$v2-status-danger-bg:        #fee2e2;   // red-100
+$v2-status-danger-text:      #991b1b;   // red-800
+$v2-status-info-bg:          #e0e7ff;   // indigo-100
+$v2-status-info-text:        #3730a3;   // indigo-800
+$v2-status-neutral-bg:       #f3f4f6;   // gray-100
+$v2-status-neutral-text:     #6b7280;   // gray-500
+
+// ── Typography ──────────────────────────────────────────────────────────
+$v2-font-family:             'Inter', 'Roboto', sans-serif;
+
+$v2-font-page-title:         40px;      // h1 — "Events", "Welcome to FRAC"
+$v2-font-modal-title:        28px;      // dialog h2
+$v2-font-section-title:      18px;      // section header row label
+$v2-font-section-h2:         24px;      // playlist-filters / position-upload page-level h2 between subtitle and section-title
+$v2-font-card-title:         16px;      // action-card title
+$v2-font-body:               16px;
+$v2-font-subtitle:           20px;      // page sub-text under h1
+$v2-font-caption:            14px;
+$v2-font-label:              13px;      // form field labels
+$v2-font-micro:              12px;      // validation errors, hints, badges, filter chips
+
+// ── Spacing (8-pt system) ───────────────────────────────────────────────
+$v2-space-1:  8px;
+$v2-space-2:  16px;
+$v2-space-3:  24px;
+$v2-space-4:  32px;
+$v2-space-6:  48px;
+$v2-space-8:  64px;
+
+// ── Layout ──────────────────────────────────────────────────────────────
+$v2-content-max-width:       1440px;
+$v2-content-padding:         32px;
+$v2-sidebar-width:           280px;
+$v2-header-height:           64px;
+
+// ── Radius ──────────────────────────────────────────────────────────────
+$v2-radius-card:             8px;       // action-card / frac-table-container
+$v2-radius-card-large:       12px;      // position-card, modal inner
+$v2-radius-input:            8px;       // text inputs
+$v2-radius-select:           6px;       // custom native <select>
+$v2-radius-button:           50px;      // pill — FRAC buttons (not 888px variant, same visual result)
+
+// ── Shadow ──────────────────────────────────────────────────────────────
+$v2-shadow-card:             0 1px 2px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.06);
+$v2-shadow-card-hover:       0 4px 16px rgba(28,93,149,0.14);  // frac-dashboard + position-upload card hover
+$v2-shadow-input:            0px 0px 4px rgba(0,0,0,0.15);
+$v2-shadow-dropdown:         0 8px 24px rgba(0,0,0,0.14);
+
+// ── Stat card ───────────────────────────────────────────────────────────
+$v2-stat-card-height:        120px;
+
+// ── Table ───────────────────────────────────────────────────────────────
+$v2-table-row-height:        40px;
+
+// ── Motion ──────────────────────────────────────────────────────────────
+$v2-transition:              all 0.2s ease;
+
+
+// ===========================================================================
+// LAYOUT MIXINS
+// ===========================================================================
+
+// Standard page container — use on the outermost div of any admin page
+// Matches frac-dashboard-container spacing and flex layout exactly.
+%v2-page-container-placeholder {
+  padding: $v2-content-padding;
+  max-width: $v2-content-max-width;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: $v2-space-3;
+  background-color: #ffffff;
+
+  @media (max-width: 768px) { padding: 24px; }
+  @media (max-width: 480px) { padding: 16px; }
+}
+@mixin v2-page-container {
+  @extend %v2-page-container-placeholder;
+}
+
+// Three-column responsive card grid — frac-dashboard .cards-grid
+// Apply to the grid container div that holds @include v2-action-card tiles.
+%v2-card-grid-placeholder {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $v2-space-3;
+
+  @media (max-width: 1024px) { grid-template-columns: repeat(2, 1fr); }
+  @media (max-width: 768px)  { grid-template-columns: repeat(2, 1fr); gap: $v2-space-2; }
+  @media (max-width: 480px)  { grid-template-columns: 1fr; }
+}
+@mixin v2-card-grid {
+  @extend %v2-card-grid-placeholder;
+}
+
+// Action card tile — frac-dashboard .action-card
+// Validated padding / border / shadow / hover-lift from frac-dashboard.component.scss.
+%v2-action-card-placeholder {
+  padding: $v2-space-3;
+  background-color: $v2-color-card;
+  box-shadow: $v2-shadow-card;
+  border-radius: $v2-radius-card;
+  border: 1px solid $v2-color-border;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 8px;
+  transition: $v2-transition;
+
+  &:hover {
+    box-shadow: $v2-shadow-card-hover;
+    transform: translateY(-1px);
+  }
+}
+@mixin v2-action-card {
+  @extend %v2-action-card-placeholder;
+}
+
+
+// ===========================================================================
+// TYPOGRAPHY MIXINS
+// ===========================================================================
+
+// Page-level h1 — "Events", "Welcome to the FRAC", "Manage Users"
+// Validated: frac-dashboard .welcome-text, event-dashboard .page-title
+%v2-page-title-placeholder {
+  color: #000000;
+  font-size: $v2-font-page-title;
+  font-family: $v2-font-family;
+  font-weight: 500;
+  line-height: 1.2;
+  margin: 0;
+  padding: 0;
+  word-wrap: break-word;
+
+  @media (max-width: 768px) { font-size: 32px; }
+  @media (max-width: 480px) { font-size: 24px; }
+}
+@mixin v2-page-title {
+  @extend %v2-page-title-placeholder;
+}
+
+// Subtitle under h1 — "Manage Events", "Upload competencies..."
+// Validated: frac-dashboard .sub-text, event-dashboard .page-subtitle
+%v2-page-subtitle-placeholder {
+  color: #000000;
+  font-size: $v2-font-subtitle;
+  font-family: $v2-font-family;
+  font-weight: 400;
+  line-height: 1.4;
+  margin: 0;
+  padding: 0;
+
+  @media (max-width: 768px) { font-size: 16px; }
+}
+@mixin v2-page-subtitle {
+  @extend %v2-page-subtitle-placeholder;
+}
+
+// Section header inside a page — "Events" label in the toolbar row
+// Validated: event-dashboard .header h3, frac-dashboard section headers
+%v2-section-title-placeholder {
+  color: $v2-color-text;
+  font-size: $v2-font-section-title;
+  font-family: $v2-font-family;
+  font-weight: 500;
+  line-height: 1.3;
+  margin: 0;
+}
+@mixin v2-section-title {
+  @extend %v2-section-title-placeholder;
+}
+
+// Dialog / modal title
+// Validated: event-modal .title (28px/500), FRAC upload modals
+%v2-modal-title-placeholder {
+  color: #000000;
+  font-size: $v2-font-modal-title;
+  font-family: $v2-font-family;
+  font-weight: 500;
+  line-height: 1.3;
+  margin: 0;
+}
+@mixin v2-modal-title {
+  @extend %v2-modal-title-placeholder;
+}
+
+// Dialog subtitle / helper sentence under modal title
+%v2-modal-subtitle-placeholder {
+  color: $v2-color-text-secondary;
+  font-size: $v2-font-caption;
+  font-family: $v2-font-family;
+  font-weight: 400;
+  line-height: 1.5;
+  margin: 0;
+}
+@mixin v2-modal-subtitle {
+  @extend %v2-modal-subtitle-placeholder;
+}
+
+// Form field label — sits above input/select
+// Validated: event-modal .form-label, FRAC upload .form-label
+%v2-form-label-placeholder {
+  font-family: $v2-font-family;
+  font-size: $v2-font-label;
+  font-weight: 500;
+  color: $v2-color-text;
+  margin-bottom: 6px;
+  display: block;
+}
+@mixin v2-form-label {
+  @extend %v2-form-label-placeholder;
+}
+
+
+// ===========================================================================
+// FORM / INPUT MIXINS
+// ===========================================================================
+
+// Clean native text input — height 40px, thin border, FRAC-style focus ring.
+// Use on <input> and <textarea> that are NOT inside mat-form-field.
+// (For mat-form-field fields, set appearance="outline" and override border-radius.)
+%v2-input-field-placeholder {
+  height: 40px;
+  padding: 0 14px;
+  border: 1px solid $v2-color-border;
+  border-radius: $v2-radius-input;
+  font-family: $v2-font-family;
+  font-size: $v2-font-caption;
+  color: $v2-color-text;
+  background: #ffffff;
+  box-sizing: border-box;
+
+  &:focus {
+    outline: none;
+    border-color: $v2-color-primary;
+    box-shadow: 0 0 0 3px rgba(28, 93, 149, 0.1);
+  }
+
+  &::placeholder {
+    color: $v2-color-text-secondary;
+  }
+}
+@mixin v2-input-field {
+  @extend %v2-input-field-placeholder;
+}
+
+// Search input variant — same as input-field but wider placeholder text
+%v2-search-field-placeholder {
+  @include v2-input-field;
+  width: 360px;
+  max-width: 100%;
+  padding-left: 14px;
+}
+@mixin v2-search-field {
+  @extend %v2-search-field-placeholder;
+}
+
+// Floating-label custom <select> — playlist-filters.component.scss pattern.
+//
+// Full HTML structure:
+//   <div class="select-wrapper">          ← @include v2-custom-select-wrapper
+//     <span class="select-label">Field</span>   ← floating gray label, 13px, top:7px left:16px
+//     <select class="custom-select">…</select>  ← @include v2-custom-select-input
+//     <svg …/>  (or &#9660; span)         ← chevron positioned absolute right:14px
+//   </div>
+//
+// For a SIMPLE 40px select without a floating label (e.g. event modal):
+//   Use a wrapper div with border:1px solid $v2-color-border; border-radius:$v2-radius-input
+//   and a <select> with height:40px; appearance:none.  Do NOT use these two mixins for that case.
+%v2-custom-select-wrapper-placeholder {
+  position: relative;
+  width: 100%;
+}
+@mixin v2-custom-select-wrapper {
+  @extend %v2-custom-select-wrapper-placeholder;
+}
+
+// Native <select> inside the floating-label wrapper.
+// The 26px top padding reserves space for the floating label sitting at top:7px.
+// Validated against playlist-filters.component.scss .custom-select exactly.
+%v2-custom-select-input-placeholder {
+  width: 100%;
+  height: 52px;
+  padding: 26px 40px 4px 16px;
+  border: 1px solid $v2-color-select-border;
+  border-radius: $v2-radius-select;
+  background: #ffffff;
+  box-shadow: $v2-shadow-input;
+  color: $v2-color-text;
+  font-family: $v2-font-family;
+  font-size: $v2-font-caption;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+
+  &:focus {
+    border-color: $v2-color-primary;
+    box-shadow: 0 0 0 2px rgba(28, 93, 149, 0.15);
+  }
+}
+@mixin v2-custom-select-input {
+  @extend %v2-custom-select-input-placeholder;
+}
+
+
+// ===========================================================================
+// TABLE MIXINS
+// ===========================================================================
+
+// Outer table card wrapper — border, radius, overflow clip.
+// Validated: frac-table-container, event-dashboard .events-table
+%v2-table-container-placeholder {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid $v2-color-border-table;
+  border-radius: $v2-radius-card;
+  background: #ffffff;
+}
+@mixin v2-table-container {
+  @extend %v2-table-container-placeholder;
+}
+
+// Inner <table> styles — call inside a selector that already uses v2-table-container.
+// Apply to the table element within that wrapper.
+%v2-table-inner-placeholder {
+  width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+  font-family: $v2-font-family;
+
+  & th, & td {
+    padding: 12px 16px;
+    text-align: left;
+    font-size: $v2-font-caption;
+    font-weight: 400;
+    height: $v2-table-row-height;
+    border-bottom: 1px solid $v2-color-border-table;
+    vertical-align: middle;
+  }
+
+  // Blue sticky header — frac-table-container th pattern
+  & thead th {
+    background-color: $v2-color-table-header-bg;
+    color: $v2-color-text;
+    font-weight: 600;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+  }
+
+  & tbody tr {
+    cursor: pointer;
+    transition: background-color 150ms ease;
+
+    &:last-child td { border-bottom: none; }
+    &:hover         { background-color: #f9fbff; }
+
+    & td { color: $v2-color-text; }
+  }
+
+  @media (max-width: 768px) {
+    & th, & td { font-size: 13px; padding: 10px 12px; }
+  }
+}
+@mixin v2-table-inner {
+  @extend %v2-table-inner-placeholder;
+}
+
+
+// ===========================================================================
+// BUTTON MIXINS
+// ===========================================================================
+
+%v2-btn-base-placeholder {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 24px;
+  border-radius: $v2-radius-button;
+  font-family: $v2-font-family;
+  font-size: $v2-font-caption;
+  font-weight: 500;
+  cursor: pointer;
+  transition: $v2-transition;
+  white-space: nowrap;
+
+  & mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+
+  &:hover:not(:disabled)  { transform: translateY(-1px); }
+  &:disabled              { cursor: not-allowed; opacity: 0.5; transform: none; }
+}
+@mixin v2-btn-base {
+  @extend %v2-btn-base-placeholder;
+}
+
+%v2-btn-primary-placeholder {
+  @include v2-btn-base;
+  background: $v2-color-primary;
+  color: #ffffff;
+  border: none;
+
+  &:hover:not(:disabled) {
+    background: $v2-color-primary-hover;
+    transform: translateY(-1px);
+  }
+}
+@mixin v2-btn-primary {
+  @extend %v2-btn-primary-placeholder;
+}
+
+%v2-btn-secondary-placeholder {
+  @include v2-btn-base;
+  background: $v2-color-card;
+  color: $v2-color-primary;
+  border: 1px solid $v2-color-primary;
+
+  &:hover:not(:disabled) { background: $v2-color-primary-tint; }
+}
+@mixin v2-btn-secondary {
+  @extend %v2-btn-secondary-placeholder;
+}
+
+%v2-btn-danger-placeholder {
+  @include v2-btn-base;
+  background: $v2-color-card;
+  color: $v2-color-danger-btn;
+  border: 1px solid $v2-color-danger-btn;
+
+  &:hover:not(:disabled) { background: $v2-color-danger-btn-tint; }
+}
+@mixin v2-btn-danger {
+  @extend %v2-btn-danger-placeholder;
+}
+
+// Smaller outlined pill button used inside action cards — frac-dashboard .action-btn
+// 40px height / 24px side padding; same primary-blue outline as v2-btn-secondary.
+%v2-card-action-btn-placeholder {
+  @include v2-btn-secondary;
+  height: 40px;
+  padding: 0 24px;
+}
+@mixin v2-card-action-btn {
+  @extend %v2-card-action-btn-placeholder;
+}
+
+
+// ===========================================================================
+// EMPTY STATE MIXINS
+// ===========================================================================
+
+// Dashed-border empty state card — position-upload .table-empty-state-card
+// Use when a list/grid has zero items.
+// Children: .empty-icon (@include v2-empty-state-icon), title, message, optional action button.
+%v2-empty-state-card-placeholder {
+  padding: $v2-space-3 28px;
+  border-radius: $v2-radius-card;
+  border: 1px dashed #c8d6e6;
+  background: rgba(255, 255, 255, 0.95);
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(28, 93, 149, 0.08);
+}
+@mixin v2-empty-state-card {
+  @extend %v2-empty-state-card-placeholder;
+}
+
+// 56px circle icon container inside an empty state card.
+// Apply to the icon wrapper div; place <mat-icon> or <img> inside.
+%v2-empty-state-icon-placeholder {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 12px;
+  border-radius: 50%;
+  background: #eef4fb;
+  border: 1px solid #d5e3f3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  & mat-icon {
+    color: $v2-color-primary;
+    font-size: 30px;
+    width: 30px;
+    height: 30px;
+  }
+}
+@mixin v2-empty-state-icon {
+  @extend %v2-empty-state-icon-placeholder;
+}
+
+
+// ===========================================================================
+// SHIMMER / LOADING MIXINS
+// ===========================================================================
+
+// Shimmer sweep keyframe — declared globally so any component that imports this
+// partial gets the animation without needing a separate global stylesheet entry.
+@keyframes shimmer-sweep {
+  0%   { background-position: -600px 0; }
+  100% { background-position:  600px 0; }
+}
+
+// Apply to a placeholder div/span to show a loading skeleton.
+// Validated against position-upload.component.scss shimmer pattern exactly.
+// Use width/height on the element itself to shape each skeleton piece.
+%v2-shimmer-placeholder {
+  background: linear-gradient(90deg, #ececec 25%, #f7f7f7 50%, #ececec 75%);
+  background-size: 1200px 100%;
+  animation: shimmer-sweep 1.5s infinite linear;
+  border-radius: 6px;
+}
+@mixin v2-shimmer {
+  @extend %v2-shimmer-placeholder;
+}

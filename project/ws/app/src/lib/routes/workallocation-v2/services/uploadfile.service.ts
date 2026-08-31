@@ -15,7 +15,7 @@ const API_END_POINTS = {
 })
 export class UploadFileService {
 
-  constructor(private http: HttpClient) { }
+  constructor(private readonly http: HttpClient) { }
 
   getProfile(): Observable<any> {
     return this.http.get<any>(`${API_END_POINTS.GETPRFOILEDATA}`)

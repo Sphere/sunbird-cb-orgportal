@@ -37,8 +37,7 @@
                                     <div class="flex-custom">
                                         <mat-card-content
                                             class="margin-top-m margin-bottom-m margin-left-m margin-right-m">
-                                            <span class="card-heading flex-4 mobile-margin appr-section-heading"
-                                                role="link" tabindex="0">
+                                            <span class="card-heading flex-4 mobile-margin appr-section-heading">
                                                 Officer
                                             </span>
 
@@ -47,8 +46,11 @@
                                                     <div class="flex-1" *ngIf="selectedUser">
                                                         <div class="officer-card">
                                                             <div class="bg-grey">
-                                                                <mat-icon class="close-icon"
-                                                                    (click)="removeSelectedUSer()">close</mat-icon>
+                                                                <button type="button"
+                                                                    style="all: unset; display: contents; cursor: pointer;"
+                                                                    (click)="removeSelectedUSer()">
+                                                                    <mat-icon class="close-icon">close</mat-icon>
+                                                                </button>
                                                             </div>
                                                             <div class="padding-m userdata">
                                                                 <p class="letter-color">
@@ -154,8 +156,7 @@
                                     <div class="flex-custom">
                                         <mat-card-content
                                             class="margin-top-m margin-bottom-m margin-left-m margin-right-m">
-                                            <span class="card-heading flex-4 mobile-margin appr-section-heading"
-                                                role="link" tabindex="0">
+                                            <span class="card-heading flex-4 mobile-margin appr-section-heading">
                                                 Roles, activites & competencies
                                             </span>
 
@@ -296,8 +297,8 @@
         <div class="flex-1 similar-sidebar">
             <ng-container id="changelog">
                 <div>
-                    <label class="change-log-text margin-top-l margin-bottom-l margin-left-m margin-right-m">Similar
-                        items</label>
+                    <span class="change-log-text margin-top-l margin-bottom-l margin-left-m margin-right-m">Similar
+                        items</span>
                     <div class="w-full similarUsersList" *ngIf="similarUsers && similarUsers.length > 0">
                         <div class="suser-card" *ngFor="let user of similarUsers">
                             <div class="padding-top-m padding-left-s padding-right-s">
@@ -350,12 +351,12 @@
                     </div>
                     <div id="loader"></div>
                     <div class="no-request-text margin-m">
-                        <label *ngIf="!similarUsers && !similarRoles && !similarActivities && !similarPositions">System
-                            will recommend similar items to avoid duplication</label>
-                        <label *ngIf="nosimilarUsers && similarUsers.length === 0">No users found</label>
-                        <label *ngIf="nosimilarRoles && similarRoles.length === 0">No roles found</label>
-                        <label *ngIf="nosimilarPositions && similarPositions.length === 0">No position found</label>
-                        <label *ngIf="nosimilarActivities && similarActivities.length === 0">No activity found</label>
+                        <span *ngIf="!similarUsers && !similarRoles && !similarActivities && !similarPositions">System
+                            will recommend similar items to avoid duplication</span>
+                        <span *ngIf="nosimilarUsers && similarUsers.length === 0">No users found</span>
+                        <span *ngIf="nosimilarRoles && similarRoles.length === 0">No roles found</span>
+                        <span *ngIf="nosimilarPositions && similarPositions.length === 0">No position found</span>
+                        <span *ngIf="nosimilarActivities && similarActivities.length === 0">No activity found</span>
                     </div>
                 </div>
             </ng-container>

@@ -1,7 +1,5 @@
 import { Injectable } from '@angular/core'
-// import { AuthKeycloakService } from '@sunbird-cb/utils'
 import { NsContent } from '@sunbird-cb/collection'
-// tslint:disable-next-line: max-line-length
 import {
   CHAT_BOT_VISIBILITY,
   DISPLAY_SETTING,
@@ -9,10 +7,7 @@ import {
   GET_PLAYERCONTENT_JSON,
   GO_OFFLINE,
   IOS_OPEN_IN_BROWSER,
-  // ISAUTHENTICATED_OUTGOING,
   NAVIGATION_DATA_INCOMING,
-  // SESSIONID_OUTGOING,
-  // TOKEN_OUTGOING,
 } from '../models/mobile-events.model'
 import { NavigationExternalService } from './navigation-external.service'
 interface IWindowMobileAppModified extends Window {
@@ -24,15 +19,14 @@ interface IWindowMobileAppModified extends Window {
   isAuthenticated?: any
   dispatchEventFlag?: any
 }
-declare var window: IWindowMobileAppModified
+declare const window: IWindowMobileAppModified
 
 @Injectable({
   providedIn: 'root',
 })
 export class MobileAppsService {
   constructor(
-    // private authSvc: AuthKeycloakService,
-    private navigateSvc: NavigationExternalService,
+    private readonly navigateSvc: NavigationExternalService,
   ) { }
 
   init() {
@@ -94,13 +88,6 @@ export class MobileAppsService {
     window.navigateTo = (url: string, params?: any) => {
       document.dispatchEvent(new CustomEvent(NAVIGATION_DATA_INCOMING, { detail: { url, params } }))
     }
-
-    // Incoming Requests with outgoing data
-    // window.getToken = () => this.sendDataAppToClient(TOKEN_OUTGOING, this.authSvc.token)
-    // window.getToken()
-    // window.getSessionId = () => this.sendDataAppToClient(SESSIONID_OUTGOING, this.authSvc.sessionId)
-    // window.isAuthenticated = () =>
-    //   this.sendDataAppToClient(ISAUTHENTICATED_OUTGOING, this.authSvc.isAuthenticated)
   }
 
   isFunctionAvailableInAndroid(functionName: string) {
@@ -122,8 +109,6 @@ export class MobileAppsService {
     } else {
       if (window.dispatchEventFlag) {
         document.dispatchEvent(new CustomEvent(eventName, { detail: data }))
-      } else {
-        // //console.log(eventName, data)
       }
     }
   }

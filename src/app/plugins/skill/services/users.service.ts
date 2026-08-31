@@ -13,7 +13,7 @@ const API_END_POINTS = {
   providedIn: 'root',
 })
 export class UsersService {
-  constructor(private http: HttpClient) { }
+  constructor(private readonly http: HttpClient) { }
 
   getUserById(userid: string): Observable<any> {
     if (userid) {

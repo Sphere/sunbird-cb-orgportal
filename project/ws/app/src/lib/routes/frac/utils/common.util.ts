@@ -130,8 +130,8 @@ function extractLevelsFromNode(node: FracHierarchyNode): string[] {
  */
 function sortLevels(levels: string[]): void {
   levels.sort((a, b) => {
-    const aNum = Number(a.replace(/[^0-9]/g, ''))
-    const bNum = Number(b.replace(/[^0-9]/g, ''))
+    const aNum = Number(a.replaceAll(/[^0-9]/g, ''))
+    const bNum = Number(b.replaceAll(/[^0-9]/g, ''))
     if (Number.isFinite(aNum) && Number.isFinite(bNum) && aNum !== bNum) {
       return aNum - bNum
     }

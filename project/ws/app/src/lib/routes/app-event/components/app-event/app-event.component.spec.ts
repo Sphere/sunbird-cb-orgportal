@@ -1,14 +1,46 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
-
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing'
+import { NO_ERRORS_SCHEMA } from '@angular/core'
+import { ActivatedRoute } from '@angular/router'
+import { of, BehaviorSubject } from 'rxjs'
+import { HttpClientTestingModule } from '@angular/common/http/testing'
 import { AppEventComponent } from './app-event.component'
+import { EventService } from '../../services/event.service'
+import { ConfigurationsService } from '@sunbird-cb/utils'
 
 describe('AppEventComponent', () => {
   let component: AppEventComponent
   let fixture: ComponentFixture<AppEventComponent>
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [AppEventComponent],
+      imports: [HttpClientTestingModule],
+      providers: [
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            data: of({ pageData: { data: {} }, eventdata: { data: {} } }),
+            paramMap: of({ get: () => null }),
+            params: of({}),
+            queryParams: of({}),
+            snapshot: { paramMap: { get: () => null }, queryParamMap: { get: () => null }, data: {}, params: {}, queryParams: {} },
+            parent: { data: of({ eventdata: { data: {} } }), params: of({}) },
+          },
+        },
+        {
+          provide: EventService,
+          useValue: {
+            bannerisEnabled: new BehaviorSubject<boolean>(true),
+          },
+        },
+        {
+          provide: ConfigurationsService,
+          useValue: {
+            pageNavBar: {},
+          },
+        },
+      ],
+      schemas: [NO_ERRORS_SCHEMA],
     })
     .compileComponents()
   }))

@@ -18,7 +18,7 @@ const API_END_POINTS = {
   providedIn: 'root',
 })
 export class WidgetUserService {
-  constructor(private http: HttpClient) { }
+  constructor(private readonly http: HttpClient) { }
 
   handleError(error: ErrorEvent) {
     let errorMessage = ''

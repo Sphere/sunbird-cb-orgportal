@@ -1,7 +1,7 @@
-import { Component, OnDestroy, OnInit, SimpleChanges } from '@angular/core'
-import { ITableData } from '@sunbird-cb/collection/lib/ui-org-table/interface/interfaces'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
-import { MatLegacyPaginator as MatPaginator } from '@angular/material/legacy-paginator'
+import { Component, OnDestroy, OnInit, SimpleChanges, OnChanges } from '@angular/core'
+import { ITableData } from '../../../ui-org-table.model'
+import { MatDialog } from '@angular/material/dialog'
+import { MatPaginator } from '@angular/material/paginator'
 import { Router, ActivatedRoute } from '@angular/router'
 import { ExportAsService, ExportAsConfig } from 'ngx-export-as'
 /* tslint:disable */
@@ -10,11 +10,12 @@ import { WorkallocationService } from '../../services/workallocation.service'
 import { WorkAllocationPopUpComponent } from '../../../../head/work-allocation-table/work-order-popup/pop-up.component'
 
 @Component({
+  standalone: false,
   selector: 'ws-app-workallocation',
   templateUrl: './workallocation.component.html',
   styleUrls: ['./workallocation.component.scss'],
 })
-export class WorkallocationComponent implements OnInit, OnDestroy {
+export class WorkallocationComponent implements OnInit, OnDestroy, OnChanges {
   currentFilter = 'Draft'
   tabs: any
   currentUser!: string | null
@@ -38,7 +39,7 @@ export class WorkallocationComponent implements OnInit, OnDestroy {
   userslist: any[] = []
   downloaddata: any = []
   totalusersCount: any
-  p: number = 1;
+  p: number = 1
   isPrint = false
 
 
@@ -48,8 +49,8 @@ export class WorkallocationComponent implements OnInit, OnDestroy {
     }
   }
 
-  constructor(private exportAsService: ExportAsService, private router: Router, private wrkAllocServ: WorkallocationService,
-    private workallocationSrvc: WorkallocationService, private activeRoute: ActivatedRoute,
+  constructor(private readonly exportAsService: ExportAsService, private readonly router: Router, private readonly wrkAllocServ: WorkallocationService,
+    private readonly workallocationSrvc: WorkallocationService, private readonly activeRoute: ActivatedRoute,
     public dialog: MatDialog) {
     const paramsMap = this.activeRoute.snapshot.params.tab
     if (paramsMap === 'Published') {

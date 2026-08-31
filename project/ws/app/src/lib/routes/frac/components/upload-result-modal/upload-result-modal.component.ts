@@ -29,6 +29,7 @@ interface MappingGroup {
 }
 
 @Component({
+  standalone: false,
   selector: 'ws-app-upload-result-modal',
   templateUrl: './upload-result-modal.component.html',
   styleUrls: ['./upload-result-modal.component.scss']
@@ -60,8 +61,8 @@ export class UploadResultModalComponent {
 
   formatResultKey(key: string): string {
     return key
-      .replace(/_/g, ' ')
-      .replace(/([A-Z])/g, ' $1')
+      .replaceAll('_', ' ')
+      .replaceAll(/([A-Z])/g, ' $1')
       .replace(/^./, str => str.toUpperCase())
       .trim()
   }
@@ -70,13 +71,13 @@ export class UploadResultModalComponent {
     const groups: Record<string, Set<string>> = {}
 
     for (const line of this.detailLines) {
-      const match = line.match(/^(.+?)\s*<=>\s*(.+)$/)
-      if (!match) {
+      const separatorIndex = line.indexOf('<=>')
+      if (separatorIndex === -1) {
         continue
       }
 
-      const parent = match[1].trim()
-      const child = match[2].trim()
+      const parent = line.slice(0, separatorIndex).trim()
+      const child = line.slice(separatorIndex + '<=>'.length).trim()
       if (!parent || !child) {
         continue
       }

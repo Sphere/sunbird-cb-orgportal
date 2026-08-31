@@ -22,13 +22,13 @@ const API_END_POINTS = {
 })
 export class EventService {
 
-  private eventSource = new BehaviorSubject<any>(null)
+  private readonly eventSource = new BehaviorSubject<any>(null)
   currentEvent = this.eventSource.asObservable()
 
-  private userData = new BehaviorSubject<any>(null)
+  private readonly userData = new BehaviorSubject<any>(null)
   currentUserData = this.userData.asObservable()
 
-  constructor(private http: HttpClient) { }
+  constructor(private readonly http: HttpClient) { }
 
   getAllEvents(): Observable<any> {
     return this.http.get<any>(API_END_POINTS.GET_ALL_EVENTS).pipe(
@@ -38,8 +38,27 @@ export class EventService {
 
   getEventById(eventId: string): Observable<any> {
     return this.http.get(API_END_POINTS.GET_EVENT_BY_ID(eventId)).pipe(
-      map(response => response) // Modify mapping if needed
+      map(response => this.normaliseEvent(response))
     )
+  }
+
+  /**
+   * The API returns the registration mode as `eventType`, but the UI reads it as
+   * `registrationType` (event-overview, participants). Only the dashboard list mapped the
+   * two, and event-details refetches by id and overwrites the globally stored event with
+   * the raw response — leaving `registrationType` undefined, so "No Registration" events
+   * were treated as registration-based (phone validation applied, certificate status shown).
+   * Normalising here means every consumer of an event object sees the same field.
+   */
+  // tslint:disable-next-line: no-any
+  private normaliseEvent(event: any): any {
+    if (!event) {
+      return event
+    }
+    return {
+      ...event,
+      registrationType: event.registrationType || event.eventType,
+    }
   }
 
   createEvent(eventData: any): Observable<any> {

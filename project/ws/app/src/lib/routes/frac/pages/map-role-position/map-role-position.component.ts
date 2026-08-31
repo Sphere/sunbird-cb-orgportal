@@ -54,6 +54,7 @@ interface PositionMappingSearchResponseShape {
 }
 
 @Component({
+  standalone: false,
   selector: 'ws-app-map-role-position',
   templateUrl: './map-role-position.component.html',
   styleUrls: ['./map-role-position.component.scss'],
@@ -61,11 +62,11 @@ interface PositionMappingSearchResponseShape {
 export class MapRolePositionComponent implements OnInit, OnDestroy {
 
   constructor(
-    private snackbar: CustomSnackbarService,
-    private fracApiService: FracApiService,
-    private dialog: MatDialog,
-    private activatedRoute: ActivatedRoute,
-    private router: Router,
+    private readonly snackbar: CustomSnackbarService,
+    private readonly fracApiService: FracApiService,
+    private readonly dialog: MatDialog,
+    private readonly activatedRoute: ActivatedRoute,
+    private readonly router: Router,
   ) { }
 
   // language
@@ -107,9 +108,9 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
   roleSearchTerm = ''
   searchResetKey = 0
 
-  private positionSearch$ = new Subject<string>()
-  private roleSearch$ = new Subject<string>()
-  private destroy$ = new Subject<void>()
+  private readonly positionSearch$ = new Subject<string>()
+  private readonly roleSearch$ = new Subject<string>()
+  private readonly destroy$ = new Subject<void>()
   private readonly positionRoleMappingCache = new Map<string, PositionRoleDetail[]>()
   private readonly positionDraftStore = new Map<string, PositionRoleDetail[]>()
   private readonly clearedPositionDraftKeys = new Set<string>()
@@ -764,13 +765,12 @@ export class MapRolePositionComponent implements OnInit, OnDestroy {
         }
         this.showResultModal(successData)
       },
-      error: async (err) => {
+      error: (err) => {
         this.isSaving = false
-        const failureData = await this.buildMappingFailureModalData(
+        this.buildMappingFailureModalData(
           err,
           'Failed to save position to role mapping.',
-        )
-        this.showResultModal(failureData)
+        ).then(failureData => this.showResultModal(failureData))
       },
     })
   }

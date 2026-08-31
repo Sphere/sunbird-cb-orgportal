@@ -9,8 +9,8 @@ import { catchError } from 'rxjs/operators'
 })
 export class AppInterceptorService implements HttpInterceptor {
   constructor(
-    private configSvc: ConfigurationsService,
-    @Inject(LOCALE_ID) private locale: string,
+    private readonly configSvc: ConfigurationsService,
+    @Inject(LOCALE_ID) private readonly locale: string,
   ) { }
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     const lang = [this.locale.replace('en-US', 'en')]

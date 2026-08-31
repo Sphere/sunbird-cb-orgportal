@@ -1,13 +1,14 @@
 import { Component, OnInit, OnDestroy } from '@angular/core'
 import { ActivatedRoute, Router } from '@angular/router'
 import { EventService } from '../../services/event.service'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
+import { MatDialog } from '@angular/material/dialog'
 import { ViewUsersComponent } from './view-users/view-users.component'
 import { IUserDetails } from '../../interfaces/user-details.model'
 import { ValueService } from '@sunbird-cb/utils'
 import { Subscription } from 'rxjs'
 
 @Component({
+  standalone: false,
   selector: 'ws-auth-profile-detail',
   templateUrl: './profile-detail.component.html',
   styleUrls: ['./profile-detail.component.scss'],
@@ -25,11 +26,11 @@ export class ProfileDetailComponent implements OnInit, OnDestroy {
   screenSubscription: Subscription | null = null
   // speakerName: string | null = ''
   constructor(
-    private activatedRoute: ActivatedRoute,
-    private appEventSvc: EventService,
-    private dialog: MatDialog,
-    private valSvc: ValueService,
-    private router: Router,
+    private readonly activatedRoute: ActivatedRoute,
+    private readonly appEventSvc: EventService,
+    private readonly dialog: MatDialog,
+    private readonly valSvc: ValueService,
+    private readonly router: Router,
   ) {
     const navigation = this.router.getCurrentNavigation()
     if (navigation) {
