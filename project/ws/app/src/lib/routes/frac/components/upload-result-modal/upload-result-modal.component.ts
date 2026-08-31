@@ -61,8 +61,8 @@ export class UploadResultModalComponent {
 
   formatResultKey(key: string): string {
     return key
-      .replace(/_/g, ' ')
-      .replace(/([A-Z])/g, ' $1')
+      .replaceAll('_', ' ')
+      .replaceAll(/([A-Z])/g, ' $1')
       .replace(/^./, str => str.toUpperCase())
       .trim()
   }

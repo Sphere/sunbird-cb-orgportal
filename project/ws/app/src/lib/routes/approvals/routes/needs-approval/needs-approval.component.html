@@ -13,12 +13,12 @@
       <div class="new-mobile margin-top-l">
         <div class="flex flex-wrap mobile-break">
           <div class="w-full profile-cols-full bg-grey" *ngIf="needApprovalList.length>0">
-            <ng-container *ngFor="let field of needApprovalList">
+            <ng-container *ngFor="let field of needApprovalList; let i = index">
               <div class="appr-label">
-                <label class="appr-text-label" for="value-input">{{field.label}}</label>
+                <label class="appr-text-label" [attr.for]="'value-input-' + i">{{field.label}}</label>
               </div>
               <div>
-                <input id="value-input" type="text" class="appr-text-field" [value]="field.value">
+                <input [id]="'value-input-' + i" type="text" class="appr-text-field" [value]="field.value">
                 <button mat-icon-button aria-label="Reject" id="reject" (click)="onClickHandleWorkflow(field,'REJECT')">
                   <mat-icon class="reject">close</mat-icon>
                 </button>
@@ -67,7 +67,7 @@
     <mat-dialog-content>
       <p class="appr-text margin-top-l">Please specify the reason for rejection</p>
       <textarea rows="4" [(ngModel)]="comment" placeholder="Type here" name="comment"
-        class="reject-reason-text"></textarea>
+        class="reject-reason-text" id="rejectReasonText" aria-label="Reason for rejection"></textarea>
     </mat-dialog-content>
     <mat-dialog-actions class="flex flex-wrap justify-end">
       <button mat-button class="goback-dialog-btn" matDialogClose>Go back</button>

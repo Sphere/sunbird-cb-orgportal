@@ -148,7 +148,7 @@ export class CompetencyApiService {
         // Handle children array (new format from mock/API)
         if (entity?.children && Array.isArray(entity.children)) {
             levels = entity.children.map((child: RawEntityChild) => ({
-                level: child.levelId || parseInt(child.level?.replace('L', '') || '0', 10),
+                level: child.levelId || Number.parseInt(child.level?.replace('L', '') || '0', 10),
                 name: child.name,
                 description: child.description
             }))
@@ -169,7 +169,7 @@ export class CompetencyApiService {
 
             // Ensure level is a number
             levels = rawLevels.map((l: RawLevelDesc) => ({
-                level: typeof l.level === 'number' ? l.level : parseInt(String(l.level ?? '0'), 10),
+                level: typeof l.level === 'number' ? l.level : Number.parseInt(String(l.level ?? '0'), 10),
                 name: l.name,
                 description: l.description
             }))

@@ -40,7 +40,8 @@
         <div class="search-row">
           <div class="search-cell"></div>
           <div class="search-box">
-            <input [placeholder]="headerConfig.searchPlaceholder" [(ngModel)]="searchTerm"
+            <input id="competencyMappingSearch" [attr.aria-label]="headerConfig.searchPlaceholder"
+              [placeholder]="headerConfig.searchPlaceholder" [(ngModel)]="searchTerm"
               [disabled]="!selectedActivity || isReadOnly" (input)="onSearchChange()" />
             <mat-icon>search</mat-icon>
           </div>

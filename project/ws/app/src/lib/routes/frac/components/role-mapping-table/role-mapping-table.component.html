@@ -34,8 +34,8 @@
       <div class="search-row">
         <div class="search-cell">
           <div class="search-box">
-            <input placeholder="Search by name, code" [(ngModel)]="searchTerm" [disabled]="!selectedRole || isReadOnly"
-              (input)="onSearchChange()" />
+            <input id="roleMappingTableSearch" aria-label="Search by name, code" placeholder="Search by name, code"
+              [(ngModel)]="searchTerm" [disabled]="!selectedRole || isReadOnly" (input)="onSearchChange()" />
             <mat-icon>search</mat-icon>
           </div>
         </div>

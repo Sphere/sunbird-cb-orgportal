@@ -383,8 +383,8 @@ export class PlaylistSummaryComponent implements OnInit {
     }
 
     private compareLevels(a: number | string, b: number | string): number {
-        const aNum = Number(String(a).replace(/[^0-9.-]/g, ''))
-        const bNum = Number(String(b).replace(/[^0-9.-]/g, ''))
+        const aNum = Number(String(a).replaceAll(/[^0-9.-]/g, ''))
+        const bNum = Number(String(b).replaceAll(/[^0-9.-]/g, ''))
         const aValid = Number.isFinite(aNum)
         const bValid = Number.isFinite(bNum)
         if (aValid && bValid) {

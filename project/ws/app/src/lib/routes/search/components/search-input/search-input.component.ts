@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChange, SimpleChanges, ViewChild, ViewEncapsulation } from '@angular/core'
+import { Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild, ViewEncapsulation } from '@angular/core'
 import { UntypedFormControl } from '@angular/forms'
 import { ActivatedRoute, Router } from '@angular/router'
 import { ConfigurationsService } from '@sunbird-cb/utils'
@@ -15,7 +15,7 @@ import { SearchServService } from '../../services/search-serv.service'
   // tslint:disable-next-line
   encapsulation: ViewEncapsulation.None,
 })
-export class SearchInputComponent implements OnInit, OnChanges, OnDestroy {
+export class SearchInputComponent implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>()
   @Input() placeHolder = ''
   @Input() ref = ''
@@ -88,14 +88,6 @@ export class SearchInputComponent implements OnInit, OnChanges, OnDestroy {
   ngOnDestroy() {
     this.destroy$.next()
     this.destroy$.complete()
-  }
-
-  ngOnChanges() {
-    for (const change in SimpleChange) {
-      if (change === 'placeHolder') {
-        this.placeHolder = this.placeHolder
-      }
-    }
   }
 
   swapRemove(langArray: string[], from: number, to: number) {

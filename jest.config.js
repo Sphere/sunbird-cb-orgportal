@@ -10,6 +10,7 @@ globalThis.ngJest = {
 module.exports = {
   preset: 'jest-preset-angular',
   setupFilesAfterEnv: ['<rootDir>/setup-jest.ts'],
+  coverageDirectory: '<rootDir>/coverage/mdo',
   collectCoverageFrom: [
     'src/app/**/*.ts',
     'project/ws/**/*.ts',

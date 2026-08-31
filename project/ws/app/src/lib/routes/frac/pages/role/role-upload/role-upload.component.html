@@ -31,7 +31,8 @@
     <div class="left-tools">
       <!-- Search Box -->
       <div class="search-box" [class.disabled]="isFilterControlsDisabled()" *ngIf="routeMode === 'manage'">
-        <input matInput type="text" [placeholder]="uiConfig.labels.searchPlaceholder" [(ngModel)]="searchTerm"
+        <input matInput type="text" id="roleUploadSearch" [attr.aria-label]="uiConfig.labels.searchPlaceholder"
+          [placeholder]="uiConfig.labels.searchPlaceholder" [(ngModel)]="searchTerm"
           [disabled]="isFilterControlsDisabled()" (input)="onSearchTermChange()" (keydown.enter)="onSearchEnter()" />
         <button mat-icon-button matSuffix class="icon-btn" (click)="onSearch()" [disabled]="isFilterControlsDisabled()">
           <mat-icon>search</mat-icon>

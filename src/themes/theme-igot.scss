@@ -1,6 +1,6 @@
 @use 'sass:map';
 @use '@angular/material' as mat;
-@import './theme-mixins';
+@use './theme-mixins' as mixins;
 
 $custom-blue-palette: (
   50: #eff1f3,
@@ -79,7 +79,7 @@ $theme-warn: mat.m2-define-palette(mat.$m2-red-palette);
     $background: map.merge($background, (background: #fff));
     $theme: map.merge($theme, (background: $background));
     @include mat.all-component-themes($theme);
-    @include theme-based-configurations($theme);
+    @include mixins.theme-based-configurations($theme);
   }
 
   &.night-mode {
@@ -88,6 +88,6 @@ $theme-warn: mat.m2-define-palette(mat.$m2-red-palette);
     $background: map.merge($background, (background: rgba(0, 0, 0, 0.87)));
     $theme: map.merge($theme, (background: $background));
     @include mat.all-component-themes($theme);
-    @include theme-based-configurations($theme);
+    @include mixins.theme-based-configurations($theme);
   }
 }

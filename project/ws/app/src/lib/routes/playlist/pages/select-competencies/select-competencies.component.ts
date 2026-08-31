@@ -32,7 +32,7 @@ export class SelectCompetenciesComponent implements OnInit {
     readonly searchResultCompetencies = signal<SelectableCompetency[]>([])
     readonly filteredCompetencies = signal<SelectableCompetency[]>([])
     readonly existingCompetencyCodes = signal<string[]>([])
-    readonly shimmerRows = Array(PLAYLIST_UI.SHIMMER_ROWS).fill(0)
+    readonly shimmerRows = new Array(PLAYLIST_UI.SHIMMER_ROWS).fill(0)
 
     readonly loading = signal(false)
     readonly searchTerm = signal('')

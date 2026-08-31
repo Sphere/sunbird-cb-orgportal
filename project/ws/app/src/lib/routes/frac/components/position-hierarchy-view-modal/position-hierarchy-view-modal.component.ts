@@ -118,7 +118,7 @@ export class PositionHierarchyViewModalComponent {
       return levels[0]
     }
 
-    const nums = levels.map(l => Number(l.replace(/[^0-9]/g, ''))).filter(n => Number.isFinite(n))
+    const nums = levels.map(l => Number(l.replaceAll(/[^0-9]/g, ''))).filter(n => Number.isFinite(n))
     if (nums.length !== levels.length) {
       return levels.join(', ')
     }

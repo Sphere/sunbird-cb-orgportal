@@ -23,7 +23,8 @@
       <div class="mat-body">
         <mat-form-field class="w-full">
           <textarea matInput [matTextareaAutosize] [matAutosizeMaxRows]="10" [matAutosizeMinRows]="3"
-            formControlName="positive" placeholder="Type your feedback here" i18n-placeholder></textarea>
+            formControlName="positive" placeholder="Type your feedback here" i18n-placeholder
+            id="feedbackPositiveInput" aria-label="What is helpful?"></textarea>
           <mat-hint i18n>
             Limited to 2000 characters.
           </mat-hint>
@@ -40,7 +41,8 @@
         <div class="mat-body">
           <mat-form-field class="w-full">
             <textarea matInput [matTextareaAutosize] [matAutosizeMaxRows]="10" [matAutosizeMinRows]="3"
-              formControlName="negative" placeholder="Type your feedback here" i18n-placeholder></textarea>
+              formControlName="negative" placeholder="Type your feedback here" i18n-placeholder
+              id="feedbackNegativeInput" aria-label="What can be improved?"></textarea>
             <mat-hint i18n>
               Limited to 2000 characters.
             </mat-hint>
@@ -76,7 +78,8 @@
       <div class="mat-body">
         <mat-form-field class="w-full">
           <textarea matInput [matTextareaAutosize] [matAutosizeMaxRows]="10" [matAutosizeMinRows]="3"
-            formControlName="feedback" placeholder="Type your feedback here" i18n-placeholder></textarea>
+            formControlName="feedback" placeholder="Type your feedback here" i18n-placeholder
+            id="feedbackSingleInput" aria-label="What do you think of this content?"></textarea>
           <mat-hint i18n>
             Limited to 2000 characters.
           </mat-hint>
