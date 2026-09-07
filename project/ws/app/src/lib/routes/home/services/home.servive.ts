@@ -22,7 +22,7 @@ const API_END_POINTS = {
   providedIn: 'root',
 })
 export class ProfileV2Service {
-  constructor(private http: HttpClient) { }
+  constructor(private readonly http: HttpClient) { }
   fetchDiscussProfile(wid: string): Observable<any> {
     return this.http.get<any>(`${API_END_POINTS.DISCUSS_PROFILE}/${wid}`)
   }

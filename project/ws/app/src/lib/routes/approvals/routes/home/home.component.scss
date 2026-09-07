@@ -7,6 +7,7 @@
   max-width: 99%;
   margin-left: auto!important;
   margin-right: auto!important;
+  @extend %page-center;
 }
 
 .buton {
@@ -62,7 +63,7 @@
   margin: 0 auto;
   // border: 1px solid;
   // font-weight: 500;
-  box-shadow: 0px 10px 30p;
+  box-shadow: 0px 10px 30px #99999933;
   /*#99999933*/
   border-radius: 8px;
 }
@@ -146,13 +147,17 @@
 
 .filter {
   .filter-option {
-    margin: $size-xs $size-m;
     /* border-bottom: darkslateblue; */
     border-radius: 0;
     border-bottom-width: 2px;
     border-top-width: 0;
+    margin: $size-s $size-s;
     border-left-width: 0;
     border-right-width: 0;
+  }
+
+  .filter-option:first-child {
+    margin-left: 0;
   }
 }
 
@@ -169,10 +174,6 @@
   flex-wrap: wrap;
   margin-top: 0;
   margin-bottom: 1rem;
-}
-
-.pagination {
-  display: -ms-flexbox;
   display: flex;
   padding-left: 0;
   list-style: none;
@@ -212,14 +213,6 @@ a:not([href]):not([tabindex]) {
   cursor: auto;
   background-color: #fff;
   border-color: #dee2e6;
-}
-
-.container-balanced {
-  @extend %page-center;
-}
-
-.flex-3 {
-  flex: 3;
 }
 
 .flex-update {
@@ -267,22 +260,6 @@ a:not([href]):not([tabindex]) {
   }
 }
 
-.filter {
-  .filter-option {
-    margin: $size-s $size-s;
-    /* border-bottom: darkslateblue; */
-    border-radius: 0;
-    border-bottom-width: 2px;
-    border-top-width: 0;
-    border-left-width: 0;
-    border-right-width: 0;
-  }
-
-  .filter-option:first-child {
-    margin-left: 0;
-  }
-}
-
 .recent-tabs {
   box-shadow: none !important;
   border-radius: unset;
@@ -302,28 +279,28 @@ a:not([href]):not([tabindex]) {
 .field-key{
   display: block;
   padding:5px 0;
-  font:400 14px Lato;
+  font:400 14px Lato, sans-serif;
   color: #999999;
 }
 
 .field-name{
   display: block;
   padding:5px 0px;
-  font:700 14px Lato;
+  font:700 14px Lato, sans-serif;
 
 }
 
 .field-change{
   display: block;
   padding:5px 0px;
-  font:400 14px Lato;
+  font:400 14px Lato, sans-serif;
   color: #d9d9d9;
 }
 
 .field-date{
   display: block;
   padding:5px 0px;
-  font:400 14px Lato;
+  font:400 14px Lato, sans-serif;
   color: #999999
 
 }
@@ -334,7 +311,7 @@ a:not([href]):not([tabindex]) {
 
 .change-log-text{
   display: block;
-  font: 700 14px Lato;
+  font: 700 14px Lato, sans-serif;
 }
 
 ::ng-deep.container-balanced .text-capitalize {

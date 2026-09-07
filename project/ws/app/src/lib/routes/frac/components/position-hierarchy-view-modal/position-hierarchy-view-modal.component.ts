@@ -18,6 +18,7 @@ export interface PositionHierarchyViewModalData {
  * Side effect: the "Edit Mapping" button closes the dialog and navigates to the mapping page.
  */
 @Component({
+  standalone: false,
   selector: 'ws-app-position-hierarchy-view-modal',
   templateUrl: './position-hierarchy-view-modal.component.html',
   styleUrls: ['./position-hierarchy-view-modal.component.scss'],
@@ -32,9 +33,9 @@ export class PositionHierarchyViewModalComponent {
   private readonly collator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' })
 
   constructor(
-    private dialogRef: MatDialogRef<PositionHierarchyViewModalComponent>,
+    private readonly dialogRef: MatDialogRef<PositionHierarchyViewModalComponent>,
     @Inject(MAT_DIALOG_DATA) public data: PositionHierarchyViewModalData,
-    private router: Router,
+    private readonly router: Router,
   ) { }
 
   get roles(): MappedRole[] {
@@ -117,7 +118,7 @@ export class PositionHierarchyViewModalComponent {
       return levels[0]
     }
 
-    const nums = levels.map(l => Number(l.replace(/[^0-9]/g, ''))).filter(n => Number.isFinite(n))
+    const nums = levels.map(l => Number(l.replaceAll(/[^0-9]/g, ''))).filter(n => Number.isFinite(n))
     if (nums.length !== levels.length) {
       return levels.join(', ')
     }

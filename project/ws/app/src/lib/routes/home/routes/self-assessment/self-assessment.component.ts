@@ -1,18 +1,21 @@
-import { Component, OnInit, Self, ViewChild } from '@angular/core'
-import { MatLegacyPaginator as MatPaginator } from '@angular/material/legacy-paginator'
+import { Component, OnInit, OnDestroy, Self, ViewChild } from '@angular/core'
+import { MatPaginator } from '@angular/material/paginator'
 import { ActivatedRoute } from '@angular/router'
 import * as _ from 'lodash'
-import { map } from 'rxjs/operators'
+import { Subject } from 'rxjs'
+import { map, takeUntil } from 'rxjs/operators'
 import { UsersService } from '../../../users/services/users.service'
 import { UtilityService } from '../../services/utility.service'
 
 @Component({
+  standalone: false,
   selector: 'ws-app-self-assessment',
   templateUrl: './self-assessment.component.html',
-  styleUrls: ['./self-assessment.component.scss'],
   providers: [UtilityService],
 })
-export class SelfAssessmentComponent implements OnInit {
+export class SelfAssessmentComponent implements OnInit, OnDestroy {
+  private readonly destroy$ = new Subject<void>()
+
   tableData: any
   usersData: any
   topBarConfig: any
@@ -20,13 +23,18 @@ export class SelfAssessmentComponent implements OnInit {
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator | undefined
 
   constructor(
-    private route: ActivatedRoute,
-    private usersService: UsersService,
-    @Self() private utilityService: UtilityService
+    private readonly route: ActivatedRoute,
+    private readonly usersService: UsersService,
+    @Self() private readonly utilityService: UtilityService
   ) { }
 
   ngOnInit() {
     this.initialization()
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next()
+    this.destroy$.complete()
   }
 
   initialization() {
@@ -73,7 +81,7 @@ export class SelfAssessmentComponent implements OnInit {
     const rootOrgId = _.get(this.route.snapshot.parent, 'data.configService.unMappedUser.rootOrg.rootOrgId')
     this.usersService.getAllKongUsers(rootOrgId).pipe(map((data: any) => {
       return this.utilityService.getFormatedRequest(data.result.response)
-    })).subscribe(data => {
+    }), takeUntil(this.destroy$)).subscribe(data => {
       this.usersData = data
     })
   }

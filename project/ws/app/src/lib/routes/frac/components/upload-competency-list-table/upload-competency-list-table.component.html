@@ -37,7 +37,7 @@
                   [attr.placeholder]="'Enter ' + col.label.toLowerCase()" [attr.aria-label]="col.label"></textarea>
                 <ng-template #shortInput>
                   <input [(ngModel)]="element[col.key]" class="editable-input" [readonly]="isCodeField(col.key)"
-                    [class.readonly-input]="isCodeField(col.key)" />
+                    [class.readonly-input]="isCodeField(col.key)" [attr.aria-label]="col.label" />
                 </ng-template>
               </div>
             </ng-container>

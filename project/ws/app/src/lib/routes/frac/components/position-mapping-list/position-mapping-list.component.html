@@ -13,9 +13,11 @@
       <div class="search-row">
         <div class="shadow-wrapper">
           <div class="search-box">
-            <input placeholder="Search by name, code" [(ngModel)]="searchTerm"
-              (input)="onSearchChange()" (keyup.enter)="onSearchSubmit()" />
-            <mat-icon (click)="onSearchSubmit()">search</mat-icon>
+            <input id="positionMappingSearch" aria-label="Search by name, code" placeholder="Search by name, code"
+              [(ngModel)]="searchTerm" (input)="onSearchChange()" (keyup.enter)="onSearchSubmit()" />
+            <button type="button" style="all: unset; display: contents; cursor: pointer;" (click)="onSearchSubmit()">
+              <mat-icon>search</mat-icon>
+            </button>
           </div>
         </div>
       </div>
@@ -31,29 +33,31 @@
 
       <ng-container *ngIf="!isLoading">
         <div class="role-item" *ngFor="let r of filteredRoles; trackBy: trackByCode"
-          [class.selected]="selectedPositionCode === r.code"
-          (click)="roleSelectedHandler(r)">
-          <div class="expanded-card">
+          [class.selected]="selectedPositionCode === r.code">
+            <div class="expanded-card">
 
-            <div class="header-row" (click)="onHeaderClick(r, $event)">
-              <div class="exp-code">{{ r.title }}</div>
-              <!-- <div class="exp-title">{{ r.title || r.description || '-' }}</div> -->
-              <!-- Expand arrow (show only when levels are valid) -->
-              <mat-icon *ngIf="r.roleDetails?.length > 0" class="arrow">
-                {{ expandedPositionCode === r.code ? 'expand_less' : 'expand_more' }}
-              </mat-icon>
-            </div>
+              <div class="header-row">
+                <button type="button" style="all: unset; display: contents; cursor: pointer;"
+                  [attr.aria-pressed]="selectedPositionCode === r.code" (click)="onHeaderClick(r, $event)">
+                  <div class="exp-code">{{ r.title }}</div>
+                  <!-- <div class="exp-title">{{ r.title || r.description || '-' }}</div> -->
+                  <!-- Expand arrow (show only when levels are valid) -->
+                  <mat-icon *ngIf="r.roleDetails?.length > 0" class="arrow">
+                    {{ expandedPositionCode === r.code ? 'expand_less' : 'expand_more' }}
+                  </mat-icon>
+                </button>
+              </div>
 
-            <!-- mapped positions under role -->
-            <div *ngIf="expandedPositionCode === r.code && r.roleDetails?.length" class="position-section">
-              <div class="position-row" *ngFor="let p of getSortedRoles(r)">
-                <div class="pill">
-                  <div class="position-label">{{ p.code }} - {{ p.label }}</div>
+              <!-- mapped positions under role -->
+              <div *ngIf="expandedPositionCode === r.code && r.roleDetails?.length" class="position-section">
+                <div class="position-row" *ngFor="let p of getSortedRoles(r)">
+                  <div class="pill">
+                    <div class="position-label">{{ p.code }} - {{ p.label }}</div>
+                  </div>
                 </div>
               </div>
-            </div>
 
-          </div>
+            </div>
         </div>
       </ng-container>
 

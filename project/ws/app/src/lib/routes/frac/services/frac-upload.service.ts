@@ -7,8 +7,8 @@ import { resolveFracClientConfig } from '../utils/frac-client-config.util'
 @Injectable({ providedIn: 'root' })
 export class FracUploadService {
   constructor(
-    private http: HttpClient,
-    private configSvc: ConfigurationsService,
+    private readonly http: HttpClient,
+    private readonly configSvc: ConfigurationsService,
   ) { }
 
   /**

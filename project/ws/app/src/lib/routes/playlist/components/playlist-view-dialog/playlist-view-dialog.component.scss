@@ -30,8 +30,6 @@ $radius: 14px; // outer card radius
   margin: 0 auto;
   overflow: hidden;
   position: relative;
-  display: flex;
-  flex-direction: column;
   background: $bg;
   font-family: 'Inter', 'Roboto', sans-serif;
   color: $text;
@@ -232,6 +230,7 @@ $radius: 14px; // outer card radius
 
     &--full {
       border-right: none;
+      grid-column: span 12;
     }
 
     &:last-child {
@@ -253,10 +252,6 @@ $radius: 14px; // outer card radius
 
     &--span-2 {
       grid-column: span 2;
-    }
-
-    &--full {
-      grid-column: span 12;
     }
 
     @media (max-width: 768px) {

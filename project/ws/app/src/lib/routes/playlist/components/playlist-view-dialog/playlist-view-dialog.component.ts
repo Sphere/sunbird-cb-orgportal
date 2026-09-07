@@ -50,7 +50,7 @@ export class PlaylistViewDialogComponent {
     expandedCompetencies = new Set<string>()
 
     constructor(
-        private dialogRef: MatDialogRef<PlaylistViewDialogComponent>,
+        private readonly dialogRef: MatDialogRef<PlaylistViewDialogComponent>,
         @Inject(MAT_DIALOG_DATA) public data: PlaylistViewDialogData,
     ) {
         if (data.mode === 'competency' && data.competencyRows.length > 0) {

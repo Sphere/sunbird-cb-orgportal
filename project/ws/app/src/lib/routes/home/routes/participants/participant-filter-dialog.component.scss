@@ -1,0 +1,97 @@
+@import 'ws-design-system-v2';
+
+.modal-container {
+  padding: $v2-space-3 $v2-space-3 0;
+  font-family: $v2-font-family;
+  min-width: 360px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $v2-space-2;
+}
+
+.title {
+  @include v2-modal-title;
+}
+
+mat-dialog-content.dialog-content {
+  padding: 0 0 8px;
+  overflow: visible;
+}
+
+// ── Filter field ────────────────────────────────────────────────────────────
+.filter-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: $v2-space-2;
+}
+
+.filter-label {
+  @include v2-form-label;
+}
+
+// ── Native select ───────────────────────────────────────────────────────────
+.select-wrapper {
+  position: relative;
+}
+
+.form-select {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  height: 40px;
+  padding: 0 36px 0 14px;
+  border: 1px solid $v2-color-border;
+  border-radius: $v2-radius-input;
+  background: $v2-color-card;
+  font-family: $v2-font-family;
+  font-size: $v2-font-caption;
+  color: $v2-color-text;
+  cursor: pointer;
+  transition: border-color 0.2s;
+
+  &:focus {
+    outline: none;
+    border-color: $v2-color-primary;
+    box-shadow: 0 0 0 3px rgba(28, 93, 149, 0.1);
+  }
+}
+
+.select-chevron {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 10px;
+  color: $v2-color-text-secondary;
+  pointer-events: none;
+}
+
+.no-filters-msg {
+  font-size: $v2-font-caption;
+  color: $v2-color-text-secondary;
+  margin: $v2-space-2 0;
+  line-height: 1.5;
+}
+
+// ── Actions ─────────────────────────────────────────────────────────────────
+mat-dialog-actions {
+  padding: 12px 0 16px;
+  margin: 0;
+  border-top: 1px solid $v2-color-border;
+  justify-content: flex-end;
+  gap: $v2-space-1;
+  min-height: unset;
+}
+
+.cancel-btn {
+  @include v2-btn-secondary;
+}
+
+.apply-btn {
+  @include v2-btn-primary;
+}

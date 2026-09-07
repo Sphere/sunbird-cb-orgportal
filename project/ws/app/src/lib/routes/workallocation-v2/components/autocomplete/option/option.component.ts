@@ -3,6 +3,7 @@ import { fromEvent, Observable } from 'rxjs'
 import { mapTo } from 'rxjs/operators'
 
 @Component({
+  standalone: false,
   selector: 'ws-app-option',
   templateUrl: './option.component.html',
   styleUrls: ['./option.component.scss'],
@@ -13,7 +14,7 @@ export class OptionComponent implements OnInit {
   @Input() value!: string
   click!: Observable<string>
 
-  constructor(private host: ElementRef) {
+  constructor(private readonly host: ElementRef) {
   }
 
   ngOnInit() {

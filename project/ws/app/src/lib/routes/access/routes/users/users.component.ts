@@ -4,12 +4,12 @@ import { environment } from '../../../../../../../../../src/environments/environ
 import { UsersService } from '../../services/users.service'
 /* tslint:disable */
 import _ from 'lodash'
-import { ITableData } from '@sunbird-cb/collection/lib/ui-org-table/interface/interfaces'
+import { ITableData } from '../../../ui-org-table.model'
 /* tslint:enable */
 @Component({
+  standalone: false,
   selector: 'ws-app-users',
   templateUrl: './users.component.html',
-  styleUrls: ['./users.component.scss'],
 })
 
 export class UsersComponent implements OnInit, AfterViewInit, OnDestroy {
@@ -20,9 +20,9 @@ export class UsersComponent implements OnInit, AfterViewInit, OnDestroy {
   data2: any
   role: any
   roleName: string | undefined
-  private defaultSideNavBarOpenedSubscription: any
+  private readonly defaultSideNavBarOpenedSubscription: any
 
-  constructor(private usersSvc: UsersService, private router: Router, private route: ActivatedRoute) { }
+  constructor(private readonly usersSvc: UsersService, private readonly router: Router, private readonly route: ActivatedRoute) { }
   ngOnInit() {
     const url = this.router.url.split('/')
     this.role = url[url.length - 2]

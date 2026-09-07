@@ -1,10 +1,11 @@
+// AppModule can't be AOT-compiled (WIDGET_REGISTERED_MODULES is not statically analyzable); keep JIT available.
+import '@angular/compiler'
 import { enableProdMode } from '@angular/core'
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic'
 
 import { environment } from './environments/environment'
 import { AppModule } from './app/app.module'
 import 'hammerjs'
-
 
 if (environment.production) {
   enableProdMode()
@@ -20,14 +21,6 @@ if (/trident/i.test(MATCHING_IE[1])) {
   }
 
   platformBrowserDynamic()
-    .bootstrapModule(AppModule).then(() => {
-      // Ensure Angular destroys itself on hot reloads.
-      // if (window['ngRef']) {
-      //   window['ngRef'].destroy()
-      // }
-      // window['ngRef'] = ref
-
-      // Otherwise, log the boot error
-    })
+    .bootstrapModule(AppModule)
     .catch(err => console.error(err)) // tslint:disable-line:no-console
 }

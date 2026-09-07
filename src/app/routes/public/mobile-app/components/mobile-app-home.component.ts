@@ -1,10 +1,11 @@
 import { Platform } from '@angular/cdk/platform'
 import { Component, OnDestroy, OnInit } from '@angular/core'
-import { DomSanitizer, SafeUrl } from '@angular/platform-browser'
+import { SafeUrl } from '@angular/platform-browser'
 import { ActivatedRoute, Data } from '@angular/router'
 import { ConfigurationsService, NsPage } from '@sunbird-cb/utils'
 import { Subscription } from 'rxjs'
 import { MobileAppsService } from 'src/app/services/mobile-apps.service'
+import { SanitizerService } from 'src/app/services/sanitizer.service'
 
 interface IMobileAppLink {
   appsAndroid: string
@@ -23,6 +24,7 @@ interface IMobileAppLink {
 }
 
 @Component({
+  standalone: false,
   selector: 'ws-app-mobile-app-home',
   templateUrl: './mobile-app-home.component.html',
   styleUrls: ['./mobile-app-home.component.scss'],
@@ -43,11 +45,11 @@ export class MobileAppHomeComponent implements OnInit, OnDestroy {
   pageNavbar: Partial<NsPage.INavBackground> = this.configSvc.pageNavBar
 
   constructor(
-    private sanitizer: DomSanitizer,
-    private route: ActivatedRoute,
-    private matPlatform: Platform,
-    private mobileService: MobileAppsService,
-    private configSvc: ConfigurationsService,
+    private readonly sanitizerSvc: SanitizerService,
+    private readonly route: ActivatedRoute,
+    private readonly matPlatform: Platform,
+    private readonly mobileService: MobileAppsService,
+    private readonly configSvc: ConfigurationsService,
   ) { }
 
   ngOnInit() {
@@ -63,9 +65,11 @@ export class MobileAppHomeComponent implements OnInit, OnDestroy {
         if (this.mobileLinks) {
           this.isClient = this.mobileLinks.isClient || false
           this.mobilePlatformCode = this.mobileLinks.code
-          this.mobileLinks.appsIosSanitized = this.sanitizer.bypassSecurityTrustUrl(
-            this.mobileLinks.appsIos,
-          )
+          if (this.sanitizerSvc.isHttpUrl(this.mobileLinks.appsIos)) {
+            this.mobileLinks.appsIosSanitized = this.sanitizerSvc.trustUrl(
+              this.mobileLinks.appsIos,
+            )
+          }
           if (this.mobileLinks.showQrCode) {
             this.isAndroidPlayStoreLink = true
           }

@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, HostListener, ViewChild, ElementRef } fro
 import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms'
 import { ActivatedRoute, Router, Event, NavigationEnd } from '@angular/router'
 import { UsersService } from '../../services/users.service'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { MatSnackBar } from '@angular/material/snack-bar'
 import { ILeftMenu } from '@sunbird-cb/collection'
 import { NsWidgetResolver } from '@sunbird-cb/resolver'
 import { ValueService } from '@sunbird-cb/utils'
@@ -10,6 +10,7 @@ import { ValueService } from '@sunbird-cb/utils'
 import _ from 'lodash'
 /* tslint:enable */
 @Component({
+  standalone: false,
   selector: 'ws-app-create-user',
   templateUrl: './create-user.component.html',
   styleUrls: ['./create-user.component.scss'],
@@ -45,11 +46,11 @@ export class CreateUserComponent implements OnInit, OnDestroy {
   }
 
   constructor(
-    private router: Router,
-    private activeRoute: ActivatedRoute,
-    private snackBar: MatSnackBar,
-    private usersSvc: UsersService,
-    private valueSvc: ValueService) {
+    private readonly router: Router,
+    private readonly activeRoute: ActivatedRoute,
+    private readonly snackBar: MatSnackBar,
+    private readonly usersSvc: UsersService,
+    private readonly valueSvc: ValueService) {
     this.configService = this.activeRoute.snapshot.data.configService
     if (this.configService.userRoles) {
       this.myRoles = this.configService.userRoles

@@ -1,4 +1,6 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing'
+import { NO_ERRORS_SCHEMA } from '@angular/core'
+import { RouterTestingModule } from '@angular/router/testing'
 
 import { BlogsCardComponent } from './blogs-card.component'
 
@@ -6,15 +8,30 @@ describe('BlogsCardComponent', () => {
   let component: BlogsCardComponent
   let fixture: ComponentFixture<BlogsCardComponent>
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [BlogsCardComponent],
+      imports: [RouterTestingModule],
+      schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents()
   }))
 
   beforeEach(() => {
     fixture = TestBed.createComponent(BlogsCardComponent)
     component = fixture.componentInstance
+    component.result = {
+      name: 'Test Blog',
+      id: 'test-id',
+      source: 'test-source',
+      postKind: 'Blog',
+      postCreator: { name: 'Author', emailId: '', postCreatorId: '' },
+      dtLastModified: '',
+      body: '',
+      abstract: '',
+      status: 'Draft',
+      upVoteCount: 0,
+      downVoteCount: 0,
+    } as any
     fixture.detectChanges()
   })
 

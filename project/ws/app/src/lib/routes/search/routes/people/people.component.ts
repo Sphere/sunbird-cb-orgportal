@@ -3,6 +3,7 @@ import { Router } from '@angular/router'
 import { NsAutoComplete } from '@sunbird-cb/collection'
 
 @Component({
+  standalone: false,
   selector: 'ws-app-people',
   templateUrl: './people.component.html',
   styleUrls: ['./people.component.scss'],
@@ -10,7 +11,7 @@ import { NsAutoComplete } from '@sunbird-cb/collection'
 export class PeopleComponent implements OnInit {
 
   constructor(
-    private router: Router,
+    private readonly router: Router,
   ) { }
 
   selectedUser(user: NsAutoComplete.IUserAutoComplete) {

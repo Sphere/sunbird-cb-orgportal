@@ -1,14 +1,14 @@
 import { Component, HostBinding, Input, OnInit } from '@angular/core'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
+import { MatDialog } from '@angular/material/dialog'
 import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
 import { BtnContentFeedbackDialogV2Component } from '../btn-content-feedback-dialog-v2/btn-content-feedback-dialog-v2.component'
 import { ConfigurationsService } from '@sunbird-cb/utils'
 import { IWidgetBtnContentFeedbackV2 } from '../../models/btn-content-feedback-v2.model'
 
 @Component({
+  standalone: false,
   selector: 'ws-widget-btn-content-feedback-v2',
   templateUrl: './btn-content-feedback-v2.component.html',
-  styleUrls: ['./btn-content-feedback-v2.component.scss'],
 })
 export class BtnContentFeedbackV2Component extends WidgetBaseComponent
   implements OnInit, NsWidgetResolver.IWidgetData<IWidgetBtnContentFeedbackV2> {

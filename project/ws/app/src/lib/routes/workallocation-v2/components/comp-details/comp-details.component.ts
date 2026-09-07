@@ -8,6 +8,7 @@ import { NSWatCompetency } from '../../models/competency-wat.model'
 import { WatStoreService } from '../../services/wat.store.service'
 
 @Component({
+  standalone: false,
   selector: 'ws-app-comp-details',
   templateUrl: './comp-details.component.html',
   styleUrls: ['./comp-details.component.scss'],
@@ -22,7 +23,7 @@ export class CompDetailsComponent implements OnInit, OnDestroy {
   subscribeForm: any
   levelLest = ['Basic', 'Proficient', 'Advanced', 'Expert', 'Ustad']
   compTypList = ['Behavioural', 'Domain', 'Functional']
-  constructor(private watStore: WatStoreService, private formBuilder: UntypedFormBuilder, activated: ActivatedRoute) {
+  constructor(private readonly watStore: WatStoreService, private readonly formBuilder: UntypedFormBuilder, activated: ActivatedRoute) {
     this.generateForm()
     this.levelLest = activated.snapshot.data.pageData.data.levels
     this.compTypList = activated.snapshot.data.pageData.data.compTypes

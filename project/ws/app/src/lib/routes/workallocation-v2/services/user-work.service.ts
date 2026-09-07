@@ -11,7 +11,7 @@ const API_END_POINTS = {
 })
 export class UserWorkService {
 
-  constructor(private http: HttpClient) { }
+  constructor(private readonly http: HttpClient) { }
   fetchUserWorkAllocation(usersId: string): Observable<any> {
     return this.http.get<any>(`${API_END_POINTS.GET_USER_WORK}/${usersId}`)
   }

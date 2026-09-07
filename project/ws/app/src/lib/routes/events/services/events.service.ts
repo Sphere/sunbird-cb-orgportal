@@ -27,7 +27,7 @@ const API_END_POINTS = {
 })
 export class EventsService {
 
-  constructor(private http: HttpClient) {}
+  constructor(private readonly http: HttpClient) {}
 
   crreateAsset(req: any): Observable<any> {
     return this.http.post<any>(`${API_END_POINTS.CREATE_ASSET}`, req)

@@ -2,6 +2,7 @@ import { Pipe, PipeTransform } from '@angular/core'
 import { FRAC_WORD_WRAP_LIMIT } from '../constants/frac.constants'
 
 @Pipe({
+  standalone: false,
   name: 'wordWrap'
 })
 export class WordWrapPipe implements PipeTransform {

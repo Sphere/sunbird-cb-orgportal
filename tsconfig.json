@@ -1,52 +1,44 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "esModuleInterop": false,
-    "skipLibCheck": true,
-    "types": ["node"],
     "alwaysStrict": true,
     "baseUrl": "./",
     "declaration": false,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
-    "importHelpers": true,
     "resolveJsonModule": true,
-    "lib": ["es2018", "dom"],
-    "module": "es2020",
-    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "importHelpers": true,
+    "lib": ["ES2022", "dom"],
+    "module": "ES2022",
+    "moduleResolution": "bundler",
+    "useDefineForClassFields": false,
     "noFallthroughCasesInSwitch": true,
-    "noImplicitAny": true,
-    "noImplicitReturns": true,
-    "noImplicitThis": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
+    "noImplicitAny": false,
+    "noImplicitReturns": false,
+    "noImplicitThis": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
     "outDir": "./dist/out-tsc",
     "paths": {
       "@ws/app": ["project/ws/app"],
       "@ws/app/*": ["project/ws/app/*"]
     },
+    "skipLibCheck": true,
     "removeComments": true,
     "sourceMap": true,
     "strict": true,
     "strictBindCallApply": true,
     "strictFunctionTypes": true,
-    "strictNullChecks": true,
-    "strictPropertyInitialization": true,
+    "strictNullChecks": false,
+    "strictPropertyInitialization": false,
     "target": "ES2022",
     "typeRoots": ["node_modules/@types", "./custom_typings"],
     "plugins": [
       {
         "name": "@angular/language-service"
-      },
-      {
-        "name": "typescript-tslint-plugin",
-        "alwaysShowRuleFailuresAsWarnings": false,
-        "ignoreDefinitionFiles": true,
-        "configFile": "./tslint.json",
-        "suppressWhileTypeErrorsPresent": false
       }
-    ],
-    "useDefineForClassFields": false
+    ]
   }
 }

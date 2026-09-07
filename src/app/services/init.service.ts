@@ -1,9 +1,7 @@
 import { APP_BASE_HREF } from '@angular/common'
-// import { retry } from 'rxjs/operators'
 import { HttpClient } from '@angular/common/http'
 import { Inject, Injectable } from '@angular/core'
 import { MatIconRegistry } from '@angular/material/icon'
-import { DomSanitizer } from '@angular/platform-browser'
 import { BtnSettingsService } from '@sunbird-cb/collection'
 import {
   hasPermissions,
@@ -12,55 +10,41 @@ import {
   WidgetResolverService,
 } from '@sunbird-cb/resolver'
 import {
-  // AuthKeycloakService,
   ConfigurationsService,
   LoggerService,
   NsAppsConfig,
   NsInstanceConfig,
-  // NsUser,
   UserPreferenceService,
   AuthKeycloakService,
 } from '@sunbird-cb/utils'
 import { map } from 'rxjs/operators'
 import { environment } from '../../environments/environment'
-/* tslint:disable*/
 import _ from 'lodash'
-/* tslint:enable*/
-// interface IDetailsResponse {
-//   tncStatus: boolean
-//   roles: string[]
-//   group: string[]
-//   profileDetailsStatus: boolean
-// }
-
+import { SanitizerService } from './sanitizer.service'
 interface IFeaturePermissionConfigs {
   [id: string]: Omit<NsWidgetResolver.IPermissions, 'feature'>
 }
 
 const endpoint = {
   profilePid: '/apis/proxies/v8/api/user/v2/read',
-  // profileV2: '/apis/protected/v8/user/profileRegistry/getUserRegistryById',
-  // details: `/apis/protected/v8/user/details?ts=${Date.now()}`,
 }
 
 @Injectable({
   providedIn: 'root',
 })
 export class InitService {
-  private baseUrl = 'assets/configurations'
+  private readonly baseUrl = 'assets/configurations'
   constructor(
-    private logger: LoggerService,
-    private configSvc: ConfigurationsService,
-    private authSvc: AuthKeycloakService,
-    private widgetResolverService: WidgetResolverService,
-    private settingsSvc: BtnSettingsService,
-    private userPreference: UserPreferenceService,
-    private http: HttpClient,
-    // private widgetContentSvc: WidgetContentService,
+    private readonly logger: LoggerService,
+    private readonly configSvc: ConfigurationsService,
+    private readonly authSvc: AuthKeycloakService,
+    private readonly widgetResolverService: WidgetResolverService,
+    private readonly settingsSvc: BtnSettingsService,
+    private readonly userPreference: UserPreferenceService,
+    private readonly http: HttpClient,
 
-    @Inject(APP_BASE_HREF) private baseHref: string,
-    // private router: Router,
-    domSanitizer: DomSanitizer,
+    @Inject(APP_BASE_HREF) private readonly baseHref: string,
+    sanitizerSvc: SanitizerService,
     iconRegistry: MatIconRegistry,
   ) {
     this.configSvc.isProduction = environment.production
@@ -69,41 +53,32 @@ export class InitService {
     // Usage: <mat-icon svgIcon="pin"></mat-icon>
     iconRegistry.addSvgIcon(
       'pin',
-      domSanitizer.bypassSecurityTrustResourceUrl('mdo-assets/icons/pin.svg'),
+      sanitizerSvc.trustResourceUrl('mdo-assets/icons/pin.svg'),
     )
     iconRegistry.addSvgIcon(
       'facebook',
-      domSanitizer.bypassSecurityTrustResourceUrl('mdo-assets/icons/facebook.svg'),
+      sanitizerSvc.trustResourceUrl('mdo-assets/icons/facebook.svg'),
     )
     iconRegistry.addSvgIcon(
       'linked-in',
-      domSanitizer.bypassSecurityTrustResourceUrl('mdo-assets/icons/linked-in.svg'),
+      sanitizerSvc.trustResourceUrl('mdo-assets/icons/linked-in.svg'),
     )
     iconRegistry.addSvgIcon(
       'twitter',
-      domSanitizer.bypassSecurityTrustResourceUrl('mdo-assets/icons/twitter.svg'),
+      sanitizerSvc.trustResourceUrl('mdo-assets/icons/twitter.svg'),
     )
     iconRegistry.addSvgIcon(
       'goi',
-      domSanitizer.bypassSecurityTrustResourceUrl('mdo-assets/icons/emblem-dark.png'),
+      sanitizerSvc.trustResourceUrl('mdo-assets/icons/emblem-dark.png'),
     )
     iconRegistry.addSvgIcon(
       'hubs',
-      domSanitizer.bypassSecurityTrustResourceUrl('mdo-assets/icons/hubs.svg'),
+      sanitizerSvc.trustResourceUrl('mdo-assets/icons/hubs.svg'),
     )
   }
 
   async init() {
-    // this.logger.removeConsoleAccess()
     await this.fetchDefaultConfig()
-    // const authenticated = await this.authSvc.initAuth()
-    // if (!authenticated) {
-    //   this.settingsSvc.initializePrefChanges(environment.production)
-    //   this.updateNavConfig()
-    //   this.logger.info('Not Authenticated')
-    //   return false
-    // }
-    // Invalid User
     try {
       await this.fetchStartUpDetails() // detail: depends only on userID
     } catch (e) {
@@ -115,7 +90,6 @@ export class InitService {
 
     }
     try {
-      // this.logger.info('User Authenticated', authenticated)
       const userPrefPromise = await this.userPreference.fetchUserPreference() // pref: depends on rootOrg
       this.configSvc.userPreference = userPrefPromise
       this.reloadAccordingToLocale()
@@ -126,7 +100,6 @@ export class InitService {
       if (this.configSvc.userPreference.profileSettings) {
         this.configSvc.profileSettings = this.configSvc.userPreference.profileSettings
       }
-      // await this.fetchUserProfileV2()
       const appsConfigPromise = this.fetchAppsConfig()
       const instanceConfigPromise = this.fetchInstanceConfig() // config: depends only on details
       const widgetStatusPromise = this.fetchWidgetStatus() // widget: depends only on details & feature
@@ -169,12 +142,6 @@ export class InitService {
       this.settingsSvc.initializePrefChanges(environment.production)
     }
     this.updateNavConfig()
-    // await this.widgetContentSvc
-    //   .setS3ImageCookie()
-    //   .toPromise()
-    //   .catch(() => {
-    //     // throw new DataResponseError('COOKIE_SET_FAILURE')
-    //   })
     return true
   }
 
@@ -223,8 +190,8 @@ export class InitService {
   }
 
   get locale(): string {
-    return this.baseHref && this.baseHref.replace(/\//g, '')
-      ? this.baseHref.replace(/\//g, '')
+    return this.baseHref && this.baseHref.replaceAll('/', '')
+      ? this.baseHref.replaceAll('/', '')
       : 'en'
   }
 
@@ -256,29 +223,11 @@ export class InitService {
             firstName: completeProdata.firstName,
             lastName: completeProdata.lastName,
             userName: completeProdata.userName,
-            // tslint:disable-next-line: max-line-length
-            // userName: `${completeProdata.firstName ? completeProdata.firstName : ' '}${completeProdata.lastName ? completeProdata.lastName : ' '}`,
             profileImage: completeProdata.thumbnail || _.get(profileV2, 'photo'),
             dealerCode: null,
             isManager: false,
             departmentName: completeProdata.channel,
             rootOrgId: completeProdata.rootOrgId,
-            // unit: completeProdata.user.unit_name,
-            // tslint:disable-next-line:max-line-length
-            // source_profile_picture: completeProdata.source_profile_picture || '',
-            // dealerCode:
-            //   userPidProfile &&
-            //     userPidProfile.user.json_unmapped_fields &&
-            //     userPidProfile.user.json_unmapped_fields.dealer_code
-            //     ? userPidProfile.user.json_unmapped_fields.dealer_code
-            //     : null,
-            // isManager:
-            //   userPidProfile &&
-            //     userPidProfile.user.json_unmapped_fields &&
-            //     userPidProfile.user.json_unmapped_fields.is_manager
-            //     ? userPidProfile.user.json_unmapped_fields.is_manager
-            //     : false,
-            // userName: `${userPidProfile.user.first_name} ${userPidProfile.user.last_name}`,
           }
           this.configSvc.userProfileV2 = {
             userId: _.get(profileV2, 'userId') || completeProdata.userId,
@@ -287,8 +236,6 @@ export class InitService {
             surName: _.get(profileV2, 'personalDetails.surname') || completeProdata.lastName,
             middleName: _.get(profileV2, 'personalDetails.middlename') || '',
             departmentName: _.get(profileV2, 'employmentDetails.departmentName') || completeProdata.channel,
-            // tslint:disable-next-line: max-line-length
-            // userName: `${_.get(profileV2, 'personalDetails.firstname') ? _.get(profileV2, 'personalDetails.firstname') : ''}${_.get(profileV2, 'personalDetails.surname') ? _.get(profileV2, 'personalDetails.surname') : ''}`,
             userName: _.get(profileV2, 'personalDetails.userName') || completeProdata.userName,
             profileImage: _.get(profileV2, 'photo') || completeProdata.thumbnail,
             dealerCode: null,
@@ -296,12 +243,10 @@ export class InitService {
           }
 
         } else {
-
           this.authSvc.logout()
         }
         const details = {
           group: [],
-          // profileDetailsStatus: completeProdata.profileDetailStatus,
           profileDetailsStatus: !!_.get(completeProdata, 'profileDetails.mandatoryFieldsExists'),
           roles: (completeProdata.roles || []).map((v: any) => v.toLowerCase()),
           tncStatus: !completeProdata.promptTnC,
@@ -310,76 +255,17 @@ export class InitService {
         this.configSvc.hasAcceptedTnc = details.tncStatus
         this.configSvc.profileDetailsStatus = details.profileDetailsStatus
         this.configSvc.isActive = details.isActive
-
-        // const roledetails: IDetailsResponse = await this.http
-        //   .get<IDetailsResponse>(endpoint.details).pipe(retry(3))
-        //   .toPromise()
-
         this.configSvc.userGroups = new Set(details.group)
         this.configSvc.userRoles = new Set((details.roles || []).map((v: string) => v.toLowerCase()))
         return details
       } catch (e) {
         this.configSvc.userProfile = null
-        throw new Error('Invalid user')
+        throw e
       }
     } else {
       return { group: [], profileDetailsStatus: true, roles: new Set(['Public']), tncStatus: true, isActive: true }
-      // if (this.configSvc.userProfile && this.configSvc.userProfile.isManager) {
-      //   this.configSvc.userRoles.add('is_manager')
     }
   }
-
-  // private async fetchUserProfileV2(): Promise<any> {
-  //   // const userRoles: string[] = []
-  //   if (this.configSvc.instanceConfig && !Boolean(this.configSvc.instanceConfig.disablePidCheck)) {
-  //     let userPidProfileV2: NsUser.IUserPidProfileVer2 | null = null
-  //     try {
-  //       userPidProfileV2 = await this.http
-  //         .get<NsUser.IUserPidProfileVer2>(endpoint.profileV2)
-  //         .toPromise()
-  //     } catch (e) {
-  //       this.configSvc.userProfileV2 = null
-  //       throw new Error('Invalid user')
-  //     }
-  //     if (userPidProfileV2) {
-  //       const userData: any = _.first(_.get(userPidProfileV2, 'result.UserProfile'))
-  //       this.configSvc.userProfileV2 = {
-  //         userId: _.get(userData, 'userId'),
-  //         firstName: _.get(userData, 'personalDetails.firstname'),
-  //         surName: _.get(userData, 'personalDetails.surname'),
-  //         middleName: _.get(userData, 'personalDetails.middlename'),
-  //         departmentName: _.get(userData, 'employmentDetails.departmentName'),
-  //         // tslint:disable-next-line: max-line-length
-  //         userName: `${_.get(userData,
-  //  'personalDetails.firstname') ? _.get(userData, 'personalDetails.firstname') : ''}$
-  // {_.get(userData, 'personalDetails.surname') ? _.get(userData, 'personalDetails.surname') : ''}`,
-  //         profileImage: _.get(userData, 'photo'),
-  //         dealerCode: null,
-  //         isManager: false,
-  //       }
-  //       // if (this.configSvc.userProfile) {
-  //       // tslint:disable-next-line: max-line-length
-  //       // this.configSvc.userProfile.departmentName = (_.get(userData,
-  // 'employmentDetails.departmentName')) ? _.get(userData, 'employmentDetails.departmentName') : null
-  //       // }
-
-  //     }
-  //   }
-  //   // const details: IDetailsResponse = await this.http
-  //   //   .get<IDetailsResponse>(endpoint.details).pipe(retry(3))
-  //   //   .toPromise()
-  //   // this.configSvc.userGroups = new Set(details.group)
-  //   // this.configSvc.userRoles = new Set(details.roles)
-  //   // if (this.configSvc.userProfile && this.configSvc.userProfile.isManager) {
-  //   //   this.configSvc.userRoles.add('is_manager')
-  //   // }
-  //   // tslint:disable-next-line: max-line-length
-  //   // const details = { group: [], profileDetailsStatus: true, roles: userRoles, tncStatus: true }
-  //   // this.configSvc.hasAcceptedTnc = details.tncStatus
-  //   // this.configSvc.profileDetailsStatus = details.profileDetailsStatus
-  //   // this.configSvc.userRoles = new Set(userRoles)
-  //   // return details
-  // }
 
   private async fetchInstanceConfig(): Promise<NsInstanceConfig.IConfig> {
     // TODO: use the rootOrg and org to fetch the instance

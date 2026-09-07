@@ -73,7 +73,7 @@
                 <div class=rsearch>
                   <mat-icon class="color-60 search-icon">search</mat-icon>
                   <input class="sinput color-60 margin-top-m mat-body-2" type="Standard" label="searchVal"
-                    [(ngModel)]="term" placeholder="Search">
+                    [(ngModel)]="term" placeholder="Search" id="publishedAllocationsSearch" aria-label="Search">
                 </div>
               </div>
             </div>
@@ -92,7 +92,7 @@
           <tr
             *ngFor="let d of data | filter: term | paginate: { itemsPerPage: 5, currentPage: p, totalItems: data.length }"
             class="data-row">
-            <td aria-rowspan="d.roles.length+1">
+            <td [attr.aria-rowspan]="d.roles.length + 1">
               <div class="initials">
                 <ws-app-initial-avatar [name]="d.userName">
                 </ws-app-initial-avatar>
@@ -107,26 +107,28 @@
                 </div> -->
               </div>
             </td>
-            <td colspan="4" (click)="viewAllocation(d)">
+            <td colspan="4">
+              <button type="button" style="all: unset; display: contents; cursor: pointer;"
+                (click)="viewAllocation(d)">
               <ul>
                 <li *ngFor="let rc of d.roleCompetencyList">
-                  <table>
-                    <tr>
-                      <td class="table-role">
+                  <div class="role-activity-grid">
+                    <div class="role-activity-row">
+                      <div class="table-role">
                         <b *ngIf="rc.roleDetails.name">{{rc.roleDetails.name}}</b>
                         <b *ngIf="!rc.roleDetails.name" class="color-40">Untitled Role</b>
                         <!-- <div>
                           <span *ngFor="let c of rc.competencyDetails">{{c.name}}</span>
                         </div> -->
-                      </td>
-                      <td class="table-activity">
-                        <table>
-                          <tr *ngFor="let a of rc.roleDetails.childNodes">
-                            <td class="activityname">
+                      </div>
+                      <div class="table-activity">
+                        <div class="role-activity-grid">
+                          <div class="role-activity-row" *ngFor="let a of rc.roleDetails.childNodes">
+                            <div class="activityname">
                               <span *ngIf="a.description">{{a.description}}</span>
                               <span *ngIf="!a.description"> - </span>
-                            </td>
-                            <td class="submittd">
+                            </div>
+                            <div class="submittd">
                               <span class="initials" *ngIf="a.submittedToName && !a.submittedToId">
                                 <mat-icon class="ws-mat-default-text veralign-btm">sports_score</mat-icon>
                               </span>
@@ -135,8 +137,8 @@
                                 </ws-app-initial-avatar>
                               </span>
                               {{a.submittedToName}}
-                            </td>
-                            <td class="submittd">
+                            </div>
+                            <div class="submittd">
                               <span class="initials" *ngIf="a.submittedFromName && !a.submittedFromId">
                                 <mat-icon class="ws-mat-default-text veralign-btm">sports_score</mat-icon>
                               </span>
@@ -146,14 +148,15 @@
                                 </ws-app-initial-avatar>
                               </span>
                               {{a.submittedFromName}}
-                            </td>
-                          </tr>
-                        </table>
-                      </td>
-                    </tr>
-                  </table>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </li>
               </ul>
+              </button>
             </td>
           </tr>
         </table>

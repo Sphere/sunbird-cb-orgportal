@@ -7,9 +7,9 @@ import { readPortalRoles } from './env.util'
 export const environment: IEnvironment = {
   production: false,
   // sitePath: 'aastrika-sb-cbp.idc.tarento.com',
-  sitePath: (window as { [key: string]: any })['env']['sitePath'] || '',
-  karmYogiPath: (window as { [key: string]: any })['env']['karmYogiPath'] || '',
-  cbpPath: (window as { [key: string]: any })['env']['cbpPath'] || '',
+  sitePath: (window as any)?.env?.sitePath || '',
+  karmYogiPath: (window as any)?.env?.karmYogiPath || '',
+  cbpPath: (window as any)?.env?.cbpPath || '',
   portalRoles: readPortalRoles(),
 }
 interface IEnvironment {

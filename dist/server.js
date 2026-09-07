@@ -11,6 +11,8 @@ const CONSTANTS = {
   PORTAL_PORT: parseInt(process.env.PORTAL_PORT || '3002', 10),
   LA_HOST_PROXY: process.env.LA_HOST_PROXY || 'http://localhost',
   WEB_HOST_PROXY: process.env.WEB_HOST_PROXY || 'http://localhost:3007',
+  API_HOST_PROXY: process.env.API_HOST_PROXY || '',
+  API_COOKIE: process.env.API_COOKIE || '',
   FRAME_ANCESTORS: process.env.FRAME_ANCESTORS || "'self'",
 }
 
@@ -50,6 +52,28 @@ app.use('/LA', proxyCreator(express.Router(), CONSTANTS.LA_HOST_PROXY))
 app.use(morgan('combined'))
 app.use(haltOnTimedOut)
 app.use('/ScormCoursePlayer', proxyCreator(express.Router(), 'http://localhost/ScormCoursePlayer'))
+
+if (CONSTANTS.API_HOST_PROXY) {
+  var apiProxy = httpProxy.createProxyServer({
+    target: CONSTANTS.API_HOST_PROXY,
+    changeOrigin: true,
+    secure: false,
+    timeout: 30000,
+  })
+  apiProxy.on('error', function(err, _req, res) {
+    console.error('API proxy error:', err.message)
+    if (!res.headersSent) {
+      res.writeHead(502, { 'Content-Type': 'application/json' })
+      res.end(JSON.stringify({ error: 'API proxy error', message: err.message }))
+    }
+  })
+  app.use('/apis', function(req, res) {
+    if (CONSTANTS.API_COOKIE) {
+      req.headers['cookie'] = CONSTANTS.API_COOKIE
+    }
+    apiProxy.web(req, res)
+  })
+}
 
 serveAssets('')
 serveAssets('/ar')

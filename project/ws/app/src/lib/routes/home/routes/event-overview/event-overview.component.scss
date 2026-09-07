@@ -1,106 +1,165 @@
+@import 'ws-design-system-v2';
+
+// ── Tab content wrapper ─────────────────────────────────────────────────────
 .tab-content {
-  padding: 20px;
+  padding: $v2-space-3 0;
 }
 
+// ── Metadata row: Date / Location / Created by ─────────────────────────────
 .event-details {
   display: flex;
-  gap: 20px;
-  color: #666666;
+  gap: $v2-space-3;
+  flex-wrap: wrap;
+  font-family: $v2-font-family;
+  font-size: $v2-font-caption;
+  color: $v2-color-text-secondary;
+  margin-bottom: $v2-space-2;
+
+  p { margin: 0; }
+
+  strong {
+    color: $v2-color-text;
+    font-weight: 500;
+  }
 }
 
+// ── Description paragraph ───────────────────────────────────────────────────
 .description {
-  margin-top: 10px;
-  line-height: 1.5;
-  color: #666666;
+  font-family: $v2-font-family;
+  font-size: $v2-font-caption;
+  color: $v2-color-text-secondary;
+  line-height: 1.6;
+  margin-bottom: $v2-space-3;
 
+  strong {
+    color: $v2-color-text;
+    font-weight: 500;
+  }
 }
 
+// ── Two-column stat/action card grid ────────────────────────────────────────
 .grid {
-  display: flex;
-  gap: 40px;
-  margin-top: 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $v2-space-3;
 }
 
+// ── Stat card ──────────────────────────────────────────────────────────────
 .card {
-  border: 1px solid #ECECEC;
-  padding: 20px 0 0 0;
-  border-radius: 10px;
+  border: 1px solid $v2-color-border;
+  border-radius: $v2-radius-card;
+  background: $v2-color-card;
+  padding: $v2-space-3;
   text-align: center;
-  width: 50%;
-  height: 180px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  gap: 8px;
+  min-height: 180px;
 
   .count {
-    color: #000000;
-    font-family: Roboto;
-    font-weight: 400;
+    font-family: $v2-font-family;
     font-size: 64px;
-
-
+    font-weight: 400;
+    color: $v2-color-text;
+    line-height: 1;
+    margin: 0;
   }
 
   .count-label {
-    color: #000000;
-    font-family: Roboto;
+    font-family: $v2-font-family;
+    font-size: $v2-font-section-h2;
     font-weight: 400;
-    font-size: 24px;
-
+    color: $v2-color-text;
+    margin: 0;
   }
 
+  img {
+    max-width: 100%;
+    max-height: 120px;
+    object-fit: contain;
+    border-radius: $v2-radius-card;
+    margin-bottom: 4px;
+  }
 }
 
+// ── "Add Participants" button ───────────────────────────────────────────────
 .add-btn {
-  margin-top: 10px;
-  color: #1C5D95;
-  padding: 5px 10px;
-  font-family: Roboto;
-  font-weight: 400;
-  font-size: 14px;
-  border: none;
-  background: inherit;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 16px;
+  border: 1px solid $v2-color-primary;
+  border-radius: $v2-radius-button;
+  background: transparent;
+  color: $v2-color-primary;
+  font-family: $v2-font-family;
+  font-size: $v2-font-caption;
+  font-weight: 500;
   cursor: pointer;
-  display: flex;
-  gap: 10px;
-  align-items: center;
+  transition: $v2-transition;
+  margin-top: 4px;
 
+  &:hover { background: $v2-color-primary-tint; }
+
+  mat-icon {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+  }
 }
 
-.certificate-text-disabled {
-  font-family: Roboto;
-  font-weight: 400;
-  font-size: 14px;
-  line-height: 16.41px;
-  letter-spacing: -2%;
-  color: #B7B7B7;
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  border: none;
-  background: inherit;
-  cursor: none;
-  opacity: 0.5;
-}
-
-
+// ── Certificate action button (enabled) ─────────────────────────────────────
 .certificate-text-enabled {
-  font-family: Roboto;
-  font-weight: 400;
-  font-size: 14px;
-  line-height: 16.41px;
-  letter-spacing: -2%;
-  color: #1C5D95;
-  display: flex;
-  gap: 10px;
+  display: inline-flex;
   align-items: center;
+  gap: 8px;
+  font-family: $v2-font-family;
+  font-size: $v2-font-caption;
+  font-weight: 500;
+  color: $v2-color-primary;
+  background: transparent;
   border: none;
-  background: inherit;
   cursor: pointer;
-  opacity: 1;
+  padding: 4px 0;
+  transition: color 0.15s;
+
+  &:hover:not(:disabled) { color: $v2-color-primary-hover; }
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+
+  mat-spinner {
+    display: inline-flex;
+  }
 }
 
-.d-none {
-  display: none;
+// ── Certificate action button (disabled) ────────────────────────────────────
+.certificate-text-disabled {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: $v2-font-family;
+  font-size: $v2-font-caption;
+  font-weight: 500;
+  color: $v2-color-text-secondary;
+  background: transparent;
+  border: none;
+  cursor: not-allowed;
+  padding: 4px 0;
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.d-none { display: none; }
+
+// ── Responsive ──────────────────────────────────────────────────────────────
+@media (max-width: 768px) {
+  .grid { grid-template-columns: 1fr; }
+  .event-details { flex-direction: column; gap: $v2-space-1; }
 }

@@ -2,11 +2,12 @@ import { AfterViewInit, Component, OnInit, OnDestroy } from '@angular/core'
 import { Router, ActivatedRoute } from '@angular/router'
 import { EventsService } from '../../services/events.service'
 import { ConfigurationsService } from '@sunbird-cb/utils'
-import * as moment from 'moment'
+import moment from 'moment'
 /* tslint:disable */
 import _ from 'lodash'
 /* tslint:enable */
 @Component({
+  standalone: false,
     selector: 'ws-app-list-event',
     templateUrl: './list-event.component.html',
     styleUrls: ['./list-event.component.scss'],
@@ -29,10 +30,10 @@ export class ListEventComponent implements OnInit, AfterViewInit, OnDestroy {
     departmentID: any
 
     constructor(
-        private router: Router,
-        private eventSvc: EventsService,
-        private configSvc: ConfigurationsService,
-        private activeRoute: ActivatedRoute,
+        private readonly router: Router,
+        private readonly eventSvc: EventsService,
+        private readonly configSvc: ConfigurationsService,
+        private readonly activeRoute: ActivatedRoute,
     ) {
         this.math = Math
         if (this.configSvc.userProfile) {
@@ -121,7 +122,7 @@ export class ListEventComponent implements OnInit, AfterViewInit, OnDestroy {
                         `${hours} hour` : `${hours} hours` : (hours === 1) ? `${hours} hour ${minutes} minutes` :
                         `${hours} hours ${minutes} minutes`
                     const creatordata = obj.creatorDetails !== undefined ? obj.creatorDetails : []
-                    const str = creatordata && creatordata.length > 0 ? creatordata.replace(/\\/g, '') : []
+                    const str = creatordata && creatordata.length > 0 ? creatordata.replaceAll('\\', '') : []
                     const creatorDetails = str && str.length > 0 ? JSON.parse(str) : creatordata
                     const eventDataObj = {
                         eventName: obj.name.substring(0, 25),

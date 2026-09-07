@@ -1,25 +1,29 @@
-import { Component, OnInit, Input, Output, EventEmitter, ViewChild, ChangeDetectorRef } from '@angular/core'
+import { Component, OnDestroy, OnInit, Input, Output, EventEmitter, ViewChild, ChangeDetectorRef } from '@angular/core'
 import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms'
 import { EventsService } from '../../services/events.service'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
-import { MatLegacyPaginator as MatPaginator } from '@angular/material/legacy-paginator'
+import { MatSnackBar } from '@angular/material/snack-bar'
+import { MatPaginator } from '@angular/material/paginator'
 import { MatSort } from '@angular/material/sort'
 import { ITableData } from '../../interfaces/interfaces'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
+import { MatDialog } from '@angular/material/dialog'
 import { ParticipantsComponent } from '../../components/participants/participants.component'
 import { SuccessComponent } from '../../components/success/success.component'
 import { Router, ActivatedRoute } from '@angular/router'
 import { ConfigurationsService } from '@sunbird-cb/utils'
-import * as moment from 'moment'
+import { Subject } from 'rxjs'
+import { takeUntil } from 'rxjs/operators'
+import moment from 'moment'
 /* tslint:disable */
 import _ from 'lodash'
 /* tslint:enable */
 @Component({
+  standalone: false,
   selector: 'ws-app-create-event',
   templateUrl: './create-event.component.html',
   styleUrls: ['./create-event.component.scss'],
 })
-export class CreateEventComponent implements OnInit {
+export class CreateEventComponent implements OnInit, OnDestroy {
+  private readonly destroy$ = new Subject<void>()
 
   artifactURL: any
   participantsArr: any = []
@@ -88,13 +92,13 @@ export class CreateEventComponent implements OnInit {
   eventimageURL: any
   departmentID: any
 
-  constructor(private snackBar: MatSnackBar,
-              private eventsSvc: EventsService,
-              private matDialog: MatDialog,
-              private router: Router,
-              private configSvc: ConfigurationsService,
-              private changeDetectorRefs: ChangeDetectorRef,
-              private activeRoute: ActivatedRoute,
+  constructor(private readonly snackBar: MatSnackBar,
+    private readonly eventsSvc: EventsService,
+    private readonly matDialog: MatDialog,
+    private readonly router: Router,
+    private readonly configSvc: ConfigurationsService,
+    private readonly changeDetectorRefs: ChangeDetectorRef,
+    private readonly activeRoute: ActivatedRoute,
   ) {
     if (this.configSvc.userProfile) {
       this.userId = this.configSvc.userProfile.userId
@@ -138,6 +142,11 @@ export class CreateEventComponent implements OnInit {
     this.maxDate = maxNewDate.setMonth(maxNewDate.getMonth() + 1)
     this.todayDate = new Date((new Date().getTime()))
     this.todayTime = '00:00'
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next()
+    this.destroy$.complete()
   }
 
   ngOnInit() {
@@ -195,7 +204,7 @@ export class CreateEventComponent implements OnInit {
       width: '850px',
       height: '600px',
     })
-    this.dialogRef.afterClosed().subscribe((response: any) => {
+    this.dialogRef.afterClosed().pipe(takeUntil(this.destroy$)).subscribe((response: any) => {
       if (response) {
         this.addPresenters(response)
       }
@@ -262,12 +271,12 @@ export class CreateEventComponent implements OnInit {
         },
       }
       // start the upload and save the progress map
-      this.eventsSvc.crreateAsset(request).subscribe((res: any) => {
+      this.eventsSvc.crreateAsset(request).pipe(takeUntil(this.destroy$)).subscribe((res: any) => {
         const contentID = res.result.identifier
         const formData: FormData = new FormData()
         formData.append('data', file)
 
-        this.eventsSvc.uploadFile(contentID, formData).subscribe((fdata: any) => {
+        this.eventsSvc.uploadFile(contentID, formData).pipe(takeUntil(this.destroy$)).subscribe((fdata: any) => {
           this.eventimageURL = fdata.result.artifactUrl
         })
       })
@@ -283,7 +292,7 @@ export class CreateEventComponent implements OnInit {
   fileSubmit(identifier: string) {
     const formData = new FormData()
     formData.append('file', this.imageSrc)
-    this.eventsSvc.uploadCoverImage(formData, identifier).subscribe(
+    this.eventsSvc.uploadCoverImage(formData, identifier).pipe(takeUntil(this.destroy$)).subscribe(
       res => {
         this.artifactURL = res.artifactURL
         this.updateContent(identifier)
@@ -313,7 +322,7 @@ export class CreateEventComponent implements OnInit {
       },
     }
     const formJson = this.encodeToBase64(contentObj)
-    this.eventsSvc.updateEvent(formJson).subscribe(
+    this.eventsSvc.updateEvent(formJson).pipe(takeUntil(this.destroy$)).subscribe(
       res => {
         if (res || !res) {
           this.publishEvent(identifier)
@@ -336,18 +345,15 @@ export class CreateEventComponent implements OnInit {
       .set('minute', timeArr[1]).format('YYYYMMDDTHHmmss+0000')
 
     const startTimeArr = this.createEventForm.controls['eventTime'].value.split(':')
-    // tslint:disable-next-line:radix
-    const startMinutes = (startTimeArr[0] * 60) + parseInt(startTimeArr[1])
-    // tslint:disable-next-line:radix
-    const endMinutes = parseInt(this.createEventForm.controls['eventDurationHours'].value) * 60
-    // tslint:disable-next-line:radix
-    const totalMinutes = startMinutes + endMinutes + parseInt(this.createEventForm.controls['eventDurationMinutes'].value)
+    const startMinutes = (startTimeArr[0] * 60) + Number.parseInt(startTimeArr[1], 10)
+    const endMinutes = Number.parseInt(this.createEventForm.controls['eventDurationHours'].value, 10) * 60
+    const totalMinutes = startMinutes + endMinutes + Number.parseInt(this.createEventForm.controls['eventDurationMinutes'].value, 10)
     // tslint:disable-next-line:prefer-template
     const hours = (Math.floor(totalMinutes / 60) < 10) ? '0' + Math.floor(totalMinutes / 60) : Math.floor(totalMinutes / 60)
     const minutes = totalMinutes % 60
     let finalTime
     let newendDate
-    if (hours < 24) {
+    if ((hours as number) < 24) {
       if (minutes === 0) {
         // tslint:disable-next-line:prefer-template
         finalTime = hours + ':' + '00' + ':00+05:30'
@@ -428,7 +434,7 @@ export class CreateEventComponent implements OnInit {
     if (eventDurationMinutes === 0) {
       this.openSnackbar('Duration cannot be zero')
     } else {
-      this.eventsSvc.createEvent(form).subscribe(
+      this.eventsSvc.createEvent(form).pipe(takeUntil(this.destroy$)).subscribe(
         res => {
           const identifier = res.result.identifier
           // this.fileSubmit(identifier)
@@ -444,8 +450,12 @@ export class CreateEventComponent implements OnInit {
   encodeToBase64(body: any) {
     const sString = JSON.stringify(body)
     const aUTF16CodeUnits = new Uint16Array(sString.length)
-    Array.prototype.forEach.call(aUTF16CodeUnits, (_el, idx, arr) => arr[idx] = sString.charCodeAt(idx))
-    return { data: btoa(new Uint8Array(aUTF16CodeUnits.buffer).reduce((data, byte) => data + String.fromCharCode(byte), '')) }
+    // charAt(idx).codePointAt(0) is exactly equivalent to charCodeAt(idx) here, including for
+    // surrogate-pair halves: slicing to a single code unit first denies codePointAt the adjacent
+    // surrogate it needs to combine, so it always returns the raw UTF-16 code unit — required, since
+    // aUTF16CodeUnits is a Uint16Array of one entry per code unit, not per Unicode code point.
+    Array.prototype.forEach.call(aUTF16CodeUnits, (_el, idx, arr) => arr[idx] = sString.charAt(idx).codePointAt(0))
+    return { data: btoa(new Uint8Array(aUTF16CodeUnits.buffer).reduce((data, byte) => data + String.fromCodePoint(byte), '')) }
   }
 
   private openSnackbar(primaryMsg: string, duration: number = 5000) {
@@ -460,7 +470,7 @@ export class CreateEventComponent implements OnInit {
   }
 
   publishEvent(identifierkey: any) {
-    this.eventsSvc.publishEvent(identifierkey).subscribe(
+    this.eventsSvc.publishEvent(identifierkey).pipe(takeUntil(this.destroy$)).subscribe(
       res => {
         this.showSuccess(res)
       },
@@ -480,7 +490,7 @@ export class CreateEventComponent implements OnInit {
       height: '471px',
       data: res,
     })
-    this.dialogRef.afterClosed().subscribe(() => {
+    this.dialogRef.afterClosed().pipe(takeUntil(this.destroy$)).subscribe(() => {
       this.router.navigate([`/app/events`])
     })
   }

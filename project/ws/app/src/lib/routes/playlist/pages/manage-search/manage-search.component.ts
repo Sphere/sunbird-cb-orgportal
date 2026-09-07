@@ -40,7 +40,7 @@ import { FeatureAccessService, FEATURE_KEY } from '../../../../shared/access/fea
     imports: [CommonModule, MatButtonModule, MatDialogModule, MatIconModule, HideForViewOnlyDirective],
 })
 export class ManageSearchComponent implements OnInit, AfterViewInit, OnDestroy {
-    @ViewChild('jsonEditor', { static: false }) private jsonEditorRef?: ElementRef<HTMLElement>
+    @ViewChild('jsonEditor', { static: false }) private readonly jsonEditorRef?: ElementRef<HTMLElement>
 
     readonly jsonText = signal('')
     readonly validationError = signal('')

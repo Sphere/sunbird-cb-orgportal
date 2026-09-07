@@ -10,6 +10,7 @@ import { IKhubItemTile, IKhubViewResultDocs } from '../../models/knowledgeHub.mo
 export type IKhubFetchStatus = 'hasMore' | 'fetching' | 'done' | 'error' | 'none'
 
 @Component({
+  standalone: false,
   selector: 'ws-app-knowledge',
   templateUrl: './knowledge.component.html',
   styleUrls: ['./knowledge.component.scss'],
@@ -60,10 +61,10 @@ export class KnowledgeComponent implements OnInit, OnDestroy {
     },
   }
   constructor(
-    private activated: ActivatedRoute,
-    private router: Router,
-    private valueSvc: ValueService,
-    private searchServ: SearchServService,
+    private readonly activated: ActivatedRoute,
+    private readonly router: Router,
+    private readonly valueSvc: ValueService,
+    private readonly searchServ: SearchServService,
   ) { }
 
   ngOnInit() {
@@ -159,15 +160,11 @@ export class KnowledgeComponent implements OnInit, OnDestroy {
     })
   }
   sortOrder(type: string) {
-    try {
-      this.router.navigate([], {
-        queryParams: { sort: type },
-        queryParamsHandling: 'merge',
-        relativeTo: this.activated.parent,
-      })
-    } catch (e) {
-      throw e
-    }
+    this.router.navigate([], {
+      queryParams: { sort: type },
+      queryParamsHandling: 'merge',
+      relativeTo: this.activated.parent,
+    }).catch(e => { throw e })
   }
   closeFilter(value: boolean) {
     this.sideNavBarOpened = value

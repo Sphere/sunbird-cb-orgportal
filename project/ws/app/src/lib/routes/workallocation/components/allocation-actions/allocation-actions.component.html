@@ -79,8 +79,9 @@
                         placeholder="Type here" i18n-aria-label aria-label="Map Activities input" class="form-input"
                         autocomplete="off" (keypress)="onSearchActivity($event)" (keyup)="onSearchActivity($event)"
                         maxlength="40" />
-                      <span class="form-control" style="color:#0074B6; cursor:pointer; margin-left:10px;"
-                        (click)="mapSelectedActivity()" *ngIf="selectedActivity !== ''">Map</span>
+                      <button type="button" class="form-control" style="all: unset; color:#0074B6; cursor:pointer; margin-left:10px;"
+                        (click)="mapSelectedActivity()"
+                        *ngIf="selectedActivity !== ''">Map</button>
                     </mat-form-field>
 
                     <label for="mapActivities" class="margin-remove-bottom margin-top-xs form-label"
@@ -91,13 +92,13 @@
 
                     <ul *ngIf="activitieslist && activitieslist.length > 0"
                       style="list-style-type: none; padding-left: 0px; margin-top: 10px; height: 35px;">
-                      <li *ngFor="let a of activitieslist; let i = index" id="elementActivity{{i}}"
-                        (click)="showRemoveActivity(i)" style="height:35px;margin-bottom:10px; background-color:#FFF4ED; color:black; line-height: 35px; padding-left:15px; float:left;
+                      <li *ngFor="let a of activitieslist; let i = index" id="elementActivity{{i}}" style="height:35px;margin-bottom:10px; background-color:#FFF4ED; line-height: 35px; padding-left:15px; float:left;
                         clear:left; word-wrap:break-word; border-radius: 4px; color:#716B66;padding-right: 15px;">
-                        {{a.name}}
-                        <mat-icon id="showremove{{i}}" (click)="removeActivity(i)"
-                          style="cursor:pointer; margin-left:10px; display:none; padding:5px;line-height: 35px;">close
-                        </mat-icon>
+                        <button type="button" style="all: unset; display: contents; cursor: pointer;" (click)="showRemoveActivity(i)">{{a.name}}</button>
+                        <button type="button" id="showremove{{i}}" style="all: unset; display: contents; cursor: pointer;" (click)="removeActivity(i)">
+                          <mat-icon style="cursor:pointer; margin-left:10px; display:none; padding:5px;line-height: 35px;">close
+                          </mat-icon>
+                        </button>
                       </li>
                     </ul>
                   </div>
@@ -170,28 +171,33 @@
                     <ul class="competency-level" style="list-style-type: none; width:300px;padding-inline-start:0px;">
                       <li
                         style="border:1px solid rgba(0, 0, 0, 0.87) ; padding:5px; margin-bottom:10px; border-radius: 2px; width:325px;">
-                        <input type="radio" name="competencylevel" value="level1" (change)="selectLevel('level1')">
-                        Level 1
+                        <input type="radio" name="competencylevel" value="level1" id="competencyLevel1"
+                          (change)="selectLevel('level1')">
+                        <label for="competencyLevel1">Level 1</label>
                       </li>
                       <li
                         style="border:1px solid rgba(0, 0, 0, 0.87) ; padding:5px;margin-bottom:10px;border-radius: 2px; width:325px;">
-                        <input type="radio" name="competencylevel" value="level2" (change)="selectLevel('level2')">
-                        Level 2
+                        <input type="radio" name="competencylevel" value="level2" id="competencyLevel2"
+                          (change)="selectLevel('level2')">
+                        <label for="competencyLevel2">Level 2</label>
                       </li>
                       <li style=" border:1px solid rgba(0, 0, 0, 0.87) ; padding:5px;margin-bottom:10px;border-radius:
                           2px; width:325px;">
-                        <input type="radio" name="competencylevel" value="level3" (change)="selectLevel('level3')">
-                        Level 3
+                        <input type="radio" name="competencylevel" value="level3" id="competencyLevel3"
+                          (change)="selectLevel('level3')">
+                        <label for="competencyLevel3">Level 3</label>
                       </li>
                       <li style=" border:1px solid rgba(0, 0, 0, 0.87) ; padding:5px;margin-bottom:10px;border-radius:
                           2px; width:325px;">
-                        <input type="radio" name="competencylevel" value="level4" (change)="selectLevel('level4')">
-                        Level 4
+                        <input type="radio" name="competencylevel" value="level4" id="competencyLevel4"
+                          (change)="selectLevel('level4')">
+                        <label for="competencyLevel4">Level 4</label>
                       </li>
                       <li style=" border:1px solid rgba(0, 0, 0, 0.87) ; padding:5px;margin-bottom:10px;border-radius:
                           2px; width:325px;">
-                        <input type="radio" name="competencylevel" value="level5" (change)="selectLevel('level5')">
-                        Level 5
+                        <input type="radio" name="competencylevel" value="level5" id="competencyLevel5"
+                          (change)="selectLevel('level5')">
+                        <label for="competencyLevel5">Level 5</label>
                       </li>
                     </ul>
 
@@ -216,13 +222,13 @@
 
                     <ul *ngIf="competencieslist && competencieslist.length > 0"
                       style="list-style-type: none; padding-left: 0px; margin-top: 10px; height: 35px;">
-                      <li *ngFor="let a of activitieslist; let i = index" id="elemenComp{{i}}"
-                        (click)="showRemoveCompetency(i)" style="height:35px;margin-bottom:10px; background-color:#FFF4ED; color:black; line-height: 35px; padding-left:15px; float:left;
+                      <li *ngFor="let a of activitieslist; let i = index" id="elemenComp{{i}}" style="height:35px;margin-bottom:10px; background-color:#FFF4ED; line-height: 35px; padding-left:15px; float:left;
                       clear:left; word-wrap:break-word; border-radius: 4px; color:#716B66;padding-right: 15px;">
-                        {{a.name}}
-                        <mat-icon id="showremoveComp{{i}}" (click)="removeCompetency(i)"
-                          style="cursor:pointer; margin-left:10px; display:none; padding:5px;line-height: 35px;">close
-                        </mat-icon>
+                        <button type="button" style="all: unset; display: contents; cursor: pointer;" (click)="showRemoveCompetency(i)">{{a.name}}</button>
+                        <button type="button" id="showremoveComp{{i}}" style="all: unset; display: contents; cursor: pointer;" (click)="removeCompetency(i)">
+                          <mat-icon style="cursor:pointer; margin-left:10px; display:none; padding:5px;line-height: 35px;">close
+                          </mat-icon>
+                        </button>
                       </li>
                     </ul>
 
@@ -238,8 +244,8 @@
     <div class="flex-1 similar-sidebar" style="position: relative; height: 620px;">
       <ng-container id="changelog">
         <div>
-          <label class="change-log-text margin-top-l margin-bottom-l margin-left-m margin-right-m">Similar
-            items</label>
+          <span class="change-log-text margin-top-l margin-bottom-l margin-left-m margin-right-m">Similar
+            items</span>
           <!-- <div class="w-full similarUsersList" *ngIf="similarUsers && similarUsers.length > 0">
             <div class="suser-card" *ngFor="let user of similarUsers">
               <div class="padding-top-m padding-left-s padding-right-s">
@@ -314,14 +320,14 @@
           </div>
           <div id="loader"></div>
           <div class="no-request-text margin-m">
-            <label
+            <span
               *ngIf="!similarUsers && !similarRoles && !similarActivities && !similarPositions && !similarCompetencies">System
-              will recommend similar items to avoid duplication</label>
-            <label *ngIf="nosimilarUsers && similarUsers.length === 0">No users found</label>
-            <label *ngIf="nosimilarRoles && similarRoles.length === 0">No roles found</label>
-            <label *ngIf="nosimilarPositions && similarPositions.length === 0">No position found</label>
-            <label *ngIf="nosimilarActivities && similarActivities.length === 0">No activity found</label>
-            <label *ngIf="nosimilarCompetencies && similarCompetencies.length === 0">No competency found</label>
+              will recommend similar items to avoid duplication</span>
+            <span *ngIf="nosimilarUsers && similarUsers.length === 0">No users found</span>
+            <span *ngIf="nosimilarRoles && similarRoles.length === 0">No roles found</span>
+            <span *ngIf="nosimilarPositions && similarPositions.length === 0">No position found</span>
+            <span *ngIf="nosimilarActivities && similarActivities.length === 0">No activity found</span>
+            <span *ngIf="nosimilarCompetencies && similarCompetencies.length === 0">No competency found</span>
           </div>
         </div>
       </ng-container>

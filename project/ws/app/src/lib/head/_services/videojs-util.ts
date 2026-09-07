@@ -6,9 +6,32 @@ import 'videojs-vr'
 
 import { Subscription, interval, fromEvent } from 'rxjs'
 import { WsEvents } from '@sunbird-cb/utils'
-import { ROOT_WIDGET_CONFIG } from '../collection.config'
-import { IWidgetsPlayerMediaData } from '../_models/player-media.model'
 import { NsContent } from './widget-content.model'
+
+// Only the 'player' widget type constant is needed here — importing the full
+// `@sunbird-cb/collection` package would pull in its video.js plugin
+// registrations (videojs-youtube etc.) as a module-load side effect, which is
+// unnecessary weight for this file and conflicts with tests that mock video.js.
+const ROOT_WIDGET_CONFIG = {
+  player: { _type: 'player' },
+}
+
+interface IWidgetsPlayerMediaData {
+  subtitles?: { srclang: string, label: string, url: string }[]
+  identifier?: string
+  url?: string
+  autoplay?: boolean
+  markers?: string[]
+  resumePoint?: number
+  passThroughData?: any
+  posterImage?: string
+  setCookie?: boolean
+  disableTelemetry?: boolean
+  isVideojs?: boolean
+  platform?: any
+  mimeType?: any
+  continueLearning?: boolean
+}
 
 export const videojsEventNames = {
   disposing: 'disposing',

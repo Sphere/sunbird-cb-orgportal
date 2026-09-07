@@ -1,14 +1,18 @@
-import { Component, OnInit } from '@angular/core'
+import { Component, OnDestroy, OnInit } from '@angular/core'
 import { Router, ActivatedRoute, UrlTree, UrlSegmentGroup, UrlSegment } from '@angular/router'
 import { IFeatureSearchConfig } from '../../models/search.model'
 import { ConfigurationsService, NsPage } from '@sunbird-cb/utils'
+import { Subject } from 'rxjs'
+import { takeUntil } from 'rxjs/operators'
 
 @Component({
+  standalone: false,
   selector: 'ws-app-search-root',
   templateUrl: './search-root.component.html',
   styleUrls: ['./search-root.component.scss'],
 })
-export class SearchRootComponent implements OnInit {
+export class SearchRootComponent implements OnInit, OnDestroy {
+  private readonly destroy$ = new Subject<void>()
   searchTabs: IFeatureSearchConfig = {
     tabs: [],
     routeValue: [],
@@ -17,10 +21,10 @@ export class SearchRootComponent implements OnInit {
   }
   route = 'learning'
   searchRequest: {
-    query: string;
-    filters: { [type: string]: string[] };
-    social?: string;
-    sort?: string;
+    query: string
+    filters: { [type: string]: string[] }
+    social?: string
+    sort?: string
   } = {
       query: '',
       filters: {},
@@ -30,16 +34,16 @@ export class SearchRootComponent implements OnInit {
   selectedIndex = 0
   pageNavbar: Partial<NsPage.INavBackground> = this.configSvc.pageNavBar
   constructor(
-    private router: Router,
-    private activated: ActivatedRoute,
-    private configSvc: ConfigurationsService,
+    private readonly router: Router,
+    private readonly activated: ActivatedRoute,
+    private readonly configSvc: ConfigurationsService,
   ) { }
 
   ngOnInit() {
     if (this.activated.snapshot.data.searchPageData.data.search) {
       this.searchTabs = this.activated.snapshot.data.searchPageData.data.search
     }
-    this.activated.queryParamMap.subscribe(queryParam => {
+    this.activated.queryParamMap.pipe(takeUntil(this.destroy$)).subscribe(queryParam => {
       if (queryParam.has('q')) {
         this.searchRequest.query = queryParam.get('q') || ''
       }
@@ -50,6 +54,11 @@ export class SearchRootComponent implements OnInit {
       this.selectedIndex = this.searchTabs.routeValue.indexOf(this.route)
     })
   }
+  ngOnDestroy() {
+    this.destroy$.next()
+    this.destroy$.complete()
+  }
+
   routeTabs(tab: number) {
     this.selectedIndex = tab
     this.router.navigateByUrl(`/app/search/${this.searchTabs.routeValue[tab]}`)
@@ -58,7 +67,7 @@ export class SearchRootComponent implements OnInit {
     //   relativeTo: this.activated.parent,
     // })
   }
-  hasKeys(object: Object): boolean {
+  hasKeys(object: object): boolean {
     if (object && Object.keys(object) && Object.keys(object).length) {
       return true
     }

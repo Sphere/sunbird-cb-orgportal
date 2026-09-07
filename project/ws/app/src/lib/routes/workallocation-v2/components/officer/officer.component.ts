@@ -9,13 +9,14 @@ import _ from 'lodash'
 // tslint:enable
 
 @Component({
+  standalone: false,
   selector: 'ws-app-officer',
   templateUrl: './officer.component.html',
   styleUrls: ['./officer.component.scss'],
 })
 export class OfficerComponent implements OnInit, OnDestroy {
-  private unsubscribe = new Subject<void>()
-  private unsubscribe1 = new Subject<void>()
+  private readonly unsubscribe = new Subject<void>()
+  private readonly unsubscribe1 = new Subject<void>()
   @Input() editData!: any
   userslist!: any[]
   userCtrl = new UntypedFormControl()
@@ -25,9 +26,9 @@ export class OfficerComponent implements OnInit, OnDestroy {
   officerForm!: UntypedFormGroup
 
   constructor(
-    private allocateSrvc: AllocationService,
-    private formBuilder: UntypedFormBuilder,
-    private watStore: WatStoreService,
+    private readonly allocateSrvc: AllocationService,
+    private readonly formBuilder: UntypedFormBuilder,
+    private readonly watStore: WatStoreService,
   ) {
   }
 

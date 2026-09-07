@@ -3,6 +3,7 @@ import { Router, ActivatedRoute } from '@angular/router'
 // tslint:disable-next-line
 import _ from 'lodash'
 @Component({
+  standalone: false,
   selector: 'ws-app-roles-access',
   templateUrl: './roles-access.component.html',
   styleUrls: ['./roles-access.component.scss'],
@@ -11,7 +12,7 @@ export class RolesAccessComponent implements OnInit, AfterViewInit, OnDestroy {
   tabledata: any = []
   data: any = []
 
-  constructor(private router: Router, private activeRouter: ActivatedRoute) { }
+  constructor(private readonly router: Router, private readonly activeRouter: ActivatedRoute) { }
 
   ngOnInit() {
     this.tabledata = {

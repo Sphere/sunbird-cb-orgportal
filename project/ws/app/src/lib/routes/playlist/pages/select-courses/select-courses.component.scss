@@ -363,14 +363,6 @@ $table-height: 560px;
         content: "";
         position: absolute;
         display: none;
-    }
-
-    input:checked~.checkmark:after {
-        display: block;
-    }
-
-    // Checkmark icon (CSS draw)
-    .checkmark:after {
         left: 6px;
         top: 2px;
         width: 5px;
@@ -380,6 +372,10 @@ $table-height: 560px;
         -webkit-transform: rotate(45deg);
         -ms-transform: rotate(45deg);
         transform: rotate(45deg);
+    }
+
+    input:checked~.checkmark:after {
+        display: block;
     }
 }
 

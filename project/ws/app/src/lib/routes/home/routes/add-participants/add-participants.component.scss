@@ -1,112 +1,111 @@
-/* Modal container styles */
-::ng-deep .mat-dialog-container {
-  border-radius: 12px;
-  padding: 24px;
-  background: #fff;
+@import 'ws-design-system-v2';
+
+// ── Container ──────────────────────────────────────────────────────────────
+.modal-container {
+  padding: $v2-space-3 $v2-space-3 0;
+  font-family: $v2-font-family;
 }
 
+// ── Header ─────────────────────────────────────────────────────────────────
 .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
-
-
-  /* Title styling */
-  h2 {
-    font-size: 20px;
-    font-weight: 600;
-    margin-bottom: 0;
-  }
+  margin-bottom: $v2-space-3;
 }
 
-/* File upload header (aligned properly) */
-.file-upload-header {
+.title {
+  @include v2-modal-title;
+}
+
+// ── Dialog content ─────────────────────────────────────────────────────────
+mat-dialog-content.dialog-content {
+  padding: 0 0 8px;
+  max-height: 65vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+// ── Upload section: description + download button ──────────────────────────
+.upload-section {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  gap: $v2-space-2;
+  margin-bottom: $v2-space-3;
 }
 
-/* Download button styling */
+.upload-description {
+  font-size: $v2-font-caption;
+  color: $v2-color-text-secondary;
+  margin: 0;
+}
+
 .download-btn {
-  min-width: 160px;
-  border-radius: 100px;
-  background-color: #1C5D95;
-  color: white;
-  border: none;
-  padding: 8px 15px;
-  font-size: 14px;
-  cursor: pointer;
+  @include v2-btn-primary;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
-
-/* File upload styling */
-.file-upload-container {
+// ── File picker row ────────────────────────────────────────────────────────
+.file-row {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: $v2-space-2;
+  margin-bottom: $v2-space-2;
 }
 
-input[type="file"] {
+input[type='file'] {
   display: none;
 }
 
-.custom-file-upload {
-  display: inline-block;
-  background-color: white;
-  color: #1C5D95;
-  padding: 6px 20px;
-  border-radius: 20px;
+.upload-btn {
+  @include v2-btn-secondary;
   cursor: pointer;
-  font-size: 16px;
-  text-align: center;
-  border: 1px solid #1C5D95;
 }
 
-// .custom-file-upload:hover {
-//   background-color: #0056b3;
-//   color: white;
-// }
-
-/* File format message */
-#file-name {
-  font-size: 14px;
-  color: gray;
+.file-hint {
+  font-size: $v2-font-caption;
+  color: $v2-color-text-secondary;
 }
 
-/* Actions styling */
-mat-dialog-actions {
-  display: flex;
-  justify-content: flex-end;
-  margin-top: 16px;
-}
-
-mat-dialog-actions button {
-  min-width: 120px;
-  border-radius: 100px;
-  background-color: #1C5D95;
-  color: white;
-  border: none;
-  padding: 8px;
-}
-
+// ── Validation errors ──────────────────────────────────────────────────────
 .error-messages {
-  margin-top: 10px;
-  color: red;
-  font-size: 14px;
+  margin-top: $v2-space-1;
 }
 
 .error-text {
+  font-size: $v2-font-micro;
+  color: $v2-color-danger;
   margin: 2px 0;
 }
 
+// ── Success message ────────────────────────────────────────────────────────
 .success-message {
-  margin-top: 10px;
-  color: #27AE60;
-  font-size: 14px;
+  margin-top: $v2-space-1;
 }
 
 .success-text {
-  font-weight: bold;
+  font-size: $v2-font-micro;
+  font-weight: 600;
+  color: $v2-status-success-text;
+}
+
+// ── Dialog actions ─────────────────────────────────────────────────────────
+mat-dialog-actions {
+  padding: 12px 0 16px;
+  margin: 0;
+  border-top: 1px solid $v2-color-border;
+  justify-content: flex-end;
+  min-height: unset;
+}
+
+.save-btn {
+  @include v2-btn-primary;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
 }

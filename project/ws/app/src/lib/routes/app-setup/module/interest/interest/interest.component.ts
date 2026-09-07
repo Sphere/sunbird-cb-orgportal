@@ -1,18 +1,21 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core'
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core'
 import { ActivatedRoute, Router } from '@angular/router'
 import { WidgetContentService, NsContent, BtnPlaylistService, NsPlaylist } from '@sunbird-cb/collection'
 import { TFetchStatus, NsPage, ConfigurationsService } from '@sunbird-cb/utils'
 import { UntypedFormControl } from '@angular/forms'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
-import { Subscription } from 'rxjs'
+import { MatSnackBar } from '@angular/material/snack-bar'
+import { Subject, Subscription } from 'rxjs'
+import { takeUntil } from 'rxjs/operators'
 // import { InterestService } from '../../../../profile/routes/interest/services/interest.service'
 
 @Component({
+  standalone: false,
   selector: 'ws-app-interests',
   templateUrl: './interest.component.html',
   styleUrls: ['./interest.component.scss'],
 })
-export class InterestComponent implements OnInit {
+export class InterestComponent implements OnInit, OnDestroy {
+  private readonly destroy$ = new Subject<void>()
   interestsData: any
   selectedContent = 0
   selectedInterest = ''
@@ -26,19 +29,20 @@ export class InterestComponent implements OnInit {
   interestToAddMultiple: string[] = []
   pageNavbar: Partial<NsPage.INavBackground> = this.configSvc.pageNavBar
   alreadyAddedInterest = new Set<string>()
-  constructor(private activateRoute: ActivatedRoute,
-              private contentSvc: WidgetContentService,
-              private playlistSvc: BtnPlaylistService,
-              private configSvc: ConfigurationsService,
-              private router: Router,
+  constructor(private readonly activateRoute: ActivatedRoute,
+    private readonly contentSvc: WidgetContentService,
+    private readonly playlistSvc: BtnPlaylistService,
+    private readonly configSvc: ConfigurationsService,
+    private readonly router: Router,
     // private interestSvc: InterestService,
-              private snackbar: MatSnackBar) { }
+    private readonly snackbar: MatSnackBar) { }
   @ViewChild('createPlaylistSuccess', { static: true }) createPlaylistSuccessMessage!: ElementRef<any>
   @ViewChild('createPlaylistError', { static: true }) createPlaylistErrorMessage!: ElementRef<any>
   playlistsSubscription: Subscription | null = null
   ngOnInit() {
     this.playlistsSubscription = this.playlistSvc
       .getAllPlaylists()
+      .pipe(takeUntil(this.destroy$))
       .subscribe(
         _playlists => {
           _playlists.forEach(element => {
@@ -53,12 +57,17 @@ export class InterestComponent implements OnInit {
           })
         })
 
-    this.activateRoute.data.subscribe(data => {
+    this.activateRoute.data.pipe(takeUntil(this.destroy$)).subscribe(data => {
       this.interestRES = data.pageData.data
       this.interestsData = Object.keys(this.interestRES)
     })
 
     this.selectInterest()
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next()
+    this.destroy$.complete()
   }
 
   selectInterest(index: number = 0) {
@@ -67,7 +76,7 @@ export class InterestComponent implements OnInit {
     }
     this.fetchStatus = 'fetching'
     this.selectedContent = index
-    this.contentSvc.fetchMultipleContent(this.interestRES[this.interestsData[this.selectedContent]]).subscribe(
+    this.contentSvc.fetchMultipleContent(this.interestRES[this.interestsData[this.selectedContent]]).pipe(takeUntil(this.destroy$)).subscribe(
       data => {
         this.interestContent = data
         this.fetchStatus = 'done'
@@ -102,9 +111,9 @@ export class InterestComponent implements OnInit {
         })
         // this.interestSvc.addUserMultipleInterest(this.interestToAddMultiple).subscribe()
         if (interestToRemove.length) {
-          this.playlistSvc.deletePlaylistContent(this.playlistForInterest, interestToRemove).subscribe()
+          this.playlistSvc.deletePlaylistContent(this.playlistForInterest, interestToRemove).pipe(takeUntil(this.destroy$)).subscribe()
         }
-        this.playlistSvc.addPlaylistContent(this.playlistForInterest, interestToAdd).subscribe(
+        this.playlistSvc.addPlaylistContent(this.playlistForInterest, interestToAdd).pipe(takeUntil(this.destroy$)).subscribe(
           () => {
             this.snackbar.open(this.createPlaylistSuccessMessage.nativeElement.value)
             this.router.navigate(['/app/setup/home/done'])
@@ -119,7 +128,7 @@ export class InterestComponent implements OnInit {
           playlist_title: this.playListName,
           content_ids: Array.from(this.addedInterest),
           visibility: NsPlaylist.EPlaylistVisibilityTypes.PRIVATE,
-        }).subscribe(
+        }).pipe(takeUntil(this.destroy$)).subscribe(
           () => {
             this.snackbar.open(this.createPlaylistSuccessMessage.nativeElement.value)
             this.router.navigate(['/app/setup/home/done'])

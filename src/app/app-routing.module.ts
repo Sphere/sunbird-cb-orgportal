@@ -2,10 +2,8 @@ import { NgModule } from '@angular/core'
 import { RouterModule, Routes } from '@angular/router'
 import { ErrorResolverComponent, PageComponent, PageModule } from '@sunbird-cb/collection'
 import { ExploreDetailResolve, PageResolve } from '@sunbird-cb/utils'
-// import { LearningGuard } from '../../project/ws/app/src/lib/routes/my-learning/guards/my-learning.guard'
 import { InvalidUserComponent } from './component/invalid-user/invalid-user.component'
 import { LoginRootComponent } from './component/login-root/login-root.component'
-// import { ETopBar } from './constants/topBar.constants'
 import { EmptyRouteGuard } from './guards/empty-route.guard'
 import { ExternalUrlResolverService } from './guards/external-url-resolver.service'
 import { GeneralGuard } from './guards/general.guard'
@@ -20,7 +18,6 @@ import { PublicLogoutComponent } from './routes/public/public-logout/public-logo
 import { TncComponent } from './routes/tnc/tnc.component'
 import { TncAppResolverService } from './services/tnc-app-resolver.service'
 import { TncPublicResolverService } from './services/tnc-public-resolver.service'
-// import { AppTocResolverService } from '@ws/app/src/lib/routes/app-toc/resolvers/app-toc-resolver.service'
 
 // 💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥
 // Please declare routes in alphabetical order
@@ -37,7 +34,6 @@ const routes: Routes = [
     path: 'practice/behavioral',
     pathMatch: 'full',
     redirectTo: 'page/embed-behavioural-skills',
-    // canActivate: [GeneralGuard],
   },
   {
     path: 'app/home',
@@ -138,7 +134,6 @@ const routes: Routes = [
     path: 'app/my-dashboard',
     loadChildren: () =>
       import('./routes/route-my-dashboard.module').then(u => u.RouteMyDashboardModule),
-    // canActivate: [GeneralGuard, LearningGuard],
   },
   {
     path: 'app/notifications',
@@ -146,19 +141,6 @@ const routes: Routes = [
       import('./routes/route-notification-app.module').then(u => u.RouteNotificationAppModule),
     canActivate: [GeneralGuard],
   },
-  // {
-  //   path: 'app/person-profile',
-  //   loadChildren: () =>
-  //     import('./routes/route-profile-v2.module').then(u => u.RouteProfileV2Module),
-  //   canActivate: [GeneralGuard],
-  //   data: {
-  //     pageType: 'feature',
-  //     pageKey: 'profile-v2',
-  //   },
-  //   resolve: {
-  //     pageData: PageResolve,
-  //   },
-  // },
   {
     path: 'app/events',
     loadChildren: () => import('./routes/route-app-event.module').then(m => m.AppEventsModule),

@@ -1,128 +1,287 @@
+@import 'ws-design-system-v2';
+
+// ── Tab content wrapper ─────────────────────────────────────────────────────
 .tab-content {
-  padding: 20px;
+  padding: $v2-space-3 0;
 }
 
+// ── Search + filter controls row ────────────────────────────────────────────
 .participants-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 15px;
-  gap: 16px;
+  flex-wrap: wrap;
+  gap: $v2-space-2;
+  margin-bottom: $v2-space-2;
 }
 
 .search-filter-group {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: $v2-space-1;
 }
 
 .search-input {
-  width: 35%;
-  padding: 8px;
-  border: none;
-  border-radius: 4px;
-  box-shadow: 0px 0px 4px 0px #00000026;
+  @include v2-input-field;
+  width: 280px;
+
+  &:focus { outline: none; }
 }
 
-input:focus,
-textarea:focus {
-  outline: none !important;
-}
-
+// ── Filter button ───────────────────────────────────────────────────────────
 .filter-btn {
-  background-color: transparent;
-  border: none;
-  color: #1C5D95;
-  cursor: pointer;
-  display: flex;
+  position: relative;
+  display: inline-flex;
   align-items: center;
+  gap: 6px;
+  height: 40px;
+  padding: 0 16px;
+  border: 1px solid $v2-color-primary;
+  border-radius: $v2-radius-button;
+  background: transparent;
+  color: $v2-color-primary;
+  font-family: $v2-font-family;
+  font-size: $v2-font-caption;
+  font-weight: 500;
+  cursor: pointer;
+  transition: $v2-transition;
+
+  mat-icon { font-size: 18px; width: 18px; height: 18px; }
+
+  &:hover,
+  &.active { background: $v2-color-primary-tint; }
+
+  // Active filter indicator dot
+  .filter-dot {
+    position: absolute;
+    top: 7px;
+    right: 9px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: $v2-color-primary;
+  }
 }
 
-.filter-btn mat-icon {
-  margin-right: 5px;
+// ── Filter popover anchor + floating panel ──────────────────────────────────
+.filter-popover-anchor {
+  position: relative;
 }
 
-.participants-table {
-  width: 100%;
-  overflow-x: auto;
+.filter-popover {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 200;
+  background: $v2-color-card;
+  border-radius: $v2-radius-card;
+  box-shadow: $v2-shadow-dropdown;
+  padding: $v2-space-2;
+  min-width: 260px;
+  border: 1px solid $v2-color-border;
 }
 
-table {
-  width: 100%;
-  border-collapse: collapse;
+.popover-title {
+  font-family: $v2-font-family;
+  font-size: $v2-font-body;
+  font-weight: 600;
+  color: $v2-color-text;
+  margin: 0 0 $v2-space-2;
+  padding-bottom: $v2-space-1;
+  border-bottom: 1px solid $v2-color-border;
 }
 
-th,
-td {
-  padding: 10px;
-  border-bottom: 1px solid #ddd;
-  text-align: left;
-  font-family: Roboto;
-  font-weight: 400;
-  font-size: 14px;
+:host {
+  th,
+  td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+    font-family: Roboto, sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+  }
+}
+.filter-section-label {
+  font-family: $v2-font-family;
+  font-size: 11px;
+  font-weight: 600;
+  color: $v2-color-text-secondary;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin: 0 0 $v2-space-1;
 }
 
-th {
-  background-color: #F5F5F5;
-  color: #8A8787;
+// ── Filter chips ─────────────────────────────────────────────────────────────
+.chip-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: $v2-space-2;
 }
 
+.chip {
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  padding: 0 14px;
+  border: 1px solid $v2-color-border;
+  border-radius: $v2-radius-button;
+  background: $v2-color-card;
+  color: $v2-color-text;
+  font-family: $v2-font-family;
+  font-size: $v2-font-caption;
+  cursor: pointer;
+  transition: $v2-transition;
+
+  &:hover {
+    border-color: $v2-color-primary;
+    color: $v2-color-primary;
+    background: $v2-color-primary-tint;
+  }
+
+  &.chip-active {
+    background: $v2-color-primary;
+    border-color: $v2-color-primary;
+    color: #ffffff;
+    font-weight: 500;
+  }
+}
+
+.no-filters-msg {
+  font-size: $v2-font-caption;
+  color: $v2-color-text-secondary;
+  margin: $v2-space-1 0;
+}
+
+.popover-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 4px;
+}
+
+.clear-link {
+  background: none;
+  border: none;
+  color: $v2-color-primary;
+  font-family: $v2-font-family;
+  font-size: $v2-font-caption;
+  cursor: pointer;
+  padding: 4px 0;
+  text-decoration: underline;
+
+  &:hover { color: $v2-color-primary-hover; }
+}
+
+// ── Clear (all) button ──────────────────────────────────────────────────────
+.clear-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 36px;
+  padding: 0 10px;
+  border: none;
+  background: none;
+  color: $v2-color-text-secondary;
+  font-family: $v2-font-family;
+  font-size: $v2-font-caption;
+  cursor: pointer;
+  border-radius: $v2-radius-button;
+  transition: $v2-transition;
+
+  mat-icon { font-size: 16px; width: 16px; height: 16px; }
+
+  &:hover { color: $v2-color-text; background: $v2-color-bg; }
+}
+
+// ── Certificate summary bar ─────────────────────────────────────────────────
 .cert-summary {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: $v2-space-2;
   flex-shrink: 0;
 }
 
 .cert-summary-text {
-  font-size: 13px;
-  color: #555;
+  font-family: $v2-font-family;
+  font-size: $v2-font-caption;
+  color: $v2-color-text-secondary;
   white-space: nowrap;
 }
 
 .download-report-btn {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 6px;
-  background-color: #fff;
-  border: 1px solid #1C5D95;
-  color: #1C5D95;
-  border-radius: 4px;
-  padding: 6px 12px;
-  font-size: 13px;
+  height: 36px;
+  padding: 0 14px;
+  border: 1px solid $v2-color-primary;
+  border-radius: $v2-radius-button;
+  background: transparent;
+  color: $v2-color-primary;
+  font-family: $v2-font-family;
+  font-size: $v2-font-caption;
+  font-weight: 500;
   cursor: pointer;
   white-space: nowrap;
+  transition: $v2-transition;
 
-  mat-icon {
-    font-size: 16px;
-    height: 16px;
-    width: 16px;
-  }
+  mat-icon { font-size: 16px; width: 16px; height: 16px; }
 
-  &:hover {
-    background-color: #eef4fb;
-  }
+  &:hover:not(:disabled) { background: $v2-color-primary-tint; }
+  &:disabled { opacity: 0.55; cursor: not-allowed; }
 }
 
+// ── Participants table ──────────────────────────────────────────────────────
+.participants-table {
+  @include v2-table-container;
+}
+
+:host table {
+  @include v2-table-inner;
+}
+
+.empty-row {
+  text-align: center;
+  color: $v2-color-text-secondary;
+  font-size: $v2-font-caption;
+  padding: $v2-space-3 !important;
+}
+
+// ── Certificate status badges ───────────────────────────────────────────────
 .cert-status-badge {
   display: inline-block;
   padding: 2px 10px;
   border-radius: 12px;
-  font-size: 12px;
+  font-family: $v2-font-family;
+  font-size: $v2-font-micro;
   font-weight: 500;
 
   &.status-success {
-    background-color: #e6f4ea;
-    color: #2e7d32;
+    background: $v2-status-success-bg;
+    color: $v2-status-success-text;
   }
 
   &.status-failed {
-    background-color: #fdecea;
-    color: #c62828;
+    background: $v2-status-danger-bg;
+    color: $v2-status-danger-text;
   }
 
   &.status-pending {
-    background-color: #f5f5f5;
-    color: #757575;
+    background: $v2-status-neutral-bg;
+    color: $v2-status-neutral-text;
   }
+
+  // Non-QR users: cert generated manually from UI, not via pipeline
+  &.status-nonqr {
+    background: #fff8e6;
+    color: #92600a;
+  }
+}
+
+// ── Responsive ──────────────────────────────────────────────────────────────
+@media (max-width: 768px) {
+  .participants-header { flex-direction: column; align-items: flex-start; }
+  .search-input { width: 100%; }
+  .cert-summary { flex-wrap: wrap; }
 }

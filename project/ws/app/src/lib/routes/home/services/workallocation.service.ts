@@ -17,7 +17,7 @@ const API_END_POINTS = {
   providedIn: 'root',
 })
 export class WorkallocationService {
-  constructor(private http: HttpClient, private configService: ConfigurationsService
+  constructor(private readonly http: HttpClient, private readonly configService: ConfigurationsService
   ) { }
   getTime(dateString: number) {
     const time = new Date(dateString)
@@ -44,15 +44,15 @@ export class WorkallocationService {
   addWAT(departmentName: any, deptId: number): Observable<any> {
     const request = {
       deptId,
-      name: `Work order - ${departmentName}` || '',
-      deptName: this.configService.userProfile && this.configService.userProfile.departmentName || '',
+      name: `Work order - ${departmentName}`,
+      deptName: (this.configService.userProfile && this.configService.userProfile.departmentName) || '',
     }
     return this.http.post<any>(API_END_POINTS.ADD_WORK_ORDERS, request)
   }
   copyWAT(workOrderId: any, departmentName: any): Observable<any> {
     const request = {
       id: workOrderId,
-      name: `Work order - ${departmentName}` || '',
+      name: `Work order - ${departmentName}`,
     }
     return this.http.post<any>(API_END_POINTS.COPY_WORK_ORDERS, request)
   }

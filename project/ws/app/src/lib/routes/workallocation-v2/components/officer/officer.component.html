@@ -35,7 +35,8 @@
             <ws-app-option *ngFor="let user of userslist"
               [value]="user.userDetails.first_name +' '+ user.userDetails.last_name">
               <div class="ws-mat-accent-border-bottom padding-m padding-left-s padding-bottom-xs"
-                (click)="officerClicked(user)">
+                (click)="officerClicked(user)" (keydown.enter)="officerClicked(user)"
+                (keydown.space)="officerClicked(user); $event.preventDefault()">
                 <div class="flex flex-start ">
                   <span
                     class="letter-color1">{{user.userDetails.first_name.charAt(0)}}{{user.userDetails.last_name.charAt(0)}}</span>
@@ -116,7 +117,8 @@
             <div class="mat-body-4 ws-mat-accent-text margin-bottom-xs">From Karmayogi officer portal</div>
             <ws-app-option *ngFor="let user of userslist"
               [value]="user.userDetails.first_name +' '+ user.userDetails.last_name">
-              <div class=" mat-accent-border" (click)="officerClicked(user)">
+              <div class=" mat-accent-border" (click)="officerClicked(user)" (keydown.enter)="officerClicked(user)"
+                (keydown.space)="officerClicked(user); $event.preventDefault()">
                 <div class="padding-top-m ">
                   <span
                     class="letter-color">{{user.userDetails.first_name.charAt(0)}}{{user.userDetails.last_name.charAt(0)}}</span>
@@ -159,7 +161,8 @@
             <div class="mat-body-4 ws-mat-accent-text margin-bottom-xs">From Karmayogi officer portal</div>
             <ws-app-option *ngFor="let user of userslist"
               [value]="user.userDetails.first_name +' '+ user.userDetails.last_name">
-              <div class=" mat-accent-border" (click)="officerClicked(user)">
+              <div class=" mat-accent-border" (click)="officerClicked(user)" (keydown.enter)="officerClicked(user)"
+                (keydown.space)="officerClicked(user); $event.preventDefault()">
                 <div class="padding-top-m ">
                   <span
                     class="letter-color">{{user.userDetails.first_name.charAt(0)}}{{user.userDetails.last_name.charAt(0)}}</span>

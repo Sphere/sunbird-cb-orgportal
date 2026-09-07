@@ -7,7 +7,7 @@ import { ActivatedRouteSnapshot } from '@angular/router'
 @Injectable()
 export class EventResolverService {
 
-  constructor(private eventSvc: EventService) { }
+  constructor(private readonly eventSvc: EventService) { }
 
   resolve(route: ActivatedRouteSnapshot): Observable<any> {
     const id = Number(route.params['id']) || 1

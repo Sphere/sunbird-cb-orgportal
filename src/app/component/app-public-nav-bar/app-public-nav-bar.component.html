@@ -1,11 +1,11 @@
 <mat-toolbar *ngIf="showPublicNavbar" [color]="navBar?.color" [ngStyle]="navBar?.styles">
-  <a name="application-logo" class="padding-remove-small" mat-button routerLink=".">
+  <a id="application-logo" class="padding-remove-small" mat-button routerLink=".">
     <img [src]="appIcon" i18n-alt alt="Application Logo" class="app-logo" />
     <!-- <span class="title-app mx-2" *ngIf="appName">| {{appName}}</span> -->
   </a>
 
   <span class="spacer"></span>
-  <a name="about_btn" class="padding-remove-small" mat-button routerLink="/public/about">
+  <a id="about_btn" class="padding-remove-small" mat-button routerLink="/public/about">
     <!-- <span i18n class="small-font-size">About Us</span> -->
     <mat-icon>info</mat-icon>
     <span class="mx-2" i18n>About Us</span>
