@@ -327,10 +327,10 @@ export class AssistantMessageCardComponent implements OnInit, OnDestroy {
       compDetailsProgress = Math.floor(compDetailsProgress * (this.defaultProgressValues.competecyDetails.weight / 100))
     }
     try {
-      progress = Math.ceil((isNaN(officerProgress) ? 0 : officerProgress) +
-        (isNaN(activityProgress) ? 0 : activityProgress) +
-        (isNaN(competencyProgress) ? 0 : competencyProgress) +
-        (isNaN(compDetailsProgress) ? 0 : compDetailsProgress)) || 0
+      progress = Math.ceil((Number.isNaN(officerProgress) ? 0 : officerProgress) +
+        (Number.isNaN(activityProgress) ? 0 : activityProgress) +
+        (Number.isNaN(competencyProgress) ? 0 : competencyProgress) +
+        (Number.isNaN(compDetailsProgress) ? 0 : compDetailsProgress)) || 0
     } catch (e) {
       // tslint:disable-next-line: no-console
       console.log('ERROR in calculating progress')

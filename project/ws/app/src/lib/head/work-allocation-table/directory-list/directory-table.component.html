@@ -10,7 +10,8 @@
             <div class=rsearch>
                 <div class="sinput">
                     <span class="material-icons"> search </span>
-                    <input type="Standard" label="" (input)="applyFilter($event.target.value)" placeholder="Search">
+                    <input type="Standard" label="" (input)="applyFilter($event.target.value)" placeholder="Search"
+                        id="directorySearch" aria-label="Search">
                 </div>
             </div>
             <button mat-raised-button type="button" *ngIf="needCreate"

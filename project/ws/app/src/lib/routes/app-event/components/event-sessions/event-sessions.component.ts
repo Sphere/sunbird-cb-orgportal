@@ -76,8 +76,8 @@ export class EventSessionsComponent implements OnInit, OnDestroy {
   calculateTime() {
     if (this.data) {
       this.data.forEach((speaker: ISpeakerDetails) => {
-        const startTime = Date.parse(speaker.startTime) - Date.parse(Date())
-        const endTime = Date.parse(speaker.endTime) - Date.parse(Date())
+        const startTime = Date.parse(speaker.startTime) - Date.parse(String(new Date()))
+        const endTime = Date.parse(speaker.endTime) - Date.parse(String(new Date()))
         this.sessionStartTime.push(startTime)
         this.sessionEndTime.push(endTime)
       })

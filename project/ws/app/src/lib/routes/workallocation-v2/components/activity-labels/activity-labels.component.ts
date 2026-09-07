@@ -141,8 +141,8 @@ export class ActivityLabelsComponent implements OnInit, OnDestroy, AfterViewInit
         this.snackBar.open('Empty activity!! You can not drag', undefined, { duration: 2000 })
         return
       }
-      const previousContainerIndex = parseInt(event.previousContainer.id.replace('groups_', ''), 10)
-      const targetContainerIndex = parseInt(event.container.id.replace('groups_', ''), 10)
+      const previousContainerIndex = Number.parseInt(event.previousContainer.id.replace('groups_', ''), 10)
+      const targetContainerIndex = Number.parseInt(event.container.id.replace('groups_', ''), 10)
       // tslint:disable
       // console.log(actualIdx)
       const oldArray = (this.activityForm.get('groupsArray') as any)!.at(previousContainerIndex).get('activities')

@@ -91,14 +91,16 @@
   border-bottom: 1px solid $v2-color-border;
 }
 
-th,
-td {
-  padding: 10px;
-  border-bottom: 1px solid #ddd;
-  text-align: left;
-  font-family: Roboto, sans-serif;
-  font-weight: 400;
-  font-size: 14px;
+:host {
+  th,
+  td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+    font-family: Roboto, sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+  }
 }
 .filter-section-label {
   font-family: $v2-font-family;
@@ -235,7 +237,7 @@ td {
   @include v2-table-container;
 }
 
-table {
+:host table {
   @include v2-table-inner;
 }
 

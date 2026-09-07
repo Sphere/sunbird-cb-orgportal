@@ -13,8 +13,8 @@
       <div class="search-row">
         <div class="shadow-wrapper">
           <div class="search-box">
-            <input placeholder="Search by name, code" [(ngModel)]="searchTerm"
-              (input)="onSearchChange()" (keyup.enter)="onSearchSubmit()" />
+            <input id="positionMappingSearch" aria-label="Search by name, code" placeholder="Search by name, code"
+              [(ngModel)]="searchTerm" (input)="onSearchChange()" (keyup.enter)="onSearchSubmit()" />
             <button type="button" style="all: unset; display: contents; cursor: pointer;" (click)="onSearchSubmit()">
               <mat-icon>search</mat-icon>
             </button>

@@ -20,7 +20,7 @@
         <!-- Edit mode: shows input field for selected rows -->
         <ng-container *ngIf="isEditing && selection.isSelected(element); else viewMode">
           <div class="cell-edit-wrapper">
-            <input [(ngModel)]="element[col.key]" class="editable-input" />
+            <input [(ngModel)]="element[col.key]" class="editable-input" [attr.aria-label]="col.label" />
           </div>
         </ng-container>
 

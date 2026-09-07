@@ -1,5 +1,5 @@
 @use '@angular/material' as mat;
-@import './theme-mixins';
+@use './theme-mixins' as mixins;
 
 // Custom brand palettes (restored from the pre-Angular-20 M2 theme; @use modules don't allow
 // mutating mat.$m2-blue-palette in place like the old @import-era code did, so these are local
@@ -78,12 +78,12 @@ $theme-warn: mat.m2-define-palette(mat.$m2-red-palette);
   &.day-mode {
     $theme: mat.m2-define-light-theme($theme-primary, $theme-accent, $theme-warn);
     @include mat.all-component-themes($theme);
-    @include theme-based-configurations($theme);
+    @include mixins.theme-based-configurations($theme);
   }
 
   &.night-mode {
     $theme: mat.m2-define-dark-theme($theme-primary, $theme-accent, $theme-warn);
     @include mat.all-component-themes($theme);
-    @include theme-based-configurations($theme);
+    @include mixins.theme-based-configurations($theme);
   }
 }

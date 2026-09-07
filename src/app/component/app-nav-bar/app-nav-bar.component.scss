@@ -1,4 +1,5 @@
 @import 'ws-mixins';
+@import 'ws-vars';
 
 // Visual separation between the fixed top toolbar and the page body below it.
 // mat-elevation-z3 (set on the host template) is too subtle against a white body —
@@ -100,8 +101,6 @@ mat-toolbar.mat-elevation-z3 {
     left: 450px;
   }
 }
-
-@import 'ws-vars';
 
 .menu-section {
   padding: 8px;

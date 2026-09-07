@@ -29,14 +29,16 @@
 
 
 
-table {
-  border: 1px solid #990000;
-  border-collapse: collapse;
-  width: 100%;
-}
-th, td {
-    border: solid 0.5px lightgrey;
-    text-align: center;
+:host {
+  table {
+    border: 1px solid #990000;
+    border-collapse: collapse;
+    width: 100%;
+  }
+  th, td {
+      border: solid 0.5px lightgrey;
+      text-align: center;
+  }
 }
 
 .table-main{

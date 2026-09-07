@@ -167,8 +167,8 @@ export class CompetencyLabelsComponent implements OnInit, OnDestroy, AfterViewIn
         this.snackBar.open('Competency Name is required to drag', undefined, { duration: 2000 })
         return
       }
-      const previousContainerIndex = parseInt(event.previousContainer.id.replace('compe_', ''), 10)
-      const targetContainerIndex = parseInt(event.container.id.replace('compe_', ''), 10)
+      const previousContainerIndex = Number.parseInt(event.previousContainer.id.replace('compe_', ''), 10)
+      const targetContainerIndex = Number.parseInt(event.container.id.replace('compe_', ''), 10)
       // tslint:disable
       // console.log(actualIdx)
       const oldArray = (this.activityForm.get('groupsArray') as any)!.at(previousContainerIndex).get('competincies')

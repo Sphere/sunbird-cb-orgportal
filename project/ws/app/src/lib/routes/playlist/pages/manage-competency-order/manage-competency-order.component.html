@@ -40,6 +40,7 @@
                 <div class="search-wrapper">
                     <mat-icon class="search-icon">search</mat-icon>
                     <input type="text" class="search-input" placeholder="Search by name, code" [value]="searchTerm()"
+                        id="manageCompetencyOrderSearch" aria-label="Search by name, code"
                         (input)="searchTerm.set($any($event.target).value); onSearch()">
                 </div>
             </div>

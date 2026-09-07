@@ -290,11 +290,11 @@ describe('AssistantMessageCardComponent', () => {
       component.dataStructure = {
         officerFormData: { officerName: 'o' },
       }
-      const originalIsNaN = global.isNaN
+      const originalIsNaN = Number.isNaN
       // tslint:disable-next-line: no-any
-      ;(global as any).isNaN = () => { throw new Error('boom') }
+      ;(Number as any).isNaN = () => { throw new Error('boom') }
       const result = component.calculatePercentage()
-      global.isNaN = originalIsNaN
+      Number.isNaN = originalIsNaN
       expect(result).toBe(0)
     })
   })

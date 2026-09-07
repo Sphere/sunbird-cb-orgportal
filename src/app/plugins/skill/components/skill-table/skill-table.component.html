@@ -7,7 +7,8 @@
         <!-- search field -->
         <div class="flex items-center">
           <input class="sinput p-1" type="Standard" label="" [(ngModel)]="query" (keyup)="keyup(query)"
-            placeholder="Search by name/email/phone/role/competency">
+            placeholder="Search by name/email/phone/role/competency" id="skillTableSearch"
+            aria-label="Search by name/email/phone/role/competency">
           <mat-icon class="search-icon">search</mat-icon>
         </div>
         <!-- filter -->
@@ -111,7 +112,8 @@
 
       <mat-header-row *matHeaderRowDef="getFinalColumns()"></mat-header-row>
       <mat-row *matRowDef="let row; columns: getFinalColumns();"
-        (click)="selection.toggle(row);">
+        (click)="selection.toggle(row);" (keydown.enter)="selection.toggle(row);"
+        (keydown.space)="selection.toggle(row); $event.preventDefault()">
       </mat-row>
     </mat-table>
   </div>
