@@ -1,0 +1,102 @@
+<ng-container [ngSwitch]="node.kind">
+
+  <!-- primitives -->
+  <input *ngSwitchCase="'string'" class="input-field" type="text" [(ngModel)]="node.value" [name]="path + '-v'" />
+  <input *ngSwitchCase="'number'" class="input-field" type="number" [(ngModel)]="node.value" [name]="path + '-v'" />
+  <label *ngSwitchCase="'boolean'" class="checkbox-label">
+    <input type="checkbox" [(ngModel)]="node.value" [name]="path + '-v'" />
+    Enabled
+  </label>
+  <input *ngSwitchCase="'null'" class="input-field" type="text" placeholder="null" [(ngModel)]="node.value" [name]="path + '-v'" />
+
+  <!-- object: collapsible header + editable Key/recursive-Value rows -->
+  <div class="node-container" *ngSwitchCase="'object'">
+    <button type="button" class="node-header" (click)="toggleCollapsed()">
+      <mat-icon class="node-header__chevron">{{ node.collapsed ? 'chevron_right' : 'expand_more' }}</mat-icon>
+      <mat-icon class="node-header__icon">data_object</mat-icon>
+      <span class="node-header__label">
+        {{ (node.entries?.length || 0) }} {{ node.entries?.length === 1 ? 'property' : 'properties' }}
+      </span>
+    </button>
+
+    <div class="node-body" *ngIf="!node.collapsed">
+      <div class="node-entry" *ngFor="let entry of node.entries; let i = index; trackBy: trackByIndex">
+        <input class="input-field node-entry__key" type="text" placeholder="Key" [(ngModel)]="entry.key" [name]="path + '-key-' + i" />
+        <div class="node-entry__value">
+          <app-form-node-editor [node]="entry.node" [path]="path + '-' + i"></app-form-node-editor>
+        </div>
+        <button type="button" class="icon-btn icon-btn--danger" (click)="removeEntry(i)" aria-label="Remove property">
+          <mat-icon>delete_outline</mat-icon>
+        </button>
+      </div>
+
+      <p class="node-empty" *ngIf="isEmptyObject">No properties yet.</p>
+
+      <div class="node-actions">
+        <button type="button" class="secondary-btn" (click)="addEntry('string')">
+          <mat-icon>add</mat-icon> Text
+        </button>
+        <button type="button" class="secondary-btn" (click)="addEntry('object')">
+          <mat-icon>add</mat-icon> Group
+        </button>
+        <button type="button" class="secondary-btn" (click)="addEntry('array')">
+          <mat-icon>add</mat-icon> List
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- array: collapsible header + reorderable, recursively-rendered items -->
+  <div class="node-container" *ngSwitchCase="'array'">
+    <button type="button" class="node-header" (click)="toggleCollapsed()">
+      <mat-icon class="node-header__chevron">{{ node.collapsed ? 'chevron_right' : 'expand_more' }}</mat-icon>
+      <mat-icon class="node-header__icon">data_array</mat-icon>
+      <span class="node-header__label">
+        {{ (node.items?.length || 0) }} {{ node.items?.length === 1 ? 'item' : 'items' }}
+      </span>
+    </button>
+
+    <div class="node-body" *ngIf="!node.collapsed">
+      <div class="node-item" *ngFor="let item of node.items; let i = index; let first = first; let last = last">
+        <div class="node-item__reorder">
+          <button type="button" class="icon-btn" [disabled]="first" (click)="moveItemUp(i)" aria-label="Move up">
+            <mat-icon>arrow_upward</mat-icon>
+          </button>
+          <span class="node-item__index">{{ i + 1 }}</span>
+          <button type="button" class="icon-btn" [disabled]="last" (click)="moveItemDown(i)" aria-label="Move down">
+            <mat-icon>arrow_downward</mat-icon>
+          </button>
+        </div>
+        <div class="node-item__value">
+          <app-form-node-editor [node]="item" [path]="path + '-' + i"></app-form-node-editor>
+        </div>
+        <button type="button" class="icon-btn icon-btn--danger" (click)="removeItem(i)" aria-label="Remove item">
+          <mat-icon>delete_outline</mat-icon>
+        </button>
+      </div>
+
+      <p class="node-empty" *ngIf="isEmptyArray">No items yet.</p>
+
+      <div class="node-actions">
+        <div class="custom-select-wrapper">
+          <select class="custom-select" [(ngModel)]="selectedTemplateIndex" [name]="path + '-tpl'">
+            <option *ngFor="let tpl of fieldTemplates; let i = index" [ngValue]="i">{{ tpl.label }}</option>
+          </select>
+          <span class="select-chevron">▾</span>
+        </div>
+        <button type="button" class="secondary-btn" (click)="addTemplateItem()">
+          <mat-icon>add</mat-icon> Field
+        </button>
+        <button type="button" class="secondary-btn" (click)="addItem('object')">
+          <mat-icon>add</mat-icon> Object
+        </button>
+        <button type="button" class="secondary-btn" (click)="addItem('string')">
+          <mat-icon>add</mat-icon> Text
+        </button>
+        <button type="button" class="secondary-btn" (click)="addItem('array')">
+          <mat-icon>add</mat-icon> List
+        </button>
+      </div>
+    </div>
+  </div>
+</ng-container>

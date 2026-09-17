@@ -1,0 +1,225 @@
+@import 'ws-design-system-v2';
+
+.form-config-container {
+  @include v2-page-container;
+
+  .header-section {
+    .page-title { @include v2-page-title; }
+    .page-subtitle { @include v2-page-subtitle; }
+  }
+
+  // ===========================================================================
+  // Selectors row: Application Type / Access / Root Org Id / Load Form
+  // ===========================================================================
+  .selectors-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 16px;
+
+    .select-field {
+      display: flex;
+      flex-direction: column;
+      min-width: 220px;
+
+      .custom-select-wrapper {
+        @include v2-custom-select-wrapper;
+
+        .select-label {
+          position: absolute;
+          top: 7px;
+          left: 16px;
+          font-size: 13px;
+          color: #808080;
+        }
+
+        .custom-select { @include v2-custom-select-input; }
+
+        .select-chevron {
+          position: absolute;
+          right: 14px;
+          top: 50%;
+          transform: translateY(-50%);
+          pointer-events: none;
+          color: #808080;
+        }
+      }
+    }
+
+    .load-btn {
+      @include v2-btn-primary;
+      height: 40px;
+    }
+  }
+
+  .error-text { color: #ca0000; font-size: 13px; }
+  .success-text { color: #1e7d1e; font-size: 13px; }
+
+  // ===========================================================================
+  // Layout details panel — everything on `layout` except `data`
+  // ===========================================================================
+  .details-panel {
+    background: #f3f8fd;
+    border: 1px solid #dfedf9;
+    border-radius: 12px;
+    padding: 20px 24px;
+
+    &__title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #1c5d95;
+      font-family: 'Roboto', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 16px;
+
+      mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+      }
+    }
+
+    .details-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px 24px;
+    }
+
+    .details-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .details-label {
+      font-size: 12px;
+      color: #666;
+      font-family: 'Roboto', sans-serif;
+    }
+
+    .details-value {
+      font-size: 14px;
+      font-weight: 500;
+      color: #000;
+      font-family: 'Roboto', sans-serif;
+      word-break: break-word;
+
+      &--mono {
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+        font-weight: 400;
+      }
+    }
+  }
+
+  // ===========================================================================
+  // Section tabs (orgData / LAYOUT_HEADER / LAYOUT_BODY / LAYOUT_FOOTER)
+  // ===========================================================================
+  .section-picker {
+    .form-label {
+      @include v2-form-label;
+    }
+
+    .section-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .section-tab {
+      height: 36px;
+      padding: 0 18px;
+      border-radius: 888px;
+      border: 1px solid #1c5d95;
+      background: #fff;
+      color: #1c5d95;
+      font-family: 'Roboto', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s ease;
+
+      &:hover {
+        background: #f3f8fd;
+      }
+
+      &--active {
+        background: #1c5d95;
+        color: #fff;
+
+        &:hover {
+          background: #164d7a;
+        }
+      }
+    }
+  }
+
+  // ===========================================================================
+  // Fields shell: title + the recursive FormNodeEditorComponent, framed as a
+  // card — matches the canonical table/card container convention (border
+  // #e0e0e0, radius 8px) used elsewhere in this app (see CLAUDE.md §9).
+  // ===========================================================================
+  .fields-shell {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 24px;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+  }
+
+  .fields-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #e0e0e0;
+  }
+
+  .fields-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #000;
+    font-family: 'Roboto', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+
+    mat-icon {
+      color: #1C5D95;
+    }
+  }
+
+  .update-row {
+    display: flex;
+    justify-content: flex-end;
+
+    .update-btn {
+      @include v2-btn-primary;
+      height: 44px;
+      padding: 0 32px;
+
+      &:disabled {
+        background: #BFBFBF;
+        color: #808080;
+        cursor: not-allowed;
+      }
+    }
+  }
+}
+
+@media (max-width: 900px) {
+  .form-config-container .details-panel .details-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .form-config-container .details-panel .details-grid {
+    grid-template-columns: 1fr;
+  }
+}

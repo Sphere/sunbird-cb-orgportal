@@ -56,6 +56,19 @@ export class MenuConfigService {
             routerLink: '/app/home/competency/summary',
             requiredRoles: ['admin', 'mdo_admin', 'wat_member'],
         },
+        {
+            name: 'Form',
+            key: 'form',
+            fragment: false,
+            render: true,
+            badges: {
+                enabled: false,
+                uri: ''
+            },
+            enabled: true,
+            routerLink: '/app/home/form/config',
+            requiredRoles: [],
+        },
     ]
 
     /**

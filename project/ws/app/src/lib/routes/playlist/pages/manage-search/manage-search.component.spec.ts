@@ -151,10 +151,10 @@ describe('ManageSearchComponent', () => {
       expect(() => component.ngAfterViewInit()).not.toThrow()
     })
 
-    it('initializes the ace editor when the element ref is present', () => {
+    it('initializes the ace editor when the element ref is present', async () => {
       jest.clearAllMocks()
       ;(component as any).jsonEditorRef = { nativeElement: {} }
-      component.ngAfterViewInit()
+      await component.ngAfterViewInit()
       expect(mockAceEditor.setTheme).toHaveBeenCalledWith('ace/theme/chrome')
       expect(mockAceEditor.setOptions).toHaveBeenCalled()
       expect(mockAceEditor.setReadOnly).toHaveBeenCalledWith(false)
@@ -162,10 +162,10 @@ describe('ManageSearchComponent', () => {
       expect(mockAceEditor.on).toHaveBeenCalledWith('change', expect.any(Function))
     })
 
-    it('routes editor change events through onJsonChange', () => {
+    it('routes editor change events through onJsonChange', async () => {
       jest.clearAllMocks()
       ;(component as any).jsonEditorRef = { nativeElement: {} }
-      component.ngAfterViewInit()
+      await component.ngAfterViewInit()
       const onSpy = mockAceEditor.on as jest.Mock
       const changeHandler = onSpy.mock.calls[0][1]
       mockAceEditor.getValue.mockReturnValue('{"x":1}')

@@ -1,0 +1,37 @@
+<div class="fp-dialog">
+  <div class="fp-header">
+    <div class="fp-header__left">
+      <mat-icon class="fp-header__icon">preview</mat-icon>
+      <h2 class="fp-header__title">Preview Before Save</h2>
+    </div>
+    <button type="button" class="fp-close" (click)="onCancel()" aria-label="Close">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div class="fp-scroll">
+    <div class="fp-meta">
+      <div class="fp-meta__item">
+        <span class="fp-meta__label">Component</span>
+        <span class="fp-meta__value">{{ data.component }}</span>
+      </div>
+      <div class="fp-meta__item">
+        <span class="fp-meta__label">Framework</span>
+        <span class="fp-meta__value">{{ data.framework }}</span>
+      </div>
+      <div class="fp-meta__item">
+        <span class="fp-meta__label">Root Org Id</span>
+        <span class="fp-meta__value fp-meta__value--mono">{{ data.rootOrgId }}</span>
+      </div>
+    </div>
+
+    <div class="fp-json-view">
+      <pre>{{ data.dataJson }}</pre>
+    </div>
+  </div>
+
+  <div class="fp-footer">
+    <button type="button" class="fp-btn-secondary" (click)="onCancel()">Cancel</button>
+    <button type="button" class="fp-btn-primary" (click)="onConfirm()">Confirm &amp; Save</button>
+  </div>
+</div>

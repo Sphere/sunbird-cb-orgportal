@@ -1,0 +1,139 @@
+<div class="form-config-container">
+  <section class="header-section">
+    <h1 class="page-title">Form Configuration</h1>
+    <p class="page-subtitle">Select an application and visibility to load its form layout config for editing.</p>
+  </section>
+
+  <section class="selectors-row">
+    <div class="select-field">
+      <div class="custom-select-wrapper">
+        <span class="select-label">Type</span>
+        <select class="custom-select" [(ngModel)]="layoutType" (ngModelChange)="onLayoutTypeChange()" name="layoutType">
+          <option value="" disabled>Select type</option>
+          <option *ngFor="let opt of layoutTypes" [value]="opt.value">{{ opt.label }}</option>
+        </select>
+        <span class="select-chevron">▾</span>
+      </div>
+    </div>
+
+    <div class="select-field" *ngIf="showApplicationType">
+      <div class="custom-select-wrapper">
+        <span class="select-label">Application Type</span>
+        <select class="custom-select" [(ngModel)]="applicationType" (ngModelChange)="loadError = ''"
+          name="applicationType">
+          <option value="" disabled>Select application</option>
+          <option *ngFor="let opt of applicationTypes" [value]="opt.value">{{ opt.label }}</option>
+        </select>
+        <span class="select-chevron">▾</span>
+      </div>
+    </div>
+
+    <div class="select-field">
+      <div class="custom-select-wrapper">
+        <span class="select-label">Access</span>
+        <select class="custom-select" [(ngModel)]="accessType" (ngModelChange)="onAccessTypeChange()" name="accessType">
+          <option value="" disabled>Select access</option>
+          <option *ngFor="let opt of accessTypes" [value]="opt.value">{{ opt.label }}</option>
+        </select>
+        <span class="select-chevron">▾</span>
+      </div>
+    </div>
+
+    <div class="select-field" *ngIf="accessType">
+      <div class="custom-select-wrapper">
+        <span class="select-label">Root Org Id</span>
+        <select class="custom-select" [(ngModel)]="rootOrgId" (ngModelChange)="loadError = ''" name="rootOrgId"
+          [disabled]="accessType !== 'private'">
+          <option *ngIf="accessType === 'public'" value="*">*</option>
+          <ng-container *ngIf="accessType === 'private'">
+            <option value="" disabled>Select root org id</option>
+            <option *ngFor="let id of rootOrgIds" [value]="id">{{ id }}</option>
+          </ng-container>
+        </select>
+        <span class="select-chevron">▾</span>
+      </div>
+    </div>
+
+    <button type="button" class="load-btn" [disabled]="!canLoad" (click)="loadForm()">
+      {{ loading ? 'Loading...' : 'Load Form' }}
+    </button>
+  </section>
+
+  <p class="error-text" *ngIf="loadError">{{ loadError }}</p>
+
+  <!-- Loaded inline on this same page — no navigation to a separate screen -->
+  <ng-container *ngIf="layout">
+
+    <!-- Full layout details, everything except `data` -->
+    <section class="details-panel">
+      <div class="details-panel__title">
+        <mat-icon>info_outline</mat-icon>
+        <span>Layout Details</span>
+      </div>
+      <div class="details-grid">
+        <div class="details-item">
+          <span class="details-label">Type</span>
+          <span class="details-value">{{ layout.type }}</span>
+        </div>
+        <div class="details-item">
+          <span class="details-label">Subtype</span>
+          <span class="details-value">{{ layout.subtype }}</span>
+        </div>
+        <div class="details-item">
+          <span class="details-label">Action</span>
+          <span class="details-value">{{ layout.action }}</span>
+        </div>
+        <div class="details-item">
+          <span class="details-label">Component</span>
+          <span class="details-value">{{ layout.component }}</span>
+        </div>
+        <div class="details-item">
+          <span class="details-label">Framework</span>
+          <span class="details-value">{{ layout.framework }}</span>
+        </div>
+        <div class="details-item">
+          <span class="details-label">Root Org Id</span>
+          <span class="details-value details-value--mono">{{ layout.rootOrgId }}</span>
+        </div>
+        <div class="details-item">
+          <span class="details-label">Created On</span>
+          <span class="details-value">{{ layout.created_on || '—' }}</span>
+        </div>
+        <div class="details-item">
+          <span class="details-label">Last Modified On</span>
+          <span class="details-value">{{ layout.last_modified_on || '—' }}</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section buttons: orgData / LAYOUT_HEADER / LAYOUT_BODY / LAYOUT_FOOTER (or whatever sections exist) -->
+    <section class="section-picker" *ngIf="hasSections">
+      <label class="form-label">Section</label>
+      <div class="section-tabs">
+        <button type="button" class="section-tab" *ngFor="let section of sections; let i = index"
+          [class.section-tab--active]="i === selectedSectionIndex" (click)="selectSection(i)">
+          {{ section.name }}
+        </button>
+      </div>
+    </section>
+
+    <section class="fields-shell" *ngIf="currentSection as section">
+      <div class="fields-toolbar">
+        <div class="fields-title">
+          <mat-icon>account_tree</mat-icon>
+          <span>{{ section.name }}</span>
+        </div>
+      </div>
+
+      <app-form-node-editor [node]="section.node" [path]="'section-' + selectedSectionIndex"></app-form-node-editor>
+
+      <p class="error-text" *ngIf="validationError">{{ validationError }}</p>
+    </section>
+
+    <div class="update-row">
+      <button type="button" class="update-btn" [disabled]="!canSave" (click)="onUpdateForm()">
+        {{ saving ? 'Saving...' : 'Update Form' }}
+      </button>
+    </div>
+  </ng-container>
+</div>

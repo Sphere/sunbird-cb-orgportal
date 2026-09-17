@@ -84,6 +84,11 @@ const routes: Routes = [
         loadChildren: () => import('../playlist/playlist.routes').then(m => m.HOME_PLAYLIST_ROUTES),
       },
       {
+        path: 'form',
+        loadChildren: () =>
+          import('../form/form.module').then((m) => m.FormModule),
+      },
+      {
         path: 'frac',
         loadChildren: () =>
           import('../frac/frac.module').then((m) => m.FracModule),

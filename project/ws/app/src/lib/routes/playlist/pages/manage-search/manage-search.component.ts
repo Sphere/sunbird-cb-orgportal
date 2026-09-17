@@ -17,7 +17,6 @@ import { take } from 'rxjs/operators'
 import { MatButtonModule } from '@angular/material/button'
 import { MatDialog, MatDialogModule } from '@angular/material/dialog'
 import { MatIconModule } from '@angular/material/icon'
-import * as ace from 'brace'
 import { ErrorDialogComponent, ErrorDialogData } from '../../components/error-dialog/error-dialog.component'
 import { SuccessDialogComponent } from '../../components/success-dialog/success-dialog.component'
 import { PLAYLIST_ROUTES, PLAYLIST_UI } from '../../constants/playlist.constants'
@@ -25,9 +24,6 @@ import { Playlist, PlaylistFilters } from '../../models/playlist.model'
 import { PlaylistApiService, PlaylistType } from '../../services/playlist-api.service'
 import { PlaylistStateService } from '../../services/playlist-state.service'
 import { log } from '../../utils/playlist-logger.utils'
-import 'brace/ext/language_tools'
-import 'brace/mode/json'
-import 'brace/theme/chrome'
 import { HideForViewOnlyDirective } from '../../../../shared/directives/hide-for-view-only.directive'
 import { FeatureAccessService, FEATURE_KEY } from '../../../../shared/access/feature-access'
 
@@ -76,8 +72,10 @@ export class ManageSearchComponent implements OnInit, AfterViewInit, OnDestroy {
         this.jsonText.set(this.formatJson(playlistJson))
     }
 
-    ngAfterViewInit(): void {
-        this.initializeEditor()
+    ngAfterViewInit(): Promise<void> {
+        // Returns the promise (Angular ignores lifecycle-hook return values) so
+        // callers/tests can await the dynamic-import-based editor init below.
+        return this.initializeEditor()
     }
 
     ngOnDestroy(): void {
@@ -171,10 +169,31 @@ export class ManageSearchComponent implements OnInit, AfterViewInit, OnDestroy {
         }
     }
 
-    private initializeEditor(): void {
+    /**
+     * `brace` is a UMD package that registers a global `window.ace`; its
+     * extension/mode/theme sub-modules read that global synchronously at
+     * evaluation time. Now that Form's manage-form-data screen also imports
+     * `brace` from a separate lazy chunk, esbuild can hoist `brace`'s core
+     * into a shared chunk — a plain static `import 'brace/ext/language_tools'`
+     * is then no longer guaranteed to run after that shared chunk finishes
+     * attaching `window.ace`, causing "ReferenceError: ace is not defined".
+     * Awaiting each dynamic import in sequence forces the core module to
+     * fully evaluate before the extensions load, regardless of how the
+     * bundler splits/orders chunks.
+     */
+    private async initializeEditor(): Promise<void> {
         if (!this.jsonEditorRef) {
             return
         }
+
+        const aceModule = await import('brace')
+        // 'brace' is CommonJS; a dynamic import() puts its module.exports under
+        // `.default` instead of spreading it onto the namespace (unlike a static
+        // `import * as ace from 'brace'`), so unwrap it here.
+        const ace = (aceModule as any).default || aceModule
+        await import('brace/ext/language_tools')
+        await import('brace/mode/json')
+        await import('brace/theme/chrome')
 
         this.editor = ace.edit(this.jsonEditorRef.nativeElement)
         this.editor.setTheme('ace/theme/chrome')
