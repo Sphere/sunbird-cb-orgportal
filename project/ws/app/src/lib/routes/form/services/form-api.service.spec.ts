@@ -89,4 +89,74 @@ describe('FormApiService', () => {
 
     req.flush({ responseCode: 'OK' })
   })
+
+  describe('searchOrganizations', () => {
+    it('POSTs the standard org-search payload to /apis/proxies/v8/org/v1/search', () => {
+      service.searchOrganizations().subscribe()
+
+      const req = httpMock.expectOne(r => r.url === '/apis/proxies/v8/org/v1/search')
+      expect(req.request.method).toBe('POST')
+      expect(req.request.body).toEqual({
+        request: {
+          filters: {},
+          fields: [],
+          sortBy: { createdDate: 'Desc' },
+          limit: 9999,
+        },
+      })
+
+      req.flush({ result: { response: { content: [] } } })
+    })
+
+    it('maps each org to a { value, label } option using orgName', () => {
+      service.searchOrganizations().subscribe((options) => {
+        expect(options).toEqual([
+          { value: '123', label: 'Test Org' },
+          { value: '456', label: 'Another Org' },
+        ])
+      })
+
+      const req = httpMock.expectOne(r => r.url === '/apis/proxies/v8/org/v1/search')
+      req.flush({
+        result: {
+          response: {
+            content: [
+              { id: 123, orgName: 'Test Org' },
+              { id: '456', orgName: 'Another Org' },
+            ],
+          },
+        },
+      })
+    })
+
+    it('falls back to channel, then "Unknown Organization", when orgName is missing', () => {
+      service.searchOrganizations().subscribe((options) => {
+        expect(options).toEqual([
+          { value: '1', label: 'chan-1' },
+          { value: '2', label: 'Unknown Organization' },
+        ])
+      })
+
+      const req = httpMock.expectOne(r => r.url === '/apis/proxies/v8/org/v1/search')
+      req.flush({
+        result: {
+          response: {
+            content: [
+              { id: '1', channel: 'chan-1' },
+              { id: '2' },
+            ],
+          },
+        },
+      })
+    })
+
+    it('returns an empty list when the response has no content array', () => {
+      service.searchOrganizations().subscribe((options) => {
+        expect(options).toEqual([])
+      })
+
+      const req = httpMock.expectOne(r => r.url === '/apis/proxies/v8/org/v1/search')
+      req.flush({ result: {} })
+    })
+  })
 })

@@ -49,6 +49,16 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+
+  // Every direct child is a flex item and defaults to flex-shrink:1 — once
+  // one section expands and total content exceeds the dialog's available
+  // height, flexbox would otherwise squash the *other* (collapsed) sections
+  // toward zero height instead of just letting this container scroll.
+  // flex-shrink:0 keeps every section at its natural size regardless of how
+  // tall its siblings get; overflow-y:auto above handles the rest.
+  > * {
+    flex-shrink: 0;
+  }
 }
 
 .fp-meta {
@@ -81,21 +91,189 @@
   }
 }
 
-.fp-json-view {
-  background: #fbfdff;
+.fp-no-changes {
+  margin: 0;
+  padding: 12px 16px;
+  background: #f0f9f0;
+  border: 1px solid #d5ead5;
+  border-radius: 8px;
+  color: #1e7d1e;
+  font-size: 13px;
+}
+
+.fp-section {
   border: 1px solid #e1dfdf;
   border-radius: 8px;
-  padding: 16px;
+  overflow: hidden;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 10px 14px;
+    border: none;
+    background: #f8fafc;
+    cursor: pointer;
+    text-align: left;
+
+    &:hover {
+      background: #f3f8fd;
+    }
+  }
+
+  &__chevron {
+    color: #808080;
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+
+  &__name {
+    flex: 1;
+    font-family: 'Roboto', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: #000;
+  }
+
+  &__badge {
+    font-size: 12px;
+    font-weight: 500;
+    padding: 2px 10px;
+    border-radius: 888px;
+    background: #eee;
+    color: #666;
+
+    &--changed {
+      background: #fdf2d8;
+      color: #a06b00;
+    }
+  }
+
+  &__body {
+    border-top: 1px solid #e1dfdf;
+  }
+}
+
+// Side-by-side: two equal columns, one row per paired before/after line.
+.fp-diff-view {
+  background: #fbfdff;
   overflow-x: auto;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 13px;
+  line-height: 1.6;
+
+  // Not sticky — this dialog can have several collapsible sections sharing
+  // one scroll container, so a sticky header here would overlap/hide behind
+  // whichever section scrolled past first. Each section's own header sits
+  // directly above its rows instead.
+  &__header {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    background: #eef2f7;
+    border-bottom: 1px solid #e1dfdf;
+
+    span {
+      display: block;
+      padding: 8px 12px;
+      font-family: 'Roboto', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: #333;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+
+      &:first-child {
+        border-right: 1px solid #e1dfdf;
+      }
+    }
+  }
+}
+
+.fp-diff-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+
+  &:not(:last-child) {
+    border-bottom: 1px solid #edf1f5;
+  }
+}
+
+.fp-diff-cell {
+  padding: 4px 12px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  border-right: 1px solid #edf1f5;
+
+  &:last-child {
+    border-right: none;
+  }
+
+  &--removed {
+    background: #ffeef0;
+    color: #b31d28;
+  }
+
+  &--added {
+    background: #e6ffed;
+    color: #22863a;
+  }
+
+  &--unchanged {
+    color: #0f172a;
+  }
+
+  &--empty {
+    background: #f5f5f5;
+  }
+}
+
+.fp-diff-fallback {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  &__note {
+    margin: 0;
+    font-size: 13px;
+    color: #a06b00;
+  }
+
+  &__cols {
+    display: flex;
+    gap: 16px;
+  }
+
+  &__col {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  &__label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #666;
+  }
 
   pre {
     margin: 0;
+    background: #fbfdff;
+    border: 1px solid #e1dfdf;
+    border-radius: 8px;
+    padding: 12px;
     font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
     font-size: 13px;
     line-height: 1.6;
     color: #0f172a;
     white-space: pre-wrap;
     word-break: break-word;
+    max-height: 320px;
+    overflow-y: auto;
   }
 }
 

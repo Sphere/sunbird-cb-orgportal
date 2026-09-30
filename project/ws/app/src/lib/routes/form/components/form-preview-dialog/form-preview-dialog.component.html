@@ -25,8 +25,43 @@
       </div>
     </div>
 
-    <div class="fp-json-view">
-      <pre>{{ data.dataJson }}</pre>
+    <p class="fp-no-changes" *ngIf="!hasAnyChange">No changes in any section — the saved data will be identical to what's currently on the server.</p>
+
+    <div class="fp-section" *ngFor="let section of sectionDiffs">
+      <button type="button" class="fp-section__header" (click)="toggleSection(section)">
+        <mat-icon class="fp-section__chevron">{{ section.expanded ? 'expand_more' : 'chevron_right' }}</mat-icon>
+        <span class="fp-section__name">{{ section.name }}</span>
+        <span class="fp-section__badge" [class.fp-section__badge--changed]="section.changed">
+          {{ section.changed ? 'Changed' : 'No changes' }}
+        </span>
+      </button>
+
+      <div class="fp-section__body" *ngIf="section.expanded">
+        <div class="fp-diff-view" *ngIf="section.rows as rows">
+          <div class="fp-diff-view__header">
+            <span>Before</span>
+            <span>After</span>
+          </div>
+          <div class="fp-diff-row" *ngFor="let row of rows">
+            <div class="fp-diff-cell" [ngClass]="'fp-diff-cell--' + row.leftType">{{ row.left }}</div>
+            <div class="fp-diff-cell" [ngClass]="'fp-diff-cell--' + row.rightType">{{ row.right }}</div>
+          </div>
+        </div>
+
+        <div class="fp-diff-fallback" *ngIf="!section.rows && section.changed">
+          <p class="fp-diff-fallback__note">This section is too large to diff inline — reviewing both versions side by side.</p>
+          <div class="fp-diff-fallback__cols">
+            <div class="fp-diff-fallback__col">
+              <span class="fp-diff-fallback__label">Before</span>
+              <pre>{{ section.before }}</pre>
+            </div>
+            <div class="fp-diff-fallback__col">
+              <span class="fp-diff-fallback__label">After</span>
+              <pre>{{ section.after }}</pre>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 

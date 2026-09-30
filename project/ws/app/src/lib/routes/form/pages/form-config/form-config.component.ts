@@ -1,9 +1,10 @@
-import { Component } from '@angular/core'
+import { Component, OnInit } from '@angular/core'
 import { MatDialog } from '@angular/material/dialog'
 import { FormApiService } from '../../services/form-api.service'
 import {
   FormPreviewDialogComponent,
   FormPreviewDialogData,
+  FormSectionDiffInput,
 } from '../../components/form-preview-dialog/form-preview-dialog.component'
 import {
   FORM_APPLICATION_TYPES,
@@ -12,7 +13,6 @@ import {
   FORM_COMPONENT_BY_APP_TYPE,
   FORM_LAYOUT_DEFAULTS,
 } from '../../constants/form.constants'
-import { ROOT_ORG_IDS } from '../../constants/root-org-ids.constants'
 import { FormApplicationType, FormAccessType, FormLayoutType, IFormLayoutResult } from '../../models/form.model'
 import { FormNode, buildFormNode, findFormNodeIssue, formNodeToValue } from '../../models/form-node.model'
 
@@ -41,17 +41,20 @@ type DataShape = 'named-sections' | 'single-node'
   templateUrl: './form-config.component.html',
   styleUrls: ['./form-config.component.scss'],
 })
-export class FormConfigComponent {
+export class FormConfigComponent implements OnInit {
   readonly applicationTypes = FORM_APPLICATION_TYPES
   readonly accessTypes = FORM_ACCESS_TYPES
   readonly layoutTypes = FORM_LAYOUT_TYPES
-  readonly rootOrgIds = ROOT_ORG_IDS
 
   applicationType: FormApplicationType | '' = ''
   accessType: FormAccessType | '' = ''
   layoutType: FormLayoutType | '' = ''
   rootOrgId = ''
   framework = ''
+
+  /** Root Org Id dropdown options — fetched once from the org-search API (see loadRootOrgOptions()). */
+  rootOrgOptions: { value: string, label: string }[] = []
+  loadingRootOrgs = false
 
   loading = false
   loadError = ''
@@ -69,6 +72,28 @@ export class FormConfigComponent {
     private readonly dialog: MatDialog,
     private readonly formApiSvc: FormApiService,
   ) { }
+
+  ngOnInit(): void {
+    this.loadRootOrgOptions()
+  }
+
+  /**
+   * Single upfront fetch of the org list for Root Org Id — mirrors Playlist's
+   * playlist-filters.component.ts loadOrganizations(): fetched once on init,
+   * no app-level cache, re-fetched on a fresh navigation to this page.
+   */
+  private loadRootOrgOptions(): void {
+    this.loadingRootOrgs = true
+    this.formApiSvc.searchOrganizations().subscribe({
+      next: (orgs) => {
+        this.rootOrgOptions = orgs
+        this.loadingRootOrgs = false
+      },
+      error: () => {
+        this.loadingRootOrgs = false
+      },
+    })
+  }
 
   get hasSections(): boolean {
     return this.sections.length > 0
@@ -117,35 +142,18 @@ export class FormConfigComponent {
 
   /** Fetches the layout and renders its editor inline on this same page — no route navigation. */
   loadForm(): void {
-    if (!this.layoutType || !this.accessType || !this.rootOrgId) {
-      return
-    }
-    if (this.showApplicationType && !this.applicationType) {
+    if (!this.canLoad) {
       return
     }
     this.loading = true
     this.loadError = ''
     this.resetLoadedState()
 
-    // Type 'app_layout' always resolves to the 'app' component, regardless of
-    // application type/access. For 'web_layout', the existing rule still
-    // applies: Public forms are always served under the 'web' component,
-    // regardless of application type; the ekshamata/web split only applies to
-    // Private forms.
-    const component = this.layoutType === 'app_layout'
-      ? 'app'
-      : this.accessType === 'public'
-        ? 'web'
-        // Guaranteed truthy here: showApplicationType is true whenever
-        // layoutType === 'web_layout', and loadForm() already returned above
-        // if applicationType was empty in that case.
-        : FORM_COMPONENT_BY_APP_TYPE[this.applicationType as FormApplicationType]
-
     const request = {
       type: this.layoutType,
       subtype: FORM_LAYOUT_DEFAULTS.subtype,
       action: 'get' as const,
-      component,
+      component: this.resolveComponent(),
       framework: this.framework,
       rootOrgId: this.rootOrgId,
     }
@@ -163,13 +171,62 @@ export class FormConfigComponent {
       },
       error: () => {
         this.loading = false
-        this.loadError = 'Could not load the form config. Please check the selections and try again.'
+        this.loadError = 'No form exists yet for this selection. Create one below, or double-check your selections and load again.'
       },
     })
   }
 
+  /**
+   * Seeds a brand-new form for this selection when Load Form fails because
+   * none exists yet — same request metadata Load Form would have used, an
+   * empty `data` skeleton matching the confirmed real shape
+   * (`orgData`/`LAYOUT_HEADER`/`LAYOUT_BODY`/`LAYOUT_FOOTER`), and no
+   * `created_on`/`last_modified_on` yet since nothing has been saved. Update
+   * Form still goes through the same preview → confirm → save flow, which
+   * posts to the create endpoint either way.
+   */
+  onCreateForm(): void {
+    if (!this.canLoad) {
+      return
+    }
+    this.loadError = ''
+    this.resetLoadedState()
+
+    this.layout = {
+      type: this.layoutType as string,
+      subtype: FORM_LAYOUT_DEFAULTS.subtype,
+      action: 'get',
+      component: this.resolveComponent(),
+      framework: this.framework,
+      rootOrgId: this.rootOrgId,
+      created_on: null,
+      last_modified_on: null,
+      data: { orgData: {}, LAYOUT_HEADER: {}, LAYOUT_BODY: {}, LAYOUT_FOOTER: {} },
+    }
+    this.loadSectionsFromData(this.layout.data)
+  }
+
   selectSection(index: number): void {
     this.selectedSectionIndex = index
+  }
+
+  /**
+   * Type 'app_layout' always resolves to the 'app' component, regardless of
+   * application type/access. For 'web_layout', the existing rule still
+   * applies: Public forms are always served under the 'web' component,
+   * regardless of application type; the ekshamata/web split only applies to
+   * Private forms. Guaranteed a valid applicationType when needed — callers
+   * only reach here after `canLoad` confirmed `showApplicationType` is
+   * satisfied.
+   */
+  private resolveComponent(): string {
+    if (this.layoutType === 'app_layout') {
+      return 'app'
+    }
+    if (this.accessType === 'public') {
+      return 'web'
+    }
+    return FORM_COMPONENT_BY_APP_TYPE[this.applicationType as FormApplicationType]
   }
 
   /** Validates the whole tree, then opens a read-only preview of the exact payload before the update call fires. */
@@ -188,13 +245,15 @@ export class FormConfigComponent {
     const editedData = this.buildEditedData()
 
     const dialogRef = this.dialog.open(FormPreviewDialogComponent, {
-      width: '720px',
+      width: '1400px',
+      maxWidth: '95vw',
       maxHeight: '85vh',
       data: {
         component: this.layout.component,
         framework: this.layout.framework,
         rootOrgId: this.layout.rootOrgId,
         dataJson: JSON.stringify(editedData, null, 2),
+        sectionDiffs: this.buildSectionDiffs(editedData),
       } as FormPreviewDialogData,
     })
 
@@ -203,6 +262,32 @@ export class FormConfigComponent {
         this.saveForm(editedData)
       }
     })
+  }
+
+  /**
+   * Before/after JSON per section, for the Preview dialog's diff view.
+   * Diffing per section (rather than the whole `data` document at once)
+   * keeps each diff's line count small — the real fetched `data` runs to
+   * ~1000 nodes across all sections combined (see FORM_FEATURE_GUIDE.md),
+   * which would make one document-wide diff expensive and unreadable.
+   * `this.layout.data` is never mutated by editing (buildFormNode() copies
+   * primitive values into a parallel FormNode tree), so it's still the
+   * pristine originally-loaded value here.
+   */
+  private buildSectionDiffs(editedData: any): FormSectionDiffInput[] {
+    const originalData = this.layout?.data
+    if (this.dataShape === 'named-sections') {
+      const original = (originalData && typeof originalData === 'object' && !Array.isArray(originalData)) ? originalData : {}
+      return this.sections.map(s => {
+        const before = JSON.stringify(original[s.name] ?? null, null, 2)
+        const after = JSON.stringify(editedData?.[s.name] ?? null, null, 2)
+        return { name: s.name, before, after, changed: before !== after }
+      })
+    }
+
+    const before = JSON.stringify(originalData ?? null, null, 2)
+    const after = JSON.stringify(editedData ?? null, null, 2)
+    return [{ name: this.sections[0]?.name || 'Data', before, after, changed: before !== after }]
   }
 
   private resetLoadedState(): void {

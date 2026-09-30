@@ -4,62 +4,80 @@
     <p class="page-subtitle">Select an application and visibility to load its form layout config for editing.</p>
   </section>
 
-  <section class="selectors-row">
-    <div class="select-field">
-      <div class="custom-select-wrapper">
-        <span class="select-label">Type</span>
-        <select class="custom-select" [(ngModel)]="layoutType" (ngModelChange)="onLayoutTypeChange()" name="layoutType">
-          <option value="" disabled>Select type</option>
-          <option *ngFor="let opt of layoutTypes" [value]="opt.value">{{ opt.label }}</option>
-        </select>
-        <span class="select-chevron">▾</span>
+  <section class="config-card">
+    <div class="selectors-grid">
+      <div class="select-field">
+        <div class="custom-select-wrapper">
+          <span class="select-label">Type</span>
+          <select class="custom-select" [(ngModel)]="layoutType" (ngModelChange)="onLayoutTypeChange()" name="layoutType">
+            <option value="" disabled>Select type</option>
+            <option *ngFor="let opt of layoutTypes" [value]="opt.value">{{ opt.label }}</option>
+          </select>
+          <span class="select-chevron">▾</span>
+        </div>
+      </div>
+
+      <div class="select-field" *ngIf="showApplicationType">
+        <div class="custom-select-wrapper">
+          <span class="select-label">Application Type</span>
+          <select class="custom-select" [(ngModel)]="applicationType" (ngModelChange)="loadError = ''"
+            name="applicationType">
+            <option value="" disabled>Select application</option>
+            <option *ngFor="let opt of applicationTypes" [value]="opt.value">{{ opt.label }}</option>
+          </select>
+          <span class="select-chevron">▾</span>
+        </div>
+      </div>
+
+      <div class="select-field">
+        <div class="custom-select-wrapper">
+          <span class="select-label">Access</span>
+          <select class="custom-select" [(ngModel)]="accessType" (ngModelChange)="onAccessTypeChange()" name="accessType">
+            <option value="" disabled>Select access</option>
+            <option *ngFor="let opt of accessTypes" [value]="opt.value">{{ opt.label }}</option>
+          </select>
+          <span class="select-chevron">▾</span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="selectors-grid selectors-grid--org" *ngIf="accessType">
+      <div class="select-field">
+        <div class="custom-select-wrapper">
+          <span class="select-label">Org Name</span>
+          <select class="custom-select" [(ngModel)]="rootOrgId" (ngModelChange)="loadError = ''" name="rootOrgId"
+            [disabled]="accessType !== 'private'">
+            <option *ngIf="accessType === 'public'" value="*">*</option>
+            <ng-container *ngIf="accessType === 'private'">
+              <option value="" disabled>{{ loadingRootOrgs ? 'Loading orgs...' : 'Select org name' }}</option>
+              <option *ngFor="let org of rootOrgOptions" [value]="org.value">{{ org.label }}</option>
+            </ng-container>
+          </select>
+          <span class="select-chevron">▾</span>
+        </div>
+      </div>
+
+      <div class="select-field" *ngIf="accessType === 'private' && rootOrgId">
+        <div class="custom-select-wrapper">
+          <span class="select-label">Org Id</span>
+          <input class="custom-select" type="text" [value]="rootOrgId" readonly disabled />
+        </div>
       </div>
     </div>
 
-    <div class="select-field" *ngIf="showApplicationType">
-      <div class="custom-select-wrapper">
-        <span class="select-label">Application Type</span>
-        <select class="custom-select" [(ngModel)]="applicationType" (ngModelChange)="loadError = ''"
-          name="applicationType">
-          <option value="" disabled>Select application</option>
-          <option *ngFor="let opt of applicationTypes" [value]="opt.value">{{ opt.label }}</option>
-        </select>
-        <span class="select-chevron">▾</span>
-      </div>
+    <div class="config-card__actions">
+      <button type="button" class="load-btn" [disabled]="!canLoad" (click)="loadForm()">
+        {{ loading ? 'Loading...' : 'Load Form' }}
+      </button>
     </div>
 
-    <div class="select-field">
-      <div class="custom-select-wrapper">
-        <span class="select-label">Access</span>
-        <select class="custom-select" [(ngModel)]="accessType" (ngModelChange)="onAccessTypeChange()" name="accessType">
-          <option value="" disabled>Select access</option>
-          <option *ngFor="let opt of accessTypes" [value]="opt.value">{{ opt.label }}</option>
-        </select>
-        <span class="select-chevron">▾</span>
-      </div>
+    <div class="load-error-banner" *ngIf="loadError">
+      <mat-icon class="load-error-banner__icon">info_outline</mat-icon>
+      <p class="load-error-banner__text">{{ loadError }}</p>
+      <button type="button" class="create-form-btn" (click)="onCreateForm()">Create Form for this Org</button>
     </div>
-
-    <div class="select-field" *ngIf="accessType">
-      <div class="custom-select-wrapper">
-        <span class="select-label">Root Org Id</span>
-        <select class="custom-select" [(ngModel)]="rootOrgId" (ngModelChange)="loadError = ''" name="rootOrgId"
-          [disabled]="accessType !== 'private'">
-          <option *ngIf="accessType === 'public'" value="*">*</option>
-          <ng-container *ngIf="accessType === 'private'">
-            <option value="" disabled>Select root org id</option>
-            <option *ngFor="let id of rootOrgIds" [value]="id">{{ id }}</option>
-          </ng-container>
-        </select>
-        <span class="select-chevron">▾</span>
-      </div>
-    </div>
-
-    <button type="button" class="load-btn" [disabled]="!canLoad" (click)="loadForm()">
-      {{ loading ? 'Loading...' : 'Load Form' }}
-    </button>
   </section>
-
-  <p class="error-text" *ngIf="loadError">{{ loadError }}</p>
 
   <!-- Loaded inline on this same page — no navigation to a separate screen -->
   <ng-container *ngIf="layout">

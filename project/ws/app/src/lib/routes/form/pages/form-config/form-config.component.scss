@@ -9,18 +9,36 @@
   }
 
   // ===========================================================================
-  // Selectors row: Application Type / Access / Root Org Id / Load Form
+  // Config card: Type / Application Type / Access / Org Name / Org Id, framed
+  // the same way as .fields-shell/.details-panel (border #e0e0e0, radius 8px)
+  // so the page reads as a consistent set of cards, not loose floating rows.
+  // Fields sit on a grid (not flex-wrap) so every field is the same width
+  // regardless of how many are visible at once.
   // ===========================================================================
-  .selectors-row {
+  .config-card {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 24px;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+  }
+
+  // Flexbox with a FIXED width per field — not a stretchy grid — so no field
+  // ever resizes as Application Type appears/disappears. When it's absent,
+  // the remaining fields keep their exact same size; any leftover space is
+  // just normal trailing space at the end of the row, not a gap between
+  // visible fields and not a reflow of what's already there.
+  .selectors-grid {
     display: flex;
     flex-wrap: wrap;
-    align-items: flex-end;
     gap: 16px;
 
     .select-field {
+      flex: 0 0 260px;
       display: flex;
       flex-direction: column;
-      min-width: 220px;
 
       .custom-select-wrapper {
         @include v2-custom-select-wrapper;
@@ -46,14 +64,65 @@
       }
     }
 
+    // Org Name / Org Id sit on their own row below Type/Application Type/
+    // Access. Org Name gets a wider fixed width so a long org name isn't
+    // clipped; Org Id keeps the same fixed width as the row-1 fields.
+    &--org {
+      .select-field:first-child {
+        flex-basis: 480px;
+      }
+    }
+  }
+
+  .config-card__actions {
+    display: flex;
+
     .load-btn {
       @include v2-btn-primary;
       height: 40px;
+      padding: 0 32px;
     }
   }
 
   .error-text { color: #ca0000; font-size: 13px; }
   .success-text { color: #1e7d1e; font-size: 13px; }
+
+  // A "no form yet — create one" notice, not a hard failure, so it reads as
+  // an actionable amber notice rather than a red error banner.
+  .load-error-banner {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    padding: 16px 20px;
+    background: #fff8e6;
+    border: 1px solid #f0dfa8;
+    border-radius: 8px;
+
+    &__icon {
+      color: #a06b00;
+      flex-shrink: 0;
+      font-size: 22px;
+      width: 22px;
+      height: 22px;
+    }
+
+    &__text {
+      margin: 0;
+      flex: 1;
+      min-width: 220px;
+      color: #7a5200;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .create-form-btn {
+      @include v2-btn-primary;
+      height: 40px;
+      padding: 0 24px;
+      white-space: nowrap;
+    }
+  }
 
   // ===========================================================================
   // Layout details panel — everything on `layout` except `data`
@@ -221,5 +290,9 @@
 @media (max-width: 480px) {
   .form-config-container .details-panel .details-grid {
     grid-template-columns: 1fr;
+  }
+
+  .form-config-container .selectors-grid .select-field {
+    flex-basis: 100%;
   }
 }

@@ -24,12 +24,38 @@ describe('FormConfigComponent', () => {
 
   beforeEach(() => {
     dialogMock = createSpyObj('MatDialog', ['open'])
-    formApiMock = createSpyObj('FormApiService', ['readForm', 'updateForm'])
+    formApiMock = createSpyObj('FormApiService', ['readForm', 'updateForm', 'searchOrganizations'])
+    formApiMock.searchOrganizations.mockReturnValue(of([]))
     component = new FormConfigComponent(dialogMock, formApiMock)
   })
 
   it('should create', () => {
     expect(component).toBeTruthy()
+  })
+
+  describe('ngOnInit', () => {
+    it('fetches root org options and clears the loading flag on success', () => {
+      formApiMock.searchOrganizations.mockReturnValue(
+        of([{ value: '123', label: 'Test Org' }]),
+      )
+      component.ngOnInit()
+      expect(component.rootOrgOptions).toEqual([{ value: '123', label: 'Test Org' }])
+      expect(component.loadingRootOrgs).toBe(false)
+    })
+
+    it('sets loading true synchronously before the fetch resolves', () => {
+      // A never-resolving observable so we can observe the in-flight state.
+      formApiMock.searchOrganizations.mockReturnValue({ subscribe: () => undefined } as any)
+      component.ngOnInit()
+      expect(component.loadingRootOrgs).toBe(true)
+    })
+
+    it('clears the loading flag without populating options on failure', () => {
+      formApiMock.searchOrganizations.mockReturnValue(throwError(() => new Error('org search failed')))
+      component.ngOnInit()
+      expect(component.rootOrgOptions).toEqual([])
+      expect(component.loadingRootOrgs).toBe(false)
+    })
   })
 
   describe('onLayoutTypeChange', () => {
@@ -246,7 +272,7 @@ describe('FormConfigComponent', () => {
       component.loadForm()
 
       expect(component.loading).toBe(false)
-      expect(component.loadError).toBe('Could not load the form config. Please check the selections and try again.')
+      expect(component.loadError).toBe('No form exists yet for this selection. Create one below, or double-check your selections and load again.')
     })
 
     it('resets any previously loaded state before issuing a new request', () => {
@@ -262,6 +288,75 @@ describe('FormConfigComponent', () => {
       component.loadForm()
 
       expect(component.selectedSectionIndex).toBe(0)
+    })
+  })
+
+  describe('onCreateForm', () => {
+    it('does nothing when required selections are incomplete', () => {
+      component.layoutType = 'web_layout'
+      component.applicationType = ''
+      component.accessType = 'private'
+      component.rootOrgId = '123'
+
+      component.onCreateForm()
+
+      expect(component.layout).toBeNull()
+      expect(formApiMock.readForm).not.toHaveBeenCalled()
+    })
+
+    it('seeds a fresh layout with the standard section skeleton and no created/last-modified timestamps', () => {
+      component.layoutType = 'web_layout'
+      component.applicationType = 'ekshamata'
+      component.accessType = 'private'
+      component.rootOrgId = '0142443633580769283117'
+      component.framework = 'v2'
+      component.loadError = 'No form exists yet for this selection. Create one below, or double-check your selections and load again.'
+
+      component.onCreateForm()
+
+      expect(component.loadError).toBe('')
+      expect(formApiMock.readForm).not.toHaveBeenCalled()
+      expect(component.layout).toEqual({
+        type: 'web_layout',
+        subtype: 'v1',
+        action: 'get',
+        component: 'ekshamata',
+        framework: 'v2',
+        rootOrgId: '0142443633580769283117',
+        created_on: null,
+        last_modified_on: null,
+        data: { orgData: {}, LAYOUT_HEADER: {}, LAYOUT_BODY: {}, LAYOUT_FOOTER: {} },
+      })
+      expect(component.sections.map(s => s.name)).toEqual(['orgData', 'LAYOUT_HEADER', 'LAYOUT_BODY', 'LAYOUT_FOOTER'])
+    })
+
+    it('resolves component "app" for app_layout, regardless of application type', () => {
+      component.layoutType = 'app_layout'
+      component.applicationType = ''
+      component.accessType = 'public'
+      component.rootOrgId = '*'
+      component.framework = '*'
+
+      component.onCreateForm()
+
+      expect(component.layout?.component).toBe('app')
+    })
+
+    it('can be reached straight from a failed Load Form, letting the admin create instead', () => {
+      formApiMock.readForm.mockReturnValue(throwError(() => new Error('not found')))
+      component.layoutType = 'web_layout'
+      component.applicationType = 'ekshamata'
+      component.accessType = 'private'
+      component.rootOrgId = '123'
+
+      component.loadForm()
+      expect(component.loadError).not.toBe('')
+
+      component.onCreateForm()
+
+      expect(component.loadError).toBe('')
+      expect(component.layout).not.toBeNull()
+      expect(component.hasSections).toBe(true)
     })
   })
 
@@ -311,6 +406,27 @@ describe('FormConfigComponent', () => {
       )
       const openedData = dialogMock.open.mock.calls[0][1].data
       expect(JSON.parse(openedData.dataJson)).toEqual({ orgData: { name: 'Org' }, LAYOUT_HEADER: [{ code: 'a' }] })
+    })
+
+    it('marks only the edited section as changed in sectionDiffs', () => {
+      dialogMock.open.mockReturnValue({ afterClosed: () => of(false) })
+
+      const orgDataSection = component.sections.find(s => s.name === 'orgData')!
+      orgDataSection.node.entries![0].node.value = 'Changed Org'
+
+      component.onUpdateForm()
+
+      const openedData = dialogMock.open.mock.calls[0][1].data
+      const diffs: any[] = openedData.sectionDiffs
+      const orgDiff = diffs.find(d => d.name === 'orgData')
+      const headerDiff = diffs.find(d => d.name === 'LAYOUT_HEADER')
+
+      expect(orgDiff.changed).toBe(true)
+      expect(JSON.parse(orgDiff.before)).toEqual({ name: 'Org' })
+      expect(JSON.parse(orgDiff.after)).toEqual({ name: 'Changed Org' })
+
+      expect(headerDiff.changed).toBe(false)
+      expect(headerDiff.before).toBe(headerDiff.after)
     })
 
     it('does not call updateForm when the preview dialog is dismissed without confirming', () => {

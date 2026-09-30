@@ -7,7 +7,8 @@
     <input type="checkbox" [(ngModel)]="node.value" [name]="path + '-v'" />
     Enabled
   </label>
-  <input *ngSwitchCase="'null'" class="input-field" type="text" placeholder="null" [(ngModel)]="node.value" [name]="path + '-v'" />
+  <input *ngSwitchCase="'null'" class="input-field" type="text" placeholder="null" [(ngModel)]="node.value"
+    [name]="path + '-v'" />
 
   <!-- object: collapsible header + editable Key/recursive-Value rows -->
   <div class="node-container" *ngSwitchCase="'object'">
@@ -21,7 +22,8 @@
 
     <div class="node-body" *ngIf="!node.collapsed">
       <div class="node-entry" *ngFor="let entry of node.entries; let i = index; trackBy: trackByIndex">
-        <input class="input-field node-entry__key" type="text" placeholder="Key" [(ngModel)]="entry.key" [name]="path + '-key-' + i" />
+        <input class="input-field node-entry__key" type="text" placeholder="Key" [(ngModel)]="entry.key"
+          [name]="path + '-key-' + i" />
         <div class="node-entry__value">
           <app-form-node-editor [node]="entry.node" [path]="path + '-' + i"></app-form-node-editor>
         </div>
@@ -35,6 +37,9 @@
       <div class="node-actions">
         <button type="button" class="secondary-btn" (click)="addEntry('string')">
           <mat-icon>add</mat-icon> Text
+        </button>
+        <button type="button" class="secondary-btn" (click)="addEntry('boolean')">
+          <mat-icon>add</mat-icon> Flag
         </button>
         <button type="button" class="secondary-btn" (click)="addEntry('object')">
           <mat-icon>add</mat-icon> Group
@@ -92,6 +97,9 @@
         </button>
         <button type="button" class="secondary-btn" (click)="addItem('string')">
           <mat-icon>add</mat-icon> Text
+        </button>
+        <button type="button" class="secondary-btn" (click)="addItem('boolean')">
+          <mat-icon>add</mat-icon> Boolean
         </button>
         <button type="button" class="secondary-btn" (click)="addItem('array')">
           <mat-icon>add</mat-icon> List
