@@ -194,18 +194,25 @@
 }
 
 .node-item {
+  // Vertically centers the reorder controls against the field row instead
+  // of top-aligning them — matters once the reorder column is a compact
+  // horizontal strip rather than a tall vertical stack (see &__reorder).
+  align-items: center;
+
   &__reorder {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
-    gap: 4px;
-    padding-top: 8px;
+    gap: 2px;
+    flex-shrink: 0;
   }
 
   &__index {
     font-size: 12px;
     color: #808080;
     font-family: 'Roboto', sans-serif;
+    min-width: 14px;
+    text-align: center;
   }
 
   &__value {
