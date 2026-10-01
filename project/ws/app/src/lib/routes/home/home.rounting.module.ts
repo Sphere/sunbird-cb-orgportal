@@ -89,6 +89,11 @@ const routes: Routes = [
           import('../form/form.module').then((m) => m.FormModule),
       },
       {
+        path: 'organization',
+        loadChildren: () =>
+          import('../organization/organization.module').then((m) => m.OrganizationModule),
+      },
+      {
         path: 'frac',
         loadChildren: () =>
           import('../frac/frac.module').then((m) => m.FracModule),

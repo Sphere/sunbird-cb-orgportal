@@ -1,0 +1,31 @@
+<div class="oc-dialog">
+  <div class="oc-header">
+    <mat-icon class="oc-header__icon" [class.oc-header__icon--danger]="isDeactivate">
+      {{ isDeactivate ? 'warning_amber' : 'restore' }}
+    </mat-icon>
+    <h2 class="oc-header__title">{{ isDeactivate ? 'Deactivate Organization' : 'Activate Organization' }}</h2>
+  </div>
+
+  <div class="oc-body">
+    <p *ngIf="isDeactivate">
+      Are you sure you want to deactivate <strong>{{ data.org.orgName || data.org.id }}</strong>?
+      It will be marked inactive and can be reactivated later.
+    </p>
+    <p *ngIf="!isDeactivate">
+      Reactivate <strong>{{ data.org.orgName || data.org.id }}</strong>?
+    </p>
+
+    <div class="oc-error" *ngIf="error">
+      <mat-icon>error_outline</mat-icon>
+      <span>{{ error }}</span>
+    </div>
+  </div>
+
+  <div class="oc-footer">
+    <button type="button" class="oc-btn-secondary" (click)="onCancel()" [disabled]="saving">Cancel</button>
+    <button type="button" [class.oc-btn-danger]="isDeactivate" [class.oc-btn-primary]="!isDeactivate"
+      (click)="onConfirm()" [disabled]="saving">
+      {{ saving ? 'Please wait...' : (isDeactivate ? 'Deactivate' : 'Activate') }}
+    </button>
+  </div>
+</div>

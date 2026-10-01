@@ -1,0 +1,143 @@
+@import 'ws-design-system-v2';
+
+.org-list-container {
+  @include v2-page-container;
+
+  .header-section {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+
+    .header-text {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .page-title { @include v2-page-title; }
+    .page-subtitle { @include v2-page-subtitle; }
+  }
+
+  .toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+
+    .search-input { @include v2-search-field; }
+
+    .result-count {
+      font-size: 13px;
+      color: #808080;
+    }
+  }
+
+  .btn-primary { @include v2-btn-primary; }
+  .btn-secondary { @include v2-btn-secondary; }
+
+  .table-container { @include v2-table-container; }
+
+  .org-table {
+    @include v2-table-inner;
+
+    tbody tr { cursor: default; }
+
+    .col-actions {
+      width: 110px;
+      text-align: right;
+      white-space: nowrap;
+    }
+  }
+
+  .org-name {
+    font-weight: 500;
+  }
+
+  .org-id {
+    margin-top: 2px;
+    font-size: 12px;
+    color: #808080;
+  }
+
+  .status-pill {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 50px;
+    font-size: 12px;
+    font-weight: 500;
+    background: #f1f1f1;
+    color: #666;
+
+    &--active {
+      background: #e6f4ea;
+      color: #1e7e34;
+    }
+  }
+
+  .icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: #1c5d95;
+    cursor: pointer;
+    transition: background-color 150ms ease;
+
+    mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+
+    &:hover:not(:disabled) { background: #eef4fb; }
+    &:disabled { color: #c4c4c4; cursor: not-allowed; }
+
+    &--danger {
+      color: #ca0000;
+
+      &:hover:not(:disabled) { background: #fdecec; }
+    }
+  }
+
+  .shimmer-row {
+    @include v2-shimmer;
+    height: 28px;
+    margin: 12px 16px;
+  }
+
+  .empty-state {
+    @include v2-empty-state-card;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+
+    &__icon { @include v2-empty-state-icon; margin: 0; }
+
+    &__title {
+      margin: 0;
+      font-size: 14px;
+      color: #333;
+    }
+  }
+
+  .pager {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+
+    &__range {
+      font-size: 13px;
+      color: #666;
+      margin-right: 8px;
+    }
+  }
+}

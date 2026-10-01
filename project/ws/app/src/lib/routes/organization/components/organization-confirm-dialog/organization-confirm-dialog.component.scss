@@ -1,0 +1,75 @@
+@import 'ws-design-system-v2';
+
+.oc-dialog {
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+}
+
+.oc-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 20px 24px 8px;
+
+  &__icon {
+    color: #1c5d95;
+
+    &--danger {
+      color: #ca0000;
+    }
+  }
+
+  &__title {
+    @include v2-modal-title;
+    font-size: 20px;
+  }
+}
+
+.oc-body {
+  padding: 8px 24px 16px;
+  font-size: 14px;
+  color: #333;
+  line-height: 1.5;
+
+  p {
+    margin: 0;
+  }
+}
+
+.oc-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #fdecec;
+  color: #ca0000;
+  font-size: 13px;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.oc-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding: 16px 24px 20px;
+}
+
+.oc-btn-primary {
+  @include v2-btn-primary;
+}
+
+.oc-btn-secondary {
+  @include v2-btn-secondary;
+}
+
+.oc-btn-danger {
+  @include v2-btn-danger;
+}

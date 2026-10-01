@@ -1,0 +1,93 @@
+<div class="org-list-container">
+  <section class="header-section">
+    <div class="header-text">
+      <h1 class="page-title">Organization</h1>
+      <p class="page-subtitle">View, create, edit and deactivate organizations.</p>
+    </div>
+    <button type="button" class="btn-primary" (click)="openCreate()">
+      <mat-icon>add</mat-icon>
+      Create Organization
+    </button>
+  </section>
+
+  <section class="toolbar">
+    <input class="search-input" type="text" [(ngModel)]="searchText" (ngModelChange)="onSearchChange()"
+      name="searchText" placeholder="Search by name, channel or id" [disabled]="loading" />
+    <span class="result-count" *ngIf="!loading && !loadError">{{ filteredOrgs.length }} organizations</span>
+  </section>
+
+  <!-- Loading -->
+  <div class="table-container" *ngIf="loading">
+    <div class="shimmer-row" *ngFor="let r of shimmerRows"></div>
+  </div>
+
+  <!-- Error -->
+  <div class="empty-state" *ngIf="!loading && loadError">
+    <div class="empty-state__icon"><mat-icon>error_outline</mat-icon></div>
+    <p class="empty-state__title">{{ loadError }}</p>
+    <button type="button" class="btn-secondary" (click)="loadOrganizations()">Retry</button>
+  </div>
+
+  <!-- Empty -->
+  <div class="empty-state" *ngIf="!loading && !loadError && !filteredOrgs.length">
+    <div class="empty-state__icon"><mat-icon>corporate_fare</mat-icon></div>
+    <p class="empty-state__title">{{ searchText ? 'No organizations match your search.' : 'No organizations found.' }}</p>
+  </div>
+
+  <!-- Table -->
+  <ng-container *ngIf="!loading && !loadError && filteredOrgs.length">
+    <div class="table-container">
+      <table class="org-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Channel</th>
+            <th>Type / Sub-type</th>
+            <th>Tenant</th>
+            <th>Status</th>
+            <th>Created</th>
+            <th class="col-actions">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let org of pagedOrgs; trackBy: trackById">
+            <td>
+              <div class="org-name">{{ org.orgName || '—' }}</div>
+              <div class="org-id">{{ org.id }}</div>
+            </td>
+            <td>{{ org.channel || '—' }}</td>
+            <td>{{ org.organisationType || '—' }} / {{ org.organisationSubType || '—' }}</td>
+            <td>{{ org.isTenant ? 'Yes' : 'No' }}</td>
+            <td>
+              <span class="status-pill" [class.status-pill--active]="isActive(org)">
+                {{ isActive(org) ? 'Active' : 'Inactive' }}
+              </span>
+            </td>
+            <td>{{ createdOn(org) }}</td>
+            <td class="col-actions">
+              <button type="button" class="icon-btn" (click)="openEdit(org)" title="Edit" aria-label="Edit">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button type="button" class="icon-btn" [class.icon-btn--danger]="isActive(org)"
+                (click)="openStatusChange(org)" [title]="isActive(org) ? 'Deactivate' : 'Activate'"
+                [attr.aria-label]="isActive(org) ? 'Deactivate' : 'Activate'">
+                <mat-icon>{{ isActive(org) ? 'delete_outline' : 'restore' }}</mat-icon>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pager">
+      <span class="pager__range">{{ rangeLabel }}</span>
+      <button type="button" class="icon-btn" (click)="prevPage()" [disabled]="pageIndex === 0" aria-label="Previous page">
+        <mat-icon>chevron_left</mat-icon>
+      </button>
+      <button type="button" class="icon-btn" (click)="nextPage()" [disabled]="pageIndex >= totalPages - 1"
+        aria-label="Next page">
+        <mat-icon>chevron_right</mat-icon>
+      </button>
+    </div>
+  </ng-container>
+</div>

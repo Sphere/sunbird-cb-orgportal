@@ -69,6 +69,19 @@ export class MenuConfigService {
             routerLink: '/app/home/form/config',
             requiredRoles: [],
         },
+        {
+            name: 'Organization',
+            key: 'organization',
+            fragment: false,
+            render: true,
+            badges: {
+                enabled: false,
+                uri: ''
+            },
+            enabled: true,
+            routerLink: '/app/home/organization/list',
+            requiredRoles: [],
+        },
     ]
 
     /**
