@@ -65,6 +65,8 @@ export class ParticipantsComponent implements OnInit, OnDestroy {
           userId: participant.userId || '',
           isNonQr: participant.userId === 'Non-QR-User',
           certificateStatus: participant.certificateGenerationStatus || null,
+          email: participant.email || '',
+          emailSentAt: participant.emailSentAt || null,
         }))
         this.isLoading = false
       },
@@ -107,7 +109,7 @@ export class ParticipantsComponent implements OnInit, OnDestroy {
   filteredParticipants() {
     return _.filter(this.participants, participant => {
       const matchesSearch = !this.searchQuery || _.some(
-        ['firstName', 'lastName', 'place'],
+        ['firstName', 'lastName', 'place', 'email'],
         key => _.toLower(participant[key]).includes(_.toLower(this.searchQuery))
       )
       const matchesStatus = !this.filterStatus || (() => {

@@ -279,6 +279,28 @@
   }
 }
 
+// ── Email column ────────────────────────────────────────────────────────────
+.email-cell { min-width: 220px; }
+
+.email-address {
+  margin-bottom: 4px;
+  font-size: $v2-font-micro;
+  color: $v2-color-text;
+  word-break: break-all;
+}
+
+.email-sent-at {
+  display: block;
+  margin-top: 2px;
+  font-size: 11px;
+  color: $v2-color-text-secondary;
+}
+
+.email-none {
+  font-size: $v2-font-micro;
+  color: $v2-color-text-secondary;
+}
+
 // ── Responsive ──────────────────────────────────────────────────────────────
 @media (max-width: 768px) {
   .participants-header { flex-direction: column; align-items: flex-start; }

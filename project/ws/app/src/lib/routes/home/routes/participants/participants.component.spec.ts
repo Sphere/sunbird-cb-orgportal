@@ -62,7 +62,10 @@ describe('ParticipantsComponent', () => {
       ]))
       component.fetchParticipants('e1')
       expect(component.participants).toEqual([
-        { firstName: 'John', lastName: '', place: '', userId: '', isNonQr: false, certificateStatus: 'success' },
+        {
+          firstName: 'John', lastName: '', place: '', userId: '', isNonQr: false, certificateStatus: 'success',
+          email: '', emailSentAt: null,
+        },
       ])
     })
 

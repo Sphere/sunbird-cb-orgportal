@@ -3,8 +3,8 @@
   <!-- Search + Filter controls -->
   <div class="participants-header">
     <div class="search-filter-group">
-      <input type="text" placeholder="Search by name, place" [(ngModel)]="searchQuery" class="search-input"
-        id="participantsSearch" aria-label="Search by name, place" />
+      <input type="text" placeholder="Search by name, place, email" [(ngModel)]="searchQuery" class="search-input"
+        id="participantsSearch" aria-label="Search by name, place, email" />
 
       <!-- Filter button + popover wrapper -->
       <div class="filter-popover-anchor">
@@ -69,11 +69,12 @@
           <th>Last Name</th>
           <th>Place</th>
           <th *ngIf="showCertificateStatus">Certificate Status</th>
+          <th *ngIf="showCertificateStatus">Email</th>
         </tr>
       </thead>
       <tbody>
         <tr class="skeleton-row" *ngFor="let row of skeletonRows" [hidden]="!isLoading">
-          <td [attr.colspan]="showCertificateStatus ? 4 : 3"><span class="skeleton-cell"></span></td>
+          <td [attr.colspan]="showCertificateStatus ? 5 : 3"><span class="skeleton-cell"></span></td>
         </tr>
         <tr *ngFor="let participant of (isLoading ? [] : filteredParticipants())">
           <td>{{ participant.firstName }}</td>
@@ -91,9 +92,20 @@
               participant.isNonQr ? 'Pending' : 'Not Generated' }}
             </span>
           </td>
+          <td *ngIf="showCertificateStatus" class="email-cell">
+            <ng-container *ngIf="participant.email; else noEmail">
+              <div class="email-address">{{ participant.email }}</div>
+              <span class="cert-status-badge" [ngClass]="participant.emailSentAt ? 'status-success'
+                  : participant.certificateStatus === 'success' ? 'status-failed' : 'status-pending'">
+                {{ participant.emailSentAt ? 'Sent' : participant.certificateStatus === 'success' ? 'Not sent' : 'Pending' }}
+              </span>
+              <span class="email-sent-at" *ngIf="participant.emailSentAt">{{ participant.emailSentAt | date:'d MMM y, h:mm a' }}</span>
+            </ng-container>
+            <ng-template #noEmail><span class="email-none">No email</span></ng-template>
+          </td>
         </tr>
         <tr *ngIf="!isLoading && filteredParticipants().length === 0">
-          <td [attr.colspan]="showCertificateStatus ? 4 : 3" class="empty-row">
+          <td [attr.colspan]="showCertificateStatus ? 5 : 3" class="empty-row">
             No participants match the current search / filter.
           </td>
         </tr>
