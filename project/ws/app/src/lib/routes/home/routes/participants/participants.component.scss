@@ -280,12 +280,8 @@
 }
 
 // ── Email column ────────────────────────────────────────────────────────────
-.email-cell { min-width: 220px; }
-
-.email-address {
-  margin-bottom: 4px;
-  font-size: $v2-font-micro;
-  color: $v2-color-text;
+.email-cell {
+  min-width: 200px;
   word-break: break-all;
 }
 
