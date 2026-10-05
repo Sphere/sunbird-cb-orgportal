@@ -13,6 +13,7 @@ export interface IParticipant {
   lastName?: string
   phone: string
   location: string
+  email?: string // optional; the certificate is emailed here once generated
   [key: string]: any
 }
 
