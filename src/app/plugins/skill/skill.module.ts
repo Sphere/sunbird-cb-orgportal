@@ -23,7 +23,7 @@ import {
   SearchSelectedFilterComponent,
   AddCompetencyDialogComponent,
   ConfirmDialogComponent,
-  SkillTableComponent, UserCompetencyComponent,
+  SkillTableComponent,
   ProficiencyLevelDialogComponent,
 } from './components'
 import { FormsModule, ReactiveFormsModule } from '@angular/forms'
@@ -35,7 +35,6 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms'
         ConfirmDialogComponent,
         AddCompetencyDialogComponent,
         SearchSelectedFilterComponent,
-        UserCompetencyComponent,
         ProficiencyLevelDialogComponent
     ],
     imports: [

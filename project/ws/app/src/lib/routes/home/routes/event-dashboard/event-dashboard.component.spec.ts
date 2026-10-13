@@ -75,6 +75,36 @@ describe('EventDashboardComponent', () => {
       expect(component.currentPage).toBe(0)
     })
 
+    it('should carry templateId through the mapping so the status can reach ready', () => {
+      // Regression: statusLabel reads templateId, but the mapping originally dropped it, so
+      // every event with participants was stuck on "template pending" and "ready" was
+      // unreachable. Asserted through fetchEvents rather than by calling statusLabel with a
+      // hand-built object, which is what let the gap through.
+      component.userId = 'u1'
+      eventService.getAllEvents.mockReturnValue(of([
+        {
+          eventId: 'e1', eventName: 'E1', createdBy: 'u1', createdAt: '2024-01-01',
+          eventDate: '2024-02-01', eventType: 'registred without sphere',
+          participantCount: 5, templateId: 'WaterBirth',
+        },
+      ]))
+      component.fetchEvents()
+      expect(component.events[0].templateId).toBe('WaterBirth')
+      expect(component.statusLabel(component.events[0])).toBe('ready to download')
+    })
+
+    it('should report template pending through the mapping when no template is set', () => {
+      component.userId = 'u1'
+      eventService.getAllEvents.mockReturnValue(of([
+        {
+          eventId: 'e1', eventName: 'E1', createdBy: 'u1', createdAt: '2024-01-01',
+          eventDate: '2024-02-01', eventType: 'registred without sphere', participantCount: 5,
+        },
+      ]))
+      component.fetchEvents()
+      expect(component.statusLabel(component.events[0])).toBe('template pending')
+    })
+
     it('should log an error when fetching events fails', () => {
       eventService.getAllEvents.mockReturnValue(throwError(new Error('boom')))
       expect(() => component.fetchEvents()).not.toThrow()
@@ -82,18 +112,81 @@ describe('EventDashboardComponent', () => {
   })
 
   describe('onDocumentClick', () => {
-    it('should close the filter panel when the click is outside the element', () => {
+    // Containment is now tested against the filter wrapper rather than the component host,
+    // so a click anywhere else on the page closes the panel.
+    const setWrapper = (contains: boolean) => {
+      ;(component as any).filterWrapper = { nativeElement: { contains: () => contains } }
+    }
+
+    it('should close the filter panel when the click is outside the filter', () => {
       component.filterPanelOpen = true
-      ;(component as any).el.nativeElement.contains = () => false
+      setWrapper(false)
       component.onDocumentClick({ target: {} } as any)
       expect(component.filterPanelOpen).toBe(false)
     })
 
-    it('should keep the panel state when the click is inside the element', () => {
+    it('should keep the panel open when the click is inside the filter', () => {
       component.filterPanelOpen = true
-      ;(component as any).el.nativeElement.contains = () => true
+      setWrapper(true)
       component.onDocumentClick({ target: {} } as any)
       expect(component.filterPanelOpen).toBe(true)
+    })
+
+    it('should do nothing when the panel is already closed', () => {
+      component.filterPanelOpen = false
+      setWrapper(false)
+      component.onDocumentClick({ target: {} } as any)
+      expect(component.filterPanelOpen).toBe(false)
+    })
+
+    it('should close the panel on escape', () => {
+      component.filterPanelOpen = true
+      component.onEscape()
+      expect(component.filterPanelOpen).toBe(false)
+    })
+  })
+
+  describe('statusLabel', () => {
+    it('should use the server status when present', () => {
+      expect(component.statusLabel({ status: 'completed' })).toBe('completed')
+    })
+
+    it('should report no participants before anyone is uploaded', () => {
+      expect(component.statusLabel({ participantCount: 0 })).toBe('no participants')
+      expect(component.statusLabel({ participantCount: 0, templateId: 'WaterBirth' })).toBe('no participants')
+    })
+
+    it('should report template pending once participants exist but no template is chosen', () => {
+      expect(component.statusLabel({ participantCount: 12 })).toBe('template pending')
+    })
+
+    it('should not claim readiness for a registration-based event that was never generated', () => {
+      // status is written only by the generation run, so its absence means nothing was issued.
+      expect(component.statusLabel({
+        participantCount: 12, templateId: 'WaterBirth', registrationType: 'registred with sphere',
+      })).toBe('not generated')
+    })
+
+    it('should report ready to download for a no-registration event with a template', () => {
+      expect(component.statusLabel({
+        participantCount: 12, templateId: 'WaterBirth', registrationType: 'registred without sphere',
+      })).toBe('ready to download')
+    })
+
+    it('should always prefer the server status over any derived label', () => {
+      expect(component.statusLabel({
+        status: 'completed', participantCount: 0, registrationType: 'registred with sphere',
+      })).toBe('completed')
+    })
+
+    it('should skip the participant step when the backend does not send a count', () => {
+      // participantCount is absent on older backends; do not claim "no participants".
+      expect(component.statusLabel({})).toBe('template pending')
+      expect(component.statusLabel({ templateId: 'WaterBirth' })).toBe('ready to download')
+    })
+
+    it('should build a css-safe class from the label', () => {
+      expect(component.statusClass({ participantCount: 0 })).toBe('status-chip status-no-participants')
     })
   })
 

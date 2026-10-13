@@ -21,6 +21,7 @@ import { map } from 'rxjs/operators'
 import { environment } from '../../environments/environment'
 import _ from 'lodash'
 import { SanitizerService } from './sanitizer.service'
+import { getRolesFromProfile, getUserIdFromProfile } from '../utils/user-profile-shape'
 interface IFeaturePermissionConfigs {
   [id: string]: Omit<NsWidgetResolver.IPermissions, 'feature'>
 }
@@ -211,6 +212,13 @@ export class InitService {
           .get<any>(endpoint.profilePid)
           .pipe(map((res: any) => res.result.response))
           .toPromise()
+        // Sunbird Spark leaves the top-level `roles` array empty or absent and nests the real
+        // roles under organisations[]. Normalise before the gate below, and before
+        // unMappedUser is assigned, so every downstream reader of unMappedUser.roles
+        // (app-nav-bar's MDO_ADMIN / MDO_DASHBOARD_VIEWER checks included) sees them too.
+        if (completeProdata) {
+          completeProdata.roles = getRolesFromProfile(completeProdata)
+        }
         if (completeProdata && completeProdata.roles && completeProdata.roles.length > 0 &&
           this.hasRole(completeProdata.roles)) {
           this.configSvc.unMappedUser = completeProdata
@@ -219,7 +227,8 @@ export class InitService {
             country: _.get(profileV2, 'personalDetails.countryCode') || null,
             email: _.get(completeProdata, 'profileDetails.personalDetails.primaryEmail ') || completeProdata.email,
             givenName: completeProdata.firstName,
-            userId: completeProdata.userId,
+            // Spark never sets a top-level userId; only id/identifier are present.
+            userId: getUserIdFromProfile(completeProdata) || '',
             firstName: completeProdata.firstName,
             lastName: completeProdata.lastName,
             userName: completeProdata.userName,
@@ -230,7 +239,7 @@ export class InitService {
             rootOrgId: completeProdata.rootOrgId,
           }
           this.configSvc.userProfileV2 = {
-            userId: _.get(profileV2, 'userId') || completeProdata.userId,
+            userId: _.get(profileV2, 'userId') || getUserIdFromProfile(completeProdata),
             email: _.get(profileV2, 'personalDetails.primaryEmail') || completeProdata.email,
             firstName: _.get(profileV2, 'personalDetails.firstname') || completeProdata.firstName,
             surName: _.get(profileV2, 'personalDetails.surname') || completeProdata.lastName,

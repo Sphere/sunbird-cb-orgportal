@@ -6,6 +6,8 @@ import * as XLSX from 'xlsx'
 import { Subscription } from 'rxjs'
 import { IParticipant } from '../../interface/events'
 
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
+
 @Component({
   standalone: false,
   selector: 'ws-app-add-participants',
@@ -113,6 +115,11 @@ export class AddParticipantsComponent implements OnInit, OnDestroy {
         if (!participant.phone || !/^\d{10}$/.test(String(participant.phone).trim())) {
           this.validationErrors.push(`Row ${row}: Invalid Phone Number (must be 10 digits).`)
         }
+        // Email is optional; when present the certificate is emailed, so a typo must be caught here.
+        const email = this.readEmail(participant)
+        if (email && !EMAIL_PATTERN.test(email)) {
+          this.validationErrors.push(`Row ${row}: Invalid Email "${email}".`)
+        }
       }
     })
 
@@ -129,6 +136,7 @@ export class AddParticipantsComponent implements OnInit, OnDestroy {
       normalised.phone = participant.phone === undefined || participant.phone === null
         ? ''
         : String(participant.phone).trim()
+      normalised.email = this.readEmail(participant).toLowerCase()
       return normalised
     })
 
@@ -155,6 +163,12 @@ export class AddParticipantsComponent implements OnInit, OnDestroy {
   //   window.URL.revokeObjectURL(url)
   // }
 
+  // Headers are used exactly as typed, so "Email" or "E-mail" would otherwise be silently ignored.
+  private readEmail(participant: IParticipant): string {
+    const key = Object.keys(participant).find(k => /^e-?mail$/i.test(k.trim()))
+    return key ? String(participant[key] ?? '').trim() : ''
+  }
+
   downloadSampleExcel() {
 
     // No-registration events never read phone, so leaving it in the sample invites
@@ -165,8 +179,8 @@ export class AddParticipantsComponent implements OnInit, OnDestroy {
         { firstName: 'Jane', lastName: 'Smith' },
       ]
       : [
-        { firstName: 'John', lastName: 'Doe', phone: '1234567890', location: 'California' },
-        { firstName: 'Jane', lastName: 'Smith', phone: '9876543210', location: 'New York' },
+        { firstName: 'John', lastName: 'Doe', phone: '1234567890', location: 'California', email: 'john.doe@example.com' },
+        { firstName: 'Jane', lastName: 'Smith', phone: '9876543210', location: 'New York', email: 'jane.smith@example.com' },
       ]
 
     const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(sampleData)

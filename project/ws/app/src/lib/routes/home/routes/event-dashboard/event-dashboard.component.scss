@@ -46,13 +46,6 @@
 //   background-color: #0056b3;
 // }
 
-.page-title {
-  color: #666666;
-  font-family: Roboto, sans-serif;
-  font-size: 24px;
-  font-weight: 400;
-  margin-bottom: 10px;
-}
 
 
 .events-list ul {
@@ -476,4 +469,12 @@ mat-paginator {
 @media (max-width: 480px) {
   .container { padding: 16px; }
   .header { flex-direction: column; align-items: flex-start; gap: $v2-space-2; }
+}
+
+// ── Loading skeleton ───────────────────────────────────────────────────────
+.skeleton-row .skeleton-cell {
+  @include v2-shimmer;
+  display: block;
+  height: 12px;
+  width: 100%;
 }

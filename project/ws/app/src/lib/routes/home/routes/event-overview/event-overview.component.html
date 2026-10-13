@@ -39,7 +39,11 @@
           (click)="!isDownloading && downloadCertificates()">
           <mat-spinner *ngIf="isDownloading" diameter="16" style="display:inline-block; margin-right:6px;"></mat-spinner>
           <mat-icon *ngIf="!isDownloading">download</mat-icon>
-          {{ isDownloading ? 'Generating...' : 'Download Certificates' }}
+          <ng-container *ngIf="!isDownloading">Download Certificates</ng-container>
+          <ng-container *ngIf="isDownloading">
+            <ng-container *ngIf="downloadTotal > 0">Generating {{ downloadDone }} of {{ downloadTotal }}&hellip;</ng-container>
+            <ng-container *ngIf="downloadTotal === 0">Generating&hellip;</ng-container>
+          </ng-container>
         </button>
       </div>
     </div>
