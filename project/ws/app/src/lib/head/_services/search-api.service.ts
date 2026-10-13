@@ -15,7 +15,7 @@ const API_END_POINTS = {
   providedIn: 'root',
 })
 export class SearchApiService {
-  constructor(private http: HttpClient, private keycloakSvc: KeycloakService) { }
+  constructor(private readonly http: HttpClient, private readonly keycloakSvc: KeycloakService) { }
   getSearchResults(request: any): Observable<any> {
     return this.http.post<any>(API_END_POINTS.SOCIAL_VIEW_SEARCH_RESULT, request)
   }
@@ -27,14 +27,14 @@ export class SearchApiService {
   get userId(): string | undefined {
     const kc = this.keycloakSvc.getKeycloakInstance()
     if (!kc) {
-      return
+      return undefined
     }
     return (kc.tokenParsed && kc.tokenParsed.sub) || (kc.idTokenParsed && kc.idTokenParsed.sub)
   }
 
   getSearchV6Results(body: any): Observable<any> {
     return this.http.post<any>(API_END_POINTS.SEARCH_V6, body).pipe(map((res: any) => {
-      const tempArray = Array()
+      const tempArray = []
       if (res.result.facets.length > 0) {
         res.result.facets.forEach((ele: { name: any; values: { name: any; count: any }[] }) => {
           const temp: any = {

@@ -5,6 +5,7 @@ import { switchMap } from 'rxjs/operators'
 import { merge } from 'rxjs'
 
 @Component({
+  standalone: false,
   selector: 'ws-app-autocomplete',
   // templateUrl: './autocomplete.component.html',
   template: `

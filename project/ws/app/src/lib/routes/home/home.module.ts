@@ -7,32 +7,30 @@ import { MatDividerModule } from '@angular/material/divider'
 import { WidgetResolverModule } from '@sunbird-cb/resolver'
 import {
     MatIconModule,
-
 } from '@angular/material/icon'
-import { MatLegacyListModule as MatListModule } from '@angular/material/legacy-list'
-import { MatLegacyFormFieldModule as MatFormFieldModule } from '@angular/material/legacy-form-field'
-import { MatLegacyDialogModule as MatDialogModule } from '@angular/material/legacy-dialog'
-import { MatLegacySelectModule as MatSelectModule } from '@angular/material/legacy-select'
-import { MatLegacyInputModule as MatInputModule } from '@angular/material/legacy-input'
-import { MatLegacyButtonModule as MatButtonModule } from '@angular/material/legacy-button'
+import { MatNativeDateModule } from '@angular/material/core'
+import { MatListModule } from '@angular/material/list'
+import { MatFormFieldModule } from '@angular/material/form-field'
+import { MatDialogModule } from '@angular/material/dialog'
+import { MatSelectModule } from '@angular/material/select'
+import { MatInputModule } from '@angular/material/input'
+import { MatButtonModule } from '@angular/material/button'
 import { MatSidenavModule } from '@angular/material/sidenav'
-import { MatLegacyChipsModule as MatChipsModule } from '@angular/material/legacy-chips'
-import { MatLegacyProgressSpinnerModule as MatProgressSpinnerModule } from '@angular/material/legacy-progress-spinner'
-import { MatLegacyProgressBarModule as MatProgressBarModule } from '@angular/material/legacy-progress-bar'
-import { MatLegacyRadioModule as MatRadioModule } from '@angular/material/legacy-radio'
-import { MatLegacyTableModule as MatTableModule } from '@angular/material/legacy-table'
-import { MatLegacyMenuModule as MatMenuModule } from '@angular/material/legacy-menu'
-import { MatLegacyPaginatorModule as MatPaginatorModule } from '@angular/material/legacy-paginator'
-import { MatLegacyCardModule as MatCardModule } from '@angular/material/legacy-card'
+import { MatChipsModule } from '@angular/material/chips'
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner'
+import { MatProgressBarModule } from '@angular/material/progress-bar'
+import { MatRadioModule } from '@angular/material/radio'
+import { MatTableModule } from '@angular/material/table'
+import { MatMenuModule } from '@angular/material/menu'
+import { MatPaginatorModule } from '@angular/material/paginator'
+import { MatCardModule } from '@angular/material/card'
 import { ReactiveFormsModule, FormsModule } from '@angular/forms'
 import { InitResolver } from './resolvers/init-resolve.service'
 import { RouterModule } from '@angular/router'
 import { HomeRoutingModule } from './home.rounting.module'
 import { HomeComponent } from './routes/home/home.component'
-import { UsersViewComponent } from './routes/users-view/users-view.component'
 import { AvatarPhotoModule, BreadcrumbsOrgModule, LeftMenuModule, UIORGTableModule, ScrollspyLeftMenuModule } from '@sunbird-cb/collection'
 import { AboutComponent } from './routes/about/about.component'
-import { RolesAccessComponent } from './routes/roles-access/roles-access.component'
 import { ApprovalsComponent } from './routes/approvals/approvals.component'
 import { WorkallocationComponent } from './routes/workallocation/workallocation.component'
 import { ExportAsModule } from 'ngx-export-as'
@@ -41,8 +39,6 @@ import { NgxPaginationModule } from 'ngx-pagination'
 import { UIAdminTableModule } from '../../head/work-allocation-table/ui-admin-table.module'
 import { WelcomeComponent } from './routes/welcome/welcome.component'
 // import { RainDashboardsModule } from '@sunbird-cb/rain-dashboards'
-import { UsersModule } from '../users/users.module'
-import { CompetenciesComponent } from './routes/competencies/competencies.component'
 import { SkillModule } from '../../../../../../../src/app/plugins/skill'
 import { SelfAssessmentComponent } from './routes/self-assessment/self-assessment.component'
 import { EventDashboardComponent } from './routes/event-dashboard/event-dashboard.component'
@@ -57,13 +53,10 @@ import { MatDatepickerModule } from '@angular/material/datepicker'
 @NgModule({
     declarations: [
         HomeComponent,
-        UsersViewComponent,
         AboutComponent,
-        RolesAccessComponent,
         ApprovalsComponent,
         WorkallocationComponent,
         WelcomeComponent,
-        CompetenciesComponent,
         SelfAssessmentComponent,
         EventDashboardComponent,
         EventDetailsComponent,
@@ -95,6 +88,8 @@ import { MatDatepickerModule } from '@angular/material/datepicker'
         FormsModule,
         ReactiveFormsModule,
         MatInputModule,
+        MatDatepickerModule,
+        MatNativeDateModule,
         MatDialogModule,
         MatButtonModule,
         MatSidenavModule,
@@ -118,10 +113,8 @@ import { MatDatepickerModule } from '@angular/material/datepicker'
         NgxPaginationModule,
         UIAdminTableModule,
         // RainDashboardsModule,
-        UsersModule,
         MatTableModule,
         SkillModule,
-        MatDatepickerModule,
     ],
     providers: [
         // CKEditorService,

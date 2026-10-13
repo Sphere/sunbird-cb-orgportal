@@ -4,22 +4,18 @@ import { Routes, RouterModule } from '@angular/router'
 import { HomeResolve } from './resolvers/home-resolve'
 import { AboutComponent } from './routes/about/about.component'
 import { HomeComponent } from './routes/home/home.component'
-import { UsersViewComponent } from './routes/users-view/users-view.component'
-import { RolesAccessComponent } from './routes/roles-access/roles-access.component'
 // import { PageResolve } from '@sunbird-cb/utils'
 import { ApprovalsComponent } from './routes/approvals/approvals.component'
 import { WorkallocationComponent } from './routes/workallocation/workallocation.component'
 import { WelcomeComponent } from './routes/welcome/welcome.component'
 import { ConfigResolveService } from './resolvers/config-resolve.service'
-import { UsersListResolve } from './resolvers/users-list-resolve.service'
-import { CompetenciesComponent } from './routes/competencies/competencies.component'
 import { SelfAssessmentComponent } from './routes/self-assessment/self-assessment.component'
-import { UserCompetencyComponent } from '../../../../../../../src/app/plugins/skill/components'
 import { EventDashboardComponent } from './routes/event-dashboard/event-dashboard.component'
 import { EventDetailsComponent } from './routes/event-details/event-details.component'
 import { EventOverviewComponent } from './routes/event-overview/event-overview.component'
 import { ParticipantsComponent } from './routes/participants/participants.component'
 import { CertificateGeneratorComponent } from './routes/certificate-generator/certificate-generator.component'
+import { GeneralGuard } from '../../../../../../../src/app/guards/general.guard'
 
 const routes: Routes = [
   {
@@ -41,22 +37,8 @@ const routes: Routes = [
         component: WelcomeComponent,
       },
       {
-        path: 'users',
-        component: UsersViewComponent,
-        resolve: {
-          usersList: UsersListResolve,
-        },
-      },
-      {
         path: 'about',
         component: AboutComponent,
-      },
-      {
-        path: 'roles-access',
-        component: RolesAccessComponent,
-        resolve: {
-          usersList: UsersListResolve,
-        },
       },
       {
         path: 'approvals',
@@ -65,20 +47,6 @@ const routes: Routes = [
       {
         path: 'workallocation',
         component: WorkallocationComponent,
-      },
-      {
-        path: 'competencies',
-        component: CompetenciesComponent,
-        resolve: {
-          usersList: UsersListResolve,
-        },
-      },
-      {
-        path: 'competencies/:id',
-        component: UserCompetencyComponent,
-        resolve: {
-          usersList: UsersListResolve,
-        },
       },
       {
         path: 'self-assessment',
@@ -119,6 +87,16 @@ const routes: Routes = [
         path: 'frac',
         loadChildren: () =>
           import('../frac/frac.module').then((m) => m.FracModule),
+      },
+      {
+        // Role name MUST be lowercase — GeneralGuard tests a lowercased Set without
+        // lowercasing the input, so an uppercase entry silently never matches.
+        // This gate is for UX; the backend 403 is the real access control.
+        path: 'mnc-attendance-report',
+        loadChildren: () =>
+          import('../report-viewer/report-viewer.module').then((m) => m.ReportViewerModule),
+        canActivate: [GeneralGuard],
+        data: { requiredRoles: ['mnc_report_viewer'] },
       }
     ],
   },
@@ -131,7 +109,6 @@ const routes: Routes = [
     HomeResolve,
     // DepartmentResolve,
     ConfigResolveService,
-    UsersListResolve,
   ],
 })
 export class HomeRoutingModule { }

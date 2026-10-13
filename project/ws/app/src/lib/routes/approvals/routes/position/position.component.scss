@@ -7,7 +7,7 @@
   border: 1px solid #DDDDDD;
   border-radius: 4px;
   padding: 9px;
-  font: 400 14px Lato;
+  font: 400 14px Lato, sans-serif;
 }
 
 .appr-text-label{
@@ -40,13 +40,13 @@ textarea {
 }
 
 ::ng-deep .mat-radio-label-content{
-  font-family: 'Lato';
+  font-family: 'Lato', sans-serif;
   font-size: 14px;
   font-weight: 400;
 }
 
 .middle-heading{
   font-weight: 600;
-  font-family: "Montserrat";
+  font-family: "Montserrat", sans-serif;
   font-size:16px
 }

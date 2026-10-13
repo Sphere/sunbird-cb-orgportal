@@ -8,6 +8,7 @@ interface ITimer {
   mins: number
 }
 @Component({
+  standalone: false,
   selector: 'ws-app-card-details',
   templateUrl: './card-details.component.html',
   styleUrls: ['./card-details.component.scss'],
@@ -24,9 +25,9 @@ export class CardDetailsComponent implements OnInit, AfterViewChecked {
   navigationExtras: NavigationExtras = {}
 
   constructor(
-    private changeDetector: ChangeDetectorRef,
-    private route: ActivatedRoute,
-    private router: Router,
+    private readonly changeDetector: ChangeDetectorRef,
+    private readonly route: ActivatedRoute,
+    private readonly router: Router,
   ) { }
 
   ngOnInit() {

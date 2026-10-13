@@ -21,11 +21,11 @@ export class SearchServService {
   isFetchingProgress = false
   searchConfig: any = null
   constructor(
-    private events: EventService,
+    private readonly events: EventService,
     // private contentApi: WidgetContentService,
-    private searchApi: SearchApiService,
-    private configSrv: ConfigurationsService,
-    private http: HttpClient,
+    private readonly searchApi: SearchApiService,
+    private readonly configSrv: ConfigurationsService,
+    private readonly http: HttpClient,
   ) { }
 
   get defaultFiltersTranslated() {
@@ -198,7 +198,7 @@ export class SearchServService {
   setTilesDocs(response: Array<any>) {
     try {
       const tiles: any = []
-      response.map((cur: any) => {
+      response.forEach((cur: any) => {
         const tile: any = {
           author: cur.authors || [],
           category: cur.category || '',
@@ -226,7 +226,7 @@ export class SearchServService {
   setTileProject(response: any) {
     try {
       const tilesProject: any = []
-      response.map((cur: any) => {
+      response.forEach((cur: any) => {
         const tile: any = {
           pm: cur.pm || [],
           dm: cur.dm || [],
@@ -276,7 +276,7 @@ export class SearchServService {
 
   fetchContentOfFilter(filter: any) {
     const filterItemArr: any[] = []
-    filter.map((cur: any) => {
+    filter.forEach((cur: any) => {
       const obj = {
         count: cur.doc_count,
         displayName: cur.key,
@@ -294,7 +294,7 @@ export class SearchServService {
         if (key) {
           let str = ''
           const count = filters[key].length
-          filters[key].map((cur: string, i: number) => {
+          filters[key].forEach((cur: string, i: number) => {
             if (i !== count - 1) {
               str += `"${cur}",`
             } else {
@@ -379,8 +379,7 @@ export class SearchServService {
           filters,
           locale,
         },
-        type: 'search',
-      },
+      } as any,
       from: 'search',
       to: 'telemetry',
     })

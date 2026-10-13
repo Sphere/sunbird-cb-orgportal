@@ -4,6 +4,7 @@ import { UploadPopupConfig, UploadPopupResult } from '../../models/upload-popup-
 import { FRAC_UI_CONFIG } from '../../models/ui.config.model'
 
 @Component({
+  standalone: false,
   selector: 'ws-app-frac-upload',
   templateUrl: './frac-upload-popup.component.html',
   styleUrls: ['./frac-upload-popup.component.scss']
@@ -19,7 +20,7 @@ export class FracUploadPopupComponent implements OnInit {
 
   constructor(
     @Inject(MAT_DIALOG_DATA) public config: UploadPopupConfig,
-    private dialogRef: MatDialogRef<FracUploadPopupComponent, UploadPopupResult>
+    private readonly dialogRef: MatDialogRef<FracUploadPopupComponent, UploadPopupResult>
   ) { }
 
   /**

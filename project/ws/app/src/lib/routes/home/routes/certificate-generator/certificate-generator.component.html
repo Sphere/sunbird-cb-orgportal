@@ -26,9 +26,10 @@
   <div class="certificate-wrapper" *ngIf="!isLoading && certificates.length">
     <div class="certificate-sidebar">
       <div class="scrollable-thumbnails">
-        <div *ngFor="let cert of certificates; let i = index" [class.selected]="i === selectedCertIndex"
-          (click)="selectCertificate(i)">
-          <img [src]="cert.templateLogo" [alt]="cert.templateName">
+        <div *ngFor="let cert of certificates; let i = index" [class.selected]="i === selectedCertIndex">
+          <button type="button" style="all: unset; display: contents; cursor: pointer;" (click)="selectCertificate(i)">
+            <img [src]="cert.templateLogo" [alt]="cert.templateName">
+          </button>
         </div>
       </div>
     </div>

@@ -37,6 +37,8 @@
       text-align: left;
       vertical-align: middle;
       height: 40px;
+
+      border: none;
     }
 
     th {
@@ -56,10 +58,6 @@
       text-overflow: ellipsis;
     }
 
-    // Reset default borders
-    th, td {
-      border: none;
-    }
   }
 
   .mat-mdc-header-row,

@@ -15,13 +15,14 @@ export interface HierarchyChipDetailsModalData {
 }
 
 @Component({
+  standalone: false,
   selector: 'ws-app-hierarchy-chip-details-modal',
   templateUrl: './hierarchy-chip-details-modal.component.html',
   styleUrls: ['./hierarchy-chip-details-modal.component.scss'],
 })
 export class HierarchyChipDetailsModalComponent {
   constructor(
-    private dialogRef: MatDialogRef<HierarchyChipDetailsModalComponent>,
+    private readonly dialogRef: MatDialogRef<HierarchyChipDetailsModalComponent>,
     @Inject(MAT_DIALOG_DATA) public data: HierarchyChipDetailsModalData,
   ) { }
 

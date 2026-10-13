@@ -8,15 +8,16 @@ import {
 import { UntypedFormControl, Validators } from '@angular/forms'
 
 @Component({
+  standalone: false,
   selector: 'ws-app-lang-select',
   templateUrl: './lang-select.component.html',
   styleUrls: ['./lang-select.component.scss'],
 })
 export class LangSelectComponent implements OnInit {
   constructor(
-    private configSvc: ConfigurationsService,
-    private router: Router,
-    private userPrefSvc: UserPreferenceService,
+    private readonly configSvc: ConfigurationsService,
+    private readonly router: Router,
+    private readonly userPrefSvc: UserPreferenceService,
   ) {}
   userName = ''
   selectedLang = ''

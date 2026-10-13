@@ -1,20 +1,22 @@
-import { Component, ElementRef, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChange, ViewChild, ViewEncapsulation } from '@angular/core'
+import { Component, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChange, SimpleChanges, ViewChild, ViewEncapsulation } from '@angular/core'
 import { UntypedFormControl } from '@angular/forms'
 import { ActivatedRoute, Router } from '@angular/router'
 import { ConfigurationsService } from '@sunbird-cb/utils'
-import { Observable } from 'rxjs'
-import { debounceTime, distinctUntilChanged, startWith, switchMap } from 'rxjs/operators'
+import { Observable, Subject } from 'rxjs'
+import { debounceTime, distinctUntilChanged, startWith, switchMap, takeUntil } from 'rxjs/operators'
 import { ISearchAutoComplete } from '../../models/search.model'
 import { SearchServService } from '../../services/search-serv.service'
 
 @Component({
+  standalone: false,
   selector: 'ws-app-search-input-home',
   templateUrl: './search-input-home.component.html',
   styleUrls: ['./search-input-home.component.scss'],
   // tslint:disable-next-line
   encapsulation: ViewEncapsulation.None,
 })
-export class SearchInputHomeComponent implements OnInit, OnChanges {
+export class SearchInputHomeComponent implements OnInit, OnChanges, OnDestroy {
+  private readonly destroy$ = new Subject<void>()
   @Input() placeHolder = ''
   @Input() ref = ''
   @Output() closed: EventEmitter<boolean> = new EventEmitter()
@@ -32,11 +34,11 @@ export class SearchInputHomeComponent implements OnInit, OnChanges {
   lang = ''
 
   constructor(
-    private activated: ActivatedRoute,
-    private router: Router,
-    private searchServSvc: SearchServService,
-    private configSvc: ConfigurationsService,
-    private route: ActivatedRoute,
+    private readonly activated: ActivatedRoute,
+    private readonly router: Router,
+    private readonly searchServSvc: SearchServService,
+    private readonly configSvc: ConfigurationsService,
+    private readonly route: ActivatedRoute,
 
   ) {
     // if (!this.activated.snapshot.data.searchPageData) {
@@ -50,6 +52,9 @@ export class SearchInputHomeComponent implements OnInit, OnChanges {
     // this.autoFilter();
     // }
   }
+  ngOnChanges(changes: SimpleChanges): void {
+    throw new Error('Method not implemented.')
+  }
   autoFilter() {
     if (this.route.snapshot.data.searchPageData) {
       const isAutoCompleteAllowed = this.route.snapshot.data.searchPageData.data.search.isAutoCompleteAllowed
@@ -58,6 +63,7 @@ export class SearchInputHomeComponent implements OnInit, OnChanges {
         this.queryControl.valueChanges.pipe(
           debounceTime(200),
           distinctUntilChanged(),
+          takeUntil(this.destroy$),
         ).subscribe(q => {
           this.getSearchAutoCompleteResults(q)
         })
@@ -69,7 +75,7 @@ export class SearchInputHomeComponent implements OnInit, OnChanges {
       // activated
       this.searchInputElem.nativeElement.focus()
     }
-    this.activated.queryParamMap.subscribe(queryParam => {
+    this.activated.queryParamMap.pipe(takeUntil(this.destroy$)).subscribe(queryParam => {
       if (queryParam.has('q')) {
         this.queryControl.setValue(queryParam.get('q') || 'all')
       } else {
@@ -91,36 +97,33 @@ export class SearchInputHomeComponent implements OnInit, OnChanges {
     this.languageSearch = this.route.snapshot.data.searchPageData && this.route.snapshot.data.searchPageData.data.search.languageSearch.map(
       (u: string) => u.toLowerCase(),
     )
-    this.languageSearch = this.languageSearch.sort()
+    this.languageSearch = this.languageSearch.sort((a: string, b: string) => a.localeCompare(b))
     this.swapRemove(this.languageSearch, this.languageSearch.indexOf('all'), 0)
     if (this.preferredLanguages && this.preferredLanguages.split(',').length > 1) {
       this.languageSearch.splice(1, 0, this.preferredLanguages)
     }
   }
 
+  ngOnDestroy() {
+    this.destroy$.next()
+    this.destroy$.complete()
+  }
+
   ngOnInit() {
     // if (!this.activated.snapshot.data.searchPageData) {
-      this.searchServSvc.getSearchConfig().then(data => {
-        this.activated.snapshot.data = {
-          searchPageData: { data },
-        }
-      }).then(() => {
-        this.autoFilter()
-        this.init()
-      })
+    this.searchServSvc.getSearchConfig().then(data => {
+      this.activated.snapshot.data = {
+        searchPageData: { data },
+      }
+    }).then(() => {
+      this.autoFilter()
+      this.init()
+    })
     // } else {
     //   this.autoFilter();
     //   this.init();
     // }
   }
-  ngOnChanges() {
-    for (const change in SimpleChange) {
-      if (change === 'placeHolder') {
-        this.placeHolder = this.placeHolder
-      }
-    }
-  }
-
   swapRemove(langArray: string[], from: number, to: number) {
     langArray.splice(to, 0, langArray[from])
     langArray.splice(from + 1, 1)

@@ -4,8 +4,10 @@ import { EventService } from '../../services/event.service'
 import { ICertificateTemplate } from '../../interface/events'
 import { take } from 'rxjs/operators'
 import { Subscription } from 'rxjs'
+import { ConfigurationsService } from '@sunbird-cb/utils'
 
 @Component({
+  standalone: false,
   selector: 'ws-app-certificate-generator',
   templateUrl: './certificate-generator.component.html',
   styleUrls: ['./certificate-generator.component.scss'],
@@ -14,19 +16,25 @@ export class CertificateGeneratorComponent implements OnInit, OnDestroy {
 
   certificates: ICertificateTemplate[] = []
   selectedCertIndex = 0
+  isLoading = false
   isGenerating = false
   errorMessage = ''
   eventId = ''
   eventType = ''
 
-  private readonly jsonUrl = 'https://aastar-assets.s3.ap-south-1.amazonaws.com/rc-mdo-templates/MDO-RC-TEMPLATES.json'
   nonRegistered = false
   private eventSubscription!: Subscription
 
+  private get jsonUrl(): string {
+    return (this.configSvc.instanceConfig as any)?.externalUrls?.rcMdoTemplatesUrl
+      || 'https://aastar-assets.s3.ap-south-1.amazonaws.com/rc-mdo-templates/MDO-RC-TEMPLATES.json'
+  }
+
   constructor(
-    private router: Router,
-    private route: ActivatedRoute,
-    private eventService: EventService
+    private readonly router: Router,
+    private readonly route: ActivatedRoute,
+    private readonly eventService: EventService,
+    private readonly configSvc: ConfigurationsService
   ) { }
 
   ngOnInit(): void {
@@ -108,7 +116,9 @@ export class CertificateGeneratorComponent implements OnInit, OnDestroy {
           console.error('Error updating event: non ', error)
         }
       )
-      // this.isGenerating = false // Hide loader
+      // Clear the busy flag before leaving: this path never called the generate API, and
+      // leaving it set left the button spinning if the user came back to this screen.
+      this.isGenerating = false
       this.navigateBack()
       return
     } else {

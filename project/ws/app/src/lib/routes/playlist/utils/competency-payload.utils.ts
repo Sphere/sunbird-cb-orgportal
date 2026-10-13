@@ -13,7 +13,7 @@ import { PLAYLIST_COMPETENCY_DEFAULTS } from '../constants/playlist.constants'
 // ---------------------------------------------------------------------------
 
 interface ExistingCompetencyItem {
-    id?: number
+    id?: any
     code?: string
     createdDate?: string
     createdBy?: string
@@ -38,7 +38,7 @@ export interface CompetencyLevelPayload {
 }
 
 export interface CompetencyPayloadItem {
-    id: number
+    id: any
     code: string
     name: string | undefined
     description: string
@@ -81,14 +81,14 @@ export function findExistingCompetency(
     if (!existingPlaylist?.dataSource?.payload) return null
 
     const targetCode = normalizeCode(competencyCode)
-    const compId = parseInt(competencyId, 10)
+    const compId = Number.parseInt(competencyId, 10)
 
     for (const item of existingPlaylist.dataSource.payload as ExistingCompetencyItem[]) {
         const itemCode = normalizeCode(item?.code)
         if (targetCode && itemCode && itemCode === targetCode) {
             return item
         }
-        if (!targetCode && !isNaN(compId) && item?.id === compId) return item
+        if (!targetCode && !Number.isNaN(compId) && item?.id === compId) return item
     }
     return null
 }
@@ -131,7 +131,7 @@ export function buildCompetencyData(
     const existingCompetency = findExistingCompetency(code, comp.id, existingPlaylist)
 
     return {
-        id: parseInt(comp.id, 10),
+        id: comp.id || 10,
         code,
         name: comp.name,
         description: comp.description || '',
@@ -183,14 +183,14 @@ export function restoreSavedCourseAssignments(
     if (!playlistPayload || !competency?.id || !competency.levels) return
 
     const targetCode = normalizeCode(competency.code)
-    const targetId = parseInt(competency.id, 10)
+    const targetId = Number.parseInt(competency.id, 10)
 
     const existingComp = playlistPayload.find(item => {
         const itemCode = normalizeCode(item?.code)
         if (targetCode && itemCode) {
             return itemCode === targetCode
         }
-        return !isNaN(targetId) && item?.id === targetId
+        return !Number.isNaN(targetId) && item?.id === targetId
     })
 
     if (!existingComp || !existingComp['levels']) return

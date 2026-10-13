@@ -21,28 +21,28 @@
                 <div class="field-shell" [class.field-error]="hasError('orgId')">
                     <div class="select-wrapper">
                         <span class="select-label required">Organisation</span>
-                        <div class="custom-select multi-select-trigger" [class.open]="orgDropdownOpen()"
-                            (click)="toggleOrgDropdown()" tabindex="0" (keydown.enter)="toggleOrgDropdown()"
-                            (keydown.space)="toggleOrgDropdown(); $event.preventDefault()">
+                        <button type="button" class="custom-select multi-select-trigger"
+                            [class.open]="orgDropdownOpen()" (click)="toggleOrgDropdown()">
                             <span class="multi-select-value" [class.placeholder]="!selectedOrgLabel()">
                                 {{ selectedOrgLabel() || 'Select Organisation' }}
                             </span>
-                        </div>
+                        </button>
                         <div class="multi-select-panel org-panel" *ngIf="orgDropdownOpen()">
                             <div class="org-search-row" (click)="$event.stopPropagation()"
+                                (keydown.enter)="$event.stopPropagation()" (keydown.space)="$event.stopPropagation()"
                                 (mousedown)="$event.preventDefault()">
                                 <input class="org-search-input" type="text" placeholder="Search Organisation..."
-                                    [value]="orgSearchTerm()"
+                                    [value]="orgSearchTerm()" id="playlistOrgSearch" aria-label="Search Organisation"
                                     (input)="orgSearchTerm.set($any($event.target).value); filterOrganizations()"
                                     (keydown)="$event.stopPropagation()">
                             </div>
                             <div *ngIf="loadingOrganizations()" class="multi-select-option disabled">Loading...</div>
                             <div *ngIf="!loadingOrganizations() && filteredOrganizations().length === 0"
                                 class="multi-select-option disabled">No Organisation found</div>
-                            <div *ngFor="let org of filteredOrganizations()" class="multi-select-option"
+                            <button type="button" *ngFor="let org of filteredOrganizations()" class="multi-select-option"
                                 (mousedown)="$event.preventDefault()" (click)="selectOrg(org.value)">
                                 {{ org.label }}
-                            </div>
+                            </button>
                         </div>
                         <span class="select-arrow">
                             <svg viewBox="0 0 16 16" fill="none">
@@ -57,19 +57,21 @@
                 <div class="field-shell" [class.field-error]="hasError('role')">
                     <div class="select-wrapper">
                         <span class="select-label required">Position</span>
-                        <div class="custom-select multi-select-trigger" [class.open]="positionDropdownOpen()"
-                            (click)="togglePositionDropdown()" tabindex="0" (keydown.enter)="togglePositionDropdown()"
-                            (keydown.space)="togglePositionDropdown(); $event.preventDefault()">
+                        <button type="button" class="custom-select multi-select-trigger"
+                            [class.open]="positionDropdownOpen()" (click)="togglePositionDropdown()">
                             <span class="multi-select-value" [class.placeholder]="selectedRoles.length === 0">
                                 {{ selectedRoles.length === 0 ? 'Select Position' : selectedRoles.join(', ') }}
                             </span>
-                        </div>
+                        </button>
                         <div class="multi-select-panel" *ngIf="positionDropdownOpen()">
-                            <label *ngIf="loadingPositions()" class="multi-select-option disabled">Loading...</label>
+                            <div *ngIf="loadingPositions()" class="multi-select-option disabled">Loading...</div>
                             <label *ngFor="let pos of positions()" class="multi-select-option"
-                                (mousedown)="$event.preventDefault()" (click)="toggleRole(pos.value)">
+                                (mousedown)="$event.preventDefault()" (click)="toggleRole(pos.value)"
+                                (keydown.enter)="toggleRole(pos.value)"
+                                (keydown.space)="toggleRole(pos.value); $event.preventDefault()">
                                 <input type="checkbox" [checked]="isRoleSelected(pos.value)"
-                                    (change)="toggleRole(pos.value)" (click)="$event.stopPropagation()">
+                                    (change)="toggleRole(pos.value)" (click)="$event.stopPropagation()"
+                                    (keydown)="$event.stopPropagation()">
                                 {{ pos.label }}
                             </label>
                         </div>
@@ -87,7 +89,8 @@
             <div class="form-row">
                 <div class="field-shell">
                     <div class="select-wrapper no-label">
-                        <select class="custom-select" formControlName="district">
+                        <select class="custom-select" formControlName="district" id="playlistDistrict"
+                            aria-label="District">
                             <option value="" selected>District</option>
                             <option *ngFor="let d of districts()" [value]="d.value">{{ d.label }}</option>
                         </select>
@@ -102,7 +105,7 @@
 
                 <div class="field-shell">
                     <div class="select-wrapper no-label">
-                        <select class="custom-select" formControlName="block">
+                        <select class="custom-select" formControlName="block" id="playlistBlock" aria-label="Block">
                             <option value="" selected>Block</option>
                             <option *ngFor="let b of blocks()" [value]="b.value">{{ b.label }}</option>
                         </select>
@@ -128,7 +131,8 @@
                 <div class="field-shell" [class.field-error]="hasError('language')">
                     <div class="select-wrapper">
                         <span class="select-label required">Language</span>
-                        <select class="custom-select" formControlName="language">
+                        <select class="custom-select" formControlName="language" id="playlistLanguage"
+                            aria-label="Select Language">
                             <option value="" disabled selected hidden>Select Language</option>
                             <option *ngFor="let lang of languages" [value]="lang.value">{{ lang.label }}</option>
                         </select>

@@ -1,7 +1,11 @@
 // ============= FRAC DASHBOARD CONTAINER =============
 // Main container for the FRAC dashboard with header and cards grid
+@import 'ws-design-system-v2';
+
 .frac-dashboard-container {
-  padding: 54px;
+  padding: $v2-content-padding;
+  max-width: $v2-content-max-width;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -18,7 +22,7 @@
     .welcome-text {
       color: #000000;
       font-size: 40px;
-      font-family: Roboto, sans-serif;
+      font-family: $v2-font-family;
       font-weight: 500;
       line-height: auto;
       word-wrap: break-word;
@@ -30,7 +34,7 @@
     .sub-text {
       color: #000000;
       font-size: 20px;
-      font-family: Roboto, sans-serif;
+      font-family: $v2-font-family;
       font-weight: 400;
       line-height: 23px;
       word-wrap: break-word;
@@ -51,19 +55,20 @@
     // ============= ACTION CARD =============
     // Individual card with title, description, and action buttons
     .action-card {
-      padding: 16px;
-      background-color: #ffffff;
-      box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.25);
-      border-radius: 8px;
-      border: none;
+      padding: $v2-space-3;
+      background-color: $v2-color-card;
+      box-shadow: $v2-shadow-card;
+      border-radius: $v2-radius-card;
+      border: 1px solid $v2-color-border;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       gap: 8px;
-      transition: box-shadow 0.3s ease;
+      transition: $v2-transition;
 
       &:hover {
-        box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.35);
+        box-shadow: 0 4px 16px rgba(28, 93, 149, 0.14);
+        transform: translateY(-1px);
       }
 
       // ============= CARD CONTENT =============
@@ -89,7 +94,7 @@
             align-self: stretch;
             color: #000000;
             font-size: 16px;
-            font-family: Roboto, sans-serif;
+            font-family: $v2-font-family;
             font-weight: 400;
             line-height: auto;
             word-wrap: break-word;
@@ -103,7 +108,7 @@
             align-self: stretch;
             color: #8a8787;
             font-size: 14px;
-            font-family: Roboto, sans-serif;
+            font-family: $v2-font-family;
             font-weight: 400;
             line-height: auto;
             word-wrap: break-word;
@@ -163,7 +168,7 @@
           .action-label {
             color: #1c5d95;
             font-size: 14px;
-            font-family: Roboto, sans-serif;
+            font-family: $v2-font-family;
             font-weight: 400;
             line-height: auto;
             word-wrap: break-word;

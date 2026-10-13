@@ -1,9 +1,8 @@
 import { HttpClient } from '@angular/common/http'
 import { Injectable } from '@angular/core'
 import { ConfigurationsService } from '@sunbird-cb/utils'
-import { Observable, of } from 'rxjs'
+import { firstValueFrom, Observable, of } from 'rxjs'
 import { catchError, retry, map } from 'rxjs/operators'
-import { NsContentStripMultiple } from '../content-strip-multiple/content-strip-multiple.model'
 import { NsContent } from './widget-content.model'
 import { NSSearch } from './widget-search.model'
 
@@ -140,35 +139,29 @@ export class WidgetContentService {
   }
 
   async continueLearning(id: string, collectionId?: string, collectionType?: string): Promise<any> {
-    return new Promise(async resolve => {
-      if (collectionType &&
-        collectionType.toLowerCase() === 'playlist') {
-        const reqBody = {
-          contextPathId: collectionId ? collectionId : id,
-          resourceId: id,
-          data: JSON.stringify({
-            timestamp: Date.now(),
-            contextFullPath: [collectionId, id],
-          }),
-          dateAccessed: Date.now(),
-          contextType: 'playlist',
-        }
-        await this.saveContinueLearning(reqBody).toPromise().catch().finally(() => {
-          resolve(true)
-        }
-        )
-      } else {
-        const reqBody = {
-          contextPathId: collectionId ? collectionId : id,
-          resourceId: id,
-          data: JSON.stringify({ timestamp: Date.now() }),
-          dateAccessed: Date.now(),
-        }
-        await this.saveContinueLearning(reqBody).toPromise().catch().finally(() => {
-          resolve(true)
-        })
+    if (collectionType &&
+      collectionType.toLowerCase() === 'playlist') {
+      const reqBody = {
+        contextPathId: collectionId ? collectionId : id,
+        resourceId: id,
+        data: JSON.stringify({
+          timestamp: Date.now(),
+          contextFullPath: [collectionId, id],
+        }),
+        dateAccessed: Date.now(),
+        contextType: 'playlist',
       }
-    })
+      await firstValueFrom(this.saveContinueLearning(reqBody)).catch(() => undefined)
+    } else {
+      const reqBody = {
+        contextPathId: collectionId ? collectionId : id,
+        resourceId: id,
+        data: JSON.stringify({ timestamp: Date.now() }),
+        dateAccessed: Date.now(),
+      }
+      await firstValueFrom(this.saveContinueLearning(reqBody)).catch(() => undefined)
+    }
+    return true
   }
   saveContinueLearning(content: NsContent.IViewerContinueLearningRequest): Observable<any> {
     const url = API_END_POINTS.USER_CONTINUE_LEARNING
@@ -202,7 +195,7 @@ export class WidgetContentService {
   }
   searchRegionRecommendation(
     req: NSSearch.ISearchOrgRegionRecommendationRequest,
-  ): Observable<NsContentStripMultiple.IContentStripResponseApi> {
+  ): Observable<any> {
     req.query = req.query || ''
     req.preLabelValue =
       (req.preLabelValue || '') +
@@ -211,7 +204,7 @@ export class WidgetContentService {
       ...req.filters,
       labels: [req.preLabelValue || ''],
     }
-    return this.http.post<NsContentStripMultiple.IContentStripResponseApi>(
+    return this.http.post<any>(
       API_END_POINTS.CONTENT_SEARCH_REGION_RECOMMENDATION,
       { request: req },
     )

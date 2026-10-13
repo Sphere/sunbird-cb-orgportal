@@ -1,13 +1,15 @@
 import { Component, OnInit, OnDestroy } from '@angular/core'
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout'
-import { DomSanitizer, SafeResourceUrl, SafeStyle } from '@angular/platform-browser'
+import { SafeResourceUrl, SafeStyle } from '@angular/platform-browser'
 import { map } from 'rxjs/operators'
 import { ConfigurationsService, NsPage } from '@sunbird-cb/utils'
 import { Subscription } from 'rxjs'
 import { ActivatedRoute } from '@angular/router'
+import { SanitizerService } from '../../../services/sanitizer.service'
 import { IAboutObject } from './about.model'
 
 @Component({
+  standalone: false,
   selector: 'ws-public-about',
   templateUrl: './public-about.component.html',
   styleUrls: ['./public-about.component.scss'],
@@ -27,28 +29,28 @@ export class PublicAboutComponent implements OnInit, OnDestroy {
   videoLink: SafeResourceUrl | null = null
 
   constructor(
-    private breakpointObserver: BreakpointObserver,
-    private domSanitizer: DomSanitizer,
-    private configSvc: ConfigurationsService,
-    private activateRoute: ActivatedRoute,
+    private readonly breakpointObserver: BreakpointObserver,
+    private readonly sanitizerSvc: SanitizerService,
+    private readonly configSvc: ConfigurationsService,
+    private readonly activateRoute: ActivatedRoute,
   ) { }
 
   ngOnInit() {
     this.subscriptionAbout = this.activateRoute.data.subscribe(data => {
       this.aboutPage = data.pageData.data
       if (this.aboutPage && this.aboutPage.banner && this.aboutPage.banner.videoLink) {
-        this.videoLink = this.domSanitizer.bypassSecurityTrustResourceUrl(
+        this.videoLink = this.sanitizerSvc.trustResourceUrl(
           this.aboutPage.banner.videoLink,
         )
       }
     })
 
     if (this.configSvc.instanceConfig) {
-      (this.headerBanner = this.domSanitizer.bypassSecurityTrustStyle(
-        `url('${this.configSvc.instanceConfig.logos.aboutHeader}')`,
+      (this.headerBanner = this.sanitizerSvc.trustStyleUrl(
+        this.configSvc.instanceConfig.logos.aboutHeader,
       )),
-        (this.footerBanner = this.domSanitizer.bypassSecurityTrustStyle(
-          `url('${this.configSvc.instanceConfig.logos.aboutFooter}')`,
+        (this.footerBanner = this.sanitizerSvc.trustStyleUrl(
+          this.configSvc.instanceConfig.logos.aboutFooter,
         ))
     }
   }

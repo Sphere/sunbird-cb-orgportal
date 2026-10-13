@@ -78,7 +78,7 @@ export class PlaylistApiService {
     private readonly ORG_API = '/apis/proxies/v8/org/v1'
     private readonly ENTITY_API = '/apis/proxies/v8/entity/v1'
 
-    constructor(private http: HttpClient) { }
+    constructor(private readonly http: HttpClient) { }
 
     /** Normalizes competency payload item from flat or key-wrapped formats */
     private toCompetencyPayloadItem(item: unknown): PlaylistCompetencyPayload | null {

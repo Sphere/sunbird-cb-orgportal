@@ -4,9 +4,9 @@ import { NsWidgetResolver } from '@sunbird-cb/resolver'
 import { ConfigurationsService } from '@sunbird-cb/utils'
 
 @Component({
+  standalone: false,
   selector: 'ws-app-quick-tour',
   templateUrl: './quick-tour.component.html',
-  styleUrls: ['./quick-tour.component.scss'],
 })
 export class QuickTourComponent implements OnInit {
   appLanguage = 'en'
@@ -24,7 +24,7 @@ export class QuickTourComponent implements OnInit {
     widgetType: 'player',
   }
 
-  constructor(private configSvc: ConfigurationsService) { }
+  constructor(private readonly configSvc: ConfigurationsService) { }
 
   ngOnInit() {
 

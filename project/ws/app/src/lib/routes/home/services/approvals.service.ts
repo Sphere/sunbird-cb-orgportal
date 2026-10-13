@@ -10,7 +10,7 @@ const API_END_POINTS = {
   providedIn: 'root',
 })
 export class ApprovalsService {
-  constructor(private http: HttpClient) { }
+  constructor(private readonly http: HttpClient) { }
   getApprovals(request: any): Observable<any> {
     return this.http.post<any>(API_END_POINTS.APPROVALS, request)
   }

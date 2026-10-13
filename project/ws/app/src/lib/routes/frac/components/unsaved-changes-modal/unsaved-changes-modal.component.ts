@@ -9,13 +9,14 @@ export interface UnsavedChangesModalData {
 }
 
 @Component({
+  standalone: false,
   selector: 'ws-app-unsaved-changes-modal',
   templateUrl: './unsaved-changes-modal.component.html',
   styleUrls: ['./unsaved-changes-modal.component.scss'],
 })
 export class UnsavedChangesModalComponent {
   constructor(
-    private dialogRef: MatDialogRef<UnsavedChangesModalComponent>,
+    private readonly dialogRef: MatDialogRef<UnsavedChangesModalComponent>,
     @Inject(MAT_DIALOG_DATA) public data: UnsavedChangesModalData,
   ) { }
 

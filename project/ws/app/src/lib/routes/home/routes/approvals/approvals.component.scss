@@ -58,7 +58,7 @@
   margin: 0 auto;
   // border: 1px solid;
   // font-weight: 500;
-  box-shadow: 0px 10px 30p;
+  box-shadow: 0px 10px 30px #99999933;
   /*#99999933*/
   border-radius: 8px;
 }
@@ -136,13 +136,17 @@
 
 .filter {
   .filter-option {
-    margin: $size-xs $size-m;
+    margin: $size-s $size-s;
     /* border-bottom: darkslateblue; */
     border-radius: 0;
     border-bottom-width: 2px;
     border-top-width: 0;
     border-left-width: 0;
     border-right-width: 0;
+  }
+
+  .filter-option:first-child {
+    margin-left: 0;
   }
 }
 
@@ -159,10 +163,6 @@
   flex-wrap: wrap;
   margin-top: 0;
   margin-bottom: 1rem;
-}
-
-.pagination {
-  display: -ms-flexbox;
   display: flex;
   padding-left: 0;
   list-style: none;
@@ -208,10 +208,6 @@ a:not([href]):not([tabindex]) {
   @extend %page-center;
 }
 
-.flex-3 {
-  flex: 3;
-}
-
 .flex-update {
   flex-direction: row;
 
@@ -254,22 +250,6 @@ a:not([href]):not([tabindex]) {
 .mobile-margin {
   @include breakpoint-xs {
     margin-top: $size-s;
-  }
-}
-
-.filter {
-  .filter-option {
-    margin: $size-s $size-s;
-    /* border-bottom: darkslateblue; */
-    border-radius: 0;
-    border-bottom-width: 2px;
-    border-top-width: 0;
-    border-left-width: 0;
-    border-right-width: 0;
-  }
-
-  .filter-option:first-child {
-    margin-left: 0;
   }
 }
 

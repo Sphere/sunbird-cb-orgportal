@@ -1,12 +1,12 @@
 import { WorkallocationService } from './../../../routes/home/services/workallocation.service'
 import {
-  Component, OnInit, Input, Output, EventEmitter, ViewChild, OnChanges, SimpleChanges,
+  Component, OnInit, OnDestroy, Input, Output, EventEmitter, ViewChild, OnChanges, SimpleChanges,
 } from '@angular/core'
 import { SelectionModel } from '@angular/cdk/collections'
-import { MatLegacyTableDataSource as MatTableDataSource } from '@angular/material/legacy-table'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
-import { MatLegacyPaginator as MatPaginator } from '@angular/material/legacy-paginator'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { MatTableDataSource } from '@angular/material/table'
+import { MatDialog } from '@angular/material/dialog'
+import { MatPaginator } from '@angular/material/paginator'
+import { MatSnackBar } from '@angular/material/snack-bar'
 import { MatSort } from '@angular/material/sort'
 import * as _ from 'lodash'
 
@@ -15,13 +15,17 @@ import { Router, ActivatedRoute } from '@angular/router'
 import { UserPopupComponent } from '../user-popup/user-popup'
 import { CreateMDOService } from '../create-mdo.services'
 import { ExportAsConfig } from 'ngx-export-as'
+import { Subject } from 'rxjs'
+import { takeUntil } from 'rxjs/operators'
 
 @Component({
+  standalone: false,
   selector: 'ws-work-allocation-table',
   templateUrl: './table.component.html',
   styleUrls: ['./table.component.scss'],
 })
-export class WorkAllocationTableComponent implements OnInit, OnChanges {
+export class WorkAllocationTableComponent implements OnInit, OnChanges, OnDestroy {
+  private readonly destroy$ = new Subject<void>()
   @Input() tableData!: ITableData | undefined
   @Input() data?: []
   @Input() needCreateUser?: boolean = undefined
@@ -53,15 +57,20 @@ export class WorkAllocationTableComponent implements OnInit, OnChanges {
   @ViewChild(MatSort, { static: true }) sort?: MatSort
   selection = new SelectionModel<any>(true, [])
   constructor(
-    private router: Router, public dialog: MatDialog,
-    private activatedRoute: ActivatedRoute,
-    private createMDOService: CreateMDOService,
-    private snackBar: MatSnackBar, private wrkAllocServ: WorkallocationService) {
+    private readonly router: Router, public dialog: MatDialog,
+    private readonly activatedRoute: ActivatedRoute,
+    private readonly createMDOService: CreateMDOService,
+    private readonly snackBar: MatSnackBar, private readonly wrkAllocServ: WorkallocationService) {
     this.dataSource = new MatTableDataSource<any>()
     this.actionsClick = new EventEmitter()
     this.clicked = new EventEmitter()
     this.dataSource.paginator = this.paginator
 
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next()
+    this.destroy$.complete()
   }
 
   ngOnInit() {
@@ -73,7 +82,7 @@ export class WorkAllocationTableComponent implements OnInit, OnChanges {
     this.dataSource.paginator = this.paginator
     this.dataSource.sort = this.sort
     this.viewPaginator = true
-    this.activatedRoute.params.subscribe(params => {
+    this.activatedRoute.params.pipe(takeUntil(this.destroy$)).subscribe(params => {
       this.departmentRole = params['currentDept']
       this.departmentId = params['roleId']
       if (this.needCreateUser !== false && this.departmentRole && this.departmentId) {
@@ -118,7 +127,7 @@ export class WorkAllocationTableComponent implements OnInit, OnChanges {
   buttonClick(row: any) {
 
     if (row) {
-      this.wrkAllocServ.getPDF(row.id).subscribe(response => {
+      this.wrkAllocServ.getPDF(row.id).pipe(takeUntil(this.destroy$)).subscribe(response => {
         const file = new Blob([response], { type: 'application/pdf' })
         const fileURL = URL.createObjectURL(file)
         window.open(fileURL)
@@ -175,11 +184,11 @@ export class WorkAllocationTableComponent implements OnInit, OnChanges {
       width: '80%',
       panelClass: 'remove-pad',
     })
-    dialogRef.afterClosed().subscribe((response: any) => {
+    dialogRef.afterClosed().pipe(takeUntil(this.destroy$)).subscribe((response: any) => {
       response.data.forEach((user: { userId: string }) => {
         if (this.departmentId) {
           const role = `MDO_ADMIN`
-          this.createMDOService.assignAdminToDepartment(user.userId, this.departmentId, role).subscribe(res => {
+          this.createMDOService.assignAdminToDepartment(user.userId, this.departmentId, role).pipe(takeUntil(this.destroy$)).subscribe(res => {
             if (res) {
               this.snackBar.open('Admin assigned Successfully')
               this.router.navigate(['/app/home/directory', { department: this.departmentRole }])

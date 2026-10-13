@@ -1,12 +1,15 @@
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core'
-import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog'
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog'
 import { EventService } from '../../services/event.service'
 import * as Papa from 'papaparse'
 import * as XLSX from 'xlsx'
 import { Subscription } from 'rxjs'
 import { IParticipant } from '../../interface/events'
 
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
+
 @Component({
+  standalone: false,
   selector: 'ws-app-add-participants',
   templateUrl: './add-participants.component.html',
   styleUrls: ['./add-participants.component.scss'],
@@ -21,9 +24,9 @@ export class AddParticipantsComponent implements OnInit, OnDestroy {
   eventType: boolean = false
 
   constructor(
-    private dialogRef: MatDialogRef<AddParticipantsComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: any,
-    private eventService: EventService
+    private readonly dialogRef: MatDialogRef<AddParticipantsComponent>,
+    @Inject(MAT_DIALOG_DATA) public readonly data: any,
+    private readonly eventService: EventService
   ) {
     this.eventId = data.eventId
     this.eventType = data.eventType
@@ -58,6 +61,9 @@ export class AddParticipantsComponent implements OnInit, OnDestroy {
   parseCSV(file: File): void {
     Papa.parse<IParticipant>(file, {
       header: true,
+      // Without this a trailing newline yields a phantom blank row that fails validation
+      // and points at a row the user cannot see in their file.
+      skipEmptyLines: true,
       complete: (result: Papa.ParseResult<IParticipant>) => {
         this.participants = result.data
         this.validateParticipants()
@@ -85,15 +91,34 @@ export class AddParticipantsComponent implements OnInit, OnDestroy {
   validateParticipants(): void {
     this.validationErrors = []
 
+    if (!this.participants.length) {
+      this.validationErrors = ['The file has no participant rows.']
+      this.isValidData = false
+      return
+    }
+
     this.participants.forEach((participant, index) => {
-      if (!participant.firstName) {
-        this.validationErrors.push(`Row ${index + 1}: First Name is required.`)
+      // +2, not +1: index 0 is the first data row, which is row 2 in the sheet (row 1 is the header).
+      const row = index + 2
+
+      if (!String(participant.firstName || '').trim()) {
+        this.validationErrors.push(`Row ${row}: First Name is required.`)
       }
 
-      if (this.eventType === false) {
-        console.log(participant.phone)
-        if (!participant.phone || !/^\d{10}$/.test(participant.phone)) {
-          this.validationErrors.push(`Row ${index + 1}: Invalid Phone Number (must be 10 digits).`)
+      if (this.eventType) {
+        // No-registration events: no phone is collected, and the certificate is rendered
+        // client-side from First + Last Name, so a missing surname would silently print blank.
+        if (!String(participant.lastName || '').trim()) {
+          this.validationErrors.push(`Row ${row}: Last Name is required.`)
+        }
+      } else {
+        if (!participant.phone || !/^\d{10}$/.test(String(participant.phone).trim())) {
+          this.validationErrors.push(`Row ${row}: Invalid Phone Number (must be 10 digits).`)
+        }
+        // Email is optional; when present the certificate is emailed, so a typo must be caught here.
+        const email = this.readEmail(participant)
+        if (email && !EMAIL_PATTERN.test(email)) {
+          this.validationErrors.push(`Row ${row}: Invalid Email "${email}".`)
         }
       }
     })
@@ -104,21 +129,27 @@ export class AddParticipantsComponent implements OnInit, OnDestroy {
   saveParticipants(): void {
     if (!this.isValidData) { return }
 
-    this.participants = this.participants.map(participant => ({
-      ...participant,
-      phone: String(participant.phone),
-    }))
+    this.participants = this.participants.map(participant => {
+      // No-registration events collect no phone; String(undefined) would send the literal
+      // string "undefined" to the backend, so only stringify when a value is actually present.
+      const normalised = { ...participant }
+      normalised.phone = participant.phone === undefined || participant.phone === null
+        ? ''
+        : String(participant.phone).trim()
+      normalised.email = this.readEmail(participant).toLowerCase()
+      return normalised
+    })
 
-    this.subscription = this.eventService.addParticipants(this.eventId, this.participants).subscribe(
-      response => {
+    this.subscription = this.eventService.addParticipants(this.eventId, this.participants).subscribe({
+      next: response => {
         console.log('Participants added successfully:', response)
         this.dialogRef.close('saved')
       },
-      error => {
+      error: error => {
         console.error('Error adding participants:', error)
         this.dialogRef.close('error')
-      }
-    )
+      },
+    })
   }
 
   // downloadSampleExcel() {
@@ -132,12 +163,25 @@ export class AddParticipantsComponent implements OnInit, OnDestroy {
   //   window.URL.revokeObjectURL(url)
   // }
 
+  // Headers are used exactly as typed, so "Email" or "E-mail" would otherwise be silently ignored.
+  private readEmail(participant: IParticipant): string {
+    const key = Object.keys(participant).find(k => /^e-?mail$/i.test(k.trim()))
+    return key ? String(participant[key] ?? '').trim() : ''
+  }
+
   downloadSampleExcel() {
 
-    const sampleData = [
-      { firstName: 'John', lastName: 'Doe', phone: '1234567890', location: 'California' },
-      { firstName: 'Jane', lastName: 'Smith', phone: '9876543210', location: 'New York' }
-    ]
+    // No-registration events never read phone, so leaving it in the sample invites
+    // collecting personal data that is discarded and implies a column that is not required.
+    const sampleData = this.eventType
+      ? [
+        { firstName: 'John', lastName: 'Doe' },
+        { firstName: 'Jane', lastName: 'Smith' },
+      ]
+      : [
+        { firstName: 'John', lastName: 'Doe', phone: '1234567890', location: 'California', email: 'john.doe@example.com' },
+        { firstName: 'Jane', lastName: 'Smith', phone: '9876543210', location: 'New York', email: 'jane.smith@example.com' },
+      ]
 
     const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(sampleData)
 

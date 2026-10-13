@@ -29,27 +29,27 @@ interface CourseContextState {
 })
 export class PlaylistStateService {
     // Filter selections
-    private filtersSubject = new BehaviorSubject<PlaylistFilters | null>(null)
+    private readonly filtersSubject = new BehaviorSubject<PlaylistFilters | null>(null)
     public filters$ = this.filtersSubject.asObservable()
 
     // Course playlist state, one slice per course context (default / askme).
     // Created lazily so a new context needs no extra wiring here.
-    private courseContexts = new Map<CourseContextKey, CourseContextState>()
+    private readonly courseContexts = new Map<CourseContextKey, CourseContextState>()
 
     // Competency Playlist (for edit mode)
-    private existingCompetencyPlaylistSubject = new BehaviorSubject<Playlist | null>(null)
+    private readonly existingCompetencyPlaylistSubject = new BehaviorSubject<Playlist | null>(null)
     public existingCompetencyPlaylist$ = this.existingCompetencyPlaylistSubject.asObservable()
 
     // Competency IDs from existing playlist
-    private existingCompetencyIdsSubject = new BehaviorSubject<string[]>([])
+    private readonly existingCompetencyIdsSubject = new BehaviorSubject<string[]>([])
     public existingCompetencyIds$ = this.existingCompetencyIdsSubject.asObservable()
 
     // Search Playlist (query payload editor)
-    private existingSearchPlaylistSubject = new BehaviorSubject<Playlist | null>(null)
+    private readonly existingSearchPlaylistSubject = new BehaviorSubject<Playlist | null>(null)
     public existingSearchPlaylist$ = this.existingSearchPlaylistSubject.asObservable()
 
     // Competency codes from existing playlist (preferred key for preselection)
-    private existingCompetencyCodesSubject = new BehaviorSubject<string[]>([])
+    private readonly existingCompetencyCodesSubject = new BehaviorSubject<string[]>([])
     public existingCompetencyCodes$ = this.existingCompetencyCodesSubject.asObservable()
 
     // Course cache for search
@@ -61,7 +61,7 @@ export class PlaylistStateService {
     private competencyCacheLanguage: string = ''
 
     // Competency state
-    private selectedCompetenciesSubject = new BehaviorSubject<SelectableCompetency[]>([])
+    private readonly selectedCompetenciesSubject = new BehaviorSubject<SelectableCompetency[]>([])
     public selectedCompetencies$ = this.selectedCompetenciesSubject.asObservable()
 
     constructor() { }

@@ -1,9 +1,10 @@
 import { Component, OnInit, OnDestroy } from '@angular/core'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
+import { MatDialog } from '@angular/material/dialog'
 import { AddParticipantsComponent } from '../add-participants/add-participants.component'
 import { ActivatedRoute, Router } from '@angular/router'
 import { EventService } from '../../services/event.service'
 import { HttpClient } from '@angular/common/http'
+import { ConfigurationsService } from '@sunbird-cb/utils'
 import { saveAs } from 'file-saver'
 import { svg2pdf } from 'svg2pdf.js'
 import JSZip from 'jszip'
@@ -15,6 +16,7 @@ import montserratBase64 from '../../../../../../../../../src//mdo-assets/fonts/m
 import montserratRegularBase64 from '../../../../../../../../../src/mdo-assets/fonts/montserrat/montserrat-regular-base64.js'
 // import { Console } from 'console'
 @Component({
+  standalone: false,
   selector: 'ws-app-event-overview',
   templateUrl: './event-overview.component.html',
   styleUrls: ['./event-overview.component.scss'],
@@ -26,13 +28,18 @@ export class EventOverviewComponent implements OnInit, OnDestroy {
   private eventSubscription!: Subscription
   nonRegistered = false
   isDownloading = false
+  // Certificates for no-registration events are rendered one per participant in the browser,
+  // so this can run for a long time. Track progress rather than showing a bare spinner.
+  downloadDone = 0
+  downloadTotal = 0
 
   constructor(
-    private dialog: MatDialog,
-    private router: Router,
-    private route: ActivatedRoute,
-    private eventService: EventService,
-    private http: HttpClient
+    private readonly dialog: MatDialog,
+    private readonly router: Router,
+    private readonly route: ActivatedRoute,
+    private readonly eventService: EventService,
+    private readonly http: HttpClient,
+    private readonly configSvc: ConfigurationsService
   ) { }
 
   ngOnInit(): void {
@@ -73,17 +80,16 @@ export class EventOverviewComponent implements OnInit, OnDestroy {
    * ✅ Fetch all certificate templates from JSON
    */
   loadCertificateTemplates(): void {
-    const templateUrl = 'https://aastar-assets.s3.ap-south-1.amazonaws.com/rc-mdo-templates/MDO-RC-TEMPLATES.json'
+    const templateUrl = (this.configSvc.instanceConfig as any)?.externalUrls?.rcMdoTemplatesUrl
+      || 'https://aastar-assets.s3.ap-south-1.amazonaws.com/rc-mdo-templates/MDO-RC-TEMPLATES.json'
 
-    this.http.get<{ templates: any[] }>(templateUrl).subscribe(
-      data => {
+    this.http.get<{ templates: any[] }>(templateUrl).subscribe({
+      next: data => {
         this.certificateTemplates = data.templates
         this.checkSelectedTemplate()
       },
-      error => {
-        console.error('Error fetching templates:', error)
-      }
-    )
+      error: err => console.error('Error fetching templates:', err),
+    })
   }
 
   /**
@@ -91,22 +97,14 @@ export class EventOverviewComponent implements OnInit, OnDestroy {
    */
   fetchParticipantsCount(): void {
     if (this.selectedEvent && this.selectedEvent.eventId) {
-      this.eventService.getParticipants(this.selectedEvent.eventId).subscribe(
-        response => {
+      this.eventService.getParticipants(this.selectedEvent.eventId).subscribe({
+        next: response => {
           this.participantCount = response.length
           this.selectedEvent.participantCount = this.participantCount
-
-          // if (response[0].certificateGenerationStatus === 'success') {
-          //   this.selectedEvent.templateId = response[0].templateId
-          //   this.checkSelectedTemplate()
-          // }
-
           this.eventService.updateEvent(this.selectedEvent)
         },
-        error => {
-          console.error('Error fetching participants:', error)
-        }
-      )
+        error: err => console.error('Error fetching participants:', err),
+      })
     }
   }
 
@@ -163,14 +161,13 @@ export class EventOverviewComponent implements OnInit, OnDestroy {
       },
     })
 
-    dialogRef.afterClosed().subscribe(result => {
-      if (result === 'saved') {
-        this.fetchParticipantsCount()
-        this.setTab('participants')
-      }
-      if (result === 'error') {
-        console.log('Cancelled')
-      }
+    dialogRef.afterClosed().subscribe({
+      next: result => {
+        if (result === 'saved') {
+          this.fetchParticipantsCount()
+          this.setTab('participants')
+        }
+      },
     })
   }
 
@@ -219,7 +216,8 @@ export class EventOverviewComponent implements OnInit, OnDestroy {
     const formattedDate = this.formatEventDate(this.selectedEvent.eventDate)
 
     this.eventService.getParticipants(this.selectedEvent.eventId).subscribe({
-      next: async participants => {
+      next: participants => {
+        void (async () => {
         if (!participants || participants.length === 0) {
           console.warn('No participants found for certificate generation')
           this.isDownloading = false
@@ -230,6 +228,7 @@ export class EventOverviewComponent implements OnInit, OnDestroy {
         } finally {
           this.isDownloading = false
         }
+        })()
       },
       error: error => {
         console.error('Error fetching participants:', error)
@@ -246,6 +245,8 @@ export class EventOverviewComponent implements OnInit, OnDestroy {
 
     try {
       const zip = new JSZip()
+      this.downloadDone = 0
+      this.downloadTotal = participants.length
       const templateUrl = this.selectedEvent.selectedTemplate.templateLogo
       // const templateUrl = "/mdo-assets/images/RMC-Online.svg"
 
@@ -271,11 +272,17 @@ export class EventOverviewComponent implements OnInit, OnDestroy {
         // Add the generated PDF to the ZIP file
         const fileName = `${participant.firstName}-${date}.pdf`
         zip.file(fileName, pdfBlob)
+        this.downloadDone += 1
+        // svg2pdf/jsPDF work is synchronous CPU, so without yielding the browser never gets
+        // a frame: the spinner freezes and the counter never updates until the whole run
+        // finishes. Handing control back each iteration keeps the UI responsive.
+        await new Promise((resolve) => setTimeout(resolve, 0))
         console.log(`Added ${fileName} to ZIP.`)
       }
 
       // Generate and download ZIP file
       const zipBlob = await zip.generateAsync({ type: 'blob' })
+      this.downloadTotal = 0
       saveAs(zipBlob, 'Certificates.zip')
       console.log('ZIP file downloaded successfully.')
     } catch (error) {

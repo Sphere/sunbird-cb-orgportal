@@ -3,16 +3,17 @@ import {
   AfterViewInit, OnChanges, SimpleChanges,
 } from '@angular/core'
 import { SelectionModel } from '@angular/cdk/collections'
-import { MatLegacyTableDataSource as MatTableDataSource } from '@angular/material/legacy-table'
-import { MatLegacyPaginator as MatPaginator } from '@angular/material/legacy-paginator'
+import { MatTableDataSource } from '@angular/material/table'
+import { MatPaginator } from '@angular/material/paginator'
 import { MatSort } from '@angular/material/sort'
 import * as _ from 'lodash'
 import { ITableData, IColums, IAction } from '../../interfaces/interfaces'
 import { Router } from '@angular/router'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
+import { MatDialog } from '@angular/material/dialog'
 import { EventThumbnailComponent } from '../event-thumbnail/event-thumbnail.component'
 
 @Component({
+  standalone: false,
   selector: 'ws-event-list-view',
   templateUrl: './event-list-view.component.html',
   styleUrls: ['./event-list-view.component.scss'],
@@ -25,7 +26,7 @@ export class EventListViewComponent implements OnInit, AfterViewInit, OnChanges 
   @Input() isCreate?: boolean
 
   @Input() columns?: IColums[]
-  @Input() needCheckBox?: Boolean
+  @Input() needCheckBox?: boolean
   @Input() needHash?: boolean
   @Input() actions?: IAction[]
   @Output() clicked?: EventEmitter<any>
@@ -46,8 +47,8 @@ export class EventListViewComponent implements OnInit, AfterViewInit, OnChanges 
   dialogRef: any
 
   constructor(
-    private router: Router,
-    private matDialog: MatDialog,
+    private readonly router: Router,
+    private readonly matDialog: MatDialog,
   ) {
     this.dataSource = new MatTableDataSource<any>()
     this.actionsClick = new EventEmitter()

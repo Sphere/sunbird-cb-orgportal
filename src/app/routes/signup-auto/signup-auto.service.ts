@@ -10,7 +10,7 @@ const API_END_POINTS = {
 
 @Injectable()
 export class SignupAutoService {
-  private httpClient: HttpClient
+  private readonly httpClient: HttpClient
 
   constructor(handler: HttpBackend) {
     this.httpClient = new HttpClient(handler)

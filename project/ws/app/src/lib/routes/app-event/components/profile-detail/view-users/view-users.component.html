@@ -24,12 +24,14 @@
       <mat-icon>search</mat-icon>
     </div>
     <div *ngIf="searchControl.value" class="flex items-center justify-center w-16 cursor-pointer">
-      <mat-icon (click)="clear()">close</mat-icon>
+      <button type="button" style="all: unset; display: contents; cursor: pointer;" (click)="clear()">
+        <mat-icon>close</mat-icon>
+      </button>
     </div>
   </div>
   <div class="mt-4">
     <div class="flex align-center mb-4" *ngFor="let user of userDataList">
-      <img class="user-profile" [src]="user.ImageUrl">
+      <img class="user-profile" [src]="user.ImageUrl" [alt]="user.UserName">
       <div class="ml-4 flex flex-col justify-center">
         <span class="text-lg font-bold mb-2">{{user.UserName}}</span>
         <span class="text-base font-normal">{{user.RegisteredDate | date:'mediumDate'}}</span>

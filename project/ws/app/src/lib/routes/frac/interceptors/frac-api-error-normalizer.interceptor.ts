@@ -18,21 +18,24 @@ export class FracApiErrorNormalizerInterceptor implements HttpInterceptor {
     return next.handle(req).pipe(
       catchError((err: unknown) => {
         if (!(err instanceof HttpErrorResponse) || !this.isFracRequest(req.url)) {
-          return throwError(() => err)
+          // RxJS 6 (this app's version): throwError takes the error value directly —
+          // it has no factory-function overload, so `throwError(() => err)` would
+          // throw the function itself instead of `err`.
+          return throwError(err)
         }
 
         if (err.error instanceof Blob) {
           return from(err.error.text()).pipe(
             mergeMap((blobText) => {
               const normalizedError = this.normalizeHttpError(err, blobText)
-              return throwError(() => normalizedError)
+              return throwError(normalizedError)
             }),
-            catchError(() => throwError(() => err)),
+            catchError(() => throwError(err)),
           )
         }
 
         const normalizedError = this.normalizeHttpError(err, err.error)
-        return throwError(() => normalizedError)
+        return throwError(normalizedError)
       }),
     )
   }

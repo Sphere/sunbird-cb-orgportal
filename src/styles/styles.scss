@@ -1,7 +1,11 @@
 @import 'ws-vars';
 @import 'ws-mixins';
+@import 'ws-design-system-v2';
 @import './utility.scss';
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400&display=swap');
+// Inter — used by the v2 design system (Microsoft Admin Center-style redesign) on pages that opt in.
+// Additive only: existing pages keep Roboto via $font-family-lato in _ws-vars.scss.
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 @include print {
   * {
@@ -28,6 +32,52 @@ body {
   background-color: #e0f2f1;
 }
 
+// Modern thin scrollbar app-wide — replaces the bulky default OS scrollbar.
+// Same token already used for the position-cards-scroll-container card grid.
+// Declared on `*` AND explicitly on html/body — Chrome doesn't reliably pick
+// up the universal selector for the root document/viewport scrollbar, which
+// is exactly the one that shows up (as the old heavy native scrollbar) on
+// routes whose content is short enough to scroll the window instead of an
+// inner container.
+*,
+html,
+body {
+  scrollbar-width: thin;
+  scrollbar-color: #c1c1c1 transparent;
+}
+
+::-webkit-scrollbar,
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track,
+html::-webkit-scrollbar-track,
+body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb,
+html::-webkit-scrollbar-thumb,
+body::-webkit-scrollbar-thumb {
+  background-color: #c1c1c1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover,
+html::-webkit-scrollbar-thumb:hover,
+body::-webkit-scrollbar-thumb:hover {
+  background-color: #a8a8a8;
+}
+
+::-webkit-scrollbar-button {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
 .w-lg-1-8 {
   @include breakpoint-l {
     width: 12.5% !important;
@@ -49,19 +99,12 @@ body {
 .custom-scroll {
   -webkit-overflow-scrolling: touch;
 
+  // Thin modern scrollbar (matches the app-wide token below) instead of the
+  // old 16px-wide bar with a solid #cfcfcf track — that's what made the
+  // sidenav/content scrollbar look heavy and gave the sidenav a "gap".
   &::-webkit-scrollbar {
-    width: $size-xs;
-    height: $size-xs;
-
-    @include breakpoint-s {
-      width: $size-s;
-      height: $size-s;
-    }
-
-    @include breakpoint-gt-s {
-      width: $size-m;
-      height: $size-m;
-    }
+    width: 8px;
+    height: 8px;
 
     @media (hover: none) {
       $scroll-size: 0px !important;
@@ -81,15 +124,16 @@ body {
   }
 
   &::-webkit-scrollbar-track {
-    background: #cfcfcf;
+    background: transparent;
   }
 
   &::-webkit-scrollbar-thumb {
-    background: #9e9e9e;
+    background: #c1c1c1;
+    border-radius: 4px;
   }
 
   &::-webkit-scrollbar-thumb:hover {
-    background: #707070;
+    background: #a8a8a8;
   }
 }
 
@@ -230,13 +274,16 @@ mat-toolbar {
   }
 }
 
-// Override checkbox
+// Override checkbox (legacy + MDC)
 .fit-checkbox-to-width {
-  .mat-checkbox-layout {
+  .mat-checkbox-layout,
+  .mat-mdc-checkbox {
+    display: flex;
     width: 100%;
   }
 
-  .mat-checkbox-label {
+  .mat-checkbox-label,
+  .mat-mdc-checkbox label {
     flex: 1;
     min-width: 1px;
   }
@@ -585,22 +632,22 @@ h3.shepherd-title {
 }
 
 .h-700-b-14-l {
-  font: bold 14px Lato !important;
+  font: bold 14px Lato, sans-serif !important;
   font-weight: 700 !important;
 }
 
 .h-400-r-14-l {
-  font: normal 14px Lato !important;
+  font: normal 14px Lato, sans-serif !important;
   font-weight: 400 !important;
 }
 
 .h-600-s-20-m {
-  font: normal 20px Montserrat !important;
+  font: normal 20px Montserrat, sans-serif !important;
   font-weight: 600 !important;
 }
 
 .h-400-r-16-l {
-  font: normal 16px Lato !important;
+  font: normal 16px Lato, sans-serif !important;
   font-weight: 400 !important;
 }
 
@@ -644,7 +691,7 @@ h3.shepherd-title {
 
 .card-heading {
   font-weight: 600;
-  font-family: "Montserrat";
+  font-family: "Montserrat", sans-serif;
   font-size: 20px;
   display: block;
   padding: 15px 0;
@@ -908,6 +955,194 @@ h3.shepherd-title {
   overflow: hidden !important;
   padding: 0 !important;
 }
+
+// =============================================================================
+// Angular Material MDC compatibility overrides (Angular 16 → 20 migration)
+// Angular Material 17+ renamed many mat-* classes to mat-mdc-*. Component CSS
+// that was written against the old names still works for sidenav/toolbar (those
+// didn't switch to MDC), but needs these aliases for components that did switch.
+// =============================================================================
+
+// --- Nav sidebar: active item + hover states ---
+// Sunbird @sunbird-cb/collection@0.0.9-ang-17-20 ships an aggressive ::ng-deep rule
+// (.ws-active-route-menu { background: #1b4ca1; color: #fff }) that overrides
+// the design system tokens. Pin to #1c5d95 / #eef4fb to match FRAC/position-upload.
+// MDC nav list: kill horizontal padding and M3 active-indicator inset so items
+// fill edge-to-edge. The --mdc-list-* custom properties control MDC's own spacing;
+// zeroing them here prevents double-application with our explicit !important values.
+.mat-mdc-nav-list {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  --mdc-list-list-item-leading-space: 0px;
+  --mdc-list-list-item-trailing-space: 0px;
+}
+
+.mat-mdc-nav-list .mat-mdc-list-item {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+// M3 renders a shaped active-indicator layer inside the list item with inset margins.
+// Remove those so our background-color on the host element covers the full width.
+.mat-mdc-nav-list .mat-mdc-list-item .mat-mdc-list-item-state-layer {
+  margin: 0 !important;
+  inset: 0 !important;
+  border-radius: 0 !important;
+}
+
+.mat-mdc-nav-list .mat-mdc-list-item.ws-active-route-menu,
+.mat-nav-list .mat-list-item.ws-active-route-menu {
+  background-color: #eef4fb !important;
+  border-left: 3px solid #1c5d95 !important;
+  border-radius: 0 !important;
+
+  .menu-text,
+  mat-icon {
+    color: #1c5d95 !important;
+    font-weight: 500 !important;
+  }
+}
+
+// MDC mat-nav-list no longer auto-applies a hover background; add it back.
+.mat-mdc-nav-list .mat-mdc-list-item:not(.ws-active-route-menu) {
+  cursor: pointer;
+  transition: background-color 150ms ease;
+
+  &:hover {
+    background-color: rgba(28, 93, 149, 0.06);
+  }
+}
+
+// --- Legacy Material typography classes (used by @sunbird-cb/* widget templates) ---
+// mat.typography-hierarchy() no longer emits mat-subheading-*/mat-display-* names;
+// map them to the equivalent M2 metrics so vendor widget text renders correctly.
+.mat-subheading-2 {
+  font: 400 16px/28px 'Roboto', 'Helvetica Neue', sans-serif;
+  letter-spacing: 0.0094em;
+  margin: 0 0 16px;
+}
+
+.mat-subheading-1 {
+  font: 400 15px/24px 'Roboto', 'Helvetica Neue', sans-serif;
+  letter-spacing: 0.0067em;
+  margin: 0 0 16px;
+}
+
+.mat-display-1 {
+  font: 400 34px/40px 'Roboto', 'Helvetica Neue', sans-serif;
+  letter-spacing: -0.0134em;
+  margin: 0 0 64px;
+}
+
+// --- Dialog MDC renames ---
+// mat-dialog-content → mat-mdc-dialog-content (need scrollbar)
+.mat-mdc-dialog-content {
+  @extend .custom-scroll;
+}
+
+// .remove-pad was written for .mat-dialog-container; also apply to MDC container
+.remove-pad .mat-mdc-dialog-container .mdc-dialog__surface {
+  padding: 0 24px;
+}
+
+// --- Form field MDC ---
+// .mat-form-field-infix → .mat-mdc-form-field-infix
+.mat-mdc-form-field-infix {
+  line-height: 1.5 !important;
+}
+
+.auto-mat-form-field-input-infix .mat-mdc-form-field-infix {
+  width: auto;
+  min-width: 2em;
+}
+
+// --- Menu MDC ---
+// .mat-menu-panel → .mat-mdc-menu-panel
+.mat-mdc-menu-panel {
+  max-width: 290px !important;
+}
+
+// Nav bar profile dropdown
+// panelClass="ws-nav-profile-menu" is applied to both .cdk-overlay-pane (CDK overlay config)
+// and the inner .mat-mdc-menu-panel div (Angular Material host binding) — target both.
+.cdk-overlay-pane.ws-nav-profile-menu,
+.mat-mdc-menu-panel.ws-nav-profile-menu {
+  min-width: 210px !important;
+}
+
+.cdk-overlay-pane.ws-nav-profile-menu .mat-mdc-menu-panel,
+.cdk-overlay-pane.ws-nav-profile-menu .mdc-menu-surface,
+.mat-mdc-menu-panel.ws-nav-profile-menu,
+.mat-mdc-menu-panel.ws-nav-profile-menu .mdc-menu-surface {
+  border-radius: 10px !important;
+  box-shadow: 0 4px 16px rgba(28, 93, 149, 0.16) !important;
+  border: 1px solid #e8ecf0;
+  overflow: hidden;
+}
+
+.cdk-overlay-pane.ws-nav-profile-menu .mat-mdc-menu-content,
+.mat-mdc-menu-panel.ws-nav-profile-menu .mat-mdc-menu-content {
+  padding: 0 !important;
+}
+
+.cdk-overlay-pane.ws-nav-profile-menu .mat-divider,
+.mat-mdc-menu-panel.ws-nav-profile-menu .mat-divider {
+  border-color: #e8ecf0 !important;
+  margin: 0 !important;
+}
+
+.cdk-overlay-pane.ws-nav-profile-menu .mat-mdc-menu-item:not([disabled]):hover,
+.mat-mdc-menu-panel.ws-nav-profile-menu .mat-mdc-menu-item:not([disabled]):hover {
+  background-color: #f0f6fc !important;
+}
+
+.cdk-overlay-pane.ws-nav-profile-menu .logout-icon,
+.mat-mdc-menu-panel.ws-nav-profile-menu .logout-icon {
+  color: #ca0000;
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  line-height: 20px;
+  margin-right: 4px;
+}
+
+.cdk-overlay-pane.ws-nav-profile-menu .profile-logout-btn span,
+.mat-mdc-menu-panel.ws-nav-profile-menu .profile-logout-btn span {
+  font-size: 14px;
+  color: #333;
+}
+
+// --- Button MDC ---
+// .mat-flat-button → .mat-mdc-unelevated-button
+.mat-mdc-unelevated-button {
+  border: 1px solid;
+}
+
+// --- Checkbox MDC ---
+ws-app-kb-detail .mat-mdc-checkbox label {
+  white-space: normal;
+}
+
+// --- Radio MDC ---
+ws-app-role .mat-mdc-radio-button label {
+  width: 100%;
+  display: block;
+  box-sizing: border-box;
+}
+
+// --- Option MDC ---
+// .mat-option → .mat-mdc-option
+.ws-widget-user-autocomplete .mat-mdc-option {
+  line-height: 1.3;
+  height: auto;
+  padding: 8px 16px;
+  min-height: 48px;
+  border-bottom: 1px solid rgb(231, 231, 231);
+}
+
+// =============================================================================
 
 /* FRAC position hierarchy view popup: clean surface */
 .cdk-overlay-pane.position-hierarchy-view-dialog .mat-mdc-dialog-container,

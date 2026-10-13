@@ -26,11 +26,11 @@ export class SelectCoursesComponent implements OnInit {
     readonly searchResultCourses = signal<SelectableCourse[]>([])
     readonly filteredCourses = signal<SelectableCourse[]>([])
     readonly existingCourseIds = signal<string[]>([])
-    readonly shimmerRows = Array(PLAYLIST_UI.SHIMMER_ROWS).fill(0)
+    readonly shimmerRows = new Array(PLAYLIST_UI.SHIMMER_ROWS).fill(0)
 
     readonly loading = signal(false)
     readonly searchTerm = signal('')
-    private preselectedCourseOrderMap = new Map<string, number>()
+    private readonly preselectedCourseOrderMap = new Map<string, number>()
 
     private readonly router = inject(Router)
     private readonly route = inject(ActivatedRoute)

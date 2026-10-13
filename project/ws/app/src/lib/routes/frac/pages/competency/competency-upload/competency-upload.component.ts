@@ -1,4 +1,4 @@
-import { Component } from '@angular/core'
+import { Component, OnInit, OnDestroy } from '@angular/core'
 import { MatDialog } from '@angular/material/dialog'
 import { ActivatedRoute, Router } from '@angular/router'
 import { FracUploadPopupComponent } from '../../../components/frac-upload/frac-upload-popup.component'
@@ -34,19 +34,20 @@ interface UploadEmptyStateConfig {
 }
 
 @Component({
+  standalone: false,
   selector: 'ws-app-competency-upload',
   templateUrl: './competency-upload.component.html',
   styleUrls: ['./competency-upload.component.scss']
 })
-export class CompetencyUploadComponent {
-  private editTracker: FracEditTracker
+export class CompetencyUploadComponent implements OnInit, OnDestroy {
+  private readonly editTracker: FracEditTracker
   constructor(
-    private dialog: MatDialog,
-    private fracApiService: FracApiService,
-    private tableTransformUtil: TableTransformUtil,
-    private activatedRoute: ActivatedRoute,
-    private router: Router,
-    private uploadOrchestrator: FracEntityUploadOrchestratorService,
+    private readonly dialog: MatDialog,
+    private readonly fracApiService: FracApiService,
+    private readonly tableTransformUtil: TableTransformUtil,
+    private readonly activatedRoute: ActivatedRoute,
+    private readonly router: Router,
+    private readonly uploadOrchestrator: FracEntityUploadOrchestratorService,
   ) {
     this.editTracker = new FracEditTracker(this.uploadOrchestrator)
   }
@@ -55,18 +56,18 @@ export class CompetencyUploadComponent {
   uiConfig = FRAC_UI_CONFIG
 
   // ============= STATE VARIABLES =============
-  originalRowData: FracUploadRow[] = [];
-  removedData: FracUploadRow[] = [];
-  private searchTrigger$ = new Subject<UploadSearchTriggerPayload>();
-  private destroy$ = new Subject<void>();
-  private searchSubscription: Subscription | null = null;
-  searchResults: FracUploadRow[] = [];
+  originalRowData: FracUploadRow[] = []
+  removedData: FracUploadRow[] = []
+  private readonly searchTrigger$ = new Subject<UploadSearchTriggerPayload>()
+  private readonly destroy$ = new Subject<void>()
+  private searchSubscription: Subscription | null = null
+  searchResults: FracUploadRow[] = []
   selectedRows: FracUploadRow[] = []
   editRows: FracUploadRow[] = []
   editedData: FracUploadRow[] = []
   isEditing = false
-  routeMode: UploadRouteMode = 'upload';
-  uploadButtonText: string = 'Upload File';
+  routeMode: UploadRouteMode = 'upload'
+  uploadButtonText: string = 'Upload File'
 
 
   // ============= LOADING & API RESPONSE =============
@@ -495,34 +496,36 @@ export class CompetencyUploadComponent {
 
     // Use actual upload method
     this.fracApiService.uploadFile(file, language).subscribe({
-      next: async (res) => {
-        fracLogger.debug('Competency upload completed', res)
+      next: (res) => {
+        void (async () => {
+          fracLogger.debug('Competency upload completed', res)
 
-        this.isUploading = false
-        const parsedRes = await FracResponseParserUtil.resolveApiPayload(res)
-        this.apiResponse = parsedRes
+          this.isUploading = false
+          const parsedRes = await FracResponseParserUtil.resolveApiPayload(res)
+          this.apiResponse = parsedRes
 
-        const normalizedResponse = FracResponseParserUtil.parseApiResponse(parsedRes)
-        const resultObject = (normalizedResponse?.result || {}) as Record<string, unknown>
-        const uploadedCodes = FracResponseParserUtil.getSuccessCodes(parsedRes, 'competency')
-        if (FracResponseParserUtil.isUploadSuccessful(parsedRes, 'competency')) {
-          const uploadedCount = uploadedCodes.length || Number(resultObject.count || 0) || 0
+          const normalizedResponse = FracResponseParserUtil.parseApiResponse(parsedRes)
+          const resultObject = (normalizedResponse?.result || {}) as Record<string, unknown>
+          const uploadedCodes = FracResponseParserUtil.getSuccessCodes(parsedRes, 'competency')
+          if (FracResponseParserUtil.isUploadSuccessful(parsedRes, 'competency')) {
+            const uploadedCount = uploadedCodes.length || Number(resultObject.count || 0) || 0
 
-          this.selectedRows = []
-          this.editRows = []
-          this.isEditing = false
+            this.selectedRows = []
+            this.editRows = []
+            this.isEditing = false
 
-          const successData: UploadResultData = {
-            type: 'success',
-            title: 'Upload Successful',
-            message: 'Your competency data has been uploaded successfully.',
-            count: uploadedCount || 1
+            const successData: UploadResultData = {
+              type: 'success',
+              title: 'Upload Successful',
+              message: 'Your competency data has been uploaded successfully.',
+              count: uploadedCount || 1
+            }
+            this.showResultModal(successData, false, FRAC_ROUTES.competencyManage)
+          } else {
+            fracLogger.warn('Upload API returned a failure payload', parsedRes)
+            this.showResultModal(FracUploadHelper.createFailureModalData(parsedRes), false)
           }
-          this.showResultModal(successData, false, FRAC_ROUTES.competencyManage)
-        } else {
-          fracLogger.warn('Upload API returned a failure payload', parsedRes)
-          this.showResultModal(FracUploadHelper.createFailureModalData(parsedRes), false)
-        }
+        })()
       },
       error: (err) => {
         fracLogger.error('Competency upload failed', {

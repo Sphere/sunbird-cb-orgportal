@@ -4,6 +4,7 @@ import { Subscription } from 'rxjs'
 import { ActivatedRoute } from '@angular/router'
 
 @Component({
+  standalone: false,
   selector: 'ws-public-contact',
   templateUrl: './public-contact.component.html',
   styleUrls: ['./public-contact.component.scss'],
@@ -16,7 +17,7 @@ export class PublicContactComponent implements OnInit, OnDestroy {
   pageNavbar: Partial<NsPage.INavBackground> = this.configSvc.pageNavBar
   private subscriptionContact: Subscription | null = null
 
-  constructor(private configSvc: ConfigurationsService, private activateRoute: ActivatedRoute) { }
+  constructor(private readonly configSvc: ConfigurationsService, private readonly activateRoute: ActivatedRoute) { }
 
   ngOnInit() {
     this.subscriptionContact = this.activateRoute.data.subscribe(data => {

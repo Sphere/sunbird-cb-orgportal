@@ -3,7 +3,7 @@
   style="background: #FDECDE;">
   <div class="flex-custom">
     <mat-card-content class="margin-top-m margin-bottom-m margin-left-m margin-right-m">
-      <span class="mat-subheading-1 flex-4 mobile-margin appr-section-heading" role="link" tabindex="0"
+      <span class="mat-subheading-1 flex-4 mobile-margin appr-section-heading"
         *ngIf="needApprovalList.length>0">
         Needs approval
       </span>
@@ -13,12 +13,12 @@
       <div class="new-mobile margin-top-l">
         <div class="flex flex-wrap mobile-break">
           <div class="w-full profile-cols-full bg-grey" *ngIf="needApprovalList.length>0">
-            <ng-container *ngFor="let field of needApprovalList">
+            <ng-container *ngFor="let field of needApprovalList; let i = index">
               <div class="appr-label">
-                <label class="appr-text-label">{{field.label}}</label>
+                <label class="appr-text-label" [attr.for]="'value-input-' + i">{{field.label}}</label>
               </div>
               <div>
-                <input type="text" class="appr-text-field" [value]="field.value">
+                <input [id]="'value-input-' + i" type="text" class="appr-text-field" [value]="field.value">
                 <button mat-icon-button aria-label="Reject" id="reject" (click)="onClickHandleWorkflow(field,'REJECT')">
                   <mat-icon class="reject">close</mat-icon>
                 </button>
@@ -32,13 +32,13 @@
           <div class="w-full profile-cols-full bg-grey" *ngIf="needApprovalList.length <= 0">
             <ng-container>
               <div class="appr-label" *ngIf="changeLog">
-                <label class="field-key">{{changeLog.fieldKey}}</label>
-                <label class="field-name">{{changeLog.fieldName}}</label>
-                <label class="field-name">Changed from {{changeLog.fromVal}} to {{changeLog.toVal}}</label>
-                <label class="change-date">15/12/2020 18:31</label>
+                <span class="field-key">{{changeLog.fieldKey}}</span>
+                <span class="field-name">{{changeLog.fieldName}}</span>
+                <span class="field-name">Changed from {{changeLog.fromVal}} to {{changeLog.toVal}}</span>
+                <span class="change-date">15/12/2020 18:31</span>
               </div>
               <div class="appr-label">
-                <label class="no-request-text">Currently there are no items pending approval</label>
+                <span class="no-request-text">Currently there are no items pending approval</span>
               </div>
             </ng-container>
           </div>
@@ -67,7 +67,7 @@
     <mat-dialog-content>
       <p class="appr-text margin-top-l">Please specify the reason for rejection</p>
       <textarea rows="4" [(ngModel)]="comment" placeholder="Type here" name="comment"
-        class="reject-reason-text"></textarea>
+        class="reject-reason-text" id="rejectReasonText" aria-label="Reason for rejection"></textarea>
     </mat-dialog-content>
     <mat-dialog-actions class="flex flex-wrap justify-end">
       <button mat-button class="goback-dialog-btn" matDialogClose>Go back</button>

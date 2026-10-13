@@ -1,24 +1,25 @@
 import { Directive, ElementRef, Input, OnDestroy, OnInit, ViewContainerRef } from '@angular/core'
-import { fromEvent } from 'rxjs'
+import { fromEvent, Subject } from 'rxjs'
 import { ConnectionPositionPair, Overlay, OverlayRef } from '@angular/cdk/overlay'
 import { AutocompleteComponent } from './autocomplete/autocomplete.component'
 import { TemplatePortal } from '@angular/cdk/portal'
 import { debounceTime, filter, takeUntil } from 'rxjs/operators'
 import { NgControl } from '@angular/forms'
-import { untilDestroyed } from 'ngx-take-until-destroy'
 
 @Directive({
+  standalone: false,
   selector: '[wsAppAutocomplete]',
 })
 export class AutocompleteDirective implements OnInit, OnDestroy {
   @Input() wsAppAutocomplete!: AutocompleteComponent
   private overlayRef!: OverlayRef | null
+  private readonly destroyed$ = new Subject<void>()
 
   constructor(
-    private host: ElementRef<HTMLInputElement>,
-    private ngControl: NgControl,
-    private vcr: ViewContainerRef,
-    private overlay: Overlay
+    private readonly host: ElementRef<HTMLInputElement>,
+    private readonly ngControl: NgControl,
+    private readonly vcr: ViewContainerRef,
+    private readonly overlay: Overlay
   ) {
   }
 
@@ -29,8 +30,7 @@ export class AutocompleteDirective implements OnInit, OnDestroy {
   ngOnInit() {
     fromEvent(this.origin, 'focus').pipe(
       debounceTime(1000),
-      untilDestroyed(this)
-      // tslint:disable-next-line: deprecation
+      takeUntil(this.destroyed$)
     ).subscribe(() => {
       // if (this.control && this.control.value && this.control.value.length >= 3) {
       this.openDropdown()
@@ -76,7 +76,10 @@ export class AutocompleteDirective implements OnInit, OnDestroy {
     }
   }
 
-  ngOnDestroy() { }
+  ngOnDestroy() {
+    this.destroyed$.next()
+    this.destroyed$.complete()
+  }
 
   private getOverlayPosition() {
     const positions = [

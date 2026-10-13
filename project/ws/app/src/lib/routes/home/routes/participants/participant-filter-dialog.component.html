@@ -1,0 +1,36 @@
+<div class="modal-container">
+  <div class="modal-header">
+    <h2 class="title">Filter Participants</h2>
+    <button mat-icon-button (click)="cancel()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <mat-dialog-content class="dialog-content">
+
+    <ng-container *ngIf="data.showCertificateStatus; else noFilters">
+      <div class="filter-field">
+        <label class="filter-label" for="certStatusFilter">Certificate Status</label>
+        <div class="select-wrapper">
+          <select id="certStatusFilter" class="form-select" [(ngModel)]="filterStatus">
+            <option value="">All</option>
+            <option value="success">Generated</option>
+            <option value="failed">Failed</option>
+            <option value="pending">Not Generated</option>
+          </select>
+          <span class="select-chevron">&#9660;</span>
+        </div>
+      </div>
+    </ng-container>
+
+    <ng-template #noFilters>
+      <p class="no-filters-msg">No additional filters available for this event type. Use the search box to find participants.</p>
+    </ng-template>
+
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button class="cancel-btn" (click)="cancel()">Cancel</button>
+    <button class="apply-btn" (click)="apply()" *ngIf="data.showCertificateStatus">Apply</button>
+  </mat-dialog-actions>
+</div>

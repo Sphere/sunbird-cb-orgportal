@@ -37,7 +37,7 @@ export const FEATURE_KEY = new InjectionToken<FeatureKey>('FEATURE_KEY')
 
 @Injectable({ providedIn: 'root' })
 export class FeatureAccessService {
-  constructor(private configSvc: ConfigurationsService) {}
+  constructor(private readonly configSvc: ConfigurationsService) {}
 
   /**
    * Current user's roles, lowercased so matching is case-insensitive against the

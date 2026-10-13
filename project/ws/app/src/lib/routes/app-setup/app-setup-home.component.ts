@@ -1,13 +1,16 @@
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
+import { MatDialog } from '@angular/material/dialog'
 import { StepperSelectionEvent, STEPPER_GLOBAL_OPTIONS } from '@angular/cdk/stepper'
-import { AfterViewInit, Component, OnInit } from '@angular/core'
+import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core'
 import { IWidgetsPlayerMediaData } from '@sunbird-cb/collection'
 import { NsWidgetResolver } from '@sunbird-cb/resolver'
 import { ConfigurationsService } from '@sunbird-cb/utils'
+import { Subject } from 'rxjs'
+import { takeUntil } from 'rxjs/operators'
 // import { InterestComponent } from '../profile/routes/interest/components/interest/interest.component'
 // import { SettingsComponent } from '../profile/routes/settings/settings.component'
 
 @Component({
+  standalone: false,
   selector: 'ws-app-app-setup-home',
   templateUrl: './app-setup-home.component.html',
   styleUrls: ['./app-setup-home.component.scss'],
@@ -18,7 +21,8 @@ import { ConfigurationsService } from '@sunbird-cb/utils'
     },
   ],
 })
-export class AppSetupHomeComponent implements OnInit, AfterViewInit {
+export class AppSetupHomeComponent implements OnInit, AfterViewInit, OnDestroy {
+  private readonly destroy$ = new Subject<void>()
   currentIndex = 0
   appLanguage = ''
   chosenLang = ''
@@ -49,7 +53,7 @@ export class AppSetupHomeComponent implements OnInit, AfterViewInit {
   //   | SettingsComponent
   //   | undefined = undefined
 
-  constructor(private configSvc: ConfigurationsService, private matDialog: MatDialog) { }
+  constructor(private readonly configSvc: ConfigurationsService, private readonly matDialog: MatDialog) { }
 
   ngOnInit(): void {
     // if (this.configSvc.restrictedFeatures) {
@@ -101,7 +105,7 @@ export class AppSetupHomeComponent implements OnInit, AfterViewInit {
         width: '400px',
         backdropClass: 'backdropBackground',
       })
-      dialog.afterClosed().subscribe(v => {
+      dialog.afterClosed().pipe(takeUntil(this.destroy$)).subscribe(v => {
         if (!v) {
           this.configSvc.userUrl = ''
         }
@@ -114,6 +118,11 @@ export class AppSetupHomeComponent implements OnInit, AfterViewInit {
       //   this.settingsCompRef.applyChanges()
       // }
     }
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next()
+    this.destroy$.complete()
   }
 
   onItemChange(value: string) {

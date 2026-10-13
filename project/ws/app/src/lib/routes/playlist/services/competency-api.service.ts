@@ -33,8 +33,8 @@ interface RawLevelDesc {
 
 /** Raw entity item as returned by /entity/v1/search */
 interface RawEntityItem {
-    entityId?: number
-    id?: number
+    entityId?: any
+    id?: any
     name?: string
     code?: string
     description?: string
@@ -83,7 +83,7 @@ interface CompetencySearchPayload {
 export class CompetencyApiService {
     private readonly API_BASE = '/apis/proxies/v8/entity/v1'
 
-    constructor(private http: HttpClient) { }
+    constructor(private readonly http: HttpClient) { }
 
     /**
      * Retrieves the master list of competencies filtered by language.
@@ -148,7 +148,7 @@ export class CompetencyApiService {
         // Handle children array (new format from mock/API)
         if (entity?.children && Array.isArray(entity.children)) {
             levels = entity.children.map((child: RawEntityChild) => ({
-                level: child.levelId || parseInt(child.level?.replace('L', '') || '0', 10),
+                level: child.levelId || Number.parseInt(child.level?.replace('L', '') || '0', 10),
                 name: child.name,
                 description: child.description
             }))
@@ -169,7 +169,7 @@ export class CompetencyApiService {
 
             // Ensure level is a number
             levels = rawLevels.map((l: RawLevelDesc) => ({
-                level: typeof l.level === 'number' ? l.level : parseInt(String(l.level ?? '0'), 10),
+                level: typeof l.level === 'number' ? l.level : Number.parseInt(String(l.level ?? '0'), 10),
                 name: l.name,
                 description: l.description
             }))
@@ -209,7 +209,7 @@ export class CompetencyApiService {
         }))
 
         return {
-            id: Number(entity?.entityId ?? entity?.id ?? 0),
+            id: entity?.entityId || entity?.id || 0,
             type: 'competency',
             name: String(entity?.name || '').trim(),
             description: String(entity?.description || '').trim(),

@@ -1,8 +1,15 @@
+@import 'ws-design-system-v2';
+
 .welcome-home-clean {
-  margin: -15px;
-  width: calc(100% + 30px);
-  padding: 0;
+  width: 100%;
+  max-width: $v2-content-max-width;
+  margin: 0 auto;
+  // Matches the FRAC dashboard/position-upload/playlist-filters page padding so
+  // every page sits at the same distance from the sidebar/shell edge — previously
+  // this was 0, making Home sit flush while other v2 pages had 32-54px of their own.
+  padding: $v2-content-padding;
   box-sizing: border-box;
+  overflow-x: hidden;
   background:
     radial-gradient(circle at 90% 0%, rgba(129, 202, 223, 0.14) 0%, rgba(129, 202, 223, 0) 34%),
     linear-gradient(180deg, #f4f9fc 0%, #ffffff 44%);
@@ -11,8 +18,11 @@
 .welcome-hero-only {
   position: relative;
   overflow: hidden;
-  min-height: 540px;
-  border-radius: 0;
+  // Fill the content pane (calc(100vh - 105px)) minus all surrounding padding:
+  // container-balanced: 15px top + 15px bottom, welcome-home-clean: 32px top + 32px bottom = 94px
+  height: calc(100vh - 199px);
+  min-height: 380px;
+  border-radius: $v2-radius-card;
   border: 1px solid rgba(121, 184, 204, 0.22);
   display: flex;
   align-items: center;
@@ -42,7 +52,7 @@
 .welcome-home-clean .welcome-hero-title {
   margin: 0;
   color: #062b42;
-  font-family: 'Inter', 'Roboto', sans-serif;
+  font-family: $v2-font-family;
   font-size: 64px;
   font-weight: 600;
   line-height: 1.15;
@@ -52,7 +62,7 @@
 .welcome-home-clean .welcome-hero-subtitle {
   margin: 20px 0 0;
   color: #3b5c6b;
-  font-family: 'Inter', 'Roboto', sans-serif;
+  font-family: $v2-font-family;
   font-size: 32px;
   font-weight: 400;
   line-height: 1.45;
@@ -64,17 +74,24 @@
   color: #062b42;
 }
 
-@media (max-width: 1200px) {
+@media (max-width: 768px) {
   .welcome-home-clean {
-    margin: -12px;
-    width: calc(100% + 24px);
-    padding: 0;
+    padding: 24px;
   }
+}
 
+@media (max-width: 480px) {
+  .welcome-home-clean {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 1200px) {
   .welcome-hero-only {
-    min-height: 510px;
+    height: calc(100vh - 199px);
+    min-height: 380px;
     padding: 40px 44px;
-    border-radius: 0;
+    border-radius: $v2-radius-card;
     background-position: right top -20px;
   }
 
@@ -91,16 +108,11 @@
 }
 
 @media (max-width: 768px) {
-  .welcome-home-clean {
-    margin: -8px;
-    width: calc(100% + 16px);
-    padding: 0;
-  }
-
   .welcome-hero-only {
-    min-height: 750px;
+    height: calc(100vh - 199px);
+    min-height: 320px;
     padding: 24px 20px;
-    border-radius: 0;
+    border-radius: 12px;
     align-items: flex-start;
     background-position: right top -12px;
   }
