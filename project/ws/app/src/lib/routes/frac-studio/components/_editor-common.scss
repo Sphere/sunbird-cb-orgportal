@@ -1,0 +1,85 @@
+// Shared styles for the Creator editors (roles, competencies, ladders). Import after _frac-studio-common.
+
+.code {
+  font-family: monospace;
+  font-size: $v2-font-label;
+  font-weight: 600;
+  color: $v2-color-primary;
+  min-width: 40px;
+}
+
+.empty {
+  margin: 0;
+  color: $v2-color-text-secondary;
+  font-size: $v2-font-caption;
+}
+
+.table-wrap {
+  @include v2-table-container;
+  width: 100%;
+
+  table {
+    @include v2-table-inner;
+    min-width: 720px;
+  }
+
+  td { vertical-align: top; }
+
+  input,
+  textarea,
+  select {
+    width: 100%;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    background: transparent;
+    padding: 6px 8px;
+    font-family: $v2-font-family;
+    font-size: $v2-font-label;
+    color: $v2-color-text;
+    resize: vertical;
+
+    &:hover:not(:disabled) { border-color: $v2-color-border; }
+
+    &:focus {
+      outline: none;
+      border-color: $v2-color-primary;
+      background: #ffffff;
+    }
+  }
+}
+
+.icon-btn {
+  width: 30px;
+  height: 30px;
+  border: 1px solid $v2-color-border;
+  border-radius: 50%;
+  background: #ffffff;
+  color: $v2-color-text-secondary;
+  cursor: pointer;
+
+  &:hover:not(:disabled) { border-color: $v2-color-primary; color: $v2-color-primary; }
+  &:disabled { opacity: 0.4; cursor: not-allowed; }
+}
+
+.text-btn {
+  border: 0;
+  background: none;
+  padding: 4px 0;
+  color: $v2-color-primary;
+  font-weight: 500;
+  font-size: $v2-font-label;
+  cursor: pointer;
+
+  &.danger { color: $v2-color-danger-btn; }
+  &:hover { text-decoration: underline; }
+}
+
+.btn-secondary { @include v2-btn-secondary; }
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}

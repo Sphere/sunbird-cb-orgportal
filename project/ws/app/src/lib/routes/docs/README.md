@@ -14,6 +14,8 @@ Centralized documentation for all route modules.
 - `frac/`
   - `README.md`
   - `FRAC_ENGINEERING_GUIDELINES.md`
+- `frac-studio/`
+  - `FRAC_STUDIO_BUILD_TRACKER.html`: build phases across service, uiproxy and portal, the review flow and every computed check (open in a browser)
 
 ## Notes
 

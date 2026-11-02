@@ -1,0 +1,26 @@
+<section class="progress" aria-labelledby="fs-progress-title">
+  <div class="progress-head">
+    <h2 id="fs-progress-title" class="progress-title">Progress</h2>
+    <span class="progress-count">{{ doneCount }} of {{ steps.length }} steps done</span>
+  </div>
+  <div class="meter" role="progressbar" [attr.aria-valuenow]="percent" aria-valuemin="0" aria-valuemax="100"
+    aria-label="Steps done">
+    <div class="meter-fill" [style.width.%]="percent"></div>
+  </div>
+
+  <ol class="timeline">
+    <li *ngFor="let step of steps; trackBy: trackByNumber" class="item" [ngClass]="'is-' + step.state">
+      <span class="dot" aria-hidden="true">{{ step.state === 'done' ? '✓' : step.number }}</span>
+      <div class="body">
+        <div class="item-head">
+          <h3 class="item-title">{{ step.number }}. {{ step.title }}</h3>
+          <span class="state">{{ stateLabel(step.state) }}</span>
+        </div>
+        <p class="produces">{{ step.produces }}</p>
+        <p class="evidence" *ngIf="step.evidence">{{ step.evidence }}</p>
+        <p class="running" *ngIf="step.running" role="status">{{ step.running }}</p>
+        <p class="how" *ngIf="step.state !== 'done'">{{ step.howTo }}</p>
+      </div>
+    </li>
+  </ol>
+</section>

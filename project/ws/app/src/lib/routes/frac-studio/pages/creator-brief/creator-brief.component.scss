@@ -1,0 +1,80 @@
+@import '../../frac-studio-common';
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: $v2-space-3;
+  align-items: start;
+
+  @media (max-width: 1180px) { grid-template-columns: 1fr; }
+}
+
+.brief {
+  display: flex;
+  flex-direction: column;
+  gap: $v2-space-3;
+  min-width: 0;
+}
+
+.step-card { @include fs-step-card; }
+.field { @include fs-field; }
+.select-field { @include fs-select; }
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $v2-space-2;
+  align-items: end;
+
+  @media (max-width: 600px) { grid-template-columns: 1fr; }
+}
+
+.sizes {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+
+  @media (max-width: 900px) { grid-template-columns: 1fr; }
+
+  legend {
+    @include v2-form-label;
+  }
+}
+
+.size {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: $v2-space-2;
+  border: 1px solid $v2-color-border;
+  border-radius: $v2-radius-card;
+  cursor: pointer;
+  transition: $v2-transition;
+
+  input { position: absolute; opacity: 0; pointer-events: none; }
+
+  &.selected {
+    border-color: $v2-color-primary;
+    background: $v2-color-primary-tint;
+  }
+}
+
+.size-label { font-weight: 600; }
+
+.size-detail {
+  font-size: $v2-font-micro;
+  color: $v2-color-text-secondary;
+}
+
+.hint {
+  margin: 0;
+  color: $v2-color-text-secondary;
+  font-size: $v2-font-caption;
+}
+
+.actions { display: flex; gap: 12px; }
+.btn-primary { @include v2-btn-primary; }
+.error { @include fs-error; }

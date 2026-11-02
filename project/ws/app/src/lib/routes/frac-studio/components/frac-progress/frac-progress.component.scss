@@ -1,0 +1,140 @@
+@import '../../frac-studio-common';
+
+.progress {
+  @include v2-action-card;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.progress-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.progress-title {
+  @include v2-section-title;
+  margin: 0;
+}
+
+.progress-count {
+  font-size: $v2-font-caption;
+  color: $v2-color-text-secondary;
+  font-variant-numeric: tabular-nums;
+}
+
+.meter {
+  height: 8px;
+  border-radius: 4px;
+  background: $v2-status-neutral-bg;
+  overflow: hidden;
+}
+
+.meter-fill {
+  height: 100%;
+  background: $v2-color-success;
+  transition: width 0.3s ease;
+}
+
+.timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+// Vertical timeline: dot + connector, then the step body
+.item {
+  position: relative;
+  display: grid;
+  grid-template-columns: 32px 1fr;
+  gap: 12px;
+  padding-bottom: $v2-space-2;
+
+  &:not(:last-child)::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 32px;
+    bottom: 0;
+    width: 2px;
+    background: $v2-color-border;
+  }
+
+  &.is-done:not(:last-child)::before { background: $v2-color-success; }
+}
+
+.dot {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $v2-font-caption;
+  font-weight: 700;
+  background: $v2-status-neutral-bg;
+  color: $v2-status-neutral-text;
+  position: relative;
+  z-index: 1;
+
+  .is-done & { background: $v2-status-success-bg; color: $v2-status-success-text; }
+  .is-current & { background: $v2-color-primary; color: #ffffff; box-shadow: 0 0 0 4px $v2-color-primary-tint; }
+  .is-attention & { background: $v2-status-warning-bg; color: $v2-status-warning-text; }
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  padding-top: 4px;
+
+  p {
+    margin: 0;
+    font-size: $v2-font-label;
+  }
+}
+
+.item-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.item-title {
+  margin: 0;
+  font-size: $v2-font-caption;
+  font-weight: 600;
+}
+
+.state {
+  font-size: $v2-font-micro;
+  font-weight: 600;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: $v2-status-neutral-bg;
+  color: $v2-status-neutral-text;
+
+  .is-done & { background: $v2-status-success-bg; color: $v2-status-success-text; }
+  .is-current & { background: $v2-status-info-bg; color: $v2-status-info-text; }
+  .is-attention & { background: $v2-status-warning-bg; color: $v2-status-warning-text; }
+}
+
+.produces { color: $v2-color-text-secondary; }
+
+.evidence {
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.running { color: $v2-color-primary; }
+
+.how {
+  color: $v2-color-text-secondary;
+  font-style: italic;
+}

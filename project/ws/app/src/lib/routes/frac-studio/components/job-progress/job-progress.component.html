@@ -1,0 +1,10 @@
+<div class="job" *ngIf="job" [class.error]="job.status === 'error'" role="status" aria-live="polite">
+  <div class="job-line">
+    <mat-spinner *ngIf="running" diameter="20" strokeWidth="3"></mat-spinner>
+    <span class="job-msg">{{ job.status === 'error' ? (job.error || 'The job failed.') : job.msg }}</span>
+    <span class="job-count" *ngIf="running && job.total > 0">{{ job.done }} of {{ job.total }}</span>
+  </div>
+  <div class="job-bar" *ngIf="running && job.total > 0">
+    <div class="job-bar-fill" [style.width.%]="percent"></div>
+  </div>
+</div>

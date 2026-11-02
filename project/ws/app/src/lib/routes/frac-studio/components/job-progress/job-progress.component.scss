@@ -1,0 +1,43 @@
+@import 'ws-design-system-v2';
+
+.job {
+  display: flex;
+  flex-direction: column;
+  gap: $v2-space-1;
+  padding: 12px $v2-space-2;
+  border-radius: $v2-radius-input;
+  background: $v2-color-primary-tint;
+  color: $v2-color-primary;
+  font-size: $v2-font-caption;
+
+  &.error {
+    background: $v2-status-danger-bg;
+    color: $v2-status-danger-text;
+  }
+}
+
+.job-line {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.job-msg { flex: 1; }
+
+.job-count {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.job-bar {
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(28, 93, 149, 0.15);
+  overflow: hidden;
+}
+
+.job-bar-fill {
+  height: 100%;
+  background: $v2-color-primary;
+  transition: width 0.3s ease;
+}

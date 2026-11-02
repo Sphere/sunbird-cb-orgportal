@@ -1,0 +1,49 @@
+@import '../../frac-studio-common';
+@import '../editor-common';
+
+.roles {
+  display: flex;
+  flex-direction: column;
+  gap: $v2-space-3;
+  align-items: flex-start;
+}
+
+.role {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-bottom: $v2-space-2;
+  border-bottom: 1px solid $v2-color-border;
+}
+
+.role-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.role-title {
+  @include v2-input-field;
+  flex: 1;
+  min-width: 220px;
+  font-weight: 600;
+}
+
+.role-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.confirm {
+  font-size: $v2-font-micro;
+  color: $v2-status-danger-text;
+}
+
+.col-code { width: 56px; font-family: monospace; }
+.col-posting { width: 72px; }
+.col-comp { width: 150px; }
+.col-tier { width: 160px; }
+.col-del { width: 40px; text-align: center; }

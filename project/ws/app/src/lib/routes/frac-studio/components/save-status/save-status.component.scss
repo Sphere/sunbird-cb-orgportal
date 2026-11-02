@@ -1,0 +1,23 @@
+@import 'ws-design-system-v2';
+
+.save {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: $v2-font-micro;
+  color: $v2-status-success-text;
+
+  &.save-pending,
+  &.save-saving { color: $v2-color-text-secondary; }
+  &.save-error { color: $v2-status-danger-text; font-weight: 600; }
+}
+
+.retry {
+  border: 0;
+  background: none;
+  padding: 0;
+  color: $v2-color-primary;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+}

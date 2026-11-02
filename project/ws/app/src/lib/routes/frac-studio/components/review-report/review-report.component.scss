@@ -1,0 +1,169 @@
+@import '../../frac-studio-common';
+
+.report {
+  display: flex;
+  flex-direction: column;
+  gap: $v2-space-3;
+}
+
+.report-head {
+  display: flex;
+  flex-direction: column;
+  gap: $v2-space-1;
+}
+
+.report-title-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.report-title {
+  font-size: $v2-font-section-h2;
+  font-weight: 500;
+  margin: 0;
+}
+
+.triage {
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: $v2-font-label;
+  font-weight: 600;
+  background: $v2-status-success-bg;
+  color: $v2-status-success-text;
+
+  &.triage-revise { background: $v2-status-warning-bg; color: $v2-status-warning-text; }
+  &.triage-rebuild { background: $v2-status-danger-bg; color: $v2-status-danger-text; }
+}
+
+.verdict {
+  font-size: $v2-font-body;
+  font-weight: 500;
+  margin: 0;
+}
+
+.summary,
+.meta {
+  color: $v2-color-text-secondary;
+  font-size: $v2-font-caption;
+  margin: 0;
+}
+
+.meta {
+  display: flex;
+  gap: $v2-space-2;
+}
+
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $v2-space-1;
+  margin: $v2-space-1 0 0;
+
+  .stat {
+    padding: 8px 14px;
+    border: 1px solid $v2-color-border;
+    border-radius: $v2-radius-input;
+    min-width: 96px;
+  }
+
+  dt {
+    font-size: $v2-font-micro;
+    color: $v2-color-text-secondary;
+  }
+
+  dd {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+  }
+}
+
+// 5-tile check grid
+.checks {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+
+  @media (max-width: 1180px) { grid-template-columns: repeat(3, 1fr); }
+  @media (max-width: 600px) { grid-template-columns: 1fr; }
+}
+
+.check {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: $v2-space-2;
+  border-radius: $v2-radius-card;
+  border: 1px solid $v2-color-border;
+  border-top: 4px solid $v2-color-success;
+
+  &.check-minor { border-top-color: $v2-color-text-secondary; }
+  &.check-major { border-top-color: $v2-color-warning; }
+  &.check-blocker { border-top-color: $v2-color-danger-btn; }
+}
+
+.check-name { font-weight: 600; }
+.check-status { font-size: $v2-font-caption; }
+
+.check-count {
+  font-size: $v2-font-micro;
+  color: $v2-color-text-secondary;
+}
+
+.section-title {
+  @include v2-section-title;
+  margin: 0 0 $v2-space-1;
+}
+
+.empty { color: $v2-color-text-secondary; }
+
+.findings {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.finding {
+  padding: $v2-space-2;
+  border: 1px solid $v2-color-border;
+  border-radius: $v2-radius-card;
+
+  &.fixed { opacity: 0.6; }
+
+  p {
+    margin: 6px 0 0;
+    font-size: $v2-font-caption;
+  }
+}
+
+.finding-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.finding-title {
+  margin: 0;
+  font-size: $v2-font-card-title;
+  font-weight: 500;
+  flex: 1;
+}
+
+.sev { @include fs-severity-chip; }
+
+.fixed-tag {
+  font-size: $v2-font-micro;
+  color: $v2-status-success-text;
+}
+
+.finding .finding-by {
+  color: $v2-color-text-secondary;
+  font-size: $v2-font-micro;
+}
+
+.strengths ul {
+  margin: 0;
+  padding-left: 20px;
+}

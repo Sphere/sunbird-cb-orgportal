@@ -1,0 +1,57 @@
+@import '../../frac-studio-common';
+
+.reviewer {
+  display: flex;
+  flex-direction: column;
+  gap: $v2-space-3;
+}
+
+.step-card { @include fs-step-card; }
+.field { @include fs-field; }
+.select-field { @include fs-select; }
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $v2-space-2;
+  align-items: end;
+
+  @media (max-width: 600px) { grid-template-columns: 1fr; }
+}
+
+.hint {
+  margin: 0;
+  color: $v2-color-text-secondary;
+  font-size: $v2-font-caption;
+}
+
+.file-drop {
+  @include v2-empty-state-card;
+  cursor: pointer;
+  padding: $v2-space-3;
+
+  input { display: none; }
+}
+
+.file-name {
+  color: $v2-color-primary;
+  font-weight: 500;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.btn-primary { @include v2-btn-primary; }
+.btn-secondary { @include v2-btn-secondary; }
+.error { @include fs-error; }
+
+.warning {
+  padding: 12px $v2-space-2;
+  border-radius: $v2-radius-input;
+  background: $v2-status-warning-bg;
+  color: $v2-status-warning-text;
+  font-size: $v2-font-caption;
+}

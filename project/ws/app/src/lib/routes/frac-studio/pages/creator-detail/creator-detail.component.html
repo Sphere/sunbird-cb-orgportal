@@ -1,0 +1,70 @@
+<div class="loading" *ngIf="loading">
+  <div class="shimmer"></div>
+  <div class="shimmer short"></div>
+</div>
+
+<div class="error" *ngIf="error" role="alert">{{ error }}</div>
+
+<div class="detail" *ngIf="frac">
+  <div class="main">
+    <section class="brief-card">
+      <dl class="brief">
+        <div><dt>Cadre</dt><dd>{{ frac.cadreFull || frac.cadre }}</dd></div>
+        <div><dt>State</dt><dd>{{ frac.state }}</dd></div>
+        <div><dt>Size</dt><dd>{{ frac.size }}</dd></div>
+        <div *ngIf="frac.imported"><dt>Imported from</dt><dd>{{ frac.imported }}</dd></div>
+      </dl>
+      <p class="prompt" *ngIf="frac.prompt">{{ frac.prompt }}</p>
+    </section>
+
+    <div class="dirty" *ngIf="frac.rolesDirty" role="status">
+      <span>Roles changed after competencies were derived. Check the Competency@Level mappings, then mark them checked.</span>
+      <button type="button" class="text-btn" (click)="markMappingChecked()" *appHideForViewOnly>Mapping checked</button>
+    </div>
+
+    <nav class="tabs" aria-label="FRAC sections">
+      <button *ngFor="let t of tabs" type="button" class="tab" [class.active]="tab === t.key"
+        [attr.aria-pressed]="tab === t.key" (click)="tab = t.key">{{ t.label }}</button>
+    </nav>
+
+    <section class="panel" [ngSwitch]="tab">
+      <ws-app-frac-roles-editor *ngSwitchCase="'roles'" [roles]="frac.roles" [postings]="frac.postings"
+        (rolesChange)="onRolesChange($event)"></ws-app-frac-roles-editor>
+
+      <ws-app-frac-competency-editor *ngSwitchCase="'competencies'" [competencies]="frac.competencies"
+        [usedBy]="usedBy" [prefix]="prefix" (competenciesChange)="onCompetenciesChange($event)">
+      </ws-app-frac-competency-editor>
+
+      <ws-app-frac-ladder-editor *ngSwitchCase="'ladders'" [competencies]="frac.competencies"
+        (competenciesChange)="onCompetenciesChange($event)"></ws-app-frac-ladder-editor>
+
+      <div *ngSwitchCase="'check'" class="check">
+        <p class="hint">Runs the same review as the Review tab on this FRAC: computed checks, then Kaushal and Vidya.
+          The AI review is not enabled yet, so findings come from the computed checks.</p>
+        <p class="hint" *ngIf="!frac.competencies.length">Add competencies before running the check.</p>
+        <ws-app-frac-job-progress [job]="job"></ws-app-frac-job-progress>
+        <div class="actions">
+          <button type="button" class="btn-secondary" (click)="runCheck()" [disabled]="!canCheck" *appHideForViewOnly>
+            {{ frac.review ? 'Re-run check' : 'Run expert check' }}
+          </button>
+          <button type="button" class="btn-secondary" (click)="download()">Download Excel</button>
+        </div>
+        <ws-app-frac-review-report *ngIf="frac.review" [report]="frac.review"></ws-app-frac-review-report>
+      </div>
+
+      <ws-app-frac-version-history *ngSwitchCase="'history'" [fracId]="frac.id" [refreshKey]="historyKey"
+        (restored)="onRestored($event)"></ws-app-frac-version-history>
+    </section>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-head">
+      <h2 class="sidebar-title">{{ frac.cadre }}</h2>
+      <ws-app-frac-save-status [status]="saveStatus" (retry)="retrySave()"></ws-app-frac-save-status>
+    </div>
+    <!-- Running the check is a mutation (hidden for view-only users); the other actions open an editor or download -->
+    <button type="button" class="btn-primary" (click)="onPrimary()" [disabled]="checking"
+      *appHideForViewOnly="primaryMutates">{{ primary.label }}</button>
+    <ws-app-frac-progress [steps]="steps"></ws-app-frac-progress>
+  </aside>
+</div>

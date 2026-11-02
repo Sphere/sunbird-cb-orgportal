@@ -1,0 +1,32 @@
+<div class="ladders">
+  <p class="summary">{{ written }} of {{ competencies.length }} ladders written. Each level gets a one-line label that starts
+    with a measurable verb, then 2–4 indicators, each on its own line starting with "-".</p>
+  <p class="empty" *ngIf="!competencies.length">Add competencies first.</p>
+
+  <article class="card" *ngFor="let c of competencies; let i = index; trackBy: trackByIndex" [class.open]="open.has(c.code)">
+    <button type="button" class="card-head" (click)="toggle(c.code)" [attr.aria-expanded]="open.has(c.code)">
+      <span class="code">{{ c.code }}</span>
+      <span class="card-title">{{ c.label || 'Untitled competency' }}</span>
+      <span class="fill" [class.complete]="filled(c.levels) === 5">{{ c.levels ? filled(c.levels) + ' / 5 levels' : 'No ladder' }}</span>
+      <span class="chevron" aria-hidden="true">{{ open.has(c.code) ? '▴' : '▾' }}</span>
+    </button>
+
+    <div class="card-body" *ngIf="open.has(c.code)">
+      <ng-container *ngIf="c.levels; else noLadder">
+        <div class="level" *ngFor="let l of c.levels; let li = index; trackBy: trackByIndex">
+          <span class="level-name">{{ levelNames[li] }}</span>
+          <input #lab type="text" [value]="l.label" placeholder="Label, e.g. Performs … under supervision"
+            [attr.aria-label]="c.code + ' ' + levelNames[li] + ' label'" (input)="setLevel(i, li, { label: lab.value })"
+            appDisableForViewOnly />
+          <textarea #ind rows="3" [value]="l.desc" placeholder="Indicator&#10;- Indicator&#10;- Indicator"
+            [attr.aria-label]="c.code + ' ' + levelNames[li] + ' indicators'" (input)="setLevel(i, li, { desc: ind.value })"
+            appDisableForViewOnly></textarea>
+        </div>
+      </ng-container>
+      <ng-template #noLadder>
+        <p class="empty">This competency has no ladder yet.</p>
+        <button type="button" class="btn-secondary" (click)="addLadder(i)" *appHideForViewOnly>Write ladder</button>
+      </ng-template>
+    </div>
+  </article>
+</div>

@@ -1,0 +1,69 @@
+<div class="competencies">
+  <div class="counters">
+    <span class="counter" *ngFor="let t of typeCounts"><b>{{ t.value }}</b> {{ t.label }}</span>
+  </div>
+
+  <p class="empty" *ngIf="!competencies.length">No competencies yet. Derive them from the activities: each activity maps
+    to exactly one competency, and every competency is used at least once.</p>
+
+  <div class="table-wrap" *ngIf="competencies.length">
+    <table>
+      <thead>
+        <tr>
+          <th class="col-code">Code</th>
+          <th>Label</th>
+          <th class="col-type">Type</th>
+          <th class="col-area">Area</th>
+          <th>Description</th>
+          <th class="col-kcm">KCM</th>
+          <th class="col-used">Used by</th>
+          <th class="col-del"><span class="sr-only">Delete</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let c of competencies; let i = index; trackBy: trackByIndex">
+          <td class="col-code">{{ c.code }}</td>
+          <td>
+            <input #label type="text" [value]="c.label" placeholder="Noun phrase" [attr.aria-label]="'Label of ' + c.code"
+              (input)="set(i, { label: label.value })" appDisableForViewOnly />
+          </td>
+          <td class="col-type">
+            <select #type [attr.aria-label]="'Type of ' + c.code" (change)="set(i, { type: type.value })" appDisableForViewOnly>
+              <option *ngFor="let t of types" [value]="t" [selected]="t === c.type">{{ t }}</option>
+            </select>
+          </td>
+          <td class="col-area">
+            <input #area type="text" [value]="c.area" [attr.aria-label]="'Area of ' + c.code"
+              (input)="set(i, { area: area.value })" appDisableForViewOnly />
+          </td>
+          <td>
+            <textarea #desc rows="2" [value]="c.description" placeholder="One sentence starting with a verb"
+              [attr.aria-label]="'Description of ' + c.code" (input)="set(i, { description: desc.value })"
+              appDisableForViewOnly></textarea>
+          </td>
+          <td class="col-kcm">
+            <input #kcm type="text" [value]="c.kcm" [attr.aria-label]="'KCM alignment of ' + c.code"
+              (input)="set(i, { kcm: kcm.value })" appDisableForViewOnly />
+          </td>
+          <td class="col-used">
+            <span *ngIf="usedByOf(c).length" class="used">{{ usedByOf(c).join(', ') }}</span>
+            <span *ngIf="!usedByOf(c).length" class="unused">none</span>
+          </td>
+          <td class="col-del">
+            <ng-container *appHideForViewOnly>
+              <button *ngIf="confirmDelete !== i" type="button" class="icon-btn" (click)="confirmDelete = i"
+                [attr.aria-label]="'Delete ' + c.code">×</button>
+              <span *ngIf="confirmDelete === i" class="confirm-row">
+                <span *ngIf="usedByOf(c).length" class="warn">Used by {{ usedByOf(c).length }}.</span>
+                <button type="button" class="text-btn danger" (click)="remove(i)">Delete</button>
+                <button type="button" class="text-btn" (click)="confirmDelete = null">Cancel</button>
+              </span>
+            </ng-container>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <button type="button" class="btn-secondary" (click)="add()" *appHideForViewOnly>+ Add competency</button>
+</div>

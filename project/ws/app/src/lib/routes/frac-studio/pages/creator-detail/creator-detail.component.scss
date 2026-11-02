@@ -1,0 +1,148 @@
+@import '../../frac-studio-common';
+
+.detail {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: $v2-space-3;
+  align-items: start;
+
+  @media (max-width: 1180px) { grid-template-columns: 1fr; }
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: $v2-space-2;
+  min-width: 0;
+}
+
+.brief-card {
+  @include v2-action-card;
+  display: flex;
+  flex-direction: column;
+  gap: $v2-space-1;
+}
+
+.brief {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $v2-space-3;
+  margin: 0;
+
+  dt {
+    font-size: $v2-font-micro;
+    color: $v2-color-text-secondary;
+  }
+
+  dd { margin: 0; font-weight: 500; }
+}
+
+.prompt,
+.hint {
+  margin: 0;
+  color: $v2-color-text-secondary;
+  font-size: $v2-font-caption;
+}
+
+.dirty {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px $v2-space-2;
+  border-radius: $v2-radius-input;
+  background: $v2-status-warning-bg;
+  color: $v2-status-warning-text;
+  font-size: $v2-font-label;
+}
+
+// Section tabs inside the page (underline style, distinct from the shell's pill tabs)
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  border-bottom: 1px solid $v2-color-border;
+}
+
+.tab {
+  padding: 10px 16px;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  background: none;
+  color: $v2-color-text-secondary;
+  font-family: $v2-font-family;
+  font-size: $v2-font-caption;
+  font-weight: 500;
+  cursor: pointer;
+  margin-bottom: -1px;
+
+  &:hover { color: $v2-color-primary; }
+
+  &.active {
+    color: $v2-color-primary;
+    border-bottom-color: $v2-color-primary;
+  }
+
+  &:focus-visible { outline: 2px solid $v2-color-primary; outline-offset: 2px; }
+}
+
+.panel { min-width: 0; }
+
+.check {
+  display: flex;
+  flex-direction: column;
+  gap: $v2-space-2;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.sidebar-head {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sidebar-title {
+  @include v2-section-title;
+  margin: 0;
+}
+
+.text-btn {
+  border: 0;
+  background: none;
+  padding: 0;
+  color: $v2-color-primary;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+
+  &:hover { text-decoration: underline; }
+}
+
+.btn-primary { @include v2-btn-primary; width: 100%; }
+.btn-secondary { @include v2-btn-secondary; }
+.error { @include fs-error; margin-bottom: $v2-space-2; }
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.shimmer {
+  @include v2-shimmer;
+  height: 120px;
+
+  &.short { height: 48px; width: 60%; }
+}

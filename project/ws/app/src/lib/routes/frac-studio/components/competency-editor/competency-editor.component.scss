@@ -1,0 +1,50 @@
+@import '../../frac-studio-common';
+@import '../editor-common';
+
+.competencies {
+  display: flex;
+  flex-direction: column;
+  gap: $v2-space-2;
+  align-items: flex-start;
+}
+
+.counters {
+  display: flex;
+  gap: $v2-space-1;
+}
+
+.counter {
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: $v2-color-primary-tint;
+  color: $v2-color-primary;
+  font-size: $v2-font-label;
+
+  b { font-variant-numeric: tabular-nums; }
+}
+
+.col-code { width: 64px; font-family: monospace; }
+.col-type { width: 130px; }
+.col-area { width: 120px; }
+.col-kcm { width: 160px; }
+.col-used { width: 120px; font-size: $v2-font-micro; }
+.col-del { width: 60px; text-align: center; }
+
+.used { color: $v2-color-text-secondary; }
+
+.unused {
+  color: $v2-color-danger-btn;
+  font-weight: 600;
+}
+
+.confirm-row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.warn {
+  font-size: $v2-font-micro;
+  color: $v2-status-danger-text;
+}

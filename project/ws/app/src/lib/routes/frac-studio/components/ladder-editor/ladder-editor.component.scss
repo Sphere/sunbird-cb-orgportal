@@ -1,0 +1,91 @@
+@import '../../frac-studio-common';
+@import '../editor-common';
+
+.ladders {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.summary {
+  margin: 0;
+  color: $v2-color-text-secondary;
+  font-size: $v2-font-caption;
+}
+
+.card {
+  border: 1px solid $v2-color-border;
+  border-radius: $v2-radius-card;
+  background: #ffffff;
+
+  &.open { border-color: $v2-color-primary; }
+}
+
+.card-head {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px $v2-space-2;
+  border: 0;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  font-family: $v2-font-family;
+
+  &:focus-visible { outline: 2px solid $v2-color-primary; outline-offset: -2px; }
+}
+
+.card-title {
+  flex: 1;
+  font-weight: 500;
+  color: $v2-color-text;
+}
+
+.fill {
+  font-size: $v2-font-micro;
+  color: $v2-status-warning-text;
+
+  &.complete { color: $v2-status-success-text; }
+}
+
+.chevron { color: $v2-color-text-secondary; }
+
+.card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 0 $v2-space-2 $v2-space-2;
+}
+
+.level {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 6px 12px;
+  align-items: start;
+
+  textarea { grid-column: 2; }
+
+  @media (max-width: 600px) {
+    grid-template-columns: 1fr;
+    textarea { grid-column: 1; }
+  }
+
+  input,
+  textarea {
+    @include v2-input-field;
+    font-size: $v2-font-label;
+  }
+
+  textarea {
+    height: auto;
+    padding-top: 8px;
+    resize: vertical;
+  }
+}
+
+.level-name {
+  font-size: $v2-font-label;
+  font-weight: 600;
+  padding-top: 10px;
+}

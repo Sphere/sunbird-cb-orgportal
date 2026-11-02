@@ -1,0 +1,63 @@
+<div class="reviewer">
+  <ng-container *ngIf="!report">
+    <section class="step-card">
+      <div class="step-head">
+        <span class="step-num">1</span>
+        <h2 class="step-title">Upload FRAC</h2>
+        <span class="step-tag" [ngClass]="file ? 'done' : 'required'">{{ file ? 'Done' : 'Required' }}</span>
+      </div>
+      <p class="hint">An Excel workbook with a competency sheet ("Competency Code" and "Level 1" columns) and,
+        ideally, a FRAC sheet with Role and Activity columns.</p>
+      <label class="file-drop" *appHideForViewOnly>
+        <input type="file" [accept]="accept" (change)="onFileChange($event)" [disabled]="busy" />
+        <span class="file-name">{{ file ? file.name : 'Choose an .xlsx file' }}</span>
+      </label>
+    </section>
+
+    <section class="step-card">
+      <div class="step-head">
+        <span class="step-num">2</span>
+        <h2 class="step-title">Context</h2>
+        <span class="step-tag">Optional</span>
+      </div>
+      <div class="grid">
+        <div class="field">
+          <label for="fs-review-cadre">Cadre</label>
+          <input id="fs-review-cadre" type="text" [(ngModel)]="cadre" placeholder="Inferred if blank, e.g. ANM" />
+        </div>
+        <div class="select-field">
+          <span class="select-label">State</span>
+          <select [(ngModel)]="state" aria-label="State">
+            <option *ngFor="let s of states" [value]="s">{{ s }}</option>
+          </select>
+          <span class="select-arrow" aria-hidden="true">▾</span>
+        </div>
+      </div>
+      <div class="field">
+        <label for="fs-review-notes">Reviewer notes</label>
+        <textarea id="fs-review-notes" [(ngModel)]="notes"
+          placeholder="e.g. built 3 years ago by an agency; to be adapted for Bihar"></textarea>
+      </div>
+    </section>
+
+    <div class="error" *ngIf="error" role="alert">{{ error }}</div>
+    <ws-app-frac-job-progress [job]="job"></ws-app-frac-job-progress>
+
+    <div class="actions">
+      <button type="button" class="btn-primary" (click)="runReview()" [disabled]="!canRun" *appHideForViewOnly>
+        {{ busy ? 'Reviewing…' : 'Review FRAC' }}
+      </button>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="report">
+    <div class="warning" *ngFor="let w of warnings">{{ w }}</div>
+    <div class="error" *ngIf="error" role="alert">{{ error }}</div>
+    <div class="actions">
+      <button type="button" class="btn-secondary" (click)="startOver()">Review another FRAC</button>
+      <button type="button" class="btn-secondary" (click)="downloadReview()">Download review</button>
+      <button type="button" class="btn-primary" (click)="openInCreator()" *appHideForViewOnly>Open in Create FRAC to fix</button>
+    </div>
+    <ws-app-frac-review-report [report]="report"></ws-app-frac-review-report>
+  </ng-container>
+</div>

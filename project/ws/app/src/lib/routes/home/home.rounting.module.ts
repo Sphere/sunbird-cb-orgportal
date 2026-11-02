@@ -89,6 +89,14 @@ const routes: Routes = [
           import('../frac/frac.module').then((m) => m.FracModule),
       },
       {
+        // Role names MUST be lowercase (see general.guard.ts). Shares FRAC's roles.
+        path: 'frac-studio',
+        loadChildren: () =>
+          import('../frac-studio/frac-studio.module').then((m) => m.FracStudioModule),
+        canActivate: [GeneralGuard],
+        data: { requiredRoles: ['frac_admin', 'frac_read'] },
+      },
+      {
         // Role name MUST be lowercase — GeneralGuard tests a lowercased Set without
         // lowercasing the input, so an uppercase entry silently never matches.
         // This gate is for UX; the backend 403 is the real access control.

@@ -1,0 +1,50 @@
+<div class="layout">
+<form class="brief" (ngSubmit)="create()">
+  <section class="step-card">
+    <div class="step-head">
+      <span class="step-num">1</span>
+      <h2 class="step-title">Brief</h2>
+      <span class="step-tag required">Required</span>
+    </div>
+
+    <div class="grid">
+      <div class="field">
+        <label for="fs-cadre">Cadre *</label>
+        <input id="fs-cadre" name="cadre" type="text" [(ngModel)]="cadre" placeholder="e.g. ANM, GNM, ASHA, Staff Nurse"
+          required />
+      </div>
+      <div class="select-field">
+        <span class="select-label">State</span>
+        <select name="state" [(ngModel)]="state" aria-label="State">
+          <option *ngFor="let s of states" [value]="s">{{ s }}</option>
+        </select>
+        <span class="select-arrow" aria-hidden="true">▾</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="fs-prompt">What should this FRAC cover?</label>
+      <textarea id="fs-prompt" name="prompt" [(ngModel)]="prompt"
+        placeholder="Postings, programmes, anything the team already knows about the job"></textarea>
+    </div>
+
+    <fieldset class="sizes">
+      <legend>Size</legend>
+      <label class="size" *ngFor="let s of sizes" [class.selected]="size === s.value">
+        <input type="radio" name="size" [value]="s.value" [(ngModel)]="size" />
+        <span class="size-label">{{ s.label }}</span>
+        <span class="size-detail">{{ s.detail }}</span>
+      </label>
+    </fieldset>
+
+    <p class="hint">Job descriptions and government orders can be added once document uploads are enabled.
+      The brief locks once research exists.</p>
+  </section>
+
+  <div class="error" *ngIf="error" role="alert">{{ error }}</div>
+  <div class="actions" *appHideForViewOnly>
+    <button type="submit" class="btn-primary" [disabled]="!canCreate">{{ saving ? 'Creating…' : 'Create FRAC' }}</button>
+  </div>
+</form>
+<ws-app-frac-progress class="steps" [steps]="steps"></ws-app-frac-progress>
+</div>

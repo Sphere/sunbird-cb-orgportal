@@ -1,0 +1,24 @@
+<div class="history">
+  <p class="hint">A snapshot is saved when a FRAC is imported, after each expert check and before every restore, so a
+    restore can itself be undone.</p>
+  <div class="error" *ngIf="error" role="alert">{{ error }}</div>
+  <p class="empty" *ngIf="!loading && !versions.length && !error">No snapshots yet.</p>
+
+  <ol class="list" *ngIf="versions.length">
+    <li class="row" *ngFor="let v of versions; trackBy: trackById">
+      <div class="what">
+        <span class="reason">{{ v.reason }}</span>
+        <span class="meta">Step {{ v.step }} · {{ v.createdAt | date: 'medium' }}</span>
+      </div>
+      <div class="actions" *appHideForViewOnly>
+        <button *ngIf="confirmId !== v.id" type="button" class="text-btn" (click)="confirmId = v.id"
+          [disabled]="restoringId !== null">{{ restoringId === v.id ? 'Restoring…' : 'Restore' }}</button>
+        <ng-container *ngIf="confirmId === v.id">
+          <span class="confirm">Replace the current FRAC with this version?</span>
+          <button type="button" class="text-btn" (click)="restore(v)">Restore</button>
+          <button type="button" class="text-btn muted" (click)="confirmId = null">Cancel</button>
+        </ng-container>
+      </div>
+    </li>
+  </ol>
+</div>

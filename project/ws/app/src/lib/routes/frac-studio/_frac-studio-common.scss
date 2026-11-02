@@ -1,0 +1,119 @@
+// Shared FRAC Studio building blocks, all on the v2 design-system tokens and mixins.
+@import 'ws-design-system-v2';
+
+// Step card: numbered header, Required/Optional/Done tag, body
+@mixin fs-step-card {
+  @include v2-action-card;
+  display: flex;
+  flex-direction: column;
+  gap: $v2-space-2;
+
+  .step-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .step-num {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: $v2-color-primary-tint;
+    color: $v2-color-primary;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .step-title {
+    @include v2-section-title;
+    margin: 0;
+    flex: 1;
+  }
+
+  .step-tag {
+    font-size: $v2-font-micro;
+    padding: 2px 10px;
+    border-radius: 999px;
+    background: $v2-status-neutral-bg;
+    color: $v2-status-neutral-text;
+
+    &.required { background: $v2-status-info-bg; color: $v2-status-info-text; }
+    &.done { background: $v2-status-success-bg; color: $v2-status-success-text; }
+  }
+}
+
+@mixin fs-field {
+  display: flex;
+  flex-direction: column;
+
+  label {
+    @include v2-form-label;
+  }
+
+  input[type='text'],
+  textarea {
+    @include v2-input-field;
+  }
+
+  textarea {
+    height: auto;
+    min-height: 96px;
+    padding-top: 10px;
+    resize: vertical;
+  }
+}
+
+// Native <select> with floating mini-label (playlist-filters pattern)
+@mixin fs-select {
+  @include v2-custom-select-wrapper;
+
+  .select-label {
+    position: absolute;
+    top: 7px;
+    left: 16px;
+    z-index: 2;
+    color: #808080;
+    font-family: $v2-font-family;
+    font-size: $v2-font-label;
+    line-height: 1;
+    pointer-events: none;
+  }
+
+  select {
+    @include v2-custom-select-input;
+  }
+
+  .select-arrow {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: #808080;
+  }
+}
+
+@mixin fs-severity-chip {
+  display: inline-block;
+  font-size: $v2-font-micro;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: $v2-status-neutral-bg;
+  color: $v2-status-neutral-text;
+
+  &.sev-B { background: $v2-status-danger-bg; color: $v2-color-danger-btn; }
+  &.sev-M { background: $v2-status-warning-bg; color: $v2-status-warning-text; }
+}
+
+@mixin fs-error {
+  padding: 12px $v2-space-2;
+  border-radius: $v2-radius-input;
+  background: $v2-status-danger-bg;
+  color: $v2-status-danger-text;
+  font-size: $v2-font-caption;
+}

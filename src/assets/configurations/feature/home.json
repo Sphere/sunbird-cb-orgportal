@@ -78,6 +78,22 @@
           ]
         },
         {
+          "name": "FRAC Studio",
+          "key": "fracStudio",
+          "fragment": false,
+          "render": true,
+          "badges": {
+            "enabled": false,
+            "uri": ""
+          },
+          "enabled": true,
+          "routerLink": "/app/home/frac-studio",
+          "requiredRoles": [
+            "frac_admin",
+            "frac_read"
+          ]
+        },
+        {
           "name": "Playlist",
           "key": "playlist",
           "fragment": false,

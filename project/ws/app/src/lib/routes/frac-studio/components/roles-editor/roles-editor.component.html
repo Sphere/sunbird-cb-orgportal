@@ -1,0 +1,76 @@
+<div class="roles">
+  <p class="empty" *ngIf="!roles.length">No roles yet. Add the first role, written as an area of work (for example
+    "Conduct VHSND sessions"), not a syllabus subject.</p>
+
+  <section class="role" *ngFor="let role of roles; let r = index; let first = first; let last = last; trackBy: trackByIndex">
+    <div class="role-head">
+      <span class="code">{{ role.code }}</span>
+      <input #roleTitle class="role-title" type="text" [value]="role.title" placeholder="Role, e.g. Conduct VHSND sessions"
+        [attr.aria-label]="'Title of role ' + role.code" (input)="setRoleTitle(r, roleTitle.value)" appDisableForViewOnly />
+      <div class="role-actions" *appHideForViewOnly>
+        <button type="button" class="icon-btn" (click)="moveRole(r, -1)" [disabled]="first"
+          [attr.aria-label]="'Move ' + role.code + ' up'">↑</button>
+        <button type="button" class="icon-btn" (click)="moveRole(r, 1)" [disabled]="last"
+          [attr.aria-label]="'Move ' + role.code + ' down'">↓</button>
+        <ng-container *ngIf="confirmDeleteRole !== r">
+          <button type="button" class="text-btn danger" (click)="confirmDeleteRole = r">Delete role</button>
+        </ng-container>
+        <ng-container *ngIf="confirmDeleteRole === r">
+          <span class="confirm">Delete {{ role.code }} and its {{ role.activities.length }} activities?</span>
+          <button type="button" class="text-btn danger" (click)="deleteRole(r)">Delete</button>
+          <button type="button" class="text-btn" (click)="confirmDeleteRole = null">Cancel</button>
+        </ng-container>
+      </div>
+    </div>
+
+    <div class="table-wrap" *ngIf="role.activities.length">
+      <table>
+        <thead>
+          <tr>
+            <th class="col-code">Code</th>
+            <th>Activity</th>
+            <th *ngFor="let p of postings; trackBy: trackByIndex" class="col-posting" [title]="p.label">{{ p.key }}</th>
+            <th class="col-comp">Competency@Level</th>
+            <th class="col-tier">Source tier</th>
+            <th class="col-del"><span class="sr-only">Delete</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let a of role.activities; let ai = index; trackBy: trackByIndex">
+            <td class="col-code">{{ a.code }}</td>
+            <td>
+              <textarea #actText rows="2" [value]="a.text" placeholder="Observable action, e.g. Screen pregnant women"
+                [attr.aria-label]="'Text of ' + a.code" (input)="setActivity(r, ai, { text: actText.value })"
+                appDisableForViewOnly></textarea>
+            </td>
+            <td *ngFor="let p of postings; trackBy: trackByIndex" class="col-posting">
+              <select #post [attr.aria-label]="a.code + ' at ' + p.label"
+                (change)="setPosting(r, ai, p.key, post.value)" appDisableForViewOnly>
+                <option *ngFor="let v of postingValues" [value]="v.value"
+                  [selected]="v.value === (a.postings[p.key] || '')">{{ v.label }}</option>
+              </select>
+            </td>
+            <td class="col-comp">
+              <input #comp type="text" [value]="a.comp" placeholder="e.g. ANM3@L3" [attr.aria-label]="'Competency for ' + a.code"
+                (input)="setActivity(r, ai, { comp: comp.value })" appDisableForViewOnly />
+            </td>
+            <td class="col-tier">
+              <select #tier [attr.aria-label]="'Source tier of ' + a.code"
+                (change)="setActivity(r, ai, { tier: tier.value })" appDisableForViewOnly>
+                <option *ngFor="let t of tiers" [value]="t" [selected]="t === a.tier">{{ t || '—' }}</option>
+              </select>
+            </td>
+            <td class="col-del">
+              <button type="button" class="icon-btn" (click)="deleteActivity(r, ai)" [attr.aria-label]="'Delete ' + a.code"
+                *appHideForViewOnly>×</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <button type="button" class="text-btn" (click)="addActivity(r)" *appHideForViewOnly>+ Add activity</button>
+  </section>
+
+  <button type="button" class="btn-secondary" (click)="addRole()" *appHideForViewOnly>+ Add role</button>
+</div>

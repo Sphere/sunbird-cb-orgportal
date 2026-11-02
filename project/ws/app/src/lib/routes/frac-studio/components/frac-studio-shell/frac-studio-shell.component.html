@@ -1,0 +1,15 @@
+<div class="fs-page">
+  <header class="fs-header">
+    <h1 class="fs-title">FRAC Studio</h1>
+    <p class="fs-subtitle">
+      Review an existing FRAC dictionary against Bloom's, Karmayogi and current guidelines, or build a new one from the job.
+    </p>
+  </header>
+
+  <nav class="fs-tabs" aria-label="FRAC Studio">
+    <a *ngFor="let tab of tabs" class="fs-tab" [routerLink]="tab.link" routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: false }">{{ tab.label }}</a>
+  </nav>
+
+  <router-outlet></router-outlet>
+</div>

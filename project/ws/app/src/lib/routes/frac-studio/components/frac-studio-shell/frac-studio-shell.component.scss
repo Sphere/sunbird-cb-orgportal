@@ -1,0 +1,54 @@
+@import 'ws-design-system-v2';
+
+.fs-page {
+  @include v2-page-container;
+  max-width: $v2-content-max-width;
+  margin: 0 auto;
+  background: #ffffff;
+}
+
+.fs-header {
+  display: flex;
+  flex-direction: column;
+  gap: $v2-space-1;
+}
+
+.fs-title {
+  @include v2-page-title;
+  margin: 0;
+}
+
+.fs-subtitle {
+  @include v2-page-subtitle;
+  max-width: 760px;
+  margin: 0;
+}
+
+// Segmented tab bar
+.fs-tabs {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 4px;
+  border-radius: $v2-radius-button;
+  background: $v2-color-primary-tint;
+  align-self: flex-start;
+}
+
+.fs-tab {
+  padding: 10px 20px;
+  border-radius: $v2-radius-button;
+  color: $v2-color-primary;
+  font-family: $v2-font-family;
+  font-size: $v2-font-caption;
+  font-weight: 500;
+  text-decoration: none;
+  transition: $v2-transition;
+
+  &:hover { background: rgba(28, 93, 149, 0.08); }
+
+  &.active {
+    background: $v2-color-primary;
+    color: #ffffff;
+  }
+}
