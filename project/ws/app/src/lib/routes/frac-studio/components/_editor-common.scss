@@ -29,16 +29,17 @@
   textarea,
   select {
     width: 100%;
-    border: 1px solid transparent;
+    border: 1px solid $v2-color-border; // always visible, like the other form fields
     border-radius: 4px;
-    background: transparent;
+    background: #ffffff;
     padding: 6px 8px;
     font-family: $v2-font-family;
     font-size: $v2-font-label;
     color: $v2-color-text;
     resize: vertical;
 
-    &:hover:not(:disabled) { border-color: $v2-color-border; }
+    &:hover:not(:disabled) { border-color: #c0c0c0; }
+    &:disabled { background: $v2-color-bg; } // view-only users see it is read-only
 
     &:focus {
       outline: none;
