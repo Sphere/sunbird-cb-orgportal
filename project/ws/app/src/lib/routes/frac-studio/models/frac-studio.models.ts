@@ -180,6 +180,8 @@ export interface FracJob {
   done: number
   total: number
   error: string | null
+  /** Stable code for `error`, e.g. JOB_INTERRUPTED when the service restarted mid-step. */
+  errorCode?: string | null
   kind: string
   targetId: string | null
 }
