@@ -1,0 +1,87 @@
+<div class="research">
+  <section class="block">
+    <label class="block-title" for="fs-research-summary">Job summary</label>
+    <textarea id="fs-research-summary" #summary rows="5" [value]="research.summary"
+      placeholder="What the job is, where the cadre works, who they report to (6–10 sentences)"
+      (input)="setText('summary', summary.value)" appDisableForViewOnly></textarea>
+  </section>
+
+  <section class="block">
+    <div class="block-head">
+      <h3 class="block-title">Postings</h3>
+      <span class="hint">These become the posting columns (Yes/No) in Roles &amp; activities. 1–{{ maxPostings }} postings.</span>
+    </div>
+    <p class="empty" *ngIf="!postings.length">No postings yet. Add where the cadre is deployed, e.g. "ANM at Sub-Centre
+      (outreach)".</p>
+    <div class="posting" *ngFor="let p of postings; let i = index; trackBy: trackByIndex">
+      <span class="code">{{ p.key }}</span>
+      <input #postingLabel type="text" [value]="p.label" placeholder="e.g. ANM at delivery-point PHC"
+        [attr.aria-label]="'Label of posting ' + p.key" (input)="setPostingLabel(i, postingLabel.value)" appDisableForViewOnly />
+    </div>
+    <div class="posting-actions" *appHideForViewOnly>
+      <button type="button" class="text-btn" (click)="addPosting()" [disabled]="postings.length >= maxPostings">+ Add posting</button>
+      <ng-container *ngIf="lastPosting">
+        <button *ngIf="!confirmRemovePosting" type="button" class="text-btn danger" (click)="confirmRemovePosting = true">
+          Remove {{ lastPosting.key }}
+        </button>
+        <span *ngIf="confirmRemovePosting" class="confirm">
+          Remove {{ lastPosting.key }} and its Yes/No column from every activity?
+          <button type="button" class="text-btn danger" (click)="removeLastPosting()">Remove</button>
+          <button type="button" class="text-btn" (click)="confirmRemovePosting = false">Cancel</button>
+        </span>
+      </ng-container>
+    </div>
+  </section>
+
+  <section class="grid">
+    <div class="block" *ngFor="let l of lists">
+      <label class="block-title" [for]="'fs-research-' + l.key">{{ l.label }}</label>
+      <textarea [id]="'fs-research-' + l.key" #listField rows="5" [value]="research[l.key]" [placeholder]="l.hint"
+        (input)="setText(l.key, listField.value)" appDisableForViewOnly></textarea>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="block-head">
+      <h3 class="block-title">Sources</h3>
+      <span class="hint">Job descriptions, programme guidelines and facility standards. Never invent page or circular
+        numbers; write "verify" when unsure.</span>
+    </div>
+    <p class="empty" *ngIf="!research.sources.length">No sources yet.</p>
+    <div class="table-wrap" *ngIf="research.sources.length">
+      <table>
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th class="col-issuer">Issuer</th>
+            <th class="col-year">Year</th>
+            <th>Use</th>
+            <th class="col-tier">Tier</th>
+            <th class="col-del"><span class="sr-only">Delete</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let s of research.sources; let i = index; trackBy: trackByIndex">
+            <td><input #title type="text" [value]="s.title" aria-label="Source title" (input)="setSource(i, { title: title.value })" appDisableForViewOnly /></td>
+            <td class="col-issuer"><input #issuer type="text" [value]="s.issuer" aria-label="Issuer" (input)="setSource(i, { issuer: issuer.value })" appDisableForViewOnly /></td>
+            <td class="col-year"><input #year type="text" [value]="s.year" aria-label="Year" (input)="setSource(i, { year: year.value })" appDisableForViewOnly /></td>
+            <td><input #use type="text" [value]="s.use" aria-label="What it is used for" (input)="setSource(i, { use: use.value })" appDisableForViewOnly /></td>
+            <td class="col-tier"><input #tier type="text" [value]="s.tier" aria-label="Tier" placeholder="JD, Programme guideline…" (input)="setSource(i, { tier: tier.value })" appDisableForViewOnly /></td>
+            <td class="col-del">
+              <button type="button" class="icon-btn" (click)="removeSource(i)" [attr.aria-label]="'Delete source ' + (i + 1)"
+                *appHideForViewOnly>×</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <button type="button" class="text-btn" (click)="addSource()" *appHideForViewOnly>+ Add source</button>
+  </section>
+
+  <section class="block">
+    <label class="block-title" for="fs-research-notes">Source notes</label>
+    <textarea id="fs-research-notes" #notes rows="3" [value]="research.sourceNotes"
+      placeholder="Anything about the sources a reviewer should know" (input)="setText('sourceNotes', notes.value)"
+      appDisableForViewOnly></textarea>
+  </section>
+</div>

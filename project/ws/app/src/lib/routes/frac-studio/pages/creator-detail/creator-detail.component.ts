@@ -2,18 +2,27 @@ import { Component, OnDestroy, OnInit } from '@angular/core'
 import { ActivatedRoute } from '@angular/router'
 import { Subscription } from 'rxjs'
 import { switchMap } from 'rxjs/operators'
-import { Frac, FracCompetency, FracJob, FracRole, FracSaveStatus } from '../../models/frac-studio.models'
+import {
+  Frac,
+  FracCompetency,
+  FracJob,
+  FracPosting,
+  FracResearch,
+  FracRole,
+  FracSaveStatus,
+} from '../../models/frac-studio.models'
 import { FracStudioApiService } from '../../services/frac-studio-api.service'
 import { FracStudioAutosaveService } from '../../services/frac-studio-autosave.service'
 import { apiErrorMessage, saveBlob } from '../../utils/frac-studio-download.util'
+import { emptyResearch } from '../../utils/frac-studio-edit.util'
 import { curStep, fracProgress, FracStepProgress } from '../../utils/frac-studio-progress.util'
 import { dominantPrefix, usedByMap } from '../../utils/frac-studio-refs.util'
 
-export type CreatorTab = 'roles' | 'competencies' | 'ladders' | 'check' | 'history'
+export type CreatorTab = 'research' | 'roles' | 'competencies' | 'ladders' | 'check' | 'history'
 
 /** Primary action per curStep (spec 5). Steps that need AI open the matching editor instead. */
 const PRIMARY: { label: string, tab: CreatorTab | null }[] = [
-  { label: 'Add roles & activities', tab: 'roles' },
+  { label: 'Start job research', tab: 'research' },
   { label: 'Add roles & activities', tab: 'roles' },
   { label: 'Add competencies', tab: 'competencies' },
   { label: 'Write level ladders', tab: 'ladders' },
@@ -31,6 +40,7 @@ const PRIMARY: { label: string, tab: CreatorTab | null }[] = [
 })
 export class CreatorDetailComponent implements OnInit, OnDestroy {
   readonly tabs: { key: CreatorTab, label: string }[] = [
+    { key: 'research', label: 'Research' },
     { key: 'roles', label: 'Roles & activities' },
     { key: 'competencies', label: 'Competencies' },
     { key: 'ladders', label: 'Level ladders' },
@@ -45,6 +55,8 @@ export class CreatorDetailComponent implements OnInit, OnDestroy {
   job: FracJob | null = null
   saveStatus: FracSaveStatus = 'idle'
   historyKey = 0
+  /** "Start research" waits for a confirmation, because research locks the brief. */
+  confirmStartResearch = false
   loading = true
   checking = false
   error = ''
@@ -102,6 +114,28 @@ export class CreatorDetailComponent implements OnInit, OnDestroy {
       this.runCheck()
     } else {
       this.download()
+    }
+  }
+
+  /** Saves empty research (spec 5.2). From here on the service refuses brief changes (BRIEF_LOCKED). */
+  startResearch(): void {
+    this.confirmStartResearch = false
+    const research = emptyResearch()
+    this.applyLocal({ research })
+    this.autosave.queue('research', research)
+  }
+
+  onResearchChange(research: FracResearch): void {
+    this.applyLocal({ research })
+    this.autosave.queue('research', research)
+  }
+
+  /** Postings changes; removing a posting also clears its column from the activities. */
+  onPostingsChange(change: { postings: FracPosting[], roles?: FracRole[] }): void {
+    this.applyLocal(change.roles ? { postings: change.postings, roles: change.roles } : { postings: change.postings })
+    this.autosave.queue('postings', change.postings)
+    if (change.roles) {
+      this.autosave.queue('roles', change.roles)
     }
   }
 

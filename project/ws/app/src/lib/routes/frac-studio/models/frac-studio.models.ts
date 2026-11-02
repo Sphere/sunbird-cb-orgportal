@@ -202,4 +202,4 @@ export interface FracVersion {
 export type FracSaveStatus = 'idle' | 'pending' | 'saving' | 'saved' | 'error'
 
 /** Top-level FRAC fields the Creator editors change and autosave. */
-export type FracEditableField = 'postings' | 'roles' | 'competencies' | 'rolesDirty'
+export type FracEditableField = 'research' | 'postings' | 'roles' | 'competencies' | 'rolesDirty'

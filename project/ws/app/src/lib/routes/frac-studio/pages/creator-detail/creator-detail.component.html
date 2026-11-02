@@ -28,6 +28,28 @@
     </nav>
 
     <section class="panel" [ngSwitch]="tab">
+      <ng-container *ngSwitchCase="'research'">
+        <ws-app-frac-research-editor *ngIf="frac.research; else noResearch" [research]="frac.research"
+          [postings]="frac.postings" [roles]="frac.roles" (researchChange)="onResearchChange($event)"
+          (postingsChange)="onPostingsChange($event)"></ws-app-frac-research-editor>
+        <ng-template #noResearch>
+          <div class="start-research">
+            <p class="hint">Job research collects the job description sources, the postings, what the cadre may and may
+              not do, and what changes for this state. AI research is not enabled yet, so fill it in by hand.</p>
+            <ng-container *appHideForViewOnly>
+              <button *ngIf="!confirmStartResearch" type="button" class="btn-secondary" (click)="confirmStartResearch = true">
+                Start research
+              </button>
+              <div *ngIf="confirmStartResearch" class="confirm-start" role="alert">
+                <span>Starting research locks the brief (cadre, state, size, scope). Continue?</span>
+                <button type="button" class="btn-secondary" (click)="startResearch()">Start research</button>
+                <button type="button" class="text-btn" (click)="confirmStartResearch = false">Cancel</button>
+              </div>
+            </ng-container>
+          </div>
+        </ng-template>
+      </ng-container>
+
       <ws-app-frac-roles-editor *ngSwitchCase="'roles'" [roles]="frac.roles" [postings]="frac.postings"
         (rolesChange)="onRolesChange($event)"></ws-app-frac-roles-editor>
 

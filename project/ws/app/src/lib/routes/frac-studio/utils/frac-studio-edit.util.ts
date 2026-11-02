@@ -1,4 +1,13 @@
-import { FracActivity, FracCompetency, FracLevel, FracPosting, FracRole } from '../models/frac-studio.models'
+import { FRAC_STUDIO_MAX_POSTINGS } from '../constants/frac-studio.constants'
+import {
+  FracActivity,
+  FracCompetency,
+  FracLevel,
+  FracPosting,
+  FracResearch,
+  FracRole,
+  FracSource,
+} from '../models/frac-studio.models'
 import { normalizeCode } from './frac-studio-refs.util'
 
 // Pure, immutable edit helpers for the Creator editors. Every function returns new arrays.
@@ -103,6 +112,70 @@ export function removeCompetency(competencies: FracCompetency[], index: number):
 export function updateCompetency(competencies: FracCompetency[], index: number,
   patch: Partial<FracCompetency>): FracCompetency[] {
   return competencies.map((c, i) => (i === index ? { ...c, ...patch } : c))
+}
+
+/** Research with every field empty: what "Start research" saves (spec 4.1 FRAC.research). */
+export function emptyResearch(): FracResearch {
+  return {
+    summary: '',
+    sourceNotes: '',
+    sources: [],
+    authorised: '',
+    notAuthorised: '',
+    stateContext: '',
+    assumptions: '',
+  }
+}
+
+/** Adds a posting with the first free key P1..P3; unchanged once the maximum is reached. */
+export function addPosting(postings: FracPosting[]): FracPosting[] {
+  if (postings.length >= FRAC_STUDIO_MAX_POSTINGS) {
+    return postings
+  }
+  const used = new Set(postings.map(p => p.key))
+  let n = 1
+  while (used.has(`P${n}`)) {
+    n++
+  }
+  return [...postings, { key: `P${n}`, label: '' }]
+}
+
+export function updatePosting(postings: FracPosting[], index: number, label: string): FracPosting[] {
+  return postings.map((p, i) => (i === index ? { ...p, label } : p))
+}
+
+/**
+ * Removes the last posting and drops its Yes/No value from every activity, so the
+ * Roles & activities table and the Excel export lose that column together.
+ */
+export function removeLastPosting(postings: FracPosting[], roles: FracRole[]): { postings: FracPosting[], roles: FracRole[] } {
+  const last = postings[postings.length - 1]
+  if (!last) {
+    return { postings, roles }
+  }
+  return {
+    postings: postings.slice(0, -1),
+    roles: roles.map(role => ({
+      ...role,
+      activities: role.activities.map(activity => ({
+        ...activity,
+        postings: Object.fromEntries(Object.entries(activity.postings).filter(([key]) => key !== last.key)),
+      })),
+    })),
+  }
+}
+
+export function addSource(research: FracResearch): FracResearch {
+  const source: FracSource = { title: '', issuer: '', year: '', use: '', tier: '' }
+  return { ...research, sources: [...research.sources, source] }
+}
+
+export function updateSource(research: FracResearch, index: number, patch: Partial<FracSource>): FracResearch {
+  return { ...research, sources: research.sources.map((s, i) => (i === index ? { ...s, ...patch } : s)) }
+}
+
+export function removeSource(research: FracResearch, index: number): FracResearch {
+  return { ...research, sources: research.sources.filter((_, i) => i !== index) }
 }
 
 /** Replaces one level of one competency, creating the ladder if it had none. */

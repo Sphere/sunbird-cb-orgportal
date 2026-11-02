@@ -1,0 +1,80 @@
+@import '../../frac-studio-common';
+@import '../editor-common';
+
+.research {
+  display: flex;
+  flex-direction: column;
+  gap: $v2-space-3;
+}
+
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+
+  > textarea {
+    @include v2-input-field;
+    height: auto;
+    padding-top: 10px;
+    resize: vertical;
+  }
+}
+
+.block-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+}
+
+.block-title {
+  @include v2-section-title;
+  margin: 0;
+  font-size: $v2-font-card-title;
+}
+
+.hint {
+  color: $v2-color-text-secondary;
+  font-size: $v2-font-micro;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $v2-space-2;
+
+  @media (max-width: 900px) { grid-template-columns: 1fr; }
+}
+
+.posting {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  input {
+    @include v2-input-field;
+    flex: 1;
+  }
+}
+
+.posting-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+}
+
+.confirm {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  font-size: $v2-font-micro;
+  color: $v2-status-danger-text;
+}
+
+.col-issuer { width: 160px; }
+.col-year { width: 80px; }
+.col-tier { width: 170px; }
+.col-del { width: 40px; text-align: center; }

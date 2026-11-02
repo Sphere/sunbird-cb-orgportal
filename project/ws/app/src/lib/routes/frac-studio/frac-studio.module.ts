@@ -10,6 +10,7 @@ import { FracProgressComponent } from './components/frac-progress/frac-progress.
 import { FracStudioShellComponent } from './components/frac-studio-shell/frac-studio-shell.component'
 import { JobProgressComponent } from './components/job-progress/job-progress.component'
 import { LadderEditorComponent } from './components/ladder-editor/ladder-editor.component'
+import { ResearchEditorComponent } from './components/research-editor/research-editor.component'
 import { ReviewReportComponent } from './components/review-report/review-report.component'
 import { RolesEditorComponent } from './components/roles-editor/roles-editor.component'
 import { SaveStatusComponent } from './components/save-status/save-status.component'
@@ -34,6 +35,7 @@ import { ReviewerComponent } from './pages/reviewer/reviewer.component'
     RolesEditorComponent,
     CompetencyEditorComponent,
     LadderEditorComponent,
+    ResearchEditorComponent,
     VersionHistoryComponent,
     ReviewerComponent,
     CreatorBriefComponent,

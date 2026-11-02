@@ -95,6 +95,25 @@
   gap: $v2-space-2;
 }
 
+.start-research {
+  @include v2-empty-state-card;
+  align-items: flex-start;
+  text-align: left;
+  gap: $v2-space-2;
+}
+
+.confirm-start {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding: 10px $v2-space-2;
+  border-radius: $v2-radius-input;
+  background: $v2-status-warning-bg;
+  color: $v2-status-warning-text;
+  font-size: $v2-font-label;
+}
+
 .actions {
   display: flex;
   flex-wrap: wrap;

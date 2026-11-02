@@ -116,7 +116,7 @@ export function fracProgress(frac: Frac, job: FracJob | null = null): FracStepPr
       evidence: frac.research
         ? `${plural(frac.research.sources.length, 'source')} · ${plural(frac.postings.length, 'posting')}`
         : frac.imported ? `Skipped: imported from ${frac.imported}` : 'No research yet',
-      howTo: 'Needs AI generation, which is not enabled on this server yet.',
+      howTo: 'Fill in the job research by hand in the Research tab. AI research is not enabled yet.',
       running: '',
     },
     {

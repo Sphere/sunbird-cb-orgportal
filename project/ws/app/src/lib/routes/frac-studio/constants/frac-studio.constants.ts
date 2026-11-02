@@ -11,6 +11,17 @@ export const FRAC_STUDIO_ROUTES = {
 /** How often a running job is polled. */
 export const FRAC_STUDIO_POLL_MS = 2000
 
+/** Postings become the FRAC's posting columns; spec 5.2 asks for 1–3. */
+export const FRAC_STUDIO_MAX_POSTINGS = 3
+
+/** Research text fields (spec 4.1), one item per line, in the order the editor shows them. */
+export const FRAC_STUDIO_RESEARCH_LISTS: readonly { key: 'authorised' | 'notAuthorised' | 'stateContext' | 'assumptions', label: string, hint: string }[] = [
+  { key: 'authorised', label: 'Authorised to do', hint: 'What the cadre may do, one item per line' },
+  { key: 'notAuthorised', label: 'Not authorised (refer)', hint: 'What they must refer onward, one item per line' },
+  { key: 'stateContext', label: 'State context', hint: 'Programmes, cadre names, endemic diseases, languages, portals' },
+  { key: 'assumptions', label: 'Assumptions & to verify', hint: 'Start a line with "VERIFY:" for facts to check' },
+]
+
 /** Quiet time after the last edit before it is saved (spec 8: the prototype used 1.4 s). */
 export const FRAC_STUDIO_AUTOSAVE_MS = 1400
 
