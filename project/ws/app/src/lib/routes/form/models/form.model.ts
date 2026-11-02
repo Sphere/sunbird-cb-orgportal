@@ -10,7 +10,8 @@ export type FormLayoutType = 'web_layout' | 'app_layout'
 export interface IFormReadRequest {
   type: string
   subtype: string
-  action: 'get'
+  // 'get' for layouts; other stored forms use actions like 'config_public' / 'create'.
+  action: string
   component: string
   framework: string
   rootOrgId: string
@@ -62,4 +63,39 @@ export interface IFormApiResponse {
   result: {
     form: IFormLayoutResult
   }
+}
+
+/**
+ * One row of the Browse table — a form's identifying keys only. Built from
+ * the `list` / `fetchAll` responses, which return `root_org` (snake_case,
+ * unlike `read`'s `rootOrgId`) and `data` as a JSON *string*; `data` is
+ * dropped on arrival (fetchAll is ~2 MB) and re-fetched via `read` on Edit.
+ * `list` rows carry no timestamps, `fetchAll` rows do.
+ */
+export interface IFormSummary {
+  type: string
+  subtype: string
+  action: string
+  component: string
+  framework: string
+  rootOrgId: string
+  created_on?: string | null
+  last_modified_on?: string | null
+}
+
+/** Raw row shape returned by `list` / `fetchAll`. */
+export interface IFormListApiItem {
+  type: string
+  subtype: string
+  action: string
+  component: string
+  framework: string
+  root_org: string
+  created_on?: string | null
+  last_modified_on?: string | null
+  data?: string
+}
+
+export interface IFormListApiResponse {
+  result: { forms: IFormListApiItem[], count?: number }
 }

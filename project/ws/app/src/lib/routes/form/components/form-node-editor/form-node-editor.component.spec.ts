@@ -172,6 +172,41 @@ describe('FormNodeEditorComponent', () => {
     })
   })
 
+  describe('bulk add', () => {
+    it('is offered on empty lists and lists of text items only', () => {
+      component.node = { kind: 'array', items: [] }
+      expect(component.canBulkAdd).toBe(true)
+      component.node = { kind: 'array', items: [{ kind: 'string', value: 'a' }] }
+      expect(component.canBulkAdd).toBe(true)
+      component.node = { kind: 'array', items: [{ kind: 'object', entries: [] }] }
+      expect(component.canBulkAdd).toBe(false)
+      component.node = { kind: 'object', entries: [] }
+      expect(component.canBulkAdd).toBe(false)
+    })
+
+    it('splits on commas/newlines, trims, skips blanks, appends and clears the input', () => {
+      component.node = { kind: 'array', items: [{ kind: 'string', value: 'existing' }] }
+      component.bulkValues = ' C1, C2 ,,\nC3 '
+
+      component.addBulkStrings()
+
+      expect(component.node.items).toEqual([
+        { kind: 'string', value: 'existing' },
+        { kind: 'string', value: 'C1' },
+        { kind: 'string', value: 'C2' },
+        { kind: 'string', value: 'C3' },
+      ])
+      expect(component.bulkValues).toBe('')
+    })
+
+    it('does nothing for blank input', () => {
+      component.node = { kind: 'array', items: [] }
+      component.bulkValues = ' , '
+      component.addBulkStrings()
+      expect(component.node.items).toEqual([])
+    })
+  })
+
   describe('trackByIndex', () => {
     it('returns the index unchanged', () => {
       expect(component.trackByIndex(3)).toBe(3)

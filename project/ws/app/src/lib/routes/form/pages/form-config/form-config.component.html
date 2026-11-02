@@ -1,85 +1,289 @@
 <div class="form-config-container">
   <section class="header-section">
-    <h1 class="page-title">Form Configuration</h1>
-    <p class="page-subtitle">Select an application and visibility to load its form layout config for editing.</p>
+    <div class="header-text">
+      <h1 class="page-title">Form Configuration</h1>
+      <p class="page-subtitle">Browse existing form configs, open one to edit, or create a new one. Developer tool.</p>
+    </div>
+    <button type="button" class="primary-btn" *ngIf="!layout && !openSummary && !showCreatePanel"
+      (click)="openCreatePanel()">
+      <mat-icon>add</mat-icon> New Form
+    </button>
   </section>
 
-  <section class="config-card">
+  <!-- ======================= New Form ======================= -->
+  <section class="config-card" *ngIf="showCreatePanel" aria-labelledby="new-form-title">
+    <div class="card-title-row">
+      <h2 class="card-title" id="new-form-title">New Form</h2>
+      <button type="button" class="text-btn" (click)="cancelCreate()">Cancel</button>
+    </div>
+
     <div class="selectors-grid">
       <div class="select-field">
         <div class="custom-select-wrapper">
-          <span class="select-label">Type</span>
-          <select class="custom-select" [(ngModel)]="layoutType" (ngModelChange)="onLayoutTypeChange()" name="layoutType">
+          <label class="select-label" for="nf-type">Type</label>
+          <select id="nf-type" class="custom-select" [(ngModel)]="layoutType" (ngModelChange)="onLayoutTypeChange()"
+            name="layoutType">
             <option value="" disabled>Select type</option>
             <option *ngFor="let opt of layoutTypes" [value]="opt.value">{{ opt.label }}</option>
           </select>
-          <span class="select-chevron">▾</span>
+          <span class="select-chevron" aria-hidden="true">▾</span>
         </div>
       </div>
 
       <div class="select-field" *ngIf="showApplicationType">
         <div class="custom-select-wrapper">
-          <span class="select-label">Application Type</span>
-          <select class="custom-select" [(ngModel)]="applicationType" (ngModelChange)="loadError = ''"
-            name="applicationType">
+          <label class="select-label" for="nf-app">Application Type</label>
+          <select id="nf-app" class="custom-select" [(ngModel)]="applicationType"
+            (ngModelChange)="clearCreateFeedback()" name="applicationType">
             <option value="" disabled>Select application</option>
             <option *ngFor="let opt of applicationTypes" [value]="opt.value">{{ opt.label }}</option>
           </select>
-          <span class="select-chevron">▾</span>
+          <span class="select-chevron" aria-hidden="true">▾</span>
         </div>
       </div>
 
       <div class="select-field">
         <div class="custom-select-wrapper">
-          <span class="select-label">Access</span>
-          <select class="custom-select" [(ngModel)]="accessType" (ngModelChange)="onAccessTypeChange()" name="accessType">
+          <label class="select-label" for="nf-access">Access</label>
+          <select id="nf-access" class="custom-select" [(ngModel)]="accessType" (ngModelChange)="onAccessTypeChange()"
+            name="accessType">
             <option value="" disabled>Select access</option>
             <option *ngFor="let opt of accessTypes" [value]="opt.value">{{ opt.label }}</option>
           </select>
-          <span class="select-chevron">▾</span>
+          <span class="select-chevron" aria-hidden="true">▾</span>
         </div>
       </div>
 
+      <div class="select-field" *ngIf="accessType">
+        <div class="custom-select-wrapper">
+          <label class="select-label" for="nf-framework">Framework</label>
+          <select id="nf-framework" class="custom-select" [(ngModel)]="framework"
+            (ngModelChange)="clearCreateFeedback()" name="framework">
+            <option *ngFor="let opt of frameworks" [value]="opt.value">{{ opt.label }}</option>
+          </select>
+          <span class="select-chevron" aria-hidden="true">▾</span>
+        </div>
+      </div>
     </div>
 
-    <div class="selectors-grid selectors-grid--org" *ngIf="accessType">
+    <div class="selectors-grid selectors-grid--org" *ngIf="accessType === 'private'">
+      <div class="select-field">
+        <input class="filter-input" type="text" [(ngModel)]="createOrgFilter" name="createOrgFilter"
+          placeholder="Search org by name or id" aria-label="Search organizations" />
+      </div>
       <div class="select-field">
         <div class="custom-select-wrapper">
-          <span class="select-label">Org Name</span>
-          <select class="custom-select" [(ngModel)]="rootOrgId" (ngModelChange)="loadError = ''" name="rootOrgId"
-            [disabled]="accessType !== 'private'">
-            <option *ngIf="accessType === 'public'" value="*">*</option>
-            <ng-container *ngIf="accessType === 'private'">
-              <option value="" disabled>{{ loadingRootOrgs ? 'Loading orgs...' : 'Select org name' }}</option>
-              <option *ngFor="let org of rootOrgOptions" [value]="org.value">{{ org.label }}</option>
-            </ng-container>
+          <label class="select-label" for="nf-org">Org Name</label>
+          <select id="nf-org" class="custom-select" [(ngModel)]="rootOrgId" (ngModelChange)="clearCreateFeedback()"
+            name="rootOrgId">
+            <option value="" disabled>{{ loadingRootOrgs ? 'Loading orgs...' : 'Select org name' }}</option>
+            <option *ngFor="let org of filterOrgOptions(createOrgFilter)" [value]="org.value">{{ org.label }}</option>
           </select>
-          <span class="select-chevron">▾</span>
+          <span class="select-chevron" aria-hidden="true">▾</span>
         </div>
+      </div>
+      <div class="select-field" *ngIf="rootOrgId">
+        <div class="custom-select-wrapper">
+          <label class="select-label" for="nf-org-id">Org Id</label>
+          <input id="nf-org-id" class="custom-select" type="text" [value]="rootOrgId" readonly />
+        </div>
+      </div>
+    </div>
+
+    <!-- Starting content: the Type's empty skeleton, or an uploaded JSON file -->
+    <div class="start-from" *ngIf="layoutType">
+      <div class="start-from__row">
+        <!-- Toggle: on = start from an uploaded file, off (default) = start from the Type's empty form -->
+        <button type="button" class="section-tab" [class.section-tab--active]="startFrom === 'upload'"
+          [attr.aria-pressed]="startFrom === 'upload'"
+          (click)="setStartFrom(startFrom === 'upload' ? 'empty' : 'upload')">
+          Upload JSON
+        </button>
+        <button type="button" class="text-btn" (click)="downloadSample()"
+          [title]="'Download a sample ' + layoutType + ' data file to edit and upload'">
+          <mat-icon>download</mat-icon> Download sample JSON
+        </button>
       </div>
 
-      <div class="select-field" *ngIf="accessType === 'private' && rootOrgId">
-        <div class="custom-select-wrapper">
-          <span class="select-label">Org Id</span>
-          <input class="custom-select" type="text" [value]="rootOrgId" readonly disabled />
+      <div class="upload-box" *ngIf="startFrom === 'upload'">
+        <!-- Input inside the label so :focus-within shows a focus ring for keyboard users -->
+        <label class="secondary-btn upload-box__pick">
+          <mat-icon>upload_file</mat-icon> {{ uploadedData ? 'Choose another file' : 'Choose JSON file' }}
+          <input class="visually-hidden" type="file" accept=".json,application/json"
+            (change)="onUploadFileSelected($event)" />
+        </label>
+        <p class="upload-box__hint" *ngIf="!uploadFileName">
+          Upload the form's data, or a file saved with Download JSON from another form to copy it.
+        </p>
+
+        <div class="upload-box__summary" *ngIf="uploadedData">
+          <mat-icon class="upload-box__ok">check_circle_outline</mat-icon>
+          <span>
+            <strong>{{ uploadFileName }}</strong>
+            <ng-container *ngIf="uploadSectionNames.length">
+              — {{ uploadSectionNames.length }} {{ uploadSectionNames.length === 1 ? 'section' : 'sections' }}:
+              {{ uploadSectionNames.join(', ') }}
+            </ng-container>
+          </span>
+          <button type="button" class="text-btn" (click)="clearUpload()">Remove</button>
+        </div>
+
+        <div class="notice notice--warn" *ngIf="uploadedData && uploadUnexpectedKeys.length" role="status">
+          <mat-icon class="notice__icon">info_outline</mat-icon>
+          <p class="notice__text">
+            {{ uploadUnexpectedKeys.join(', ') }} {{ uploadUnexpectedKeys.length === 1 ? 'is' : 'are' }} not in the
+            {{ layoutType }} sample. Check you picked the right Type — you can still continue.
+          </p>
+        </div>
+
+        <div class="notice notice--error" *ngIf="uploadError" role="alert">
+          <mat-icon class="notice__icon">error_outline</mat-icon>
+          <p class="notice__text"><strong>{{ uploadFileName }}</strong>: {{ uploadError }}</p>
         </div>
       </div>
+    </div>
+
+    <div class="notice notice--warn" *ngIf="existingMatch" role="status">
+      <mat-icon class="notice__icon">info_outline</mat-icon>
+      <p class="notice__text">
+        A form already exists for this combination
+        ({{ existingMatch.type }} · {{ existingMatch.component }} · {{ existingMatch.framework }} ·
+        {{ orgLabel(existingMatch.rootOrgId) }}). Open it instead of creating a new one.
+      </p>
+      <button type="button" class="primary-btn" (click)="openExistingMatch()">Open existing</button>
+    </div>
+
+    <div class="notice notice--error" *ngIf="createError" role="alert">
+      <mat-icon class="notice__icon">error_outline</mat-icon>
+      <p class="notice__text">{{ createError }}</p>
     </div>
 
     <div class="config-card__actions">
-      <button type="button" class="load-btn" [disabled]="!canLoad" (click)="loadForm()">
-        {{ loading ? 'Loading...' : 'Load Form' }}
+      <button type="button" class="primary-btn" [disabled]="!canCreate" (click)="onCreateForm()">
+        {{ checkingExisting ? 'Checking...' : 'Create Form' }}
       </button>
-    </div>
-
-    <div class="load-error-banner" *ngIf="loadError">
-      <mat-icon class="load-error-banner__icon">info_outline</mat-icon>
-      <p class="load-error-banner__text">{{ loadError }}</p>
-      <button type="button" class="create-form-btn" (click)="onCreateForm()">Create Form for this Org</button>
     </div>
   </section>
 
-  <!-- Loaded inline on this same page — no navigation to a separate screen -->
+  <!-- ======================= Browse ======================= -->
+  <section class="config-card" *ngIf="!layout && !openSummary && !showCreatePanel" aria-label="Browse forms">
+    <div class="scope-tabs" role="tablist" aria-label="Which forms to show">
+      <button type="button" class="section-tab" role="tab" *ngFor="let s of browseScopes"
+        [class.section-tab--active]="scope === s.value" [attr.aria-selected]="scope === s.value"
+        (click)="setScope(s.value)">
+        {{ s.label }}
+      </button>
+    </div>
+
+    <div class="selectors-grid selectors-grid--org" *ngIf="scope === 'org'">
+      <div class="select-field">
+        <input class="filter-input" type="text" [(ngModel)]="browseOrgFilter" name="browseOrgFilter"
+          placeholder="Search org by name or id" aria-label="Search organizations" />
+      </div>
+      <div class="select-field">
+        <div class="custom-select-wrapper">
+          <label class="select-label" for="browse-org">Organization</label>
+          <select id="browse-org" class="custom-select" [(ngModel)]="browseOrgId" (ngModelChange)="onBrowseOrgChange()"
+            name="browseOrgId">
+            <option value="" disabled>{{ loadingRootOrgs ? 'Loading orgs...' : 'Select an organization' }}</option>
+            <option *ngFor="let org of filterOrgOptions(browseOrgFilter)" [value]="org.value">{{ org.label }}</option>
+          </select>
+          <span class="select-chevron" aria-hidden="true">▾</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="table-toolbar" *ngIf="forms.length">
+      <input class="filter-input" type="text" [(ngModel)]="formsFilter" name="formsFilter"
+        placeholder="Filter by type, component, framework or org" aria-label="Filter forms" />
+      <div class="custom-select-wrapper type-filter">
+        <label class="select-label" for="type-filter">Type</label>
+        <select id="type-filter" class="custom-select" [(ngModel)]="formsTypeFilter" name="formsTypeFilter">
+          <option value="">All types</option>
+          <option *ngFor="let t of formTypeOptions" [value]="t">{{ t }}</option>
+        </select>
+        <span class="select-chevron" aria-hidden="true">▾</span>
+      </div>
+      <span class="result-count">{{ filteredForms.length }} of {{ forms.length }} forms</span>
+    </div>
+
+    <!-- Loading -->
+    <div class="table-container" *ngIf="loadingForms" aria-busy="true">
+      <p class="loading-note" *ngIf="scope === 'all'">Loading all forms — this can take a few seconds…</p>
+      <div class="shimmer-row" *ngFor="let r of shimmerRows"></div>
+    </div>
+
+    <!-- Error -->
+    <div class="notice notice--error" *ngIf="!loadingForms && formsError" role="alert">
+      <mat-icon class="notice__icon">error_outline</mat-icon>
+      <p class="notice__text">{{ formsError }}</p>
+      <button type="button" class="secondary-btn" (click)="loadForms()">Retry</button>
+    </div>
+
+    <!-- Empty -->
+    <div class="empty-state" *ngIf="!loadingForms && !formsError && !filteredForms.length">
+      <div class="empty-state__icon"><mat-icon>description</mat-icon></div>
+      <p class="empty-state__title" *ngIf="scope === 'org' && !browseOrgId">Select an organization to see its forms.</p>
+      <p class="empty-state__title" *ngIf="(scope !== 'org' || browseOrgId) && !forms.length">
+        No forms found{{ scope === 'org' ? ' for this organization' : '' }}. Use New Form to create one.
+      </p>
+      <p class="empty-state__title" *ngIf="forms.length">No forms match your filter.</p>
+    </div>
+
+    <!-- Table -->
+    <div class="table-container" *ngIf="!loadingForms && !formsError && filteredForms.length">
+      <table class="forms-table">
+        <thead>
+          <tr>
+            <th scope="col">Org</th>
+            <th scope="col">Type</th>
+            <th scope="col">Component</th>
+            <th scope="col">Framework</th>
+            <th scope="col">Action</th>
+            <th scope="col">Last changed</th>
+            <th scope="col" class="col-actions"><span class="visually-hidden">Actions</span></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let f of filteredForms; trackBy: trackByForm">
+            <td>
+              <div class="cell-primary">{{ orgLabel(f.rootOrgId) }}</div>
+              <div class="cell-secondary" *ngIf="f.rootOrgId !== '*'">{{ f.rootOrgId }}</div>
+            </td>
+            <td>{{ f.type }}</td>
+            <td>{{ f.component }}</td>
+            <td><span class="pill">{{ f.framework || '—' }}</span></td>
+            <td>{{ f.action }}</td>
+            <td>{{ (lastChanged(f) | date:'d MMM y, h:mm a') || '—' }}</td>
+            <td class="col-actions">
+              <button type="button" class="secondary-btn secondary-btn--small" (click)="openForm(f)"
+                [attr.aria-label]="'Edit ' + f.type + ' ' + f.component + ' ' + f.framework + ' for ' + orgLabel(f.rootOrgId)">
+                <mat-icon>edit</mat-icon> Edit
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ======================= Edit ======================= -->
+  <section class="editor-bar" *ngIf="layout || openSummary">
+    <button type="button" class="text-btn" (click)="backToForms()">
+      <mat-icon>arrow_back</mat-icon> Back
+    </button>
+  </section>
+
+  <div class="table-container" *ngIf="opening" aria-busy="true">
+    <div class="shimmer-row" *ngFor="let r of shimmerRows"></div>
+  </div>
+
+  <div class="notice notice--error" *ngIf="openError" role="alert">
+    <mat-icon class="notice__icon">error_outline</mat-icon>
+    <p class="notice__text">{{ openError }}</p>
+    <button type="button" class="secondary-btn" *ngIf="openSummary" (click)="openForm(openSummary)">Retry</button>
+  </div>
+
   <ng-container *ngIf="layout">
 
     <!-- Full layout details, everything except `data` -->
@@ -115,21 +319,22 @@
         </div>
         <div class="details-item">
           <span class="details-label">Created On</span>
-          <span class="details-value">{{ layout.created_on || '—' }}</span>
+          <span class="details-value">{{ (layout.created_on | date:'d MMM y, h:mm a') || '—' }}</span>
         </div>
         <div class="details-item">
           <span class="details-label">Last Modified On</span>
-          <span class="details-value">{{ layout.last_modified_on || '—' }}</span>
+          <span class="details-value">{{ (layout.last_modified_on | date:'d MMM y, h:mm a') || '—' }}</span>
         </div>
       </div>
     </section>
 
     <!-- Section buttons: orgData / LAYOUT_HEADER / LAYOUT_BODY / LAYOUT_FOOTER (or whatever sections exist) -->
     <section class="section-picker" *ngIf="hasSections">
-      <label class="form-label">Section</label>
-      <div class="section-tabs">
-        <button type="button" class="section-tab" *ngFor="let section of sections; let i = index"
-          [class.section-tab--active]="i === selectedSectionIndex" (click)="selectSection(i)">
+      <span class="form-label" id="section-label">Section</span>
+      <div class="section-tabs" role="tablist" aria-labelledby="section-label">
+        <button type="button" class="section-tab" role="tab" *ngFor="let section of sections; let i = index"
+          [class.section-tab--active]="i === selectedSectionIndex" [attr.aria-selected]="i === selectedSectionIndex"
+          (click)="selectSection(i)">
           {{ section.name }}
         </button>
       </div>
@@ -141,16 +346,42 @@
           <mat-icon>account_tree</mat-icon>
           <span>{{ section.name }}</span>
         </div>
+        <div class="fields-toolbar__actions">
+          <button type="button" class="text-btn" (click)="expandAll()">
+            <mat-icon>unfold_more</mat-icon> Expand all
+          </button>
+          <button type="button" class="text-btn" (click)="collapseAll()">
+            <mat-icon>unfold_less</mat-icon> Collapse all
+          </button>
+        </div>
       </div>
 
-      <app-form-node-editor [node]="section.node" [path]="'section-' + selectedSectionIndex"></app-form-node-editor>
+      <ws-app-form-node-editor [node]="section.node"
+        [path]="'section-' + selectedSectionIndex"></ws-app-form-node-editor>
 
-      <p class="error-text" *ngIf="validationError">{{ validationError }}</p>
+      <p class="error-text" *ngIf="validationError" role="alert">{{ validationError }}</p>
     </section>
 
+    <div class="notice notice--error" *ngIf="saveError" role="alert">
+      <mat-icon class="notice__icon">error_outline</mat-icon>
+      <p class="notice__text">{{ saveError }}</p>
+    </div>
+
+    <div class="notice notice--success" *ngIf="saveSuccess" role="status">
+      <mat-icon class="notice__icon">check_circle_outline</mat-icon>
+      <p class="notice__text">{{ saveSuccess }}</p>
+    </div>
+
     <div class="update-row">
+      <button type="button" class="secondary-btn" (click)="downloadJson()" *ngIf="!isNewForm"
+        title="Download the form as it was loaded — a backup before you save over it">
+        <mat-icon>download</mat-icon> Download JSON
+      </button>
+      <button type="button" class="secondary-btn" (click)="discardChanges()" [disabled]="saving">
+        <mat-icon>undo</mat-icon> Discard changes
+      </button>
       <button type="button" class="update-btn" [disabled]="!canSave" (click)="onUpdateForm()">
-        {{ saving ? 'Saving...' : 'Update Form' }}
+        {{ saving ? 'Saving...' : (isNewForm ? 'Create Form' : 'Update Form') }}
       </button>
     </div>
   </ng-container>

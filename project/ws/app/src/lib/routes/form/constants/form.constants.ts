@@ -21,6 +21,27 @@ export const FORM_COMPONENT_BY_APP_TYPE: Record<FormApplicationType, string> = {
   sphere: 'web',
 }
 
+// One org can hold both a '*' and a 'v2' form for the same layout, so New Form
+// asks for the framework explicitly instead of inferring it from Access.
+export const FORM_FRAMEWORKS: { label: string; value: string }[] = [
+  { label: '* (default)', value: '*' },
+  { label: 'v2', value: 'v2' },
+]
+
+export type FormBrowseScope = 'public' | 'org' | 'all'
+
+export const FORM_BROWSE_SCOPES: { label: string; value: FormBrowseScope }[] = [
+  { label: 'Public', value: 'public' },
+  { label: 'Organization', value: 'org' },
+  { label: 'All forms', value: 'all' },
+]
+
+export const FORM_PREVIEW_DIALOG = {
+  width: '1400px',
+  maxWidth: '95vw',
+  maxHeight: '85vh',
+}
+
 export const FORM_LAYOUT_DEFAULTS = {
   subtype: 'v1',
   privateFramework: 'v2',
@@ -44,3 +65,6 @@ export const FORM_FIELD_TEMPLATES: { label: string; template: Partial<IFormField
 export const FORM_ROUTES = {
   config: '/app/home/form/config',
 }
+
+// Max size of a .json file the node editor will import (bytes).
+export const FORM_JSON_UPLOAD_MAX_BYTES = 5 * 1024 * 1024

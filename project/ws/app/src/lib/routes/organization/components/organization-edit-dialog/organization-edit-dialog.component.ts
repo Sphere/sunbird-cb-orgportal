@@ -39,11 +39,12 @@ export class OrganizationEditDialogComponent {
   ) {
     const org = data?.org
     this.isEdit = !!org
-    this.orgName = org?.orgName || ''
-    this.channel = org?.channel || ''
+    this.orgName = String(org?.orgName ?? '')
+    this.channel = String(org?.channel ?? '')
     this.isTenant = org ? !!org.isTenant : ORG_CREATE_DEFAULTS.isTenant
-    this.organisationType = org ? org.organisationType || '' : ORG_CREATE_DEFAULTS.organisationType
-    this.organisationSubType = org ? org.organisationSubType || '' : ORG_CREATE_DEFAULTS.organisationSubType
+    // The org-search API can return organisationType/SubType as numeric codes, not strings.
+    this.organisationType = org ? String(org.organisationType ?? '') : ORG_CREATE_DEFAULTS.organisationType
+    this.organisationSubType = org ? String(org.organisationSubType ?? '') : ORG_CREATE_DEFAULTS.organisationSubType
   }
 
   get canSave(): boolean {

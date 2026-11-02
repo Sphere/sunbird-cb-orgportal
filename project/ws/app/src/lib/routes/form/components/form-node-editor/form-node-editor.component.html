@@ -12,29 +12,48 @@
 
   <!-- object: collapsible header + editable Key/recursive-Value rows -->
   <div class="node-container" *ngSwitchCase="'object'">
-    <button type="button" class="node-header" (click)="toggleCollapsed()">
-      <mat-icon class="node-header__chevron">{{ node.collapsed ? 'chevron_right' : 'expand_more' }}</mat-icon>
-      <mat-icon class="node-header__icon">data_object</mat-icon>
-      <span class="node-header__label">
-        {{ (node.entries?.length || 0) }} {{ node.entries?.length === 1 ? 'property' : 'properties' }}
-      </span>
-    </button>
+    <div class="node-header">
+      <button type="button" class="node-header__toggle" (click)="toggleCollapsed()"
+        [attr.aria-expanded]="!node.collapsed" aria-label="Expand or collapse">
+        <mat-icon class="node-header__chevron">{{ node.collapsed ? 'chevron_right' : 'expand_more' }}</mat-icon>
+      </button>
+      <input *ngIf="entry" class="input-field node-header__key" type="text" placeholder="Key"
+        [(ngModel)]="entry.key" [name]="path + '-key'" />
+      <button type="button" class="node-header__summary" (click)="toggleCollapsed()">
+        <mat-icon class="node-header__icon">data_object</mat-icon>
+        <span class="node-header__label">
+          {{ (node.entries?.length || 0) }} {{ node.entries?.length === 1 ? 'property' : 'properties' }}
+        </span>
+      </button>
+      <button *ngIf="entry" type="button" class="icon-btn icon-btn--danger node-header__remove"
+        (click)="remove.emit()" aria-label="Remove property">
+        <mat-icon>delete_outline</mat-icon>
+      </button>
+    </div>
 
     <div class="node-body" *ngIf="!node.collapsed">
-      <div class="node-entry" *ngFor="let entry of node.entries; let i = index; trackBy: trackByIndex">
-        <input class="input-field node-entry__key" type="text" placeholder="Key" [(ngModel)]="entry.key"
-          [name]="path + '-key-' + i" />
-        <div class="node-entry__value">
-          <app-form-node-editor [node]="entry.node" [path]="path + '-' + i"></app-form-node-editor>
-        </div>
-        <button type="button" class="icon-btn icon-btn--danger" (click)="removeEntry(i)" aria-label="Remove property">
-          <mat-icon>delete_outline</mat-icon>
-        </button>
-      </div>
+      <ng-container *ngFor="let entry of node.entries; let i = index; trackBy: trackByIndex">
+        <!-- object/list values: one card, Key + delete live in the nested editor's header -->
+        <ws-app-form-node-editor *ngIf="isContainer(entry.node); else primitiveEntry" [node]="entry.node"
+          [entry]="entry" [path]="path + '-' + i" (remove)="removeEntry(i)"></ws-app-form-node-editor>
+        <ng-template #primitiveEntry>
+          <div class="node-entry">
+            <input class="input-field node-entry__key" type="text" placeholder="Key" [(ngModel)]="entry.key"
+              [name]="path + '-key-' + i" />
+            <div class="node-entry__value">
+              <ws-app-form-node-editor [node]="entry.node" [path]="path + '-' + i"></ws-app-form-node-editor>
+            </div>
+            <button type="button" class="icon-btn icon-btn--danger" (click)="removeEntry(i)" aria-label="Remove property">
+              <mat-icon>delete_outline</mat-icon>
+            </button>
+          </div>
+        </ng-template>
+      </ng-container>
 
       <p class="node-empty" *ngIf="isEmptyObject">No properties yet.</p>
 
       <div class="node-actions">
+        <span class="node-actions__label">{{ addLabel }}</span>
         <button type="button" class="secondary-btn" (click)="addEntry('string')">
           <mat-icon>add</mat-icon> Text
         </button>
@@ -47,19 +66,35 @@
         <button type="button" class="secondary-btn" (click)="addEntry('array')">
           <mat-icon>add</mat-icon> List
         </button>
+        <button type="button" class="secondary-btn" (click)="jsonFile.click()">
+          <mat-icon>upload_file</mat-icon> JSON
+        </button>
+        <input #jsonFile type="file" accept=".json,application/json" hidden (change)="onJsonFileSelected($event)" />
       </div>
+      <p class="node-error" *ngIf="jsonUploadError" role="alert">{{ jsonUploadError }}</p>
     </div>
   </div>
 
   <!-- array: collapsible header + reorderable, recursively-rendered items -->
   <div class="node-container" *ngSwitchCase="'array'">
-    <button type="button" class="node-header" (click)="toggleCollapsed()">
-      <mat-icon class="node-header__chevron">{{ node.collapsed ? 'chevron_right' : 'expand_more' }}</mat-icon>
-      <mat-icon class="node-header__icon">data_array</mat-icon>
-      <span class="node-header__label">
-        {{ (node.items?.length || 0) }} {{ node.items?.length === 1 ? 'item' : 'items' }}
-      </span>
-    </button>
+    <div class="node-header">
+      <button type="button" class="node-header__toggle" (click)="toggleCollapsed()"
+        [attr.aria-expanded]="!node.collapsed" aria-label="Expand or collapse">
+        <mat-icon class="node-header__chevron">{{ node.collapsed ? 'chevron_right' : 'expand_more' }}</mat-icon>
+      </button>
+      <input *ngIf="entry" class="input-field node-header__key" type="text" placeholder="Key"
+        [(ngModel)]="entry.key" [name]="path + '-key'" />
+      <button type="button" class="node-header__summary" (click)="toggleCollapsed()">
+        <mat-icon class="node-header__icon">data_array</mat-icon>
+        <span class="node-header__label">
+          {{ (node.items?.length || 0) }} {{ node.items?.length === 1 ? 'item' : 'items' }}
+        </span>
+      </button>
+      <button *ngIf="entry" type="button" class="icon-btn icon-btn--danger node-header__remove"
+        (click)="remove.emit()" aria-label="Remove property">
+        <mat-icon>delete_outline</mat-icon>
+      </button>
+    </div>
 
     <div class="node-body" *ngIf="!node.collapsed">
       <div class="node-item" *ngFor="let item of node.items; let i = index; let first = first; let last = last">
@@ -73,7 +108,7 @@
           </button>
         </div>
         <div class="node-item__value">
-          <app-form-node-editor [node]="item" [path]="path + '-' + i"></app-form-node-editor>
+          <ws-app-form-node-editor [node]="item" [path]="path + '-' + i"></ws-app-form-node-editor>
         </div>
         <button type="button" class="icon-btn icon-btn--danger" (click)="removeItem(i)" aria-label="Remove item">
           <mat-icon>delete_outline</mat-icon>
@@ -83,6 +118,7 @@
       <p class="node-empty" *ngIf="isEmptyArray">No items yet.</p>
 
       <div class="node-actions">
+        <span class="node-actions__label">{{ addLabel }}</span>
         <div class="custom-select-wrapper">
           <select class="custom-select" [(ngModel)]="selectedTemplateIndex" [name]="path + '-tpl'">
             <option *ngFor="let tpl of fieldTemplates; let i = index" [ngValue]="i">{{ tpl.label }}</option>
@@ -103,6 +139,20 @@
         </button>
         <button type="button" class="secondary-btn" (click)="addItem('array')">
           <mat-icon>add</mat-icon> List
+        </button>
+        <button type="button" class="secondary-btn" (click)="jsonFile.click()">
+          <mat-icon>upload_file</mat-icon> JSON
+        </button>
+        <input #jsonFile type="file" accept=".json,application/json" hidden (change)="onJsonFileSelected($event)" />
+      </div>
+      <p class="node-error" *ngIf="jsonUploadError" role="alert">{{ jsonUploadError }}</p>
+
+      <div class="bulk-add" *ngIf="canBulkAdd">
+        <input class="input-field bulk-add__input" type="text" placeholder="Paste values, comma-separated (e.g. id1, id2)"
+          aria-label="Values to add, comma-separated" [(ngModel)]="bulkValues" [name]="path + '-bulk'"
+          (keydown.enter)="addBulkStrings()" />
+        <button type="button" class="secondary-btn" [disabled]="!bulkValues.trim()" (click)="addBulkStrings()">
+          <mat-icon>playlist_add</mat-icon> Add Values
         </button>
       </div>
     </div>

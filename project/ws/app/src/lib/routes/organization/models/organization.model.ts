@@ -4,8 +4,8 @@ export interface IOrganization {
   orgName?: string
   channel?: string
   isTenant?: boolean
-  organisationType?: string
-  organisationSubType?: string
+  organisationType?: string | number
+  organisationSubType?: string | number
   status?: number
   createdDate?: string
 }

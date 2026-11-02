@@ -135,3 +135,14 @@ export function findFormNodeIssue(node: FormNode): string | null {
   }
   return null
 }
+
+/** Expands or collapses every object/array node in a tree (Expand all / Collapse all). */
+export function setFormNodeCollapsed(node: FormNode, collapsed: boolean): void {
+  if (node.kind === 'object') {
+    node.collapsed = collapsed
+    ;(node.entries || []).forEach(entry => setFormNodeCollapsed(entry.node, collapsed))
+  } else if (node.kind === 'array') {
+    node.collapsed = collapsed
+    ;(node.items || []).forEach(item => setFormNodeCollapsed(item, collapsed))
+  }
+}

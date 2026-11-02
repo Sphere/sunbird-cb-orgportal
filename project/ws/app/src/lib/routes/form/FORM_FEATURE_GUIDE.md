@@ -1,47 +1,148 @@
 # Form Configuration — Feature Reference
 
-Branch: `feat/form-feature-module` (cut from `sunbird-spark/upgrade`).
+Developer reference for the Form module. For a plain-language overview (what it is, who it's for, why it
+exists) see [FORM_MODULE_OVERVIEW.md](FORM_MODULE_OVERVIEW.md).
 
-## What this feature does
+Branch: `feat/form-feature-module`. Route: `/app/home/form/config` (`FormConfigComponent`).
+**Developer tool** — it edits live form-service config for every org. The menu entry is currently visible
+to all roles (`requiredRoles: []`) and the route has no guard; see "Known follow-ups".
 
-A **single page** at `/app/home/form/config` (`FormConfigComponent`):
+## What this feature does — Browse → Edit, on one page
 
-1. Pick a **Type** — `Web Layout` (`web_layout`) or `App Layout` (`app_layout`) — sent as the request's
-   `type` field verbatim (`FORM_LAYOUT_TYPES` in `constants/form.constants.ts`; no longer a fixed
-   `FORM_LAYOUT_DEFAULTS.type` constant). Comes **first**, since it decides what's asked next.
-2. Pick an **Application Type** — `Ekshamata` or `Sphere` — **only shown when Type is `Web Layout`**
-   (`showApplicationType` getter). For `App Layout`, `component` is always `'app'` regardless, so there's
-   nothing for Application Type to influence; picking `App Layout` also clears any prior Application Type
-   selection (`onLayoutTypeChange()`), so a stale pick can't linger into a request where it's ignored.
-3. Pick an **Access** level — `Public` (before login) or `Private` (after login) — which drives
-   `component`, `framework` and `rootOrgId` for the read request (see the request/response contract
-   below).
-4. **Load Form** calls the form-service **read** API and renders everything inline on this same page,
-   directly below the selectors — no route navigation:
-   - A **details panel** showing every top-level field on the fetched layout *except* `data`: Type,
-     Subtype, Action, Component, Framework, Root Org Id, Created On, Last Modified On.
-   - A row of **section buttons** — confirmed real shape: `data = { orgData, LAYOUT_HEADER, LAYOUT_BODY,
-     LAYOUT_FOOTER }`, one button per top-level key of `data`, switching which section's editor is shown
-     below. **Confirmed against a real fetch (`ekshamata.aastrika.org`, rootOrgId
-     `0144024277797191683752`)**: all four are **objects**, not arrays — e.g. `LAYOUT_HEADER` has keys
-     like `menuItems` (array of objects, each with a nested `image` object) and `webMenuItems` (array of
-     strings); `LAYOUT_BODY.sections.homeTab` is an array of richly-nested config objects. The real `data`
-     measured **~1050 nodes, up to 11 levels deep** — see "Why collapsible" below.
-   - Each section is rendered by `FormNodeEditorComponent` — a **fully recursive** editor over an
-     arbitrary JSON-compatible value (see "Why a recursive node editor" below): every array, object, or
-     primitive, at any nesting depth, is a real editable form control. Arrays get reorder (up/down),
-     remove, and Add (Text/Object/List, or a field-template picker); objects get an editable Key +
-     recursively-rendered Value per entry, plus Add (Text/Group/List); primitives get a typed input
-     (text/number/checkbox). Nothing falls back to read-only JSON. Every object/array node has a
-     **collapsible header** (chevron + property/item count) — see "Why collapsible" below.
-5. **Update Form** validates the whole tree (every object's keys must be non-empty and unique — see
-   `findFormNodeIssue()`), then opens `FormPreviewDialogComponent` — a read-only dialog showing
-   `component`, `framework`, `rootOrgId` and the pretty-printed final JSON (rebuilt from every section),
-   modeled on Playlist's `playlist-view-dialog` (header/scrollable body/footer). Only on **Confirm &
-   Save** does the update API actually fire — which also stamps `last_modified_on` to the current time
-   (`new Date().toISOString()`, same shape as `created_on`) in `saveForm()`, alongside the edited `data`.
-6. On a successful save, the page resets back to the plain selector state (no route navigation — see
-   "Why one page, not two" below for what "then navigate" was interpreted as).
+### 1. Browse
+The page opens on a **Browse** card with three scopes (`FORM_BROWSE_SCOPES`):
+
+| Scope | Call | Shows |
+|---|---|---|
+| **Public** (default) | `listForms()` → `POST /apis/v1/form/list` with an empty body | the public forms (`root_org: '*'`) — 18 on staging |
+| **Organization** | `listForms(rootOrgId)` → body `{ request: { rootOrgId } }` | one org's forms — shown after an org is picked from a searchable org dropdown |
+| **All forms** | `fetchAllForms()` → `POST /apis/v1/form/fetchAll` | every stored form across all orgs — ~109 rows / ~2 MB, so only on demand |
+
+Rows show **Org** (name looked up from the org-search list; `*` → "Public"), Type, Component, Framework,
+Action, Last changed (formatted with `DatePipe`; `list` rows carry no timestamps, `fetchAll` rows do), and
+an **Edit** button. A text filter (type/component/framework/org) and a Type filter narrow the table
+client-side. Loading shimmer, empty state and inline error + Retry are built in.
+
+### 2. Edit
+**Edit** on a row calls `read` with that row's **exact** keys (`type`, `subtype`, `action`, `component`,
+`framework`, `rootOrgId`) — nothing is guessed. This matters because **one org often has two forms for the
+same layout, one with `framework: '*'` and one with `framework: 'v2'`** (e.g. org
+`014095104385122304968` has web_layout/ekshamata under both). The old "pick selectors → Load Form" flow
+hard-coded `v2` for Private and could never open the `*` one.
+
+The editor (unchanged in substance):
+- An **Editing** bar — `type · component · framework · org` — with **Back to forms**.
+- A **details panel** with every top-level field except `data`.
+- **Section tabs** — one per top-level key of `data` (real shape: `{ orgData, LAYOUT_HEADER, LAYOUT_BODY,
+  LAYOUT_FOOTER }`).
+- `FormNodeEditorComponent` per section — fully recursive (see "Why a recursive node editor"), with
+  **Expand all / Collapse all** in the section toolbar (`setFormNodeCollapsed()`; Collapse all keeps the
+  section root open).
+- **Bulk add for string lists** — any list that is empty or holds only text items (e.g.
+  `competencyIds`) shows a "Paste values, comma-separated" box + **Add Values**; `C1, C2, C3` becomes
+  three text items (`addBulkStrings()` splits on commas/newlines, trims, skips blanks).
+
+### 3. Save
+**Update Form** validates the tree (`findFormNodeIssue()`), opens `FormPreviewDialogComponent` with a
+per-section diff, and only on **Confirm & Save** posts to the create endpoint (stamping
+`last_modified_on`). Then:
+- **Success** → a "Form saved successfully." notice; the editor **stays open**; the saved data becomes
+  the new baseline (for the diff and unsaved-change checks); the Browse list refreshes.
+- **Failure** → an inline error with the API's message; the edits are kept.
+
+### 4. Protecting edits
+- **Unsaved-change guard** — Back to forms, opening another form, or New Form asks for confirmation
+  (`window.confirm`) when the edited data differs from the loaded data (`hasUnsavedChanges()` — the same
+  serialization the diff uses; deliberately *not* bound in the template, since serializing ~1000 nodes on
+  every change-detection pass would be wasteful).
+- **Discard changes** — rebuilds the editor from the loaded data (after confirming).
+- **Download JSON** — downloads the form *as loaded* (not the edits), as a backup before overwriting it.
+
+### 5. New Form (guarded create)
+**New Form** opens the Type / Application Type (web_layout only) / Access / Framework / Org selectors.
+Framework is now an **explicit** choice (`FORM_FRAMEWORKS`: `*` / `v2`) — Access only sets the default
+(Public → `*`, Private → `v2`). **Create Form**:
+1. calls `listForms(rootOrgId)` (or `listForms()` for Public) and looks for the exact combination
+   (type, action, component, framework, rootOrgId — subtype ignored, see below);
+2. **if one exists** → shows "A form already exists for this combination" with **Open existing**, and
+   creates nothing;
+3. **if none** → seeds the new form in the editor from the **Start from** choice (below) — marked
+   "New form (not saved yet)"; its save button reads **Create Form**. Nothing is saved until then;
+4. **if the check itself fails** → shows the error and creates nothing.
+
+#### Start from: Empty form / Upload JSON, and Download sample JSON
+The `data` shape depends on **Type** (confirmed on staging):
+
+| Type | `data` top-level keys |
+|---|---|
+| `web_layout` (ekshamata / web) | `orgData`, `LAYOUT_HEADER`, `LAYOUT_BODY`, `LAYOUT_FOOTER` |
+| `app_layout` (app) | `orgData`, `schemas` (`APP_UPDATE_INFO`, `NOTIFICATION_INFO`, `LAYOUT_HEADER`, `LAYOUT_DATA`, `TABS`) |
+
+Once Type is picked, New Form shows a **Start from** row:
+- **Empty form** (default) → `FORM_EMPTY_DATA[type]`. (Before this, app_layout was wrongly seeded with the
+  web_layout `LAYOUT_*` sections.)
+- **Upload JSON** → a file picker (`.json`). `applyUploadText()` accepts **either** a bare `data`
+  object/array **or** a full form export — an object with a string `type` and a `data` object, i.e. what
+  **Download JSON** produces — and then uses its `data`. So a form can be **copied between orgs**: Download
+  JSON on org A's form → New Form for org B → Upload JSON. Invalid JSON or a non-object value shows an error
+  and keeps **Create Form** disabled (`canCreate` requires a valid upload in this mode). Top-level keys not
+  in the Type's sample only **warn** (real forms vary — e.g. `web` vs `ekshamata` differ inside
+  `LAYOUT_BODY`); the warning re-checks if Type changes. A valid file shows "file.json — N sections: …"
+  with **Remove**.
+- **Download sample JSON** → `sample_<type>.json` with `FORM_SAMPLE_DATA[type]`.
+
+Samples live in `constants/samples/{web_layout,app_layout}.sample.json` (imported via
+`resolveJsonModule`, re-exported by `constants/form-samples.constants.ts`). They were generated from real
+staging forms — web_layout/ekshamata org `013979705730662400309` and app_layout/app org
+`014005962721189888281`, framework `*` — with every list of objects trimmed to its first 2 items (~18 KB /
+~10 KB → ~7.5 KB / ~10 KB pretty-printed) and every value inside `orgData` emptied (keys and nesting kept: text → `""`, numbers → `0`, flags → `false`, lists → `[]`; the org-keyed `roleSourceConfig.sources` map → `{}`), so a new org fills in its own. Edit the
+`.json` files to change them. They're kept out of `src/assets` so they ship in the lazy Form chunk and
+avoid the `ng serve` restart / Express `/assets` issues in CLAUDE.md §7.
+
+This replaces the old "Create Form for this Org" button, which was offered after **any** read failure —
+including an expired session — and could overwrite a real form with an empty skeleton.
+
+## Request/response contract (all confirmed against staging)
+
+All form-service calls append a cache-busting `?v=${Date.now()}` (from the original curls'
+`?v=%24{new%20Date().getTime()`).
+
+### List — `POST /apis/v1/form/list`
+- Empty body → the public forms. `{ "request": { "rootOrgId": "<id>" } }` → that org's forms; an org with
+  none returns `{ forms: [], count: 0 }` (a clean empty list — this is the reliable "does it exist?" check).
+  Other body shapes tried (`root_org`, `type`, `filters.rootOrgId`) are ignored and return the public list.
+- Response: `result.forms[]` + `result.count`. Each row: `type`, `subtype`, `action`, **`root_org`**
+  (snake_case — *not* `rootOrgId`), `framework`, `component`, and `data` **as a JSON string**. No
+  `created_on`/`last_modified_on`.
+
+### Fetch all — `POST /apis/v1/form/fetchAll`
+- Empty body. Same row shape as `list` plus `created_on`/`last_modified_on`. ~1.9 MB for 109 forms because
+  every row carries its full `data` string.
+- `FormApiService` maps both responses through `toFormSummary()` → `IFormSummary` (`root_org` →
+  `rootOrgId`, `data` dropped immediately so the 2 MB isn't held in memory).
+
+### Read — `POST /apis/v1/form/read`
+```
+{ "request": { "type", "subtype", "action", "component", "framework", "rootOrgId" } }
+```
+- Returns `result.form` with `data` **as an object**, plus `created_on`/`last_modified_on` and `rootOrgId`.
+- **`subtype` falls back**: `v1` and `*` both return the stored `*` form.
+- **`framework` is exact**: `*` and `v2` return *different* forms when both exist.
+- **A missing form is not a clean 404** — the form-service fails with
+  `params.err: "ERR_READ_FORM_DATA"`, `params.errmsg: { message: "data.toJSON is not a function", stack }`.
+  That's why "no form exists" is decided from `list`, never from a read failure.
+- `action` is typed `string` (not `'get'`): non-layout forms use actions like `config_public` / `create`.
+
+### Update / Create — `POST /apis/proxies/v8/ext-forms/v1/form/create`
+- `request` is the exact object `read` returned as `result.form`, with `data` replaced by the edited JSON
+  and `last_modified_on` set to now (`{ ...this.layout, data, last_modified_on }` in `saveForm()`).
+- A brand-new form sends `subtype: 'v1'` (`FORM_LAYOUT_DEFAULTS.subtype`, from the original create curl);
+  stored forms all carry `subtype: '*'`, which is why the New Form duplicate check ignores subtype.
+- Auth/org/rootOrg/wid headers come from the app's HTTP interceptors.
+
+### Errors — `formApiErrorMessage()`
+401/403 → "Your session has expired…"; otherwise `params.errmsg` when it's a string, or
+`params.errmsg.message` when it's an object; otherwise a per-call fallback.
 
 ## Why a recursive node editor
 
@@ -49,211 +150,89 @@ The editor went through three designs before landing here, each superseded by a 
 1. An Ace-powered raw JSON editor (copied from Playlist's manage-search) — replaced because the ask was
    explicitly to edit "the data as form fields, not as a json editor".
 2. Fixed field rows (Code/Type/Label/Placeholder/Default/Required) for array sections, and key/value rows
-   for object sections — covered the real `{ orgData, LAYOUT_HEADER, LAYOUT_BODY, LAYOUT_FOOTER }` shape,
-   but any *other* property on a field object, or any *nested* object/array inside `orgData`, had no
-   dedicated input (nested values collapsed into a single JSON textarea per key).
-3. **This**: the ask was "each and every field, whether array, object, everything should be accessible in
-   a form" — so the fixed-shape editors were replaced with `FormNodeEditorComponent`, a single component
-   that renders itself recursively (`models/form-node.model.ts`'s `FormNode` tree):
+   for object sections — any *other* property, or any *nested* object/array, had no dedicated input.
+3. **This**: "each and every field, whether array, object, everything should be accessible in a form" —
+   `FormNodeEditorComponent` renders itself recursively over `models/form-node.model.ts`'s `FormNode` tree:
    - `buildFormNode(value)` converts any JSON-compatible value into a `FormNode` (`'string' | 'number' |
      'boolean' | 'null' | 'object' | 'array'`).
-   - The component switches on `node.kind`: primitives get a typed control; `'object'` renders an
-     editable Key input + a nested `<app-form-node-editor>` per entry; `'array'` renders a nested
-     `<app-form-node-editor>` per item with reorder/remove. A `standalone: false` component declared in
-     an `NgModule` can reference its own selector in its own template — Angular resolves it against the
-     whole module's declarations — so no special recursion machinery is needed.
-   - `formNodeToValue(node)` serializes an edited tree back to a plain JSON-compatible value —
-     `FormConfigComponent.buildEditedData()` calls it once per section.
-   - `findFormNodeIssue(node)` recursively checks for empty/duplicate object keys anywhere in the tree;
-     `onUpdateForm()` runs it across every section before opening the preview dialog, so validation is no
-     longer scattered across per-keystroke handlers.
-   - The `FORM_FIELD_TEMPLATES` picker (Custom Field, Full Name, Email, Mobile Number, Designation,
-     Department, Date of Birth, Gender) survives as a convenience on **any** array's Add row — it just
-     seeds a template `FormNode` object rather than a fixed `IFormFieldConfig`.
-   This also permanently removed Form's use of `brace`/Ace — see the `brace`/`ace` race-condition note
-   further down, which affected an earlier iteration of this editor and prompted the same fix in
-   Playlist's `manage-search.component.ts`.
+   - The component switches on `node.kind`: primitives get a typed control; `'object'` renders an editable
+     Key input + a nested `<ws-app-form-node-editor>` per entry; `'array'` renders a nested
+     `<ws-app-form-node-editor>` per item with reorder/remove. A `standalone: false` component declared in
+     an `NgModule` can reference its own selector in its own template.
+   - `formNodeToValue(node)` serializes an edited tree back to plain JSON — `buildEditedData()` calls it
+     once per section.
+   - `findFormNodeIssue(node)` checks for empty/duplicate object keys anywhere in the tree before the
+     preview opens.
+   - The `FORM_FIELD_TEMPLATES` picker survives as a convenience on any array's Add row.
 
 ## Why collapsible
 
-A real fetch against `ekshamata.aastrika.org` (rootOrgId `0144024277797191683752`) measured `data` at
-**~1050 nodes total, up to 11 levels deep** — `LAYOUT_BODY.sections.homeTab` alone is an array of 8
-heavily-nested config objects. Rendering all of that expanded by default (the first cut of the recursive
-editor) would be an unusable wall of inputs, not "good look and feel". So:
-- `FormNode` gained a UI-only `collapsed` flag (never read by `formNodeToValue()`).
-- `buildFormNode(value, depth)` collapses every object/array **below the section root** by default
-  (`collapsed: depth >= 1`) — the root itself (what a section button reveals) stays expanded, so the
-  immediate property/item list is visible right away, and everything nested one level deeper starts
-  closed until clicked open.
-- `emptyFormNode()` and `addTemplateItem()` create new nodes **expanded** (`collapsed: false`) — there's
-  nothing to hide, and the admin just added it to fill it in.
-- Every object/array node in `form-node-editor.component.html` now renders a `.node-header` (chevron +
-  type icon + "N properties"/"N items" count) that's always visible and toggles `.node-body` — the
-  actual entries/items and their Add controls only render when expanded, so a collapsed subtree costs
-  nothing to keep in the DOM beyond its one header row.
+Real `data` measured **~1050 nodes, up to 11 levels deep** (`LAYOUT_BODY.sections.homeTab` alone is 8
+heavily-nested objects). So `FormNode` has a UI-only `collapsed` flag (never read by `formNodeToValue()`);
+`buildFormNode(value, depth)` collapses everything **below the section root** by default; new nodes start
+expanded; each object/array renders a `.node-header` (chevron + count) that toggles `.node-body`, so a
+collapsed subtree costs one header row. Expand all / Collapse all (`setFormNodeCollapsed()`) flips a whole
+section at once.
 
 ## Why one page, not two
 
-This was originally two routed screens: `/app/home/form/config` (selectors → Load Form → navigate) and
-`/app/home/form/manage` (the editor, reached only via a `FormStateService` hand-off). The ask was
-explicitly to show the loaded form's editor **inline in the same window** once Load Form is clicked, with
-an Update button, and only navigate *after* that — so:
-- `ManageFormDataComponent`, `form-state.service.ts`, and the `'manage'` route were **deleted**; their
-  logic and template were merged directly into `FormConfigComponent`.
-- "then navigate" is interpreted as: after a successful save, the page resets to its initial
-  selector-only state (`resetLoadedState()`) rather than crossing to a different route — there was no
-  second page left to navigate *to* once everything lives on one page. `FORM_ROUTES` now only has
-  `config`.
-- The preview-before-submit confirmation dialog behavior (a prior explicit ask, kept) is unchanged —
-  Update Form still previews the exact JSON before the network call fires.
+Originally two routed screens (`config` → `manage` via a `FormStateService` hand-off). The ask was to show
+the editor inline on the same page, so `ManageFormDataComponent`, `form-state.service.ts` and the
+`'manage'` route were deleted and merged into `FormConfigComponent`. `FORM_ROUTES` has only `config`.
+Browse → Edit → Back keeps it to one page.
 
 ## Why NgModule-based, not standalone
 
-CLAUDE.md's standing rule (§2) requires `standalone: false` components declared in an `NgModule`,
-lazy-loaded via `loadChildren`. This was chosen explicitly over mirroring Playlist's actual wiring
-(which uses `standalone: true` components with no NgModule) — see the "Component style" decision in
-this feature's chat history. The structural template followed instead is **FRAC**
-(`project/ws/app/src/lib/routes/frac/frac.module.ts` + `frac-routing.module.ts`), which is itself one
-of the four canonical design-system references called out in CLAUDE.md §9.
+CLAUDE.md §2 requires `standalone: false` components in an `NgModule`, lazy-loaded via `loadChildren`.
+Structure follows **FRAC** (`frac.module.ts` + `frac-routing.module.ts`), not Playlist's standalone wiring.
 
-## Request/response contract
-
-### Read (confirmed against a real curl)
-
-```
-POST /apis/v1/form/read?v=<cache-busting timestamp>
-{
-  "request": {
-    "type": "<web_layout | app_layout>",
-    "subtype": "v1",
-    "action": "get",
-    "component": "<ekshamata | web>",
-    "framework": "v2",
-    "rootOrgId": "<'*' for public, the org's rootOrgId for private>"
-  }
-}
-```
-
-The response's `result.form` carries more than what was requested — confirmed real example:
-```json
-{
-  "type": "web_layout",
-  "subtype": "*",
-  "action": "get",
-  "component": "ekshamata",
-  "framework": "*",
-  "created_on": "2026-09-01T06:38:12.377Z",
-  "last_modified_on": null,
-  "rootOrgId": "014095108131266560969",
-  "data": { "orgData": {}, "LAYOUT_HEADER": [], "LAYOUT_BODY": [], "LAYOUT_FOOTER": [] }
-}
-```
-`created_on`/`last_modified_on` (snake_case, exactly as returned — not camelCase) were added to
-`IFormLayoutResult` for this; both are shown read-only in the details panel.
-
-- `type`: sent verbatim from the **Type** selector (`web_layout` or `app_layout`, `FORM_LAYOUT_TYPES`) —
-  not defaulted or computed, the admin must pick one before Load Form is enabled (`canLoad` requires
-  `layoutType` truthy).
-- `component` mapping: **Type `app_layout` → always `app`**, regardless of Application Type/Access — takes
-  priority over everything else. Otherwise (Type `web_layout`, the original rule): **Public → always
-  `web`**, regardless of application type; **Private → Ekshamata → `ekshamata`, Sphere → `web`**
-  (`FORM_COMPONENT_BY_APP_TYPE` in `constants/form.constants.ts`). Computed in
-  `FormConfigComponent.loadForm()`, not stored as component state.
-- `rootOrgId`: **Public → locked to `'*'`** (select disabled). **Private → a dropdown of known org ids**
-  (`ROOT_ORG_IDS` in `constants/root-org-ids.constants.ts`), enabled only when Private is selected; the
-  admin must pick one before Load Form is enabled (`canLoad` requires `rootOrgId` truthy).
-- `framework`: **Public → `'*'`**, **Private → `'v2'`** (`FORM_LAYOUT_DEFAULTS.publicFramework` /
-  `.privateFramework`). Both `rootOrgId` and `framework` are recomputed together in
-  `FormConfigComponent.onAccessTypeChange()`.
-- The `?v=` query param is a cache-buster copied from the original curl
-  (`?v=%24{new%20Date().getTime()` → `?v=${Date.now()}`); the frontend generates it, it isn't user input.
-
-### Update / Create (confirmed against a real curl)
-
-```
-POST /apis/proxies/v8/ext-forms/v1/form/create
-{
-  "request": {
-    "type": "web_layout",
-    "subtype": "v1",
-    "action": "get",
-    "component": "<same component the read call returned>",
-    "framework": "<same framework the read call returned>",
-    "rootOrgId": "<same rootOrgId the read call returned>",
-    "data": { ...edited JSON... }
-  }
-}
-```
-
-Two things that were *not* the standard-contract guess made earlier in this feature's build, both
-confirmed from the real curl:
-
-- **The endpoint is `/apis/proxies/v8/ext-forms/v1/form/create`**, not `/apis/v1/form/update`.
-- **`request` is the exact same object as `result.form` from the read response** — same `type`,
-  `subtype`, `action`, `component`, `framework`, `rootOrgId` — with only `data` replaced by the edited
-  JSON. There is no separate `action: 'update'` wrapper; `FormConfigComponent.saveForm()` builds this
-  with `{ ...this.layout, data: editedData, last_modified_on: <now> }`.
-- Auth/org/rootOrg/wid/locale headers seen in the curl are attached by the app's existing HTTP
-  interceptors — nothing extra was added in `FormApiService` for them.
-
-## Files added (all new — no existing model/service file was modified)
+## Files
 
 | File | Purpose |
 |---|---|
-| `models/form.model.ts` | Models for the layout/request contract: `FormApplicationType`, `FormAccessType`, `FormLayoutType`, `IFormReadRequest`, `IFormUpdateRequest`, `IFormLayoutResult` (including `created_on`/`last_modified_on`), `IFormFieldConfig`, `IFormApiResponse`. |
-| `models/form-node.model.ts` | The generic editable-tree model: `FormNode`/`FormNodeKind`/`FormNodeEntry` (including the UI-only `collapsed` flag — see "Why collapsible"), plus pure helpers `buildFormNode()`, `formNodeToValue()`, `emptyFormNode()`, `findFormNodeIssue()`. |
-| `constants/form.constants.ts` | `FORM_APPLICATION_TYPES`, `FORM_ACCESS_TYPES`, `FORM_LAYOUT_TYPES` (`web_layout`/`app_layout` — the Type selector), `FORM_COMPONENT_BY_APP_TYPE`, `FORM_LAYOUT_DEFAULTS` (`subtype`/`publicFramework`/`privateFramework`/`publicRootOrgId` — `type` moved out to `FORM_LAYOUT_TYPES` since it's now user-selected, not a fixed default), `FORM_FIELD_TEMPLATES` (the array Add-row's template picker), `FORM_ROUTES` (just `config`). |
-| `constants/root-org-ids.constants.ts` | `ROOT_ORG_IDS` — the fixed list of selectable org ids for Private mode, deduplicated from the list provided for this feature. |
-| `services/form-api.service.ts` | `FormApiService.readForm()` / `.updateForm()`. Endpoint paths follow the `API_END_POINTS` convention from CLAUDE.md §4 (see `event.service.ts`). |
-| `pages/form-config/form-config.component.ts/html/scss` | The single page: selectors → Load Form (inline fetch, no navigation) → details panel → section tabs → `<app-form-node-editor>` → Update Form (validate → preview dialog → save → reset). Styled with `_ws-design-system-v2.scss` mixins (`v2-page-container`, `v2-page-title`, `v2-custom-select-wrapper/input` — native `<select>`, never `mat-select`, per CLAUDE.md §9). |
-| `components/form-node-editor/form-node-editor.component.ts/html/scss` | The recursive tree editor — see "Why a recursive node editor" and "Why collapsible" above. Its own SCSS rebuilds the shared input/button/select primitives from the v2 mixins (Angular's emulated view encapsulation means it can't inherit `form-config.component.scss`'s classes), plus `.node-header`/`.node-body` for the collapse/expand chrome. |
-| `components/form-preview-dialog/form-preview-dialog.component.ts/html/scss` | The pre-submit JSON preview dialog, modeled on `playlist-view-dialog.component`. Opened via `MatDialog`; closing with `true` (Confirm & Save) is what actually triggers the update call. |
-| `form-routing.module.ts` | `FormRoutingModule` — `'' → redirect to 'config'`, `'config' → FormConfigComponent`. |
-| `form.module.ts` | `FormModule` — declares `FormConfigComponent`, `FormPreviewDialogComponent`, `FormNodeEditorComponent`; imports `CommonModule`, `RouterModule`, `FormRoutingModule`, `FormsModule` (for `ngModel`), `MatIconModule`, `MatDialogModule`. |
+| `models/form.model.ts` | `FormApplicationType`, `FormAccessType`, `FormLayoutType`, `IFormReadRequest` (`action: string`), `IFormLayoutResult`, `IFormUpdateRequest`, `IFormSummary` (Browse row), `IFormListApiItem` / `IFormListApiResponse` (raw list/fetchAll), `IFormFieldConfig`, `IFormApiResponse`. |
+| `models/form-node.model.ts` | `FormNode` tree + `buildFormNode()`, `formNodeToValue()`, `emptyFormNode()`, `findFormNodeIssue()`, `setFormNodeCollapsed()`. |
+| `constants/form-samples.constants.ts` + `constants/samples/*.sample.json` | `FORM_SAMPLE_DATA` (Download sample JSON) and `FORM_EMPTY_DATA` (Empty form skeleton), per Type. |
+| `constants/form.constants.ts` | `FORM_APPLICATION_TYPES`, `FORM_ACCESS_TYPES`, `FORM_LAYOUT_TYPES`, `FORM_FRAMEWORKS`, `FORM_BROWSE_SCOPES` / `FormBrowseScope`, `FORM_PREVIEW_DIALOG`, `FORM_COMPONENT_BY_APP_TYPE`, `FORM_LAYOUT_DEFAULTS`, `FORM_FIELD_TEMPLATES`, `FORM_ROUTES`. |
+| `services/form-api.service.ts` | `readForm()`, `listForms(rootOrgId?)`, `fetchAllForms()`, `updateForm()`, `searchOrganizations()`; plus `formApiErrorMessage()`. Endpoints in a module-level `API_END_POINTS` (CLAUDE.md §4). |
+| `pages/form-config/*` (`ws-app-form-config`) | The page: Browse (scopes, org picker, filters, table) → Edit (editing bar, details, section tabs, editor, Download/Discard/Update) → save notices; New Form panel with the duplicate check. v2 design-system mixins; native `<select>`, never `mat-select`. |
+| `components/form-node-editor/*` (`ws-app-form-node-editor`) | The recursive editor, incl. bulk add for string lists. |
+| `components/form-preview-dialog/*` (`ws-app-form-preview-dialog`) | Pre-submit per-section diff dialog; closing with `true` triggers the save. |
+| `utils/diff-lines.util.ts` | Line diff + side-by-side rows for the preview dialog. |
+| `form-routing.module.ts`, `form.module.ts` | `'' → 'config'`; module declares the three components, imports `CommonModule`, `RouterModule`, `FormsModule`, `MatIconModule`, `MatDialogModule`. |
 
-## Files edited (wiring only)
+Selectors use the `ws-app-` prefix (ESLint `@angular-eslint/component-selector`); they were `app-form-*`,
+which failed lint.
 
-| File | Change |
-|---|---|
-| `project/ws/app/src/lib/routes/home/home.rounting.module.ts` | Added a `'form'` child route under the `HomeComponent` node, `loadChildren` into `FormModule`, next to the existing `'playlist'`/`'frac'` entries. |
-| `project/ws/app/src/public-api.ts` | Added `export * from './lib/routes/form/form.module'` to the `@ws/app` barrel. |
-| `project/ws/app/src/lib/routes/home/services/menu-config.service.ts` | Added a `Form` entry to `localMenus` (`key: 'form'`, `routerLink: '/app/home/form/config'`, `enabled: true`, `requiredRoles: []` — visible to all roles, set directly by the user) — this is where `home.component.ts`'s `leftData` picks up new menu items via `menuConfig.mergeMenus()`. |
+Wiring outside the folder: `home.rounting.module.ts` (`'form'` child route → `FormModule`),
+`public-api.ts` (barrel export), `menu-config.service.ts` (`Form` local menu, `requiredRoles: []`).
+
+## Tests
+
+Jest specs live next to each file: `form-config.component.spec.ts` (browse scopes, exact-key read, error
+messages, unsaved-change guard, discard, expand/collapse, New Form duplicate check, save success/failure),
+`form-api.service.spec.ts` (read/list/fetchAll/update/org search, error helper),
+`form-node-editor.component.spec.ts` (incl. bulk add), `form-node.model.spec.ts`,
+`form-preview-dialog.component.spec.ts`, `diff-lines.util.spec.ts`.
 
 ## Known follow-ups / open questions
 
-- `requiredRoles` on the menu entry is currently `[]` (visible to all roles) — tighten if Form should be
-  restricted to specific roles.
-- No page-level `GeneralGuard` was added on the `form` route (mirrors Playlist, which is also unguarded
-  at the route level) — add `canActivate: [GeneralGuard]` + `data: { requiredRoles: [...] }` on the
-  `'form'` child route in `home.rounting.module.ts` if a hard page gate is needed later.
-- `FORM_FIELD_TEMPLATES` is a starting set of common field kinds (Name/Email/Mobile/Designation/
-  Department/DOB/Gender) invented for this feature, not sourced from a real form config. Now that a real
-  fetch has been seen, it doesn't map cleanly onto anything actually in `data` — `LAYOUT_HEADER`/`BODY`/
-  `FOOTER` are config objects (menu items, sections, layout toggles), not arrays of user-facing form
-  fields with a `code`/`type`/`label` shape. The picker still works (it just seeds a template `FormNode`
-  object into whichever array you're adding to) but may not be the right convenience for this data —
-  revisit once it's clear which arrays, if any, actually hold field-like objects.
-- Collapsing everything below the section root by default (`buildFormNode`'s `depth >= 1`) means a
-  shallow but wide object (many direct properties, none of them containers) looks fine, but a section
-  whose root itself needs review one level down (e.g. checking `menuItems` inside `LAYOUT_HEADER`)
-  requires one click to open before anything about it is visible — intentional given the ~1050-node
-  scale, but worth knowing.
-- The node editor has no per-field/per-property "type" awareness beyond string/number/boolean/null/
-  object/array — e.g. it can't tell that a `LAYOUT_HEADER` item's `type` property is meant to be one of a
-  fixed enum (`text`/`select`/`checkbox`/...); that property is just another editable string. Add a
-  schema layer if stricter guidance is needed later.
-- `null` values render as a plain text input (with `null` shown only as a placeholder) — typing into it
-  turns the value into a string, it doesn't stay `null` unless left untouched. There's no explicit
-  "set to null" control.
-- After a successful save, the page resets to the selector state entirely (`layout`/`sections` cleared) —
-  the admin has to re-pick Application Type/Access/Root Org Id to load again, even to re-view the form
-  they just saved. Revisit if staying on the just-saved form (re-fetch instead of reset) is preferred.
-- Validation (`findFormNodeIssue`) only runs when Update Form is clicked, not per-keystroke — an invalid
-  tree shows no error until submit is attempted.
-- **`brace`/Ace note (historical):** an earlier iteration of this editor used an Ace-powered JSON editor
-  (like Playlist's `manage-search`), which surfaced a real bug — see git history on this branch — where
-  adding Form as a second lazy consumer of `brace` caused a `ReferenceError: ace is not defined` under
-  esbuild's code-splitting. That was fixed in this component (since replaced entirely, no longer
-  applicable) and in Playlist's `manage-search.component.ts` (still applicable — that fix stands on its
-  own and should stay even though Form no longer uses `brace`) by sequencing `brace`'s dynamic imports
-  with `await` instead of static side-effect imports.
+- **Developer-only is by convention, not enforced.** Menu `requiredRoles: []`, no route guard. Once the
+  exact developer role name exists: set it (lowercase) on the menu entry, add
+  `canActivate: [GeneralGuard]` + `data: { requiredRoles: [...] }` on the `'form'` route, and add it
+  (uppercase) to `DEFAULT_REQUIRED_ROLES` in `env.util.ts` + DevOps `portalRoles` (see CLAUDE.md §4).
+- New forms are created with `subtype: 'v1'` while every stored form has `'*'`. Read treats them the same,
+  but confirm with the backend whether create should send `'*'`.
+- `fetchAll` downloads every form's full `data` (~2 MB) just to list it; a lighter backend endpoint would
+  help if the form count grows.
+- No search *inside* a form's tree (find a key/value and jump to it) — the next most useful addition for
+  ~1000-node forms.
+- `FORM_FIELD_TEMPLATES` (Name/Email/Mobile/…) was invented for this feature and doesn't map onto real
+  `data` (menu items, sections, layout toggles); revisit or remove.
+- No schema awareness: an enum-like property (e.g. a menu item's `type`) is just a free-text string.
+- `null` values render as a text input; typing turns them into strings. No explicit "set to null".
+- Validation runs on Update Form, not per keystroke.
+- **`brace`/Ace note (historical):** an earlier iteration used an Ace JSON editor, which exposed a
+  `ReferenceError: ace is not defined` race under esbuild code-splitting. The fix in Playlist's
+  `manage-search.component.ts` (sequencing `brace`'s dynamic imports with `await`) stands on its own and
+  should stay.

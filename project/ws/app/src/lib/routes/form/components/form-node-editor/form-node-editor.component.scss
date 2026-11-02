@@ -127,17 +127,40 @@
 .node-header {
   display: flex;
   align-items: center;
-  gap: 6px;
-  width: 100%;
-  padding: 10px 14px;
-  border: none;
+  gap: 8px;
+  padding: 8px 10px;
   background: #f8fafc;
-  cursor: pointer;
-  text-align: left;
-  transition: background 0.15s ease;
 
-  &:hover {
-    background: #f3f8fd;
+  &__toggle,
+  &__summary {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: none;
+    background: transparent;
+    padding: 4px;
+    cursor: pointer;
+    border-radius: 6px;
+    text-align: left;
+    transition: background 0.15s ease;
+
+    &:hover {
+      background: #eef4fb;
+    }
+  }
+
+  &__summary {
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__key {
+    width: 180px;
+    flex-shrink: 0;
+  }
+
+  &__remove {
+    margin-left: auto;
   }
 
   &__chevron {
@@ -166,7 +189,7 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
-  padding: 14px;
+  padding: 10px;
   border-top: 1px solid #E1DFDF;
   // A thin left guide + indent so nested containers read as "inside" their
   // parent rather than just another box in the flow.
@@ -191,6 +214,7 @@
     flex: 1;
     min-width: 0;
   }
+
 }
 
 .node-item {
@@ -232,7 +256,17 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 8px;
-  padding-top: 4px;
+  // Dashed rule + "Add to <key>:" label so stacked add rows from nested
+  // levels read as belonging to different objects.
+  border-top: 1px dashed #E1DFDF;
+  padding-top: 10px;
+
+  &__label {
+    font-size: 12px;
+    font-weight: 500;
+    color: #808080;
+    margin-right: 4px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -245,8 +279,34 @@
     width: 100%;
   }
 
+  .node-header {
+    flex-wrap: wrap;
+  }
+
+  .node-header__key {
+    width: 100%;
+  }
+
   .node-body {
     margin-left: 4px;
     padding: 10px;
   }
+}
+
+// Bulk "Add Values" row for string lists — one input + button, under the add-buttons row.
+.bulk-add {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
+
+  &__input {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+.node-error {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: #ca0000;
 }

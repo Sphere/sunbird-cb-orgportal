@@ -1,6 +1,6 @@
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing'
 import { TestBed } from '@angular/core/testing'
-import { FormApiService } from './form-api.service'
+import { FormApiService, formApiErrorMessage } from './form-api.service'
 import { IFormReadRequest, IFormUpdateRequest } from '../models/form.model'
 
 describe('FormApiService', () => {
@@ -157,6 +157,71 @@ describe('FormApiService', () => {
 
       const req = httpMock.expectOne(r => r.url === '/apis/proxies/v8/org/v1/search')
       req.flush({ result: {} })
+    })
+  })
+  describe('listForms', () => {
+    const row = {
+      type: 'web_layout', subtype: '*', action: 'get', component: 'ekshamata', framework: 'v2',
+      root_org: '123', data: '{"big":"string"}',
+    }
+
+    it('POSTs an empty body for the public forms and maps root_org to rootOrgId, dropping data', () => {
+      service.listForms().subscribe((forms) => {
+        expect(forms).toEqual([{
+          type: 'web_layout', subtype: '*', action: 'get', component: 'ekshamata', framework: 'v2',
+          rootOrgId: '123', created_on: null, last_modified_on: null,
+        }])
+      })
+
+      const req = httpMock.expectOne(r => r.url.startsWith('/apis/v1/form/list?v='))
+      expect(req.request.method).toBe('POST')
+      expect(req.request.body).toEqual({})
+      req.flush({ result: { forms: [row], count: 1 } })
+    })
+
+    it('sends rootOrgId in the request for an org', () => {
+      service.listForms('123').subscribe()
+      const req = httpMock.expectOne(r => r.url.startsWith('/apis/v1/form/list?v='))
+      expect(req.request.body).toEqual({ request: { rootOrgId: '123' } })
+      req.flush({ result: { forms: [] } })
+    })
+
+    it('returns an empty list when the response has no forms', () => {
+      service.listForms('123').subscribe((forms) => expect(forms).toEqual([]))
+      httpMock.expectOne(r => r.url.startsWith('/apis/v1/form/list?v=')).flush({ result: {} })
+    })
+  })
+
+  describe('fetchAllForms', () => {
+    it('POSTs to fetchAll and keeps the timestamps', () => {
+      service.fetchAllForms().subscribe((forms) => {
+        expect(forms[0].rootOrgId).toBe('*')
+        expect(forms[0].last_modified_on).toBe('2026-10-01T11:02:58.197Z')
+        expect((forms[0] as any).data).toBeUndefined()
+      })
+
+      const req = httpMock.expectOne(r => r.url.startsWith('/apis/v1/form/fetchAll?v='))
+      expect(req.request.method).toBe('POST')
+      req.flush({
+        result: {
+          forms: [{
+            type: 'app_layout', subtype: '*', action: 'get', component: 'app', framework: '*', root_org: '*',
+            created_on: '2026-09-01T05:36:58.278Z', last_modified_on: '2026-10-01T11:02:58.197Z', data: '{}',
+          }],
+        },
+      })
+    })
+  })
+
+  describe('formApiErrorMessage', () => {
+    it('uses a string errmsg, an object errmsg.message, or the fallback', () => {
+      expect(formApiErrorMessage({ error: { params: { errmsg: 'plain' } } } as any, 'fb')).toBe('plain')
+      expect(formApiErrorMessage({ error: { params: { errmsg: { message: 'nested' } } } } as any, 'fb')).toBe('nested')
+      expect(formApiErrorMessage({ status: 500 } as any, 'fb')).toBe('fb')
+    })
+
+    it('explains an expired session on 401/403', () => {
+      expect(formApiErrorMessage({ status: 401 } as any, 'fb')).toContain('session has expired')
     })
   })
 })

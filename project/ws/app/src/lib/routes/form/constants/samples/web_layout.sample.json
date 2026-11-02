@@ -1,0 +1,285 @@
+{
+  "orgData": {
+    "defaultLang": "",
+    "appLogo": "",
+    "foundationLogo": "",
+    "foundationLogoDark": "",
+    "orgName": "",
+    "source": "",
+    "role": "",
+    "assessmentConfig": {
+      "isCorrectAnswerPopUp": false,
+      "isRecoridngEnable": false
+    },
+    "videoConfig": {
+      "isSeekingEnable": false
+    },
+    "themeConfig": {
+      "isDark": false,
+      "theme": ""
+    }
+  },
+  "LAYOUT_HEADER": {
+    "appLogo": "/fusion-assets/images/aastrika-foundation-logo.svg",
+    "isRequired": true,
+    "searchMenu": {
+      "id": "web_search",
+      "type": "search",
+      "icon": "",
+      "placeholder": "What do you want to learn today?"
+    },
+    "webMenuItems": [
+      "homeTab",
+      "courseTab",
+      "competencyTab",
+      "accountTab",
+      "notifTab"
+    ],
+    "mobileMenuItems": [
+      "homeTab",
+      "courseTab",
+      "competencyTab",
+      "searchMob",
+      "notifTab"
+    ],
+    "menuItems": [
+      {
+        "id": "homeTab",
+        "title": "Home",
+        "redirect": "page/home",
+        "active": true,
+        "show": true,
+        "type": "text",
+        "image": {
+          "isMobile": true,
+          "src": "/fusion-assets/icons/Home.svg"
+        }
+      },
+      {
+        "id": "courseTab",
+        "title": "My Courses",
+        "redirect": "app/user/my_courses",
+        "active": false,
+        "show": false,
+        "type": "text",
+        "image": {
+          "isMobile": true,
+          "src": "/fusion-assets/icons/material-symbols.svg"
+        }
+      }
+    ],
+    "rightMenuItem": {
+      "id": "menu",
+      "title": "",
+      "image": {
+        "isMobile": true,
+        "src": "/fusion-assets/icons/Hamburger_menu-svg.svg"
+      }
+    }
+  },
+  "LAYOUT_BODY": {
+    "sections": {
+      "homeTab": [
+        {
+          "title": "Welcome !",
+          "subTitle": "Start Learning",
+          "show": true,
+          "data": [],
+          "badges": {
+            "showCompletedCourses": false
+          }
+        },
+        {
+          "title": "CONTINUE LEARNING",
+          "headerClass": "header1 header0",
+          "playlistConfigId": "CONTINUE_LEARNING",
+          "subTitle": "",
+          "show": true,
+          "data": {},
+          "limit": 5,
+          "displayConfigWeb": {
+            "displayType": "card-mini",
+            "badges": {
+              "certification": true,
+              "rating": true,
+              "completionPercentage": true
+            }
+          },
+          "displayConfig": {
+            "displayType": "card-mini",
+            "badges": {
+              "certification": true,
+              "rating": true,
+              "completionPercentage": true,
+              "mobilesourceName": true
+            }
+          },
+          "fallbackState": {
+            "label": ""
+          },
+          "button": {
+            "label1": "View All",
+            "label2": "Hide",
+            "img": "/fusion-assets/icons/Arrowpng.png",
+            "courseType": "continueLearning",
+            "routingUrl": "app/user/my_courses"
+          }
+        }
+      ],
+      "courseTab": {
+        "title": "My Courses",
+        "tabMenu": [
+          {
+            "id": 0,
+            "label": "Started",
+            "data": [],
+            "className": "resource-container",
+            "displayConfigWeb": {
+              "displayType": "card-mini",
+              "badges": {
+                "certification": true,
+                "rating": true,
+                "completionPercentage": true,
+                "resume": true
+              }
+            },
+            "displayConfig": {
+              "displayType": "card-mini",
+              "badges": {
+                "certification": true,
+                "rating": true,
+                "completionPercentage": true,
+                "mobilesourceName": true
+              }
+            },
+            "fallbackState": {
+              "label": "You have not started any courses.",
+              "button": {
+                "show": true,
+                "label": "Check out courses for you"
+              }
+            }
+          },
+          {
+            "id": 1,
+            "label": "For You",
+            "data": [],
+            "className": "responsiveDiv",
+            "displayConfigWeb": {
+              "displayType": "card-badges",
+              "badges": {
+                "certification": true,
+                "sourceName": true,
+                "rating": true
+              }
+            },
+            "displayConfig": {
+              "displayType": "card-badges",
+              "badges": {
+                "certification": true,
+                "sourceName": true,
+                "rating": true
+              }
+            },
+            "fallbackState": {
+              "label": "You have started all the recommended courses - stay tuned for what's next!",
+              "button": {
+                "show": false,
+                "label": ""
+              }
+            }
+          }
+        ]
+      },
+      "competencyTab": [],
+      "searchMob": [],
+      "accountTab": {
+        "webOrderList": [
+          "profileImg",
+          "personalDetails",
+          "orgDetails",
+          "academicDetails",
+          "langPreference",
+          "certificate",
+          "help&Support",
+          "logout"
+        ],
+        "mobOrderList": [
+          "profileImg",
+          "help&Support",
+          "langPreference",
+          "certificate",
+          "personalDetails",
+          "orgDetails",
+          "academicDetails",
+          "logout"
+        ],
+        "menuItems": [
+          {
+            "id": "profileImg",
+            "text": "Position",
+            "img": "/fusion-assets/icons/prof1.png",
+            "type": "heading",
+            "editIcon": {}
+          },
+          {
+            "id": "leaderBoard",
+            "isRequired": true,
+            "text": "Leaderboard",
+            "type": "text",
+            "img": "fusion-assets/icons/leaderboard_icon.png",
+            "icon": "fusion-assets/icons/arrow-right.png",
+            "data": {
+              "title": "Your points",
+              "label": "POINTS"
+            }
+          }
+        ]
+      },
+      "notifTab": []
+    }
+  },
+  "LAYOUT_FOOTER": {
+    "footerHeading": "In collaboration with",
+    "footerLabel": "Aastrika Foundation - a section 8 company under the Companies Act, 2013, formerly known as AastarUrmika Health Systems Pvt. Ltd. All rights reserved.",
+    "menuItems": [
+      {
+        "heading": "Quick Links",
+        "link": "",
+        "href": "",
+        "links": [
+          {
+            "label": "My Course",
+            "type": "",
+            "routerLink": "mycourses"
+          },
+          {
+            "label": "Competency",
+            "type": "",
+            "routerLink": "competency"
+          }
+        ]
+      },
+      {
+        "heading": "Policies",
+        "link": "",
+        "href": "",
+        "links": [
+          {
+            "label": "Privacy policy",
+            "type": "dp",
+            "routerLink": "/public/tnc"
+          },
+          {
+            "label": "Terms of Use",
+            "type": "tnc",
+            "routerLink": "/public/tnc"
+          }
+        ]
+      }
+    ],
+    "name": "UP",
+    "logo": "https://aastar-app-assets.s3.ap-south-1.amazonaws.com/uptsu-footer-logo.png",
+    "startVideo": "https://www.youtube.com/embed/3WawuuQYtzs"
+  }
+}

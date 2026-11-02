@@ -32,7 +32,7 @@ interface FormSectionDiffView extends FormSectionDiffInput {
  */
 @Component({
   standalone: false,
-  selector: 'app-form-preview-dialog',
+  selector: 'ws-app-form-preview-dialog',
   templateUrl: './form-preview-dialog.component.html',
   styleUrls: ['./form-preview-dialog.component.scss'],
 })

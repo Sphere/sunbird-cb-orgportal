@@ -1,0 +1,352 @@
+{
+  "orgData": {
+    "sourceName": [],
+    "defaultLang": "",
+    "orgLogo": "",
+    "darkOrgLogo": "",
+    "foundationLogo": "",
+    "tnc": "",
+    "youtubeLink": "",
+    "roleSourceConfig": {
+      "sources": {}
+    },
+    "headerConfig": {
+      "text": "",
+      "subHeading": ""
+    },
+    "assessmentConfig": {
+      "isCorrectAnswerPopUp": false
+    },
+    "leaderBoradConfig": {
+      "isRequired": false,
+      "text": "",
+      "cardComponentType": "",
+      "img": "",
+      "data": {
+        "title": ""
+      }
+    },
+    "themeConfig": {
+      "mode": "",
+      "darkMode": false
+    }
+  },
+  "schemas": {
+    "APP_UPDATE_INFO": {
+      "isRequired": false,
+      "android": {
+        "type": "optional",
+        "requiredAppVersion": "2.0.1",
+        "requiredAppVersionCode": 63,
+        "appName": "E-kshamata",
+        "actionButtons": [
+          {
+            "action": "yes",
+            "label": "UPDATE",
+            "url": "https://play.google.com/store/apps/details?id=com.yourapp"
+          },
+          {
+            "action": "no",
+            "label": "NO_THANKS",
+            "url": ""
+          }
+        ],
+        "footer": {
+          "display": true,
+          "url": "https://play.google.com/store/apps/details?id=com.yourapp",
+          "logo": "assets/imgs/playstore-logo.png",
+          "text": "Google Play"
+        }
+      },
+      "ios": {
+        "type": "optional",
+        "requiredAppVersion": "2.0.1",
+        "requiredAppVersionCode": 63,
+        "appName": "E-kshamata",
+        "actionButtons": [
+          {
+            "action": "yes",
+            "label": "UPDATE",
+            "url": "https://apps.apple.com/in/app/e-kshamata"
+          },
+          {
+            "action": "no",
+            "label": "NO_THANKS",
+            "url": ""
+          }
+        ],
+        "footer": {
+          "display": true,
+          "url": "https://apps.apple.com/in/app/e-kshamata",
+          "logo": "assets/imgs/appstore-logo.png",
+          "text": "App Store"
+        }
+      }
+    },
+    "NOTIFICATION_INFO": {
+      "isEnabled": true,
+      "count": 3,
+      "options": {
+        "mode": "interval",
+        "intervalDays": {
+          "day": 6,
+          "every": "days",
+          "repeats": false
+        },
+        "specificDay": {
+          "weekday": 4,
+          "hour": 18,
+          "minute": 45,
+          "repeats": false
+        }
+      }
+    },
+    "LAYOUT_HEADER": {
+      "isRequired": true,
+      "leftLogo": {
+        "isRequired": true,
+        "imgURL": "assets/imgs/Foundation-secondary.svg",
+        "darkImgURL": "assets/imgs/dark-ekshamata-logo.svg"
+      },
+      "rightMenuIcon": {
+        "isRequired": true,
+        "imgs": [
+          {
+            "isRequired": true,
+            "menu_icon": "assets/icons/menu-line.svg"
+          },
+          {
+            "isRequired": true,
+            "close_icon": "assets/icons/close-line.svg"
+          }
+        ]
+      }
+    },
+    "LAYOUT_DATA": {
+      "tab1": {
+        "id": "feature_home",
+        "contents": {
+          "mentorConfig": {
+            "roles": [
+              {
+                "role": "learner",
+                "name": "LEARNER",
+                "image": "assets/icons/student.svg"
+              },
+              {
+                "role": "mentor",
+                "name": "MENTOR",
+                "image": "assets/icons/group.svg"
+              }
+            ],
+            "button": {
+              "label": "CHANGE_ROLE",
+              "icon": "expand_more"
+            },
+            "isRequired": true
+          },
+          "observerConfig": {
+            "roles": [
+              {
+                "role": "learner",
+                "name": "LEARNER",
+                "image": "assets/icons/student.svg"
+              },
+              {
+                "role": "mentee",
+                "name": "OBSERVER",
+                "image": "assets/icons/group.svg"
+              }
+            ],
+            "button": {
+              "label": "CHANGE_ROLE",
+              "icon": "expand_more"
+            },
+            "isRequired": true
+          },
+          "sections": [
+            {
+              "isRequired": true,
+              "text": "YOUR_PLANS",
+              "role": [
+                "ANM-BIHAR",
+                "ANM-STUDENT-BIHAR",
+                "ANM-FACULTY-BIHAR"
+              ],
+              "cardComponentType": "CompetencyCourseList",
+              "playlistConfigId": "COMPETENCY_PLAYLIST",
+              "cardDisplayConfig": {
+                "displayType": "card-small",
+                "showProgress": false,
+                "showCompetency": false,
+                "showSourceName": true,
+                "badges": {
+                  "orgIcon": true,
+                  "certification": true
+                }
+              },
+              "actions": {
+                "id": "viewAll",
+                "label": {
+                  "viewAll": "VIEW_ALL",
+                  "viewLess": "VIEW_LESS"
+                },
+                "type": "route",
+                "url": "my-courses/started",
+                "icon": {
+                  "viewAll": "chevron-down",
+                  "viewLess": "chevron-up"
+                },
+                "isRequired": true,
+                "role": [
+                  "ANM-BIHAR",
+                  "ANM-STUDENT-BIHAR",
+                  "ANM-FACULTY-BIHAR"
+                ]
+              },
+              "cardCount": 4,
+              "tabCardCount": 5
+            }
+          ]
+        }
+      },
+      "tab2": {
+        "id": "feature_courses",
+        "contents": {
+          "sections": [
+            {
+              "title": "STARTED",
+              "name": "started",
+              "routerLink": "/my-courses/started",
+              "count": 0,
+              "playlistConfigId": "STARTED_PLAYLIST",
+              "contentSource": {},
+              "isRequired": true,
+              "cardDisplayConfig": {
+                "showCertificate": true,
+                "showProgress": true,
+                "showCompetency": false,
+                "showSourceName": true
+              }
+            },
+            {
+              "title": "FOR_YOU",
+              "name": "for-you",
+              "routerLink": "/my-courses/for-you",
+              "count": 0,
+              "isRequired": true,
+              "playlistConfigId": "FOR_YOU_PLAYLIST",
+              "contentSource": {},
+              "cardDisplayConfig": {
+                "displayType": "card-badges",
+                "showCompetency": true,
+                "badges": {
+                  "orgIcon": true,
+                  "certification": false,
+                  "isCertified": true
+                }
+              }
+            }
+          ]
+        }
+      },
+      "tab3": {
+        "id": "feature_search",
+        "contents": {
+          "isRequired": true,
+          "sections": []
+        }
+      },
+      "tab4": {
+        "id": "feature_competency",
+        "contents": {
+          "contentSource": {
+            "isRequired": true,
+            "user_id": "3fa0b7e1-aec6-49cd-b375-d5b4d2502ec8",
+            "designation": "ANM_BIHAR",
+            "userName": "test one",
+            "language": "hi",
+            "isMobileApp": true,
+            "data": {}
+          }
+        }
+      },
+      "tab5": {
+        "id": "feature_account_details",
+        "contents": {
+          "user_id": "",
+          "isRequired": true,
+          "sections": [
+            {
+              "isRequired": true,
+              "text": "HELP_AND_SUPPORT",
+              "img": "assets/imgs/support-agent.svg",
+              "phone": "tel:+918429036003",
+              "icon": "",
+              "data": {}
+            },
+            {
+              "isRequired": true,
+              "name": "language",
+              "text": "LANGUAGE_PREFERENCE",
+              "img": "assets/icons/language-icon.svg",
+              "icon": "assets/icons/arrow-right.svg",
+              "data": {
+                "title": "SELECT_LANGUAGE",
+                "sub_header": "APP_LANGUAGE",
+                "img": {
+                  "show": false,
+                  "icon": ""
+                },
+                "optionsList": [
+                  {
+                    "code": "en",
+                    "name": "English",
+                    "checked": false
+                  },
+                  {
+                    "code": "hi",
+                    "name": "हिंदी",
+                    "checked": false
+                  }
+                ],
+                "button": {
+                  "label": "FRMELEMNTS_BTN_SAVE"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "tab6": {
+        "id": "feature_notification",
+        "contents": {
+          "isRequired": true,
+          "sections": []
+        }
+      }
+    },
+    "TABS": [
+      {
+        "type": "featureButton",
+        "config": {
+          "actionBtnId": "feature_home",
+          "config": {
+            "type": "card-mini"
+          },
+          "show": true
+        }
+      },
+      {
+        "type": "featureButton",
+        "config": {
+          "actionBtnId": "feature_courses",
+          "config": {
+            "type": "card-mini"
+          },
+          "show": true
+        }
+      }
+    ]
+  }
+}

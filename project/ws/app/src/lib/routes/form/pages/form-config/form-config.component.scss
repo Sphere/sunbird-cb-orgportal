@@ -4,16 +4,63 @@
   @include v2-page-container;
 
   .header-section {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+
+    .header-text {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
     .page-title { @include v2-page-title; }
     .page-subtitle { @include v2-page-subtitle; }
   }
 
   // ===========================================================================
-  // Config card: Type / Application Type / Access / Org Name / Org Id, framed
-  // the same way as .fields-shell/.details-panel (border #e0e0e0, radius 8px)
-  // so the page reads as a consistent set of cards, not loose floating rows.
-  // Fields sit on a grid (not flex-wrap) so every field is the same width
-  // regardless of how many are visible at once.
+  // Buttons
+  // ===========================================================================
+  .primary-btn { @include v2-btn-primary; height: 40px; }
+  .secondary-btn {
+    @include v2-btn-secondary;
+    height: 40px;
+
+    &--small {
+      height: 32px;
+      padding: 0 14px;
+    }
+  }
+
+  .text-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 8px;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: #1c5d95;
+    font-family: 'Roboto', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+
+    mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+
+    &:hover { background: #eef4fb; }
+    &:focus-visible { outline: 2px solid #1c5d95; outline-offset: 2px; }
+  }
+
+  // ===========================================================================
+  // Cards: Browse + New Form — border #e0e0e0, radius 8px, like the
+  // details-panel/fields-shell, so the page reads as one set of cards.
   // ===========================================================================
   .config-card {
     display: flex;
@@ -25,11 +72,16 @@
     border-radius: 8px;
   }
 
-  // Flexbox with a FIXED width per field — not a stretchy grid — so no field
-  // ever resizes as Application Type appears/disappears. When it's absent,
-  // the remaining fields keep their exact same size; any leftover space is
-  // just normal trailing space at the end of the row, not a gap between
-  // visible fields and not a reflow of what's already there.
+  .card-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .card-title { @include v2-section-title; }
+
+  // Fixed width per field (not a stretchy grid) so fields never resize as
+  // Application Type / Framework appear and disappear.
   .selectors-grid {
     display: flex;
     flex-wrap: wrap;
@@ -39,68 +91,251 @@
       flex: 0 0 260px;
       display: flex;
       flex-direction: column;
-
-      .custom-select-wrapper {
-        @include v2-custom-select-wrapper;
-
-        .select-label {
-          position: absolute;
-          top: 7px;
-          left: 16px;
-          font-size: 13px;
-          color: #808080;
-        }
-
-        .custom-select { @include v2-custom-select-input; }
-
-        .select-chevron {
-          position: absolute;
-          right: 14px;
-          top: 50%;
-          transform: translateY(-50%);
-          pointer-events: none;
-          color: #808080;
-        }
-      }
+      justify-content: center;
     }
 
-    // Org Name / Org Id sit on their own row below Type/Application Type/
-    // Access. Org Name gets a wider fixed width so a long org name isn't
-    // clipped; Org Id keeps the same fixed width as the row-1 fields.
     &--org {
-      .select-field:first-child {
+      .select-field:nth-child(2) {
         flex-basis: 480px;
       }
     }
   }
 
-  .config-card__actions {
-    display: flex;
+  .custom-select-wrapper {
+    @include v2-custom-select-wrapper;
 
-    .load-btn {
-      @include v2-btn-primary;
-      height: 40px;
-      padding: 0 32px;
+    .select-label {
+      position: absolute;
+      top: 7px;
+      left: 16px;
+      font-size: 13px;
+      color: #808080;
+      pointer-events: none;
+    }
+
+    .custom-select { @include v2-custom-select-input; }
+
+    .select-chevron {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+      color: #808080;
     }
   }
 
-  .error-text { color: #ca0000; font-size: 13px; }
-  .success-text { color: #1e7d1e; font-size: 13px; }
+  .filter-input {
+    @include v2-search-field;
+    width: 100%;
+  }
 
-  // A "no form yet — create one" notice, not a hard failure, so it reads as
-  // an actionable amber notice rather than a red error banner.
-  .load-error-banner {
+  .config-card__actions {
+    display: flex;
+  }
+
+  // ===========================================================================
+  // New Form: Start from (Empty / Upload JSON) + Download sample
+  // ===========================================================================
+  .start-from {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-top: 16px;
+    border-top: 1px solid #e0e0e0;
+
+    &__row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+  }
+
+  .upload-box {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 16px;
+    border: 1px dashed #c8d6e6;
+    border-radius: 8px;
+    background: #f9fbff;
+
+    &__pick {
+      cursor: pointer;
+
+      &:focus-within { outline: 2px solid #1c5d95; outline-offset: 2px; }
+    }
+
+    &__hint {
+      margin: 0;
+      font-size: 13px;
+      color: #666;
+    }
+
+    &__summary {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      font-size: 14px;
+      color: #333;
+      word-break: break-word;
+    }
+
+    &__ok {
+      color: #1e7e34;
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+
+    .notice { align-self: stretch; }
+  }
+
+  // ===========================================================================
+  // Browse: scope tabs, toolbar, table
+  // ===========================================================================
+  .scope-tabs,
+  .section-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .section-tab {
+    height: 36px;
+    padding: 0 18px;
+    border-radius: 888px;
+    border: 1px solid #1c5d95;
+    background: #fff;
+    color: #1c5d95;
+    font-family: 'Roboto', sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+
+    &:hover { background: #f3f8fd; }
+    &:focus-visible { outline: 2px solid #1c5d95; outline-offset: 2px; }
+
+    &--active {
+      background: #1c5d95;
+      color: #fff;
+
+      &:hover { background: #164d7a; }
+    }
+  }
+
+  .table-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+
+    .filter-input {
+      width: 360px;
+      max-width: 100%;
+    }
+
+    .type-filter {
+      width: 240px;
+    }
+
+    .result-count {
+      font-size: 13px;
+      color: #666;
+    }
+  }
+
+  .table-container {
+    @include v2-table-container;
+    max-height: 560px;
+    overflow-y: auto;
+  }
+
+  .forms-table {
+    @include v2-table-inner;
+
+    tbody tr { cursor: default; }
+
+    .col-actions {
+      width: 110px;
+      text-align: right;
+      white-space: nowrap;
+    }
+  }
+
+  .cell-primary { font-weight: 500; }
+
+  .cell-secondary {
+    margin-top: 2px;
+    font-size: 12px;
+    color: #666;
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  }
+
+  .pill {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 50px;
+    background: #eef4fb;
+    color: #1c5d95;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .loading-note {
+    margin: 12px 16px 0;
+    font-size: 13px;
+    color: #666;
+  }
+
+  .shimmer-row {
+    @include v2-shimmer;
+    height: 28px;
+    margin: 12px 16px;
+  }
+
+  .empty-state {
+    @include v2-empty-state-card;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+
+    &__icon { @include v2-empty-state-icon; margin: 0; }
+
+    &__title {
+      margin: 0;
+      font-size: 14px;
+      color: #333;
+    }
+  }
+
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  // ===========================================================================
+  // Notices: warn (existing form found), error, success
+  // ===========================================================================
+  .notice {
     display: flex;
     align-items: center;
     gap: 14px;
     flex-wrap: wrap;
-    padding: 16px 20px;
-    background: #fff8e6;
-    border: 1px solid #f0dfa8;
+    padding: 14px 20px;
     border-radius: 8px;
+    border: 1px solid;
 
     &__icon {
-      color: #a06b00;
       flex-shrink: 0;
       font-size: 22px;
       width: 22px;
@@ -111,16 +346,60 @@
       margin: 0;
       flex: 1;
       min-width: 220px;
-      color: #7a5200;
       font-size: 14px;
       line-height: 1.5;
     }
 
-    .create-form-btn {
-      @include v2-btn-primary;
-      height: 40px;
-      padding: 0 24px;
-      white-space: nowrap;
+    &--warn {
+      background: #fff8e6;
+      border-color: #f0dfa8;
+      color: #7a5200;
+
+      .notice__icon { color: #a06b00; }
+    }
+
+    &--error {
+      background: #fdecec;
+      border-color: #f3c4c4;
+      color: #8a0000;
+
+      .notice__icon { color: #ca0000; }
+    }
+
+    &--success {
+      background: #e6f4ea;
+      border-color: #b7dfc2;
+      color: #1e5e2e;
+
+      .notice__icon { color: #1e7e34; }
+    }
+  }
+
+  .error-text { color: #ca0000; font-size: 13px; }
+
+  // ===========================================================================
+  // Editor bar: Back + what is being edited
+  // ===========================================================================
+  .editor-bar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+
+    &__title {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      font-size: 15px;
+      font-weight: 500;
+      color: #000;
+      word-break: break-word;
+    }
+
+    &__label {
+      font-size: 12px;
+      font-weight: 400;
+      color: #666;
     }
   }
 
@@ -189,45 +468,10 @@
     .form-label {
       @include v2-form-label;
     }
-
-    .section-tabs {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-
-    .section-tab {
-      height: 36px;
-      padding: 0 18px;
-      border-radius: 888px;
-      border: 1px solid #1c5d95;
-      background: #fff;
-      color: #1c5d95;
-      font-family: 'Roboto', sans-serif;
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.15s ease;
-
-      &:hover {
-        background: #f3f8fd;
-      }
-
-      &--active {
-        background: #1c5d95;
-        color: #fff;
-
-        &:hover {
-          background: #164d7a;
-        }
-      }
-    }
   }
 
   // ===========================================================================
-  // Fields shell: title + the recursive FormNodeEditorComponent, framed as a
-  // card — matches the canonical table/card container convention (border
-  // #e0e0e0, radius 8px) used elsewhere in this app (see CLAUDE.md §9).
+  // Fields shell: title + the recursive FormNodeEditorComponent
   // ===========================================================================
   .fields-shell {
     display: flex;
@@ -247,6 +491,11 @@
     gap: 12px;
     padding-bottom: 12px;
     border-bottom: 1px solid #e0e0e0;
+
+    &__actions {
+      display: flex;
+      gap: 4px;
+    }
   }
 
   .fields-title {
@@ -266,6 +515,8 @@
   .update-row {
     display: flex;
     justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 12px;
 
     .update-btn {
       @include v2-btn-primary;
