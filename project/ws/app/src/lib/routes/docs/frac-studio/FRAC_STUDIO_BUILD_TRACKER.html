@@ -334,26 +334,26 @@ footer { color: var(--muted); font-size: 13px; }
   <section class="summary" aria-label="Where we are">
     <div class="here">
       <span class="eyebrow">Where we are</span>
-      <span class="big">Phases 5 and 6: Portal UI built, waiting for your check</span>
+      <span class="big">Phases 5 to 7 built and committed; next, the first real-AI run</span>
       <p>Both UI slices are built in orgportal: the Reviewer, My FRACs, the Creator brief, editing of roles,
         competencies and ladders with autosave, version history, the expert check, downloads and an in-app progress
-        tracker. They type-check cleanly and wait for your check in the running app before specs, build and commit.
-        Deployment happens once, after the full testing checklist passes. The AI steps run end to end: on Claude when
-        <code>ANTHROPIC_API_KEY</code> is set, on sample data from <code>src/mocks</code> when it is not. Adding the key
-        is the last update before deploy (<code>src/mocks/README.md</code> in the service).</p>
+        tracker. Specs and the production build pass, and both repos are committed (orgportal <code>110c8e94</code>,
+        service <code>58d2441</code>). Deployment happens once, after the full testing checklist passes. The AI steps
+        run end to end on whichever provider <code>AI_PROVIDER</code> names: <code>gemini-free</code> by default
+        (<code>GEMINI_API_KEY</code>, <code>gemini-3.6-flash</code> while 3.8 is overloaded; key verified 6 Nov), <code>gemini-paid</code>, <code>claude</code> (<code>ANTHROPIC_API_KEY</code>), or
+        <code>mock</code> sample data (<code>npm run dev:mock</code>). How to run and switch: <code>docs/FRAC_STUDIO_GUIDE.md</code>
+        in the service, copied next to this page.</p>
       <div><span class="pill s-now">Needs your in-app check</span></div>
     </div>
     <div class="meter">
       <span class="eyebrow">Build phases</span>
-      <div class="bar" role="img" aria-label="4 of 8 phases done, 2 in progress, 1 blocked, 1 waiting for testing">
-        <span class="b-done" style="width:50%"></span>
-        <span class="b-now" style="width:25%"></span>
-        <span class="b-blocked" style="width:12.5%"></span>
+      <div class="bar" role="img" aria-label="6 of 8 phases done, 1 in progress, 1 waiting for testing">
+        <span class="b-done" style="width:75%"></span>
+        <span class="b-now" style="width:12.5%"></span>
       </div>
       <div class="legend">
-        <span><b>4</b> done</span>
-        <span><b>2</b> in progress</span>
-        <span><b>1</b> blocked</span>
+        <span><b>6</b> done</span>
+        <span><b>1</b> in progress</span>
         <span><b>1</b> after full testing</span>
       </div>
     </div>
@@ -379,7 +379,7 @@ footer { color: var(--muted); font-size: 13px; }
           fixed checklist with quoted flags, a computed verdict and "same file, same review". Status per rule in
           <code>R3_GAP_ANALYSIS.md</code>, next to <code>FRAC_Creator_and_Reviewer_spec.md</code> and
           <code>FRAC_Reviewer_rules_r3.md</code> in this folder.</p>
-        <span class="where">df10412 · r3 uncommitted</span>
+        <span class="where">df10412 · r3 127ddc7</span>
         <span class="pill s-done">Done</span>
       </li>
       <li class="phase done">
@@ -396,33 +396,34 @@ footer { color: var(--muted); font-size: 13px; }
         <span class="where">e7bdfc3 · 6b5ac91</span>
         <span class="pill s-done">Pushed</span>
       </li>
-      <li class="phase now">
+      <li class="phase done">
         <div class="node-row"><span class="node">5</span><span class="rail"></span></div>
-        <span class="you-are-here">You are here</span>
         <h3>Portal UI · slice 1</h3>
         <p>Reviewer, My FRACs, Creator brief, expert check, downloads.</p>
-        <span class="where">feat/frac-studio · uncommitted</span>
-        <span class="pill s-now">Awaiting check</span>
+        <span class="where">feat/frac-studio · d830330d</span>
+        <span class="pill s-done">Committed</span>
       </li>
-      <li class="phase now">
+      <li class="phase done">
         <div class="node-row"><span class="node">6</span><span class="rail"></span></div>
         <h3>Portal UI · slice 2</h3>
-        <p>Editing with 1.4 s autosave, ladder cards, history, progress tracker.</p>
-        <span class="where">feat/frac-studio · uncommitted</span>
-        <span class="pill s-now">Awaiting check</span>
+        <p>Editing with 1.4 s autosave, ladder cards, history, progress tracker, r3 report, per-job cost.</p>
+        <span class="where">feat/frac-studio · 110c8e94</span>
+        <span class="pill s-done">Committed</span>
       </li>
       <li class="phase now">
         <div class="node-row"><span class="node">7</span><span class="rail"></span></div>
+        <span class="you-are-here">You are here</span>
         <h3>AI layer</h3>
-        <p>Creator steps 2–5, revise with feedback and the agent review. The Claude provider is built; it switches on
-          by itself when the API key is set. Until then the mock answers.</p>
-        <span class="pill s-now">Built · key at go-live</span>
+        <p>Creator steps 2–5, revise with feedback and the r3 review checklist. Providers are switchable profiles in
+          <code>config/ai-providers.json</code>: Gemini free tier (default), Gemini paid, Claude, or the mock.</p>
+        <span class="where">service · 58d2441</span>
+        <span class="pill s-now">Built · first real run next</span>
       </li>
       <li class="phase todo">
         <div class="node-row"><span class="node">8</span><span class="rail"></span></div>
         <h3>Deploy &amp; Sonar</h3>
         <p>One deploy, after the testing checklist below is complete. Deploy files are ready.</p>
-        <span class="where">frac-studio-service · uncommitted</span>
+        <span class="where">frac-studio-service · committed</span>
         <span class="pill s-todo">After full testing</span>
       </li>
     </ol>
@@ -856,19 +857,19 @@ footer { color: var(--muted); font-size: 13px; }
           <tr><td><b>Reviewer flow in the app</b></td><td>orgportal, local</td><td>Upload the sample GNM workbook, read the report, download it, open it in the Creator</td><td><span class="pill s-now">Waiting for you</span></td></tr>
           <tr><td><b>Creator flow in the app</b></td><td>orgportal, local</td><td>Brief, then edit roles, competencies and ladders; autosave, reload, history and restore, expert check, Excel download</td><td><span class="pill s-now">Waiting for you</span></td></tr>
           <tr><td><b>View-only user</b></td><td>orgportal, local</td><td>Log in with only <code>frac_read</code>: everything visible, nothing editable</td><td><span class="pill s-todo">Not run</span></td></tr>
-          <tr><td><b>Portal specs and build</b></td><td>orgportal</td><td>Jest specs for the FRAC Studio module, full Jest suite, production build</td><td><span class="pill s-todo">Runs at commit</span></td></tr>
-          <tr><td><b>Service tests</b></td><td>frac-studio-service</td><td>116 unit, API, Postgres-path, mock-flow and Claude-helper tests, including the r3 rules and checklist</td><td><span class="pill s-done">Passing</span></td></tr>
+          <tr><td><b>Portal specs and build</b></td><td>orgportal</td><td>Full Jest suite (3,581 tests) and the production build</td><td><span class="pill s-done">Passing</span></td></tr>
+          <tr><td><b>Service tests</b></td><td>frac-studio-service</td><td>138 unit, API, Postgres-path, mock-flow and provider tests (Gemini, Claude, registry, profiles), including the r3 rules and checklist; one workbook-reader test is flaky</td><td><span class="pill s-done">Passing</span></td></tr>
           <tr><td><b>Proxy tests</b></td><td>sunbird-cb-uiproxy</td><td>Routing, identity, uploads, downloads, whitelist (64 with the AI Studio suite)</td><td><span class="pill s-done">Passing</span></td></tr>
           <tr><td><b>Real Postgres</b></td><td>frac-studio-service</td><td><code>npm run migrate</code> twice against a real database, then the flows with the Postgres store</td><td><span class="pill s-now">Migrations applied locally; flows not run</span></td></tr>
           <tr><td><b>Docker image</b></td><td>frac-studio-service</td><td>Build the image, start it, hit <code>/health</code> and one review</td><td><span class="pill s-todo">Not run</span></td></tr>
           <tr><td><b>Real fixture workbooks</b></td><td>frac-studio-service</td><td>The spec §6.6 acceptance numbers on the GNM, ANM and Staff Nurse files</td><td><span class="pill s-blocked">Needs files</span></td></tr>
           <tr><td><b>Full flow on mock data</b></td><td>orgportal + service, local</td><td>The walkthrough in <code>src/mocks/README.md</code>: run every step, revise, expert check, fix competencies, download</td><td><span class="pill s-now">Waiting for you</span></td></tr>
-          <tr><td><b>Add the Claude key (last update)</b></td><td>frac-studio-service</td><td>Put <code>ANTHROPIC_API_KEY</code> in <code>.env</code> (local) or the deployment secret store (server), never <code>config/service.json</code>; restart and check the log says <code>"ai":"claude"</code>. Allow outbound HTTPS to <code>api.anthropic.com</code></td><td><span class="pill s-todo">Before deploy</span></td></tr>
-          <tr><td><b>AI-level testing</b></td><td>all</td><td>With Claude on: each step, revise, retries and invalid-output handling, cost per job, the real-workbook acceptance tests</td><td><span class="pill s-todo">After the switch</span></td></tr>
+          <tr><td><b>Add the AI key</b></td><td>frac-studio-service</td><td>Put the key the profile names (<code>GEMINI_API_KEY</code> for <code>gemini-free</code>, <code>ANTHROPIC_API_KEY</code> for <code>claude</code>) in <code>.env</code> (local) or the deployment secret store (server), never a <code>config/</code> file. Run <code>npm run ai:check</code>, then check the log names the profile. Allow outbound HTTPS to <code>generativelanguage.googleapis.com</code> or <code>api.anthropic.com</code></td><td><span class="pill s-done">Gemini free key verified (6 Nov, <code>gemini-3.6-flash</code>)</span></td></tr>
+          <tr><td><b>AI-level testing</b></td><td>all</td><td>On the Gemini free tier first, then the provider chosen for go-live: each step, revise, retries and invalid-output handling, cost per job, the real-workbook acceptance tests</td><td><span class="pill s-todo">After the key</span></td></tr>
         </tbody>
       </table>
     </div>
   </section>
 
-  <footer>Status as of 2 Nov 2026. Updated by republishing this page as phases move.</footer>
+  <footer>Status as of 6 Nov 2026. Updated by republishing this page as phases move.</footer>
 </div>
