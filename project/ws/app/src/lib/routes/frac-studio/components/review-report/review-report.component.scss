@@ -44,6 +44,7 @@
 }
 
 .summary,
+.provenance,
 .meta {
   color: $v2-color-text-secondary;
   font-size: $v2-font-caption;
@@ -158,6 +159,11 @@
   color: $v2-status-success-text;
 }
 
+// AI and ladder findings list one item per line
+.finding .finding-detail {
+  white-space: pre-line;
+}
+
 .finding .finding-by {
   color: $v2-color-text-secondary;
   font-size: $v2-font-micro;
@@ -166,4 +172,9 @@
 .strengths ul {
   margin: 0;
   padding-left: 20px;
+}
+
+.fix-btn {
+  @include v2-btn-secondary;
+  margin-top: $v2-space-1;
 }

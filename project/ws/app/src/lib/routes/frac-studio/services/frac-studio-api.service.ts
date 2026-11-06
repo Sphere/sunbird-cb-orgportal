@@ -7,11 +7,13 @@ import {
   Frac,
   FracBrief,
   FracDownload,
+  FracGenStep,
   FracJob,
   FracReviewContext,
   FracReviewDetail,
   FracReviewSummary,
   FracStartReviewResponse,
+  FracStepBody,
   FracSummary,
   FracVersion,
 } from '../models/frac-studio.models'
@@ -22,6 +24,7 @@ const FRAC_STUDIO_BASE = '/apis/protected/v8/fracStudio'
 const API_END_POINTS = {
   FRACS: `${FRAC_STUDIO_BASE}/fracs`,
   FRAC: (id: string) => `${FRAC_STUDIO_BASE}/fracs/${encodeURIComponent(id)}`,
+  FRAC_STEP: (id: string, step: FracGenStep) => `${FRAC_STUDIO_BASE}/fracs/${encodeURIComponent(id)}/steps/${step}`,
   FRAC_CHECK: (id: string) => `${FRAC_STUDIO_BASE}/fracs/${encodeURIComponent(id)}/steps/check`,
   FRAC_EXPORT: (id: string) => `${FRAC_STUDIO_BASE}/fracs/${encodeURIComponent(id)}/export.xlsx`,
   FRAC_VERSIONS: (id: string) => `${FRAC_STUDIO_BASE}/fracs/${encodeURIComponent(id)}/versions`,
@@ -31,6 +34,7 @@ const API_END_POINTS = {
   REVIEW: (id: string) => `${FRAC_STUDIO_BASE}/frac-reviews/${encodeURIComponent(id)}`,
   REVIEW_EXPORT: (id: string) => `${FRAC_STUDIO_BASE}/frac-reviews/${encodeURIComponent(id)}/export.xlsx`,
   REVIEW_OPEN: (id: string) => `${FRAC_STUDIO_BASE}/frac-reviews/${encodeURIComponent(id)}/open-in-creator`,
+  REVIEW_RERUN: (id: string) => `${FRAC_STUDIO_BASE}/frac-reviews/${encodeURIComponent(id)}/rerun`,
   JOB: (id: string) => `${FRAC_STUDIO_BASE}/jobs/${encodeURIComponent(id)}`,
 }
 
@@ -55,6 +59,11 @@ export class FracStudioApiService {
 
   patchFrac(id: string, edits: Partial<Frac>): Observable<Frac> {
     return this.http.patch<{ frac: Frac }>(API_END_POINTS.FRAC(id), edits).pipe(map(res => res.frac))
+  }
+
+  /** Starts an AI step (2–5) on the saved FRAC; resolves to the job id to poll. */
+  runStep(id: string, step: FracGenStep, body: FracStepBody = {}): Observable<string> {
+    return this.http.post<{ jobId: string }>(API_END_POINTS.FRAC_STEP(id, step), body).pipe(map(res => res.jobId))
   }
 
   /** Starts the step-6 expert check; resolves to the job id to poll. */
@@ -84,7 +93,10 @@ export class FracStudioApiService {
     return this.http.get<FracReviewDetail>(API_END_POINTS.REVIEW(id))
   }
 
-  /** Uploads a FRAC workbook; the service parses it immediately and reviews it as a job. */
+  /**
+   * Uploads a FRAC workbook; the service parses it immediately and reviews it as a job. When the same
+   * file and context were reviewed before, it returns the saved review instead (`fromCache`, `jobId: null`).
+   */
   startReview(file: File, ctx: FracReviewContext): Observable<FracStartReviewResponse> {
     const form = new FormData()
     form.append('file', file, file.name)
@@ -94,6 +106,11 @@ export class FracStudioApiService {
       }
     })
     return this.http.post<FracStartReviewResponse>(API_END_POINTS.REVIEWS, form)
+  }
+
+  /** Reviews the same file again, ignoring the saved review ("Run a fresh review"). */
+  rerunReview(id: string): Observable<FracStartReviewResponse> {
+    return this.http.post<FracStartReviewResponse>(API_END_POINTS.REVIEW_RERUN(id), {})
   }
 
   exportReview(id: string): Observable<FracDownload> {

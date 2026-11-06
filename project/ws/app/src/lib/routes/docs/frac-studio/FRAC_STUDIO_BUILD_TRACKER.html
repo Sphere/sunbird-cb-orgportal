@@ -338,8 +338,9 @@ footer { color: var(--muted); font-size: 13px; }
       <p>Both UI slices are built in orgportal: the Reviewer, My FRACs, the Creator brief, editing of roles,
         competencies and ladders with autosave, version history, the expert check, downloads and an in-app progress
         tracker. They type-check cleanly and wait for your check in the running app before specs, build and commit.
-        Deployment happens once, after the full testing checklist passes. The AI steps are blocked on the prototype
-        file and fixture workbooks.</p>
+        Deployment happens once, after the full testing checklist passes. The AI steps run end to end: on Claude when
+        <code>ANTHROPIC_API_KEY</code> is set, on sample data from <code>src/mocks</code> when it is not. Adding the key
+        is the last update before deploy (<code>src/mocks/README.md</code> in the service).</p>
       <div><span class="pill s-now">Needs your in-app check</span></div>
     </div>
     <div class="meter">
@@ -374,8 +375,11 @@ footer { color: var(--muted); font-size: 13px; }
       <li class="phase done">
         <div class="node-row"><span class="node">2</span><span class="rail"></span></div>
         <h3>Review engine</h3>
-        <p>Workbook parser, computed checks, report, Excel in and out.</p>
-        <span class="where">df10412</span>
+        <p>Workbook parser, computed checks, report, Excel in and out. Rebuilt to rules r3: rule-based checks, Vidya's
+          fixed checklist with quoted flags, a computed verdict and "same file, same review". Status per rule in
+          <code>R3_GAP_ANALYSIS.md</code>, next to <code>FRAC_Creator_and_Reviewer_spec.md</code> and
+          <code>FRAC_Reviewer_rules_r3.md</code> in this folder.</p>
+        <span class="where">df10412 · r3 uncommitted</span>
         <span class="pill s-done">Done</span>
       </li>
       <li class="phase done">
@@ -407,11 +411,12 @@ footer { color: var(--muted); font-size: 13px; }
         <span class="where">feat/frac-studio · uncommitted</span>
         <span class="pill s-now">Awaiting check</span>
       </li>
-      <li class="phase blocked">
+      <li class="phase now">
         <div class="node-row"><span class="node">7</span><span class="rail"></span></div>
         <h3>AI layer</h3>
-        <p>Kaushal &amp; Vidya prompts, Creator steps 2–5, agent review.</p>
-        <span class="pill s-blocked">Blocked</span>
+        <p>Creator steps 2–5, revise with feedback and the agent review. The Claude provider is built; it switches on
+          by itself when the API key is set. Until then the mock answers.</p>
+        <span class="pill s-now">Built · key at go-live</span>
       </li>
       <li class="phase todo">
         <div class="node-row"><span class="node">8</span><span class="rail"></span></div>
@@ -434,11 +439,11 @@ footer { color: var(--muted); font-size: 13px; }
         <div class="flow-head"><h3>Create FRAC</h3><span>spec §5 · 5 of 6 usable</span></div>
         <ol class="steps">
           <li class="step ok"><span class="n">1</span><div><b>Brief</b><p>Cadre, state, scope and size. Locks once research exists.</p></div><span class="pill s-done">Works</span></li>
-          <li class="step ai"><span class="n">2</span><div><b>Job research</b><p>JD sources, postings, authorised scope, state context. Web search planned. Imported FRACs skip it.</p></div><span class="pill s-blocked">Needs AI</span></li>
-          <li class="step part"><span class="n">3</span><div><b>Roles &amp; activities</b><p>Edit, add, delete and reorder by hand with autosave. AI drafting later.</p></div><span class="pill s-warn">By hand</span></li>
-          <li class="step part"><span class="n">4</span><div><b>Competencies</b><p>Editable table with Used by and D/F/B counts, add and delete. AI derivation later.</p></div><span class="pill s-warn">By hand</span></li>
-          <li class="step part"><span class="n">5</span><div><b>Level ladders</b><p>L1–L5 label and indicators per competency, by hand. AI writing later.</p></div><span class="pill s-warn">By hand</span></li>
-          <li class="step part"><span class="n">6</span><div><b>Expert check &amp; download</b><p>Computed checks run, saved as a review, Excel export works. Agent judgement pending.</p></div><span class="pill s-warn">Partly</span></li>
+          <li class="step ok"><span class="n">2</span><div><b>Job research</b><p>"Research the job" or fill in by hand; revise with feedback. Imported FRACs skip it.</p></div><span class="pill s-done">Works (mock AI)</span></li>
+          <li class="step ok"><span class="n">3</span><div><b>Roles &amp; activities</b><p>AI drafts in batches, then edit by hand; team-added activities survive a revise.</p></div><span class="pill s-done">Works (mock AI)</span></li>
+          <li class="step ok"><span class="n">4</span><div><b>Competencies</b><p>Derive / re-derive with AI, every activity mapped; editable table with Used by and D/F/B counts.</p></div><span class="pill s-done">Works (mock AI)</span></li>
+          <li class="step ok"><span class="n">5</span><div><b>Level ladders</b><p>Write missing, rewrite all, or revise one competency; edit any level by hand.</p></div><span class="pill s-done">Works (mock AI)</span></li>
+          <li class="step ok"><span class="n">6</span><div><b>Expert check &amp; download</b><p>Computed checks plus Kaushal &amp; Vidya findings; "Fix these competencies"; Excel export.</p></div><span class="pill s-done">Works (mock AI)</span></li>
         </ol>
       </div>
       <div class="flow">
@@ -446,7 +451,7 @@ footer { color: var(--muted); font-size: 13px; }
         <ol class="steps">
           <li class="step ok"><span class="n">1</span><div><b>Upload FRAC</b><p>Tolerant .xlsx parser: Hindi sheets skipped, "Comptency" typo, every mapping-cell style.</p></div><span class="pill s-done">Works</span></li>
           <li class="step ok"><span class="n">2</span><div><b>Context</b><p>Cadre, state or "Not state-specific", reviewer notes.</p></div><span class="pill s-done">Works</span></li>
-          <li class="step part"><span class="n">3</span><div><b>Review report</b><p>5 check tiles, findings, download, open in Creator. Kaushal &amp; Vidya findings pending.</p></div><span class="pill s-warn">Partly</span></li>
+          <li class="step ok"><span class="n">3</span><div><b>Review report</b><p>5 check tiles, computed and Kaushal &amp; Vidya findings, download, open in Creator.</p></div><span class="pill s-done">Works (mock AI)</span></li>
         </ol>
         <div class="flow-head"><h3>My FRACs</h3><span>spec §1</span></div>
         <ol class="steps">
@@ -809,13 +814,16 @@ footer { color: var(--muted); font-size: 13px; }
         <ul>
           <li><code>frac-studio.html</code> <span>for the exact METHOD and SOURCE_LIBRARY prompts (L244–265) and the Excel method paragraph (L653+)</span></li>
           <li>GNM, ANM and Staff Nurse workbooks <span>to run the §6.6 acceptance tests</span></li>
+          <li>Meghalaya ANM and Bihar ANM workbooks <span>for the r3 acceptance tests (rules §10)</span></li>
+          <li>Clinical questions from the r3 run on the entity master <span>listed in <code>R3_GAP_ANALYSIS.md</code> §9</span></li>
           <li>Product questions in spec §11 <span>assessment type per level, authorisation source, Hindi sheet, multi-reviewer sign-off</span></li>
         </ul>
       </div>
       <div class="list yours">
         <h3>Waiting on you</h3>
         <ul>
-          <li>Restart <code>ng serve</code> and try FRAC Studio <span>the service is running on port 3010 in memory mode</span></li>
+          <li>Restart <code>ng serve</code> and try FRAC Studio <span>the service is running on port 3010 with local Postgres</span></li>
+          <li>Upload the same file twice in the Reviewer <span>the second upload shows the saved review and "Run a fresh review"</span></li>
           <li>Say "commit" for orgportal <span>runs specs, Jest and the production build first</span></li>
           <li>Create a remote for frac-studio-service</li>
           <li>Work through the pre-deploy testing checklist below</li>
@@ -826,7 +834,7 @@ footer { color: var(--muted); font-size: 13px; }
         <ul>
           <li>Fixes from your in-app check, then specs and commit</li>
           <li>Research editor <span>postings, authorised scope and sources by hand, so step 2 no longer waits on AI</span></li>
-          <li>AI layer once the prototype arrives <span>retries, JSON repair, cost per job</span></li>
+          <li>AI-level testing once the key is in <span>each step, revise, cost per job, the real-workbook acceptance tests</span></li>
           <li>Prototype gaps 2, 3, 4 and 7 <span>keep competencies on role revise, fixed flags, fix routing, add and reorder</span></li>
         </ul>
       </div>
@@ -849,12 +857,14 @@ footer { color: var(--muted); font-size: 13px; }
           <tr><td><b>Creator flow in the app</b></td><td>orgportal, local</td><td>Brief, then edit roles, competencies and ladders; autosave, reload, history and restore, expert check, Excel download</td><td><span class="pill s-now">Waiting for you</span></td></tr>
           <tr><td><b>View-only user</b></td><td>orgportal, local</td><td>Log in with only <code>frac_read</code>: everything visible, nothing editable</td><td><span class="pill s-todo">Not run</span></td></tr>
           <tr><td><b>Portal specs and build</b></td><td>orgportal</td><td>Jest specs for the FRAC Studio module, full Jest suite, production build</td><td><span class="pill s-todo">Runs at commit</span></td></tr>
-          <tr><td><b>Service tests</b></td><td>frac-studio-service</td><td>76 unit, API and Postgres-path tests</td><td><span class="pill s-done">Passing</span></td></tr>
+          <tr><td><b>Service tests</b></td><td>frac-studio-service</td><td>116 unit, API, Postgres-path, mock-flow and Claude-helper tests, including the r3 rules and checklist</td><td><span class="pill s-done">Passing</span></td></tr>
           <tr><td><b>Proxy tests</b></td><td>sunbird-cb-uiproxy</td><td>Routing, identity, uploads, downloads, whitelist (64 with the AI Studio suite)</td><td><span class="pill s-done">Passing</span></td></tr>
-          <tr><td><b>Real Postgres</b></td><td>frac-studio-service</td><td><code>npm run migrate</code> twice against a real database, then the flows with the Postgres store</td><td><span class="pill s-todo">Not run</span></td></tr>
+          <tr><td><b>Real Postgres</b></td><td>frac-studio-service</td><td><code>npm run migrate</code> twice against a real database, then the flows with the Postgres store</td><td><span class="pill s-now">Migrations applied locally; flows not run</span></td></tr>
           <tr><td><b>Docker image</b></td><td>frac-studio-service</td><td>Build the image, start it, hit <code>/health</code> and one review</td><td><span class="pill s-todo">Not run</span></td></tr>
           <tr><td><b>Real fixture workbooks</b></td><td>frac-studio-service</td><td>The spec §6.6 acceptance numbers on the GNM, ANM and Staff Nurse files</td><td><span class="pill s-blocked">Needs files</span></td></tr>
-          <tr><td><b>AI review and Creator steps</b></td><td>all</td><td>Once the AI layer exists: each step, retries, cost logging</td><td><span class="pill s-blocked">Needs prototype</span></td></tr>
+          <tr><td><b>Full flow on mock data</b></td><td>orgportal + service, local</td><td>The walkthrough in <code>src/mocks/README.md</code>: run every step, revise, expert check, fix competencies, download</td><td><span class="pill s-now">Waiting for you</span></td></tr>
+          <tr><td><b>Add the Claude key (last update)</b></td><td>frac-studio-service</td><td>Put <code>ANTHROPIC_API_KEY</code> in <code>.env</code> (local) or the deployment secret store (server), never <code>config/service.json</code>; restart and check the log says <code>"ai":"claude"</code>. Allow outbound HTTPS to <code>api.anthropic.com</code></td><td><span class="pill s-todo">Before deploy</span></td></tr>
+          <tr><td><b>AI-level testing</b></td><td>all</td><td>With Claude on: each step, revise, retries and invalid-output handling, cost per job, the real-workbook acceptance tests</td><td><span class="pill s-todo">After the switch</span></td></tr>
         </tbody>
       </table>
     </div>

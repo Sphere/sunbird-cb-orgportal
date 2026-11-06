@@ -1,36 +1,50 @@
 import { Component, OnDestroy, OnInit } from '@angular/core'
 import { ActivatedRoute } from '@angular/router'
-import { Subscription } from 'rxjs'
+import { Observable, Subscription } from 'rxjs'
 import { switchMap } from 'rxjs/operators'
 import {
   Frac,
   FracCompetency,
+  FracFinding,
+  FracGenStep,
   FracJob,
   FracPosting,
   FracResearch,
   FracRole,
   FracSaveStatus,
+  FracStepBody,
 } from '../../models/frac-studio.models'
 import { FracStudioApiService } from '../../services/frac-studio-api.service'
 import { FracStudioAutosaveService } from '../../services/frac-studio-autosave.service'
 import { apiErrorMessage, saveBlob } from '../../utils/frac-studio-download.util'
 import { emptyResearch } from '../../utils/frac-studio-edit.util'
 import { curStep, fracProgress, FracStepProgress } from '../../utils/frac-studio-progress.util'
-import { dominantPrefix, usedByMap } from '../../utils/frac-studio-refs.util'
+import { dominantPrefix, normalizeCode, usedByMap } from '../../utils/frac-studio-refs.util'
 
 export type CreatorTab = 'research' | 'roles' | 'competencies' | 'ladders' | 'check' | 'history'
 
-/** Primary action per curStep (spec 5). Steps that need AI open the matching editor instead. */
-const PRIMARY: { label: string, tab: CreatorTab | null }[] = [
-  { label: 'Start job research', tab: 'research' },
-  { label: 'Add roles & activities', tab: 'roles' },
-  { label: 'Add competencies', tab: 'competencies' },
-  { label: 'Write level ladders', tab: 'ladders' },
-  { label: 'Run expert check', tab: null },
-  { label: 'Download Excel', tab: null },
+/** Primary action per curStep (spec 5 labels). Steps 2–5 run the AI step; "Re-derive" when roles changed. */
+const PRIMARY: { label: string, step: FracGenStep | null }[] = [
+  { label: 'Research the job', step: 'research' },
+  { label: 'Build roles & activities', step: 'roles' },
+  { label: 'Derive competencies', step: 'competencies' },
+  { label: 'Write level ladders', step: 'ladders' },
+  { label: 'Run expert check', step: null },
+  { label: 'Download Excel', step: null },
 ]
 
-/** One FRAC in the Creator: progress tracker, editors with autosave, expert check, history. */
+const GEN_STEPS: readonly FracGenStep[] = ['research', 'roles', 'competencies', 'ladders']
+
+/** What a revise keeps and what it redoes, shown under each feedback box. */
+const REVISE_HINTS: Record<FracGenStep, string> = {
+  research: 'Research is redone with your feedback, e.g. "Add the state\'s 104 helpline".',
+  roles: 'Roles and activities are redone with your feedback. Activities your team added are kept; '
+    + 'competency mappings are cleared until competencies are re-derived.',
+  competencies: 'Competencies and mappings are redone with your feedback. Ladders are kept where a competency\'s code and label stay the same.',
+  ladders: 'Feedback applies to "Rewrite all" and to "Revise" on a single competency.',
+}
+
+/** One FRAC in the Creator: progress tracker, AI steps with revise, editors with autosave, expert check, history. */
 @Component({
   selector: 'ws-app-frac-studio-creator-detail',
   templateUrl: './creator-detail.component.html',
@@ -47,18 +61,23 @@ export class CreatorDetailComponent implements OnInit, OnDestroy {
     { key: 'check', label: 'Expert check' },
     { key: 'history', label: 'History' },
   ]
+  readonly reviseHints = REVISE_HINTS
 
   frac: Frac | null = null
   steps: FracStepProgress[] = []
   usedBy = new Map<string, string[]>()
+  /** Normalised competency codes, so findings can offer "Fix these competencies". */
+  competencyCodes = new Set<string>()
   tab: CreatorTab = 'roles'
+  /** The running or last AI step / expert check. */
   job: FracJob | null = null
+  /** A step was requested and its job id has not come back yet. */
+  starting = false
   saveStatus: FracSaveStatus = 'idle'
   historyKey = 0
-  /** "Start research" waits for a confirmation, because research locks the brief. */
-  confirmStartResearch = false
+  /** Revise feedback typed per step. */
+  feedback: Record<FracGenStep, string> = { research: '', roles: '', competencies: '', ladders: '' }
   loading = true
-  checking = false
   error = ''
 
   private fracId = ''
@@ -90,25 +109,66 @@ export class CreatorDetailComponent implements OnInit, OnDestroy {
     return this.frac ? (this.frac.codePrefix || dominantPrefix(this.frac.competencies.map(c => c.code)) || 'C') : 'C'
   }
 
-  get primary(): { label: string, tab: CreatorTab | null } {
-    return this.frac ? PRIMARY[curStep(this.frac)] : PRIMARY[0]
+  get primary(): { label: string, step: FracGenStep | null } {
+    if (!this.frac) {
+      return PRIMARY[0]
+    }
+    const action = PRIMARY[curStep(this.frac)]
+    return action.step === 'competencies' && this.frac.rolesDirty ? { ...action, label: 'Re-derive competencies' } : action
   }
 
-  /** Only "Run expert check" changes the FRAC; opening an editor or downloading does not. */
+  /** Everything but "Download Excel" changes the FRAC. */
   get primaryMutates(): boolean {
-    return !!this.frac && curStep(this.frac) === 4
+    return !!this.frac && curStep(this.frac) < 5
   }
 
-  /** The check reads the saved FRAC, so wait until edits are saved. */
+  get running(): boolean {
+    return this.starting || (!!this.job && (this.job.status === 'queued' || this.job.status === 'running'))
+  }
+
+  /** Steps and the check read the saved FRAC, so wait until edits are saved. */
+  get canRun(): boolean {
+    return !!this.frac && !this.running && (this.saveStatus === 'idle' || this.saveStatus === 'saved')
+  }
+
   get canCheck(): boolean {
-    return !!this.frac && this.frac.competencies.length > 0 && !this.checking
-      && (this.saveStatus === 'idle' || this.saveStatus === 'saved')
+    return this.canRun && !!this.frac && this.frac.competencies.length > 0
+  }
+
+  /**
+   * The Excel goes out only after a successful expert check. Steps that change the content clear the
+   * review, so the download waits for a fresh check.
+   */
+  get canDownload(): boolean {
+    return !!this.frac?.review && !this.running
+  }
+
+  /** The AI step behind the open tab, once it has output to revise (ladders: once competencies exist). */
+  get reviseStep(): FracGenStep | null {
+    const f = this.frac
+    if (!f || !GEN_STEPS.includes(this.tab as FracGenStep)) {
+      return null
+    }
+    const has: Record<FracGenStep, boolean> = {
+      research: !!f.research,
+      roles: f.roles.length > 0,
+      competencies: f.competencies.length > 0,
+      ladders: f.competencies.length > 0,
+    }
+    return has[this.tab as FracGenStep] ? this.tab as FracGenStep : null
+  }
+
+  get missingLadders(): number {
+    return this.frac ? this.frac.competencies.filter(c => c.levels === null).length : 0
   }
 
   onPrimary(): void {
     const action = this.primary
-    if (action.tab) {
-      this.tab = action.tab
+    if (action.step === 'research') {
+      // Research locks the brief, so the Research tab offers AI or by-hand with that warning
+      this.tab = 'research'
+    } else if (action.step) {
+      this.runStep(action.step)
     } else if (this.frac && curStep(this.frac) === 4) {
       this.tab = 'check'
       this.runCheck()
@@ -117,12 +177,48 @@ export class CreatorDetailComponent implements OnInit, OnDestroy {
     }
   }
 
-  /** Saves empty research (spec 5.2). From here on the service refuses brief changes (BRIEF_LOCKED). */
+  /** AI research (spec 5.2). From here on the service refuses brief changes (BRIEF_LOCKED). */
+  researchWithAi(): void {
+    this.runStep('research')
+  }
+
+  /** Saves empty research to fill in by hand; this also locks the brief. */
   startResearch(): void {
-    this.confirmStartResearch = false
     const research = emptyResearch()
     this.applyLocal({ research })
     this.autosave.queue('research', research)
+  }
+
+  /** Re-runs the step with the team's feedback (spec 5, revise). */
+  revise(step: FracGenStep): void {
+    const feedback = this.feedback[step].trim()
+    if (feedback) {
+      this.runStep(step, { feedback })
+    }
+  }
+
+  /** Ladders for competencies that have none yet. */
+  writeMissingLadders(): void {
+    this.runStep('ladders')
+  }
+
+  rewriteAllLadders(): void {
+    if (this.frac) {
+      this.runStep('ladders', this.withFeedback('ladders', { codes: this.frac.competencies.map(c => c.code) }))
+    }
+  }
+
+  reviseLadder(code: string): void {
+    this.runStep('ladders', this.withFeedback('ladders', { codes: [code] }))
+  }
+
+  /** "Fix these competencies" (spec 5.6): rewrites the cited ladders with the finding as feedback. */
+  fixFinding(finding: FracFinding): void {
+    const codes = (this.frac?.competencies ?? []).map(c => c.code)
+      .filter(code => finding.refs.some(ref => normalizeCode(ref) === normalizeCode(code)))
+    if (codes.length) {
+      this.runStep('ladders', { codes, feedback: finding.fix ? `${finding.title}. ${finding.fix}` : finding.title })
+    }
   }
 
   onResearchChange(research: FracResearch): void {
@@ -165,23 +261,15 @@ export class CreatorDetailComponent implements OnInit, OnDestroy {
 
   /** Expert check (spec 5.6): the review engine on the saved FRAC, then reload. */
   runCheck(): void {
-    if (!this.canCheck) {
-      return
+    if (this.canCheck) {
+      this.startJob(this.api.startCheck(this.fracId), 'The expert check could not be started.')
     }
-    this.checking = true
-    this.error = ''
-    this.subs.add(
-      this.api.startCheck(this.fracId).pipe(switchMap(jobId => this.api.pollJob(jobId))).subscribe({
-        next: job => this.onCheckJob(job),
-        error: err => {
-          this.checking = false
-          this.error = apiErrorMessage(err, 'The expert check could not be started.')
-        },
-      }),
-    )
   }
 
   download(): void {
+    if (!this.canDownload) {
+      return
+    }
     this.autosave.flush()
     this.subs.add(
       this.api.exportFrac(this.fracId).subscribe({
@@ -191,15 +279,47 @@ export class CreatorDetailComponent implements OnInit, OnDestroy {
     )
   }
 
-  private onCheckJob(job: FracJob): void {
+  /** Runs an AI step on the saved FRAC and opens its tab to watch the progress. */
+  runStep(step: FracGenStep, body: FracStepBody = {}): void {
+    if (this.canRun) {
+      this.tab = step
+      this.startJob(this.api.runStep(this.fracId, step, body), 'The step could not be started.')
+    }
+  }
+
+  private withFeedback(step: FracGenStep, body: FracStepBody): FracStepBody {
+    const feedback = this.feedback[step].trim()
+    return feedback ? { ...body, feedback } : body
+  }
+
+  private startJob(start: Observable<string>, failure: string): void {
+    this.error = ''
+    this.starting = true
+    this.subs.add(
+      start.pipe(switchMap(jobId => this.api.pollJob(jobId))).subscribe({
+        next: job => {
+          this.starting = false
+          this.onJob(job)
+        },
+        error: err => {
+          this.starting = false
+          this.job = null
+          this.refreshDerived()
+          this.error = apiErrorMessage(err, failure)
+        },
+      }),
+    )
+  }
+
+  private onJob(job: FracJob): void {
     this.job = job
     this.refreshDerived()
     if (job.status === 'done') {
-      this.checking = false
+      if (GEN_STEPS.includes(job.kind as FracGenStep)) {
+        this.feedback = { ...this.feedback, [job.kind]: '' }
+      }
       this.historyKey++
       this.load(false)
-    } else if (job.status === 'error') {
-      this.checking = false
     }
   }
 
@@ -225,6 +345,7 @@ export class CreatorDetailComponent implements OnInit, OnDestroy {
   private refreshDerived(): void {
     if (this.frac) {
       this.usedBy = usedByMap(this.frac)
+      this.competencyCodes = new Set(this.frac.competencies.map(c => normalizeCode(c.code)))
       this.steps = fracProgress(this.frac, this.job)
     }
   }
@@ -237,7 +358,7 @@ export class CreatorDetailComponent implements OnInit, OnDestroy {
           this.loading = false
           this.setFrac(frac)
           if (pickTab) {
-            this.tab = this.primary.tab ?? 'check'
+            this.tab = this.primary.step ?? 'check'
           }
         },
         error: err => {

@@ -1,13 +1,192 @@
 @import 'ws-design-system-v2';
 
-.job {
+// AI-at-work panel: primary tint card, a rotating ring round a sparkle, a scanning sweep over
+// skeleton rows. Motion is decorative and stops under prefers-reduced-motion.
+
+.ai-panel {
   display: flex;
   flex-direction: column;
-  gap: $v2-space-1;
-  padding: 12px $v2-space-2;
-  border-radius: $v2-radius-input;
-  background: $v2-color-primary-tint;
+  gap: 12px;
+  padding: $v2-space-2 $v2-space-3;
+  border: 1px solid #d5e3f3;
+  border-radius: $v2-radius-card;
+  background: linear-gradient(180deg, $v2-color-primary-tint 0%, #ffffff 100%);
+  color: $v2-color-text;
+}
+
+.ai-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.ai-orb {
+  position: relative;
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #ffffff;
   color: $v2-color-primary;
+  box-shadow: 0 2px 8px rgba(28, 93, 149, 0.15);
+}
+
+.ai-orb-ring {
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, transparent 0deg, $v2-color-primary 120deg, transparent 240deg);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 3px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 3px));
+  animation: ai-spin 1.6s linear infinite;
+}
+
+.ai-orb-icon { animation: ai-pulse 1.8s ease-in-out infinite; }
+
+.ai-titles {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.ai-title {
+  margin: 0;
+  font-size: $v2-font-body;
+  font-weight: 600;
+  color: $v2-color-primary;
+}
+
+.ai-agents {
+  font-size: $v2-font-micro;
+  color: $v2-color-text-secondary;
+}
+
+.ai-time {
+  font-size: $v2-font-caption;
+  font-weight: 600;
+  color: $v2-color-primary;
+  font-variant-numeric: tabular-nums;
+}
+
+.ai-msg {
+  margin: 0;
+  font-size: $v2-font-caption;
+}
+
+.ai-bar {
+  position: relative;
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(28, 93, 149, 0.15);
+  overflow: hidden;
+}
+
+.ai-bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: $v2-color-primary;
+  transition: width 0.4s ease;
+}
+
+// No count yet: a sweep instead of a fill
+.ai-bar.indeterminate .ai-bar-fill {
+  position: absolute;
+  width: 35%;
+  animation: ai-sweep 1.4s ease-in-out infinite;
+}
+
+.ai-meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: $v2-font-micro;
+  color: $v2-color-text-secondary;
+  font-variant-numeric: tabular-nums;
+}
+
+// Skeleton rows with a scanning line passing over them
+.ai-scan {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border: 1px dashed #c8d6e6;
+  border-radius: $v2-radius-card;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.ai-scan-row {
+  @include v2-shimmer;
+  height: 10px;
+
+  &.w-80 { width: 80%; }
+  &.w-70 { width: 70%; }
+  &.w-60 { width: 60%; }
+}
+
+.ai-scan-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, $v2-color-primary, transparent);
+  box-shadow: 0 0 8px rgba(28, 93, 149, 0.5);
+  animation: ai-scan 2.2s ease-in-out infinite;
+}
+
+.ai-does {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: $v2-font-micro;
+  color: $v2-color-text-secondary;
+
+  li {
+    position: relative;
+    padding-left: 14px;
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 6px;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #9fbfdd;
+    }
+  }
+
+  @media (max-width: 600px) { grid-template-columns: 1fr; }
+}
+
+.ai-note {
+  margin: 0;
+  font-size: $v2-font-micro;
+  color: $v2-color-text-secondary;
+}
+
+// Finished / failed line
+.ai-result {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 10px $v2-space-2;
+  border-radius: $v2-radius-input;
+  background: $v2-status-success-bg;
+  color: $v2-status-success-text;
   font-size: $v2-font-caption;
 
   &.error {
@@ -16,28 +195,51 @@
   }
 }
 
-.job-line {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+.ai-result-mark {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: $v2-status-success-text;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+
+  .error & { background: $v2-status-danger-text; }
 }
 
-.job-msg { flex: 1; }
+.ai-result-msg { flex: 1; }
 
-.job-count {
-  font-weight: 600;
-  white-space: nowrap;
+.ai-result-meta {
+  font-variant-numeric: tabular-nums;
+  opacity: 0.8;
 }
 
-.job-bar {
-  height: 6px;
-  border-radius: 3px;
-  background: rgba(28, 93, 149, 0.15);
-  overflow: hidden;
+@keyframes ai-spin { to { transform: rotate(360deg); } }
+
+@keyframes ai-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(0.88); opacity: 0.75; }
 }
 
-.job-bar-fill {
-  height: 100%;
-  background: $v2-color-primary;
-  transition: width 0.3s ease;
+@keyframes ai-sweep {
+  0% { left: -35%; }
+  100% { left: 100%; }
+}
+
+@keyframes ai-scan {
+  0% { top: 0; }
+  50% { top: calc(100% - 2px); }
+  100% { top: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ai-orb-ring,
+  .ai-orb-icon,
+  .ai-scan-line,
+  .ai-bar.indeterminate .ai-bar-fill { animation: none; }
+
+  .ai-bar.indeterminate .ai-bar-fill { left: 0; width: 100%; opacity: 0.4; }
 }

@@ -89,3 +89,15 @@
   font-weight: 600;
   padding-top: 10px;
 }
+
+.ladder-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+
+  .hint {
+    color: $v2-color-text-secondary;
+    font-size: $v2-font-micro;
+  }
+}

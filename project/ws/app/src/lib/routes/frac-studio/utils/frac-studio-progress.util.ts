@@ -82,16 +82,23 @@ export function plannedSteps(): FracStepProgress[] {
   }))
 }
 
+/** Tracker step number for each job kind (the service names step jobs after the step). */
+const JOB_STEP: Record<string, number> = { research: 2, roles: 3, competencies: 4, ladders: 5, check: 6 }
+
 /**
  * Builds the six-step tracker for the Creator page: state, evidence from the data,
- * and what can be done now. `job` is the running expert check, if any.
+ * and what can be done now. `job` is the running AI step or expert check, if any.
  */
 export function fracProgress(frac: Frac, job: FracJob | null = null): FracStepProgress[] {
   const s = stats(frac)
   // curStep counts from research (0 = step 2), so the step number is two ahead; 6 is the last
   const current = Math.min(curStep(frac) + 2, 6)
-  const checkRunning = !!job && (job.status === 'queued' || job.status === 'running')
+  const runningStep = job && (job.status === 'queued' || job.status === 'running') ? JOB_STEP[job.kind] ?? 0 : 0
+  const running = (n: number) => n === runningStep && job ? job.msg : ''
   const state = (n: number, done: boolean): FracStepState => {
+    if (n === runningStep) {
+      return 'current'
+    }
     if (done) {
       return 'done'
     }
@@ -116,8 +123,8 @@ export function fracProgress(frac: Frac, job: FracJob | null = null): FracStepPr
       evidence: frac.research
         ? `${plural(frac.research.sources.length, 'source')} · ${plural(frac.postings.length, 'posting')}`
         : frac.imported ? `Skipped: imported from ${frac.imported}` : 'No research yet',
-      howTo: 'Fill in the job research by hand in the Research tab. AI research is not enabled yet.',
-      running: '',
+      howTo: 'Run "Research the job", then review or edit it in the Research tab. Revise with feedback to redo it.',
+      running: running(2),
     },
     {
       number: 3,
@@ -127,8 +134,8 @@ export function fracProgress(frac: Frac, job: FracJob | null = null): FracStepPr
       evidence: frac.roles.length
         ? `${plural(frac.roles.length, 'role')} · ${plural(s.activities, 'activity', 'activities')} · ${s.unmapped} unmapped`
         : 'No roles yet',
-      howTo: 'Edit, add, delete or reorder by hand in the Roles & activities tab. AI drafting is not enabled yet.',
-      running: '',
+      howTo: 'Run "Build roles & activities", then edit, add, delete or reorder. Activities you add survive a revise.',
+      running: running(3),
     },
     {
       number: 4,
@@ -139,9 +146,9 @@ export function fracProgress(frac: Frac, job: FracJob | null = null): FracStepPr
         ? `${plural(frac.competencies.length, 'competency', 'competencies')} · D ${s.types.D} / F ${s.types.F} / B ${s.types.B} · ${s.unused} unused`
         : 'No competencies yet',
       howTo: frac.rolesDirty
-        ? 'Roles changed after competencies were derived. Check the mappings, then mark them checked.'
-        : 'Edit, add or delete in the Competencies tab. AI derivation is not enabled yet.',
-      running: '',
+        ? 'Roles changed after competencies were derived. Re-derive competencies, or check the mappings and mark them checked.'
+        : 'Run "Derive competencies", then edit, add or delete in the Competencies tab.',
+      running: running(4),
     },
     {
       number: 5,
@@ -149,17 +156,17 @@ export function fracProgress(frac: Frac, job: FracJob | null = null): FracStepPr
       produces: 'L1–L5 per competency, 2–4 assessable indicators each',
       state: state(5, frac.competencies.length > 0 && s.ladders === frac.competencies.length),
       evidence: frac.competencies.length ? `${s.ladders} of ${frac.competencies.length} ladders written` : 'Needs competencies first',
-      howTo: 'Write or edit each level in the Level ladders tab. AI writing is not enabled yet.',
-      running: '',
+      howTo: 'Run "Write level ladders", then edit any level, or revise one competency with feedback.',
+      running: running(5),
     },
     {
       number: 6,
       title: 'Expert check & download',
       produces: 'Graded review of this FRAC, then the Excel workbook',
-      state: checkRunning ? 'current' : state(6, !!frac.review),
+      state: state(6, !!frac.review),
       evidence: reviewEvidence(frac),
       howTo: frac.competencies.length ? 'Run or re-run the check, then download Excel.' : 'Needs competencies first.',
-      running: checkRunning && job ? job.msg : '',
+      running: running(6),
     },
   ]
 }

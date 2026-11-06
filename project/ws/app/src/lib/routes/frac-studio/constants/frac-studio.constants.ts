@@ -88,3 +88,40 @@ export const FRAC_STUDIO_STEPS: readonly { title: string, needsAi: boolean }[] =
 ]
 
 export const FRAC_STUDIO_ACCEPT_XLSX = '.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+
+/**
+ * What the AI-at-work panel says per job kind: a title, who is working, and what that step does.
+ * The live line under it comes from the service; these lines describe the work, they do not track it.
+ */
+export const FRAC_STUDIO_JOB_COPY: Record<string, { title: string, agents: string, does: readonly string[] }> = {
+  research: {
+    title: 'Researching the job',
+    agents: 'Kaushal',
+    does: ['Finding the job descriptions and programme guidelines', 'Naming the postings', 'Separating authorised from refer-onward work', 'Noting what changes for this state'],
+  },
+  roles: {
+    title: 'Building roles & activities',
+    agents: 'Kaushal',
+    does: ['Drafting roles that cover the whole job', 'Writing observable activities, a few roles at a time', 'Marking each posting Yes or No', 'Tagging each activity with its source'],
+  },
+  competencies: {
+    title: 'Deriving competencies',
+    agents: 'Kaushal',
+    does: ['Grouping activities into competencies', 'Typing each as Domain, Functional or Behavioural', 'Mapping every activity to one competency and level', 'Checking every competency is used'],
+  },
+  ladders: {
+    title: 'Writing level ladders',
+    agents: 'Kaushal & Vidya',
+    does: ['Writing L1–L5 with measurable verbs', 'Adding 2–4 assessable indicators per level', 'Checking clinical facts against national guidelines', 'Saving each batch as it finishes'],
+  },
+  check: {
+    title: 'Running the expert check',
+    agents: "Rule-based checks, then Vidya's checklist",
+    does: ["Counting Bloom's verbs, structure, ladders and coverage", 'Checking scope and outdated terms against the rule tables', "Asking Vidya the fixed scope, accuracy and state questions", 'Keeping only AI flags that quote the file'],
+  },
+  review: {
+    title: 'Reviewing the FRAC',
+    agents: "Rule-based checks, then Vidya's checklist",
+    does: ['Reading the workbook sheets and mappings', 'Checking scope and outdated terms against the rule tables', "Asking Vidya the fixed scope, accuracy and state questions", 'Keeping only AI flags that quote the file'],
+  },
+}

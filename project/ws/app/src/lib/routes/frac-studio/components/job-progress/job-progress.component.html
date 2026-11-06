@@ -1,10 +1,51 @@
-<div class="job" *ngIf="job" [class.error]="job.status === 'error'" role="status" aria-live="polite">
-  <div class="job-line">
-    <mat-spinner *ngIf="running" diameter="20" strokeWidth="3"></mat-spinner>
-    <span class="job-msg">{{ job.status === 'error' ? (job.error || 'The job failed.') : job.msg }}</span>
-    <span class="job-count" *ngIf="running && job.total > 0">{{ job.done }} of {{ job.total }}</span>
+<!-- Running: the AI-at-work panel -->
+<section class="ai-panel" *ngIf="job && running" role="status" aria-live="polite" [attr.aria-label]="copy.title">
+  <div class="ai-head">
+    <div class="ai-orb" aria-hidden="true">
+      <span class="ai-orb-ring"></span>
+      <svg class="ai-orb-icon" viewBox="0 0 24 24" width="22" height="22">
+        <path d="M12 2l1.9 5.6L19.5 9.5l-5.6 1.9L12 17l-1.9-5.6L4.5 9.5l5.6-1.9z" fill="currentColor" />
+        <path d="M19 15l.8 2.2 2.2.8-2.2.8L19 21l-.8-2.2-2.2-.8 2.2-.8z" fill="currentColor" opacity="0.7" />
+      </svg>
+    </div>
+    <div class="ai-titles">
+      <h3 class="ai-title">{{ copy.title }}</h3>
+      <span class="ai-agents">{{ copy.agents }}</span>
+    </div>
+    <span class="ai-time" aria-label="Elapsed time">{{ elapsedLabel }}</span>
   </div>
-  <div class="job-bar" *ngIf="running && job.total > 0">
-    <div class="job-bar-fill" [style.width.%]="percent"></div>
+
+  <p class="ai-msg">{{ job.msg }}</p>
+
+  <div class="ai-bar" [class.indeterminate]="job.total === 0">
+    <div class="ai-bar-fill" [style.width.%]="job.total > 0 ? percent : null"></div>
   </div>
+  <div class="ai-meta">
+    <span *ngIf="job.total > 0">{{ job.done }} of {{ job.total }} done</span>
+    <span *ngIf="job.total === 0">Analysing…</span>
+    <span *ngIf="calls > 0">{{ calls }} AI call{{ calls === 1 ? '' : 's' }} · {{ usageLabel }}</span>
+  </div>
+
+  <div class="ai-scan" aria-hidden="true">
+    <div class="ai-scan-line"></div>
+    <div class="ai-scan-row w-80"></div>
+    <div class="ai-scan-row w-60"></div>
+    <div class="ai-scan-row w-70"></div>
+  </div>
+
+  <ul class="ai-does" *ngIf="copy.does.length">
+    <li *ngFor="let line of copy.does">{{ line }}</li>
+  </ul>
+  <p class="ai-note">You can keep this page open or come back later; the work continues on the server.</p>
+</section>
+
+<!-- Finished or failed: one line -->
+<div class="ai-result" *ngIf="job && !running" [class.error]="job.status === 'error'" role="status" aria-live="polite">
+  <span class="ai-result-mark" aria-hidden="true">{{ job.status === 'error' ? '!' : '✓' }}</span>
+  <span class="ai-result-msg">
+    {{ job.status === 'error' ? (job.error || 'The job failed.') : copy.title + ' finished' }}
+  </span>
+  <span class="ai-result-meta" *ngIf="job.status !== 'error' && elapsed > 0">in {{ elapsedLabel }}</span>
+  <!-- Spend of the whole step, so the cost of each AI call can be checked -->
+  <span class="ai-result-meta" *ngIf="calls > 0">· {{ calls }} AI call{{ calls === 1 ? '' : 's' }} · {{ usageLabel }}</span>
 </div>

@@ -52,6 +52,11 @@
 
   <ng-container *ngIf="report">
     <div class="warning" *ngFor="let w of warnings">{{ w }}</div>
+    <p class="saved-note" *ngIf="savedAt">
+      This file and context were reviewed on {{ savedAt | date:'d MMM y, h:mm a' }}. The saved review is shown,
+      so running it again gives the same answer.
+      <button type="button" class="link-btn" (click)="runFreshReview()" *appHideForViewOnly>Run a fresh review</button>
+    </p>
     <div class="error" *ngIf="error" role="alert">{{ error }}</div>
     <div class="actions">
       <button type="button" class="btn-secondary" (click)="startOver()">Review another FRAC</button>

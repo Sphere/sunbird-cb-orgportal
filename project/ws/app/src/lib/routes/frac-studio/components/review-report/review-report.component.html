@@ -6,6 +6,7 @@
     </div>
     <p class="verdict">{{ report.verdict }}</p>
     <p class="summary" *ngIf="report.summary">{{ report.summary }}</p>
+    <p class="provenance" *ngIf="report.findings.length">{{ provenance }}</p>
     <div class="meta" *ngIf="report.cadre || report.state">
       <span *ngIf="report.cadre">Cadre: {{ report.cadre }}</span>
       <span *ngIf="report.state">State: {{ report.state }}</span>
@@ -38,7 +39,10 @@
       <p class="finding-detail">{{ f.detail }}</p>
       <p class="finding-refs" *ngIf="f.refs.length"><strong>Refs:</strong> {{ f.refs.join(', ') }}</p>
       <p class="finding-fix" *ngIf="f.fix"><strong>Suggested fix:</strong> {{ f.fix }}</p>
-      <p class="finding-by">Found by: {{ foundBy(f) }}</p>
+      <p class="finding-by">{{ foundBy(f) }}</p>
+      <button type="button" class="fix-btn" *ngIf="fixable(f)" [disabled]="!canFix" (click)="fixFinding.emit(f)">
+        Fix these competencies
+      </button>
     </article>
   </div>
 

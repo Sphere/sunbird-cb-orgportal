@@ -55,3 +55,34 @@
   color: $v2-status-warning-text;
   font-size: $v2-font-caption;
 }
+
+// Shown when the upload matched an earlier review and the saved one is displayed
+.saved-note {
+  margin: 0;
+  padding: 12px $v2-space-2;
+  border-radius: $v2-radius-input;
+  background: $v2-status-info-bg;
+  color: $v2-status-info-text;
+  font-size: $v2-font-caption;
+  line-height: 1.5;
+}
+
+.link-btn {
+  padding: 0;
+  border: none;
+  background: none;
+  color: $v2-color-primary;
+  font: inherit;
+  font-weight: 500;
+  text-decoration: underline;
+  cursor: pointer;
+
+  &:hover {
+    color: $v2-color-primary-hover;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $v2-color-primary;
+    outline-offset: 2px;
+  }
+}

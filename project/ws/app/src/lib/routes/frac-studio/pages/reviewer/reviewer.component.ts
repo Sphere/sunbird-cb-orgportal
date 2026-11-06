@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core'
 import { ActivatedRoute, Router } from '@angular/router'
-import { Subscription } from 'rxjs'
+import { EMPTY, Subscription } from 'rxjs'
 import { switchMap } from 'rxjs/operators'
 import {
   FRAC_STUDIO_ACCEPT_XLSX,
@@ -38,6 +38,8 @@ export class ReviewerComponent implements OnInit, OnDestroy {
   job: FracJob | null = null
   report: FracReport | null = null
   warnings: string[] = []
+  /** When the saved review shown was made; set when the upload matched an earlier review. */
+  savedAt: string | null = null
   error = ''
   busy = false
 
@@ -74,7 +76,10 @@ export class ReviewerComponent implements OnInit, OnDestroy {
     this.error = ''
   }
 
-  /** Uploads, then polls the review job and loads the report when it finishes. */
+  /**
+   * Uploads, then polls the review job and loads the report when it finishes. A file and context
+   * reviewed before come back with no job, so the saved review is loaded straight away.
+   */
   runReview(): void {
     if (!this.file) {
       return
@@ -91,11 +96,44 @@ export class ReviewerComponent implements OnInit, OnDestroy {
         switchMap(started => {
           this.reviewId = started.reviewId
           this.warnings = started.warnings
+          this.savedAt = started.fromCache ? started.reviewedAt ?? null : null
+          if (!started.jobId) {
+            this.loadReview(started.reviewId)
+            return EMPTY
+          }
           return this.api.pollJob(started.jobId)
         }),
       ).subscribe({
         next: job => this.onJob(job),
         error: err => this.fail(apiErrorMessage(err, 'The review could not be started.')),
+      }),
+    )
+  }
+
+  /** Reviews the same file again instead of showing the saved review. */
+  runFreshReview(): void {
+    const id = this.reviewId
+    if (!id) {
+      return
+    }
+    this.report = null
+    this.savedAt = null
+    this.job = null
+    this.error = ''
+    this.busy = true
+    this.subs.add(
+      this.api.rerunReview(id).pipe(
+        switchMap(started => {
+          this.reviewId = started.reviewId
+          if (!started.jobId) {
+            this.loadReview(started.reviewId)
+            return EMPTY
+          }
+          return this.api.pollJob(started.jobId)
+        }),
+      ).subscribe({
+        next: job => this.onJob(job),
+        error: err => this.fail(apiErrorMessage(err, 'The fresh review could not be started.')),
       }),
     )
   }
@@ -166,6 +204,7 @@ export class ReviewerComponent implements OnInit, OnDestroy {
     this.job = null
     this.report = null
     this.warnings = []
+    this.savedAt = null
     this.error = ''
   }
 }

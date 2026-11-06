@@ -15,7 +15,11 @@ import { emptyLadder, updateCompetency, updateLevel } from '../../utils/frac-stu
 })
 export class LadderEditorComponent {
   @Input() competencies: FracCompetency[] = []
+  /** False while a step runs or edits are unsaved; disables "Revise". */
+  @Input() canRevise = false
   @Output() readonly competenciesChange = new EventEmitter<FracCompetency[]>()
+  /** Asks the page to rewrite one competency's ladder with AI; emits its code. */
+  @Output() readonly revise = new EventEmitter<string>()
 
   readonly levelNames = FRAC_STUDIO_LEVEL_NAMES
   /** Codes of the cards that are open. */

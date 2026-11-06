@@ -13,6 +13,12 @@
 
     <div class="card-body" *ngIf="open.has(c.code)">
       <ng-container *ngIf="c.levels; else noLadder">
+        <div class="ladder-actions" *appHideForViewOnly>
+          <button type="button" class="btn-secondary" (click)="revise.emit(c.code)" [disabled]="!canRevise">
+            Revise {{ c.code }}
+          </button>
+          <span class="hint">Rewrites this ladder with AI, using the feedback above.</span>
+        </div>
         <div class="level" *ngFor="let l of c.levels; let li = index; trackBy: trackByIndex">
           <span class="level-name">{{ levelNames[li] }}</span>
           <input #lab type="text" [value]="l.label" placeholder="Label, e.g. Performs … under supervision"

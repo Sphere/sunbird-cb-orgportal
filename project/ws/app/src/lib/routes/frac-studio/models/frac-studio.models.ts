@@ -70,6 +70,8 @@ export interface FracStats {
   F: number
   D: number
   other: number
+  /** KCM-format competencies (themes, no job ladder), counted apart from the laddered ones. */
+  kcm?: number
 }
 
 export interface FracFinding {
@@ -103,6 +105,10 @@ export interface FracReport {
   checks: FracCheckSummary[]
   findings: FracFinding[]
   strengths: string[]
+  /** Review engine version, e.g. "r3". */
+  engine?: string
+  /** Hash of the file, context and rules; the same fingerprint gives the same review. */
+  fingerprint?: string
 }
 
 export interface Frac {
@@ -170,8 +176,12 @@ export interface FracReviewDetail {
 
 export interface FracStartReviewResponse {
   reviewId: string
-  jobId: string
+  /** null when the same file and context were reviewed before (fromCache) */
+  jobId: string | null
   warnings: string[]
+  fromCache: boolean
+  /** When the saved review was made; set with fromCache. */
+  reviewedAt?: string
 }
 
 export interface FracJob {
@@ -184,6 +194,28 @@ export interface FracJob {
   errorCode?: string | null
   kind: string
   targetId: string | null
+  /** Model spend so far: calls, tokens and cost (0 on the mock provider). */
+  usage?: FracJobUsage | null
+}
+
+export interface FracJobUsage {
+  calls: number
+  inputTokens: number
+  outputTokens: number
+  /** Web searches the research step ran (billed per search). */
+  webSearches?: number
+  costUsd: number
+  /** 1 when the cost is an estimate at Claude prices (the mock), not a real bill. */
+  estimated?: number
+}
+
+/** The AI steps the service runs as jobs (spec 5.2–5.5); the job's `kind` is the step name. */
+export type FracGenStep = 'research' | 'roles' | 'competencies' | 'ladders'
+
+/** Revise feedback for a step; ladders can be limited to some competency codes. */
+export interface FracStepBody {
+  feedback?: string
+  codes?: string[]
 }
 
 export interface FracDownload {
