@@ -51,3 +51,12 @@ export function apiError(err: unknown): { code: string, message: string } | null
   }
   return null
 }
+
+/** The live job's id when the service refused a start because one is running (409 JOB_RUNNING), else null. */
+export function runningJobId(err: unknown): string | null {
+  if (apiError(err)?.code !== 'JOB_RUNNING') {
+    return null
+  }
+  const details = ((err as { error: { error: { details?: { jobId?: unknown } } } }).error.error.details)
+  return typeof details?.jobId === 'string' ? details.jobId : null
+}

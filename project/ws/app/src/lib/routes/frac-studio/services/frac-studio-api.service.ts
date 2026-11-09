@@ -49,8 +49,10 @@ export class FracStudioApiService {
     return this.http.get<{ fracs: FracSummary[] }>(API_END_POINTS.FRACS).pipe(map(res => res.fracs))
   }
 
-  getFrac(id: string): Observable<Frac> {
-    return this.http.get<{ frac: Frac }>(API_END_POINTS.FRAC(id)).pipe(map(res => res.frac))
+  /** The FRAC plus the step or check still running on it, so a reloaded page can follow that job. */
+  loadFrac(id: string): Observable<{ frac: Frac, activeJobId: string | null }> {
+    return this.http.get<{ frac: Frac, activeJobId?: string | null }>(API_END_POINTS.FRAC(id))
+      .pipe(map(res => ({ frac: res.frac, activeJobId: res.activeJobId ?? null })))
   }
 
   createFrac(brief: FracBrief): Observable<Frac> {

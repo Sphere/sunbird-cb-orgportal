@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core'
 import { ActivatedRoute } from '@angular/router'
-import { Observable, Subscription } from 'rxjs'
+import { Observable, of, Subscription } from 'rxjs'
 import { switchMap } from 'rxjs/operators'
 import {
   Frac,
@@ -16,7 +16,7 @@ import {
 } from '../../models/frac-studio.models'
 import { FracStudioApiService } from '../../services/frac-studio-api.service'
 import { FracStudioAutosaveService } from '../../services/frac-studio-autosave.service'
-import { apiErrorMessage, saveBlob } from '../../utils/frac-studio-download.util'
+import { apiErrorMessage, runningJobId, saveBlob } from '../../utils/frac-studio-download.util'
 import { emptyResearch } from '../../utils/frac-studio-edit.util'
 import { curStep, fracProgress, FracStepProgress } from '../../utils/frac-studio-progress.util'
 import { dominantPrefix, normalizeCode, usedByMap } from '../../utils/frac-studio-refs.util'
@@ -307,6 +307,12 @@ export class CreatorDetailComponent implements OnInit, OnDestroy {
         },
         error: err => {
           this.starting = false
+          // The service allows one job per FRAC: follow the one already running instead of failing
+          const live = runningJobId(err)
+          if (live) {
+            this.startJob(of(live), failure)
+            return
+          }
           this.job = null
           this.refreshDerived()
           this.error = apiErrorMessage(err, failure)
@@ -362,10 +368,14 @@ export class CreatorDetailComponent implements OnInit, OnDestroy {
   private load(pickTab: boolean): void {
     this.loading = !this.frac
     this.subs.add(
-      this.api.getFrac(this.fracId).subscribe({
-        next: frac => {
+      this.api.loadFrac(this.fracId).subscribe({
+        next: ({ frac, activeJobId }) => {
           this.loading = false
           this.setFrac(frac)
+          // A reloaded page or a second tab picks the running step up again
+          if (activeJobId && !this.job && !this.starting) {
+            this.startJob(of(activeJobId), 'The running step could not be followed.')
+          }
           if (pickTab) {
             this.tab = this.primary.step ?? 'check'
           }
