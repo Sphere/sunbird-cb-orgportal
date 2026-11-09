@@ -42,8 +42,20 @@
   color: $v2-status-danger-text;
 }
 
-.col-code { width: 56px; font-family: monospace; }
-.col-posting { width: 72px; }
-.col-comp { width: 150px; }
-.col-tier { width: 160px; }
-.col-del { width: 40px; text-align: center; }
+// The shared table inner pads cells 24px a side, which left the P1–P3 and tier selects too narrow to show
+// "Yes" or "Programme guideline". Tighter cells here, and widths sized to the longest option.
+.table-wrap {
+  table { min-width: 1040px; }
+
+  th,
+  td { padding: 10px 12px; }
+
+  select { padding-right: 28px; text-overflow: ellipsis; }
+}
+
+.col-code { width: 64px; font-family: monospace; }
+.col-activity { min-width: 320px; }
+.col-posting { width: 92px; }
+.col-comp { width: 160px; }
+.col-tier { width: 210px; }
+.col-del { width: 56px; text-align: center; }

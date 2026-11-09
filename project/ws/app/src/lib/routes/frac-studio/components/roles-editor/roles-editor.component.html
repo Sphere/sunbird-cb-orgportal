@@ -28,7 +28,7 @@
         <thead>
           <tr>
             <th class="col-code">Code</th>
-            <th>Activity</th>
+            <th class="col-activity">Activity</th>
             <th *ngFor="let p of postings; trackBy: trackByIndex" class="col-posting" [title]="p.label">{{ p.key }}</th>
             <th class="col-comp">Competency@Level</th>
             <th class="col-tier">Source tier</th>
