@@ -34,7 +34,8 @@ export function curStep(frac: Frac): number {
   if (frac.competencies.some(c => c.levels === null)) {
     return 3
   }
-  return frac.review ? 5 : 4
+  // A check made before the latest fix or edit is out of date: back to "Run expert check"
+  return frac.review && !frac.reviewStale ? 5 : 4
 }
 
 const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`

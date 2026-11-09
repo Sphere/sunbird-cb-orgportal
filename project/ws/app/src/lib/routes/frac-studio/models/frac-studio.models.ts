@@ -130,6 +130,8 @@ export interface Frac {
   competencies: FracCompetency[]
   rolesDirty: boolean
   review: FracReport | null
+  /** Set by the service when the content changed after the expert check; the next check clears it. */
+  reviewStale?: boolean
 }
 
 export interface FracSummary {

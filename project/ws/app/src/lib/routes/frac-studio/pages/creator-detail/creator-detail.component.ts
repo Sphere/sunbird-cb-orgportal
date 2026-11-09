@@ -113,7 +113,11 @@ export class CreatorDetailComponent implements OnInit, OnDestroy {
     if (!this.frac) {
       return PRIMARY[0]
     }
-    const action = PRIMARY[curStep(this.frac)]
+    const step = curStep(this.frac)
+    const action = PRIMARY[step]
+    if (step === 4 && this.frac.review) {
+      return { ...action, label: 'Re-run expert check' }
+    }
     return action.step === 'competencies' && this.frac.rolesDirty ? { ...action, label: 'Re-derive competencies' } : action
   }
 
@@ -136,11 +140,11 @@ export class CreatorDetailComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * The Excel goes out only after a successful expert check. Steps that change the content clear the
-   * review, so the download waits for a fresh check.
+   * The Excel goes out only after a successful expert check of the current content. Steps and edits that
+   * change the content clear the review or mark it out of date, so the download waits for a fresh check.
    */
   get canDownload(): boolean {
-    return !!this.frac?.review && !this.running
+    return !!this.frac?.review && !this.frac.reviewStale && !this.running
   }
 
   /** The AI step behind the open tab, once it has output to revise (ladders: once competencies exist). */
@@ -222,13 +226,13 @@ export class CreatorDetailComponent implements OnInit, OnDestroy {
   }
 
   onResearchChange(research: FracResearch): void {
-    this.applyLocal({ research })
+    this.applyLocal({ research, ...this.staleCheck() })
     this.autosave.queue('research', research)
   }
 
   /** Postings changes; removing a posting also clears its column from the activities. */
   onPostingsChange(change: { postings: FracPosting[], roles?: FracRole[] }): void {
-    this.applyLocal(change.roles ? { postings: change.postings, roles: change.roles } : { postings: change.postings })
+    this.applyLocal({ postings: change.postings, ...(change.roles ? { roles: change.roles } : {}), ...this.staleCheck() })
     this.autosave.queue('postings', change.postings)
     if (change.roles) {
       this.autosave.queue('roles', change.roles)
@@ -236,12 +240,12 @@ export class CreatorDetailComponent implements OnInit, OnDestroy {
   }
 
   onRolesChange(roles: FracRole[]): void {
-    this.applyLocal({ roles })
+    this.applyLocal({ roles, ...this.staleCheck() })
     this.autosave.queue('roles', roles)
   }
 
   onCompetenciesChange(competencies: FracCompetency[]): void {
-    this.applyLocal({ competencies })
+    this.applyLocal({ competencies, ...this.staleCheck() })
     this.autosave.queue('competencies', competencies)
   }
 
@@ -329,6 +333,11 @@ export class CreatorDetailComponent implements OnInit, OnDestroy {
       return
     }
     this.setFrac(this.autosave.hasUnsaved ? { ...this.frac, rolesDirty: saved.rolesDirty } : saved)
+  }
+
+  /** A content edit after the expert check makes it out of date (the service sets the same flag on save). */
+  private staleCheck(): Partial<Frac> {
+    return this.frac?.review ? { reviewStale: true } : {}
   }
 
   private applyLocal(patch: Partial<Frac>): void {

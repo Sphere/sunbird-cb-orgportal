@@ -88,6 +88,8 @@
         <p class="hint">Runs the same review as the Review tab on this FRAC: computed checks, then Kaushal and Vidya.</p>
         <p class="hint" *ngIf="!frac.competencies.length">Add competencies before running the check.</p>
         <p class="hint" *ngIf="frac.competencies.length && !frac.review">Download Excel is available once the expert check has run.</p>
+        <div class="dirty" role="status" *ngIf="frac.review && frac.reviewStale">The FRAC changed after this check, so these
+          findings may already be fixed. Re-run the check to see what is left; Download Excel is available after it.</div>
         <div class="actions">
           <button type="button" class="btn-secondary" (click)="runCheck()" [disabled]="!canCheck" *appHideForViewOnly>
             {{ frac.review ? 'Re-run check' : 'Run expert check' }}
