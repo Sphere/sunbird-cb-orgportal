@@ -1,0 +1,29 @@
+<section class="upload" [attr.aria-label]="title">
+  <div class="upload-head">
+    <h3 class="upload-title">{{ title }}</h3>
+    <button type="button" class="text-btn" (click)="template.emit()">Download template</button>
+  </div>
+  <p class="hint" *ngIf="hint">{{ hint }}</p>
+
+  <ul class="files" *ngIf="items.length">
+    <li class="file" *ngFor="let item of items; trackBy: trackByKey">
+      <span class="file-name">{{ item.name }}</span>
+      <span class="file-detail">{{ item.detail }}</span>
+      <button type="button" class="icon-btn" (click)="remove.emit(item.key)" [disabled]="disabled"
+        [attr.aria-label]="'Remove ' + item.name" *appHideForViewOnly>×</button>
+      <ul class="warnings" *ngIf="item.warnings.length">
+        <li *ngFor="let w of item.warnings">{{ w }}</li>
+      </ul>
+    </li>
+  </ul>
+  <p class="in-use" *ngIf="inUse && items.length" role="status">{{ inUse }}</p>
+
+  <div class="upload-actions" *appHideForViewOnly>
+    <label class="btn-secondary" [class.is-disabled]="disabled || busy || full">
+      <input type="file" class="sr-only" #fileInput [accept]="accept" [disabled]="disabled || busy || full"
+        (change)="onFile(fileInput)" />
+      {{ uploadLabel }}
+    </label>
+    <span class="hint" *ngIf="full">At most {{ max }} documents.</span>
+  </div>
+</section>

@@ -7,15 +7,49 @@
 
 <div class="detail" *ngIf="frac">
   <div class="main">
-    <section class="brief-card">
+    <section class="brief-card" *ngIf="!briefDraft; else briefForm">
+      <div class="brief-head" *appHideForViewOnly>
+        <button type="button" class="btn-secondary small" (click)="editBrief()" [disabled]="running">Edit brief</button>
+      </div>
       <dl class="brief">
-        <div><dt>Cadre</dt><dd>{{ frac.cadreFull || frac.cadre }}</dd></div>
+        <div class="brief-position"><dt>Position</dt><dd>{{ frac.cadreFull || frac.cadre }}</dd></div>
         <div><dt>State</dt><dd>{{ frac.state }}</dd></div>
-        <div><dt>Size</dt><dd>{{ frac.size }}</dd></div>
+        <div *ngIf="frac.seededFrom">
+          <dt>Started from</dt>
+          <dd>{{ frac.seededFrom.name }} ({{ frac.seededFrom.from === 'frac' ? 'your earlier FRAC' : 'Positions' }})</dd>
+        </div>
         <div *ngIf="frac.imported"><dt>Imported from</dt><dd>{{ frac.imported }}</dd></div>
       </dl>
       <p class="prompt" *ngIf="frac.prompt">{{ frac.prompt }}</p>
     </section>
+
+    <ng-template #briefForm>
+      <form class="brief-card brief-form" *ngIf="briefDraft as draft" (ngSubmit)="saveBrief()">
+        <div class="brief-fields">
+          <div class="field field-wide">
+            <label for="fs-brief-cadre">Position *</label>
+            <input id="fs-brief-cadre" name="cadre" type="text" [(ngModel)]="draft.cadre" required maxlength="300">
+          </div>
+          <div class="field">
+            <label for="fs-brief-state">State *</label>
+            <select id="fs-brief-state" name="state" [(ngModel)]="draft.state" required>
+              <option *ngIf="!states.includes(draft.state)" [value]="draft.state">{{ draft.state }}</option>
+              <option *ngFor="let s of states" [value]="s">{{ s }}</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label for="fs-brief-prompt">What should this FRAC cover?</label>
+          <textarea id="fs-brief-prompt" name="prompt" rows="3" [(ngModel)]="draft.prompt"></textarea>
+        </div>
+        <p class="hint" *ngIf="frac.research">Research was done for the current brief. After saving, Job research and the steps
+          after it are marked Needs attention until you revise them or mark them checked.</p>
+        <div class="actions">
+          <button type="submit" class="btn-primary" [disabled]="!canSaveBrief">Save brief</button>
+          <button type="button" class="btn-secondary" (click)="briefDraft = null">Cancel</button>
+        </div>
+      </form>
+    </ng-template>
 
     <div class="dirty" *ngIf="frac.rolesDirty" role="status">
       <span>Roles changed after competencies were derived. Re-derive competencies, or check the Competency@Level mappings
@@ -23,6 +57,19 @@
       <span class="dirty-actions" *appHideForViewOnly>
         <button type="button" class="text-btn" (click)="runStep('competencies')" [disabled]="!canRun">Re-derive competencies</button>
         <button type="button" class="text-btn" (click)="markMappingChecked()">Mapping checked</button>
+      </span>
+    </div>
+
+    <!-- Earlier steps changed after these: the tracker marks them Needs attention until re-run, edited or checked -->
+    <div class="dirty" *ngIf="stale.length" role="status">
+      <span>An earlier step changed after {{ stale.length === 1 ? 'this step' : 'these steps' }}. Check them, re-run them, or mark
+        them checked if the change does not affect them.</span>
+      <span class="dirty-actions">
+        <span class="stale-step" *ngFor="let step of stale">
+          <button type="button" class="text-btn" (click)="tab = step">{{ stepTitles[step] }}</button>
+          <button type="button" class="text-btn" (click)="markStepChecked(step)" *appHideForViewOnly
+            [attr.aria-label]="stepTitles[step] + ' checked'">Mark checked</button>
+        </span>
       </span>
     </div>
 
@@ -58,15 +105,29 @@
 
     <section class="panel" [ngSwitch]="tab">
       <ng-container *ngSwitchCase="'research'">
+        <div class="uploads">
+          <ws-app-frac-document-upload *ngIf="briefDocumentsOpen" kind="brief" title="Job description or government order"
+            hint="PDF, Word (.docx) or text. Research reads these first and searches the web less."
+            [items]="docItems('brief')" [max]="3" [disabled]="!canRun" [busy]="uploading === 'brief'"
+            (pick)="uploadDocument('brief', $event)" (remove)="removeDocument($event)" (template)="downloadTemplate('brief')">
+          </ws-app-frac-document-upload>
+          <p class="hint" *ngIf="!briefDocumentsOpen && docItems('brief').length">
+            Research read {{ docItems('brief').length }} attached document(s).</p>
+          <ws-app-frac-document-upload kind="sources" title="Standard sources sheet"
+            hint="Your own list of job descriptions and guidelines (.xlsx or .csv). Replaces the sources research would find."
+            [items]="docItems('sources')" [disabled]="!canRun" [busy]="uploading === 'sources'" [inUse]="inUse.sources"
+            (pick)="uploadDocument('sources', $event)" (remove)="removeDocument($event)" (template)="downloadTemplate('sources')">
+          </ws-app-frac-document-upload>
+        </div>
         <ws-app-frac-research-editor *ngIf="frac.research; else noResearch" [research]="frac.research"
           [postings]="frac.postings" [roles]="frac.roles" (researchChange)="onResearchChange($event)"
           (postingsChange)="onPostingsChange($event)"></ws-app-frac-research-editor>
         <ng-template #noResearch>
           <div class="start-research">
-            <p class="hint">Job research collects the job description sources, the postings, what the cadre may and may
+            <p class="hint">Job research collects the job description sources, the postings, what the position may and may
               not do, and what changes for this state. Let the AI research the job, or fill it in by hand.</p>
             <div class="confirm-start" *appHideForViewOnly>
-              <span>Starting research locks the brief (cadre, state, size, scope).</span>
+              <span>Research works from the brief and its documents. You can still edit the brief afterwards.</span>
               <button type="button" class="btn-secondary" (click)="researchWithAi()" [disabled]="!canRun">Research with AI</button>
               <button type="button" class="text-btn" (click)="startResearch()" [disabled]="running">Fill in by hand</button>
             </div>
@@ -74,27 +135,67 @@
         </ng-template>
       </ng-container>
 
-      <ws-app-frac-roles-editor *ngSwitchCase="'roles'" [roles]="frac.roles" [postings]="frac.postings"
-        (rolesChange)="onRolesChange($event)"></ws-app-frac-roles-editor>
+      <ng-container *ngSwitchCase="'roles'">
+        <div class="copied-roles" role="status" *ngIf="hasCopiedRoles && frac.seededFrom as seed">
+          <p>These {{ frac.roles.length }} roles were copied from <strong>{{ seed.name }}</strong>.
+            <ng-container *ngIf="briefDocCount">A job description is attached, so "Build roles &amp; activities" will rebuild
+              them from the research and your document.</ng-container>
+            <ng-container *ngIf="!briefDocCount">They are kept as they are; only roles without activities get them
+              written.</ng-container>
+            Clear them if they do not fit this job.</p>
+          <div class="actions" *appHideForViewOnly>
+            <button *ngIf="!confirmClearRoles" type="button" class="btn-secondary small" (click)="confirmClearRoles = true"
+              [disabled]="!canRun">Clear copied roles</button>
+            <ng-container *ngIf="confirmClearRoles">
+              <span>Remove all {{ frac.roles.length }} roles and their activities? The postings stay.</span>
+              <button type="button" class="btn-secondary small danger" (click)="clearCopiedRoles()">Clear roles</button>
+              <button type="button" class="text-btn" (click)="confirmClearRoles = false">Cancel</button>
+            </ng-container>
+          </div>
+        </div>
+        <ws-app-frac-document-upload kind="roles" title="Standard roles sheet"
+          hint="Roles with their activities and posting Yes/No (.xlsx or .csv). Replaces the roles and postings on this FRAC."
+          [items]="docItems('roles')" [disabled]="!canRun" [busy]="uploading === 'roles'" [inUse]="inUse.roles"
+          (pick)="uploadDocument('roles', $event)" (remove)="removeDocument($event)" (template)="downloadTemplate('roles')">
+        </ws-app-frac-document-upload>
+        <ws-app-frac-roles-editor [roles]="frac.roles" [postings]="frac.postings"
+          (rolesChange)="onRolesChange($event)"></ws-app-frac-roles-editor>
+      </ng-container>
 
-      <ws-app-frac-competency-editor *ngSwitchCase="'competencies'" [competencies]="frac.competencies"
-        [usedBy]="usedBy" [prefix]="prefix" (competenciesChange)="onCompetenciesChange($event)">
-      </ws-app-frac-competency-editor>
+      <ng-container *ngSwitchCase="'competencies'">
+        <ws-app-frac-document-upload kind="competencies" title="Standard competency sheet"
+          hint="Competencies, with their L1–L5 ladders if you have them (.xlsx or .csv). Replaces the competencies on this FRAC."
+          [items]="docItems('competencies')" [disabled]="!canRun" [busy]="uploading === 'competencies'" [inUse]="inUse.competencies"
+          (pick)="uploadDocument('competencies', $event)" (remove)="removeDocument($event)" (template)="downloadTemplate('competencies')">
+        </ws-app-frac-document-upload>
+        <ws-app-frac-competency-editor [competencies]="frac.competencies"
+          [usedBy]="usedBy" [prefix]="prefix" (competenciesChange)="onCompetenciesChange($event)">
+        </ws-app-frac-competency-editor>
+      </ng-container>
 
-      <ws-app-frac-ladder-editor *ngSwitchCase="'ladders'" [competencies]="frac.competencies" [canRevise]="canRun"
-        (competenciesChange)="onCompetenciesChange($event)" (revise)="reviseLadder($event)"></ws-app-frac-ladder-editor>
+      <ng-container *ngSwitchCase="'ladders'">
+        <div class="preview-bar">
+          <button type="button" class="btn-secondary" (click)="openPreview(previewDialog)" [disabled]="!canPreview">Preview roles</button>
+          <span class="hint" *ngIf="!canPreview">Available once every activity is mapped to a competency.</span>
+        </div>
+        <ws-app-frac-ladder-editor [competencies]="frac.competencies" [canRevise]="canRun"
+          (competenciesChange)="onCompetenciesChange($event)" (revise)="reviseLadder($event)"></ws-app-frac-ladder-editor>
+      </ng-container>
 
       <div *ngSwitchCase="'check'" class="check">
-        <p class="hint">Runs the same review as the Review tab on this FRAC: computed checks, then Kaushal and Vidya.</p>
+        <p class="hint">Runs the same review as the Review tab on this FRAC: computed checks, then the agent.</p>
         <p class="hint" *ngIf="!frac.competencies.length">Add competencies before running the check.</p>
-        <p class="hint" *ngIf="frac.competencies.length && !frac.review">Download Excel is available once the expert check has run.</p>
+        <p class="hint" *ngIf="frac.competencies.length && !frac.review">Download the draft Excel to check it first, then run
+          the expert check.</p>
         <div class="dirty" role="status" *ngIf="frac.review && frac.reviewStale">The FRAC changed after this check, so these
-          findings may already be fixed. Re-run the check to see what is left; Download Excel is available after it.</div>
+          findings may already be fixed. Re-run the check to see what is left. A download now is a draft.</div>
         <div class="actions">
           <button type="button" class="btn-secondary" (click)="runCheck()" [disabled]="!canCheck" *appHideForViewOnly>
             {{ frac.review ? 'Re-run check' : 'Run expert check' }}
           </button>
-          <button type="button" class="btn-secondary" (click)="download()" [disabled]="!canDownload">Download Excel</button>
+          <button type="button" class="btn-secondary" (click)="download()" [disabled]="!canDownload">
+            {{ downloadIsDraft ? 'Download draft Excel' : 'Download Excel' }}
+          </button>
         </div>
         <ws-app-frac-review-report *ngIf="frac.review" [report]="frac.review" [fixableCodes]="competencyCodes"
           [canFix]="canRun" (fixFinding)="fixFinding($event)"></ws-app-frac-review-report>
@@ -108,10 +209,29 @@
          Every step but the download changes the FRAC, so it is hidden for view-only users. -->
     <div class="next-step">
       <span class="next-step-msg" *ngIf="running && job">{{ job.msg }}</span>
+      <!-- On Level ladders the expert check and the download sit side by side: the next step is the primary button -->
+      <ng-container *ngIf="footerExtra === 'check'">
+        <button type="button" class="btn-secondary" (click)="checkNow()" [disabled]="!canCheck" *appHideForViewOnly>
+          {{ frac.review ? 'Re-run expert check' : 'Run expert check' }}
+        </button>
+      </ng-container>
+      <button type="button" class="btn-secondary" *ngIf="footerExtra === 'download'" (click)="download()" [disabled]="!canDownload">
+        {{ downloadIsDraft ? 'Download draft Excel' : 'Download Excel' }}
+      </button>
       <button type="button" class="btn-primary" (click)="onPrimary()" [disabled]="running"
         *appHideForViewOnly="primaryMutates">{{ primary.label }}</button>
     </div>
   </div>
+
+  <!-- Roles preview popup: native <dialog>, so Esc closes it and focus stays inside while it is open -->
+  <dialog #previewDialog class="preview-dialog" aria-labelledby="preview-title" (close)="previewOpen = false">
+    <div class="preview-dialog-head">
+      <h2 id="preview-title">Roles preview</h2>
+      <button type="button" class="icon-btn" (click)="previewDialog.close()" aria-label="Close preview">×</button>
+    </div>
+    <ws-app-frac-roles-preview *ngIf="previewOpen" [roles]="frac.roles" [competencies]="frac.competencies"
+      [postings]="frac.postings" [prefix]="prefix"></ws-app-frac-roles-preview>
+  </dialog>
 
   <aside class="sidebar">
     <div class="sidebar-head">

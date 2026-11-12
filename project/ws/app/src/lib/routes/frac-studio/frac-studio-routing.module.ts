@@ -11,7 +11,7 @@ const routes: Routes = [
     path: '',
     component: FracStudioShellComponent,
     children: [
-      { path: '', redirectTo: 'reviewer', pathMatch: 'full' },
+      { path: '', redirectTo: 'creator', pathMatch: 'full' },
       { path: 'reviewer', component: ReviewerComponent },
       { path: 'creator', component: CreatorBriefComponent },
       { path: 'creator/:id', component: CreatorDetailComponent },

@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core'
-import { FRAC_STUDIO_MAX_POSTINGS, FRAC_STUDIO_RESEARCH_LISTS } from '../../constants/frac-studio.constants'
-import { FracPosting, FracResearch, FracRole, FracSource } from '../../models/frac-studio.models'
+import { FRAC_STUDIO_MAX_POSTINGS, FRAC_STUDIO_RESEARCH_FIELD_LABELS, FRAC_STUDIO_RESEARCH_LISTS } from '../../constants/frac-studio.constants'
+import { FracPosting, FracResearch, FracRole, FracSource, ResearchField } from '../../models/frac-studio.models'
 import {
   addPosting,
   addSource,
@@ -9,6 +9,7 @@ import {
   updatePosting,
   updateSource,
 } from '../../utils/frac-studio-edit.util'
+import { SortedRow, TableSort } from '../../utils/frac-studio-sort.util'
 
 /**
  * Job research editor (spec 5.2), filled in by hand until the AI research step exists.
@@ -31,6 +32,14 @@ export class ResearchEditorComponent {
   readonly lists = FRAC_STUDIO_RESEARCH_LISTS
   readonly maxPostings = FRAC_STUDIO_MAX_POSTINGS
   confirmRemovePosting = false
+  /** View sorts by the link itself, so sources with no link gather at the end. */
+  readonly sourceSort = new TableSort<FracSource>((source, key) => source[key as keyof FracSource])
+
+  /** "job summary, postings and sources" for the line saying where research found each part. */
+  fieldList(fields: ResearchField[]): string {
+    const names = fields.map(f => FRAC_STUDIO_RESEARCH_FIELD_LABELS[f] ?? f)
+    return names.length > 1 ? `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}` : names.join('')
+  }
 
   setText(key: keyof Omit<FracResearch, 'sources'>, value: string): void {
     this.researchChange.emit({ ...this.research, [key]: value })
@@ -58,6 +67,11 @@ export class ResearchEditorComponent {
     this.researchChange.emit(addSource(this.research))
   }
 
+  /** Only web addresses are opened, never other URL schemes typed into the field. */
+  isWebLink(url: string | undefined): boolean {
+    return /^https?:\/\/\S+$/i.test((url || '').trim())
+  }
+
   setSource(index: number, patch: Partial<FracSource>): void {
     this.researchChange.emit(updateSource(this.research, index, patch))
   }
@@ -68,5 +82,9 @@ export class ResearchEditorComponent {
 
   trackByIndex(index: number): number {
     return index
+  }
+
+  trackByRow(_index: number, row: SortedRow<FracSource>): number {
+    return row.index
   }
 }

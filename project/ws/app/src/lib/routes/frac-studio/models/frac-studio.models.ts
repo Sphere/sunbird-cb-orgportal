@@ -23,7 +23,12 @@ export interface FracSource {
   year: string
   use: string
   tier: string
+  /** Link opened by "View source": a page the research search retrieved, or one the team typed. */
+  url?: string
 }
+
+/** The parts of research that can come from the team's documents or from the agent. */
+export type ResearchField = 'cadreFull' | 'summary' | 'postings' | 'authorised' | 'notAuthorised' | 'stateContext' | 'sources'
 
 export interface FracResearch {
   summary: string
@@ -33,6 +38,8 @@ export interface FracResearch {
   notAuthorised: string
   stateContext: string
   assumptions: string
+  /** Set by research when the team attached documents: what was read from them and what the agent researched. */
+  origin?: { documents: ResearchField[], agent: ResearchField[] }
 }
 
 export interface FracActivity {
@@ -121,8 +128,15 @@ export interface Frac {
   cadreFull: string
   state: string
   size: FracSize
+  /** "agent": the research step chose the size (the brief no longer asks); missing or "team" on older FRACs. */
+  sizeBy?: 'agent' | 'team'
+  sizeReason?: string
   prompt: string
   imported?: string
+  /** The earlier FRAC or Positions entry this FRAC started from (position matching). */
+  seededFrom?: FracSeed
+  /** Standard sheets in use, by kind, with the file name; that step uses the sheet instead of the AI. */
+  uploads?: Partial<Record<FracSheetKind, string>>
   codePrefix: string
   postings: FracPosting[]
   research: FracResearch | null
@@ -132,7 +146,18 @@ export interface Frac {
   review: FracReport | null
   /** Set by the service when the content changed after the expert check; the next check clears it. */
   reviewStale?: boolean
+  /**
+   * Set by the service: when each step's content last changed (an edit, an AI run, a sheet upload) or was marked
+   * checked. A step with output needs attention when an earlier step changed after it. Missing on older FRACs.
+   */
+  changedAt?: Partial<Record<FracStep, string>>
 }
+
+/** A Creator step that can go out of date when an earlier step changes. */
+export type FracStep = 'brief' | 'research' | 'roles' | 'competencies' | 'ladders'
+
+/** A PATCH body: changed FRAC fields, plus the steps the team marked checked. */
+export type FracEdits = Partial<Frac> & { checked?: FracStep[], clearCopiedRoles?: true }
 
 export interface FracSummary {
   id: string
@@ -145,11 +170,53 @@ export interface FracSummary {
   updatedAt: string
 }
 
+/** Standard sheets a team can upload in place of an AI step. */
+export type FracSheetKind = 'roles' | 'competencies' | 'sources'
+/** "brief": a job description or government order for research. */
+export type FracDocumentKind = 'brief' | FracSheetKind
+
+export interface FracSeed {
+  from: 'frac' | 'positions'
+  ref: string
+  name: string
+  /** True while the roles are still the copied set; missing on older FRACs (counts as true). */
+  withRoles?: boolean
+}
+
+/** Position matching on the brief: an earlier FRAC to copy, or a Positions-master entry with its roles. */
+export type FracSeedRequest =
+  | { from: 'frac', fracId: string, withRoles: boolean }
+  | { from: 'positions', code: string, name: string, roles: { title: string, activities: string[] }[] }
+
 export interface FracBrief {
   cadre: string
   state: string
-  size: FracSize
   prompt: string
+  seed?: FracSeedRequest
+}
+
+/** GET /fracs/match: the owner's earlier FRAC for the same position. */
+export interface FracMatch {
+  id: string
+  cadre: string
+  state: string
+  postings: string[]
+  roleTitles: string[]
+  counts: { roles: number, activities: number }
+  updatedAt: string
+}
+
+/** A document attached to a FRAC (the extracted text stays on the service). */
+export interface FracDocument {
+  id: string
+  fracId: string
+  kind: FracDocumentKind
+  filename: string
+  mime: string
+  bytes: number
+  chars: number
+  parsed: { counts: Record<string, number>, warnings: string[] } | null
+  createdAt: string
 }
 
 export interface FracReviewContext {
@@ -236,4 +303,4 @@ export interface FracVersion {
 export type FracSaveStatus = 'idle' | 'pending' | 'saving' | 'saved' | 'error'
 
 /** Top-level FRAC fields the Creator editors change and autosave. */
-export type FracEditableField = 'research' | 'postings' | 'roles' | 'competencies' | 'rolesDirty'
+export type FracEditableField = 'cadre' | 'cadreFull' | 'state' | 'prompt' | 'research' | 'postings' | 'roles' | 'competencies' | 'rolesDirty'

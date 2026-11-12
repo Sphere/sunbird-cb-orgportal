@@ -6,9 +6,13 @@ import { FRAC_STUDIO_POLL_MS } from '../constants/frac-studio.constants'
 import {
   Frac,
   FracBrief,
+  FracDocument,
+  FracDocumentKind,
   FracDownload,
+  FracEdits,
   FracGenStep,
   FracJob,
+  FracMatch,
   FracReviewContext,
   FracReviewDetail,
   FracReviewSummary,
@@ -23,6 +27,11 @@ const FRAC_STUDIO_BASE = '/apis/protected/v8/fracStudio'
 
 const API_END_POINTS = {
   FRACS: `${FRAC_STUDIO_BASE}/fracs`,
+  FRAC_MATCH: `${FRAC_STUDIO_BASE}/fracs/match`,
+  FRAC_DOCUMENTS: (id: string) => `${FRAC_STUDIO_BASE}/fracs/${encodeURIComponent(id)}/documents`,
+  FRAC_DOCUMENT: (id: string, documentId: string) =>
+    `${FRAC_STUDIO_BASE}/fracs/${encodeURIComponent(id)}/documents/${encodeURIComponent(documentId)}`,
+  TEMPLATE: (kind: FracDocumentKind) => `${FRAC_STUDIO_BASE}/templates/${kind}`,
   FRAC: (id: string) => `${FRAC_STUDIO_BASE}/fracs/${encodeURIComponent(id)}`,
   FRAC_STEP: (id: string, step: FracGenStep) => `${FRAC_STUDIO_BASE}/fracs/${encodeURIComponent(id)}/steps/${step}`,
   FRAC_CHECK: (id: string) => `${FRAC_STUDIO_BASE}/fracs/${encodeURIComponent(id)}/steps/check`,
@@ -59,7 +68,35 @@ export class FracStudioApiService {
     return this.http.post<{ frac: Frac }>(API_END_POINTS.FRACS, brief).pipe(map(res => res.frac))
   }
 
-  patchFrac(id: string, edits: Partial<Frac>): Observable<Frac> {
+  /** Position matching: the owner's most recent FRAC for exactly this position, or null. */
+  matchPosition(cadre: string, state: string): Observable<FracMatch | null> {
+    return this.http.get<{ match: FracMatch | null }>(API_END_POINTS.FRAC_MATCH, { params: { cadre, state } })
+      .pipe(map(res => res.match))
+  }
+
+  listDocuments(id: string): Observable<FracDocument[]> {
+    return this.http.get<{ documents: FracDocument[] }>(API_END_POINTS.FRAC_DOCUMENTS(id)).pipe(map(res => res.documents))
+  }
+
+  /** Attaches a brief document or imports a standard sheet; returns the document and the FRAC after it. */
+  uploadDocument(id: string, kind: FracDocumentKind, file: File): Observable<{ document: FracDocument, frac: Frac }> {
+    const form = new FormData()
+    form.append('kind', kind)
+    form.append('file', file, file.name)
+    return this.http.post<{ document: FracDocument, frac: Frac }>(API_END_POINTS.FRAC_DOCUMENTS(id), form)
+  }
+
+  /** Removes a document; for a sheet the content stays and the step goes back to the AI. */
+  removeDocument(id: string, documentId: string): Observable<Frac> {
+    return this.http.delete<{ frac: Frac }>(API_END_POINTS.FRAC_DOCUMENT(id, documentId)).pipe(map(res => res.frac))
+  }
+
+  /** The template to fill in before uploading (an .xlsx, or a text guide for brief documents). */
+  downloadTemplate(kind: FracDocumentKind): Observable<FracDownload> {
+    return this.download(API_END_POINTS.TEMPLATE(kind), kind === 'brief' ? 'Job description guide.txt' : `${kind} template.xlsx`)
+  }
+
+  patchFrac(id: string, edits: FracEdits): Observable<Frac> {
     return this.http.patch<{ frac: Frac }>(API_END_POINTS.FRAC(id), edits).pipe(map(res => res.frac))
   }
 

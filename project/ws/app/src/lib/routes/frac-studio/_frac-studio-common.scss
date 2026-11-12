@@ -117,3 +117,29 @@
   color: $v2-status-danger-text;
   font-size: $v2-font-caption;
 }
+
+// Headers made sortable by FracSortHeaderDirective: a faint ↕ until sorted, then ↑ or ↓ from aria-sort
+@mixin fs-sortable-headers {
+  th.sortable {
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+
+    &::after {
+      content: '↕';
+      margin-left: 4px;
+      font-weight: 400;
+      color: $v2-color-text-secondary;
+      opacity: 0.5;
+    }
+
+    &[aria-sort='ascending']::after { content: '↑'; color: $v2-color-primary; opacity: 1; }
+    &[aria-sort='descending']::after { content: '↓'; color: $v2-color-primary; opacity: 1; }
+    &:hover { color: $v2-color-primary; }
+
+    &:focus-visible {
+      outline: 2px solid $v2-color-primary;
+      outline-offset: -2px;
+    }
+  }
+}

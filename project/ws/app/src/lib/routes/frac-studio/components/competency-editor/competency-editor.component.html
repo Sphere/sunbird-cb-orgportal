@@ -10,52 +10,53 @@
     <table>
       <thead>
         <tr>
-          <th class="col-code">Code</th>
-          <th>Label</th>
-          <th class="col-type">Type</th>
-          <th class="col-area">Area</th>
-          <th>Description</th>
-          <th class="col-kcm">KCM</th>
-          <th class="col-used">Used by</th>
+          <th class="col-code" wsFracSort="code" [sortWith]="sort">Code</th>
+          <th wsFracSort="label" [sortWith]="sort">Label</th>
+          <th class="col-type" wsFracSort="type" [sortWith]="sort">Type</th>
+          <th class="col-area" wsFracSort="area" [sortWith]="sort">Area</th>
+          <th wsFracSort="description" [sortWith]="sort">Description</th>
+          <th class="col-kcm" wsFracSort="kcm" [sortWith]="sort">KCM</th>
+          <th class="col-used" wsFracSort="used" [sortWith]="sort" title="Sorts by how many activities use it">Used by</th>
           <th class="col-del"><span class="sr-only">Delete</span></th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let c of competencies; let i = index; trackBy: trackByIndex">
-          <td class="col-code">{{ c.code }}</td>
+        <tr *ngFor="let row of sort.rows(competencies); trackBy: trackByRow">
+          <td class="col-code">{{ row.item.code }}</td>
           <td>
-            <input #label type="text" [value]="c.label" placeholder="Noun phrase" [attr.aria-label]="'Label of ' + c.code"
-              (input)="set(i, { label: label.value })" appDisableForViewOnly />
+            <input #label type="text" [value]="row.item.label" placeholder="Noun phrase"
+              [attr.aria-label]="'Label of ' + row.item.code" (input)="set(row.index, { label: label.value })" appDisableForViewOnly />
           </td>
           <td class="col-type">
-            <select #type [attr.aria-label]="'Type of ' + c.code" (change)="set(i, { type: type.value })" appDisableForViewOnly>
-              <option *ngFor="let t of types" [value]="t" [selected]="t === c.type">{{ t }}</option>
+            <select #type [attr.aria-label]="'Type of ' + row.item.code" (change)="set(row.index, { type: type.value })"
+              appDisableForViewOnly>
+              <option *ngFor="let t of types" [value]="t" [selected]="t === row.item.type">{{ t }}</option>
             </select>
           </td>
           <td class="col-area">
-            <input #area type="text" [value]="c.area" [attr.aria-label]="'Area of ' + c.code"
-              (input)="set(i, { area: area.value })" appDisableForViewOnly />
+            <input #area type="text" [value]="row.item.area" [attr.aria-label]="'Area of ' + row.item.code"
+              (input)="set(row.index, { area: area.value })" appDisableForViewOnly />
           </td>
           <td>
-            <textarea #desc rows="2" [value]="c.description" placeholder="One sentence starting with a verb"
-              [attr.aria-label]="'Description of ' + c.code" (input)="set(i, { description: desc.value })"
+            <textarea #desc rows="2" [value]="row.item.description" placeholder="One sentence starting with a verb"
+              [attr.aria-label]="'Description of ' + row.item.code" (input)="set(row.index, { description: desc.value })"
               appDisableForViewOnly></textarea>
           </td>
           <td class="col-kcm">
-            <input #kcm type="text" [value]="c.kcm" [attr.aria-label]="'KCM alignment of ' + c.code"
-              (input)="set(i, { kcm: kcm.value })" appDisableForViewOnly />
+            <input #kcm type="text" [value]="row.item.kcm" [attr.aria-label]="'KCM alignment of ' + row.item.code"
+              (input)="set(row.index, { kcm: kcm.value })" appDisableForViewOnly />
           </td>
           <td class="col-used">
-            <span *ngIf="usedByOf(c).length" class="used">{{ usedByOf(c).join(', ') }}</span>
-            <span *ngIf="!usedByOf(c).length" class="unused">none</span>
+            <span *ngIf="usedByOf(row.item).length" class="used">{{ usedByOf(row.item).join(', ') }}</span>
+            <span *ngIf="!usedByOf(row.item).length" class="unused">none</span>
           </td>
           <td class="col-del">
             <ng-container *appHideForViewOnly>
-              <button *ngIf="confirmDelete !== i" type="button" class="icon-btn" (click)="confirmDelete = i"
-                [attr.aria-label]="'Delete ' + c.code">×</button>
-              <span *ngIf="confirmDelete === i" class="confirm-row">
-                <span *ngIf="usedByOf(c).length" class="warn">Used by {{ usedByOf(c).length }}.</span>
-                <button type="button" class="text-btn danger" (click)="remove(i)">Delete</button>
+              <button *ngIf="confirmDelete !== row.index" type="button" class="icon-btn" (click)="confirmDelete = row.index"
+                [attr.aria-label]="'Delete ' + row.item.code">×</button>
+              <span *ngIf="confirmDelete === row.index" class="confirm-row">
+                <span *ngIf="usedByOf(row.item).length" class="warn">Used by {{ usedByOf(row.item).length }}.</span>
+                <button type="button" class="text-btn danger" (click)="remove(row.index)">Delete</button>
                 <button type="button" class="text-btn" (click)="confirmDelete = null">Cancel</button>
               </span>
             </ng-container>

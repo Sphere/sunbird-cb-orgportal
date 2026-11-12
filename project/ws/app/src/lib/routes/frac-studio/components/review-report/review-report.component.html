@@ -8,7 +8,7 @@
     <p class="summary" *ngIf="report.summary">{{ report.summary }}</p>
     <p class="provenance" *ngIf="report.findings.length">{{ provenance }}</p>
     <div class="meta" *ngIf="report.cadre || report.state">
-      <span *ngIf="report.cadre">Cadre: {{ report.cadre }}</span>
+      <span *ngIf="report.cadre">Position: {{ report.cadre }}</span>
       <span *ngIf="report.state">State: {{ report.state }}</span>
     </div>
     <dl class="stats">

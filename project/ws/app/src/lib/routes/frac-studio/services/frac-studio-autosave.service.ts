@@ -2,7 +2,7 @@ import { Injectable, OnDestroy } from '@angular/core'
 import { BehaviorSubject, Subject, Subscription } from 'rxjs'
 import { debounceTime } from 'rxjs/operators'
 import { FRAC_STUDIO_AUTOSAVE_MS } from '../constants/frac-studio.constants'
-import { Frac, FracEditableField, FracSaveStatus } from '../models/frac-studio.models'
+import { Frac, FracEditableField, FracEdits, FracSaveStatus, FracStep } from '../models/frac-studio.models'
 import { FracStudioApiService } from './frac-studio-api.service'
 
 /**
@@ -17,7 +17,7 @@ export class FracStudioAutosaveService implements OnDestroy {
   readonly saved$ = new Subject<Frac>()
 
   private fracId = ''
-  private pending: Partial<Frac> = {}
+  private pending: FracEdits = {}
   private inFlight = false
   private readonly trigger = new Subject<void>()
   private readonly subs = new Subscription()
@@ -42,6 +42,22 @@ export class FracStudioAutosaveService implements OnDestroy {
 
   queue<K extends FracEditableField>(field: K, value: Frac[K]): void {
     this.pending = { ...this.pending, [field]: value }
+    this.status$.next('pending')
+    this.trigger.next()
+  }
+
+  /** Removes roles copied from a matched position; replaces any roles edit still waiting to be sent. */
+  queueClearCopiedRoles(): void {
+    const rest = { ...this.pending }
+    delete rest.roles
+    this.pending = { ...rest, clearCopiedRoles: true }
+    this.status$.next('pending')
+    this.trigger.next()
+  }
+
+  /** The team checked a step after an earlier one changed; sent with the next save. */
+  queueChecked(step: FracStep): void {
+    this.pending = { ...this.pending, checked: [...new Set([...this.pending.checked ?? [], step])] }
     this.status$.next('pending')
     this.trigger.next()
   }

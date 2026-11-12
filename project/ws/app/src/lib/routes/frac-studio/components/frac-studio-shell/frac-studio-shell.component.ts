@@ -10,8 +10,8 @@ import { FRAC_STUDIO_ROUTES } from '../../constants/frac-studio.constants'
 })
 export class FracStudioShellComponent {
   readonly tabs = [
-    { label: 'Review a FRAC', link: FRAC_STUDIO_ROUTES.reviewer },
     { label: 'Create FRAC', link: FRAC_STUDIO_ROUTES.creator },
+    { label: 'Review FRAC', link: FRAC_STUDIO_ROUTES.reviewer },
     { label: 'My FRACs', link: FRAC_STUDIO_ROUTES.myFracs },
   ]
 }

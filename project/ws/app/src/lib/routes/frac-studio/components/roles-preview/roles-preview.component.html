@@ -1,0 +1,35 @@
+<div class="preview">
+  <p class="summary">How each role reads with its competencies and levels. Read only: close this to edit roles,
+    competencies or ladders.</p>
+  <p class="empty" *ngIf="!preview.length">No roles yet.</p>
+
+  <article class="role" *ngFor="let role of preview; trackBy: trackByCode">
+    <h3 class="role-title"><span class="code">{{ role.code }}</span> {{ role.title || 'Untitled role' }}</h3>
+    <p class="empty" *ngIf="!role.activities.length">This role has no activities.</p>
+
+    <div class="activity" *ngFor="let a of role.activities; trackBy: trackByCode">
+      <div class="activity-head">
+        <span class="code">{{ a.code }}</span>
+        <span class="activity-text">{{ a.text }}</span>
+        <span class="postings" *ngIf="a.postings.length">
+          <span class="chip" *ngFor="let p of a.postings" [class.yes]="p.value === 'Yes'" [title]="p.label">
+            {{ p.label }}: {{ p.value }}
+          </span>
+        </span>
+      </div>
+      <p class="empty" *ngIf="!a.needs.length">Not mapped to a competency yet.</p>
+      <div class="need" *ngFor="let n of a.needs" [class.missing]="!n.found">
+        <div class="need-head">
+          <span class="code">{{ n.code }}</span>
+          <span class="need-label">{{ n.label }}</span>
+          <span class="level-pill">{{ n.levelName }}</span>
+        </div>
+        <p class="level-label" *ngIf="n.levelLabel">{{ n.levelLabel }}</p>
+        <p class="no-ladder" *ngIf="n.found && !n.levelLabel">Ladder not written yet.</p>
+        <ul class="indicators" *ngIf="n.indicators.length">
+          <li *ngFor="let i of n.indicators">{{ i }}</li>
+        </ul>
+      </div>
+    </div>
+  </article>
+</div>

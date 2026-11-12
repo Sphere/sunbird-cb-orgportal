@@ -23,6 +23,38 @@
   gap: $v2-space-1;
 }
 
+.brief-card { position: relative; }
+
+.brief-head {
+  position: absolute;
+  top: $v2-space-2;
+  right: $v2-space-2;
+}
+
+.btn-secondary.small { height: 32px; padding: 0 14px; font-size: $v2-font-caption; }
+
+.brief-position { flex-basis: 100%; padding-right: 120px; }
+
+.brief-form {
+  gap: $v2-space-2;
+
+  label { @include v2-form-label; }
+  input, select { @include v2-input-field; width: 100%; }
+  textarea { @include v2-input-field; width: 100%; height: auto; padding-block: 8px; resize: vertical; }
+
+  .field { display: flex; flex-direction: column; }
+  .actions { justify-content: flex-start; }
+  .btn-primary { width: auto; min-width: 160px; }
+}
+
+.brief-fields {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: $v2-space-2;
+
+  @media (max-width: 768px) { grid-template-columns: 1fr; }
+}
+
 .brief {
   display: flex;
   flex-wrap: wrap;
@@ -93,6 +125,18 @@
   display: flex;
   flex-wrap: wrap;
   gap: $v2-space-2;
+}
+
+.stale-step {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding-right: $v2-space-2;
+  border-right: 1px solid currentColor;
+
+  &:last-child { padding-right: 0; border-right: 0; }
+
+  .text-btn:first-child { font-weight: 600; }
 }
 
 .text-btn:disabled { opacity: 0.5; cursor: default; text-decoration: none; }
@@ -212,4 +256,100 @@
   height: 120px;
 
   &.short { height: 48px; width: 60%; }
+}
+
+// Upload slots under the Research editor (brief documents, sources sheet)
+.uploads {
+  display: flex;
+  flex-direction: column;
+  gap: $v2-space-2;
+  margin-bottom: $v2-space-2; // above the research, so documents are attached before it runs
+}
+
+ws-app-frac-document-upload {
+  display: block;
+  margin-bottom: $v2-space-2;
+}
+
+.uploads ws-app-frac-document-upload { margin-bottom: 0; }
+
+// "Preview roles" on the Level ladders tab, and its popup (native <dialog>, shown in the top layer)
+.preview-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: $v2-space-2;
+}
+
+.preview-dialog {
+  width: min(960px, calc(100vw - 32px));
+  max-height: calc(100vh - 64px);
+  padding: 0;
+  border: 0;
+  border-radius: $v2-radius-card-large;
+  box-shadow: $v2-shadow-dropdown;
+
+  &::backdrop { background: rgba(0, 0, 0, 0.4); }
+}
+
+.preview-dialog-head {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: $v2-space-2 $v2-space-3;
+  background: #ffffff;
+  border-bottom: 1px solid $v2-color-border;
+
+  h2 {
+    @include v2-modal-title;
+    margin: 0;
+    font-size: 22px;
+  }
+
+  .icon-btn {
+    width: 32px;
+    height: 32px;
+    border: 1px solid $v2-color-border;
+    border-radius: 50%;
+    background: #ffffff;
+    color: $v2-color-text-secondary;
+    font-size: 18px;
+    cursor: pointer;
+
+    &:hover { border-color: $v2-color-primary; color: $v2-color-primary; }
+  }
+}
+
+.preview-dialog ws-app-frac-roles-preview {
+  display: block;
+  padding: $v2-space-2 $v2-space-3 $v2-space-3;
+}
+
+// Roles copied from a matched position, on the Roles tab: where they came from, and a way to clear them
+.copied-roles {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: $v2-space-2;
+  padding: 12px $v2-space-2;
+  border: 1px solid $v2-status-warning-text;
+  border-radius: $v2-radius-input;
+  background: $v2-status-warning-bg;
+  font-size: $v2-font-caption;
+
+  p { margin: 0; color: $v2-color-text; }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .danger { @include v2-btn-danger; height: 32px; padding: 0 14px; font-size: $v2-font-caption; }
 }

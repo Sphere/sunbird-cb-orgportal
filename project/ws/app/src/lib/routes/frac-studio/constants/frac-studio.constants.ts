@@ -1,4 +1,4 @@
-import { FracSeverity, FracSize, FracTriage } from '../models/frac-studio.models'
+import { FracSeverity, FracSize, FracTriage, ResearchField } from '../models/frac-studio.models'
 
 /** Absolute routes under the home layout. */
 export const FRAC_STUDIO_ROUTES = {
@@ -16,11 +16,22 @@ export const FRAC_STUDIO_MAX_POSTINGS = 3
 
 /** Research text fields (spec 4.1), one item per line, in the order the editor shows them. */
 export const FRAC_STUDIO_RESEARCH_LISTS: readonly { key: 'authorised' | 'notAuthorised' | 'stateContext' | 'assumptions', label: string, hint: string }[] = [
-  { key: 'authorised', label: 'Authorised to do', hint: 'What the cadre may do, one item per line' },
+  { key: 'authorised', label: 'Authorised to do', hint: 'What the position may do, one item per line' },
   { key: 'notAuthorised', label: 'Not authorised (refer)', hint: 'What they must refer onward, one item per line' },
-  { key: 'stateContext', label: 'State context', hint: 'Programmes, cadre names, endemic diseases, languages, portals' },
+  { key: 'stateContext', label: 'State context', hint: 'Programmes, local position names, endemic diseases, languages, portals' },
   { key: 'assumptions', label: 'Assumptions & to verify', hint: 'Start a line with "VERIFY:" for facts to check' },
 ]
+
+/** How the Research tab names each part when it says where research found it. */
+export const FRAC_STUDIO_RESEARCH_FIELD_LABELS: Record<ResearchField, string> = {
+  cadreFull: 'full position name',
+  summary: 'job summary',
+  postings: 'postings',
+  authorised: 'authorised work',
+  notAuthorised: 'work to refer',
+  stateContext: 'state context',
+  sources: 'sources',
+}
 
 /** Quiet time after the last edit before it is saved (spec 8: the prototype used 1.4 s). */
 export const FRAC_STUDIO_AUTOSAVE_MS = 1400
@@ -29,7 +40,7 @@ export const FRAC_STUDIO_COMPETENCY_TYPES: readonly string[] = ['Domain', 'Funct
 
 /** Posting cell values (spec 4.1); blank means not yet decided. */
 export const FRAC_STUDIO_POSTING_VALUES: readonly { value: string, label: string }[] = [
-  { value: '', label: '—' },
+  { value: '', label: '' },
   { value: 'Yes', label: 'Yes' },
   { value: 'No', label: 'No' },
 ]
@@ -45,7 +56,13 @@ export const FRAC_STUDIO_LEVEL_NAMES: readonly string[] = [
 
 export const FRAC_STUDIO_NATIONAL_BASELINE = 'India (national baseline)'
 
-/** Brief sizes (spec 5.1). */
+/** Most job descriptions or orders on one FRAC (the service's DOC_MAX_BRIEF_FILES). */
+export const FRAC_STUDIO_MAX_BRIEF_DOCUMENTS = 3
+
+/** Quiet time after typing the position before it is matched against existing positions. */
+export const FRAC_STUDIO_MATCH_DEBOUNCE_MS = 500
+
+/** Brief sizes (spec 5.1). The brief no longer offers a choice (the agent decides); kept to label older FRACs. */
 export const FRAC_STUDIO_SIZES: readonly { value: FracSize, label: string, detail: string }[] = [
   { value: 'compact', label: 'Compact', detail: '6–8 roles · 4–6 activities each · 16–22 competencies' },
   { value: 'standard', label: 'Standard', detail: '10–14 roles · 5–8 activities each · 28–40 competencies' },
@@ -96,32 +113,32 @@ export const FRAC_STUDIO_ACCEPT_XLSX = '.xlsx,application/vnd.openxmlformats-off
 export const FRAC_STUDIO_JOB_COPY: Record<string, { title: string, agents: string, does: readonly string[] }> = {
   research: {
     title: 'Researching the job',
-    agents: 'Kaushal',
-    does: ['Finding the job descriptions and programme guidelines', 'Naming the postings', 'Separating authorised from refer-onward work', 'Noting what changes for this state'],
+    agents: 'Agent',
+    does: ['Reading your documents first, when you attached any', 'Researching only what they leave out', 'Naming the postings', 'Separating authorised from refer-onward work', 'Noting what changes for this state'],
   },
   roles: {
     title: 'Building roles & activities',
-    agents: 'Kaushal',
+    agents: 'Agent',
     does: ['Drafting roles that cover the whole job', 'Writing observable activities, a few roles at a time', 'Marking each posting Yes or No', 'Tagging each activity with its source'],
   },
   competencies: {
     title: 'Deriving competencies',
-    agents: 'Kaushal',
+    agents: 'Agent',
     does: ['Grouping activities into competencies', 'Typing each as Domain, Functional or Behavioural', 'Mapping every activity to one competency and level', 'Checking every competency is used'],
   },
   ladders: {
     title: 'Writing level ladders',
-    agents: 'Kaushal & Vidya',
+    agents: 'Agent',
     does: ['Writing L1–L5 with measurable verbs', 'Adding 2–4 assessable indicators per level', 'Checking clinical facts against national guidelines', 'Saving each batch as it finishes'],
   },
   check: {
     title: 'Running the expert check',
-    agents: "Rule-based checks, then Vidya's checklist",
-    does: ["Counting Bloom's verbs, structure, ladders and coverage", 'Checking scope and outdated terms against the rule tables', "Asking Vidya the fixed scope, accuracy and state questions", 'Keeping only AI flags that quote the file'],
+    agents: "Rule-based checks, then the agent's checklist",
+    does: ["Counting Bloom's verbs, structure, ladders and coverage", 'Checking scope and outdated terms against the rule tables', 'Asking the agent the fixed scope, accuracy and state questions', 'Keeping only AI flags that quote the file'],
   },
   review: {
     title: 'Reviewing the FRAC',
-    agents: "Rule-based checks, then Vidya's checklist",
-    does: ['Reading the workbook sheets and mappings', 'Checking scope and outdated terms against the rule tables', "Asking Vidya the fixed scope, accuracy and state questions", 'Keeping only AI flags that quote the file'],
+    agents: "Rule-based checks, then the agent's checklist",
+    does: ['Reading the workbook sheets and mappings', 'Checking scope and outdated terms against the rule tables', 'Asking the agent the fixed scope, accuracy and state questions', 'Keeping only AI flags that quote the file'],
   },
 }

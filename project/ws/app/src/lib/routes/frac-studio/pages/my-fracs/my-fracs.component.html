@@ -20,24 +20,26 @@
         <table>
           <thead>
             <tr>
-              <th>Cadre</th>
-              <th>State</th>
-              <th>Step</th>
-              <th>Roles / Activities / Competencies</th>
-              <th>Worst finding</th>
-              <th>Updated</th>
+              <th wsFracSort="cadre" [sortWith]="fracSort">Position</th>
+              <th wsFracSort="state" [sortWith]="fracSort">State</th>
+              <th wsFracSort="step" [sortWith]="fracSort">Step</th>
+              <th wsFracSort="activities" [sortWith]="fracSort" title="Sorts by activities">Roles / Activities / Competencies</th>
+              <th wsFracSort="worst" [sortWith]="fracSort">Worst finding</th>
+              <th wsFracSort="updatedAt" [sortWith]="fracSort">Updated</th>
               <th><span class="sr-only">Open</span></th>
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let f of fracs; trackBy: trackById">
-              <td>{{ f.cadre }}<span class="imported" *ngIf="f.imported"> · imported</span></td>
-              <td>{{ f.state }}</td>
-              <td>{{ f.step }} of 6</td>
-              <td>{{ f.counts.roles }} / {{ f.counts.activities }} / {{ f.counts.competencies }}</td>
-              <td><span class="sev" [ngClass]="'sev-' + f.worst">{{ severityLabel(f.worst) }}</span></td>
-              <td>{{ f.updatedAt | date: 'mediumDate' }}</td>
-              <td><button type="button" class="link" (click)="openFrac(f.id)">Open</button></td>
+            <tr *ngFor="let row of fracSort.rows(fracs); trackBy: trackByRowId">
+              <ng-container *ngIf="row.item as f">
+                <td>{{ f.cadre }}<span class="imported" *ngIf="f.imported"> · imported</span></td>
+                <td>{{ f.state }}</td>
+                <td>{{ f.step }} of 6</td>
+                <td>{{ f.counts.roles }} / {{ f.counts.activities }} / {{ f.counts.competencies }}</td>
+                <td><span class="sev" [ngClass]="'sev-' + f.worst">{{ severityLabel(f.worst) }}</span></td>
+                <td>{{ f.updatedAt | date: 'mediumDate' }}</td>
+                <td><button type="button" class="link" (click)="openFrac(f.id)">Open</button></td>
+              </ng-container>
             </tr>
           </tbody>
         </table>
@@ -57,22 +59,24 @@
         <table>
           <thead>
             <tr>
-              <th>Workbook</th>
-              <th>Cadre</th>
-              <th>State</th>
-              <th>Worst finding</th>
-              <th>Reviewed</th>
+              <th wsFracSort="title" [sortWith]="reviewSort">Workbook</th>
+              <th wsFracSort="cadre" [sortWith]="reviewSort">Position</th>
+              <th wsFracSort="state" [sortWith]="reviewSort">State</th>
+              <th wsFracSort="worst" [sortWith]="reviewSort">Worst finding</th>
+              <th wsFracSort="createdAt" [sortWith]="reviewSort">Reviewed</th>
               <th><span class="sr-only">Open</span></th>
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let r of reviews; trackBy: trackById">
-              <td>{{ r.title }}</td>
-              <td>{{ r.cadre || '—' }}</td>
-              <td>{{ r.state || '—' }}</td>
-              <td><span class="sev" [ngClass]="'sev-' + r.worst">{{ severityLabel(r.worst) }}</span></td>
-              <td>{{ r.createdAt | date: 'mediumDate' }}</td>
-              <td><button type="button" class="link" (click)="openReview(r.id)">Open</button></td>
+            <tr *ngFor="let row of reviewSort.rows(reviews); trackBy: trackByRowId">
+              <ng-container *ngIf="row.item as r">
+                <td>{{ r.title }}</td>
+                <td>{{ r.cadre || '—' }}</td>
+                <td>{{ r.state || '—' }}</td>
+                <td><span class="sev" [ngClass]="'sev-' + r.worst">{{ severityLabel(r.worst) }}</span></td>
+                <td>{{ r.createdAt | date: 'mediumDate' }}</td>
+                <td><button type="button" class="link" (click)="openReview(r.id)">Open</button></td>
+              </ng-container>
             </tr>
           </tbody>
         </table>

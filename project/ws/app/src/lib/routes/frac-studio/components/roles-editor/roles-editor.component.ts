@@ -10,6 +10,7 @@ import {
   updateActivity,
   updateRole,
 } from '../../utils/frac-studio-edit.util'
+import { SortedRow, TableSort } from '../../utils/frac-studio-sort.util'
 
 /**
  * Roles & activities editor (spec 5.3 + gap 7). Emits a new roles array on every change;
@@ -28,6 +29,9 @@ export class RolesEditorComponent {
 
   readonly postingValues = FRAC_STUDIO_POSTING_VALUES
   readonly tiers = FRAC_STUDIO_SOURCE_TIERS
+
+  /** One sort for every role's activities; P1–P3 columns sort by the key "post:P1". */
+  readonly sort = new TableSort<FracActivity>((a, key) => (key.startsWith('post:') ? a.postings[key.slice(5)] : a[key as 'code']))
 
   /** Role waiting for an inline delete confirmation. */
   confirmDeleteRole: number | null = null
@@ -50,11 +54,13 @@ export class RolesEditorComponent {
   }
 
   moveRole(roleIndex: number, delta: -1 | 1): void {
+    this.sort.refresh() // the kept orders are per role position
     this.emit(moveRole(this.roles, roleIndex, delta))
   }
 
   deleteRole(roleIndex: number): void {
     this.confirmDeleteRole = null
+    this.sort.refresh()
     this.emit(removeRole(this.roles, roleIndex))
   }
 
@@ -68,6 +74,10 @@ export class RolesEditorComponent {
 
   trackByIndex(index: number): number {
     return index
+  }
+
+  trackByRow(_index: number, row: SortedRow<FracActivity>): number {
+    return row.index
   }
 
   private emit(roles: FracRole[]): void {

@@ -1,0 +1,101 @@
+@import '../../frac-studio-common';
+@import '../editor-common';
+
+.upload {
+  display: flex;
+  flex-direction: column;
+  gap: $v2-space-1;
+  padding: $v2-space-2;
+  border: 1px dashed #c8d6e6;
+  border-radius: $v2-radius-input;
+  background: $v2-color-bg;
+}
+
+.upload-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.upload-title {
+  @include v2-form-label;
+  margin: 0;
+  font-size: $v2-font-caption;
+}
+
+.hint {
+  margin: 0;
+  color: $v2-color-text-secondary;
+  font-size: $v2-font-label;
+}
+
+.files {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.file {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  border: 1px solid $v2-color-border;
+  border-radius: $v2-radius-input;
+  background: #ffffff;
+}
+
+.file-name {
+  font-weight: 500;
+  font-size: $v2-font-caption;
+  word-break: break-all;
+}
+
+.file-detail {
+  flex: 1;
+  color: $v2-color-text-secondary;
+  font-size: $v2-font-label;
+}
+
+.warnings {
+  flex-basis: 100%;
+  margin: 0;
+  padding-left: 18px;
+  color: $v2-status-warning-text;
+  font-size: $v2-font-label;
+}
+
+.in-use {
+  margin: 0;
+  padding: 6px 12px;
+  border-radius: $v2-radius-input;
+  background: $v2-status-info-bg;
+  color: $v2-status-info-text;
+  font-size: $v2-font-label;
+}
+
+.upload-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+
+  label.btn-secondary { cursor: pointer; }
+
+  label.is-disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+// The file input is visually hidden inside the label, so show its keyboard focus on the label
+.upload-actions label:focus-within {
+  outline: 2px solid $v2-color-primary;
+  outline-offset: 2px;
+}

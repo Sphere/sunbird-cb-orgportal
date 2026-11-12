@@ -6,6 +6,7 @@ import { FEATURE_KEY } from '../../shared/access/feature-access'
 import { DisableForViewOnlyDirective } from '../../shared/directives/disable-for-view-only.directive'
 import { HideForViewOnlyDirective } from '../../shared/directives/hide-for-view-only.directive'
 import { CompetencyEditorComponent } from './components/competency-editor/competency-editor.component'
+import { DocumentUploadComponent } from './components/document-upload/document-upload.component'
 import { FracProgressComponent } from './components/frac-progress/frac-progress.component'
 import { FracStudioShellComponent } from './components/frac-studio-shell/frac-studio-shell.component'
 import { JobProgressComponent } from './components/job-progress/job-progress.component'
@@ -13,8 +14,10 @@ import { LadderEditorComponent } from './components/ladder-editor/ladder-editor.
 import { ResearchEditorComponent } from './components/research-editor/research-editor.component'
 import { ReviewReportComponent } from './components/review-report/review-report.component'
 import { RolesEditorComponent } from './components/roles-editor/roles-editor.component'
+import { RolesPreviewComponent } from './components/roles-preview/roles-preview.component'
 import { SaveStatusComponent } from './components/save-status/save-status.component'
 import { VersionHistoryComponent } from './components/version-history/version-history.component'
+import { FracSortHeaderDirective } from './directives/sort-header.directive'
 import { FracStudioRoutingModule } from './frac-studio-routing.module'
 import { CreatorBriefComponent } from './pages/creator-brief/creator-brief.component'
 import { CreatorDetailComponent } from './pages/creator-detail/creator-detail.component'
@@ -37,10 +40,13 @@ import { ReviewerComponent } from './pages/reviewer/reviewer.component'
     LadderEditorComponent,
     ResearchEditorComponent,
     VersionHistoryComponent,
+    DocumentUploadComponent,
+    RolesPreviewComponent,
     ReviewerComponent,
     CreatorBriefComponent,
     CreatorDetailComponent,
     MyFracsComponent,
+    FracSortHeaderDirective,
   ],
   imports: [
     CommonModule,

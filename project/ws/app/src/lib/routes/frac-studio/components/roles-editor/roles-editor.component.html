@@ -27,42 +27,44 @@
       <table>
         <thead>
           <tr>
-            <th class="col-code">Code</th>
-            <th class="col-activity">Activity</th>
-            <th *ngFor="let p of postings; trackBy: trackByIndex" class="col-posting" [title]="p.label">{{ p.key }}</th>
-            <th class="col-comp">Competency@Level</th>
-            <th class="col-tier">Source tier</th>
+            <th class="col-code" wsFracSort="code" [sortWith]="sort">Code</th>
+            <th class="col-activity" wsFracSort="text" [sortWith]="sort">Activity</th>
+            <th *ngFor="let p of postings; trackBy: trackByIndex" class="col-posting" [wsFracSort]="'post:' + p.key"
+              [sortWith]="sort" [title]="p.label">{{ p.key }}</th>
+            <th class="col-comp" wsFracSort="comp" [sortWith]="sort">Competency@Level</th>
+            <th class="col-tier" wsFracSort="tier" [sortWith]="sort">Source tier</th>
             <th class="col-del"><span class="sr-only">Delete</span></th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let a of role.activities; let ai = index; trackBy: trackByIndex">
-            <td class="col-code">{{ a.code }}</td>
+          <tr *ngFor="let row of sort.rows(role.activities, 'r' + r); trackBy: trackByRow">
+            <td class="col-code">{{ row.item.code }}</td>
             <td>
-              <textarea #actText rows="2" [value]="a.text" placeholder="Observable action, e.g. Screen pregnant women"
-                [attr.aria-label]="'Text of ' + a.code" (input)="setActivity(r, ai, { text: actText.value })"
+              <textarea #actText rows="2" [value]="row.item.text" placeholder="Observable action, e.g. Screen pregnant women"
+                [attr.aria-label]="'Text of ' + row.item.code" (input)="setActivity(r, row.index, { text: actText.value })"
                 appDisableForViewOnly></textarea>
             </td>
             <td *ngFor="let p of postings; trackBy: trackByIndex" class="col-posting">
-              <select #post [attr.aria-label]="a.code + ' at ' + p.label"
-                (change)="setPosting(r, ai, p.key, post.value)" appDisableForViewOnly>
+              <select #post [attr.aria-label]="row.item.code + ' at ' + p.label"
+                (change)="setPosting(r, row.index, p.key, post.value)" appDisableForViewOnly>
                 <option *ngFor="let v of postingValues" [value]="v.value"
-                  [selected]="v.value === (a.postings[p.key] || '')">{{ v.label }}</option>
+                  [selected]="v.value === (row.item.postings[p.key] || '')">{{ v.label }}</option>
               </select>
             </td>
             <td class="col-comp">
-              <input #comp type="text" [value]="a.comp" placeholder="e.g. ANM3@L3" [attr.aria-label]="'Competency for ' + a.code"
-                (input)="setActivity(r, ai, { comp: comp.value })" appDisableForViewOnly />
+              <input #comp type="text" [value]="row.item.comp" placeholder="e.g. ANM3@L3"
+                [attr.aria-label]="'Competency for ' + row.item.code" (input)="setActivity(r, row.index, { comp: comp.value })"
+                appDisableForViewOnly />
             </td>
             <td class="col-tier">
-              <select #tier [attr.aria-label]="'Source tier of ' + a.code"
-                (change)="setActivity(r, ai, { tier: tier.value })" appDisableForViewOnly>
-                <option *ngFor="let t of tiers" [value]="t" [selected]="t === a.tier">{{ t || '—' }}</option>
+              <select #tier [attr.aria-label]="'Source tier of ' + row.item.code"
+                (change)="setActivity(r, row.index, { tier: tier.value })" appDisableForViewOnly>
+                <option *ngFor="let t of tiers" [value]="t" [selected]="t === row.item.tier">{{ t || '—' }}</option>
               </select>
             </td>
             <td class="col-del">
-              <button type="button" class="icon-btn" (click)="deleteActivity(r, ai)" [attr.aria-label]="'Delete ' + a.code"
-                *appHideForViewOnly>×</button>
+              <button type="button" class="icon-btn" (click)="deleteActivity(r, row.index)"
+                [attr.aria-label]="'Delete ' + row.item.code" *appHideForViewOnly>×</button>
             </td>
           </tr>
         </tbody>

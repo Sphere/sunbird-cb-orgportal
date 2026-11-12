@@ -3,6 +3,7 @@ import { FRAC_STUDIO_COMPETENCY_TYPES } from '../../constants/frac-studio.consta
 import { FracCompetency } from '../../models/frac-studio.models'
 import { addCompetency, removeCompetency, updateCompetency } from '../../utils/frac-studio-edit.util'
 import { normalizeCode } from '../../utils/frac-studio-refs.util'
+import { SortedRow, TableSort } from '../../utils/frac-studio-sort.util'
 
 /**
  * Competencies editor (spec 5.4 + gap 7): editable table, D/F/B counters and a computed
@@ -23,6 +24,8 @@ export class CompetencyEditorComponent {
 
   readonly types = FRAC_STUDIO_COMPETENCY_TYPES
   confirmDelete: number | null = null
+  /** "Used by" sorts by how many activities use the competency. */
+  readonly sort = new TableSort<FracCompetency>((c, key) => (key === 'used' ? this.usedByOf(c).length : c[key as 'code']))
 
   get typeCounts(): { label: string, value: number }[] {
     const count = (letter: string) => this.competencies.filter(c => c.type.trim().charAt(0).toUpperCase() === letter).length
@@ -50,7 +53,7 @@ export class CompetencyEditorComponent {
     this.competenciesChange.emit(removeCompetency(this.competencies, index))
   }
 
-  trackByIndex(index: number): number {
-    return index
+  trackByRow(_index: number, row: SortedRow<FracCompetency>): number {
+    return row.index
   }
 }

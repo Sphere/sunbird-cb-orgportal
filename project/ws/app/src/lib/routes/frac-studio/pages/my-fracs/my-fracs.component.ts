@@ -5,6 +5,14 @@ import { FRAC_STUDIO_ROUTES, FRAC_STUDIO_SEVERITY_LABELS } from '../../constants
 import { FracReviewSummary, FracSeverity, FracSummary } from '../../models/frac-studio.models'
 import { FracStudioApiService } from '../../services/frac-studio-api.service'
 import { apiErrorMessage } from '../../utils/frac-studio-download.util'
+import { SortedRow, SortValue, TableSort } from '../../utils/frac-studio-sort.util'
+
+/** Worst finding sorts by severity, not by its letter: none, minor, major, blocker. */
+const SEVERITY_RANK: Record<FracSeverity, number> = { m: 1, M: 2, B: 3 }
+
+function summaryValue(row: { worst: FracSeverity | null }, key: string): SortValue {
+  return key === 'worst' ? (row.worst ? SEVERITY_RANK[row.worst] : 0) : (row as unknown as Record<string, SortValue>)[key]
+}
 
 /** My FRACs (spec 1): the library of saved FRACs and past reviews. */
 @Component({
@@ -18,6 +26,8 @@ export class MyFracsComponent implements OnInit, OnDestroy {
   reviews: FracReviewSummary[] = []
   loading = true
   error = ''
+  readonly fracSort = new TableSort<FracSummary>((f, key) => (key === 'activities' ? f.counts.activities : summaryValue(f, key)))
+  readonly reviewSort = new TableSort<FracReviewSummary>(summaryValue)
 
   private readonly subs = new Subscription()
 
@@ -63,7 +73,7 @@ export class MyFracsComponent implements OnInit, OnDestroy {
     this.router.navigateByUrl(FRAC_STUDIO_ROUTES.creator)
   }
 
-  trackById(_index: number, row: { id: string }): string {
-    return row.id
+  trackByRowId(_index: number, row: SortedRow<{ id: string }>): string {
+    return row.item.id
   }
 }

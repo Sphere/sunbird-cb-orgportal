@@ -325,7 +325,7 @@ footer { color: var(--muted); font-size: 13px; }
 
 <div class="wrap">
   <header>
-    <span class="eyebrow">FRAC Creator &amp; Reviewer · spec v1, 28 Oct 2026 · status 2 Nov 2026</span>
+    <span class="eyebrow">FRAC Creator &amp; Reviewer · spec v1, 28 Oct 2026 · status 11 Nov 2026</span>
     <h1>FRAC Studio build tracker</h1>
     <p class="lede">Every phase of the build across the three repos, what each Creator and Reviewer step can do today,
       and what is waiting on whom.</p>
@@ -334,27 +334,27 @@ footer { color: var(--muted); font-size: 13px; }
   <section class="summary" aria-label="Where we are">
     <div class="here">
       <span class="eyebrow">Where we are</span>
-      <span class="big">Phases 5 to 7 built and committed; next, the first real-AI run</span>
-      <p>Both UI slices are built in orgportal: the Reviewer, My FRACs, the Creator brief, editing of roles,
-        competencies and ladders with autosave, version history, the expert check, downloads and an in-app progress
-        tracker. Specs and the production build pass, and both repos are committed (orgportal <code>110c8e94</code>,
-        service <code>58d2441</code>). Deployment happens once, after the full testing checklist passes. The AI steps
-        run end to end on whichever provider <code>AI_PROVIDER</code> names: <code>gemini-free</code> by default
-        (<code>GEMINI_API_KEY</code>, <code>gemini-3.6-flash</code> while 3.8 is overloaded; key verified 6 Nov), <code>gemini-paid</code>, <code>claude</code> (<code>ANTHROPIC_API_KEY</code>), or
-        <code>mock</code> sample data (<code>npm run dev:mock</code>). How to run and switch: <code>docs/FRAC_STUDIO_GUIDE.md</code>
-        in the service, copied next to this page.</p>
-      <div><span class="pill s-now">Needs your in-app check</span></div>
+      <span class="big">Built end to end on Claude; now complete testing, then one deploy</span>
+      <p>The portal, the proxy route and the service with its AI layer are built, committed and pushed. The whole
+        Creator and Reviewer flow runs on Claude Sonnet 5.5: a standard FRAC costs about $0.95 and takes about
+        4 minutes (three complete FRACs run, $3.88 billed 6–9 Nov). Since 6 Nov: review rules tuned (sentences that rule
+        an act out are no longer Blockers, "family planning" is not a KCM name), the expert check asks for a re-run after
+        a fix or an edit, one running job per FRAC, a $3 spending limit per job, and cost and review reports. On 11 Nov
+        the eight review decisions were built: documents and templates, position matching, the agent choosing the size,
+        a roles preview popup, View Source links, a draft Excel before the expert check, and "Agent" and "Position" wording. They are not committed yet. With
+        standard sheets a FRAC can cost about $0.30 instead of $0.96. What remains is clinical sign-off, the
+        real-workbook acceptance tests and the in-app checks below.</p>
+      <div><span class="pill s-now">Testing · waiting on clinical sign-off</span></div>
     </div>
     <div class="meter">
       <span class="eyebrow">Build phases</span>
-      <div class="bar" role="img" aria-label="6 of 8 phases done, 1 in progress, 1 waiting for testing">
-        <span class="b-done" style="width:75%"></span>
+      <div class="bar" role="img" aria-label="7 of 8 phases done, 1 in progress">
+        <span class="b-done" style="width:87.5%"></span>
         <span class="b-now" style="width:12.5%"></span>
       </div>
       <div class="legend">
-        <span><b>6</b> done</span>
-        <span><b>1</b> in progress</span>
-        <span><b>1</b> after full testing</span>
+        <span><b>7</b> done</span>
+        <span><b>1</b> in progress: testing, then deploy</span>
       </div>
     </div>
   </section>
@@ -410,21 +410,21 @@ footer { color: var(--muted); font-size: 13px; }
         <span class="where">feat/frac-studio · 110c8e94</span>
         <span class="pill s-done">Committed</span>
       </li>
-      <li class="phase now">
+      <li class="phase done">
         <div class="node-row"><span class="node">7</span><span class="rail"></span></div>
-        <span class="you-are-here">You are here</span>
         <h3>AI layer</h3>
-        <p>Creator steps 2–5, revise with feedback and the r3 review checklist. Providers are switchable profiles in
-          <code>config/ai-providers.json</code>: Gemini free tier (default), Gemini paid, Claude, or the mock.</p>
-        <span class="where">service · 58d2441</span>
-        <span class="pill s-now">Built · first real run next</span>
+        <p>Creator steps 2–5, revise with feedback, the r3 checklist, cost per call and job, reports. Switchable
+          providers; Claude Sonnet 5.5 for go-live, answer reuse, one job per FRAC, $3 limit per job.</p>
+        <span class="where">service · 127ddc7 → f80b8f6</span>
+        <span class="pill s-done">Done · runs on Claude</span>
       </li>
-      <li class="phase todo">
+      <li class="phase now">
         <div class="node-row"><span class="node">8</span><span class="rail"></span></div>
-        <h3>Deploy &amp; Sonar</h3>
-        <p>One deploy, after the testing checklist below is complete. Deploy files are ready.</p>
-        <span class="where">frac-studio-service · committed</span>
-        <span class="pill s-todo">After full testing</span>
+        <span class="you-are-here">You are here</span>
+        <h3>Testing, then deploy</h3>
+        <p>The checklist below, clinical sign-off and the acceptance tests; then one deploy. Deploy files are ready.</p>
+        <span class="where">all three repos pushed</span>
+        <span class="pill s-now">Testing</span>
       </li>
     </ol>
   </section>
@@ -439,12 +439,12 @@ footer { color: var(--muted); font-size: 13px; }
       <div class="flow">
         <div class="flow-head"><h3>Create FRAC</h3><span>spec §5 · 5 of 6 usable</span></div>
         <ol class="steps">
-          <li class="step ok"><span class="n">1</span><div><b>Brief</b><p>Cadre, state, scope and size. Locks once research exists.</p></div><span class="pill s-done">Works</span></li>
-          <li class="step ok"><span class="n">2</span><div><b>Job research</b><p>"Research the job" or fill in by hand; revise with feedback. Imported FRACs skip it.</p></div><span class="pill s-done">Works (mock AI)</span></li>
-          <li class="step ok"><span class="n">3</span><div><b>Roles &amp; activities</b><p>AI drafts in batches, then edit by hand; team-added activities survive a revise.</p></div><span class="pill s-done">Works (mock AI)</span></li>
-          <li class="step ok"><span class="n">4</span><div><b>Competencies</b><p>Derive / re-derive with AI, every activity mapped; editable table with Used by and D/F/B counts.</p></div><span class="pill s-done">Works (mock AI)</span></li>
-          <li class="step ok"><span class="n">5</span><div><b>Level ladders</b><p>Write missing, rewrite all, or revise one competency; edit any level by hand.</p></div><span class="pill s-done">Works (mock AI)</span></li>
-          <li class="step ok"><span class="n">6</span><div><b>Expert check &amp; download</b><p>Computed checks plus Kaushal &amp; Vidya findings; "Fix these competencies"; Excel export.</p></div><span class="pill s-done">Works (mock AI)</span></li>
+          <li class="step ok"><span class="n">1</span><div><b>Brief</b><p>Position, state and scope, plus an optional job description or order. The position is matched exactly against your FRACs, then Positions, and a match can supply the postings and roles. The agent chooses the size. Locks once research exists.</p></div><span class="pill s-done">Works</span></li>
+          <li class="step ok"><span class="n">2</span><div><b>Job research</b><p>"Research the job" or fill in by hand; revise with feedback. Reads attached documents first (1 search, not 3). A Sources sheet turns search off. Sources link to the pages search opened (View source). Imported FRACs skip it.</p></div><span class="pill s-done">Works (Claude)</span></li>
+          <li class="step ok"><span class="n">3</span><div><b>Roles &amp; activities</b><p>AI drafts in batches, then edit by hand; team-added activities survive a revise. With a Roles sheet or a matched position, only empty roles get activities.</p></div><span class="pill s-done">Works (Claude)</span></li>
+          <li class="step ok"><span class="n">4</span><div><b>Competencies</b><p>Derive / re-derive with AI, every activity mapped; editable table with Used by and D/F/B counts. With a Competencies sheet the AI only maps activities to it.</p></div><span class="pill s-done">Works (Claude)</span></li>
+          <li class="step ok"><span class="n">5</span><div><b>Level ladders</b><p>Write missing, rewrite all, or revise one competency; edit any level by hand. Ladders from a sheet are kept. "Preview roles" opens a popup of each role with its competencies and levels once every activity is mapped.</p></div><span class="pill s-done">Works (Claude)</span></li>
+          <li class="step ok"><span class="n">6</span><div><b>Expert check &amp; download</b><p>Rule-based checks plus the agent's quoted checklist; "Fix these competencies" (ladders only for now); "Download draft Excel" beside the check to confirm the file first; after a fix or edit the check asks for a re-run, and a download meanwhile is a draft without the old findings.</p></div><span class="pill s-done">Works (Claude)</span></li>
         </ol>
       </div>
       <div class="flow">
@@ -452,7 +452,7 @@ footer { color: var(--muted); font-size: 13px; }
         <ol class="steps">
           <li class="step ok"><span class="n">1</span><div><b>Upload FRAC</b><p>Tolerant .xlsx parser: Hindi sheets skipped, "Comptency" typo, every mapping-cell style.</p></div><span class="pill s-done">Works</span></li>
           <li class="step ok"><span class="n">2</span><div><b>Context</b><p>Cadre, state or "Not state-specific", reviewer notes.</p></div><span class="pill s-done">Works</span></li>
-          <li class="step ok"><span class="n">3</span><div><b>Review report</b><p>5 check tiles, computed and Kaushal &amp; Vidya findings, download, open in Creator.</p></div><span class="pill s-done">Works (mock AI)</span></li>
+          <li class="step ok"><span class="n">3</span><div><b>Review report</b><p>5 check tiles, rule-based and quoted AI findings, computed verdict, download, open in Creator; same file returns the saved review.</p></div><span class="pill s-done">Works (Claude)</span></li>
         </ol>
         <div class="flow-head"><h3>My FRACs</h3><span>spec §1</span></div>
         <ol class="steps">
@@ -578,16 +578,16 @@ footer { color: var(--muted); font-size: 13px; }
 
           <!-- 6. agent review -->
           <rect class="bx-ai" x="250" y="560" width="600" height="60" rx="6"/>
-          <text class="tw" x="550" y="583" text-anchor="middle">AI review · Kaushal &amp; Vidya (pending prompts)</text>
-          <text class="ts" x="550" y="603" text-anchor="middle">scope, clinical accuracy, granularity, ladder logic, KCM fit · stand-in returns none yet</text>
+          <text class="tw" x="550" y="583" text-anchor="middle">AI checklist · Vidya (Claude Sonnet 5.5)</text>
+          <text class="ts" x="550" y="603" text-anchor="middle">Q1 scope · Q2 accuracy, 6 competencies a call · Q3 state fit · quote check · unchanged answers reused</text>
 
           <line class="ln" x1="550" y1="620" x2="550" y2="648" marker-end="url(#ah)"/>
-          <text class="tl" x="560" y="638">verdict, triage, ≤10 findings</text>
+          <text class="tl" x="560" y="638">quoted flags; verdict and triage computed in code</text>
 
           <!-- 7. merge -->
           <rect class="bx" x="250" y="650" width="600" height="72" rx="6"/>
           <text class="tt" x="550" y="672" text-anchor="middle">Merge into one report</text>
-          <text class="ts" x="550" y="691" text-anchor="middle">AI output cleaned: max 10 findings, bad severity → minor, bad check → structure</text>
+          <text class="ts" x="550" y="691" text-anchor="middle">flags without a matching quote, or already covered by a rule, are dropped; at most 3 AI findings</text>
           <text class="ts" x="550" y="708" text-anchor="middle">sort Blocker → Major → Minor · each tile shows its worst open finding</text>
 
           <!-- 8. save -->
@@ -720,8 +720,23 @@ footer { color: var(--muted); font-size: 13px; }
             <td><span class="sev sev-m">m</span></td>
           </tr>
           <tr>
-            <td>AI review <span class="pill s-warn">pending</span></td>
-            <td>Real job areas vs curriculum subjects, observable activities, granularity, ladder progression, out-of-scope acts, wrong laws, drugs, doses or protocols, state fit, Karmayogi alignment. At most 10 findings; Blocker means unsafe, illegal or factually wrong.</td>
+            <td>Scope (r3)</td>
+            <td>ANM and ASHA acts beyond the cadre's authorised scope, sentence by sentence (<code>config/review-rules.json</code>). Sentences that rule the act out ("does not … inject", "without … injections") or refer it are not flagged.</td>
+            <td><span class="sev sev-B">B</span></td>
+          </tr>
+          <tr>
+            <td>Breadth and KCM (r3)</td>
+            <td>Catch-all, scheme-list or above-the-post labels (too broad); Domain labels that are KCM names ("family / birth planning" excluded); ladders shifted upward.</td>
+            <td><span class="sev sev-M">M</span> / <span class="sev sev-m">m</span></td>
+          </tr>
+          <tr>
+            <td>Coverage (r3)</td>
+            <td>Core cadre areas with no dedicated competency; the r3 outdated names (NRT, RMNCH+A, NRHM, VHND, Five Rights, partograph without LCG, device law for frontline).</td>
+            <td><span class="sev sev-M">M</span> / <span class="sev sev-m">m</span></td>
+          </tr>
+          <tr>
+            <td>AI checklist <span class="pill s-done">Claude</span></td>
+            <td>Vidya answers fixed questions per competency: Q1 an act beyond scope, Q2 a wrong drug, dose, law or programme fact, Q3 state fit. Every flag must quote at least 4 words of that competency; at most 3 AI findings, fixed titles.</td>
             <td><span class="sev sev-B">B</span> <span class="sev sev-M">M</span> <span class="sev sev-m">m</span></td>
           </tr>
         </tbody>
@@ -746,7 +761,7 @@ footer { color: var(--muted); font-size: 13px; }
         <span class="eyebrow">orgportal</span>
         <span class="path">/app/home/frac-studio</span>
         <p>Angular 20 NgModule, v2 design system, FRAC roles.</p>
-        <span class="pill s-now">Built, awaiting check</span>
+        <span class="pill s-done">Committed, pushed</span>
       </div></div>
       <div class="arch-cell"><div class="tier">
         <span class="eyebrow">sunbird-cb-uiproxy</span>
@@ -757,13 +772,13 @@ footer { color: var(--muted); font-size: 13px; }
       <div class="arch-cell"><div class="tier">
         <span class="eyebrow">frac-studio-service</span>
         <span class="path">/v1/fracs · /v1/frac-reviews · /v1/jobs</span>
-        <p>Engine, jobs, Excel. AI review behind a stand-in until prompts land.</p>
-        <span class="pill s-done">Committed, no remote</span>
+        <p>Review engine r3, AI steps on Claude, jobs with one per FRAC, Excel, cost and review reports.</p>
+        <span class="pill s-done">Pushed, not deployed</span>
       </div></div>
       <div class="arch-cell"><div class="tier">
         <span class="eyebrow">Postgres</span>
-        <span class="path">fracs · frac_versions · reviews · jobs</span>
-        <p>Shared AI Studio / AskMe instance. Migration runner ready, tested on pg-mem.</p>
+        <span class="path">fracs · frac_versions · reviews · jobs · ai_calls · server_runs · review_answer_cache</span>
+        <p>Migrations 001–009 applied on local Postgres. The shared AI Studio / AskMe instance is not provisioned yet.</p>
         <span class="pill s-todo">Not provisioned</span>
       </div></div>
     </div>
@@ -780,11 +795,11 @@ footer { color: var(--muted); font-size: 13px; }
         </thead>
         <tbody>
           <tr>
-            <td><b>frac-studio-service</b><p>~/SonarRepos/frac-studio-service</p></td>
+            <td><b>frac-studio-service</b><p>vpPavithra/frac-AIstudio-service</p></td>
             <td class="mono">feat/frac-studio-workbook-export</td>
-            <td><span class="mono">df10412</span> engine, Excel, v1 API<br><span class="mono">253fa42</span> owner header<br>uncommitted: deploy files, migrations, rolesDirty clear</td>
-            <td><span class="pill s-warn">No remote yet</span></td>
-            <td>76 tests (incl. Postgres path on pg-mem), 97.6% coverage, tsc and lint clean</td>
+            <td><span class="mono">127ddc7</span> AI steps, review r3<br><span class="mono">e2c85ee</span> rule fixes<br><span class="mono">1d00638</span> one job per FRAC<br><span class="mono">74fee93</span> spending limit<br>latest <span class="mono">f80b8f6</span><br>review decisions: not committed</td>
+            <td><span class="pill s-now">Pushed; 11 Nov work local</span></td>
+            <td>184 tests pass (3 need real workbooks or a key), typecheck, lint, config check; HTTP walkthrough 38 of 38</td>
           </tr>
           <tr>
             <td><b>sunbird-cb-uiproxy</b><p>~/SonarRepos/sunbird-cb-uiproxy</p></td>
@@ -796,9 +811,9 @@ footer { color: var(--muted); font-size: 13px; }
           <tr>
             <td><b>sunbird-cb-orgportal</b><p>worktree sunbird-cb-orgportal-frac</p></td>
             <td class="mono">feat/frac-studio</td>
-            <td>none yet</td>
-            <td><span class="pill s-now">Uncommitted</span></td>
-            <td>tsc, strict templates and ESLint clean. Specs and build run at commit.</td>
+            <td><span class="mono">d830330d</span> UI<br><span class="mono">110c8e94</span> r3 report, AI cost<br><span class="mono">2a5a39e5</span> re-run after fixes<br>latest <span class="mono">e906be0c</span><br>review decisions: not committed</td>
+            <td><span class="pill s-now">Pushed; 11 Nov work local</span></td>
+            <td>Full Jest suite (3,581) and production build pass; no FRAC Studio specs yet</td>
           </tr>
         </tbody>
       </table>
@@ -811,32 +826,34 @@ footer { color: var(--muted); font-size: 13px; }
     </div>
     <div class="cols">
       <div class="list blockers">
-        <h3>Blocked on Sarvesh</h3>
+        <h3>Blocked on Sarvesh and the clinical team</h3>
         <ul>
-          <li><code>frac-studio.html</code> <span>for the exact METHOD and SOURCE_LIBRARY prompts (L244–265) and the Excel method paragraph (L653+)</span></li>
-          <li>GNM, ANM and Staff Nurse workbooks <span>to run the §6.6 acceptance tests</span></li>
-          <li>Meghalaya ANM and Bihar ANM workbooks <span>for the r3 acceptance tests (rules §10)</span></li>
-          <li>Clinical questions from the r3 run on the entity master <span>listed in <code>R3_GAP_ANALYSIS.md</code> §9</span></li>
+          <li><code>frac-studio.html</code> <span>exact METHOD and SOURCE_LIBRARY prompts and the Excel method paragraph</span></li>
+          <li>Real workbooks <span>GNM, ANM, Staff Nurse, Meghalaya ANM and Bihar ANM, for the acceptance tests</span></li>
+          <li>Clinical answers <span>ME68 operative flags, ASHA "instead" texts, scope lists for Staff Nurse, GNM and CHO</span></li>
           <li>Product questions in spec §11 <span>assessment type per level, authorisation source, Hindi sheet, multi-reviewer sign-off</span></li>
         </ul>
       </div>
       <div class="list yours">
         <h3>Waiting on you</h3>
         <ul>
-          <li>Restart <code>ng serve</code> and try FRAC Studio <span>the service is running on port 3010 with local Postgres</span></li>
-          <li>Upload the same file twice in the Reviewer <span>the second upload shows the saved review and "Run a fresh review"</span></li>
-          <li>Say "commit" for orgportal <span>runs specs, Jest and the production build first</span></li>
-          <li>Create a remote for frac-studio-service</li>
+          <li>Try the review-decision screens <span>brief match card and uploads, the three sheet slots with templates, Preview roles popup, draft Excel download, View source</span></li>
+          <li>Approve one paid run per case <span>about $3, to measure the document, sheet and match savings</span></li>
+          <li>Reload during a step <span>the progress panel should come back; a second tab follows the same job</span></li>
+          <li>Decide the Fix-button routing <span>label and state findings need a different fix than ladders</span></li>
+          <li>Check the Claude rate limit <span>before running all 8 ladder batches at once</span></li>
+          <li>Approve the quality comparison <span>about $5: Haiku, lower effort, shorter ladders</span></li>
           <li>Work through the pre-deploy testing checklist below</li>
         </ul>
       </div>
       <div class="list mine">
         <h3>Next for me</h3>
         <ul>
-          <li>Fixes from your in-app check, then specs and commit</li>
-          <li>Research editor <span>postings, authorised scope and sources by hand, so step 2 no longer waits on AI</span></li>
-          <li>AI-level testing once the key is in <span>each step, revise, cost per job, the real-workbook acceptance tests</span></li>
-          <li>Prototype gaps 2, 3, 4 and 7 <span>keep competencies on role revise, fixed flags, fix routing, add and reorder</span></li>
+          <li>Fix-button routing <span>once approved: fixWith per finding, targeted competency rewrite, "Add to state context"</span></li>
+          <li>Quality comparison <span>claude vs claude-mixed, effort, ladder length, on 2–3 FRACs</span></li>
+          <li>FRAC Studio specs in orgportal <span>Creator page, API service, upload slot, roles preview popup, match card, after your check</span></li>
+          <li>Org-wide position matching <span>needs the proxy to pass the org id; today it matches only your own FRACs, then Positions</span></li>
+          <li>Daily report <span>compare with the last day that had activity; fix the flaky workbook test</span></li>
         </ul>
       </div>
     </div>
@@ -854,22 +871,23 @@ footer { color: var(--muted); font-size: 13px; }
           <tr><th>Test</th><th>Where</th><th>How</th><th>Status</th></tr>
         </thead>
         <tbody>
-          <tr><td><b>Reviewer flow in the app</b></td><td>orgportal, local</td><td>Upload the sample GNM workbook, read the report, download it, open it in the Creator</td><td><span class="pill s-now">Waiting for you</span></td></tr>
-          <tr><td><b>Creator flow in the app</b></td><td>orgportal, local</td><td>Brief, then edit roles, competencies and ladders; autosave, reload, history and restore, expert check, Excel download</td><td><span class="pill s-now">Waiting for you</span></td></tr>
+          <tr><td><b>Reviewer flow in the app</b></td><td>orgportal, local</td><td>Upload a workbook, read the report, download it, open it in the Creator</td><td><span class="pill s-done">Done on Claude (ANM Arunachal); Bihar on the mock</span></td></tr>
+          <tr><td><b>Creator flow in the app</b></td><td>orgportal, local</td><td>Brief to Excel on Claude; autosave, history and restore, expert check, fix and re-run; reload during a step</td><td><span class="pill s-now">3 FRACs done; reload check open</span></td></tr>
+          <tr><td><b>Review decisions in the app</b></td><td>orgportal + service, local</td><td>Brief without size, match card (own FRAC, Positions, none), JD upload; Roles, Sources and Competencies sheets and their templates; Preview roles popup; draft Excel before the check; View source; "Agent" and "Position" wording</td><td><span class="pill s-todo">Not run (7 mock tests pass)</span></td></tr>
           <tr><td><b>View-only user</b></td><td>orgportal, local</td><td>Log in with only <code>frac_read</code>: everything visible, nothing editable</td><td><span class="pill s-todo">Not run</span></td></tr>
-          <tr><td><b>Portal specs and build</b></td><td>orgportal</td><td>Full Jest suite (3,581 tests) and the production build</td><td><span class="pill s-done">Passing</span></td></tr>
-          <tr><td><b>Service tests</b></td><td>frac-studio-service</td><td>138 unit, API, Postgres-path, mock-flow and provider tests (Gemini, Claude, registry, profiles), including the r3 rules and checklist; one workbook-reader test is flaky</td><td><span class="pill s-done">Passing</span></td></tr>
+          <tr><td><b>Portal specs and build</b></td><td>orgportal</td><td>Full Jest suite (3,581 tests) and the production build; FRAC Studio specs still to write</td><td><span class="pill s-done">Passing</span></td></tr>
+          <tr><td><b>Service tests</b></td><td>frac-studio-service</td><td>184 unit, API, Postgres-path, mock-flow and provider tests, including the r3 rules, the out-of-date check, one job per FRAC, the spending limit, documents, sheets, templates and position matching; one workbook-reader test is flaky</td><td><span class="pill s-done">Passing</span></td></tr>
           <tr><td><b>Proxy tests</b></td><td>sunbird-cb-uiproxy</td><td>Routing, identity, uploads, downloads, whitelist (64 with the AI Studio suite)</td><td><span class="pill s-done">Passing</span></td></tr>
-          <tr><td><b>Real Postgres</b></td><td>frac-studio-service</td><td><code>npm run migrate</code> twice against a real database, then the flows with the Postgres store</td><td><span class="pill s-now">Migrations applied locally; flows not run</span></td></tr>
+          <tr><td><b>Real Postgres</b></td><td>frac-studio-service</td><td><code>npm run migrate</code> twice against a real database, then the flows with the Postgres store</td><td><span class="pill s-now">Local: migrations 001–009 and every flow; 010 (documents) to apply. Shared instance: not yet</span></td></tr>
           <tr><td><b>Docker image</b></td><td>frac-studio-service</td><td>Build the image, start it, hit <code>/health</code> and one review</td><td><span class="pill s-todo">Not run</span></td></tr>
           <tr><td><b>Real fixture workbooks</b></td><td>frac-studio-service</td><td>The spec §6.6 acceptance numbers on the GNM, ANM and Staff Nurse files</td><td><span class="pill s-blocked">Needs files</span></td></tr>
-          <tr><td><b>Full flow on mock data</b></td><td>orgportal + service, local</td><td>The walkthrough in <code>src/mocks/README.md</code>: run every step, revise, expert check, fix competencies, download</td><td><span class="pill s-now">Waiting for you</span></td></tr>
-          <tr><td><b>Add the AI key</b></td><td>frac-studio-service</td><td>Put the key the profile names (<code>GEMINI_API_KEY</code> for <code>gemini-free</code>, <code>ANTHROPIC_API_KEY</code> for <code>claude</code>) in <code>.env</code> (local) or the deployment secret store (server), never a <code>config/</code> file. Run <code>npm run ai:check</code>, then check the log names the profile. Allow outbound HTTPS to <code>generativelanguage.googleapis.com</code> or <code>api.anthropic.com</code></td><td><span class="pill s-done">Gemini free key verified (6 Nov, <code>gemini-3.6-flash</code>)</span></td></tr>
-          <tr><td><b>AI-level testing</b></td><td>all</td><td>On the Gemini free tier first, then the provider chosen for go-live: each step, revise, retries and invalid-output handling, cost per job, the real-workbook acceptance tests</td><td><span class="pill s-todo">After the key</span></td></tr>
+          <tr><td><b>Full flow on mock data</b></td><td>orgportal + service, local</td><td>Every endpoint over HTTP on the mock: steps, revise, guard, check, fix and re-run, download, history, Reviewer, Open in Creator</td><td><span class="pill s-done">38 of 38 (9 Nov)</span></td></tr>
+          <tr><td><b>Add the AI key</b></td><td>frac-studio-service</td><td>Put the key the profile names (<code>GEMINI_API_KEY</code> for <code>gemini-free</code>, <code>ANTHROPIC_API_KEY</code> for <code>claude</code>) in <code>.env</code> (local) or the deployment secret store (server), never a <code>config/</code> file. Run <code>npm run ai:check</code>, then check the log names the profile. Allow outbound HTTPS to <code>generativelanguage.googleapis.com</code> or <code>api.anthropic.com</code></td><td><span class="pill s-done">Claude key in use; Gemini free key verified</span></td></tr>
+          <tr><td><b>AI-level testing</b></td><td>all</td><td>Each step, revise, retries and invalid-output handling, cost per job (reports in <code>reports/</code>), the real-workbook acceptance tests</td><td><span class="pill s-now">Done on Claude; acceptance tests need the workbooks</span></td></tr>
         </tbody>
       </table>
     </div>
   </section>
 
-  <footer>Status as of 6 Nov 2026. Updated by republishing this page as phases move.</footer>
+  <footer>Status as of 11 Nov 2026. Updated by republishing this page as phases move.</footer>
 </div>

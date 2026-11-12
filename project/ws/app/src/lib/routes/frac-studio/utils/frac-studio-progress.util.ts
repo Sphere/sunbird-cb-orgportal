@@ -1,4 +1,4 @@
-import { Frac, FracJob } from '../models/frac-studio.models'
+import { Frac, FracJob, FracStep } from '../models/frac-studio.models'
 import { normalizeCode, usedByMap } from './frac-studio-refs.util'
 
 export type FracStepState = 'done' | 'current' | 'attention' | 'todo'
@@ -17,15 +17,32 @@ export interface FracStepProgress {
   running: string
 }
 
+/** Roles copied from a matched position that are still in place (not yet rebuilt or cleared). */
+export const copiedRoles = (frac: Frac) => !!frac.seededFrom && frac.seededFrom.withRoles !== false && frac.roles.length > 0
+
+/** Roles came from a standard sheet or a matched position, so research still runs before the roles step. */
+const rolesGiven = (frac: Frac) => !!frac.uploads?.roles || copiedRoles(frac)
+
+/**
+ * The roles step keeps the roles as they are (writing activities only for empty roles): a Roles sheet always, copied
+ * roles only while no job description is attached. With one, the roles step rebuilds them from the research.
+ * Mirrors keepGivenRoles in the service's roles step.
+ */
+const rolesKept = (frac: Frac, briefDocs: number) =>
+  frac.roles.length > 0 && (!!frac.uploads?.roles || (copiedRoles(frac) && briefDocs === 0))
+
 /**
  * The FRAC's position in the six-step flow (spec 5, curStep). An imported FRAC has no
- * research but already has roles, so it skips straight past the research step.
+ * research but already has roles, so it skips straight past the research step. Roles from a sheet or a
+ * matched position do not skip research, and send the team to the roles step while any role has no activities,
+ * or while copied roles wait to be rebuilt because a job description is attached (`briefDocs`).
  */
-export function curStep(frac: Frac): number {
-  if (!frac.research && !frac.imported && !frac.roles.length) {
+export function curStep(frac: Frac, briefDocs = 0): number {
+  if (!frac.research && !frac.imported && (!frac.roles.length || rolesGiven(frac))) {
     return 0
   }
-  if (!frac.roles.length) {
+  const kept = rolesKept(frac, briefDocs)
+  if (!frac.roles.length || (kept && frac.roles.some(r => !r.activities.length)) || (copiedRoles(frac) && !kept)) {
     return 1
   }
   if (!frac.competencies.length || frac.rolesDirty) {
@@ -36,6 +53,49 @@ export function curStep(frac: Frac): number {
   }
   // A check made before the latest fix or edit is out of date: back to "Run expert check"
   return frac.review && !frac.reviewStale ? 5 : 4
+}
+
+/** Steps in flow order, with the tracker title of each (changedAt keys). */
+export const FRAC_STEP_TITLES: Record<FracStep, string> = {
+  brief: 'Brief',
+  research: 'Job research',
+  roles: 'Roles & activities',
+  competencies: 'Competencies',
+  ladders: 'Level ladders',
+}
+const STEP_ORDER = Object.keys(FRAC_STEP_TITLES) as FracStep[]
+
+const hasOutput: Record<FracStep, (frac: Frac) => boolean> = {
+  brief: () => true,
+  research: frac => !!frac.research,
+  roles: frac => frac.roles.length > 0,
+  competencies: frac => frac.competencies.length > 0,
+  ladders: frac => frac.competencies.some(c => c.levels !== null),
+}
+
+/**
+ * The earlier step that changed after `step`'s content, latest first, or null. A step without output, or a FRAC
+ * without stamps (older FRACs), is never out of date. ISO stamps compare as strings.
+ */
+export function changedBefore(frac: Frac, step: FracStep): FracStep | null {
+  const at = frac.changedAt ?? {}
+  if (!hasOutput[step](frac)) {
+    return null
+  }
+  const own = at[step] ?? ''
+  const newer = STEP_ORDER.slice(0, STEP_ORDER.indexOf(step)).filter(s => (at[s] ?? '') > own)
+  return newer.sort((a, b) => (at[b] ?? '').localeCompare(at[a] ?? ''))[0] ?? null
+}
+
+/** Steps that need a look because an earlier step changed after them, in flow order. */
+export function staleSteps(frac: Frac): FracStep[] {
+  return STEP_ORDER.filter(step => changedBefore(frac, step))
+}
+
+/** "Job research changed after these roles were built. ..." for a step that is out of date. */
+function staleHowTo(frac: Frac, step: FracStep, what: string, rerun: string): string {
+  const earlier = changedBefore(frac, step)
+  return earlier ? `${FRAC_STEP_TITLES[earlier]} changed after ${what}. ${rerun}, or check them and mark them checked.` : ''
 }
 
 const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`
@@ -88,12 +148,17 @@ const JOB_STEP: Record<string, number> = { research: 2, roles: 3, competencies: 
 
 /**
  * Builds the six-step tracker for the Creator page: state, evidence from the data,
- * and what can be done now. `job` is the running AI step or expert check, if any.
+ * and what can be done now. `job` is the running AI step or expert check, if any; `briefDocs` is how many job
+ * descriptions are attached (copied roles are rebuilt when there is one).
  */
-export function fracProgress(frac: Frac, job: FracJob | null = null): FracStepProgress[] {
+export function fracProgress(frac: Frac, job: FracJob | null = null, briefDocs = 0): FracStepProgress[] {
   const s = stats(frac)
   // curStep counts from research (0 = step 2), so the step number is two ahead; 6 is the last
-  const current = Math.min(curStep(frac) + 2, 6)
+  const current = Math.min(curStep(frac, briefDocs) + 2, 6)
+  const copied = copiedRoles(frac)
+  const copiedFrom = frac.seededFrom?.name ?? 'the matched position'
+  // Copied roles are not this FRAC's roles step: done only once research ran and they are being kept
+  const rolesDone = frac.roles.length > 0 && (!!frac.research || !!frac.imported) && (!copied || rolesKept(frac, briefDocs))
   const runningStep = job && (job.status === 'queued' || job.status === 'running') ? JOB_STEP[job.kind] ?? 0 : 0
   const running = (n: number) => n === runningStep && job ? job.msg : ''
   const state = (n: number, done: boolean): FracStepState => {
@@ -110,64 +175,93 @@ export function fracProgress(frac: Frac, job: FracJob | null = null): FracStepPr
     {
       number: 1,
       title: 'Brief',
-      produces: 'Cadre, state, scope and size',
+      produces: 'Position, state, scope and documents',
       state: 'done',
-      evidence: `${frac.cadre} · ${frac.state} · ${frac.size}`,
-      howTo: 'Locked once research exists.',
+      evidence: `${frac.cadre} · ${frac.state}`,
+      howTo: 'Edit it on the brief card at any time. A change after research asks for research to be checked again.',
       running: '',
     },
     {
       number: 2,
       title: 'Job research',
       produces: 'JD sources, postings, authorised and not-authorised scope',
-      state: state(2, !!frac.research || !!frac.imported),
+      state: changedBefore(frac, 'research') ? 'attention' : state(2, !!frac.research || !!frac.imported),
       evidence: frac.research
         ? `${plural(frac.research.sources.length, 'source')} · ${plural(frac.postings.length, 'posting')}`
         : frac.imported ? `Skipped: imported from ${frac.imported}` : 'No research yet',
-      howTo: 'Run "Research the job", then review or edit it in the Research tab. Revise with feedback to redo it.',
+      howTo: staleHowTo(frac, 'research', 'this research was done', 'Revise the research with feedback') || (frac.uploads?.sources
+        ? 'Research uses your Sources sheet and does not search the web. Review or edit it in the Research tab.'
+        : 'Run "Research the job", then review or edit it in the Research tab. Revise with feedback to redo it.'),
       running: running(2),
     },
     {
       number: 3,
       title: 'Roles & activities',
       produces: 'Roles from the job, observable activities, posting Yes/No, competency@level',
-      state: state(3, frac.roles.length > 0),
-      evidence: frac.roles.length
-        ? `${plural(frac.roles.length, 'role')} · ${plural(s.activities, 'activity', 'activities')} · ${s.unmapped} unmapped`
-        : 'No roles yet',
-      howTo: 'Run "Build roles & activities", then edit, add, delete or reorder. Activities you add survive a revise.',
+      state: changedBefore(frac, 'roles') ? 'attention' : state(3, rolesDone),
+      evidence: !frac.roles.length
+        ? 'No roles yet'
+        : copied && !rolesDone
+          ? `${plural(frac.roles.length, 'role')} · ${plural(s.activities, 'activity', 'activities')} copied from ${copiedFrom}`
+          : `${plural(frac.roles.length, 'role')} · ${plural(s.activities, 'activity', 'activities')} · ${s.unmapped} unmapped`,
+      howTo: staleHowTo(frac, 'roles', 'these roles were built', 'Revise the roles with feedback') || rolesHowTo(frac, briefDocs, copiedFrom),
       running: running(3),
     },
     {
       number: 4,
       title: 'Competencies',
       produces: 'Competencies derived from the activities, typed Domain / Functional / Behavioural',
-      state: frac.rolesDirty ? 'attention' : state(4, frac.competencies.length > 0),
+      state: frac.rolesDirty || changedBefore(frac, 'competencies') ? 'attention' : state(4, frac.competencies.length > 0),
       evidence: frac.competencies.length
         ? `${plural(frac.competencies.length, 'competency', 'competencies')} · D ${s.types.D} / F ${s.types.F} / B ${s.types.B} · ${s.unused} unused`
         : 'No competencies yet',
-      howTo: frac.rolesDirty
-        ? 'Roles changed after competencies were derived. Re-derive competencies, or check the mappings and mark them checked.'
-        : 'Run "Derive competencies", then edit, add or delete in the Competencies tab.',
+      howTo: frac.uploads?.competencies
+        ? `Uses your competency sheet (${frac.uploads.competencies}): run "Map activities to your competencies" to map each activity to it.`
+        : frac.rolesDirty
+          ? 'Roles changed after competencies were derived. Re-derive competencies, or check the mappings and mark them checked.'
+          : staleHowTo(frac, 'competencies', 'these competencies were derived', 'Re-derive competencies')
+            || 'Run "Derive competencies", then edit, add or delete in the Competencies tab.',
       running: running(4),
     },
     {
       number: 5,
       title: 'Level ladders',
       produces: 'L1–L5 per competency, 2–4 assessable indicators each',
-      state: state(5, frac.competencies.length > 0 && s.ladders === frac.competencies.length),
+      state: changedBefore(frac, 'ladders') ? 'attention' : state(5, frac.competencies.length > 0 && s.ladders === frac.competencies.length),
       evidence: frac.competencies.length ? `${s.ladders} of ${frac.competencies.length} ladders written` : 'Needs competencies first',
-      howTo: 'Run "Write level ladders", then edit any level, or revise one competency with feedback.',
+      howTo: staleHowTo(frac, 'ladders', 'these ladders were written', 'Rewrite the ladders')
+        || 'Run "Write level ladders", then edit any level, or revise one competency with feedback. '
+        + '"Preview roles" on this tab shows each role with its competencies and levels.',
       running: running(5),
     },
     {
       number: 6,
       title: 'Expert check & download',
       produces: 'Graded review of this FRAC, then the Excel workbook',
-      state: state(6, !!frac.review),
+      state: frac.review && frac.reviewStale ? 'attention' : state(6, !!frac.review),
       evidence: reviewEvidence(frac),
-      howTo: frac.competencies.length ? 'Run or re-run the check, then download Excel.' : 'Needs competencies first.',
+      howTo: frac.review && frac.reviewStale
+        ? 'The FRAC changed after this check. Re-run the expert check before downloading the checked Excel.'
+        : frac.competencies.length
+        ? 'Download the draft Excel to check it, run or re-run the check, then download the checked Excel.'
+        : 'Needs competencies first.',
       running: running(6),
     },
   ]
+}
+
+/** Step 3's how-to: built by the AI, kept from a Roles sheet or a match, or copied and waiting to be rebuilt. */
+function rolesHowTo(frac: Frac, briefDocs: number, copiedFrom: string): string {
+  if (copiedRoles(frac) && !rolesKept(frac, briefDocs)) {
+    return `Copied from ${copiedFrom}. A job description is attached, so "Build roles & activities" rebuilds them from the `
+      + 'research and your document. You can also clear them now on the Roles tab.'
+  }
+  if (copiedRoles(frac) && !frac.research) {
+    return `Copied from ${copiedFrom}. Check them after research: clear them on the Roles tab if they do not fit this job.`
+  }
+  if (rolesGiven(frac)) {
+    return `Roles come from ${frac.uploads?.roles ? `your sheet (${frac.uploads.roles})` : copiedFrom}; `
+      + 'only roles without activities get them written. Revise with feedback to rebuild them.'
+  }
+  return 'Run "Build roles & activities", then edit, add, delete or reorder. Activities you add survive a revise.'
 }

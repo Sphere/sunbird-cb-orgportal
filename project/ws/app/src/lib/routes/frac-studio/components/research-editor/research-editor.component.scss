@@ -7,6 +7,21 @@
   gap: $v2-space-3;
 }
 
+// Where research found each part: read from the team's documents, or researched by the agent
+.origin {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px $v2-space-3;
+  padding: 10px $v2-space-2;
+  border: 1px solid $v2-color-border;
+  border-radius: $v2-radius-input;
+  background: $v2-color-bg;
+  color: $v2-color-text-secondary;
+  font-size: $v2-font-caption;
+
+  b { color: $v2-color-text; font-weight: 600; }
+}
+
 .block {
   display: flex;
   flex-direction: column;
@@ -77,4 +92,35 @@
 .col-issuer { width: 160px; }
 .col-year { width: 80px; }
 .col-tier { width: 170px; }
+.col-link { width: 64px; text-align: center; }
 .col-del { width: 40px; text-align: center; }
+
+// Opens the source's page or document; greyed out when research found no real link
+.open-source {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid $v2-color-primary;
+  color: $v2-color-primary;
+  background: #ffffff;
+  transition: $v2-transition;
+
+  &.none {
+    border-color: $v2-color-border;
+    color: $v2-color-border;
+    cursor: not-allowed;
+  }
+
+  &:not(.none):hover,
+  &:focus-visible {
+    background: $v2-color-primary-tint;
+    color: $v2-color-primary;
+    border-color: $v2-color-primary;
+  }
+
+  &:focus-visible { outline: 2px solid $v2-color-primary; outline-offset: 2px; }
+}

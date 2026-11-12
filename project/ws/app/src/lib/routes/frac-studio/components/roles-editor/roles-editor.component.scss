@@ -43,19 +43,22 @@
 }
 
 // The shared table inner pads cells 24px a side, which left the P1–P3 and tier selects too narrow to show
-// "Yes" or "Programme guideline". Tighter cells here, and widths sized to the longest option.
+// "Yes" or "Programme guideline". Tighter cells here, and widths sized to the longest option. In an auto-width
+// table a column's width is only a hint, and the activity textarea squeezed the posting columns until Chrome
+// drew the selects empty, so each select also has a minimum width the column cannot shrink below.
 .table-wrap {
   table { min-width: 1040px; }
 
   th,
   td { padding: 10px 12px; }
 
-  select { padding-right: 28px; text-overflow: ellipsis; }
+  // The browser draws the arrow in its own space, so no extra right padding (28px here cut "Yes" to "Y…")
+  select { padding-right: 8px; text-overflow: ellipsis; }
 }
 
 .col-code { width: 64px; font-family: monospace; }
 .col-activity { min-width: 320px; }
-.col-posting { width: 92px; }
+.col-posting { width: 96px; select { min-width: 80px; } }
 .col-comp { width: 160px; }
-.col-tier { width: 210px; }
+.col-tier { width: 210px; select { min-width: 186px; } }
 .col-del { width: 56px; text-align: center; }
