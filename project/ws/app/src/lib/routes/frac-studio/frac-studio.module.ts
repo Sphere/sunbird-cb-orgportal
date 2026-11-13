@@ -7,6 +7,7 @@ import { DisableForViewOnlyDirective } from '../../shared/directives/disable-for
 import { HideForViewOnlyDirective } from '../../shared/directives/hide-for-view-only.directive'
 import { CompetencyEditorComponent } from './components/competency-editor/competency-editor.component'
 import { DocumentUploadComponent } from './components/document-upload/document-upload.component'
+import { RuleChecksComponent } from './components/rule-checks/rule-checks.component'
 import { FracProgressComponent } from './components/frac-progress/frac-progress.component'
 import { FracStudioShellComponent } from './components/frac-studio-shell/frac-studio-shell.component'
 import { JobProgressComponent } from './components/job-progress/job-progress.component'
@@ -41,6 +42,7 @@ import { ReviewerComponent } from './pages/reviewer/reviewer.component'
     ResearchEditorComponent,
     VersionHistoryComponent,
     DocumentUploadComponent,
+    RuleChecksComponent,
     RolesPreviewComponent,
     ReviewerComponent,
     CreatorBriefComponent,

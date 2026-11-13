@@ -30,6 +30,16 @@
   <div class="findings">
     <h3 class="section-title">Findings</h3>
     <p class="empty" *ngIf="!report.findings.length">No findings.</p>
+    <div class="fix-all" *ngIf="fixableOpen.length || handOpen">
+      <button type="button" class="fix-all-btn" *ngIf="fixableOpen.length" [disabled]="!canFix" (click)="fixAll.emit(fixableOpen)">
+        Fix all findings</button>
+      <span class="fix-all-note">
+        <ng-container *ngIf="fixableOpen.length">The agent rewrites the affected competency ladders in one run ({{ fixAllCost }}),
+          then re-run the expert check.</ng-container>
+        <ng-container *ngIf="handOpen">{{ handOpen }} {{ handOpen === 1 ? 'finding needs' : 'findings need' }} a fix by hand on its
+          tab.</ng-container>
+      </span>
+    </div>
     <article class="finding" *ngFor="let f of report.findings; trackBy: trackByIndex" [class.fixed]="f.fixed">
       <div class="finding-head">
         <span class="sev" [ngClass]="'sev-' + f.sev">{{ severityLabels[f.sev] }}</span>
@@ -42,6 +52,9 @@
       <p class="finding-by">{{ foundBy(f) }}</p>
       <button type="button" class="fix-btn" *ngIf="fixable(f)" [disabled]="!canFix" (click)="fixFinding.emit(f)">
         Fix these competencies
+      </button>
+      <button type="button" class="fix-btn" *ngIf="replaceable(f)" [disabled]="!canFix" (click)="replaceOutdated.emit(f)">
+        {{ replaceLabel(f) }}
       </button>
     </article>
   </div>

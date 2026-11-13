@@ -1,7 +1,7 @@
 <section class="upload" [attr.aria-label]="title">
   <div class="upload-head">
     <h3 class="upload-title">{{ title }}</h3>
-    <button type="button" class="text-btn" (click)="template.emit()">Download template</button>
+    <button type="button" class="text-btn" *ngIf="showTemplate" (click)="template.emit()">Download template</button>
   </div>
   <p class="hint" *ngIf="hint">{{ hint }}</p>
 
@@ -14,9 +14,33 @@
       <ul class="warnings" *ngIf="item.warnings.length">
         <li *ngFor="let w of item.warnings">{{ w }}</li>
       </ul>
+      <details class="checks" *ngIf="item.checks?.length" open>
+        <summary>The expert check's rules found {{ item.checks?.length }} {{ item.checks?.length === 1 ? 'thing' : 'things' }}
+          to fix in this sheet (checked at upload, no AI)</summary>
+        <ul>
+          <li *ngFor="let c of item.checks">
+            <span class="sev" [class.blocker]="c.sev === 'B'" [class.major]="c.sev === 'M'">{{ severity(c) }}</span>
+            <span class="check-text"><strong>{{ c.title }}.</strong> {{ c.detail }}
+              <span class="check-fix" *ngIf="c.fix">Fix: {{ c.fix }}</span></span>
+          </li>
+        </ul>
+      </details>
+      <p class="checks-ok" *ngIf="item.checks && !item.checks.length">The expert check's rules found nothing to fix in this sheet.</p>
     </li>
   </ul>
   <p class="in-use" *ngIf="inUse && items.length" role="status">{{ inUse }}</p>
+  <div class="edited" *ngIf="reapplyWhat && items.length" role="status">
+    <span>Edited since the upload.</span>
+    <ng-container *appHideForViewOnly>
+      <button *ngIf="!confirmReapply" type="button" class="btn-secondary small" (click)="confirmReapply = true"
+        [disabled]="disabled || busy">Re-apply sheet</button>
+      <ng-container *ngIf="confirmReapply">
+        <span>Replace your edits with the sheet's {{ reapplyWhat }}? A version is saved first, so you can undo it from History.</span>
+        <button type="button" class="btn-secondary small" (click)="onReapply()" [disabled]="disabled || busy">Re-apply</button>
+        <button type="button" class="text-btn" (click)="confirmReapply = false">Cancel</button>
+      </ng-container>
+    </ng-container>
+  </div>
 
   <div class="upload-actions" *appHideForViewOnly>
     <label class="btn-secondary" [class.is-disabled]="disabled || busy || full">

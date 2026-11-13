@@ -1,14 +1,20 @@
 import { Component, OnDestroy, OnInit } from '@angular/core'
 import { ActivatedRoute } from '@angular/router'
-import { Observable, of, Subscription } from 'rxjs'
-import { switchMap } from 'rxjs/operators'
+import { Observable, of, Subject, Subscription } from 'rxjs'
+import { catchError, debounceTime, switchMap } from 'rxjs/operators'
 import { FracUploadItem } from '../../components/document-upload/document-upload.component'
-import { FRAC_STUDIO_STATES } from '../../constants/frac-studio.constants'
+import {
+  FRAC_STUDIO_FEEDBACK_MAX_CHARS,
+  FRAC_STUDIO_LADDER_FIX_USD,
+  FRAC_STUDIO_RERUN_COST,
+  FRAC_STUDIO_STATES,
+} from '../../constants/frac-studio.constants'
 import {
   Frac,
   FracCompetency,
   FracDocument,
   FracDocumentKind,
+  FracQuickCheck,
   FracFinding,
   FracGenStep,
   FracJob,
@@ -25,6 +31,7 @@ import { apiErrorMessage, runningJobId, saveBlob } from '../../utils/frac-studio
 import { emptyResearch } from '../../utils/frac-studio-edit.util'
 import { copiedRoles, curStep, FRAC_STEP_TITLES, fracProgress, FracStepProgress, staleSteps } from '../../utils/frac-studio-progress.util'
 import { dominantPrefix, normalizeCode, usedByMap } from '../../utils/frac-studio-refs.util'
+import { reapplyWhat } from '../../utils/frac-studio-sheet.util'
 
 export type CreatorTab = 'research' | 'roles' | 'competencies' | 'ladders' | 'check' | 'history'
 
@@ -38,7 +45,18 @@ const PRIMARY: { label: string, step: FracGenStep | null }[] = [
   { label: 'Download Excel', step: null },
 ]
 
+/** Edits autosave in bursts: wait this long after the last save before re-running the quick checks. */
+const QUICK_CHECK_DEBOUNCE_MS = 400
+
 const GEN_STEPS: readonly FracGenStep[] = ['research', 'roles', 'competencies', 'ladders']
+
+/** Steps whose tab has an upload: the primary button opens the tab before the agent runs, so a sheet can go in first. */
+const UPLOAD_FIRST: readonly FracGenStep[] = ['research']
+
+/** Shown beside the primary button on those tabs while nothing is uploaded there. */
+const UPLOAD_FIRST_HINTS: Partial<Record<FracGenStep, string>> = {
+  research: 'Have a job description, sources sheet or competency sheet? Upload it above. Otherwise the agent researches the job.',
+}
 
 /** What a revise keeps and what it redoes, shown under each feedback box. */
 const REVISE_HINTS: Record<FracGenStep, string> = {
@@ -53,7 +71,7 @@ const REVISE_HINTS: Record<FracGenStep, string> = {
 const IN_USE: Record<FracDocumentKind, string> = {
   brief: '',
   roles: 'The Roles step keeps these roles and only writes activities for roles that have none.',
-  competencies: 'The Competencies step only maps activities to these competencies; ladders in the sheet are kept.',
+  competencies: 'The roles step maps each activity to these competencies; ladders in the sheet are kept, so only missing ones are written.',
   sources: 'Research uses these sources and does not search the web.',
 }
 
@@ -77,8 +95,8 @@ function documentDetail(doc: FracDocument): string {
 export class CreatorDetailComponent implements OnInit, OnDestroy {
   readonly tabs: { key: CreatorTab, label: string }[] = [
     { key: 'research', label: 'Research' },
-    { key: 'roles', label: 'Roles & activities' },
     { key: 'competencies', label: 'Competencies' },
+    { key: 'roles', label: 'Roles & activities' },
     { key: 'ladders', label: 'Level ladders' },
     { key: 'check', label: 'Expert check' },
     { key: 'history', label: 'History' },
@@ -113,6 +131,9 @@ export class CreatorDetailComponent implements OnInit, OnDestroy {
   documents: FracDocument[] = []
   /** The kind being uploaded, so only that slot shows "Uploading…". */
   uploading: FracDocumentKind | null = null
+  /** Quick checks (Bloom's verbs, FRAC structure) on the FRAC as saved, refreshed after every load, save, upload and step. */
+  quickChecks: FracQuickCheck[] = []
+  private readonly quickRefresh = new Subject<void>()
   readonly inUse = IN_USE
   /** The roles preview popup renders only while open. */
   previewOpen = false
@@ -129,6 +150,17 @@ export class CreatorDetailComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.subs.add(this.autosave.status$.subscribe(status => this.saveStatus = status))
     this.subs.add(this.autosave.saved$.subscribe(saved => this.onSaved(saved)))
+    // A failed refresh keeps the last list; the expert check still runs every rule
+    this.subs.add(
+      this.quickRefresh.pipe(
+        debounceTime(QUICK_CHECK_DEBOUNCE_MS),
+        switchMap(() => this.api.ruleChecks(this.fracId).pipe(catchError(() => of(null)))),
+      ).subscribe(checks => {
+        if (checks) {
+          this.quickChecks = checks
+        }
+      }),
+    )
     this.subs.add(
       this.route.paramMap.subscribe(params => {
         this.fracId = params.get('id') || ''
@@ -166,15 +198,25 @@ export class CreatorDetailComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * The second button beside the primary one on the Level ladders tab, so the team can download the Excel and run
-   * the expert check from where the ladders are finished: the download while the check is next, the check after it.
+   * On Level ladders and Expert check the footer shows both the download and the expert check (the only place they
+   * appear, no duplicates in the tab): the download is the extra while the check is next, the check after it.
    */
   get footerExtra(): 'check' | 'download' | null {
-    if (!this.frac || this.tab !== 'ladders') {
+    if (!this.frac || (this.tab !== 'ladders' && this.tab !== 'check')) {
       return null
     }
     const step = curStep(this.frac, this.briefDocCount)
     return step === 4 ? 'download' : step === 5 ? 'check' : null
+  }
+
+  /** On the next step's own tab, while nothing is uploaded there: the upload comes first, else the button runs the agent. */
+  get uploadFirstHint(): string {
+    const step = this.primary.step
+    if (!this.frac || this.running || !step || step !== this.tab || !UPLOAD_FIRST.includes(step)) {
+      return ''
+    }
+    const kinds: FracDocumentKind[] = step === 'research' ? ['brief', 'sources', 'competencies'] : [step as FracDocumentKind]
+    return kinds.some(kind => this.docItems(kind).length) ? '' : UPLOAD_FIRST_HINTS[step] ?? ''
   }
 
   /** Everything but "Download Excel" changes the FRAC. */
@@ -293,7 +335,7 @@ export class CreatorDetailComponent implements OnInit, OnDestroy {
   /** The upload slot's rows for one kind of document. */
   docItems(kind: FracDocumentKind): FracUploadItem[] {
     return this.documents.filter(d => d.kind === kind)
-      .map(d => ({ key: d.id, name: d.filename, detail: documentDetail(d), warnings: d.parsed?.warnings ?? [] }))
+      .map(d => ({ key: d.id, name: d.filename, detail: documentDetail(d), warnings: d.parsed?.warnings ?? [], checks: d.parsed?.checks }))
   }
 
   /**
@@ -314,10 +356,59 @@ export class CreatorDetailComponent implements OnInit, OnDestroy {
           this.documents = [...this.documents.filter(d => kind === 'brief' || d.kind !== kind), document]
           this.historyKey++
           this.setFrac(frac)
+          this.quickRefresh.next()
         },
         error: err => {
           this.uploading = null
           this.error = apiErrorMessage(err, 'The file could not be uploaded.')
+        },
+      }),
+    )
+  }
+
+  /** This tab's quick checks. */
+  quickChecksFor(tab: FracQuickCheck['tab']): FracQuickCheck[] {
+    return this.quickChecks.filter(c => c.tab === tab)
+  }
+
+  /** Some role has activities, so the Roles tab shows its quick checks. */
+  get hasActivities(): boolean {
+    return !!this.frac && this.frac.roles.some(r => r.activities.length > 0)
+  }
+
+  /** Some competency has a ladder, so the Level ladders tab shows its quick checks. */
+  get hasLadders(): boolean {
+    return !!this.frac && this.frac.competencies.some(c => !!c.levels?.length)
+  }
+
+  /** The expert check is the next thing to run, or to re-run, from here. */
+  get expertCheckNext(): boolean {
+    return !!this.frac && (curStep(this.frac, this.briefDocCount) === 4 || this.footerExtra === 'check')
+  }
+
+  /** What re-applying this kind of sheet puts back when its content was changed after the upload; '' hides the control. */
+  reapplyWhatFor(kind: FracDocumentKind): string {
+    return this.frac ? reapplyWhat(this.frac, this.documents.find(d => d.kind === kind)) : ''
+  }
+
+  /** Puts the uploaded sheet's rows back over the team's edits; the service saves a version first. */
+  reapplyDocument(kind: FracDocumentKind, documentId: string): void {
+    if (!this.canRun) {
+      return
+    }
+    this.error = ''
+    this.uploading = kind
+    this.subs.add(
+      this.api.reapplyDocument(this.fracId, documentId).subscribe({
+        next: frac => {
+          this.uploading = null
+          this.historyKey++
+          this.setFrac(frac)
+          this.quickRefresh.next()
+        },
+        error: err => {
+          this.uploading = null
+          this.error = apiErrorMessage(err, 'The sheet could not be re-applied.')
         },
       }),
     )
@@ -333,6 +424,7 @@ export class CreatorDetailComponent implements OnInit, OnDestroy {
         next: frac => {
           this.documents = this.documents.filter(d => d.id !== documentId)
           this.setFrac(frac)
+          this.quickRefresh.next()
         },
         error: err => this.error = apiErrorMessage(err, 'The document could not be removed.'),
       }),
@@ -350,10 +442,10 @@ export class CreatorDetailComponent implements OnInit, OnDestroy {
 
   onPrimary(): void {
     const action = this.primary
-    if (action.step === 'research' && this.tab !== 'research') {
-      // First the Research tab, where documents are attached and research can be filled in by hand instead;
-      // from there the same button runs AI research
-      this.tab = 'research'
+    if (action.step && UPLOAD_FIRST.includes(action.step) && this.tab !== action.step) {
+      // First the step's own tab, where its document or sheet can be uploaded (and research filled in by hand);
+      // from there the same button runs the agent
+      this.tab = action.step
     } else if (action.step) {
       this.runStep(action.step)
     } else if (this.frac && curStep(this.frac, this.briefDocCount) === 4) {
@@ -407,6 +499,95 @@ export class CreatorDetailComponent implements OnInit, OnDestroy {
     }
   }
 
+  /** "Replace with …" on an outdated-name finding: the service swaps the name everywhere, then the check is out of date. */
+  replaceOutdatedName(finding: FracFinding): void {
+    if (!this.canRun) {
+      return
+    }
+    this.error = ''
+    this.subs.add(
+      this.api.replaceOutdated(this.fracId, finding.title).subscribe({
+        next: ({ frac }) => {
+          this.historyKey++
+          this.setFrac(frac)
+          this.quickRefresh.next()
+        },
+        error: err => this.error = apiErrorMessage(err, 'The name could not be replaced.'),
+      }),
+    )
+  }
+
+  /** Steps an upload or edit left out of date, in the order the flow builds them (each from the one before). */
+  get staleGenSteps(): FracGenStep[] {
+    if (!this.frac) {
+      return []
+    }
+    const stale = new Set<string>(this.stale)
+    const rolesDirty = this.frac.rolesDirty
+    return (['research', 'roles', 'competencies', 'ladders'] as const)
+      .filter(step => stale.has(step) || (step === 'competencies' && rolesDirty))
+  }
+
+  /**
+   * While anything is out of date, the footer offers to re-run the open tab's own step (the tab being updated), as
+   * the first build did on each tab. Only once that step has output, and not when the main button already offers it.
+   */
+  get rerunStep(): FracGenStep | null {
+    const step = this.reviseStep
+    return this.staleGenSteps.length && step && step !== this.primary.step ? step : null
+  }
+
+  /** On a tab without a step of its own (Expert check, History): the earliest out-of-date step's tab, opened first (no AI). */
+  get staleNext(): FracGenStep | null {
+    const next = this.staleGenSteps[0] ?? null
+    return next && !GEN_STEPS.includes(this.tab as FracGenStep) && next !== this.primary.step ? next : null
+  }
+
+  /** "Re-run research (about $0.05–0.20)": what the footer's re-run button redoes, and roughly what it costs. */
+  get rerunLabel(): string {
+    const step = this.rerunStep
+    if (!step || !this.frac) {
+      return ''
+    }
+    const sheet = !!this.frac.uploads?.competencies
+    const labels: Record<FracGenStep, string> = {
+      research: `Re-run research (about ${FRAC_STUDIO_RERUN_COST.research})`,
+      roles: `Rebuild roles & activities (about ${FRAC_STUDIO_RERUN_COST.roles})`,
+      competencies: sheet
+        ? `Map activities to your competencies (about ${FRAC_STUDIO_RERUN_COST.map})`
+        : `Re-derive competencies (about ${FRAC_STUDIO_RERUN_COST.derive})`,
+      ladders: `Rewrite level ladders (about $${Math.max(0.01, this.frac.competencies.length * FRAC_STUDIO_LADDER_FIX_USD).toFixed(2)})`,
+    }
+    return labels[step]
+  }
+
+  /** Re-runs the step the footer offers, the same run as that tab's own button. */
+  rerun(step: FracGenStep): void {
+    if (step === 'ladders') {
+      this.rewriteAllLadders()
+    } else {
+      this.runStep(step)
+    }
+  }
+
+  /**
+   * "Fix all" on the expert check: one ladders run for every competency the open findings name, with each finding
+   * as feedback ("ASHA2: title. fix"), cut to what the service accepts. The check then shows out of date.
+   */
+  fixAllFindings(findings: FracFinding[]): void {
+    const all = (this.frac?.competencies ?? []).map(c => c.code)
+    const named = (finding: FracFinding) => all.filter(code => finding.refs.some(ref => normalizeCode(ref) === normalizeCode(code)))
+    const codes = all.filter(code => findings.some(f => named(f).includes(code)))
+    if (!codes.length) {
+      return
+    }
+    const feedback = findings
+      .map(f => `${named(f).join(', ')}: ${f.title}.${f.fix ? ` ${f.fix}` : ''}`)
+      .join('\n')
+      .slice(0, FRAC_STUDIO_FEEDBACK_MAX_CHARS)
+    this.runStep('ladders', { codes, feedback })
+  }
+
   onResearchChange(research: FracResearch): void {
     this.applyLocal({ research, ...this.staleCheck() })
     this.autosave.queue('research', research)
@@ -455,6 +636,7 @@ export class CreatorDetailComponent implements OnInit, OnDestroy {
 
   onRestored(frac: Frac): void {
     this.setFrac(frac)
+    this.quickRefresh.next()
   }
 
   /** Expert check (spec 5.6): the review engine on the saved FRAC, then reload. */
@@ -538,6 +720,7 @@ export class CreatorDetailComponent implements OnInit, OnDestroy {
     if (!this.frac) {
       return
     }
+    this.quickRefresh.next()
     this.setFrac(this.autosave.hasUnsaved ? { ...this.frac, rolesDirty: saved.rolesDirty, changedAt: saved.changedAt } : saved)
   }
 
@@ -588,6 +771,7 @@ export class CreatorDetailComponent implements OnInit, OnDestroy {
         next: ({ frac, activeJobId }) => {
           this.loading = false
           this.setFrac(frac)
+          this.quickRefresh.next()
           // A reloaded page or a second tab picks the running step up again
           if (activeJobId && !this.job && !this.starting) {
             this.startJob(of(activeJobId), 'The running step could not be followed.')

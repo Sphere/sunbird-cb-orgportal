@@ -116,7 +116,14 @@
           <ws-app-frac-document-upload kind="sources" title="Standard sources sheet"
             hint="Your own list of job descriptions and guidelines (.xlsx or .csv). Replaces the sources research would find."
             [items]="docItems('sources')" [disabled]="!canRun" [busy]="uploading === 'sources'" [inUse]="inUse.sources"
-            (pick)="uploadDocument('sources', $event)" (remove)="removeDocument($event)" (template)="downloadTemplate('sources')">
+            [reapplyWhat]="reapplyWhatFor('sources')" (reapply)="reapplyDocument('sources', $event)"
+          (pick)="uploadDocument('sources', $event)" (remove)="removeDocument($event)" (template)="downloadTemplate('sources')">
+          </ws-app-frac-document-upload>
+          <ws-app-frac-document-upload kind="competencies" title="Standard competency sheet"
+            hint="Your competencies, with their L1–L5 ladders if you have them (.xlsx or .csv). They show on the Competencies tab, and the roles step maps each activity to them."
+            [items]="docItems('competencies')" [disabled]="!canRun" [busy]="uploading === 'competencies'" [inUse]="inUse.competencies"
+            [reapplyWhat]="reapplyWhatFor('competencies')" (reapply)="reapplyDocument('competencies', $event)"
+            (pick)="uploadDocument('competencies', $event)" (remove)="removeDocument($event)" (template)="downloadTemplate('competencies')">
           </ws-app-frac-document-upload>
         </div>
         <ws-app-frac-research-editor *ngIf="frac.research; else noResearch" [research]="frac.research"
@@ -153,27 +160,24 @@
             </ng-container>
           </div>
         </div>
-        <ws-app-frac-document-upload kind="roles" title="Standard roles sheet"
-          hint="Roles with their activities and posting Yes/No (.xlsx or .csv). Replaces the roles and postings on this FRAC."
-          [items]="docItems('roles')" [disabled]="!canRun" [busy]="uploading === 'roles'" [inUse]="inUse.roles"
-          (pick)="uploadDocument('roles', $event)" (remove)="removeDocument($event)" (template)="downloadTemplate('roles')">
-        </ws-app-frac-document-upload>
+        <ws-app-frac-rule-checks *ngIf="hasActivities" [checks]="quickChecksFor('roles')"></ws-app-frac-rule-checks>
         <ws-app-frac-roles-editor [roles]="frac.roles" [postings]="frac.postings"
           (rolesChange)="onRolesChange($event)"></ws-app-frac-roles-editor>
       </ng-container>
 
       <ng-container *ngSwitchCase="'competencies'">
-        <ws-app-frac-document-upload kind="competencies" title="Standard competency sheet"
-          hint="Competencies, with their L1–L5 ladders if you have them (.xlsx or .csv). Replaces the competencies on this FRAC."
-          [items]="docItems('competencies')" [disabled]="!canRun" [busy]="uploading === 'competencies'" [inUse]="inUse.competencies"
-          (pick)="uploadDocument('competencies', $event)" (remove)="removeDocument($event)" (template)="downloadTemplate('competencies')">
-        </ws-app-frac-document-upload>
+        <p class="sheet-note comp-source" *ngIf="frac.uploads?.competencies as sheet" role="status">From your competency sheet
+          <strong>{{ sheet }}</strong>, uploaded on the Research tab. The roles step maps each activity to these competencies.</p>
+        <p class="sheet-note comp-source" *ngIf="!frac.uploads?.competencies && !frac.competencies.length">Competencies are
+          derived from the activities, after Roles &amp; activities. To use your own, upload a competency sheet on the Research tab.</p>
+        <ws-app-frac-rule-checks *ngIf="frac.competencies.length" [checks]="quickChecksFor('competencies')"></ws-app-frac-rule-checks>
         <ws-app-frac-competency-editor [competencies]="frac.competencies"
           [usedBy]="usedBy" [prefix]="prefix" (competenciesChange)="onCompetenciesChange($event)">
         </ws-app-frac-competency-editor>
       </ng-container>
 
       <ng-container *ngSwitchCase="'ladders'">
+        <ws-app-frac-rule-checks *ngIf="hasLadders" [checks]="quickChecksFor('ladders')"></ws-app-frac-rule-checks>
         <div class="preview-bar">
           <button type="button" class="btn-secondary" (click)="openPreview(previewDialog)" [disabled]="!canPreview">Preview roles</button>
           <span class="hint" *ngIf="!canPreview">Available once every activity is mapped to a competency.</span>
@@ -189,16 +193,9 @@
           the expert check.</p>
         <div class="dirty" role="status" *ngIf="frac.review && frac.reviewStale">The FRAC changed after this check, so these
           findings may already be fixed. Re-run the check to see what is left. A download now is a draft.</div>
-        <div class="actions">
-          <button type="button" class="btn-secondary" (click)="runCheck()" [disabled]="!canCheck" *appHideForViewOnly>
-            {{ frac.review ? 'Re-run check' : 'Run expert check' }}
-          </button>
-          <button type="button" class="btn-secondary" (click)="download()" [disabled]="!canDownload">
-            {{ downloadIsDraft ? 'Download draft Excel' : 'Download Excel' }}
-          </button>
-        </div>
         <ws-app-frac-review-report *ngIf="frac.review" [report]="frac.review" [fixableCodes]="competencyCodes"
-          [canFix]="canRun" (fixFinding)="fixFinding($event)"></ws-app-frac-review-report>
+          [canFix]="canRun" (fixFinding)="fixFinding($event)" (fixAll)="fixAllFindings($event)"
+          (replaceOutdated)="replaceOutdatedName($event)"></ws-app-frac-review-report>
       </div>
 
       <ws-app-frac-version-history *ngSwitchCase="'history'" [fracId]="frac.id" [refreshKey]="historyKey"
@@ -208,18 +205,38 @@
     <!-- The next step sits under the tab content, so a long tab can be checked and run without scrolling back up.
          Every step but the download changes the FRAC, so it is hidden for view-only users. -->
     <div class="next-step">
-      <span class="next-step-msg" *ngIf="running && job">{{ job.msg }}</span>
-      <!-- On Level ladders the expert check and the download sit side by side: the next step is the primary button -->
-      <ng-container *ngIf="footerExtra === 'check'">
-        <button type="button" class="btn-secondary" (click)="checkNow()" [disabled]="!canCheck" *appHideForViewOnly>
-          {{ frac.review ? 'Re-run expert check' : 'Run expert check' }}
-        </button>
-      </ng-container>
-      <button type="button" class="btn-secondary" *ngIf="footerExtra === 'download'" (click)="download()" [disabled]="!canDownload">
-        {{ downloadIsDraft ? 'Download draft Excel' : 'Download Excel' }}
-      </button>
-      <button type="button" class="btn-primary" (click)="onPrimary()" [disabled]="running"
-        *appHideForViewOnly="primaryMutates">{{ primary.label }}</button>
+      <!-- Messages wrap as text on the left, so they never move the buttons -->
+      <div class="next-step-msgs">
+        <span class="next-step-msg" *ngIf="running && job" role="status">{{ job.msg }}</span>
+        <span class="next-step-msg" *ngIf="uploadFirstHint" role="note">{{ uploadFirstHint }}</span>
+        <span class="next-step-msg" *ngIf="expertCheckNext && quickChecks.length && !running" role="note">
+          {{ quickChecks.length }} quick-check {{ quickChecks.length === 1 ? 'issue is' : 'issues are' }} still open on the
+          Competencies, Roles &amp; activities or Level ladders tab. Fixing {{ quickChecks.length === 1 ? 'it' : 'them' }} first saves a re-run.</span>
+      </div>
+      <div class="next-step-actions">
+        <!-- An upload or edit left a step out of date: on its tab, re-run it; elsewhere, open that tab first (as the
+             first build did), starting with the earliest out-of-date step -->
+        <ng-container *appHideForViewOnly>
+          <button type="button" class="btn-secondary" *ngIf="rerunStep as step; else openStale" (click)="rerun(step)"
+            [disabled]="!canRun">{{ rerunLabel }}</button>
+          <ng-template #openStale>
+            <button type="button" class="btn-secondary" *ngIf="staleNext as next" (click)="tab = next">
+              Open {{ stepTitles[next] }} to re-run it</button>
+          </ng-template>
+        </ng-container>
+        <!-- On Level ladders: Download, then the expert check, always in this order; only the emphasis moves to the next one -->
+        <ng-container *ngIf="footerExtra; else nextOnly">
+          <button type="button" [class.btn-primary]="footerExtra === 'check'" [class.btn-secondary]="footerExtra !== 'check'"
+            (click)="download()" [disabled]="!canDownload">{{ downloadIsDraft ? 'Download draft Excel' : 'Download Excel' }}</button>
+          <button type="button" [class.btn-primary]="footerExtra === 'download'" [class.btn-secondary]="footerExtra !== 'download'"
+            (click)="checkNow()" [disabled]="!canCheck" *appHideForViewOnly>
+            {{ frac.review ? 'Re-run expert check' : 'Run expert check' }}</button>
+        </ng-container>
+        <ng-template #nextOnly>
+          <button type="button" class="btn-primary" (click)="onPrimary()" [disabled]="running"
+            *appHideForViewOnly="primaryMutates">{{ primary.label }}</button>
+        </ng-template>
+      </div>
     </div>
   </div>
 

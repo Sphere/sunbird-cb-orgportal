@@ -77,13 +77,8 @@
         placeholder="Postings, programmes, anything the team already knows about the job"></textarea>
     </div>
 
-    <ws-app-frac-document-upload kind="brief" title="Job description or government order (optional)"
-      hint="PDF, Word (.docx) or text. Research reads these first and searches the web less."
-      [items]="fileItems" [max]="maxDocuments" [disabled]="saving" (pick)="addFile($event)"
-      (remove)="removeFile($event)" (template)="downloadGuide()"></ws-app-frac-document-upload>
-
-    <p class="hint">The agent chooses the FRAC's size from the research. The brief and its documents lock once research
-      exists.</p>
+    <p class="hint">The agent chooses the FRAC's size from the research. After you create the FRAC, attach a job description,
+      sources sheet or competency sheet on its Research tab.</p>
   </section>
 
   <div class="error" *ngIf="error" role="alert">{{ error }}</div>

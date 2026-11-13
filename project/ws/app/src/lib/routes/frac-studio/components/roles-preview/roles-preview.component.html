@@ -3,26 +3,67 @@
     competencies or ladders.</p>
   <p class="empty" *ngIf="!preview.length">No roles yet.</p>
 
-  <article class="role" *ngFor="let role of preview; trackBy: trackByCode">
-    <h3 class="role-title"><span class="code">{{ role.code }}</span> {{ role.title || 'Untitled role' }}</h3>
+  <div class="legend" *ngIf="legend.length && preview.length">
+    <span class="legend-title">Postings</span>
+    <span class="legend-item" *ngFor="let p of legend; trackBy: trackByKey"><span class="code">{{ p.key }}</span> {{ p.label }}</span>
+    <span class="legend-key">✓ Yes · – No · blank not set</span>
+  </div>
+
+  <div class="toolbar" *ngIf="preview.length">
+    <nav class="jump" *ngIf="preview.length > 1" aria-label="Jump to a role">
+      <button type="button" class="jump-chip" *ngFor="let r of preview; trackBy: trackByCode" (click)="jump(r.code)"
+        [title]="r.title">{{ r.code }}</button>
+    </nav>
+    <span class="toolbar-actions">
+      <span class="toolbar-label">Competency details</span>
+      <button type="button" class="text-btn" (click)="setAllNeeds(true)" [disabled]="openNeeds.size === preview.length">Expand all</button>
+      <button type="button" class="text-btn" (click)="setAllNeeds(false)" [disabled]="!openNeeds.size">Collapse all</button>
+    </span>
+  </div>
+
+  <article class="role" *ngFor="let role of preview; trackBy: trackByCode" [id]="'preview-role-' + role.code">
+    <header class="role-head">
+      <h3 class="role-title"><span class="code">{{ role.code }}</span> {{ role.title || 'Untitled role' }}</h3>
+      <span class="role-count">{{ role.activities.length }} {{ role.activities.length === 1 ? 'activity' : 'activities' }} ·
+        {{ role.needs.length }} {{ role.needs.length === 1 ? 'competency' : 'competencies' }}</span>
+    </header>
     <p class="empty" *ngIf="!role.activities.length">This role has no activities.</p>
 
-    <div class="activity" *ngFor="let a of role.activities; trackBy: trackByCode">
-      <div class="activity-head">
-        <span class="code">{{ a.code }}</span>
-        <span class="activity-text">{{ a.text }}</span>
-        <span class="postings" *ngIf="a.postings.length">
-          <span class="chip" *ngFor="let p of a.postings" [class.yes]="p.value === 'Yes'" [title]="p.label">
-            {{ p.label }}: {{ p.value }}
-          </span>
-        </span>
-      </div>
-      <p class="empty" *ngIf="!a.needs.length">Not mapped to a competency yet.</p>
-      <div class="need" *ngFor="let n of a.needs" [class.missing]="!n.found">
+    <div class="rows-wrap" *ngIf="role.activities.length">
+      <table class="rows">
+        <thead>
+          <tr>
+            <th class="col-code">Code</th>
+            <th>Activity</th>
+            <th class="col-marks" *ngIf="legend.length">Postings</th>
+            <th class="col-refs">Competency</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let a of role.activities; trackBy: trackByCode">
+            <td class="col-code code">{{ a.code }}</td>
+            <td>{{ a.text }}</td>
+            <td class="col-marks" *ngIf="legend.length">
+              <span class="mark" *ngFor="let m of a.marks; trackBy: trackByKey" [class.yes]="m.yes" [attr.title]="m.aria"
+                [attr.aria-label]="m.aria">{{ m.key }} {{ m.symbol }}</span>
+            </td>
+            <td class="col-refs">
+              <span class="ref" *ngFor="let r of a.refs" [class.missing]="!r.found" [attr.title]="r.label">{{ r.code }} · {{ r.level }}</span>
+              <span class="not-mapped" *ngIf="!a.refs.length">Not mapped</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <details class="needs" *ngIf="role.needs.length" [open]="openNeeds.has(role.code)" (toggle)="onNeedsToggle(role.code, $event)">
+      <summary class="needs-title">Competencies in this role ({{ role.needs.length }})</summary>
+      <div class="need" *ngFor="let n of role.needs; trackBy: trackByKey" [class.missing]="!n.found">
         <div class="need-head">
           <span class="code">{{ n.code }}</span>
           <span class="need-label">{{ n.label }}</span>
           <span class="level-pill">{{ n.levelName }}</span>
+          <span class="used-by">Used by {{ n.usedBy.join(', ') }}</span>
         </div>
         <p class="level-label" *ngIf="n.levelLabel">{{ n.levelLabel }}</p>
         <p class="no-ladder" *ngIf="n.found && !n.levelLabel">Ladder not written yet.</p>
@@ -30,6 +71,6 @@
           <li *ngFor="let i of n.indicators">{{ i }}</li>
         </ul>
       </div>
-    </div>
+    </details>
   </article>
 </div>

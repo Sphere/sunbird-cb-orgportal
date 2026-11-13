@@ -16,7 +16,7 @@
     <div class="block-head">
       <h3 class="block-title">Postings</h3>
       <span class="hint">Taken from your brief and documents, never guessed. Each becomes a Yes/No column in Roles &amp;
-        activities. Up to {{ maxPostings }}, or none if the job has no separate postings.</span>
+        activities. As many as the job has: one, several, or none if it has no separate postings.</span>
     </div>
     <p class="empty" *ngIf="!postings.length">No postings: the brief and documents name none. Add where the position works
       if it has separate postings, e.g. "ANM at Sub-Centre (outreach)", or leave this empty.</p>
@@ -98,11 +98,12 @@
                 </svg>
               </a>
               <ng-template #noLink>
-                <span class="open-source none" role="img" title="No link found. Re-run research or upload a Sources sheet with links."
-                  aria-label="No link found for this source">
+                <span class="open-source none" tabindex="0" [attr.aria-describedby]="'no-link-' + row.index"
+                  aria-label="View source unavailable">
                   <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
                     <path fill="currentColor" d="M14 3h7v7h-2V6.41l-9.29 9.3-1.42-1.42L17.59 5H14V3zM5 5h6v2H7v10h10v-4h2v6H5V5z" />
                   </svg>
+                  <span class="no-link-tip" role="tooltip" [id]="'no-link-' + row.index">{{ noLinkReason(row.item) }}</span>
                 </span>
               </ng-template>
             </td>

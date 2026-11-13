@@ -17,11 +17,44 @@
   border-bottom: 1px solid $v2-color-border;
 }
 
+// Expand all / Collapse all over the list
+.roles-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.roles-count {
+  margin-right: auto;
+  color: $v2-color-text-secondary;
+  font-size: $v2-font-caption;
+}
+
+.role.closed { padding-bottom: 12px; }
+
 .role-head {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 10px;
+}
+
+.toggle .chevron { font-size: 14px; line-height: 1; }
+
+.role-count {
+  color: $v2-color-text-secondary;
+  font-size: $v2-font-label;
+  white-space: nowrap;
+}
+
+// The table and "+ Add activity" of an open role
+.role-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  > .text-btn { align-self: flex-start; }
 }
 
 .role-title {

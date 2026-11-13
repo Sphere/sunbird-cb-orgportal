@@ -68,6 +68,16 @@ export class ResearchEditorComponent {
   }
 
   /** Only web addresses are opened, never other URL schemes typed into the field. */
+  /**
+   * Why a source has no View link, for the tooltip on the greyed-out icon: a source without one is compiled from
+   * several documents (validated with the team, 13 Nov 2026), except the job description the team uploaded.
+   */
+  noLinkReason(source: FracSource): string {
+    return (source.issuer || '').trim().toLowerCase() === 'team document'
+      ? 'This is your uploaded document, so there is no web page to open.'
+      : 'This source is drawn from several documents, so there is no single link to view.'
+  }
+
   isWebLink(url: string | undefined): boolean {
     return /^https?:\/\/\S+$/i.test((url || '').trim())
   }

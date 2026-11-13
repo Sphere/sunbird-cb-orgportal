@@ -71,12 +71,78 @@
   font-size: $v2-font-label;
 }
 
+// Rule-based expert-check findings about the sheet, worked out at upload
+.checks {
+  flex-basis: 100%;
+  font-size: $v2-font-label;
+
+  summary {
+    cursor: pointer;
+    font-weight: 500;
+    color: $v2-color-text;
+  }
+
+  ul {
+    list-style: none;
+    margin: 8px 0 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  li {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}
+
+.sev {
+  flex: none;
+  padding: 1px 8px;
+  border-radius: 10px;
+  background: $v2-status-info-bg;
+  color: $v2-status-info-text;
+  font-weight: 500;
+
+  &.major { background: $v2-status-warning-bg; color: $v2-status-warning-text; }
+  &.blocker { background: $v2-color-danger-btn-tint; color: $v2-color-danger-btn; }
+}
+
+.check-fix {
+  display: block;
+  margin-top: 2px;
+  color: $v2-color-text-secondary;
+}
+
+.checks-ok {
+  flex-basis: 100%;
+  margin: 0;
+  color: $v2-color-text-secondary;
+  font-size: $v2-font-label;
+}
+
 .in-use {
   margin: 0;
   padding: 6px 12px;
   border-radius: $v2-radius-input;
   background: $v2-status-info-bg;
   color: $v2-status-info-text;
+  font-size: $v2-font-label;
+}
+
+.btn-secondary.small { height: 32px; padding: 0 14px; font-size: $v2-font-caption; }
+
+.edited {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 12px;
+  border-radius: $v2-radius-input;
+  background: $v2-status-warning-bg;
+  color: $v2-color-text;
   font-size: $v2-font-label;
 }
 

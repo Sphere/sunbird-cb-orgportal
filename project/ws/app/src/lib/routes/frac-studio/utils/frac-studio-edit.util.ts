@@ -127,7 +127,7 @@ export function emptyResearch(): FracResearch {
   }
 }
 
-/** Adds a posting with the first free key P1..P3; unchanged once the maximum is reached. */
+/** Adds a posting with the first free key P1, P2…; unchanged at the safety limit (FRAC_STUDIO_MAX_POSTINGS). */
 export function addPosting(postings: FracPosting[]): FracPosting[] {
   if (postings.length >= FRAC_STUDIO_MAX_POSTINGS) {
     return postings

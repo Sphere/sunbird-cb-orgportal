@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core'
-import { FracDocumentKind } from '../../models/frac-studio.models'
+import { FracDocumentKind, FracSheetCheck } from '../../models/frac-studio.models'
 
 /** One file shown in an upload slot: an attached document, or a file picked before the FRAC exists. */
 export interface FracUploadItem {
@@ -7,7 +7,12 @@ export interface FracUploadItem {
   name: string
   detail: string
   warnings: string[]
+  /** Rule-based expert-check findings about the sheet; missing for documents and older uploads. */
+  checks?: FracSheetCheck[]
 }
+
+/** The expert check's words for each severity. */
+const SEVERITY_LABELS: Record<FracSheetCheck['sev'], string> = { B: 'Blocker', M: 'Major', m: 'Minor' }
 
 /** File types per kind; the service checks the same extensions. */
 const ACCEPT: Record<FracDocumentKind, string> = {
@@ -37,12 +42,23 @@ export class DocumentUploadComponent {
   @Input() max = 1
   @Input() disabled = false
   @Input() busy = false
+  /** Show the "Download template" link; off on the Create FRAC form. */
+  @Input() showTemplate = true
   /** What the attached sheet does now, e.g. "The Roles step uses this sheet instead of the AI." */
   @Input() inUse = ''
+  /**
+   * What re-applying puts back, e.g. "9 roles and 38 activities", when the content was edited after the upload and
+   * the sheet's rows are stored; '' hides the Re-apply control.
+   */
+  @Input() reapplyWhat = ''
 
   @Output() readonly pick = new EventEmitter<File>()
   @Output() readonly remove = new EventEmitter<string>()
   @Output() readonly template = new EventEmitter<void>()
+  /** The attached sheet's key, after the team confirmed replacing their edits. */
+  @Output() readonly reapply = new EventEmitter<string>()
+
+  confirmReapply = false
 
   get accept(): string {
     return ACCEPT[this.kind]
@@ -65,6 +81,17 @@ export class DocumentUploadComponent {
     if (file) {
       this.pick.emit(file)
     }
+  }
+
+  onReapply(): void {
+    this.confirmReapply = false
+    if (this.items.length) {
+      this.reapply.emit(this.items[0].key)
+    }
+  }
+
+  severity(check: FracSheetCheck): string {
+    return SEVERITY_LABELS[check.sev]
   }
 
   trackByKey(_: number, item: FracUploadItem): string {

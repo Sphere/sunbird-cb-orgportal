@@ -2,11 +2,24 @@
   <p class="empty" *ngIf="!roles.length">No roles yet. Add the first role, written as an area of work (for example
     "Conduct VHSND sessions"), not a syllabus subject.</p>
 
-  <section class="role" *ngFor="let role of roles; let r = index; let first = first; let last = last; trackBy: trackByIndex">
+  <div class="roles-toolbar" *ngIf="roles.length > 1">
+    <span class="roles-count">{{ roles.length }} roles</span>
+    <button type="button" class="text-btn" (click)="expandAll()" [disabled]="!collapsed.size">Expand all</button>
+    <button type="button" class="text-btn" (click)="collapseAll()" [disabled]="collapsed.size === roles.length">Collapse all</button>
+  </div>
+
+  <section class="role" *ngFor="let role of roles; let r = index; let first = first; let last = last; trackBy: trackByIndex"
+    [class.closed]="!isOpen(r)">
     <div class="role-head">
+      <button type="button" class="icon-btn toggle" (click)="toggle(r)" [attr.aria-expanded]="isOpen(r)"
+        [attr.aria-controls]="'role-body-' + r" [attr.aria-label]="(isOpen(r) ? 'Collapse ' : 'Expand ') + role.code">
+        <span class="chevron" aria-hidden="true">{{ isOpen(r) ? '▾' : '▸' }}</span>
+      </button>
       <span class="code">{{ role.code }}</span>
       <input #roleTitle class="role-title" type="text" [value]="role.title" placeholder="Role, e.g. Conduct VHSND sessions"
         [attr.aria-label]="'Title of role ' + role.code" (input)="setRoleTitle(r, roleTitle.value)" appDisableForViewOnly />
+      <span class="role-count">{{ role.activities.length }} {{ role.activities.length === 1 ? 'activity' : 'activities' }}
+        <ng-container *ngIf="unmapped(role)"> · {{ unmapped(role) }} unmapped</ng-container></span>
       <div class="role-actions" *appHideForViewOnly>
         <button type="button" class="icon-btn" (click)="moveRole(r, -1)" [disabled]="first"
           [attr.aria-label]="'Move ' + role.code + ' up'">↑</button>
@@ -23,6 +36,7 @@
       </div>
     </div>
 
+    <div class="role-body" [id]="'role-body-' + r" *ngIf="isOpen(r)">
     <div class="table-wrap" *ngIf="role.activities.length">
       <table>
         <thead>
@@ -72,6 +86,7 @@
     </div>
 
     <button type="button" class="text-btn" (click)="addActivity(r)" *appHideForViewOnly>+ Add activity</button>
+    </div>
   </section>
 
   <button type="button" class="btn-secondary" (click)="addRole()" *appHideForViewOnly>+ Add role</button>

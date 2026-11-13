@@ -110,9 +110,13 @@
   transition: $v2-transition;
 
   &.none {
+    position: relative;
     border-color: $v2-color-border;
     color: $v2-color-border;
     cursor: not-allowed;
+
+    &:hover .no-link-tip,
+    &:focus .no-link-tip { display: block; }
   }
 
   &:not(.none):hover,
@@ -123,4 +127,24 @@
   }
 
   &:focus-visible { outline: 2px solid $v2-color-primary; outline-offset: 2px; }
+}
+
+// Why a source has no link: shown beside the greyed-out View icon on hover, focus or tap
+.no-link-tip {
+  display: none;
+  position: absolute;
+  right: calc(100% + 8px);
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  width: 260px;
+  padding: 8px 10px;
+  border-radius: $v2-radius-input;
+  background: $v2-color-text;
+  color: #ffffff;
+  font-size: $v2-font-label;
+  line-height: 1.4;
+  text-align: left;
+  white-space: normal;
+  cursor: default;
 }

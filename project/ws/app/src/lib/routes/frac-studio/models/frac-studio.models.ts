@@ -146,6 +146,8 @@ export interface Frac {
   review: FracReport | null
   /** Set by the service when the content changed after the expert check; the next check clears it. */
   reviewStale?: boolean
+  /** The agent's last "Check roles against the job description" on the Roles tab; out of date when changedAt.roles is later. */
+  rolesCheck?: FracRolesCheck
   /**
    * Set by the service: when each step's content last changed (an edit, an AI run, a sheet upload) or was marked
    * checked. A step with output needs attention when an earlier step changed after it. Missing on older FRACs.
@@ -207,6 +209,50 @@ export interface FracMatch {
 }
 
 /** A document attached to a FRAC (the extracted text stays on the service). */
+/** One problem the agent found in the roles and activities ("Check roles against the job description"). */
+export interface FracRoleFinding {
+  kind: 'missing' | 'outside-scope' | 'posting' | 'duplicate' | 'unclear'
+  /** Role code, or '' for a duty no role covers yet. */
+  role: string
+  activity: string
+  note: string
+  suggestion: string
+}
+
+export interface FracRolesCheck {
+  at: string
+  summary: string
+  findings: FracRoleFinding[]
+}
+
+/** A rule-based expert-check finding about an uploaded sheet, worked out at upload (no AI). */
+export interface FracSheetCheck {
+  check: string
+  /** B blocker, M major, m minor, as in the expert check. */
+  sev: 'B' | 'M' | 'm'
+  title: string
+  detail: string
+  fix: string
+  refs: string[]
+}
+
+/** A quick check on a Creator tab while the FRAC is built (Bloom's verbs, FRAC structure); rule-based, no AI. */
+export interface FracQuickCheck extends FracSheetCheck {
+  tab: 'roles' | 'competencies' | 'ladders'
+}
+
+/** What an import read from a sheet. The rows are kept (sheets uploaded from 13 Nov 2026) so the sheet can be re-applied. */
+export interface FracDocumentParsed {
+  counts: Record<string, number>
+  warnings: string[]
+  roles?: FracRole[]
+  postings?: FracPosting[]
+  competencies?: FracCompetency[]
+  sources?: FracSource[]
+  /** The expert check's rule-based findings about this sheet's rows (roles and competencies sheets, from 13 Nov 2026). */
+  checks?: FracSheetCheck[]
+}
+
 export interface FracDocument {
   id: string
   fracId: string
@@ -215,7 +261,7 @@ export interface FracDocument {
   mime: string
   bytes: number
   chars: number
-  parsed: { counts: Record<string, number>, warnings: string[] } | null
+  parsed: FracDocumentParsed | null
   createdAt: string
 }
 

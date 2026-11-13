@@ -1,0 +1,63 @@
+@import '../../frac-studio-common';
+
+.quick {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: $v2-space-2;
+  padding: 12px $v2-space-2;
+  border: 1px solid $v2-status-warning-text;
+  border-radius: $v2-radius-input;
+  background: $v2-status-warning-bg;
+  font-size: $v2-font-label;
+
+  &.clear {
+    border-color: $v2-color-border;
+    background: #ffffff;
+  }
+}
+
+.quick-title {
+  margin: 0;
+  font-size: $v2-font-caption;
+  font-weight: 500;
+  color: $v2-color-text;
+}
+
+.quick-note,
+.ok,
+.fix { color: $v2-color-text-secondary; }
+
+.ok { margin: 0; }
+
+ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.sev {
+  flex: none;
+  padding: 1px 8px;
+  border-radius: 10px;
+  background: $v2-status-info-bg;
+  color: $v2-status-info-text;
+  font-weight: 500;
+
+  &.major { background: #ffffff; color: $v2-status-warning-text; }
+  &.blocker { background: $v2-color-danger-btn-tint; color: $v2-color-danger-btn; }
+}
+
+.fix {
+  display: block;
+  margin-top: 2px;
+}

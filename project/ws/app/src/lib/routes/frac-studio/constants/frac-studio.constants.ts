@@ -11,8 +11,25 @@ export const FRAC_STUDIO_ROUTES = {
 /** How often a running job is polled. */
 export const FRAC_STUDIO_POLL_MS = 2000
 
-/** Postings become the FRAC's posting columns; spec 5.2 asks for 1–3. */
-export const FRAC_STUDIO_MAX_POSTINGS = 3
+/** Rough AI cost of rewriting one competency's ladder (measured ≈ $0.011 on Claude Sonnet), for "Fix all" estimates. */
+export const FRAC_STUDIO_LADDER_FIX_USD = 0.011
+/** Rough AI cost of re-running a step from the footer, for its label (measured on Claude Sonnet, 9–13 Nov 2026). */
+export const FRAC_STUDIO_RERUN_COST: Record<'research' | 'roles' | 'derive' | 'map', string> = {
+  research: '$0.05–0.20',
+  roles: '$0.30',
+  derive: '$0.11',
+  map: '$0.02',
+}
+/** With more roles than this, Roles & activities opens with only the first role expanded. */
+export const FRAC_STUDIO_ROLES_COLLAPSE_FROM = 3
+/** Longest feedback the service accepts on a step (validations/frac.schema.ts stepSchema). */
+export const FRAC_STUDIO_FEEDBACK_MAX_CHARS = 5000
+
+/**
+ * Postings become the FRAC's Yes/No columns: as many as the brief and documents name, or none (review, 13 Nov 2026).
+ * A safety limit only, the same as the service's MAX_POSTINGS.
+ */
+export const FRAC_STUDIO_MAX_POSTINGS = 20
 
 /** Research text fields (spec 4.1), one item per line, in the order the editor shows them. */
 export const FRAC_STUDIO_RESEARCH_LISTS: readonly { key: 'authorised' | 'notAuthorised' | 'stateContext' | 'assumptions', label: string, hint: string }[] = [

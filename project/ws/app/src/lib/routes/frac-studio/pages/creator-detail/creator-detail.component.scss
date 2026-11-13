@@ -195,16 +195,33 @@
 }
 
 // The primary action, under the tab content
+// Messages on the left (they wrap), buttons on the right in a fixed order and the same width, so nothing jumps when
+// a job starts or the next step changes. On narrow screens the buttons drop under the messages as one row.
 .next-step {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: flex-end;
-  gap: 12px;
+  gap: 12px $v2-space-2;
   padding-top: $v2-space-2;
   border-top: 1px solid $v2-color-border;
+}
 
-  .btn-primary { width: auto; min-width: 240px; }
+.next-step-msgs {
+  flex: 1 1 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.next-step-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-left: auto;
+
+  .btn-primary,
+  .btn-secondary { width: auto; min-width: 240px; }
 }
 
 .next-step-msg {
@@ -328,6 +345,13 @@ ws-app-frac-document-upload {
 .preview-dialog ws-app-frac-roles-preview {
   display: block;
   padding: $v2-space-2 $v2-space-3 $v2-space-3;
+}
+
+.comp-source { margin: 0 0 $v2-space-2; }
+
+.sheet-note {
+  color: $v2-color-text-secondary;
+  font-size: $v2-font-label;
 }
 
 // Roles copied from a matched position, on the Roles tab: where they came from, and a way to clear them

@@ -1,11 +1,9 @@
 import { Component, OnDestroy } from '@angular/core'
 import { Router } from '@angular/router'
-import { concat, of, Subject, Subscription } from 'rxjs'
-import { catchError, debounceTime, last, map, switchMap } from 'rxjs/operators'
-import { FracUploadItem } from '../../components/document-upload/document-upload.component'
+import { of, Subject, Subscription } from 'rxjs'
+import { catchError, debounceTime, map, switchMap } from 'rxjs/operators'
 import {
   FRAC_STUDIO_MATCH_DEBOUNCE_MS,
-  FRAC_STUDIO_MAX_BRIEF_DOCUMENTS,
   FRAC_STUDIO_NATIONAL_BASELINE,
   FRAC_STUDIO_ROUTES,
   FRAC_STUDIO_STATES,
@@ -13,7 +11,7 @@ import {
 import { Frac, FracMatch, FracSeedRequest } from '../../models/frac-studio.models'
 import { FracStudioApiService } from '../../services/frac-studio-api.service'
 import { FracStudioPosition, FracStudioPositionsService } from '../../services/frac-studio-positions.service'
-import { apiErrorMessage, saveBlob } from '../../utils/frac-studio-download.util'
+import { apiErrorMessage } from '../../utils/frac-studio-download.util'
 import { plannedSteps } from '../../utils/frac-studio-progress.util'
 import { syllabusTitles } from '../../utils/frac-studio-syllabus.util'
 
@@ -37,15 +35,12 @@ export type BriefMatch =
 })
 export class CreatorBriefComponent implements OnDestroy {
   readonly states = FRAC_STUDIO_STATES
-  readonly maxDocuments = FRAC_STUDIO_MAX_BRIEF_DOCUMENTS
   /** All six steps, shown before the FRAC exists so the team sees the whole path. */
   readonly steps = plannedSteps()
 
   cadre = ''
   state = FRAC_STUDIO_NATIONAL_BASELINE
   prompt = ''
-  /** Job descriptions or orders picked here; uploaded right after the FRAC is created. */
-  files: File[] = []
 
   match: BriefMatch | null = null
   matching = false
@@ -97,10 +92,6 @@ export class CreatorBriefComponent implements OnDestroy {
     return !!this.cadre.trim() && !this.saving && !this.matching
   }
 
-  get fileItems(): FracUploadItem[] {
-    return this.files.map((f, i) => ({ key: String(i), name: f.name, detail: `${Math.max(1, Math.round(f.size / 1024))} KB`, warnings: [] }))
-  }
-
   /** The seed sent with the brief: postings (and roles, if ticked) from a FRAC, or roles from Positions. */
   get seed(): FracSeedRequest | undefined {
     if (this.match?.kind === 'frac' && (this.usePostings || this.useRoles)) {
@@ -126,25 +117,6 @@ export class CreatorBriefComponent implements OnDestroy {
     this.lookups.next({ cadre, state: this.state })
   }
 
-  addFile(file: File): void {
-    if (this.files.length < this.maxDocuments) {
-      this.files = [...this.files, file]
-    }
-  }
-
-  removeFile(key: string): void {
-    this.files = this.files.filter((_, i) => String(i) !== key)
-  }
-
-  downloadGuide(): void {
-    this.subs.add(
-      this.api.downloadTemplate('brief').subscribe({
-        next: file => saveBlob(file.blob, file.filename),
-        error: err => this.error = apiErrorMessage(err, 'The guide could not be downloaded.'),
-      }),
-    )
-  }
-
   create(): void {
     if (!this.canCreate) {
       return
@@ -153,13 +125,7 @@ export class CreatorBriefComponent implements OnDestroy {
     this.error = ''
     const brief = { cadre: this.cadre.trim(), state: this.state, prompt: this.prompt.trim(), ...(this.seed ? { seed: this.seed } : {}) }
     this.subs.add(
-      this.api.createFrac(brief).pipe(
-        // Documents go up one after another once the FRAC exists; a failed one is reported on the FRAC page
-        switchMap(frac => concat(
-          of(null),
-          ...this.files.map(file => this.api.uploadDocument(frac.id, 'brief', file).pipe(catchError(() => of(null)))),
-        ).pipe(last(), map(() => frac))),
-      ).subscribe({
+      this.api.createFrac(brief).subscribe({
         next: (frac: Frac) => this.router.navigateByUrl(FRAC_STUDIO_ROUTES.creatorDetail(frac.id)),
         error: err => {
           this.error = apiErrorMessage(err, 'The FRAC could not be created.')

@@ -7,6 +7,7 @@ import {
   Frac,
   FracBrief,
   FracDocument,
+  FracQuickCheck,
   FracDocumentKind,
   FracDownload,
   FracEdits,
@@ -31,9 +32,13 @@ const API_END_POINTS = {
   FRAC_DOCUMENTS: (id: string) => `${FRAC_STUDIO_BASE}/fracs/${encodeURIComponent(id)}/documents`,
   FRAC_DOCUMENT: (id: string, documentId: string) =>
     `${FRAC_STUDIO_BASE}/fracs/${encodeURIComponent(id)}/documents/${encodeURIComponent(documentId)}`,
+  FRAC_DOCUMENT_APPLY: (id: string, documentId: string) =>
+    `${FRAC_STUDIO_BASE}/fracs/${encodeURIComponent(id)}/documents/${encodeURIComponent(documentId)}/apply`,
   TEMPLATE: (kind: FracDocumentKind) => `${FRAC_STUDIO_BASE}/templates/${kind}`,
   FRAC: (id: string) => `${FRAC_STUDIO_BASE}/fracs/${encodeURIComponent(id)}`,
   FRAC_STEP: (id: string, step: FracGenStep) => `${FRAC_STUDIO_BASE}/fracs/${encodeURIComponent(id)}/steps/${step}`,
+  FRAC_FIX_OUTDATED: (id: string) => `${FRAC_STUDIO_BASE}/fracs/${encodeURIComponent(id)}/fixes/outdated`,
+  FRAC_RULE_CHECKS: (id: string) => `${FRAC_STUDIO_BASE}/fracs/${encodeURIComponent(id)}/rule-checks`,
   FRAC_CHECK: (id: string) => `${FRAC_STUDIO_BASE}/fracs/${encodeURIComponent(id)}/steps/check`,
   FRAC_EXPORT: (id: string) => `${FRAC_STUDIO_BASE}/fracs/${encodeURIComponent(id)}/export.xlsx`,
   FRAC_VERSIONS: (id: string) => `${FRAC_STUDIO_BASE}/fracs/${encodeURIComponent(id)}/versions`,
@@ -84,6 +89,21 @@ export class FracStudioApiService {
     form.append('kind', kind)
     form.append('file', file, file.name)
     return this.http.post<{ document: FracDocument, frac: Frac }>(API_END_POINTS.FRAC_DOCUMENTS(id), form)
+  }
+
+  /** Puts an uploaded sheet's rows back on the FRAC over edits made since; a version is saved first. */
+  reapplyDocument(id: string, documentId: string): Observable<Frac> {
+    return this.http.post<{ frac: Frac }>(API_END_POINTS.FRAC_DOCUMENT_APPLY(id, documentId), {}).pipe(map(res => res.frac))
+  }
+
+  /** "Replace with …" on an outdated-name finding: the service swaps the name everywhere (no AI) and saves a version first. */
+  replaceOutdated(id: string, title: string): Observable<{ frac: Frac, replaced: number }> {
+    return this.http.post<{ frac: Frac, replaced: number }>(API_END_POINTS.FRAC_FIX_OUTDATED(id), { title })
+  }
+
+  /** Quick checks (Bloom's verbs, FRAC structure) on the FRAC as saved now; rule-based, no AI. */
+  ruleChecks(id: string): Observable<FracQuickCheck[]> {
+    return this.http.get<{ checks: FracQuickCheck[] }>(API_END_POINTS.FRAC_RULE_CHECKS(id)).pipe(map(res => res.checks))
   }
 
   /** Removes a document; for a sheet the content stays and the step goes back to the AI. */

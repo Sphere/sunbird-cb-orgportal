@@ -174,6 +174,22 @@
   padding-left: 20px;
 }
 
+// Fix all: the button and one line beside it (stacks under it on narrow screens)
+.fix-all {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  margin-bottom: $v2-space-2;
+}
+
+.fix-all-btn { @include v2-btn-primary; }
+
+.fix-all-note {
+  color: $v2-color-text-secondary;
+  font-size: $v2-font-label;
+}
+
 .fix-btn {
   @include v2-btn-secondary;
   margin-top: $v2-space-1;

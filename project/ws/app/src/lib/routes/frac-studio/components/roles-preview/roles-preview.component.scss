@@ -1,6 +1,8 @@
 @import '../../frac-studio-common';
 @import '../editor-common';
 
+// Layout: a postings legend and role chips on top, then per role a compact table (activity, posting marks,
+// competency@level) followed by the competencies it uses, each level's text written once.
 .preview {
   display: flex;
   flex-direction: column;
@@ -13,76 +15,201 @@
   font-size: $v2-font-caption;
 }
 
-.role {
-  @include v2-table-container;
-  display: flex;
-  flex-direction: column;
+.code {
+  font-family: monospace;
+  font-weight: 600;
+  color: $v2-color-primary;
 }
 
-.role-title {
-  @include v2-section-title;
-  margin: 0;
-  padding: 12px $v2-space-2;
-  background: #dfedf9;
-  font-size: $v2-font-body;
-}
-
-.activity {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 12px $v2-space-2;
-  border-top: 1px solid #e0e0e0;
-}
-
-.activity-head {
+// Postings named once, so each row only needs "P1 ✓"
+.legend {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
+  gap: 6px 16px;
+  padding: 10px 12px;
+  border: 1px solid $v2-color-border;
+  border-radius: $v2-radius-input;
+  background: $v2-color-bg;
+  font-size: $v2-font-label;
+}
+
+.legend-title { font-weight: 600; }
+
+.legend-key { color: $v2-color-text-secondary; }
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+}
+
+.toolbar-actions {
+  display: flex;
+  align-items: center;
   gap: 12px;
+  margin-left: auto;
 }
 
-.activity-text {
-  flex: 1 1 320px;
-  font-size: $v2-font-caption;
+.toolbar-label {
+  color: $v2-color-text-secondary;
+  font-size: $v2-font-label;
 }
 
-.postings {
+.jump {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
 }
 
-.chip {
-  font-size: $v2-font-micro;
-  padding: 2px 8px;
+.jump-chip {
+  padding: 2px 10px;
+  border: 1px solid $v2-color-border;
+  border-radius: 999px;
+  background: #ffffff;
+  color: $v2-color-primary;
+  font-family: monospace;
+  font-size: $v2-font-label;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover { background: $v2-color-primary-tint; }
+  &:focus-visible { outline: 2px solid $v2-color-primary; outline-offset: 2px; }
+}
+
+.role {
+  @include v2-table-container;
+  display: flex;
+  flex-direction: column;
+  scroll-margin-top: 8px;
+}
+
+.role-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 16px;
+  padding: 12px $v2-space-2;
+  background: #dfedf9;
+}
+
+.role-title {
+  @include v2-section-title;
+  margin: 0;
+  font-size: $v2-font-body;
+}
+
+.role-count {
+  color: $v2-color-text-secondary;
+  font-size: $v2-font-label;
+}
+
+.rows-wrap { overflow-x: auto; }
+
+.rows {
+  width: 100%;
+  min-width: 640px;
+  border-collapse: collapse;
+  font-size: $v2-font-caption;
+
+  th,
+  td {
+    padding: 8px 12px;
+    border-top: 1px solid #e0e0e0;
+    text-align: left;
+    vertical-align: top;
+  }
+
+  th {
+    background: #f4f8fc;
+    font-size: $v2-font-label;
+    font-weight: 600;
+    color: $v2-color-text-secondary;
+  }
+
+  tbody tr:hover { background: #f9fbff; }
+}
+
+.col-code { width: 56px; }
+.col-marks { width: 1%; white-space: nowrap; }
+.col-refs { width: 1%; white-space: nowrap; }
+
+.mark {
+  display: inline-block;
+  min-width: 40px;
+  margin: 0 4px 4px 0;
+  padding: 1px 6px;
   border-radius: 999px;
   background: $v2-status-neutral-bg;
   color: $v2-status-neutral-text;
+  font-size: $v2-font-micro;
+  text-align: center;
 
   &.yes { background: $v2-status-success-bg; color: $v2-status-success-text; }
 }
 
+.ref {
+  display: inline-block;
+  margin: 0 4px 4px 0;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: $v2-status-info-bg;
+  color: $v2-status-info-text;
+  font-size: $v2-font-micro;
+  font-weight: 500;
+
+  &.missing { background: $v2-status-warning-bg; color: $v2-status-warning-text; }
+}
+
+.not-mapped {
+  color: $v2-color-text-secondary;
+  font-size: $v2-font-label;
+  font-style: italic;
+}
+
+// Each competency@level once per role, with the activities that use it
+.needs {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px $v2-space-2 $v2-space-2;
+  border-top: 1px solid #e0e0e0;
+}
+
+.needs-title {
+  margin: 0;
+  font-size: $v2-font-label;
+  font-weight: 600;
+  color: $v2-color-text-secondary;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+
+  &:focus-visible { outline: 2px solid $v2-color-primary; outline-offset: 2px; }
+}
+
+details.needs:not([open]) { padding-bottom: 12px; }
+
 .need {
-  margin-left: 52px;
   padding: 8px 12px;
   border-left: 3px solid $v2-color-primary-tint;
   background: #f9fbff;
 
   &.missing { border-left-color: $v2-status-warning-text; }
-
-  @media (max-width: 600px) { margin-left: 0; }
 }
 
 .need-head {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 10px;
+  gap: 6px 10px;
 }
 
 .need-label {
-  flex: 1;
+  flex: 1 1 200px;
   font-weight: 500;
   font-size: $v2-font-caption;
 }
@@ -93,6 +220,11 @@
   border-radius: 999px;
   background: $v2-status-info-bg;
   color: $v2-status-info-text;
+}
+
+.used-by {
+  color: $v2-color-text-secondary;
+  font-size: $v2-font-label;
 }
 
 .level-label {
@@ -112,4 +244,11 @@
   padding-left: 18px;
   color: $v2-color-text-secondary;
   font-size: $v2-font-label;
+}
+
+.empty {
+  margin: 0;
+  padding: 12px $v2-space-2;
+  color: $v2-color-text-secondary;
+  font-size: $v2-font-caption;
 }

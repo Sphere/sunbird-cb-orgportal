@@ -1,0 +1,11 @@
+<section class="quick" [class.clear]="!checks.length" aria-labelledby="quick-title">
+  <h3 id="quick-title" class="quick-title">Quick checks: Bloom's verbs and FRAC structure <span class="quick-note">(rules, no AI)</span></h3>
+  <p class="ok" *ngIf="!checks.length">Nothing to fix here.</p>
+  <ul *ngIf="checks.length">
+    <li *ngFor="let c of checks; trackBy: trackByIndex">
+      <span class="sev" [class.blocker]="c.sev === 'B'" [class.major]="c.sev === 'M'">{{ severity(c) }}</span>
+      <span class="text"><strong>{{ c.title }}.</strong> {{ c.detail }}
+        <span class="fix" *ngIf="c.fix">Fix: {{ c.fix }}</span></span>
+    </li>
+  </ul>
+</section>

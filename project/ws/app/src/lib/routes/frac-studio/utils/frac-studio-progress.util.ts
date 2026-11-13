@@ -63,7 +63,10 @@ export const FRAC_STEP_TITLES: Record<FracStep, string> = {
   competencies: 'Competencies',
   ladders: 'Level ladders',
 }
+/** Data order: what each step is built from (roles before competencies). Decides which change leaves a step out of date. */
 const STEP_ORDER = Object.keys(FRAC_STEP_TITLES) as FracStep[]
+/** The order the Creator shows steps in, as the tabs and tracker do: Competencies before Roles & activities. */
+const DISPLAY_ORDER: readonly FracStep[] = ['brief', 'research', 'competencies', 'roles', 'ladders']
 
 const hasOutput: Record<FracStep, (frac: Frac) => boolean> = {
   brief: () => true,
@@ -89,7 +92,7 @@ export function changedBefore(frac: Frac, step: FracStep): FracStep | null {
 
 /** Steps that need a look because an earlier step changed after them, in flow order. */
 export function staleSteps(frac: Frac): FracStep[] {
-  return STEP_ORDER.filter(step => changedBefore(frac, step))
+  return DISPLAY_ORDER.filter(step => changedBefore(frac, step))
 }
 
 /** "Job research changed after these roles were built. ..." for a step that is out of date. */
@@ -143,8 +146,11 @@ export function plannedSteps(): FracStepProgress[] {
   }))
 }
 
-/** Tracker step number for each job kind (the service names step jobs after the step). */
-const JOB_STEP: Record<string, number> = { research: 2, roles: 3, competencies: 4, ladders: 5, check: 6 }
+/** Tracker step number for each job kind (the service names step jobs after the step). Competencies come before roles. */
+const JOB_STEP: Record<string, number> = { research: 2, competencies: 3, roles: 4, ladders: 5, check: 6 }
+
+/** Tracker step number for each curStep (0 research, 1 roles, 2 competencies, 3 ladders, 4 check, 5 download). */
+const CURRENT_STEP = [2, 4, 3, 5, 6, 6]
 
 /**
  * Builds the six-step tracker for the Creator page: state, evidence from the data,
@@ -153,12 +159,16 @@ const JOB_STEP: Record<string, number> = { research: 2, roles: 3, competencies: 
  */
 export function fracProgress(frac: Frac, job: FracJob | null = null, briefDocs = 0): FracStepProgress[] {
   const s = stats(frac)
-  // curStep counts from research (0 = step 2), so the step number is two ahead; 6 is the last
-  const current = Math.min(curStep(frac, briefDocs) + 2, 6)
+  const current = CURRENT_STEP[Math.min(curStep(frac, briefDocs), CURRENT_STEP.length - 1)]
+  // A step counts as done only once it is reached: a competency sheet's competencies and ladders wait for research
+  const reached = !!frac.research || !!frac.imported
   const copied = copiedRoles(frac)
   const copiedFrom = frac.seededFrom?.name ?? 'the matched position'
   // Copied roles are not this FRAC's roles step: done only once research ran and they are being kept
-  const rolesDone = frac.roles.length > 0 && (!!frac.research || !!frac.imported) && (!copied || rolesKept(frac, briefDocs))
+  const rolesDone = frac.roles.length > 0 && reached && (!copied || rolesKept(frac, briefDocs))
+  const compsDone = frac.competencies.length > 0 && reached
+  const laddersDone = compsDone && rolesDone && s.ladders === frac.competencies.length
+  const fromSheet = !!frac.uploads?.competencies
   const runningStep = job && (job.status === 'queued' || job.status === 'running') ? JOB_STEP[job.kind] ?? 0 : 0
   const running = (n: number) => n === runningStep && job ? job.msg : ''
   const state = (n: number, done: boolean): FracStepState => {
@@ -196,39 +206,48 @@ export function fracProgress(frac: Frac, job: FracJob | null = null, briefDocs =
     },
     {
       number: 3,
+      title: 'Competencies',
+      produces: 'From your competency sheet, or derived from the activities; typed Domain / Functional / Behavioural',
+      state: frac.rolesDirty || changedBefore(frac, 'competencies') ? 'attention' : state(3, compsDone),
+      evidence: frac.competencies.length && !reached
+        ? `${plural(frac.competencies.length, 'competency', 'competencies')} from your sheet, used after research`
+        : frac.competencies.length
+        ? `${plural(frac.competencies.length, 'competency', 'competencies')} · D ${s.types.D} / F ${s.types.F} / B ${s.types.B} · ${s.unused} unused`
+        : 'No competencies yet',
+      howTo: frac.uploads?.competencies
+        ? `Uses your competency sheet (${frac.uploads.competencies}), uploaded on the Research tab. The roles step maps each activity `
+          + 'to it; after editing activities, run "Map activities to your competencies" again.'
+        : frac.rolesDirty
+          ? 'Roles changed after competencies were derived. Re-derive competencies, or check the mappings and mark them checked.'
+          : staleHowTo(frac, 'competencies', 'these competencies were derived', 'Re-derive competencies')
+            || (frac.roles.some(r => r.activities.length)
+              ? 'Run "Derive competencies", then edit, add or delete in the Competencies tab.'
+              : 'Derived from the activities after Roles & activities, or upload a competency sheet on the Research tab.'),
+      running: running(3),
+    },
+    {
+      number: 4,
       title: 'Roles & activities',
       produces: 'Roles from the job, observable activities, posting Yes/No, competency@level',
-      state: changedBefore(frac, 'roles') ? 'attention' : state(3, rolesDone),
+      state: changedBefore(frac, 'roles') ? 'attention' : state(4, rolesDone),
       evidence: !frac.roles.length
         ? 'No roles yet'
         : copied && !rolesDone
           ? `${plural(frac.roles.length, 'role')} · ${plural(s.activities, 'activity', 'activities')} copied from ${copiedFrom}`
           : `${plural(frac.roles.length, 'role')} · ${plural(s.activities, 'activity', 'activities')} · ${s.unmapped} unmapped`,
       howTo: staleHowTo(frac, 'roles', 'these roles were built', 'Revise the roles with feedback') || rolesHowTo(frac, briefDocs, copiedFrom),
-      running: running(3),
-    },
-    {
-      number: 4,
-      title: 'Competencies',
-      produces: 'Competencies derived from the activities, typed Domain / Functional / Behavioural',
-      state: frac.rolesDirty || changedBefore(frac, 'competencies') ? 'attention' : state(4, frac.competencies.length > 0),
-      evidence: frac.competencies.length
-        ? `${plural(frac.competencies.length, 'competency', 'competencies')} · D ${s.types.D} / F ${s.types.F} / B ${s.types.B} · ${s.unused} unused`
-        : 'No competencies yet',
-      howTo: frac.uploads?.competencies
-        ? `Uses your competency sheet (${frac.uploads.competencies}): run "Map activities to your competencies" to map each activity to it.`
-        : frac.rolesDirty
-          ? 'Roles changed after competencies were derived. Re-derive competencies, or check the mappings and mark them checked.'
-          : staleHowTo(frac, 'competencies', 'these competencies were derived', 'Re-derive competencies')
-            || 'Run "Derive competencies", then edit, add or delete in the Competencies tab.',
       running: running(4),
     },
     {
       number: 5,
       title: 'Level ladders',
       produces: 'L1–L5 per competency, 2–4 assessable indicators each',
-      state: changedBefore(frac, 'ladders') ? 'attention' : state(5, frac.competencies.length > 0 && s.ladders === frac.competencies.length),
-      evidence: frac.competencies.length ? `${s.ladders} of ${frac.competencies.length} ladders written` : 'Needs competencies first',
+      state: changedBefore(frac, 'ladders') ? 'attention' : state(5, laddersDone),
+      evidence: !frac.competencies.length
+        ? 'Needs competencies first'
+        : fromSheet && !laddersDone && s.ladders
+          ? `${s.ladders} of ${frac.competencies.length} ladders in your sheet`
+          : `${s.ladders} of ${frac.competencies.length} ladders written`,
       howTo: staleHowTo(frac, 'ladders', 'these ladders were written', 'Rewrite the ladders')
         || 'Run "Write level ladders", then edit any level, or revise one competency with feedback. '
         + '"Preview roles" on this tab shows each role with its competencies and levels.',
