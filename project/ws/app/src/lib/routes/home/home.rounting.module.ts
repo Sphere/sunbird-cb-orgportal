@@ -89,6 +89,11 @@ const routes: Routes = [
           import('../frac/frac.module').then((m) => m.FracModule),
       },
       {
+        path: 'notifications',
+        loadChildren: () =>
+          import('../notifications/notifications.module').then((m) => m.NotificationsModule),
+      },
+      {
         // Role name MUST be lowercase — GeneralGuard tests a lowercased Set without
         // lowercasing the input, so an uppercase entry silently never matches.
         // This gate is for UX; the backend 403 is the real access control.
