@@ -1,0 +1,246 @@
+<div class="send-notification-container">
+  <button type="button" class="back-link" (click)="back()">
+    <mat-icon>arrow_back</mat-icon>
+    <span>Notifications</span>
+  </button>
+
+  <section class="header-section">
+    <h1 class="page-title">{{ config.pageTitle }}</h1>
+    <p class="page-subtitle">{{ config.pageSubtitle }}</p>
+  </section>
+
+  <!-- Selected item preview -->
+  <div class="item-preview">
+    <div class="item-image">
+      <img *ngIf="selectedItem?.image && !imageFailed" [src]="selectedItem?.image" [alt]="selectedItem?.name"
+        (error)="imageFailed = true" />
+      <mat-icon *ngIf="!selectedItem?.image || imageFailed">{{ config.icon }}</mat-icon>
+    </div>
+    <div class="item-name" [class.placeholder]="!selectedItem">
+      {{ selectedItem?.name || 'No ' + config.itemLabel.toLowerCase() + ' selected' }}
+    </div>
+  </div>
+
+  <form [formGroup]="form" class="notification-form" (ngSubmit)="send()">
+    <div class="form-row">
+      <!-- Organisation (searchable) -->
+      <div class="field-shell">
+        <div class="select-wrapper" data-dropdown="org">
+          <span class="select-label required">Organisation</span>
+          <button type="button" class="custom-select dropdown-trigger" [class.open]="openDropdown === 'org'"
+            (click)="toggleDropdown('org')" [attr.aria-expanded]="openDropdown === 'org'" aria-label="Organisation">
+            <span class="dropdown-value" [class.placeholder]="!selectedOrg?.name">
+              <ng-container *ngIf="selectedOrg; else orgPlaceholder">
+                {{ selectedOrg.name }} <span class="option-id">({{ selectedOrg.id }})</span>
+              </ng-container>
+              <ng-template #orgPlaceholder>{{ loadingOrganisations ? 'Loading...' : 'Select Organisation' }}</ng-template>
+            </span>
+          </button>
+          <div class="dropdown-panel" *ngIf="openDropdown === 'org'">
+            <div class="dropdown-search-row">
+              <input class="dropdown-search-input" type="text" id="notificationOrgSearch" placeholder="Search Organisation..."
+                aria-label="Search Organisation" [value]="orgSearch"
+                (input)="onSearch('org', $any($event.target).value)" (keydown.escape)="closeDropdown()" />
+            </div>
+            <div *ngIf="loadingOrganisations" class="dropdown-option disabled">Loading...</div>
+            <div *ngIf="!loadingOrganisations && filteredOrganisations.length === 0" class="dropdown-option disabled">
+              No organisation found
+            </div>
+            <button type="button" *ngFor="let option of filteredOrganisations" class="dropdown-option"
+              [class.selected]="option.id === form.controls.orgId.value" (click)="selectOrg(option.id)">
+              {{ option.name }} <span class="option-id">({{ option.id }})</span>
+            </button>
+          </div>
+          <span class="select-arrow">
+            <svg viewBox="0 0 16 16" fill="none">
+              <polyline points="3,5 8,11 13,5" />
+            </svg>
+          </span>
+        </div>
+      </div>
+
+      <!-- Course / Competency / Program (searchable) -->
+      <div class="field-shell">
+        <div class="select-wrapper" data-dropdown="item">
+          <span class="select-label required">{{ config.itemLabel }}</span>
+          <button type="button" class="custom-select dropdown-trigger" [class.open]="openDropdown === 'item'"
+            [disabled]="itemsNeedOrg && !form.controls.orgId.value" (click)="toggleDropdown('item')"
+            [attr.aria-expanded]="openDropdown === 'item'" [attr.aria-label]="config.itemLabel">
+            <span class="dropdown-value" [class.placeholder]="!selectedItem?.name">
+              <ng-container *ngIf="selectedItem; else itemPlaceholder">
+                {{ selectedItem.name }} <span class="option-id">({{ selectedItem.identifier }})</span>
+              </ng-container>
+              <ng-template #itemPlaceholder>{{ itemPlaceholder }}</ng-template>
+            </span>
+          </button>
+          <div class="dropdown-panel" *ngIf="openDropdown === 'item'">
+            <div class="dropdown-search-row">
+              <input class="dropdown-search-input" type="text" id="notificationItemSearch"
+                [placeholder]="'Search ' + config.itemLabel + '...'"
+                [attr.aria-label]="'Search ' + config.itemLabel + '...'" [value]="itemSearch"
+                (input)="onSearch('item', $any($event.target).value)" (keydown.escape)="closeDropdown()" />
+            </div>
+            <div *ngIf="loadingItems" class="dropdown-option disabled">Loading...</div>
+            <div *ngIf="!loadingItems && filteredItems.length === 0" class="dropdown-option disabled">
+              No {{ config.itemLabel.toLowerCase() }} found
+            </div>
+            <button type="button" *ngFor="let option of filteredItems" class="dropdown-option"
+              [class.selected]="option.identifier === form.controls.itemId.value" (click)="selectItem(option.identifier)">
+              {{ option.name }} <span class="option-id">({{ option.identifier }})</span>
+            </button>
+          </div>
+          <span class="select-arrow">
+            <svg viewBox="0 0 16 16" fill="none">
+              <polyline points="3,5 8,11 13,5" />
+            </svg>
+          </span>
+        </div>
+      </div>
+
+      <!-- Position (searchable) — enabled once an organisation is selected, lists that organisation's positions -->
+      <div class="field-shell" *ngIf="!isCertificate">
+        <div class="select-wrapper" data-dropdown="position">
+          <span class="select-label">Position (optional)</span>
+          <button type="button" class="custom-select dropdown-trigger" [class.open]="openDropdown === 'position'"
+            [disabled]="!form.controls.orgId.value" (click)="toggleDropdown('position')"
+            [attr.aria-expanded]="openDropdown === 'position'" aria-label="Position">
+            <span class="dropdown-value" [class.placeholder]="!form.controls.positions.value.length"
+              [attr.title]="form.controls.positions.value.length ? positionSummary : null">
+              {{ form.controls.orgId.value ? positionSummary : 'Select an organisation first' }}
+            </span>
+          </button>
+          <div class="dropdown-panel" *ngIf="openDropdown === 'position'">
+            <div class="dropdown-search-row">
+              <input class="dropdown-search-input" type="text" id="notificationPositionSearch" placeholder="Search Position..."
+                aria-label="Search Position" [value]="positionSearch"
+                (input)="onSearch('position', $any($event.target).value)" (keydown.escape)="closeDropdown()" />
+              <div class="selection-bar" *ngIf="!loadingPositions && positions.length">
+                <span>{{ positionSelectionText }}</span>
+                <button type="button" class="clear-link" *ngIf="form.controls.positions.value.length"
+                  (click)="clearPositions()">Clear</button>
+              </div>
+            </div>
+            <div *ngIf="loadingPositions" class="dropdown-option disabled">Loading...</div>
+            <ng-container *ngIf="!loadingPositions">
+              <div *ngIf="filteredPositions.length === 0" class="dropdown-option disabled">No position found</div>
+              <label *ngFor="let option of filteredPositions" class="dropdown-option checkbox-option"
+                [class.selected]="isPositionSelected(option)">
+                <input type="checkbox" [checked]="isPositionSelected(option)" (change)="togglePosition(option)" />
+                <span>{{ option }}</span>
+              </label>
+            </ng-container>
+          </div>
+          <span class="select-arrow">
+            <svg viewBox="0 0 16 16" fill="none">
+              <polyline points="3,5 8,11 13,5" />
+            </svg>
+          </span>
+        </div>
+        <div *ngIf="form.controls.orgId.value && !loadingPositions && positions.length === 0" class="field-hint">
+          No positions found for this organisation
+        </div>
+      </div>
+
+      <!-- Users (Certificate only, searchable multi-select) — the org's users; the notification goes to their devices -->
+      <div class="field-shell" *ngIf="isCertificate">
+        <div class="select-wrapper" data-dropdown="user">
+          <span class="select-label required">Users</span>
+          <button type="button" class="custom-select dropdown-trigger" [class.open]="openDropdown === 'user'"
+            [disabled]="!form.controls.orgId.value" (click)="toggleDropdown('user')"
+            [attr.aria-expanded]="openDropdown === 'user'" aria-label="Users">
+            <span class="dropdown-value" [class.placeholder]="!form.controls.userIds.value.length"
+              [attr.title]="form.controls.userIds.value.length ? userSummary : null">
+              {{ form.controls.orgId.value ? userSummary : 'Select an organisation first' }}
+            </span>
+          </button>
+          <div class="dropdown-panel" *ngIf="openDropdown === 'user'">
+            <div class="dropdown-search-row">
+              <input class="dropdown-search-input" type="text" id="notificationUserSearch"
+                placeholder="Search by name, email, phone or id..." aria-label="Search users" [value]="userSearch"
+                (input)="onSearch('user', $any($event.target).value)" (keydown.escape)="closeDropdown()" />
+              <div class="selection-bar" *ngIf="!loadingUsers && users.length">
+                <span>{{ userSelectionText }}</span>
+                <span class="selection-actions">
+                  <button type="button" class="clear-link" *ngIf="filteredUsers.length" (click)="selectShownUsers()">
+                    Select all shown
+                  </button>
+                  <button type="button" class="clear-link" *ngIf="form.controls.userIds.value.length"
+                    (click)="clearUsers()">Clear</button>
+                </span>
+              </div>
+            </div>
+            <div *ngIf="loadingUsers" class="dropdown-option disabled">Loading...</div>
+            <ng-container *ngIf="!loadingUsers">
+              <div *ngIf="filteredUsers.length === 0" class="dropdown-option disabled">No user found</div>
+              <label *ngFor="let user of filteredUsers" class="dropdown-option checkbox-option"
+                [class.selected]="isUserSelected(user.id)">
+                <input type="checkbox" [checked]="isUserSelected(user.id)" (change)="toggleUser(user.id)" />
+                <span>
+                  {{ user.name }}
+                  <span class="option-id">({{ user.contact ? user.contact + ' · ' : '' }}{{ user.id }})</span>
+                </span>
+              </label>
+            </ng-container>
+          </div>
+          <span class="select-arrow">
+            <svg viewBox="0 0 16 16" fill="none">
+              <polyline points="3,5 8,11 13,5" />
+            </svg>
+          </span>
+        </div>
+        <div *ngIf="form.controls.userIds.touched && form.controls.userIds.invalid" class="field-error-text">
+          Select at least one user
+        </div>
+        <div *ngIf="form.controls.orgId.value && !loadingUsers && users.length === 0" class="field-hint">
+          No users found for this organisation
+        </div>
+      </div>
+    </div>
+
+    <!-- Message: prefilled with defaults, editable -->
+    <div class="message-section">
+      <div class="message-header">
+        <h2 class="section-title">Message</h2>
+        <button type="button" class="reset-link" (click)="resetMessage()">Reset to default</button>
+      </div>
+
+      <div class="field-shell">
+        <div class="input-wrapper">
+          <label class="select-label required" for="notificationTitle">Title</label>
+          <input class="custom-input" type="text" formControlName="title" id="notificationTitle" />
+        </div>
+        <div *ngIf="form.controls.title.touched && form.controls.title.invalid" class="field-error-text">
+          Title is required
+        </div>
+      </div>
+
+      <div class="field-shell">
+        <div class="input-wrapper">
+          <label class="select-label required" for="notificationBody">Body</label>
+          <textarea class="custom-input custom-textarea" formControlName="body" id="notificationBody" rows="3"></textarea>
+        </div>
+        <div *ngIf="form.controls.body.touched && form.controls.body.invalid" class="field-error-text">
+          Body is required
+        </div>
+      </div>
+
+      <div class="field-shell">
+        <div class="input-wrapper">
+          <label class="select-label" for="notificationImageUrl">Image URL</label>
+          <input class="custom-input" type="url" formControlName="imageUrl" id="notificationImageUrl"
+            placeholder="https://..." />
+        </div>
+        <div *ngIf="form.controls.imageUrl.invalid" class="field-error-text">
+          Enter a full image URL starting with http:// or https://
+        </div>
+        <div *ngIf="form.controls.imageUrl.valid" class="field-hint">
+          Picture shown in the notification. Defaults to the selected {{ config.itemLabel.toLowerCase() }}'s logo.
+        </div>
+      </div>
+    </div>
+
+    <button type="submit" class="send-btn" [disabled]="!canSend">
+      {{ sending ? 'Sending...' : 'Send notification' }}
+    </button>
+  </form>
+</div>

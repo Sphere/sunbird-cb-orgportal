@@ -26,6 +26,20 @@ export class MenuConfigService {
             // Lowercase: the left-menu widget matches against the lowercased userRoles set.
             requiredRoles: ['mnc_report_viewer'],
         },
+        {
+            name: 'Notification',
+            key: 'notification',
+            fragment: false,
+            render: true,
+            badges: {
+                enabled: false,
+                uri: ''
+            },
+            enabled: true,
+            routerLink: '/app/home/notifications',
+            // Lowercase: the left-menu widget matches against the lowercased userRoles set.
+            requiredRoles: ['admin', 'mdo_admin'],
+        },
         // Playlist and Competency are left disabled deliberately. mergeMenus() was switched
         // off entirely until now, so neither has ever been rendered from here — their real
         // menu entries come from the host-served page config. Enabling them as a side effect
