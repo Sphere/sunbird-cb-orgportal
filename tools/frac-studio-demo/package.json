@@ -1,0 +1,15 @@
+{
+  "name": "frac-studio-demo",
+  "private": true,
+  "description": "Records the FRAC Studio demo video (Creator and Reviewer flows) from a running portal. Not part of the app build.",
+  "type": "module",
+  "scripts": {
+    "record": "node record.mjs",
+    "record:review": "node record-review.mjs",
+    "edit": "node edit.mjs",
+    "demo": "node record.mjs && node record-review.mjs && node edit.mjs"
+  },
+  "dependencies": {
+    "playwright-core": "1.57.0"
+  }
+}
