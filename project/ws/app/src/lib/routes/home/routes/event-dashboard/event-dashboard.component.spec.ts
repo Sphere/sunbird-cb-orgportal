@@ -118,25 +118,15 @@ describe('EventDashboardComponent', () => {
       ;(component as any).filterWrapper = { nativeElement: { contains: () => contains } }
     }
 
-    it('should close the filter panel when the click is outside the filter', () => {
-      component.filterPanelOpen = true
-      setWrapper(false)
+    it.each([
+      { scenario: 'close the panel when the click is outside the filter', open: true, inside: false, expected: false },
+      { scenario: 'keep the panel open when the click is inside the filter', open: true, inside: true, expected: true },
+      { scenario: 'do nothing when the panel is already closed', open: false, inside: false, expected: false },
+    ])('should $scenario', ({ open, inside, expected }) => {
+      component.filterPanelOpen = open
+      setWrapper(inside)
       component.onDocumentClick({ target: {} } as any)
-      expect(component.filterPanelOpen).toBe(false)
-    })
-
-    it('should keep the panel open when the click is inside the filter', () => {
-      component.filterPanelOpen = true
-      setWrapper(true)
-      component.onDocumentClick({ target: {} } as any)
-      expect(component.filterPanelOpen).toBe(true)
-    })
-
-    it('should do nothing when the panel is already closed', () => {
-      component.filterPanelOpen = false
-      setWrapper(false)
-      component.onDocumentClick({ target: {} } as any)
-      expect(component.filterPanelOpen).toBe(false)
+      expect(component.filterPanelOpen).toBe(expected)
     })
 
     it('should close the panel on escape', () => {
