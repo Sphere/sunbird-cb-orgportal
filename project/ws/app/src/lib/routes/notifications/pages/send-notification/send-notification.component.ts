@@ -2,8 +2,18 @@ import { Component, ElementRef, HostListener, OnDestroy, OnInit } from '@angular
 import { FormControl, FormGroup, Validators } from '@angular/forms'
 import { ActivatedRoute, Router } from '@angular/router'
 import { MatSnackBar } from '@angular/material/snack-bar'
-import { EMPTY, Observable, Subject, merge, of } from 'rxjs'
-import { catchError, debounceTime, distinctUntilChanged, finalize, map, switchMap, takeUntil, tap } from 'rxjs/operators'
+import { EMPTY, Observable, Subject, merge } from 'rxjs'
+import {
+  catchError,
+  debounceTime,
+  distinctUntilChanged,
+  exhaustMap,
+  finalize,
+  map,
+  switchMap,
+  takeUntil,
+  tap,
+} from 'rxjs/operators'
 import {
   NOTIFICATION_KIND_CONFIG,
   NOTIFICATION_LIMITS,
@@ -92,6 +102,9 @@ export class SendNotificationComponent implements OnInit, OnDestroy {
   /** How much of each list was loaded. `*Total` is the server's count: matching courses, or the organisation's users. */
   itemsTotal = 0
   itemsTruncated = false
+  /** Course list paging: the next page is loading, or loading it failed. */
+  loadingMoreItems = false
+  loadMoreItemsError = false
   orgUsersTotal = 0
   positionsTruncated = false
   usersTruncated = false
@@ -107,6 +120,7 @@ export class SendNotificationComponent implements OnInit, OnDestroy {
   /** The chosen item, kept so it stays selected when a new course search replaces the list. */
   private pickedItem?: NotificationItem
   private readonly courseSearch$ = new Subject<string>()
+  private readonly loadMoreCourses$ = new Subject<void>()
   private readonly retryItems$ = new Subject<void>()
   private readonly retryPositions$ = new Subject<void>()
   private readonly retryUsers$ = new Subject<void>()
@@ -335,12 +349,34 @@ export class SendNotificationComponent implements OnInit, OnDestroy {
     this.form.controls.userIds.markAsTouched()
   }
 
+  trackByItem(_index: number, item: NotificationItem): string {
+    return item.identifier
+  }
+
   trackByUser(_index: number, user: NotificationUser): string {
     return user.id
   }
 
   trackByValue(_index: number, value: string): string {
     return value
+  }
+
+  /** Loads the next page of courses when the Course panel is scrolled near its end. */
+  onItemsPanelScroll(event: Event): void {
+    if (!this.searchesOnServer || !this.itemsTruncated || this.loadingItems || this.loadingMoreItems || this.loadMoreItemsError) {
+      return
+    }
+    const panel = event.target as HTMLElement
+    const distanceToEnd = panel.scrollHeight - panel.scrollTop - panel.clientHeight
+    if (distanceToEnd <= NOTIFICATION_LIMITS.SCROLL_LOAD_THRESHOLD_PX) {
+      this.loadMoreCourses$.next()
+    }
+  }
+
+  /** Retries a failed next-page load. */
+  retryLoadMoreItems(): void {
+    this.loadMoreItemsError = false
+    this.loadMoreCourses$.next()
   }
 
   /** Re-runs a list load that failed. */
@@ -499,8 +535,9 @@ export class SendNotificationComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Course list: searched on the server as the admin types (debounced), so every live course is reachable,
-   * not just the first CONTENT_LIST_LIMIT. A newer search cancels an older one.
+   * Course list: searched and paged on the server. Each search (debounced) loads the first page and replaces the
+   * list; scrolling near the end loads the next page and appends it. A newer search cancels the older one and its
+   * paging, and only one next-page request runs at a time.
    */
   private watchCourseSearch(): void {
     merge(
@@ -511,23 +548,48 @@ export class SendNotificationComponent implements OnInit, OnDestroy {
       ),
       this.retryItems$.pipe(map(() => this.itemSearch.trim())),
     ).pipe(
-      tap(() => {
+      switchMap(term => {
         this.loadingItems = true
         this.itemsError = false
+        this.loadingMoreItems = false
+        this.loadMoreItemsError = false
+        return this.notificationApi.getCourses(term).pipe(
+          tap(firstPage => {
+            this.loadingItems = false
+            this.setCourses(firstPage.items, firstPage)
+          }),
+          switchMap(() => this.loadMoreCourses$.pipe(
+            exhaustMap(() => {
+              this.loadingMoreItems = true
+              return this.notificationApi.getCourses(term, this.items.length).pipe(
+                tap(page => this.setCourses([...this.items, ...page.items], page)),
+                catchError(() => {
+                  this.loadMoreItemsError = true
+                  return EMPTY
+                }),
+                finalize(() => { this.loadingMoreItems = false }),
+              )
+            }),
+          )),
+          catchError(() => {
+            this.loadingItems = false
+            this.itemsError = true
+            this.setCourses([], { total: 0, truncated: false })
+            return EMPTY
+          }),
+        )
       }),
-      switchMap(term => this.notificationApi.getCourses(term).pipe(
-        catchError(() => of<PartialList<NotificationItem> | null>(null)),
-      )),
       takeUntil(this.destroy$),
-    ).subscribe(list => {
-      this.loadingItems = false
-      this.itemsError = !list
-      this.items = list?.items || []
-      this.filteredItems = this.items
-      this.itemsTotal = list?.total || 0
-      this.itemsTruncated = !!list?.truncated
-    })
+    ).subscribe()
     this.courseSearch$.next('')
+  }
+
+  /** Puts a course list in place. New courses published while paging can shift offsets, so ids are de-duplicated. */
+  private setCourses(items: NotificationItem[], page: Pick<PartialList<NotificationItem>, 'total' | 'truncated'>): void {
+    this.items = Array.from(new Map(items.map(item => [item.identifier, item])).values())
+    this.filteredItems = this.items
+    this.itemsTotal = page.total
+    this.itemsTruncated = page.truncated
   }
 
   private loadItems(): void {

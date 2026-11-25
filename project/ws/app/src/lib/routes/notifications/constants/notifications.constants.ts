@@ -34,7 +34,10 @@ export const PROGRAM_FORM_REQUEST = {
 export const NOTIFICATION_LIMITS = {
   // Same limit as the Playlist organisation dropdown, so no organisation is cut off.
   ORG_LIST_LIMIT: 9999,
-  CONTENT_LIST_LIMIT: 200,
+  /** Courses fetched per page; the next page loads when the admin scrolls near the end of the list. */
+  CONTENT_PAGE_SIZE: 50,
+  /** How close (px) to the bottom of the Course panel scrolling must get before the next page loads. */
+  SCROLL_LOAD_THRESHOLD_PX: 48,
   SNACKBAR_DURATION_MS: 3000,
   /** Delay before focusing a dropdown's search box after it opens. */
   SEARCH_FOCUS_DELAY_MS: 50,

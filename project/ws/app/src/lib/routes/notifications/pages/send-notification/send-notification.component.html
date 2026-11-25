@@ -73,7 +73,7 @@
               <ng-template #itemPlaceholder>{{ itemPlaceholderText }}</ng-template>
             </span>
           </button>
-          <div class="dropdown-panel" *ngIf="openDropdown === 'item'">
+          <div class="dropdown-panel" *ngIf="openDropdown === 'item'" (scroll)="onItemsPanelScroll($event)">
             <div class="dropdown-search-row">
               <input class="dropdown-search-input" type="text" id="notificationItemSearch"
                 [placeholder]="'Search ' + config.itemLabel + '...'"
@@ -88,13 +88,23 @@
             <div *ngIf="!loadingItems && !itemsError && filteredItems.length === 0" class="dropdown-option disabled">
               No {{ config.itemLabel.toLowerCase() }} found
             </div>
-            <div *ngIf="!loadingItems && itemsTruncated" class="dropdown-option disabled list-note">
-              Showing {{ filteredItems.length }} of {{ itemsTotal }} — type to search for others
-            </div>
-            <button type="button" *ngFor="let option of filteredItems" class="dropdown-option"
-              [class.selected]="option.identifier === form.controls.itemId.value" (click)="selectItem(option.identifier)">
-              {{ option.name }} <span class="option-id">({{ option.identifier }})</span>
-            </button>
+            <ng-container *ngIf="!loadingItems">
+              <button type="button" *ngFor="let option of filteredItems; trackBy: trackByItem" class="dropdown-option"
+                [class.selected]="option.identifier === form.controls.itemId.value" (click)="selectItem(option.identifier)">
+                {{ option.name }} <span class="option-id">({{ option.identifier }})</span>
+              </button>
+              <!-- Course paging: the next page loads when the list is scrolled to its end -->
+              <ng-container *ngIf="searchesOnServer && filteredItems.length">
+                <div *ngIf="loadingMoreItems" class="dropdown-option disabled list-note">Loading more...</div>
+                <div *ngIf="loadMoreItemsError" class="dropdown-option disabled load-error">
+                  Couldn't load more courses.
+                  <button type="button" class="clear-link" (click)="retryLoadMoreItems()">Try again</button>
+                </div>
+                <div *ngIf="!loadingMoreItems && !loadMoreItemsError" class="dropdown-option disabled list-note">
+                  {{ itemsTruncated ? 'Scroll for more · ' : '' }}Showing {{ filteredItems.length | number }} of {{ itemsTotal | number }}
+                </div>
+              </ng-container>
+            </ng-container>
           </div>
           <span class="select-arrow">
             <svg viewBox="0 0 16 16" fill="none">

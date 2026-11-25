@@ -152,11 +152,11 @@ export class NotificationApiService {
   }
 
   /**
-   * Live courses matching `query` (all live courses when empty), newest first, at most CONTENT_LIST_LIMIT.
-   * The search runs on the server, so courses beyond the first page are reachable by typing.
+   * One page of live courses matching `query` (all live courses when empty), newest first, starting at `offset`.
+   * The search and paging run on the server, so every live course is reachable by scrolling or typing.
    */
-  getCourses(query = ''): Observable<PartialList<NotificationItem>> {
-    return this.searchContent(NOTIFICATION_CONTENT_CATEGORIES.COURSE, query)
+  getCourses(query = '', offset = 0): Observable<PartialList<NotificationItem>> {
+    return this.searchContent(NOTIFICATION_CONTENT_CATEGORIES.COURSE, query, offset)
   }
 
   /**
@@ -201,7 +201,8 @@ export class NotificationApiService {
     return [...own, ...Object.values(record).flatMap(child => this.collectPrograms(child))]
   }
 
-  private searchContent(primaryCategory: string[], query: string): Observable<PartialList<NotificationItem>> {
+  /** One page (CONTENT_PAGE_SIZE) of live content starting at `offset`; `truncated` is true while more pages remain. */
+  private searchContent(primaryCategory: string[], query: string, offset: number): Observable<PartialList<NotificationItem>> {
     const payload = {
       request: {
         filters: {
@@ -209,8 +210,8 @@ export class NotificationApiService {
           status: ['Live'],
         },
         ...(query.trim() ? { query: query.trim() } : {}),
-        limit: NOTIFICATION_LIMITS.CONTENT_LIST_LIMIT,
-        offset: 0,
+        limit: NOTIFICATION_LIMITS.CONTENT_PAGE_SIZE,
+        offset,
         sort_by: { createdOn: 'desc' },
         fields: ['identifier', 'name', 'posterImage', 'appIcon'],
       },
@@ -226,7 +227,7 @@ export class NotificationApiService {
             image: c.posterImage || c.appIcon || '',
           }))
         const total = res?.result?.count ?? content.length
-        return { items, total, truncated: total > content.length }
+        return { items, total, truncated: offset + content.length < total }
       }),
     )
   }
