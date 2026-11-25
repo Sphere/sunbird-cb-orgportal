@@ -6,7 +6,8 @@ import * as XLSX from 'xlsx'
 import { Subscription } from 'rxjs'
 import { IParticipant } from '../../interface/events'
 
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
+// Domain's first label excludes '.', so it can't overlap the '\.' after it: no backtracking (Sonar S5852)
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@.]+\.[^\s@]{2,}$/
 
 @Component({
   standalone: false,
