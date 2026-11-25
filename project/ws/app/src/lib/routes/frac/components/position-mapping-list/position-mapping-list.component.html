@@ -37,7 +37,7 @@
             <div class="expanded-card">
 
               <div class="header-row">
-                <button type="button" style="all: unset; display: contents; cursor: pointer;"
+                <button type="button" class="header-btn"
                   [attr.aria-pressed]="selectedPositionCode === r.code" (click)="onHeaderClick(r, $event)">
                   <div class="exp-code">{{ r.title }}</div>
                   <!-- <div class="exp-title">{{ r.title || r.description || '-' }}</div> -->

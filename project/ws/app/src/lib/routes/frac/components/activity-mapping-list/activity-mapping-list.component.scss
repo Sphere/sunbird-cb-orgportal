@@ -109,7 +109,7 @@
 .expanded-card {
   background: #F3F8FD;
   border-radius: 16px;
-  padding: 24px;
+  padding: 0; /* padding moved onto .header-btn so the whole card is clickable */
   margin-top: 8px;
   border: 1px solid transparent;
   box-shadow: none;
@@ -118,7 +118,22 @@
 /* Header row */
 .header-row {
   display: flex;
-  gap: 16px;
+
+  .header-btn {
+    all: unset;
+    box-sizing: border-box;
+    display: flex;
+    gap: 16px;
+    width: 100%;
+    padding: 24px;
+    border-radius: 16px;
+    cursor: pointer;
+
+    &:focus-visible {
+      outline: 2px solid #1c5d95;
+      outline-offset: -2px;
+    }
+  }
 
   .exp-code {
     font-size: 20px;
@@ -139,7 +154,8 @@
 
 /* Competency rows */
 .competency-section {
-  margin-top: 12px;
+  margin-top: -12px; /* keeps the same 12px gap below the header's 24px bottom padding */
+  padding: 0 24px 24px;
 }
 
 .competency-row {
@@ -229,6 +245,7 @@
 .shimmer-item .expanded-card {
   display: grid;
   gap: 12px;
+  padding: 24px; /* skeleton cards have no header button */
 }
 
 .shimmer-line {
