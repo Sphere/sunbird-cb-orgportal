@@ -1,19 +1,23 @@
-import { Component, OnInit, TemplateRef, ViewChild } from '@angular/core'
+import { Component, OnDestroy, OnInit, TemplateRef, ViewChild } from '@angular/core'
 import { NeedApprovalsService } from '../../services/need-approvals.service'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { MatDialog } from '@angular/material/dialog'
+import { MatSnackBar } from '@angular/material/snack-bar'
 import { ActivatedRoute, Router, Event, NavigationEnd } from '@angular/router'
-import { NSProfileDataV2 } from '../../models/profile-v2.model'
+import { NSProfileDataV2 } from '../../../home/models/profile-v2.model'
+import { Subject } from 'rxjs'
+import { takeUntil } from 'rxjs/operators'
 // tslint:disable
 import _ from 'lodash'
 // tslint:enable
 @Component({
+  standalone: false,
   selector: 'ws-app-needs-approval',
   templateUrl: './needs-approval.component.html',
   styleUrls: ['./needs-approval.component.scss'],
 })
 
-export class NeedsApprovalComponent implements OnInit {
+export class NeedsApprovalComponent implements OnInit, OnDestroy {
+  private readonly destroy$ = new Subject<void>()
   @ViewChild('approveDialog', { static: false })
   approveDialog!: TemplateRef<any>
   @ViewChild('rejectDialog', { static: false })
@@ -29,14 +33,14 @@ export class NeedsApprovalComponent implements OnInit {
   comment = ''
 
   constructor(
-    private needApprService: NeedApprovalsService,
-    private activeRoute: ActivatedRoute,
-    private router: Router,
-    public dialog: MatDialog, private matSnackBar: MatSnackBar) {
-    this.activeRoute.data.subscribe((data: any) => {
+    private readonly needApprService: NeedApprovalsService,
+    private readonly activeRoute: ActivatedRoute,
+    private readonly router: Router,
+    public readonly dialog: MatDialog, private readonly matSnackBar: MatSnackBar) {
+    this.activeRoute.data.pipe(takeUntil(this.destroy$)).subscribe((data: any) => {
       this.profileData = data.pageData.data.profileData
     })
-    this.router.events.subscribe((event: Event) => {
+    this.router.events.pipe(takeUntil(this.destroy$)).subscribe((event: Event) => {
       if (event instanceof NavigationEnd) {
         this.userwfData = _.first(_.get(this.activeRoute.snapshot, 'data.workflowData.data.result.data'))
         if (_.get(this, 'userwfData.wfInfo')) {
@@ -70,12 +74,17 @@ export class NeedsApprovalComponent implements OnInit {
 
   ngOnInit() { }
 
+  ngOnDestroy() {
+    this.destroy$.next()
+    this.destroy$.complete()
+  }
+
   onClickHandleWorkflow(field: any, action: string) {
     if (action === 'APPROVE') {
       const dialogRef = this.dialog.open(this.approveDialog, {
         width: '770px',
       })
-      dialogRef.afterClosed().subscribe(result => {
+      dialogRef.afterClosed().pipe(takeUntil(this.destroy$)).subscribe(result => {
         if (result) {
           this.onApproveOrRejectClick(req)
         } else {
@@ -86,7 +95,7 @@ export class NeedsApprovalComponent implements OnInit {
       const dialogRef = this.dialog.open(this.rejectDialog, {
         width: '770px',
       })
-      dialogRef.afterClosed().subscribe(result => {
+      dialogRef.afterClosed().pipe(takeUntil(this.destroy$)).subscribe(result => {
         if (result) {
           this.onApproveOrRejectClick(req)
         } else {
@@ -108,7 +117,7 @@ export class NeedsApprovalComponent implements OnInit {
 
   onApproveOrRejectClick(req: any) {
     req.comment = this.comment
-    this.needApprService.handleWorkflow(req).subscribe(res => {
+    this.needApprService.handleWorkflow(req).pipe(takeUntil(this.destroy$)).subscribe(res => {
       if (res.result.data) {
         this.openSnackBar('Request Approved')
         this.comment = ''

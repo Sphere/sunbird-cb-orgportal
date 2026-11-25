@@ -1,9 +1,9 @@
 import { Component, OnInit, EventEmitter, Input, Output } from '@angular/core'
 
 @Component({
+  standalone: false,
   selector: 'ws-widget-app-button',
   templateUrl: './app-button.component.html',
-  styleUrls: ['./app-button.component.scss'],
 })
 export class AppButtonComponent implements OnInit {
   @Input() id?: string
@@ -12,7 +12,7 @@ export class AppButtonComponent implements OnInit {
   @Input() icon?: string
   @Input() type?: string
   @Input() styles?: any = {}
-  @Input() classes?: String = ''
+  @Input() classes?: string = ''
   @Output() eonClick = new EventEmitter<any>()
 
   constructor() {

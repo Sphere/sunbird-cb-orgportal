@@ -1,8 +1,10 @@
 import { Component, OnInit } from '@angular/core'
-import { DomSanitizer, SafeUrl } from '@angular/platform-browser'
+import { SafeUrl } from '@angular/platform-browser'
 import { ConfigurationsService, NsPage } from '@sunbird-cb/utils'
+import { SanitizerService } from '../../services/sanitizer.service'
 
 @Component({
+  standalone: false,
   selector: 'ws-app-public-nav-bar',
   templateUrl: './app-public-nav-bar.component.html',
   styleUrls: ['./app-public-nav-bar.component.scss'],
@@ -12,7 +14,7 @@ export class AppPublicNavBarComponent implements OnInit {
   logo = ''
   appName = ''
   navBar: Partial<NsPage.INavBackground> | null = null
-  constructor(private domSanitizer: DomSanitizer, private configSvc: ConfigurationsService) { }
+  constructor(private readonly sanitizerSvc: SanitizerService, private readonly configSvc: ConfigurationsService) { }
 
   public get showPublicNavbar(): boolean {
     return true
@@ -20,7 +22,7 @@ export class AppPublicNavBarComponent implements OnInit {
 
   ngOnInit() {
     if (this.configSvc.instanceConfig) {
-      this.appIcon = this.domSanitizer.bypassSecurityTrustResourceUrl(
+      this.appIcon = this.sanitizerSvc.trustResourceUrl(
         this.configSvc.instanceConfig.logos.appTransparent,
       )
       this.appName = this.configSvc.instanceConfig.details.appName

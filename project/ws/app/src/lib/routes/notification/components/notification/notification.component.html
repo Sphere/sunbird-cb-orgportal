@@ -26,7 +26,7 @@
       <div *ngIf="recentBadge" class="py-3 pt-0">
         <h2 class="mat-title mb-2" i18n="recently earned badge">Recent Badge</h2>
         <a mat-list-item [routerLink]="'/app/profile/badges'">
-          <img alt matListAvatar class="recent-badge" [src]="recentBadge?.image" />
+          <img [alt]="recentBadge?.badge_name" matListAvatar class="recent-badge" [src]="recentBadge?.image" />
           <h4 matLine>{{ recentBadge?.badge_name }}</h4>
           <p matLine>{{ recentBadge?.message }}</p>
           <p matLine>

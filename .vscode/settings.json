@@ -163,7 +163,7 @@
   },
   "prettier.arrowParens": "avoid",
   "[scss]": {
-    "editor.defaultFormatter": "HookyQR.beautify"
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "[properties]": {
     "editor.defaultFormatter": "foxundermoon.shell-format"

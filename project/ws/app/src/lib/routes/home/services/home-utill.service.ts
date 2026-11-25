@@ -16,7 +16,7 @@ const API_END_POINTS = {
   providedIn: 'root',
 })
 export class ProfileV2UtillService {
-  constructor(private http: HttpClient) { }
+  constructor(private readonly http: HttpClient) { }
   fetchBadges(wid: string): Observable<NSProfileDataV2.IBadgeResponse> {
     return this.http.get<NSProfileDataV2.IBadgeResponse>(`${API_END_POINTS.USER_BADGE(wid)}`)
   }

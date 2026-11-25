@@ -1,4 +1,7 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
+import { waitForAsync, ComponentFixture, TestBed } from '@angular/core/testing'
+import { NO_ERRORS_SCHEMA } from '@angular/core'
+import { MatDialogRef } from '@angular/material/dialog'
+import { of } from 'rxjs'
 
 import { SuccessComponent } from './success.component'
 
@@ -6,11 +9,17 @@ describe('SuccessComponent', () => {
   let component: SuccessComponent
   let fixture: ComponentFixture<SuccessComponent>
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [SuccessComponent],
-    })
-    .compileComponents()
+      schemas: [NO_ERRORS_SCHEMA],
+      providers: [
+        {
+          provide: MatDialogRef,
+          useValue: { close: jest.fn(), afterClosed: () => of(undefined) },
+        },
+      ],
+    }).compileComponents()
   }))
 
   beforeEach(() => {

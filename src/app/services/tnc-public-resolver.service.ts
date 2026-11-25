@@ -10,7 +10,7 @@ import { NsTnc } from '../models/tnc.model'
 export class TncPublicResolverService  {
 
   constructor(
-    private http: HttpClient,
+    private readonly http: HttpClient,
   ) { }
 
   resolve(): Observable<IResolveResponse<NsTnc.ITnc>> {

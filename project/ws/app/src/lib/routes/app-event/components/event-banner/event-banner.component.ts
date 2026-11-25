@@ -7,6 +7,7 @@ interface ITimer {
   mins: number
 }
 @Component({
+  standalone: false,
   selector: 'ws-app-event-banner',
   templateUrl: './event-banner.component.html',
   styleUrls: ['./event-banner.component.scss'],
@@ -29,9 +30,9 @@ export class EventBannerComponent implements OnDestroy, OnChanges, OnInit {
   private currentSubscription: Subscription | null = null
 
   constructor(
-    private router: Router,
-    private route: ActivatedRoute,
-    private changeDetector: ChangeDetectorRef,
+    private readonly router: Router,
+    private readonly route: ActivatedRoute,
+    private readonly changeDetector: ChangeDetectorRef,
   ) { }
 
   ngOnChanges() {
@@ -46,7 +47,7 @@ export class EventBannerComponent implements OnDestroy, OnChanges, OnInit {
     this.currentSubscription = timer(0, 60000)
       .subscribe(() => {
         this.allRemainingTime = []
-        this.sessionTime.map(
+        this.sessionTime.forEach(
           (v: number, index: number) => {
             this.sessionTime[index] = v - 60000
             this.allRemainingTime.push(this.convertMinutes(this.sessionTime[index]))
@@ -76,7 +77,7 @@ export class EventBannerComponent implements OnDestroy, OnChanges, OnInit {
       this.allStartTimeData.push(this.data.SessionCards.Sessions[v].SessionStartTime)
     })
     this.allStartTimeData.forEach((sessionTime: string) => {
-      const diffDate = Date.parse(sessionTime) - Date.parse(Date())
+      const diffDate = Date.parse(sessionTime) - Date.parse(String(new Date()))
       // const days = Math.floor(diffDate / (1000 * 60 * 60 * 24))
       // const mins = Math.floor((diffDate / 1000 / 60) % 60)
       // const hours = Math.floor((diffDate / (1000 * 60 * 60)) % 24) + days * 24

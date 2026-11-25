@@ -18,6 +18,7 @@ export type TableColumn = FracTableColumn
 type GridStyle = 'horizontal' | 'vertical' | 'both' | 'none'
 
 @Component({
+  standalone: false,
   selector: 'app-frac-table',
   templateUrl: './frac-table.component.html',
   styleUrls: ['./frac-table.component.scss'],
@@ -49,7 +50,7 @@ export class FracTableComponent implements OnChanges, AfterViewInit {
   /** Configurable grid line style: horizontal | vertical | both | none */
   @Input() gridStyle: GridStyle = 'horizontal'
 
-  @Input() isEditing = false;
+  @Input() isEditing = false
   @Output() selectionChange = new EventEmitter<FracTableRow[]>()
 
   /** Table data source */

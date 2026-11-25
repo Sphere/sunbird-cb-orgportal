@@ -19,16 +19,17 @@ import { FeatureAccessService, FEATURE_KEY, FeatureKey } from '../access/feature
  * Usage: <input type="checkbox" appDisableForViewOnly ...>
  *        <mat-checkbox appDisableForViewOnly [disabled]="isReadOnly" ...>
  */
+// eslint-disable-next-line @angular-eslint/directive-selector
 @Directive({
   selector: '[appDisableForViewOnly]',
   standalone: true,
 })
 export class DisableForViewOnlyDirective implements DoCheck {
   constructor(
-    private el: ElementRef<HTMLElement>,
-    private access: FeatureAccessService,
-    @Optional() @Inject(FEATURE_KEY) private feature: FeatureKey | null,
-    @Optional() @Self() private matCheckbox: MatCheckbox | null,
+    private readonly el: ElementRef<HTMLElement>,
+    private readonly access: FeatureAccessService,
+    @Optional() @Inject(FEATURE_KEY) private readonly feature: FeatureKey | null,
+    @Optional() @Self() private readonly matCheckbox: MatCheckbox | null,
   ) {}
 
   ngDoCheck(): void {

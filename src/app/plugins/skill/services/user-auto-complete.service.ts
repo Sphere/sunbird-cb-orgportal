@@ -14,7 +14,7 @@ const API_END_POINTS = {
 })
 export class UserAutoCompleteService {
 
-  constructor(private http: HttpClient) { }
+  constructor(private readonly http: HttpClient) { }
 
   fetchAutoComplete(
     query: string,

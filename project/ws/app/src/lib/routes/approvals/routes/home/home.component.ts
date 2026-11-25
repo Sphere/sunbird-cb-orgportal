@@ -7,6 +7,7 @@ import moment from 'moment'
 import _ from 'lodash'
 // tslint:enable
 @Component({
+  standalone: false,
   selector: 'ws-app-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
@@ -34,8 +35,8 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
   constructor(
     // private configSvc: ConfigurationsService,
-    private activeRoute: ActivatedRoute,
-    private router: Router,
+    private readonly activeRoute: ActivatedRoute,
+    private readonly router: Router,
     // private needApprService: NeedApprovalsService
   ) {
     // this.getDepartment()
@@ -44,7 +45,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
         const workflowData = (this.activeRoute.snapshot.data.workflowData.data.result.data &&
           this.activeRoute.snapshot.data.workflowData.data.result.data[0]) || {}
         let wfHistoryDatas = this.activeRoute.snapshot.data.workflowHistoryData.data.result.data || {}
-        this.fullname = workflowData
+        this.fullname = Object.keys(workflowData).length
           ?
           `${_.get(workflowData, 'userInfo.first_name') || ''} ${_.get(workflowData, 'userInfo.last_name') || ''}`
           : ''

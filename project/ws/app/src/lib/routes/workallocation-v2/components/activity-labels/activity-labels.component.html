@@ -99,19 +99,23 @@
           </span>
         </div>
         <div *ngIf="i !==0 " class="flex flex-1 flex-column margin-r-2px relative">
-          <div class="flex absolute del cursor-pointer" (click)="deleteGrp(i)"
+          <div class="flex absolute del cursor-pointer"
             [hidden]="((canshowName === -1 && !grp.get('groupName').value) || !(canshowName === i && activeGroupIdx === i)) ">
-            <span class="flex mat-caption f-white m-auto">
-              <mat-icon class="flex f-white">delete</mat-icon>
-              <span class="flex m-auto">Delete </span>
-            </span>
+            <button type="button" style="all: unset; display: contents; cursor: pointer;" (click)="deleteGrp(i)">
+              <span class="flex mat-caption f-white m-auto">
+                <mat-icon class="flex f-white">delete</mat-icon>
+                <span class="flex m-auto">Delete </span>
+              </span>
+            </button>
           </div>
           <div class="flex flex-1 group-background margin-b-2px del-focus" (focusout)="hideName()">
-            <span
+            <button type="button" style="all: unset; display: contents; cursor: pointer;"
               [hidden]="!((canshowName === -1 && !grp.get('groupName').value) || !(canshowName === i && activeGroupIdx === i)) "
-              (click)="showName(i)" class="flex margin-left-m  margin-top-m mat-subheading-2 break-a">
-              {{grp.get('groupName').value || 'Untitled role'}}
-            </span>
+              (click)="showName(i)">
+              <span class="flex margin-left-m  margin-top-m mat-subheading-2 break-a">
+                {{grp.get('groupName').value || 'Untitled role'}}
+              </span>
+            </button>
             <!-- *ngIf="canshowName === i && activeGroupIdx === i" -->
             <mat-form-field [hidden]="!(canshowName === i && activeGroupIdx === i)" appearance="outline"
               class="full-width no-pb square outline-color">
@@ -133,16 +137,18 @@
           </div>
           <!-- {{grp.get('groupName').value}} -->
           <div class="flex flex-1  group-background" (focusout)="hide()">
-            <span
+            <button type="button" style="all: unset; display: contents; cursor: pointer;"
               *ngIf="(canshow === -1 && !grp.get('groupDescription').value) || !(canshow === i && activeGroupIdx === i)"
-              (click)="show(i)" class="flex padding-xs margin-top-m break-a">
-              <span class="mat-body-2" *ngIf="grp.get('groupDescription').value">
-                {{grp.get('groupDescription').value}}
+              (click)="show(i)">
+              <span class="flex padding-xs margin-top-m break-a">
+                <span class="mat-body-2" *ngIf="grp.get('groupDescription').value">
+                  {{grp.get('groupDescription').value}}
+                </span>
+                <span class="mat-body-2 ws-mat-black40-text" *ngIf="!grp.get('groupDescription').value">
+                  {{'Role description'}}
+                </span>
               </span>
-              <span class="mat-body-2 ws-mat-black40-text" *ngIf="!grp.get('groupDescription').value">
-                {{'Role description'}}
-              </span>
-            </span>
+            </button>
             <mat-form-field *ngIf="canshow === i && activeGroupIdx === i" appearance="outline"
               class="full-width no-pb square outline-color ">
               <textarea [attr.id]="'roleDesc_' + i" matInput #roleDesc name="questionText" cols="35" rows="8"
@@ -287,8 +293,11 @@
                     </mat-form-field>
                   </div> -->
                   <div *ngIf="i === 0" class="flex margin-auto">
-                    <mat-icon class="cursor-pointer ws-mat-black60-text" (click)="deleteSingleActivity(i,gaIdx)">delete
-                    </mat-icon>
+                    <button type="button" style="all: unset; display: contents; cursor: pointer;"
+                      (click)="deleteSingleActivity(i,gaIdx)">
+                      <mat-icon class="cursor-pointer ws-mat-black60-text">delete
+                      </mat-icon>
+                    </button>
                   </div>
                 </div>
               </div>

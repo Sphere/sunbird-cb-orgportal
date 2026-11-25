@@ -12,13 +12,14 @@ export interface MappingRequiredModalData {
 }
 
 @Component({
+  standalone: false,
   selector: 'ws-app-mapping-required-modal',
   templateUrl: './mapping-required-modal.component.html',
   styleUrls: ['./mapping-required-modal.component.scss'],
 })
 export class MappingRequiredModalComponent {
   constructor(
-    private dialogRef: MatDialogRef<MappingRequiredModalComponent>,
+    private readonly dialogRef: MatDialogRef<MappingRequiredModalComponent>,
     @Inject(MAT_DIALOG_DATA) public data: MappingRequiredModalData,
   ) { }
 

@@ -35,7 +35,8 @@
       {{ config.fileSection?.uploadButton || 'Upload File' }}
     </button>
 
-    <input type="file" hidden #fileInput [accept]="allowedTypes" (change)="onFileSelected($event)" />
+    <input type="file" hidden #fileInput [accept]="allowedTypes" (change)="onFileSelected($event)"
+      id="fracUploadFileInput" aria-label="Upload file" />
   </div>
 
 

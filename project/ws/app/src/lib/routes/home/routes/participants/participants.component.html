@@ -1,10 +1,61 @@
-<div class="tab-content ">
-  <!-- Search and Filter -->
+<div class="tab-content">
+
+  <!-- Search + Filter controls -->
   <div class="participants-header">
     <div class="search-filter-group">
-      <input type="text" placeholder="Search by name, place" [(ngModel)]="searchQuery" class="search-input" />
-      <button class="filter-btn">
-        <mat-icon class="material-icons-outlined">filter_alt</mat-icon> Filter
+      <input type="text" placeholder="Search by name, place, email" [(ngModel)]="searchQuery" class="search-input"
+        id="participantsSearch" aria-label="Search by name, place, email" />
+
+      <!-- Filter button + popover wrapper -->
+      <div class="filter-popover-anchor">
+        <button class="filter-btn" [class.active]="showFilterPanel || hasActiveFilters" (click)="toggleFilterPanel($event)">
+          <mat-icon class="material-icons-outlined">filter_alt</mat-icon> Filter
+          <span class="filter-dot" *ngIf="hasActiveFilters"></span>
+        </button>
+
+        <!-- Floating filter popover -->
+        <div class="filter-popover" *ngIf="showFilterPanel" (click)="$event.stopPropagation()"
+          (keydown.enter)="$event.stopPropagation()" (keydown.space)="$event.stopPropagation()">
+          <p class="popover-title">Filters</p>
+
+          <ng-container *ngIf="showCertificateStatus">
+            <p class="filter-section-label">CERTIFICATE STATUS</p>
+            <div class="chip-group">
+              <button class="chip" [class.chip-active]="filterStatus === 'success'"
+                (click)="setFilter('success')">Generated</button>
+              <button class="chip" [class.chip-active]="filterStatus === 'failed'"
+                (click)="setFilter('failed')">Failed</button>
+              <button class="chip" [class.chip-active]="filterStatus === 'pending'" (click)="setFilter('pending')">Not
+                Generated</button>
+              <button class="chip" [class.chip-active]="filterStatus === 'nonqr'" (click)="setFilter('nonqr')">Pending
+                (Manual)</button>
+            </div>
+
+            <p class="filter-section-label">EMAIL STATUS</p>
+            <div class="chip-group">
+              <button class="chip" [class.chip-active]="filterEmailStatus === 'sent'"
+                (click)="setEmailFilter('sent')">Sent</button>
+              <button class="chip" [class.chip-active]="filterEmailStatus === 'notsent'"
+                (click)="setEmailFilter('notsent')">Not sent</button>
+              <button class="chip" [class.chip-active]="filterEmailStatus === 'pending'"
+                (click)="setEmailFilter('pending')">Pending</button>
+              <button class="chip" [class.chip-active]="filterEmailStatus === 'none'"
+                (click)="setEmailFilter('none')">No email</button>
+            </div>
+          </ng-container>
+
+          <p class="no-filters-msg" *ngIf="!showCertificateStatus">
+            No additional filters for this event type.
+          </p>
+
+          <div class="popover-actions">
+            <button class="clear-link" (click)="clearFilters()" *ngIf="hasActiveFilters">Clear filters</button>
+          </div>
+        </div>
+      </div>
+
+      <button class="clear-btn" *ngIf="searchQuery || hasActiveFilters" (click)="clearFilters()">
+        <mat-icon>close</mat-icon> Clear
       </button>
     </div>
 
@@ -12,12 +63,8 @@
       <span class="cert-summary-text">
         {{ participants.length - usersWithoutCert.length }} of {{ participants.length }} received certificates
       </span>
-      <button
-        *ngIf="usersWithoutCert.length > 0"
-        class="download-report-btn"
-        (click)="downloadUsersWithoutCertificates()"
-        [disabled]="isExporting"
-      >
+      <button *ngIf="usersWithoutCert.length > 0" class="download-report-btn"
+        (click)="downloadUsersWithoutCertificates()" [disabled]="isExporting">
         <mat-spinner *ngIf="isExporting" diameter="14" style="display:inline-block; margin-right:6px;"></mat-spinner>
         <mat-icon *ngIf="!isExporting">download</mat-icon>
         {{ isExporting ? 'Preparing...' : 'Download Users Without Certificates (' + usersWithoutCert.length + ')' }}
@@ -34,25 +81,47 @@
           <th>Last Name</th>
           <th>Place</th>
           <th *ngIf="showCertificateStatus">Certificate Status</th>
+          <th *ngIf="showCertificateStatus">Email</th>
+          <th *ngIf="showCertificateStatus">Email Status</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let participant of filteredParticipants()">
+        <tr class="skeleton-row" *ngFor="let row of skeletonRows" [hidden]="!isLoading">
+          <td [attr.colspan]="showCertificateStatus ? 6 : 3"><span class="skeleton-cell"></span></td>
+        </tr>
+        <tr *ngFor="let participant of (isLoading ? [] : filteredParticipants())">
           <td>{{ participant.firstName }}</td>
           <td>{{ participant.lastName }}</td>
           <td>{{ participant.place }}</td>
           <td *ngIf="showCertificateStatus">
-            <span
-              class="cert-status-badge"
-              [ngClass]="{
+            <span class="cert-status-badge" [ngClass]="{
                 'status-success': participant.certificateStatus === 'success',
                 'status-failed': participant.certificateStatus === 'failed',
-                'status-pending': !participant.certificateStatus
-              }"
-            >
+                'status-nonqr': participant.isNonQr && participant.certificateStatus !== 'success' && participant.certificateStatus !== 'failed',
+                'status-pending': !participant.isNonQr && participant.certificateStatus !== 'success' && participant.certificateStatus !== 'failed'
+              }">
               {{ participant.certificateStatus === 'success' ? 'Generated' :
-                 participant.certificateStatus === 'failed' ? 'Failed' : 'Not Generated' }}
+              participant.certificateStatus === 'failed' ? 'Failed' :
+              participant.isNonQr ? 'Pending' : 'Not Generated' }}
             </span>
+          </td>
+          <td *ngIf="showCertificateStatus" class="email-cell">
+            <span *ngIf="participant.email; else noEmail">{{ participant.email }}</span>
+            <ng-template #noEmail><span class="email-none">—</span></ng-template>
+          </td>
+          <td *ngIf="showCertificateStatus" [ngSwitch]="emailStatus(participant)">
+            <ng-container *ngSwitchCase="'sent'">
+              <span class="cert-status-badge status-success">Sent</span>
+              <span class="email-sent-at">{{ participant.emailSentAt | date:'d MMM y, h:mm a' }}</span>
+            </ng-container>
+            <span *ngSwitchCase="'notsent'" class="cert-status-badge status-failed">Not sent</span>
+            <span *ngSwitchCase="'pending'" class="cert-status-badge status-pending">Pending</span>
+            <span *ngSwitchDefault class="email-none">No email</span>
+          </td>
+        </tr>
+        <tr *ngIf="!isLoading && filteredParticipants().length === 0">
+          <td [attr.colspan]="showCertificateStatus ? 6 : 3" class="empty-row">
+            No participants match the current search / filter.
           </td>
         </tr>
       </tbody>

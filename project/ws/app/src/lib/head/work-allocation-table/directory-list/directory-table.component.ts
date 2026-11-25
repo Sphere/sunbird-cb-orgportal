@@ -3,8 +3,8 @@ import {
   AfterViewInit, OnChanges, SimpleChanges,
 } from '@angular/core'
 import { SelectionModel } from '@angular/cdk/collections'
-import { MatLegacyTableDataSource as MatTableDataSource } from '@angular/material/legacy-table'
-import { MatLegacyPaginator as MatPaginator } from '@angular/material/legacy-paginator'
+import { MatTableDataSource } from '@angular/material/table'
+import { MatPaginator } from '@angular/material/paginator'
 import { MatSort } from '@angular/material/sort'
 import * as _ from 'lodash'
 
@@ -12,6 +12,7 @@ import * as _ from 'lodash'
 import { Router } from '@angular/router'
 
 @Component({
+  standalone: false,
   selector: 'ws-widget-directory-table',
   templateUrl: './directory-table.component.html',
   styleUrls: ['./directory-table.component.scss'],
@@ -21,7 +22,7 @@ export class UIDirectoryTableComponent implements OnInit, AfterViewInit, OnChang
   @Input() data?: []
   @Input() selectedDepartment!: string
   @Input() departmentID!: string
-  @Input() needCreate: Boolean = true
+  @Input() needCreate: boolean = true
   @Output() clicked?: EventEmitter<any>
   @Output() actionsClick?: EventEmitter<any>
   @Output() eOnRowClick = new EventEmitter<any>()
@@ -37,7 +38,7 @@ export class UIDirectoryTableComponent implements OnInit, AfterViewInit, OnChang
   selection = new SelectionModel<any>(true, [])
 
   constructor(
-    private router: Router) {
+    private readonly router: Router) {
     this.dataSource = new MatTableDataSource<any>()
     this.actionsClick = new EventEmitter()
     this.clicked = new EventEmitter()

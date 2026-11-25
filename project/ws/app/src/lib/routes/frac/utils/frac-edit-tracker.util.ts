@@ -9,7 +9,7 @@ export class FracEditTracker {
   private baselineRowSignatureByCode = new Map<string, string>()
   private baselineCaptured = false
 
-  constructor(private uploadOrchestrator: FracEntityUploadOrchestratorService) { }
+  constructor(private readonly uploadOrchestrator: FracEntityUploadOrchestratorService) { }
 
   /**
    * Captures the current table state as the baseline for future comparisons.

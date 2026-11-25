@@ -20,12 +20,12 @@ export class SearchServService {
   isFetchingProgress = false
   searchConfig: any = null
   constructor(
-    private events: EventService,
+    private readonly events: EventService,
     // private contentApi: WidgetContentService,
     // private khubApiSvc: KnowledgeHubApiService,
-    private searchApi: SearchApiService,
-    private configSrv: ConfigurationsService,
-    private http: HttpClient,
+    private readonly searchApi: SearchApiService,
+    private readonly configSrv: ConfigurationsService,
+    private readonly http: HttpClient,
   ) { }
 
   get defaultFiltersTranslated() {
@@ -303,7 +303,7 @@ export class SearchServService {
         if (key) {
           let str = ''
           const count = filters[key].length
-          filters[key].map((cur: string, i: number) => {
+          filters[key].forEach((cur: string, i: number) => {
             if (i !== count - 1) {
               str += `"${cur}",`
             } else {

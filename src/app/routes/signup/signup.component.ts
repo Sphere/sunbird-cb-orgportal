@@ -1,15 +1,16 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core'
+import { Component, OnDestroy, ViewChild, ElementRef } from '@angular/core'
 import { UntypedFormGroup, UntypedFormControl, Validators } from '@angular/forms'
 import { Subscription } from 'rxjs'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { MatSnackBar } from '@angular/material/snack-bar'
 import { SignupService } from './signup.service'
 
 @Component({
+  standalone: false,
   selector: 'ws-signup',
   templateUrl: './signup.component.html',
   styleUrls: ['./signup.component.scss'],
 })
-export class SignupComponent implements OnInit, OnDestroy {
+export class SignupComponent implements OnDestroy {
   signupForm: UntypedFormGroup
   unseenCtrl!: UntypedFormControl
   unseenCtrlSub!: Subscription
@@ -18,8 +19,8 @@ export class SignupComponent implements OnInit, OnDestroy {
   @ViewChild('toastError', { static: true }) toastError!: ElementRef<any>
 
   constructor(
-    private snackBar: MatSnackBar,
-    private signupService: SignupService,
+    private readonly snackBar: MatSnackBar,
+    private readonly signupService: SignupService,
   ) {
     this.signupForm = new UntypedFormGroup({
       fname: new UntypedFormControl('', [Validators.required]),
@@ -30,11 +31,6 @@ export class SignupComponent implements OnInit, OnDestroy {
     })
   }
 
-  ngOnInit() {
-    // this.unseenCtrlSub = this.signupForm.valueChanges.subscribe(value => {
-    //   console.log('ngOnInit - value', value);
-    // })
-  }
 
   ngOnDestroy() {
     if (this.unseenCtrlSub && !this.unseenCtrlSub.closed) {

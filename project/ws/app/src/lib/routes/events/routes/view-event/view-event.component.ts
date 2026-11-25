@@ -1,13 +1,17 @@
-import { AfterViewInit, Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core'
+import { AfterViewInit, Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core'
 import { ActivatedRoute, Router, Event, NavigationEnd } from '@angular/router'
+import { Subject } from 'rxjs'
+import { takeUntil } from 'rxjs/operators'
 import moment from 'moment'
 
 @Component({
+  standalone: false,
   selector: 'ws-app-view-event',
   templateUrl: './view-event.component.html',
   styleUrls: ['./view-event.component.scss'],
 })
-export class ViewEventComponent implements OnInit, AfterViewInit {
+export class ViewEventComponent implements OnInit, AfterViewInit, OnDestroy {
+  private readonly destroy$ = new Subject<void>()
   tabsData!: any[]
   currentTab = 'personalInfo'
   sticky = false
@@ -34,8 +38,8 @@ export class ViewEventComponent implements OnInit, AfterViewInit {
     }
   }
 
-  constructor(private activeRoute: ActivatedRoute, private router: Router) {
-    this.router.events.subscribe((event: Event) => {
+  constructor(private readonly activeRoute: ActivatedRoute, private readonly router: Router) {
+    this.router.events.pipe(takeUntil(this.destroy$)).subscribe((event: Event) => {
       if (event instanceof NavigationEnd) {
         const profileData = this.activeRoute.snapshot.data.profileData.data.result.UserProfile[0] || {}
         this.basicInfo = profileData.personalDetails
@@ -52,7 +56,7 @@ export class ViewEventComponent implements OnInit, AfterViewInit {
         const wfHistoryData = wfHistoryDatas.filter((wfh: { inWorkflow: any }) => !wfh.inWorkflow)
         let currentdate: Date
 
-        this.activeRoute.data.subscribe(data => {
+        this.activeRoute.data.pipe(takeUntil(this.destroy$)).subscribe(data => {
           this.profileData = data.pageData.data.profileData
           this.profileDataKeys = data.pageData.data.profileDataKey
         })
@@ -121,6 +125,11 @@ export class ViewEventComponent implements OnInit, AfterViewInit {
         render: true,
         enabled: true,
       }]
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next()
+    this.destroy$.complete()
   }
 
   ngAfterViewInit() {

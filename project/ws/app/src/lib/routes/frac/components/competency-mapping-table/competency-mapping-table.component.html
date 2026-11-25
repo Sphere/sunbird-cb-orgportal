@@ -22,11 +22,13 @@
 
         <!-- Header Columns -->
         <div class="header-bar grid-row">
-          <div class="cell label-cell" style="cursor: pointer; display: flex; align-items: center;"
-            (click)="toggleSort()">
-            {{ headerConfig.codeLabel }}
-            <mat-icon style="font-size: 16px; margin-left: 4px;"
-              *ngIf="sortDirection">{{ sortDirection === 'asc' ? 'arrow_downward' : 'arrow_upward' }}</mat-icon>
+          <div class="cell label-cell" style="display: flex; align-items: center;">
+            <button type="button" style="all: unset; display: contents; cursor: pointer;"
+              (click)="toggleSort()">
+              {{ headerConfig.codeLabel }}
+              <mat-icon style="font-size: 16px; margin-left: 4px;"
+                *ngIf="sortDirection">{{ sortDirection === 'asc' ? 'arrow_downward' : 'arrow_upward' }}</mat-icon>
+            </button>
           </div>
 
           <div class="cell level-cell" *ngFor="let lvl of headerConfig.levels">
@@ -38,7 +40,8 @@
         <div class="search-row">
           <div class="search-cell"></div>
           <div class="search-box">
-            <input [placeholder]="headerConfig.searchPlaceholder" [(ngModel)]="searchTerm"
+            <input id="competencyMappingSearch" [attr.aria-label]="headerConfig.searchPlaceholder"
+              [placeholder]="headerConfig.searchPlaceholder" [(ngModel)]="searchTerm"
               [disabled]="!selectedActivity || isReadOnly" (input)="onSearchChange()" />
             <mat-icon>search</mat-icon>
           </div>

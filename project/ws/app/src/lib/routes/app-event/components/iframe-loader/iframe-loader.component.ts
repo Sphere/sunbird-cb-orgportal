@@ -1,10 +1,12 @@
 import { Component, OnInit } from '@angular/core'
-import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser'
+import { SafeResourceUrl } from '@angular/platform-browser'
 import { ActivatedRoute } from '@angular/router'
+import { SanitizerService } from 'src/app/services/sanitizer.service'
 import { EiframeUrl } from '../../interfaces/event-details.model'
 import { EventService } from '../../services/event.service'
 
 @Component({
+  standalone: false,
   selector: 'ws-app-iframe-loader',
   templateUrl: './iframe-loader.component.html',
   styleUrls: ['./iframe-loader.component.scss'],
@@ -14,9 +16,9 @@ export class IframeLoaderComponent implements OnInit {
   iframeUrl: string | null = null
   iframeType: string | null = null
   constructor(
-    private domSanitizer: DomSanitizer,
-    private activatedRoute: ActivatedRoute,
-    private appEventSvc: EventService,
+    private readonly sanitizerService: SanitizerService,
+    private readonly activatedRoute: ActivatedRoute,
+    private readonly appEventSvc: EventService,
   ) { }
 
   ngOnInit() {
@@ -29,7 +31,7 @@ export class IframeLoaderComponent implements OnInit {
     } else if (this.iframeType === EiframeUrl.VR) {
       this.iframeUrl = ''
     }
-    this.iframeSrc = this.iframeUrl ? this.domSanitizer.bypassSecurityTrustResourceUrl(this.iframeUrl) : null
+    this.iframeSrc = this.iframeUrl ? this.sanitizerService.trustResourceUrl(this.iframeUrl) : null
   }
 
 }

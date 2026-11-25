@@ -23,7 +23,7 @@ import { expandLanguageFilter } from '../utils/language.utils'
 export class CourseApiService {
     private readonly API_BASE = `/apis/proxies/v8/sunbirdigot/search`
 
-    constructor(private http: HttpClient) { }
+    constructor(private readonly http: HttpClient) { }
 
     /**
      * Executes a general search for all available courses.

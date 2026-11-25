@@ -140,13 +140,14 @@
       </div>
 
       <div class="pv-accordion" *ngFor="let comp of data.competencyRows">
-        <div class="pv-accordion__header" (click)="toggleCompetency(comp)"
-          [class.pv-accordion__header--open]="isCompetencyExpanded(comp)">
-          <span class="pv-chip pv-chip--index">#{{ comp.index }}</span>
-          <span class="pv-chip pv-chip--code">{{ comp.code }}</span>
-          <span class="pv-accordion__name">{{ comp.name }}</span>
-          <mat-icon class="pv-accordion__chevron">{{ isCompetencyExpanded(comp) ? 'expand_less' : 'expand_more'
-            }}</mat-icon>
+        <div class="pv-accordion__header" [class.pv-accordion__header--open]="isCompetencyExpanded(comp)">
+          <button type="button" style="all: unset; display: contents; cursor: pointer;" (click)="toggleCompetency(comp)">
+            <span class="pv-chip pv-chip--index">#{{ comp.index }}</span>
+            <span class="pv-chip pv-chip--code">{{ comp.code }}</span>
+            <span class="pv-accordion__name">{{ comp.name }}</span>
+            <mat-icon class="pv-accordion__chevron">{{ isCompetencyExpanded(comp) ? 'expand_less' : 'expand_more'
+              }}</mat-icon>
+          </button>
         </div>
 
         <div class="pv-accordion__body" *ngIf="isCompetencyExpanded(comp)">

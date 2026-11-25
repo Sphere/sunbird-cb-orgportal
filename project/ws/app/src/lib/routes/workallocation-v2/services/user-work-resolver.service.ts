@@ -7,7 +7,7 @@ import { UserWorkService } from './user-work.service'
 @Injectable()
 export class UserWorkResolverService {
 
-  constructor(private userWorkService: UserWorkService) { }
+  constructor(private readonly userWorkService: UserWorkService) { }
 
   resolve(route: ActivatedRouteSnapshot): Observable<any> {
     // const workorder = route.params['workorder']

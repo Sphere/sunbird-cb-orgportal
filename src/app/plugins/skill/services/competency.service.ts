@@ -15,7 +15,7 @@ const API_END_POINTS = {
 export class CompetencyService {
 
   constructor(
-    private http: HttpClient
+    private readonly http: HttpClient
   ) { }
 
   getAllEntity(serchBody: any) {

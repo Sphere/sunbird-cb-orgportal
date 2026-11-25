@@ -29,6 +29,8 @@
   position: absolute;
   top: 16px;
   left: 16px;
+  @extend %content-status;
+  // background: #ce3939;
 }
 
 .concept {
@@ -85,11 +87,6 @@
   top: 16px;
   right: 16px;
   z-index: 999;
-}
-
-.status-danger {
-  @extend %content-status;
-  // background: #ce3939;
 }
 
 .card-img {

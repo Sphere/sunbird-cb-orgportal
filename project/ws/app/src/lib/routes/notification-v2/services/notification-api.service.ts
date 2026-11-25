@@ -12,7 +12,7 @@ export class NotificationApiService {
   private readonly API_BASE = '/apis/protected/v8/user/notifications'
   private readonly BADGE_COUNT = '/apis/protected/v8/user/iconBadge/unseenNotificationCount'
 
-  constructor(private http: HttpClient) { }
+  constructor(private readonly http: HttpClient) { }
 
   getNotifications(
     classification?: string,

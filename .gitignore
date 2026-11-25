@@ -5,6 +5,7 @@
 !/dist/index.js
 !/dist/server.js
 !/dist/package.json
+.scannerwork/*
 
 /tmp
 /out-tsc
@@ -50,4 +51,4 @@ testem.log
 .DS_Store
 Thumbs.db
 
-/src/assets
+/src/assets/env.js

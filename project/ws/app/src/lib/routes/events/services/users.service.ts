@@ -19,7 +19,7 @@ const API_END_POINTS = {
   providedIn: 'root',
 })
 export class UsersService {
-  constructor(private http: HttpClient) { }
+  constructor(private readonly http: HttpClient) { }
   getAllUsers(): Observable<any> {
     return this.http.get<any>(`${API_END_POINTS.GET_ALL_USERS}`)
   }

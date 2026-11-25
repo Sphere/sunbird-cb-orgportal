@@ -1,20 +1,18 @@
-import { Component, Inject, OnInit } from '@angular/core'
-import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog'
+import { Component, Inject } from '@angular/core'
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog'
 
 @Component({
+  standalone: false,
   selector: 'ws-role-confirm-dialog',
   templateUrl: './role-confirm-dialog.component.html',
   styleUrls: ['./role-confirm-dialog.component.scss'],
 })
-export class RoleConfirmDialogComponent implements OnInit {
+export class RoleConfirmDialogComponent {
 
   constructor(
-    private dialogRef: MatDialogRef<RoleConfirmDialogComponent>,
+    private readonly dialogRef: MatDialogRef<RoleConfirmDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
   ) {
-  }
-
-  ngOnInit() {
   }
 
   close() {

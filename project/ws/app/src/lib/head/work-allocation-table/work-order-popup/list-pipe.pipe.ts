@@ -2,6 +2,7 @@ import { Pipe, PipeTransform } from '@angular/core'
 import * as _ from 'lodash'
 
 @Pipe({
+  standalone: false,
   name: 'listPipe',
 })
 export class ListPipePipe implements PipeTransform {

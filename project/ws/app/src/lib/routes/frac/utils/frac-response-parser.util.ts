@@ -47,6 +47,11 @@ export class FracResponseParserUtil {
       return null
     }
 
+    // Blob must be read asynchronously — skip synchronous parse
+    if (typeof Blob !== 'undefined' && response instanceof Blob) {
+      return null
+    }
+
     if (typeof response === 'string') {
       const trimmed = response.trim()
       if (trimmed.startsWith('{') || trimmed.startsWith('[')) {

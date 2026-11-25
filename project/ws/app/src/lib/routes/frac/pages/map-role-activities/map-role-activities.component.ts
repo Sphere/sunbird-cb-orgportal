@@ -55,6 +55,7 @@ interface MappingSearchResponseShape {
 }
 
 @Component({
+  standalone: false,
   selector: 'ws-app-map-role-activities',
   templateUrl: './map-role-activities.component.html',
   styleUrls: ['./map-role-activities.component.scss'],
@@ -62,10 +63,10 @@ interface MappingSearchResponseShape {
 export class MapRoleActivitiesComponent implements OnInit, OnDestroy {
 
   constructor(
-    private snackbar: CustomSnackbarService,
-    private fracApiService: FracApiService,
-    private dialog: MatDialog,
-    private router: Router,
+    private readonly snackbar: CustomSnackbarService,
+    private readonly fracApiService: FracApiService,
+    private readonly dialog: MatDialog,
+    private readonly router: Router,
   ) { }
 
   // language
@@ -107,9 +108,9 @@ export class MapRoleActivitiesComponent implements OnInit, OnDestroy {
   activitySearchTerm = ''
   searchResetKey = 0
 
-  private roleSearch$ = new Subject<string>()
-  private activitySearch$ = new Subject<string>()
-  private destroy$ = new Subject<void>()
+  private readonly roleSearch$ = new Subject<string>()
+  private readonly activitySearch$ = new Subject<string>()
+  private readonly destroy$ = new Subject<void>()
   private readonly roleMappingCache = new Map<string, RoleActivityDetail[]>()
   private readonly roleDraftStore = new Map<string, RoleActivityDetail[]>()
   private readonly clearedRoleDraftKeys = new Set<string>()
@@ -719,13 +720,12 @@ export class MapRoleActivitiesComponent implements OnInit, OnDestroy {
         }
         this.showResultModal(successData)
       },
-      error: async (err) => {
+      error: (err) => {
         this.isSaving = false
-        const failureData = await this.buildMappingFailureModalData(
+        this.buildMappingFailureModalData(
           err,
           'Failed to save role to activity mapping.',
-        )
-        this.showResultModal(failureData)
+        ).then(failureData => this.showResultModal(failureData))
       },
     })
   }

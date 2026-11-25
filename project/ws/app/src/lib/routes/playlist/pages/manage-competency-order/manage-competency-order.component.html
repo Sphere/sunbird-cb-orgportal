@@ -40,6 +40,7 @@
                 <div class="search-wrapper">
                     <mat-icon class="search-icon">search</mat-icon>
                     <input type="text" class="search-input" placeholder="Search by name, code" [value]="searchTerm()"
+                        id="manageCompetencyOrderSearch" aria-label="Search by name, code"
                         (input)="searchTerm.set($any($event.target).value); onSearch()">
                 </div>
             </div>
@@ -49,28 +50,32 @@
                 [cdkDropListDisabled]="isViewOnly">
                 <div *ngFor="let competency of filteredCompetencies()" cdkDrag class="competency-item"
                     [class.selected]="selectedCompetency() === competency"
-                    [class.complete]="isCompetencyComplete(competency)" (click)="onSelectCompetency(competency)">
+                    [class.complete]="isCompetencyComplete(competency)">
+                    <button type="button" style="all: unset; display: contents; cursor: pointer;"
+                        [attr.aria-pressed]="selectedCompetency() === competency"
+                        (click)="onSelectCompetency(competency)">
 
-                    <!-- Drag Handle -->
-                    <div class="drag-handle" cdkDragHandle>
-                        <img src="https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/icons/Vector-drag.svg"
-                            alt="drag" class="drag-icon">
-                    </div>
-
-                    <!-- Order Number and Competency Info -->
-                    <div class="competency-content">
-                        <div class="order-number">{{ competency.displayOrder }}</div>
-                        <div class="competency-info">
-                            <div class="competency-name">{{ competency.name }}</div>
-                            <div *ngIf="isCompetencyComplete(competency)" class="competency-code">Courses Assigned</div>
+                        <!-- Drag Handle -->
+                        <div class="drag-handle" cdkDragHandle>
+                            <img src="https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/icons/Vector-drag.svg"
+                                alt="drag" class="drag-icon">
                         </div>
-                    </div>
 
-                    <!-- Completed Badge -->
-                    <div *ngIf="isCompetencyComplete(competency)" class="complete-badge">
-                        <img src="https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/icons/success_checked_green.svg"
-                            alt="completed" class="check-icon">
-                    </div>
+                        <!-- Order Number and Competency Info -->
+                        <div class="competency-content">
+                            <div class="order-number">{{ competency.displayOrder }}</div>
+                            <div class="competency-info">
+                                <div class="competency-name">{{ competency.name }}</div>
+                                <div *ngIf="isCompetencyComplete(competency)" class="competency-code">Courses Assigned</div>
+                            </div>
+                        </div>
+
+                        <!-- Completed Badge -->
+                        <div *ngIf="isCompetencyComplete(competency)" class="complete-badge">
+                            <img src="https://aastar-assets.s3.ap-south-1.amazonaws.com/mdo-frac/icons/success_checked_green.svg"
+                                alt="completed" class="check-icon">
+                        </div>
+                    </button>
 
                     <!-- Drag Placeholder -->
                     <div class="placeholder" *cdkDragPlaceholder></div>

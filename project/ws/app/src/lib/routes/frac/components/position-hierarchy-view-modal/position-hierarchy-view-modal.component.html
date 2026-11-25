@@ -45,22 +45,23 @@
   <div class="phv-tree" *ngIf="hasMapping">
     <!-- Role Row -->
     <div class="phv-role-block" *ngFor="let role of roles">
-      <div class="phv-role-row" (click)="toggleRole(role.code)"
-        [class.phv-role-row--expanded]="isRoleExpanded(role.code)">
-        <div class="phv-row-left">
-          <span class="phv-type-badge phv-badge-role">Role</span>
-          <span class="phv-code-label">{{ role.code }}</span>
-          <span class="phv-row-name">{{ role.name }}</span>
-        </div>
-        <div class="phv-row-right">
-          <span class="phv-activity-count" *ngIf="getActivities(role).length">
-            {{ getActivities(role).length }}
-            {{ getActivities(role).length === 1 ? 'activity' : 'activities' }}
-          </span>
-          <mat-icon class="phv-chevron">
-            {{ isRoleExpanded(role.code) ? 'expand_less' : 'expand_more' }}
-          </mat-icon>
-        </div>
+      <div class="phv-role-row" [class.phv-role-row--expanded]="isRoleExpanded(role.code)">
+        <button type="button" style="all: unset; display: contents; cursor: pointer;" (click)="toggleRole(role.code)">
+          <div class="phv-row-left">
+            <span class="phv-type-badge phv-badge-role">Role</span>
+            <span class="phv-code-label">{{ role.code }}</span>
+            <span class="phv-row-name">{{ role.name }}</span>
+          </div>
+          <div class="phv-row-right">
+            <span class="phv-activity-count" *ngIf="getActivities(role).length">
+              {{ getActivities(role).length }}
+              {{ getActivities(role).length === 1 ? 'activity' : 'activities' }}
+            </span>
+            <mat-icon class="phv-chevron">
+              {{ isRoleExpanded(role.code) ? 'expand_less' : 'expand_more' }}
+            </mat-icon>
+          </div>
+        </button>
       </div>
 
       <!-- Activities under Role -->
@@ -74,22 +75,23 @@
 
         <!-- Activity Row -->
         <div class="phv-activity-block" *ngFor="let activity of getActivities(role)">
-          <div class="phv-activity-row" (click)="toggleActivity(role.code, activity.code)"
-            [class.phv-activity-row--expanded]="isActivityExpanded(role.code, activity.code)">
-            <div class="phv-row-left">
-              <span class="phv-type-badge phv-badge-activity">Activity</span>
-              <span class="phv-code-label">{{ activity.code }}</span>
-              <span class="phv-row-name">{{ activity.name }}</span>
-            </div>
-            <div class="phv-row-right">
-              <span class="phv-competency-count" *ngIf="activity.competencies.length">
-                {{ activity.competencies.length }}
-                {{ activity.competencies.length === 1 ? 'competency' : 'competencies' }}
-              </span>
-              <mat-icon class="phv-chevron">
-                {{ isActivityExpanded(role.code, activity.code) ? 'expand_less' : 'expand_more' }}
-              </mat-icon>
-            </div>
+          <div class="phv-activity-row" [class.phv-activity-row--expanded]="isActivityExpanded(role.code, activity.code)">
+            <button type="button" style="all: unset; display: contents; cursor: pointer;" (click)="toggleActivity(role.code, activity.code)">
+              <div class="phv-row-left">
+                <span class="phv-type-badge phv-badge-activity">Activity</span>
+                <span class="phv-code-label">{{ activity.code }}</span>
+                <span class="phv-row-name">{{ activity.name }}</span>
+              </div>
+              <div class="phv-row-right">
+                <span class="phv-competency-count" *ngIf="activity.competencies.length">
+                  {{ activity.competencies.length }}
+                  {{ activity.competencies.length === 1 ? 'competency' : 'competencies' }}
+                </span>
+                <mat-icon class="phv-chevron">
+                  {{ isActivityExpanded(role.code, activity.code) ? 'expand_less' : 'expand_more' }}
+                </mat-icon>
+              </div>
+            </button>
           </div>
 
           <!-- Competencies under Activity -->

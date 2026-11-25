@@ -28,7 +28,7 @@
             <div class="search-wrapper">
                 <mat-icon class="search-icon">search</mat-icon>
                 <input type="text" class="search-input" placeholder="Search by name, source"
-                    [value]="searchTerm()"
+                    [value]="searchTerm()" id="manageCourseOrderSearch" aria-label="Search by name, source"
                     (input)="searchTerm.set($any($event.target).value); onSearch()">
             </div>
         </div>

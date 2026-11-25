@@ -25,8 +25,8 @@ type DashboardCard = {
 })
 export class FracDashboardComponent {
   constructor(
-    private router: Router,
-    private configSvc: ConfigurationsService,
+    private readonly router: Router,
+    private readonly configSvc: ConfigurationsService,
   ) { }
 
   private readonly fracClientConfig = resolveFracClientConfig(this.configSvc?.instanceConfig)

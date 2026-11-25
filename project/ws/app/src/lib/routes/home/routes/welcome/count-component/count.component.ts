@@ -7,6 +7,7 @@ import { IPrintCount } from './count.model'
 /* tslint:enable */
 
 @Component({
+  standalone: false,
   selector: 'ws-app-count',
   templateUrl: './count.component.html',
   styleUrls: ['./count.component.scss'],

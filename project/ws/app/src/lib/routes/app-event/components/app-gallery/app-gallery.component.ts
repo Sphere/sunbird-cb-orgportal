@@ -4,6 +4,7 @@ import { ValueService } from '@sunbird-cb/utils'
 import { Subscription } from 'rxjs'
 
 @Component({
+  standalone: false,
   selector: 'ws-app-app-gallery',
   templateUrl: './app-gallery.component.html',
   styleUrls: ['./app-gallery.component.scss'],
@@ -27,8 +28,8 @@ export class AppGalleryComponent implements OnInit, OnDestroy {
   isOpened = false
   currentIndex = 0
   constructor(
-    private activatedRoute: ActivatedRoute,
-    private valSvc: ValueService,
+    private readonly activatedRoute: ActivatedRoute,
+    private readonly valSvc: ValueService,
   ) { }
   ngOnInit() {
     this.screenSubscription = this.valSvc.isLtMedium$.subscribe(isLtSMed => {
